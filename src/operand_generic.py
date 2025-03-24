@@ -1898,9 +1898,7 @@ class Defaults(Generic):
                                         self._controller << operand
             case ou.Channel():          self._channel = operand._unit
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():
-                if isinstance(operand._data, str):
-                    self._devices.append(operand._data)
+            case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
             case tuple():
                 for single_operand in operand:
                     self << single_operand

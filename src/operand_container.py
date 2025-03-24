@@ -687,7 +687,7 @@ class Devices(Container):
             case od.Device():
                 if isinstance(operand._data, str):
                     self._insert([ operand._data ]) # Places at the beginning
-                
+                return self
         return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:

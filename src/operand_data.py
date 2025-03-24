@@ -620,8 +620,8 @@ class Import(Playlist):
 
 
 class Device(Data):
-    def __init__(self, device_list: list[str] = None):
-        super().__init__( device_list if isinstance(device_list, list) else [] )
+    def __init__(self, device: str = None):
+        super().__init__( device if isinstance(device, str) else "Synth" )
 
 class DataMany(Data):
     def __init__(self, *parameters):
