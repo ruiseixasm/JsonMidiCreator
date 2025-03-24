@@ -549,6 +549,11 @@ class Group(Element):
                         super().__lshift__(operand)
             case list():
                 self._elements = self.deep_copy( operand )
+            case dict():
+                for key, value in operand.items():
+                    if isinstance(key, int):
+                        if 0 < key <= len(self._elements):
+                            self._elements[key - 1] << value
             case _:
                 super().__lshift__(operand)
         return self
