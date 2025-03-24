@@ -779,116 +779,21 @@ class Controller(Generic):
             case Controller():
                 super().__lshift__(operand)
                 self._number    = operand._number
+                self._lsb       = operand._lsb
                 self._value     = operand._value
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():    self._number = operand._data._unit
-                    case ou.Value():     self._value = operand._data._unit
+                    case ou.Number():       self._number = operand._data._unit
+                    case ou.LSB():          self._lsb = operand._data._unit
+                    case ou.Value():        self._value = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():
                 self._number = operand._unit
             case str():
                 self._number = ou.Number(self._number, operand)._unit
-            case ou.Value():
-                self._value = operand._unit
-            case int():
-                self._value = operand
-            case float():
-                self._value = int(operand)
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-        return self
-
-    def __add__(self, operand: any) -> 'Controller':
-        self_copy: Controller = self.copy()
-        return self_copy.__iadd__(operand)
-
-    def __iadd__(self, operand) -> 'Controller':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case o.Operand():
-                self._value += operand % int()
-            case int():
-                self._value += operand
-            case float() | Fraction():
-                self._value += int(operand)
-        return self
-    
-    def __sub__(self, operand: any) -> 'Controller':
-        self_copy: Controller = self.copy()
-        return self_copy.__isub__(operand)
-
-    def __isub__(self, operand) -> 'Controller':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case o.Operand():
-                self._value -= operand % int()
-            case int():
-                self._value -= operand
-            case float() | Fraction():
-                self._value -= int(operand)
-        return self
-
-class ControllerLSB(Controller):
-    def __init__(self, *parameters):
-        self._lsb: int       = 0
-        super().__init__(*parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case self.__class__():
-                return self.copy()
-            case od.DataSource():
-                match operand._data:
-                    case ou.LSB():              return operand._data << od.DataSource(self._lsb)
-                    case _:                     return super().__mod__(operand)
-            case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
-            case _:                     return super().__mod__(operand)
-
-    def __eq__(self, other: 'Controller') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if self._lsb == other._lsb and self % ou.Value() == other % ou.Value():
-            return True
-        if isinstance(other, od.Conditional):
-            return other == self
-        return False
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["lsb"] = self.serialize( self._lsb )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Controller':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "lsb" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
-        return self
-        
-    def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Controller():
-                super().__lshift__(operand)
-                self._lsb    = operand._lsb
-                self._value     = operand._value
-            case od.DataSource():
-                match operand._data:
-                    case ou.Number():    self._lsb = operand._data._unit
-                    case ou.Value():     self._value = operand._data._unit
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case ou.Number():
+            case ou.LSB():
                 self._lsb = operand._unit
-            case str():
-                self._lsb = ou.Number(self._lsb, operand)._unit
             case ou.Value():
                 self._value = operand._unit
             case int():
@@ -899,10 +804,6 @@ class ControllerLSB(Controller):
                 for single_operand in operand:
                     self << single_operand
         return self
-
-    def __add__(self, operand: any) -> 'Controller':
-        self_copy: Controller = self.copy()
-        return self_copy.__iadd__(operand)
 
     def __iadd__(self, operand) -> 'Controller':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -915,10 +816,6 @@ class ControllerLSB(Controller):
                 self._value += int(operand)
         return self
     
-    def __sub__(self, operand: any) -> 'Controller':
-        self_copy: Controller = self.copy()
-        return self_copy.__isub__(operand)
-
     def __isub__(self, operand) -> 'Controller':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
