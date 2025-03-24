@@ -1868,8 +1868,8 @@ class ControlChange(Automation):
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case ou.Number():           return self._controller % ou.Number()
-            case ou.Value():            return self._controller % ou.Value()
+            case ou.Number():           return self._controller % operand
+            case ou.Value():            return self._controller % operand
             case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 

@@ -2234,7 +2234,8 @@ class Value(Midi):
     Parameters
     ----------
     first : integer_like
-        The Value shall be set from 0 to 127 accordingly to the range of CC Midi values
+        The Value shall be set from 0 to 127 or 0 to 16,383
+        accordingly to the range of CC Midi values for 7 and 14 bits respectively
     """
     pass
 
@@ -2336,3 +2337,11 @@ class Number(Midi):
             if controller["midi_number"] == number:
                 return controller["names"][0]
         return "Unknown controller!"
+
+class MSB(Number):
+    pass
+
+
+class LSB(Midi):
+    pass
+

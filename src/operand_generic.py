@@ -730,13 +730,13 @@ class Controller(Generic):
                 return self.copy()
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():           return ou.Number() << od.DataSource(self._number)
-                    case ou.Value():            return ou.Value() << od.DataSource(self._value)
+                    case ou.Number():           return operand._data << od.DataSource(self._number)
+                    case ou.Value():            return operand._data << od.DataSource(self._value)
                     case Controller():          return self
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
-            case ou.Number():           return ou.Number() << od.DataSource(self._number)
-            case ou.Value():            return ou.Value() << od.DataSource(self._value)
+            case ou.Number():           return operand.copy() << od.DataSource(self._number)
+            case ou.Value():            return operand.copy() << od.DataSource(self._value)
             case int():                 return self._value
             case float():               return float(self._value)
             case Controller():          return self.copy()
