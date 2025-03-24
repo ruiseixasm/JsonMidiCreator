@@ -1893,37 +1893,44 @@ class ControlChange(Automation):
             return []
 
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        time_ms: float = self.get_time_ms(self_position_ms)
 
         # Midi validation is done in the JsonMidiPlayer program
+        self_playlist: list[dict] = []
+        
+        if self._controller._nrpn:
 
-        time_ms: float = self.get_time_ms(self_position_ms)
-        msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+            ...
 
-        self_playlist: list[dict] = [
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": self._controller._number,
-                        "data_byte_2": msb_value,
-                        "device": self._devices
+        else:
+
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+
+            self_playlist = [
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": self._controller._number,
+                            "data_byte_2": msb_value,
+                            "device": self._devices
+                        }
                     }
-                }
-            ]
+                ]
 
-        if lsb_value >= 0:
-            self_playlist.append(
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": self._controller._lsb,
-                        "data_byte_2": lsb_value,
-                        "device": self._devices
+            if lsb_value >= 0:
+                self_playlist.append(
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": self._controller._lsb,
+                            "data_byte_2": lsb_value,
+                            "device": self._devices
+                        }
                     }
-                }
-            )
-    
+                )
+        
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
@@ -1934,14 +1941,20 @@ class ControlChange(Automation):
 
         # Validation is done by midiutil Midi Range Validation
 
-        msb_value, lsb_value = self._controller._midi_msb_lsb_values()
-        self_midilist[0]["number"]      = self._controller._number
-        self_midilist[0]["value"]       = msb_value
+        if self._controller._nrpn:
 
-        if lsb_value >= 0:
-            self_midilist[1] = self_midilist[0].copy()
-            self_midilist[1]["number"]      = self._controller._lsb
-            self_midilist[1]["value"]       = lsb_value
+            ...
+
+        else:
+
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+            self_midilist[0]["number"]      = self._controller._number
+            self_midilist[0]["value"]       = msb_value
+
+            if lsb_value >= 0:
+                self_midilist[1] = self_midilist[0].copy()
+                self_midilist[1]["number"]      = self._controller._lsb
+                self_midilist[1]["value"]       = lsb_value
 
         return self_midilist
 
