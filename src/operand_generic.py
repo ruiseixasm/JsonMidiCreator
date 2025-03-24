@@ -30,6 +30,7 @@ import operand_data as od
 import operand_frame as of
 import operand_label as ol
 import operand_chaos as ch
+import operand_container as oc
 
 
 class Generic(o.Operand):
@@ -1779,7 +1780,7 @@ class Defaults(Generic):
         self._velocity: int                         = 100
         self._controller: Controller                = Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: int                          = 1
-        self._device: list                          = list(["Microsoft", "FLUID", "Apple"])
+        self._devices: list                         = list(["Microsoft", "FLUID", "Apple"])
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1800,7 +1801,7 @@ class Defaults(Generic):
                     case ou.Velocity():         return ou.Velocity(self._velocity)
                     case Controller():          return self._controller
                     case ou.Channel():          return ou.Channel(self._channel)
-                    case od.Device():           return od.Device(self._device)
+                    case oc.Devices():          return oc.Devices(self._devices)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Staff():               return self._staff.copy()
@@ -1815,7 +1816,7 @@ class Defaults(Generic):
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return ou.Channel(self._channel)
-            case od.Device():           return od.Device(self._device)
+            case oc.Devices():          return oc.Devices(self._devices)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
@@ -1832,7 +1833,7 @@ class Defaults(Generic):
             and self._velocity          == other._velocity \
             and self._controller        == other._controller \
             and self._channel           == other._channel \
-            and self._device            == other._device
+            and self._devices           == other._devices
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1842,7 +1843,7 @@ class Defaults(Generic):
         serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
         serialization["parameters"]["controller"]       = self.serialize( self._controller )
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
-        serialization["parameters"]["device"]           = self.serialize( self._device )
+        serialization["parameters"]["devices"]          = self.serialize( self._devices )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1851,7 +1852,7 @@ class Defaults(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
@@ -1860,7 +1861,7 @@ class Defaults(Generic):
             self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
             self._controller        = self.deserialize( serialization["parameters"]["controller"] )
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
-            self._device            = self.deserialize( serialization["parameters"]["device"] )
+            self._devices           = self.deserialize( serialization["parameters"]["devices"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1874,7 +1875,7 @@ class Defaults(Generic):
                 self._velocity          = operand._velocity
                 self._controller        << operand._controller
                 self._channel           = operand._channel
-                self._device            = operand._device.copy()
+                self._devices           = operand._devices.copy()
             case od.DataSource():
                 match operand._data:
                     case Staff():               self._staff = operand._data
@@ -1883,7 +1884,7 @@ class Defaults(Generic):
                     case ou.Velocity():         self._velocity = operand._data._unit
                     case Controller():          self._controller = operand._data
                     case ou.Channel():          self._channel = operand._data._unit
-                    case od.Device():           self._device = operand._data._data
+                    case oc.Devices():          self._devices = operand._data // list()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
@@ -1896,7 +1897,10 @@ class Defaults(Generic):
             case Controller() | ou.Number() | ou.Value():
                                         self._controller << operand
             case ou.Channel():          self._channel = operand._unit
-            case od.Device():           self._device = operand._data.copy()
+            case oc.Devices():          self._devices = operand % list()
+            case od.Device():
+                if isinstance(operand._data, str):
+                    self._devices.append(operand._data)
             case tuple():
                 for single_operand in operand:
                     self << single_operand

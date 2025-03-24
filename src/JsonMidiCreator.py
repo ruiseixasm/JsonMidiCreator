@@ -38,11 +38,11 @@ from operand_variables import *
 import platform
 current_os = platform.system()
 if current_os == "Windows":
-    defaults << Device(["loopMIDI", "Microsoft"])   # Microsoft GS Wavetable Synth
+    defaults << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    defaults << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
+    defaults << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    defaults << Device(["VMPK", "FLUID"])           # FLUID Synth
+    defaults << Devices(["VMPK", "FLUID"])          # FLUID Synth
 
 
 # Set group of constants

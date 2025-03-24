@@ -46,7 +46,7 @@ class Element(o.Operand):
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_notevalue: Fraction  = og.defaults._duration
         self._channel: int                  = og.defaults._channel
-        self._device: list[str]             = og.defaults._device.copy()
+        self._devices: list[str]            = og.defaults._devices.copy()
         self._enabled: bool                 = True
 
         self._staff_reference: og.Staff     = og.defaults._staff
@@ -81,7 +81,7 @@ class Element(o.Operand):
         return self
 
     def device(self, device: list[str] = None) -> Self:
-        self._device = device
+        self._devices = device
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -108,7 +108,7 @@ class Element(o.Operand):
                     case ra.Length():
                         return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
-                    case od.Device():       return od.Device() << od.DataSource( self._device )
+                    case oc.Devices():      return oc.Devices(self._devices)
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
@@ -127,7 +127,7 @@ class Element(o.Operand):
             case ra.TimeValue() | ou.TimeUnit():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
-            case od.Device():       return od.Device() << od.DataSource( self._device )
+            case oc.Devices():      return oc.Devices(self._devices)
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
@@ -155,7 +155,7 @@ class Element(o.Operand):
 
     def eq_midi(self, other: 'Element') -> bool:
         return  self._channel       == other._channel \
-            and self._device        == other._device
+            and self._devices        == other._devices
 
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -254,7 +254,7 @@ class Element(o.Operand):
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]     = self.serialize(self._duration_notevalue)
         serialization["parameters"]["channel"]      = self.serialize(self._channel)
-        serialization["parameters"]["device"]       = self.serialize(self._device)
+        serialization["parameters"]["devices"]      = self.serialize(self._devices)
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         return serialization
 
@@ -263,19 +263,20 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
+            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
             self._duration_notevalue    = self.deserialize(serialization["parameters"]["duration"])
             self._channel               = self.deserialize(serialization["parameters"]["channel"])
-            self._device                = self.deserialize(serialization["parameters"]["device"])
+            self._devices               = self.deserialize(serialization["parameters"]["devices"])
             self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
 
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -284,7 +285,7 @@ class Element(o.Operand):
                 self._position_beats        = operand._position_beats
                 self._duration_notevalue    = operand._duration_notevalue
                 self._channel               = operand._channel
-                self._device                = operand._device   # It's a list of strings, but it won't be changed directly
+                self._devices               = operand._devices.copy()
                 self._enabled               = operand._enabled
                 self._staff_reference       = operand._staff_reference
 
@@ -292,8 +293,8 @@ class Element(o.Operand):
                 match operand._data:
                     case ra.Position():     self._position_beats  = operand._data
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
-                    case ou.Channel():      self._channel   = operand._data._unit
-                    case od.Device():       self._device    = operand._data._data
+                    case ou.Channel():      self._channel = operand._data._unit
+                    case oc.Devices():      self._devices = operand // list()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
@@ -313,8 +314,8 @@ class Element(o.Operand):
                 self._position_beats        = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
             case ou.Channel():
                 self._channel               = operand._unit
-            case od.Device():
-                self._device                = operand._data
+            case oc.Devices():
+                self._devices               = operand % list()
             case ou.Enable():
                 self._enabled               = operand._unit != 0
             case ou.Disable():
@@ -623,7 +624,7 @@ class Clock(Element):
                         "time_ms": self.get_time_ms(self_position_ms),
                         "midi_message": {
                             "status_byte": 0xFA,    # Start Track
-                            "device": self._device
+                            "device": self._devices
                         }
                     }
                 ]
@@ -635,7 +636,7 @@ class Clock(Element):
                         "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                         "midi_message": {
                             "status_byte": 0xF8,    # Timing Clock
-                            "device": self._device
+                            "device": self._devices
                         }
                     }
                 )
@@ -646,7 +647,7 @@ class Clock(Element):
                     "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                     "midi_message": {
                         "status_byte": 0xFC,    # Stop Track
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             )
@@ -701,14 +702,14 @@ class Rest(Element):
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0x00 | 0x0F & self._channel - 1,
-                        "device": self._device
+                        "device": self._devices
                     }
                 },
                 {
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms),
                     "midi_message": {
                         "status_byte": 0x00 | 0x0F & self._channel - 1,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -821,7 +822,7 @@ class Note(Element):
                         "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._velocity,
-                        "device": self._device
+                        "device": self._devices
                     }
                 },
                 {
@@ -830,7 +831,7 @@ class Note(Element):
                         "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": 0,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -1905,7 +1906,7 @@ class ControlChange(Automation):
                         "status_byte": 0xB0 | 0x0F & self._channel - 1,
                         "data_byte_1": self._controller._number,
                         "data_byte_2": msb_value,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -1918,7 +1919,7 @@ class ControlChange(Automation):
                         "status_byte": 0xB0 | 0x0F & self._channel - 1,
                         "data_byte_1": self._controller._lsb,
                         "data_byte_2": lsb_value,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             )
@@ -2053,7 +2054,7 @@ class PitchBend(Automation):
                         "status_byte": 0xE0 | 0x0F & self._channel - 1,
                         "data_byte_1": lsb_midi,
                         "data_byte_2": msb_midi,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -2154,7 +2155,7 @@ class Aftertouch(Automation):
                     "midi_message": {
                         "status_byte": 0xD0 | 0x0F & self._channel - 1,
                         "data_byte": self._pressure,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -2271,7 +2272,7 @@ class PolyAftertouch(Aftertouch):
                         "status_byte": 0xA0 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._pressure,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -2376,7 +2377,7 @@ class ProgramChange(Automation):
                     "midi_message": {
                         "status_byte": 0xC0 | 0x0F & self._channel - 1,
                         "data_byte": self._program - 1,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             ]
@@ -2447,7 +2448,7 @@ class Panic(Element):
                         "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,   # 0 means it will result in no sound
-                        "device": self._device
+                        "device": self._devices
                     }
                 },
                 {
@@ -2456,7 +2457,7 @@ class Panic(Element):
                         "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
-                        "device": self._device
+                        "device": self._devices
                     }
                 }
             )

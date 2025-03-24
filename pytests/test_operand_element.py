@@ -33,14 +33,14 @@ import sys
 def test_element_mod():
 
     element = Element()
-    element_device = element % Device()
+    element_devices = element % Devices()
 
     # Redirect stdout to capture the print output
     captured_output = StringIO()
     sys.stdout = captured_output
 
     # Perform the operation
-    element_device % list() >> Print()
+    element_devices % list() >> Print()
 
     # Restore stdout
     sys.stdout = sys.__stdout__
