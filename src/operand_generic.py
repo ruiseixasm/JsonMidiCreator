@@ -713,9 +713,14 @@ class Controller(Generic):
         self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
-    def _return_bytes(self) -> tuple[int]:
+    def _midi_msb_lsb_values(self) -> tuple[int]:
+        if self._lsb < 0:
+            return self._value, -1
+            
+        msb_value: int = (self._value >> 7) & 127
+        lsb_value: int = self._value & 127
 
-        return 0, 0
+        return msb_value, lsb_value # msb and lsb value bytes
 
 
     def __mod__(self, operand: o.T) -> o.T:
