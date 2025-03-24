@@ -2269,14 +2269,14 @@ class Number(Midi):
             case _:                 super().__lshift__(operand)
         return self
 
-    _controllers = [
+    _controllers: list[dict[str, int | list[str]]] = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },
         {   "midi_number": 1,   "default_value": 0,     "names": ["Modulation Wheel", "Modulation"]    },
         {   "midi_number": 2,   "default_value": 0,     "names": ["Breath Controller"]    },
         
         {   "midi_number": 4,   "default_value": 0,     "names": ["Foot Controller", "Foot Pedal"]    },
         {   "midi_number": 5,   "default_value": 0,     "names": ["Portamento Time"]    },
-        {   "midi_number": 6,   "default_value": 0,     "names": ["Data Entry MSB", "Data", "Value"]    },
+        {   "midi_number": 6,   "default_value": 0,     "names": ["Data Entry MSB", "Data", "Value", "Data MSB", "Value MSB"]    },
         {   "midi_number": 7,   "default_value": 100,   "names": ["Main Volume"]    },
         {   "midi_number": 8,   "default_value": 64,    "names": ["Balance"]    },
         
@@ -2285,6 +2285,8 @@ class Number(Midi):
         {   "midi_number": 12,  "default_value": 0,     "names": ["Effect Control 1"]    },
         {   "midi_number": 13,  "default_value": 0,     "names": ["Effect Control 2"]    },
         
+        {   "midi_number": 38,  "default_value": 0,     "names": ["Data Entry LSB", "Data LSB", "Value LSB"]    },
+
         {   "midi_number": 64,  "default_value": 0,     "names": ["Sustain", "Damper Pedal"]    },
         {   "midi_number": 65,  "default_value": 0,     "names": ["Portamento"]    },
         {   "midi_number": 66,  "default_value": 0,     "names": ["Sostenuto"]    },
