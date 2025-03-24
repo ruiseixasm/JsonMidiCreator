@@ -1882,7 +1882,7 @@ class ControlChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
         if not self._enabled:
             return []
 
@@ -1893,20 +1893,7 @@ class ControlChange(Automation):
         time_ms: float = self.get_time_ms(self_position_ms)
         msb_value, lsb_value = self._controller._midi_msb_lsb_values()
 
-        if lsb_value < 0:
-            return [
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": self._controller._number,
-                            "data_byte_2": msb_value,
-                            "device": self._device
-                        }
-                    }
-                ]
-        
-        return [
+        self_playlist: list[dict] = [
                 {
                     "time_ms": time_ms,
                     "midi_message": {
@@ -1915,7 +1902,11 @@ class ControlChange(Automation):
                         "data_byte_2": msb_value,
                         "device": self._device
                     }
-                },
+                }
+            ]
+
+        if lsb_value >= 0:
+            self_playlist.append(
                 {
                     "time_ms": time_ms,
                     "midi_message": {
@@ -1925,7 +1916,9 @@ class ControlChange(Automation):
                         "device": self._device
                     }
                 }
-            ]
+            )
+    
+        return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
         if not self._enabled:
