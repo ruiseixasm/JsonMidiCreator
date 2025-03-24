@@ -724,6 +724,15 @@ class Controller(Generic):
 
         return msb_value, lsb_value # msb and lsb value bytes
 
+    def _midi_nrpn_values(self) -> tuple[int]:
+        if self._lsb < 0:
+            return self._value, -1
+            
+        msb_value: int = (self._value >> 7) & 127
+        lsb_value: int = self._value & 127
+
+        return msb_value, lsb_value # msb and lsb value bytes
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -746,11 +755,13 @@ class Controller(Generic):
                     case ou.Number():           return operand._data << od.DataSource(self._number)
                     case ou.LSB():              return operand._data << od.DataSource(self._lsb)
                     case ou.Value():            return operand._data << od.DataSource(self._value)
+                    case ou.NRPN():             return operand._data << od.DataSource(self._nrpn)
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << od.DataSource(self._number)
             case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
             case ou.Value():            return operand.copy() << od.DataSource(self._value)
+            case ou.NRPN():             return operand.copy() << od.DataSource(self._nrpn)
             case int():                 return self._value
             case float():               return float(self._value)
             case dict():
@@ -758,7 +769,8 @@ class Controller(Generic):
                     "NUMBER": self._number,
                     "MSB": self._number,
                     "LSB": self._lsb,
-                    "VALUE": self._value
+                    "VALUE": self._value,
+                    "NRPN": self._nrpn
                 }
                 return controller_dict
             case of.Frame():            return self % operand
@@ -769,7 +781,8 @@ class Controller(Generic):
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Controller):
-            return self._number == other._number and self._lsb == other._lsb and self._value == other._value
+            return self._number == other._number and self._lsb == other._lsb \
+                and self._value == other._value and self._nrpn == other._nrpn
         if isinstance(other, od.Conditional):
             return other == self
         return self % other == other
@@ -779,18 +792,21 @@ class Controller(Generic):
         serialization["parameters"]["number"]   = self.serialize( self._number )
         serialization["parameters"]["lsb"]      = self.serialize( self._lsb )
         serialization["parameters"]["value"]    = self.serialize( self._value )
+        serialization["parameters"]["nrpn"]     = self.serialize( self._nrpn )
         return serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Controller':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "number" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"]):
+            "number" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"] and
+            "nrpn" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._number    = self.deserialize( serialization["parameters"]["number"] )
             self._lsb       = self.deserialize( serialization["parameters"]["lsb"] )
             self._value     = self.deserialize( serialization["parameters"]["value"] )
+            self._nrpn      = self.deserialize( serialization["parameters"]["nrpn"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -801,6 +817,7 @@ class Controller(Generic):
                 self._number    = operand._number
                 self._lsb       = operand._lsb
                 self._value     = operand._value
+                self._nrpn      = operand._nrpn
             case od.DataSource():
                 match operand._data:
                     case ou.Number():       self._number = operand._data._unit
@@ -808,7 +825,7 @@ class Controller(Generic):
                     case ou.Value():        self._value = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Number():
+            case ou.Number():   # Includes ou.MSB() as a subclass pf Number
                 self._number = operand._unit
             case str():
                 self._number = ou.Number(self._number, operand)._unit
@@ -829,12 +846,14 @@ class Controller(Generic):
                     self._lsb = operand["LSB"]
                 if "VALUE" in operand and isinstance(operand["VALUE"], int):
                     self._value = operand["VALUE"]
+                if "NRPN" in operand and isinstance(operand["NRPN"], (bool, int)):
+                    self._nrpn = bool(operand["NRPN"])
             case tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
 
-    def __iadd__(self, operand) -> 'Controller':
+    def __iadd__(self, operand) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case o.Operand():
@@ -845,7 +864,7 @@ class Controller(Generic):
                 self._value += int(operand)
         return self
     
-    def __isub__(self, operand) -> 'Controller':
+    def __isub__(self, operand) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case o.Operand():
