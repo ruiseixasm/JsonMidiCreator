@@ -810,6 +810,11 @@ class Controller(Generic):
                 self._value = operand
             case float():
                 self._value = int(operand)
+            case dict():
+                if "MSB" in operand and isinstance(operand["MSB"], int):
+                    self._number = operand["MSB"]
+                if "LSB" in operand and isinstance(operand["LSB"], int):
+                    self._lsb = operand["LSB"]
             case tuple():
                 for single_operand in operand:
                     self << single_operand

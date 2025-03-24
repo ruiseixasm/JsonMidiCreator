@@ -1964,7 +1964,7 @@ class ControlChange(Automation):
                 match operand._data:
                     case og.Controller():       self._controller = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Controller() | ou.Number() | ou.Value() | int() | float() | str():
+            case og.Controller() | ou.Number() | ou.Value() | int() | float() | str() | dict():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
