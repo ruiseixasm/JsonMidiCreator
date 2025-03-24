@@ -1659,6 +1659,9 @@ class Sus4(Boolean):        # Fourth instead of the third
 class NRPN(Boolean):
     pass
 
+class HighResolution(Boolean):
+    pass
+
 
 class Mode(Unit):
     """`Unit -> Mode`
