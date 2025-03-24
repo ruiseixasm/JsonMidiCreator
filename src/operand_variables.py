@@ -80,143 +80,143 @@ class Digitakt(Variables):
                 # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
                 "TRACK": {
                     "Mute": {
-                        "MSB": 94, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 94, "HIGH": False, "NRPN": False
                     },
                     "Level": {
-                        "MSB": 95, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 95, "HIGH": False, "NRPN": False
                     }
                 },
                 "TRIG": {
                     "Note": {
-                        "MSB": 3, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 3, "HIGH": False, "NRPN": False
                     },
                     "Velocity": {
-                        "MSB": 4, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 4, "HIGH": False, "NRPN": False
                     },
                     "Length": {
-                        "MSB": 5, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 5, "HIGH": False, "NRPN": False
                     },
                     "Filter": {
-                        "MSB": 13, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 13, "HIGH": False, "NRPN": False
                     },
                     "LFO": {
-                        "MSB": 14, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 14, "HIGH": False, "NRPN": False
                     }
                 },
                 "SOURCE": {
                     "Tune": {
-                        "MSB": 16, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 16, "HIGH": False, "NRPN": False
                     },
                     "Mode": {
-                        "MSB": 17, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 17, "HIGH": False, "NRPN": False
                     },
                     "Bit": {
-                        "MSB": 18, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 18, "HIGH": False, "NRPN": False
                     },
                     "Sample": {
-                        "MSB": 19, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 19, "HIGH": False, "NRPN": False
                     },
                     "Knob E": {
-                        "MSB": 20, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 20, "HIGH": False, "NRPN": False
                     },
                     "Knob F": {
-                        "MSB": 21, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 21, "HIGH": False, "NRPN": False
                     },
                     "Knob G": {
-                        "MSB": 22, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 22, "HIGH": False, "NRPN": False
                     },
                     "Level": {
-                        "MSB": 23, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 23, "HIGH": False, "NRPN": False
                     }
                 },
                 "FILTER": {
                     "Frequency": {
-                        "MSB": 74, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 74, "HIGH": False, "NRPN": False
                     },
                     "Resonance": {
-                        "MSB": 75, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 75, "HIGH": False, "NRPN": False
                     },
                     "Type": {
-                        "MSB": 76, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 76, "HIGH": False, "NRPN": False
                     },
                     "Attack": {
-                        "MSB": 70, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 70, "HIGH": False, "NRPN": False
                     },
                     "Decay": {
-                        "MSB": 71, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 71, "HIGH": False, "NRPN": False
                     },
                     "Sustain": {
-                        "MSB": 72, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 72, "HIGH": False, "NRPN": False
                     },
                     "Release": {
-                        "MSB": 73, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 73, "HIGH": False, "NRPN": False
                     },
                     "Depth": {
-                        "MSB": 77, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 77, "HIGH": False, "NRPN": False
                     },
                     "Delay": {
-                        "MSB": 86, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 86, "HIGH": False, "NRPN": False
                     },
                     "Rate": {
-                        "MSB": 87, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 87, "HIGH": False, "NRPN": False
                     },
                     "Base": {
-                        "MSB": 84, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 84, "HIGH": False, "NRPN": False
                     },
                     "Width": {
-                        "MSB": 85, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 85, "HIGH": False, "NRPN": False
                     },
                     "Routing": {
-                        "MSB": 88, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 88, "HIGH": False, "NRPN": False
                     }
                 },
                 "AMP": {
                     "Attack": {
-                        "MSB": 78, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 78, "HIGH": False, "NRPN": False
                     },
                     "Hold": {
-                        "MSB": 79, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 79, "HIGH": False, "NRPN": False
                     },
                     "Decay": {
-                        "MSB": 80, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 80, "HIGH": False, "NRPN": False
                     },
                     "Overdrive": {
-                        "MSB": 81, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 81, "HIGH": False, "NRPN": False
                     },
                     "Delay": {
-                        "MSB": 82, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 82, "HIGH": False, "NRPN": False
                     },
                     "Reverb": {
-                        "MSB": 83, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 83, "HIGH": False, "NRPN": False
                     },
                     "Pan": {
-                        "MSB": 10, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 10, "HIGH": False, "NRPN": False
                     },
                     "Volume": {
-                        "MSB": 7, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 7, "HIGH": False, "NRPN": False
                     }
                 },
                 "LFO 1": {
                     "Speed": {
-                        "MSB": 102, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 102, "HIGH": False, "NRPN": False
                     },
                     "Multiplier": {
-                        "MSB": 103, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 103, "HIGH": False, "NRPN": False
                     },
                     "Fade": {
-                        "MSB": 104, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 104, "HIGH": False, "NRPN": False
                     },
                     "Destination": {
-                        "MSB": 105, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 105, "HIGH": False, "NRPN": False
                     },
                     "Waveform": {
-                        "MSB": 106, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 106, "HIGH": False, "NRPN": False
                     },
                     "Phase": {
-                        "MSB": 107, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 107, "HIGH": False, "NRPN": False
                     },
                     "Mode": {
-                        "MSB": 108, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 108, "HIGH": False, "NRPN": False
                     },
                     "Depth": {
                         "MSB": 109, "LSB": 61   # Non blank, with LSB, 14 bits
@@ -224,25 +224,25 @@ class Digitakt(Variables):
                 },
                 "LFO 2": {
                     "Speed": {
-                        "MSB": 112, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 112, "HIGH": False, "NRPN": False
                     },
                     "Multiplier": {
-                        "MSB": 113, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 113, "HIGH": False, "NRPN": False
                     },
                     "Fade": {
-                        "MSB": 114, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 114, "HIGH": False, "NRPN": False
                     },
                     "Destination": {
-                        "MSB": 115, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 115, "HIGH": False, "NRPN": False
                     },
                     "Waveform": {
-                        "MSB": 116, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 116, "HIGH": False, "NRPN": False
                     },
                     "Phase": {
-                        "MSB": 117, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 117, "HIGH": False, "NRPN": False
                     },
                     "Mode": {
-                        "MSB": 118, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 118, "HIGH": False, "NRPN": False
                     },
                     "Depth": {
                         "MSB": 119, "LSB": 63   # Non blank, with LSB, 14 bits
@@ -250,157 +250,157 @@ class Digitakt(Variables):
                 },
                 "MIDI": {
                     "Val1": {
-                        "MSB": 70, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 70, "HIGH": False, "NRPN": False
                     },
                     "Val2": {
-                        "MSB": 71, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 71, "HIGH": False, "NRPN": False
                     },
                     "Val3": {
-                        "MSB": 72, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 72, "HIGH": False, "NRPN": False
                     },
                     "Val4": {
-                        "MSB": 73, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 73, "HIGH": False, "NRPN": False
                     },
                     "Val5": {
-                        "MSB": 74, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 74, "HIGH": False, "NRPN": False
                     },
                     "Val6": {
-                        "MSB": 75, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 75, "HIGH": False, "NRPN": False
                     },
                     "Val7": {
-                        "MSB": 76, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 76, "HIGH": False, "NRPN": False
                     },
                     "Val8": {
-                        "MSB": 77, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 77, "HIGH": False, "NRPN": False
                     }
                 },
 
                 # PER PATTERN PARAMETERS (CHANNEL 9)
                 "DELAY": {
                     "Time": {
-                        "MSB": 85, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 85, "HIGH": False, "NRPN": False
                     },
                     "Pingpong": {
-                        "MSB": 86, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 86, "HIGH": False, "NRPN": False
                     },
                     "Width": {
-                        "MSB": 87, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 87, "HIGH": False, "NRPN": False
                     },
                     "Feedback": {
-                        "MSB": 88, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 88, "HIGH": False, "NRPN": False
                     },
                     "Highpass": {
-                        "MSB": 89, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 89, "HIGH": False, "NRPN": False
                     },
                     "Lowpass": {
-                        "MSB": 90, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 90, "HIGH": False, "NRPN": False
                     },
                     "Reverb": {
-                        "MSB": 91, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 91, "HIGH": False, "NRPN": False
                     },
                     "Mix": {
-                        "MSB": 92, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 92, "HIGH": False, "NRPN": False
                     }
                 },
                 "REVERB": {
                     "Predelay": {
-                        "MSB": 24, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 24, "HIGH": False, "NRPN": False
                     },
                     "Decay": {
-                        "MSB": 25, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 25, "HIGH": False, "NRPN": False
                     },
                     "Frequency": {
-                        "MSB": 26, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 26, "HIGH": False, "NRPN": False
                     },
                     "Gain": {
-                        "MSB": 27, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 27, "HIGH": False, "NRPN": False
                     },
                     "Highpass": {
-                        "MSB": 28, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 28, "HIGH": False, "NRPN": False
                     },
                     "Lowpass": {
-                        "MSB": 29, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 29, "HIGH": False, "NRPN": False
                     },
                     "Reverb": {
-                        "MSB": 30, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 30, "HIGH": False, "NRPN": False
                     },
                     "Mix": {
-                        "MSB": 31, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 31, "HIGH": False, "NRPN": False
                     }
                 },
                 "COMPRESSOR": {
                     "Threshold": {
-                        "MSB": 111, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 111, "HIGH": False, "NRPN": False
                     },
                     "Attack": {
-                        "MSB": 112, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 112, "HIGH": False, "NRPN": False
                     },
                     "Release": {
-                        "MSB": 113, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 113, "HIGH": False, "NRPN": False
                     },
                     "Gain": {
-                        "MSB": 114, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 114, "HIGH": False, "NRPN": False
                     },
                     "Volume": {
-                        "MSB": 119, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 119, "HIGH": False, "NRPN": False
                     },
                     "Ratio": {
-                        "MSB": 115, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 115, "HIGH": False, "NRPN": False
                     },
                     "Source": {
-                        "MSB": 116, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 116, "HIGH": False, "NRPN": False
                     },
                     "Filter": {
-                        "MSB": 117, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 117, "HIGH": False, "NRPN": False
                     },
                     "Mix": {
-                        "MSB": 118, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 118, "HIGH": False, "NRPN": False
                     }
                 },
                 "MIXER": {
                     "Level L": {
-                        "MSB": 102, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 102, "HIGH": False, "NRPN": False
                     },
                     "Pan L": {
-                        "MSB": 103, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 103, "HIGH": False, "NRPN": False
                     },
                     "Level R": {
-                        "MSB": 104, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 104, "HIGH": False, "NRPN": False
                     },
                     "Pan R": {
-                        "MSB": 105, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 105, "HIGH": False, "NRPN": False
                     },
                     "Delay L": {
-                        "MSB": 106, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 106, "HIGH": False, "NRPN": False
                     },
                     "Delay R": {
-                        "MSB": 107, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 107, "HIGH": False, "NRPN": False
                     },
                     "Reverb L": {
-                        "MSB": 108, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 108, "HIGH": False, "NRPN": False
                     },
                     "Reverb R": {
-                        "MSB": 109, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 109, "HIGH": False, "NRPN": False
                     },
                     "Stereo": {
-                        "MSB": 84, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 84, "HIGH": False, "NRPN": False
                     },
                     "LR Level": {
-                        "MSB": 102, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 102, "HIGH": False, "NRPN": False
                     },
                     "LR Balance": {
-                        "MSB": 103, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 103, "HIGH": False, "NRPN": False
                     },
                     "LR Delay": {
-                        "MSB": 106, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 106, "HIGH": False, "NRPN": False
                     },
                     "LR Reverb": {
-                        "MSB": 108, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 108, "HIGH": False, "NRPN": False
                     }
                 },
                 "PATTERN": {
                     "Mute": {
-                        "MSB": 110, "LSB": -1   # Blank, no LSB, 7 bits
+                        "MSB": 110, "HIGH": False, "NRPN": False
                     }
                 }
             }
@@ -414,21 +414,21 @@ class Digitakt(Variables):
                 # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
                 "TRACK": {
                     "Mute": {
-                        "MSB": 1, "LSB": 101, "NRPN": True
+                        "MSB": 1, "LSB": 101, "HIGH": False, "NRPN": True
                     },
                     "Level": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 1, "LSB": 100, "HIGH": False, "NRPN": True
                     }
                 },
                 "TRIG": {
                     "Note": {
-                        "MSB": 3, "LSB": 0, "NRPN": True
+                        "MSB": 3, "LSB": 0, "HIGH": False, "NRPN": True
                     },
                     "Velocity": {
-                        "MSB": 3, "LSB": 1, "NRPN": True
+                        "MSB": 3, "LSB": 1, "HIGH": False, "NRPN": True
                     },
                     "Length": {
-                        "MSB": 3, "LSB": 2, "NRPN": True
+                        "MSB": 3, "LSB": 2, "HIGH": False, "NRPN": True
                     },
                     "Filter": {
                     },
@@ -437,302 +437,294 @@ class Digitakt(Variables):
                 },
                 "SOURCE": {
                     "Tune": {
-                        "MSB": 1, "LSB": 0, "NRPN": True
+                        "MSB": 1, "LSB": 0, "HIGH": False, "NRPN": True
                     },
                     "Mode": {
-                        "MSB": 1, "LSB": 1, "NRPN": True
+                        "MSB": 1, "LSB": 1, "HIGH": False, "NRPN": True
                     },
                     "Bit": {
-                        "MSB": 1, "LSB": 2, "NRPN": True
+                        "MSB": 1, "LSB": 2, "HIGH": False, "NRPN": True
                     },
                     "Sample": {
-                        "MSB": 1, "LSB": 3, "NRPN": True
+                        "MSB": 1, "LSB": 3, "HIGH": False, "NRPN": True
                     },
                     "Knob E": {
-                        "MSB": 1, "LSB": 4, "NRPN": True
+                        "MSB": 1, "LSB": 4, "HIGH": False, "NRPN": True
                     },
                     "Knob F": {
-                        "MSB": 1, "LSB": 5, "NRPN": True
+                        "MSB": 1, "LSB": 5, "HIGH": False, "NRPN": True
                     },
                     "Knob G": {
-                        "MSB": 1, "LSB": 6, "NRPN": True
+                        "MSB": 1, "LSB": 6, "HIGH": False, "NRPN": True
                     },
                     "Level": {
-                        "MSB": 1, "LSB": 7, "NRPN": True
+                        "MSB": 1, "LSB": 7, "HIGH": False, "NRPN": True
                     }
                 },
                 "FILTER": {
                     "Frequency": {
-                        "MSB": 1, "LSB": 20, "NRPN": True
+                        "MSB": 1, "LSB": 20, "HIGH": False, "NRPN": True
                     },
                     "Resonance": {
-                        "MSB": 1, "LSB": 21, "NRPN": True
+                        "MSB": 1, "LSB": 21, "HIGH": False, "NRPN": True
                     },
                     "Type": {
-                        "MSB": 1, "LSB": 22, "NRPN": True
+                        "MSB": 1, "LSB": 22, "HIGH": False, "NRPN": True
                     },
                     "Attack": {
-                        "MSB": 1, "LSB": 16, "NRPN": True
+                        "MSB": 1, "LSB": 16, "HIGH": False, "NRPN": True
                     },
                     "Decay": {
-                        "MSB": 1, "LSB": 17, "NRPN": True
+                        "MSB": 1, "LSB": 17, "HIGH": False, "NRPN": True
                     },
                     "Sustain": {
-                        "MSB": 1, "LSB": 18, "NRPN": True
+                        "MSB": 1, "LSB": 18, "HIGH": False, "NRPN": True
                     },
                     "Release": {
-                        "MSB": 1, "LSB": 19, "NRPN": True
+                        "MSB": 1, "LSB": 19, "HIGH": False, "NRPN": True
                     },
                     "Depth": {
-                        "MSB": 1, "LSB": 23, "NRPN": True
+                        "MSB": 1, "LSB": 23, "HIGH": False, "NRPN": True
                     },
                     "Delay": {
-                        "MSB": 1, "LSB": 50, "NRPN": True
+                        "MSB": 1, "LSB": 50, "HIGH": False, "NRPN": True
                     },
                     "Rate": {
-                        "MSB": 1, "LSB": 53, "NRPN": True
+                        "MSB": 1, "LSB": 53, "HIGH": False, "NRPN": True
                     },
                     "Base": {
-                        "MSB": 1, "LSB": 51, "NRPN": True
+                        "MSB": 1, "LSB": 51, "HIGH": False, "NRPN": True
                     },
                     "Width": {
-                        "MSB": 1, "LSB": 52, "NRPN": True
+                        "MSB": 1, "LSB": 52, "HIGH": False, "NRPN": True
                     },
                     "Routing": {
-                        "MSB": 1, "LSB": 54, "NRPN": True
+                        "MSB": 1, "LSB": 54, "HIGH": False, "NRPN": True
                     }
                 },
                 "AMP": {
                     "Attack": {
-                        "MSB": 1, "LSB": 24, "NRPN": True
+                        "MSB": 1, "LSB": 24, "HIGH": False, "NRPN": True
                     },
                     "Hold": {
-                        "MSB": 1, "LSB": 25, "NRPN": True
+                        "MSB": 1, "LSB": 25, "HIGH": False, "NRPN": True
                     },
                     "Decay": {
-                        "MSB": 1, "LSB": 26, "NRPN": True
+                        "MSB": 1, "LSB": 26, "HIGH": False, "NRPN": True
                     },
                     "Overdrive": {
-                        "MSB": 1, "LSB": 27, "NRPN": True
+                        "MSB": 1, "LSB": 27, "HIGH": False, "NRPN": True
                     },
                     "Delay": {
-                        "MSB": 1, "LSB": 28, "NRPN": True
+                        "MSB": 1, "LSB": 28, "HIGH": False, "NRPN": True
                     },
                     "Reverb": {
-                        "MSB": 1, "LSB": 29, "NRPN": True
+                        "MSB": 1, "LSB": 29, "HIGH": False, "NRPN": True
                     },
                     "Pan": {
-                        "MSB": 1, "LSB": 30, "NRPN": True
+                        "MSB": 1, "LSB": 30, "HIGH": False, "NRPN": True
                     },
                     "Volume": {
-                        "MSB": 1, "LSB": 31, "NRPN": True
+                        "MSB": 1, "LSB": 31, "HIGH": False, "NRPN": True
                     }
                 },
                 "LFO 1": {
                     "Speed": {
-                        "MSB": 1, "LSB": 32, "NRPN": True
+                        "MSB": 1, "LSB": 32, "HIGH": False, "NRPN": True
                     },
                     "Multiplier": {
-                        "MSB": 1, "LSB": 33, "NRPN": True
+                        "MSB": 1, "LSB": 33, "HIGH": False, "NRPN": True
                     },
                     "Fade": {
-                        "MSB": 1, "LSB": 34, "NRPN": True
+                        "MSB": 1, "LSB": 34, "HIGH": False, "NRPN": True
                     },
                     "Destination": {
-                        "MSB": 1, "LSB": 35, "NRPN": True
+                        "MSB": 1, "LSB": 35, "HIGH": False, "NRPN": True
                     },
                     "Waveform": {
-                        "MSB": 1, "LSB": 36, "NRPN": True
+                        "MSB": 1, "LSB": 36, "HIGH": False, "NRPN": True
                     },
                     "Phase": {
-                        "MSB": 1, "LSB": 37, "NRPN": True
+                        "MSB": 1, "LSB": 37, "HIGH": False, "NRPN": True
                     },
                     "Mode": {
-                        "MSB": 1, "LSB": 38, "NRPN": True
+                        "MSB": 1, "LSB": 38, "HIGH": False, "NRPN": True
                     },
                     "Depth": {
-                        "MSB": 1, "LSB": 39, "NRPN": True
+                        "MSB": 1, "LSB": 39, "HIGH": False, "NRPN": True
                     }
                 },
                 "LFO 2": {
                     "Speed": {
-                        "MSB": 1, "LSB": 40, "NRPN": True
+                        "MSB": 1, "LSB": 40, "HIGH": False, "NRPN": True
                     },
                     "Multiplier": {
-                        "MSB": 1, "LSB": 41, "NRPN": True
+                        "MSB": 1, "LSB": 41, "HIGH": False, "NRPN": True
                     },
                     "Fade": {
-                        "MSB": 1, "LSB": 42, "NRPN": True
+                        "MSB": 1, "LSB": 42, "HIGH": False, "NRPN": True
                     },
                     "Destination": {
-                        "MSB": 1, "LSB": 43, "NRPN": True
+                        "MSB": 1, "LSB": 43, "HIGH": False, "NRPN": True
                     },
                     "Waveform": {
-                        "MSB": 1, "LSB": 44, "NRPN": True
+                        "MSB": 1, "LSB": 44, "HIGH": False, "NRPN": True
                     },
                     "Phase": {
-                        "MSB": 1, "LSB": 45, "NRPN": True
+                        "MSB": 1, "LSB": 45, "HIGH": False, "NRPN": True
                     },
                     "Mode": {
-                        "MSB": 1, "LSB": 46, "NRPN": True
+                        "MSB": 1, "LSB": 46, "HIGH": False, "NRPN": True
                     },
                     "Depth": {
-                        "MSB": 1, "LSB": 47, "NRPN": True
+                        "MSB": 1, "LSB": 47, "HIGH": False, "NRPN": True
                     }
                 },
                 "MIDI": {
                     "Val1": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val2": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val3": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val4": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val5": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val6": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val7": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     },
                     "Val8": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
                     }
                 },
 
                 # PER PATTERN PARAMETERS (CHANNEL 9)
                 "DELAY": {
                     "Time": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 0, "HIGH": False, "NRPN": True
                     },
                     "Pingpong": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 1, "HIGH": False, "NRPN": True
                     },
                     "Width": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 2, "HIGH": False, "NRPN": True
                     },
                     "Feedback": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 3, "HIGH": False, "NRPN": True
                     },
                     "Highpass": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 4, "HIGH": False, "NRPN": True
                     },
                     "Lowpass": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 5, "HIGH": False, "NRPN": True
                     },
                     "Reverb": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 6, "HIGH": False, "NRPN": True
                     },
                     "Mix": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 7, "HIGH": False, "NRPN": True
                     }
                 },
                 "REVERB": {
                     "Predelay": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 8, "HIGH": False, "NRPN": True
                     },
                     "Decay": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 9, "HIGH": False, "NRPN": True
                     },
                     "Frequency": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 10, "HIGH": False, "NRPN": True
                     },
                     "Gain": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 11, "HIGH": False, "NRPN": True
                     },
                     "Highpass": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 12, "HIGH": False, "NRPN": True
                     },
                     "Lowpass": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 13, "HIGH": False, "NRPN": True
                     },
                     "Reverb": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 14, "HIGH": False, "NRPN": True
                     },
                     "Mix": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 15, "HIGH": False, "NRPN": True
                     }
                 },
                 "COMPRESSOR": {
                     "Threshold": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 16, "HIGH": False, "NRPN": True
                     },
                     "Attack": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 17, "HIGH": False, "NRPN": True
                     },
                     "Release": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 18, "HIGH": False, "NRPN": True
                     },
                     "Gain": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 19, "HIGH": False, "NRPN": True
                     },
                     "Volume": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 24, "HIGH": False, "NRPN": True
                     },
                     "Ratio": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 20, "HIGH": False, "NRPN": True
                     },
                     "Source": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 21, "HIGH": False, "NRPN": True
                     },
                     "Filter": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 22, "HIGH": False, "NRPN": True
                     },
                     "Mix": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 23, "HIGH": False, "NRPN": True
                     }
                 },
                 "MIXER": {
                     "Level L": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True
                     },
                     "Pan L": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True
                     },
                     "Level R": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 32, "HIGH": False, "NRPN": True
                     },
                     "Pan R": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 33, "HIGH": False, "NRPN": True
                     },
                     "Delay L": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True
                     },
                     "Delay R": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 35, "HIGH": False, "NRPN": True
                     },
                     "Reverb L": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True
                     },
                     "Reverb R": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 37, "HIGH": False, "NRPN": True
                     },
                     "Stereo": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 38, "HIGH": False, "NRPN": True
                     },
                     "LR Level": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True
                     },
                     "LR Balance": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True
                     },
                     "LR Delay": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True
                     },
                     "LR Reverb": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True
                     }
                 },
                 "PATTERN": {
                     "Mute": {
-                        "MSB": 1, "LSB": 100, "NRPN": True
+                        "MSB": 1, "LSB": 104, "HIGH": False, "NRPN": True
                     }
                 }
             }

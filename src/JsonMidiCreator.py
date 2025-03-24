@@ -67,6 +67,7 @@ CC = ControlChange
 PC = ProgramChange
 T = Tmp = Tpo = Tempo
 Q = Qtz = Qtzn = Quant = Quantization
+High = HighResolution
 
 
 # Keys
