@@ -219,7 +219,7 @@ class Digitakt(Variables):
                         "MSB": 108, "HIGH": False, "NRPN": False
                     },
                     "Depth": {
-                        "MSB": 109, "LSB": 61   # Non blank, with LSB, 14 bits
+                        "MSB": 109, "LSB": 61, "HIGH": True, "NRPN": False
                     }
                 },
                 "LFO 2": {
@@ -245,7 +245,7 @@ class Digitakt(Variables):
                         "MSB": 118, "HIGH": False, "NRPN": False
                     },
                     "Depth": {
-                        "MSB": 119, "LSB": 63   # Non blank, with LSB, 14 bits
+                        "MSB": 119, "LSB": 63, "HIGH": True, "NRPN": False
                     }
                 },
                 "MIDI": {
