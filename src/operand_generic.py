@@ -871,7 +871,7 @@ class Controller(Generic):
                 if "NRPN" in operand and isinstance(operand["NRPN"], int):   # bool is a subclass of int !!
                     self._nrpn = bool(operand["NRPN"])
                 if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
-                    self._nrpn = bool(operand["HIGH"])
+                    self._high = bool(operand["HIGH"])
             case tuple():
                 for single_operand in operand:
                     self << single_operand
