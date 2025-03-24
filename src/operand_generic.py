@@ -709,6 +709,7 @@ class Pitch(Generic):
 class Controller(Generic):
     def __init__(self, *parameters):
         self._number: int       = ou.Number("Pan")._unit
+        self._lsb: int          = -1    # lsb < 0 means 7 bit Controller instead of 14 bits
         self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
@@ -731,42 +732,44 @@ class Controller(Generic):
             case od.DataSource():
                 match operand._data:
                     case ou.Number():           return operand._data << od.DataSource(self._number)
+                    case ou.LSB():              return operand._data << od.DataSource(self._lsb)
                     case ou.Value():            return operand._data << od.DataSource(self._value)
-                    case Controller():          return self
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << od.DataSource(self._number)
+            case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
             case ou.Value():            return operand.copy() << od.DataSource(self._value)
             case int():                 return self._value
             case float():               return float(self._value)
-            case Controller():          return self.copy()
             case of.Frame():            return self % operand
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Controller') -> bool:
+    def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self._number == other._number and self % ou.Value() == other % ou.Value():
-            return True
+        if isinstance(other, Controller):
+            return self._number == other._number and self._lsb == other._lsb and self._value == other._value
         if isinstance(other, od.Conditional):
             return other == self
-        return False
+        return self % other == other
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number"] = self.serialize( self._number )
-        serialization["parameters"]["value"]  = self.serialize( self._value )
+        serialization["parameters"]["number"]   = self.serialize( self._number )
+        serialization["parameters"]["lsb"]      = self.serialize( self._lsb )
+        serialization["parameters"]["value"]    = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Controller':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "number" in serialization["parameters"] and "value" in serialization["parameters"]):
+            "number" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._number    = self.deserialize( serialization["parameters"]["number"] )
+            self._lsb       = self.deserialize( serialization["parameters"]["lsb"] )
             self._value     = self.deserialize( serialization["parameters"]["value"] )
         return self
         
@@ -787,6 +790,105 @@ class Controller(Generic):
                 self._number = operand._unit
             case str():
                 self._number = ou.Number(self._number, operand)._unit
+            case ou.Value():
+                self._value = operand._unit
+            case int():
+                self._value = operand
+            case float():
+                self._value = int(operand)
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+    def __add__(self, operand: any) -> 'Controller':
+        self_copy: Controller = self.copy()
+        return self_copy.__iadd__(operand)
+
+    def __iadd__(self, operand) -> 'Controller':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case o.Operand():
+                self._value += operand % int()
+            case int():
+                self._value += operand
+            case float() | Fraction():
+                self._value += int(operand)
+        return self
+    
+    def __sub__(self, operand: any) -> 'Controller':
+        self_copy: Controller = self.copy()
+        return self_copy.__isub__(operand)
+
+    def __isub__(self, operand) -> 'Controller':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case o.Operand():
+                self._value -= operand % int()
+            case int():
+                self._value -= operand
+            case float() | Fraction():
+                self._value -= int(operand)
+        return self
+
+class ControllerLSB(Controller):
+    def __init__(self, *parameters):
+        self._lsb: int       = 0
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.DataSource():
+                match operand._data:
+                    case ou.LSB():              return operand._data << od.DataSource(self._lsb)
+                    case _:                     return super().__mod__(operand)
+            case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'Controller') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if self._lsb == other._lsb and self % ou.Value() == other % ou.Value():
+            return True
+        if isinstance(other, od.Conditional):
+            return other == self
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["lsb"] = self.serialize( self._lsb )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Controller':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "lsb" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Controller():
+                super().__lshift__(operand)
+                self._lsb    = operand._lsb
+                self._value     = operand._value
+            case od.DataSource():
+                match operand._data:
+                    case ou.Number():    self._lsb = operand._data._unit
+                    case ou.Value():     self._value = operand._data._unit
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ou.Number():
+                self._lsb = operand._unit
+            case str():
+                self._lsb = ou.Number(self._lsb, operand)._unit
             case ou.Value():
                 self._value = operand._unit
             case int():
