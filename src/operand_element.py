@@ -1845,9 +1845,9 @@ class ControlChange(Automation):
         self._controller: og.Controller = og.defaults % og.Controller()
         super().__init__(*parameters)
 
-    def controller(self, number: Optional[int] = None, value: Optional[int] = None) -> Self:
+    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None, value: Optional[int] = None) -> Self:
         self._controller = og.Controller(
-                ou.Number(number), ou.Value(value)
+                ou.Number(msb), ou.LSB(lsb), ou.Value(value)
             )
         return self
 
@@ -1869,9 +1869,8 @@ class ControlChange(Automation):
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case ou.Number():           return self._controller % operand
-            case ou.Value():            return self._controller % operand
-            case int() | float():       return self._controller % operand
+            case ou.Number() | ou.LSB() | ou.Value() | int() | float():
+                return self._controller % operand
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1879,7 +1878,7 @@ class ControlChange(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._controller == other % od.DataSource( og.Controller() )
+                    and self._controller == other._controller
             case _:
                 return super().__eq__(other)
     
