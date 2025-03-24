@@ -1215,13 +1215,19 @@ class Staff(Generic):
         if self is not defaults._staff: # defaults's staff remains clean
             device_tuple: tuple[str] = tuple(device)
             if note_on not in self._stacked_notes:
-                self._stacked_notes[note_on] = {}
-            if channel_byte not in self._stacked_notes[note_on]:
-                self._stacked_notes[note_on][channel_byte] = {}
-            if pitch not in self._stacked_notes[note_on][channel_byte]:
-                self._stacked_notes[note_on][channel_byte][pitch] = set()
-            if device_tuple not in self._stacked_notes[note_on][channel_byte][pitch]:
-                self._stacked_notes[note_on][channel_byte][pitch].add(device_tuple)
+                self._stacked_notes[note_on] = {
+                    channel_byte: {
+                        pitch: set( [device_tuple] )
+                    }
+                }
+            elif channel_byte not in self._stacked_notes[note_on]:
+                self._stacked_notes[note_on][channel_byte] = {
+                    pitch: set( [device_tuple] )
+                }
+            elif pitch not in self._stacked_notes[note_on][channel_byte]:
+                self._stacked_notes[note_on][channel_byte][pitch] = set( [device_tuple] )
+            elif device_tuple not in self._stacked_notes[note_on][channel_byte][pitch]:
+                self._stacked_notes[note_on][channel_byte][pitch].add( device_tuple )
             else:   # It's an Overlapping note
                 return False
         return True
