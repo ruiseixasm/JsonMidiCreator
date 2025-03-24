@@ -401,3 +401,5 @@ variables_level_cc = ControlChange(
 variables_level_cc * 4 >> P
 
 
+defaults -= Digitakt.device
+defaults % Devices() % list() >> Print()

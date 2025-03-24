@@ -1904,6 +1904,25 @@ class Defaults(Generic):
                     self << single_operand
         return self
 
+    
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case od.Device():
+                if isinstance(operand._data, str):
+                    self_devices = self // oc.Devices()
+                    self_devices += operand
+                    self._devices = self_devices // list()
+                return self
+        return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case od.Device():
+                self_devices = self // oc.Devices()
+                self_devices -= operand
+                self._devices = self_devices // list()
+        return super().__isub__(operand)
+
 
 # Instantiate the Global Defaults here.
 defaults: Defaults = Defaults()
