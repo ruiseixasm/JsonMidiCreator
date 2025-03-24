@@ -751,6 +751,14 @@ class Controller(Generic):
             case ou.Value():            return operand.copy() << od.DataSource(self._value)
             case int():                 return self._value
             case float():               return float(self._value)
+            case dict():
+                controller_dict: dict[str, int] = {
+                    "NUMBER": self._number,
+                    "MSB": self._number,
+                    "LSB": self._lsb,
+                    "VALUE": self._value
+                }
+                return controller_dict
             case of.Frame():            return self % operand
             case _:                     return super().__mod__(operand)
 
