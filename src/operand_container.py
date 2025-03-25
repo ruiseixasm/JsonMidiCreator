@@ -1983,6 +1983,15 @@ class Part(Container):
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
                 self._append([ clip_or_playlist ])
+            case Clip():
+                operand_copy: Part = operand.copy()
+                add_measure: ou.Measure = ou.Measure(0)
+                # It's the position of the element that matters and not their tailed Duration
+                last_position: oe.Position = self.last_position()
+                if last_position:
+                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                    
+                self._append([ operand + add_measure ])
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
