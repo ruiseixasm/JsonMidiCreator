@@ -826,7 +826,7 @@ def test_tied_notes():
 # test_tied_notes()
 
 
-def test_song_operations():
+def test_part_operations():
 
     clip_1: Clip = Clip([Clock()])
     clip_2: Clip = Clip([Note()])
@@ -841,11 +841,11 @@ def test_song_operations():
     assert (part_1 - clip_2).len() == 1
     assert (part_1 + part_2).len() == 4
 
-    # Becomes a Part of two Clips due to + operator
+    # Becomes a Part of two Clips due to * operator
     assert (part_1 >> clip_2).len() == 3
     assert (part_1 >> part_2).len() == 5
 
-# test_song_operations()
+# test_part_operations()
 
 
 def test_clip_length():

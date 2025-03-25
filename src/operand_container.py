@@ -1925,7 +1925,7 @@ class Part(Container):
     def __rshift__(self, operand) -> Self:
         match operand:
             case Song() | Part() | Clip() | oe.Element():
-                self += operand
+                self *= operand
                 return self
         return super().__rshift__(operand)
 
@@ -1987,7 +1987,7 @@ class Part(Container):
                     
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
-                self._append([ clip_or_playlist ])
+                    self._append([ clip_or_playlist ])
             case Clip():
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
