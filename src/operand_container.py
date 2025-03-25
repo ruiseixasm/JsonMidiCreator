@@ -1150,6 +1150,16 @@ class Clip(Container):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         import operand_selection as os
         match operand:
+            case Song():
+                song_part: Part = Part()
+                for single_part in operand:
+                    song_part += single_part
+                self *= song_part
+            case Part():
+                part_clip: Clip = Clip()
+                for single_clip in operand:
+                    part_clip += single_clip
+                self *= part_clip
             case Clip():
                 right_start_position: ra.Position = operand.start()
                 if self._length_beats < 0:
