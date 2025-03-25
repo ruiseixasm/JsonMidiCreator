@@ -43,6 +43,35 @@ class Blofeld(Variables):
 
     device          = od.Device("Blofeld")
 
+    midi_cc: dict[str,
+                dict[str,
+                    dict[str, int | dict[str, int]]
+                ]
+            ] = {
+                "CONTROLLERS": {
+                    "Modulation": {
+                        "NUMBER": 1, "HIGH": False, "NRPN": False
+                    },
+                    "Breath": {
+                        "NUMBER": 2, "HIGH": False, "NRPN": False
+                    },
+                    "Foot": {
+                        "NUMBER": 4, "HIGH": False, "NRPN": False
+                    },
+                    "Sustain": {
+                        "NUMBER": 64, "HIGH": False, "NRPN": False
+                    }
+                },
+                "MIXER COMMON": {
+                    "Volume": {
+                        "NUMBER": 7, "HIGH": False, "NRPN": False
+                    },
+                    "Pan": {
+                        "NUMBER": 10, "HIGH": False, "NRPN": False
+                    }
+                }
+            }
+
 
 class Digitakt(Variables):
 

@@ -841,8 +841,13 @@ class Controller(Generic):
                     case ou.HighResolution():   self._high = bool(operand._data._unit)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ou.MSB():      # Must be check before the Number class
+                self._number = operand._unit
             case ou.Number():   # Includes ou.MSB() as a subclass pf Number
                 self._number = operand._unit
+                # Number has implicit 7 bytes CC
+                self._nrpn = False
+                self._high = False
             case str():
                 self._number = ou.Number(self._number, operand)._unit
             case ou.LSB():
@@ -862,16 +867,20 @@ class Controller(Generic):
             case dict():
                 if "NUMBER" in operand and isinstance(operand["NUMBER"], int):
                     self._number = operand["NUMBER"]
-                if "MSB" in operand and isinstance(operand["MSB"], int):
-                    self._number = operand["MSB"]
-                if "LSB" in operand and isinstance(operand["LSB"], int):
-                    self._lsb = operand["LSB"]
+                    # Number has implicit 7 bytes CC
+                    self._nrpn = False
+                    self._high = False
+                else:
+                    if "MSB" in operand and isinstance(operand["MSB"], int):
+                        self._number = operand["MSB"]
+                    if "NRPN" in operand and isinstance(operand["NRPN"], int):   # bool is a subclass of int !!
+                        self._nrpn = bool(operand["NRPN"])
+                    if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
+                        self._high = bool(operand["HIGH"])
+                    if "LSB" in operand and isinstance(operand["LSB"], int):
+                        self._lsb = operand["LSB"]
                 if "VALUE" in operand and isinstance(operand["VALUE"], int):
                     self._value = operand["VALUE"]
-                if "NRPN" in operand and isinstance(operand["NRPN"], int):   # bool is a subclass of int !!
-                    self._nrpn = bool(operand["NRPN"])
-                if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
-                    self._high = bool(operand["HIGH"])
             case tuple():
                 for single_operand in operand:
                     self << single_operand
