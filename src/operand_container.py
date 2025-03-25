@@ -1064,7 +1064,8 @@ class Clip(Container):  # Just a container of Elements
         import operand_mutation as om
         match operand:
             case Song() | Part() | Clip() | oe.Element():
-                self += operand
+                # Quantized Stacking by Measures
+                self *= operand
                 return self
             case om.Mutation():
                 return operand.mutate(self)
