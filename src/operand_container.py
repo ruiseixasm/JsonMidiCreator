@@ -831,6 +831,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
+        finish_position: ra.Position = None
         finish_beats: Fraction = Fraction(0)
         for item in self._items:
             if isinstance(item, oe.Element):
@@ -1235,7 +1236,10 @@ class Clip(Container):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    add_position: ra.Position = ra.Position(self.length())
+                    add_position: ra.Position = ra.Position(0)
+                    finish: ra.Position = self.finish()
+                    if finish:
+                        add_position = finish
                     self_copy: Clip = self.copy()
                     for _ in range(operand - 2):
                         self_copy += add_position
