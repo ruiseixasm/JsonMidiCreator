@@ -1001,8 +1001,15 @@ class Clip(Container):  # Just a container of Elements
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Song() | Part() | oe.Element():
+
+            case Song() | Part():
                 self += operand # It's equivalent
+            case oe.Element():
+                if self.len() > 0:  # Avoids infinite recursion
+                    self /= Clip(operand) # It's equivalent
+                else:
+                    self += operand
+
             case list():
                 self._items = [
                     item.copy() for item in operand if isinstance(item, oe.Element)
