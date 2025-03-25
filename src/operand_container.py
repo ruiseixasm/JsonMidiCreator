@@ -1003,7 +1003,7 @@ class Clip(Container):  # Just a container of Elements
                 self.loadSerialization( operand.getSerialization() )
 
             case Song() | Part():
-                self += operand # It's equivalent
+                self *= operand     # Stacks by Measure
             case oe.Element():
                 if self.len() > 0:  # Avoids infinite recursion
                     self /= operand # Stacks elements directly
