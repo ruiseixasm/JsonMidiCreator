@@ -832,15 +832,17 @@ class Clip(Container):  # Just a container of Elements
             Position: The maximum of Position + Length of all Elements.
         """
         finish_position: ra.Position = None
-        finish_beats: Fraction = Fraction(0)
-        for item in self._items:
-            if isinstance(item, oe.Element):
-                single_element: oe.Element = item
-                element_finish: Fraction = single_element._position_beats \
-                    + (single_element % ra.Length())._rational
-                if element_finish > finish_beats:
-                    finish_beats = element_finish
-        return self._staff.convertToPosition(ra.Beats(finish_beats))
+        if self.len() > 0:
+            finish_beats: Fraction = Fraction(0)
+            for item in self._items:
+                if isinstance(item, oe.Element):
+                    single_element: oe.Element = item
+                    element_finish: Fraction = single_element._position_beats \
+                        + (single_element % ra.Length())._rational
+                    if element_finish > finish_beats:
+                        finish_beats = element_finish
+            finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
+        return finish_position
 
 
     def length(self) -> ra.Length:
