@@ -815,11 +815,16 @@ class Clip(Container):  # Just a container of Elements
             Position: The minimum Position of all Elements.
         """
         start_position: ra.Position = None
-        start_beats: Fraction = Fraction(0)
-        first_element: oe.Element = self.first()
-        if first_element:
-            start_beats = first_element._position_beats
-        return self._staff.convertToPosition(ra.Beats(start_beats))
+        if self._length_beats < 0:
+            if self.len() > 0:
+                start_beats: Fraction = Fraction(0)
+                first_element: oe.Element = self.first()
+                if first_element:
+                    start_beats = first_element._position_beats
+                start_position = self._staff.convertToPosition(ra.Beats(start_beats))
+        else:
+            start_position = self._staff.convertToPosition(0)
+        return start_position
 
     def finish(self) -> ra.Position:
         """
