@@ -189,7 +189,7 @@ class Element(o.Operand):
             case ou.TimeUnit():
                 return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) < other
             case _:
-                return self % od.DataSource( other ) < other
+                return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -203,7 +203,7 @@ class Element(o.Operand):
             case ou.TimeUnit():
                 return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) > other
             case _:
-                return self % od.DataSource( other ) > other
+                return self % other > other
     
     def start(self) -> ra.Position:
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
