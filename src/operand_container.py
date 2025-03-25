@@ -1937,14 +1937,14 @@ class Part(Container):
                     self += single_part
                 return self
             case Part():
-                self._append(self.deep_copy(operand._items))._sort_position()
+                self._append(self.deep_copy(operand._items))
             case Clip():
-                self._append([ operand.copy() ])._sort_position()
+                self._append([ operand.copy() ])
             case oe.Element():
                 element_clip: Clip = Clip(operand)
-                self._append([ element_clip ])._sort_position()
+                self._append([ element_clip ])
             case list():
-                self._append(self.deep_copy(operand))._sort_position()
+                self._append(self.deep_copy(operand))
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -1973,11 +1973,16 @@ class Part(Container):
         import operand_selection as os
         match operand:
             case Part():
-                self_finish: ra.Position = self.finish()
-                if self_finish:
-                    finish_measure: ou.Measure = self_finish.convertToMeasure()
-                    for clip_playlist in operand._items:
-                        clip_playlist += self_finish
+                operand_copy: Part = operand.copy()
+                add_measure: ou.Measure = ou.Measure(0)
+                # It's the position of the element that matters and not their tailed Duration
+                last_position: oe.Position = self.last_position()
+                if last_position:
+                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                    
+                for clip_or_playlist in operand_copy._items:
+                    clip_or_playlist += add_measure
+                self._append([ clip_or_playlist ])
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
