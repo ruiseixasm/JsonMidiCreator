@@ -1730,6 +1730,7 @@ class Clip(Container):  # Just a container of Elements
 
 
 class Part(Container):
+    # Part it's like a classic Pattern
     def __init__(self, *operands):
         self._staff: og.Staff = og.defaults._staff.copy()
         self._position_beats: Fraction  = Fraction(0)   # in Beats
@@ -1784,17 +1785,23 @@ class Part(Container):
         """
         finish_position: ra.Position = None
 
-        if self.len() > 0:
-            staff_reference: og.Staff = self[0]._staff
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        if len(clips_list) > 0:
+            staff_reference: og.Staff = clips_list[0]._staff
             finish_beats: Fraction = Fraction(0)
-            for item in self._items:
-                if isinstance(item, Clip):
-                    single_element: oe.Element = item
-                    element_finish: Fraction = single_element._position_beats \
-                        + (single_element % ra.Length())._rational
-                    if element_finish > finish_beats:
-                        finish_beats = element_finish
-            finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
+            for clip in clips_list:
+
+                clip_finish: ra.Position = clip.finish()
+                if clip_finish:
+                    if finish_position:
+                        if clip_finish > finish_position:
+                            finish_position = clip_finish
+                    else:
+                        finish_position = clip_finish
+
         return finish_position
 
 
