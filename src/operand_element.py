@@ -181,7 +181,7 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Element():
-                return  False
+                return self % ra.Position() < other % ra.Position()
             case ra.Duration():
                 return self._duration_notevalue < other._rational
             case ra.TimeValue():
@@ -195,7 +195,7 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Element():
-                return  False
+                return self % ra.Position() > other % ra.Position()
             case ra.Duration():
                 return self._duration_notevalue > other._rational
             case ra.TimeValue():

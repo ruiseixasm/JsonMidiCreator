@@ -1790,7 +1790,7 @@ class Part(Container):
         ]
 
         if len(clips_list) > 0:
-            
+
             for clip in clips_list:
 
                 clip_finish: ra.Position = clip.finish()
@@ -1802,6 +1802,36 @@ class Part(Container):
                         finish_position = clip_finish
 
         return finish_position
+
+    def last(self) -> Clip:
+
+        part_last: Clip = None
+
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        if len(clips_list) > 0:
+
+            for clip in clips_list:
+
+                clip_last: oe.Element = clip.last()
+                if clip_last:
+                    if part_last:
+                        if clip_last > part_last:
+                            part_last = clip_last
+                    else:
+                        part_last = clip_last
+
+        return part_last
+
+    def last_position(self) -> ra.Position:
+        last_clip: Clip = self.last()
+
+        if last_clip:
+            return last_clip % ra.Position()
+        
+        return None
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1942,6 +1972,12 @@ class Part(Container):
     def __imul__(self, operand: any) -> Self:
         import operand_selection as os
         match operand:
+            case Part():
+                self_finish: ra.Position = self.finish()
+                if self_finish:
+                    finish_measure: ou.Measure = self_finish.convertToMeasure()
+                    for clip_playlist in operand._items:
+                        clip_playlist += self_finish
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
