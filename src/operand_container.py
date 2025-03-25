@@ -1790,8 +1790,7 @@ class Part(Container):
         ]
 
         if len(clips_list) > 0:
-            staff_reference: og.Staff = clips_list[0]._staff
-            finish_beats: Fraction = Fraction(0)
+            
             for clip in clips_list:
 
                 clip_finish: ra.Position = clip.finish()
