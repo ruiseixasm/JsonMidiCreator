@@ -2047,7 +2047,7 @@ class Song(Container):
     def _sort_position(self) -> Self:
         if self is not self._upper_container:
             self._upper_container._sort_position()
-        self._items.sort(key=lambda x: x._position_beats)
+        self._items.sort(key=lambda x: x % ra.Position())
         return self
 
 
