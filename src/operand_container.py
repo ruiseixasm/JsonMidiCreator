@@ -2043,64 +2043,48 @@ class Song(Container):
         self._items.sort(key=lambda x: x._position_beats)
         return self
 
+
     def finish(self) -> ra.Position:
-        """
-        Processes each element Position plus Length and returns the finish position
-        as the maximum of all of them.
 
-        Args:
-            None
-
-        Returns:
-            Position: The maximum of Position + Length of all Elements.
-        """
         finish_position: ra.Position = None
 
-        clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
-        ]
+        if self.len() > 0:
 
-        if len(clips_list) > 0:
+            for part in self._items:
 
-            for clip in clips_list:
-
-                clip_finish: ra.Position = clip.finish()
-                if clip_finish:
+                part_finish: ra.Position = part.finish()
+                if part_finish:
                     if finish_position:
-                        if clip_finish > finish_position:
-                            finish_position = clip_finish
+                        if part_finish > finish_position:
+                            finish_position = part_finish
                     else:
-                        finish_position = clip_finish
+                        finish_position = part_finish
 
         return finish_position
 
-    def last(self) -> Clip:
+    def last(self) -> oe.Element:
 
-        part_last: Clip = None
+        song_last: oe.Element = None
 
-        clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
-        ]
+        if self.len() > 0:
 
-        if len(clips_list) > 0:
+            for part in self._items:
 
-            for clip in clips_list:
-
-                clip_last: oe.Element = clip.last()
-                if clip_last:
-                    if part_last:
-                        if clip_last > part_last:
-                            part_last = clip_last
+                part_last: oe.Element = part.last()
+                if part_last:
+                    if song_last:
+                        if part_last > song_last:
+                            song_last = part_last
                     else:
-                        part_last = clip_last
+                        song_last = part_last
 
-        return part_last
+        return song_last
 
     def last_position(self) -> ra.Position:
-        last_clip: Clip = self.last()
+        last_element: oe.Element = self.last()
 
-        if last_clip:
-            return last_clip % ra.Position()
+        if last_element:
+            return last_element % ra.Position()
         
         return None
 
