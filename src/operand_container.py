@@ -794,6 +794,14 @@ class Clip(Container):  # Just a container of Elements
         """
         return super().last()
 
+    def last_position(self) -> ra.Position:
+        last_element: oe.Element = self.last()
+
+        if last_element:
+            return last_element // ra.Position()
+        
+        return self._staff.convertToPosition(0)
+
     def start(self) -> ra.Position:
         """
         Gets the starting position of all its Elements.
