@@ -1972,6 +1972,11 @@ class Part(Container):
     def __imul__(self, operand: any) -> Self:
         import operand_selection as os
         match operand:
+            case Song():
+                song_part: Part = Part()
+                for single_part in operand:
+                    song_part += single_part
+                self *= song_part
             case Part():
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
@@ -1990,8 +1995,18 @@ class Part(Container):
                 last_position: oe.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
-                    
+
                 self._append([ operand + add_measure ])
+            case oe.Element():
+                operand_copy: Part = operand.copy()
+                add_measure: ou.Measure = ou.Measure(0)
+                # It's the position of the element that matters and not their tailed Duration
+                last_position: oe.Position = self.last_position()
+                if last_position:
+                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                clip_operand: Clip = Clip(operand)
+                clip_operand += add_measure
+                self._append([ clip_operand ])
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
