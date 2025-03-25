@@ -814,6 +814,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
+        start_position: ra.Position = None
         start_beats: Fraction = Fraction(0)
         first_element: oe.Element = self.first()
         if first_element:
@@ -859,7 +860,11 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Length: Equal to Clip finish() - start().
         """
-        return ( self.finish() - self.start() ).convertToLength()
+        start = self.start()
+        finish = self.finish()
+        if start and finish:
+            return (finish - start).convertToLength()
+        return self._staff.convertToLength(0)
 
     def duration(self) -> ra.Duration:
         """
