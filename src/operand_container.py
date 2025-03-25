@@ -2069,29 +2069,14 @@ class Song(Container):
 
         return finish_position
 
-    def last(self) -> oe.Element:
-
-        song_last: oe.Element = None
-
-        if self.len() > 0:
-
-            for part in self._items:
-
-                part_last: oe.Element = part.last()
-                if part_last:
-                    if song_last:
-                        if part_last > song_last:
-                            song_last = part_last
-                    else:
-                        song_last = part_last
-
-        return song_last
 
     def last_position(self) -> ra.Position:
-        last_element: oe.Element = self.last()
 
-        if last_element:
-            return last_element % ra.Position()
+        last_part: Part = self.last()
+        if last_part:
+            last_part_element: oe.Element = last_part.last()
+            if last_part_element:
+                return last_part_element % ra.Position()
         
         return None
 
