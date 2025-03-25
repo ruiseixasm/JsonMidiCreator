@@ -120,7 +120,7 @@ class Container(o.Operand):
 
     def _sort_position(self) -> Self:
         # Container sort position does nothing
-        # Only applicable to Clip
+        # Only applicable to Clip and Song
         return self
 
 
@@ -1756,10 +1756,6 @@ class Part(Container):
         return super().__next__()
     
 
-    def _sort_position(self) -> Self:
-        # Clips and Playlist have no Position
-        return self
-
     def len(self, just_clips: bool = False) -> int:
 
         if just_clips:
@@ -2044,8 +2040,69 @@ class Song(Container):
     def _sort_position(self) -> Self:
         if self is not self._upper_container:
             self._upper_container._sort_position()
-        self._items.sort(key=lambda x: x % ra.Position())
+        self._items.sort(key=lambda x: x._position_beats)
         return self
+
+    def finish(self) -> ra.Position:
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
+        finish_position: ra.Position = None
+
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        if len(clips_list) > 0:
+
+            for clip in clips_list:
+
+                clip_finish: ra.Position = clip.finish()
+                if clip_finish:
+                    if finish_position:
+                        if clip_finish > finish_position:
+                            finish_position = clip_finish
+                    else:
+                        finish_position = clip_finish
+
+        return finish_position
+
+    def last(self) -> Clip:
+
+        part_last: Clip = None
+
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        if len(clips_list) > 0:
+
+            for clip in clips_list:
+
+                clip_last: oe.Element = clip.last()
+                if clip_last:
+                    if part_last:
+                        if clip_last > part_last:
+                            part_last = clip_last
+                    else:
+                        part_last = clip_last
+
+        return part_last
+
+    def last_position(self) -> ra.Position:
+        last_clip: Clip = self.last()
+
+        if last_clip:
+            return last_clip % ra.Position()
+        
+        return None
 
 
     def getPlaylist(self) -> list:
