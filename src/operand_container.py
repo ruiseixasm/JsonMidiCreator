@@ -1799,9 +1799,9 @@ class Part(Container):
 
         return finish_position
 
-    def last(self) -> Clip:
+    def last(self) -> oe.Element:
 
-        part_last: Clip = None
+        part_last: oe.Element = None
 
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
@@ -1822,10 +1822,10 @@ class Part(Container):
         return part_last
 
     def last_position(self) -> ra.Position:
-        last_clip: Clip = self.last()
+        last_element: oe.Element = self.last()
 
-        if last_clip:
-            return last_clip % ra.Position()
+        if last_element:
+            return last_element % ra.Position()
         
         return None
 
