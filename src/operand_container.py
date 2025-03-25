@@ -798,9 +798,9 @@ class Clip(Container):  # Just a container of Elements
         last_element: oe.Element = self.last()
 
         if last_element:
-            return last_element // ra.Position()
+            return last_element % ra.Position()
         
-        return self._staff.convertToPosition(0)
+        return None
 
     def start(self) -> ra.Position:
         """
@@ -1140,10 +1140,9 @@ class Clip(Container):  # Just a container of Elements
                 right_start_position: ra.Position = operand.start()
                 if self._length_beats < 0:
                     # It's the position of the element that matters and not their tailed Duration
-                    last_element: oe.Element = self.last()
-                    if last_element:
-                        left_end_position: ra.Position = last_element % ra.Position()
-                        add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
+                    last_position: oe.Position = self.last_position()
+                    if last_position:
+                        add_position: ra.Position = last_position.roundMeasures() + ou.Measure(1)
                     else:
                         add_position: ra.Position = ra.Position(0)
                 else:
