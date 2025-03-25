@@ -13,13 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
@@ -41,31 +35,20 @@ closed_hat  = Channel(6)
 open_hat    = Channel(7)
 cymbal      = Channel(8)
 
-kick_ptn = Note(kick) * 3
-kick_ptn /= Duration(2)
-snare_ptn = Note(snare) * 1
+kick_clip = Note(kick) * 3 << TrackName("Kick")
+kick_clip /= Duration(2)
+snare_clip = Note(snare) * 1 << TrackName("Snare")
+closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 
-full_clip = kick_ptn + snare_ptn << Duration(1/16)
+# Extend pattern by 4 measures, each clip is 1 measure long
+complete_part = Part(kick_clip, snare_clip, closed_hat_clip) * 4
 
-# full_clip * 4 >> P
-R() >> P
-
-closed_hat_ptn = Note(closed_hat, 1/16) * 16
-
-full_clip += closed_hat_ptn
-
-# full_clip * 4 >> P
-
-# Extend pattern by 16 measures
-full_clip *= 4
-complete_part = Part(full_clip)
-
-cymbal_ptn = Note(cymbal, 1/1) * 1
+cymbal_ptn = Note(cymbal, 1/2) * 1
 cymbal_first = cymbal_ptn + CPar(Position(1.0))
 cymbal_second = cymbal_ptn + CPar(Position(3.0))
+cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal")
 
-complete_part << cymbal_first
-complete_part << cymbal_second
+complete_part << cymbal_clip
 
 
 repeated_part = complete_part + Position(4)
@@ -74,5 +57,7 @@ complete_part >>= repeated_part
 
 complete_part >> P
 
+R() >> P
+complete_part["Kick"] >> P
 
 

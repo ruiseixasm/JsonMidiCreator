@@ -13,20 +13,12 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
 device_list >> Print()
 defaults << Device(device_list)
-
-defaults << Tempo(90)
 
 
 # Processing Degrees
@@ -41,24 +33,32 @@ closed_hat  = Channel(6)
 open_hat    = Channel(7)
 cymbal      = Channel(8)
 
-kick_clip = Clip() >> Stepper("1... 1... 1...", Note(kick, 1/16)) << TrackName("Kick")
-snare_clip = Note(snare, 1/16) * 1 << TrackName("Snare")
-closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
+defaults << Tempo(140)
 
-# Extend pattern by 4 measures, each clip is 1 measure long
-complete_part = Part(kick_clip, snare_clip, closed_hat_clip) * 4
+open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16))
+open_hats_clip << TrackName("Open Hat")
+open_hats_clip += open_hats_clip + Beats(2)
 
-cymbal_ptn = Note(cymbal, 1/16) * 1
-cymbal_first = cymbal_ptn + Position(1.0)
-cymbal_second = cymbal_ptn + Position(3.0)
-cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal") << Velocity(127)
-complete_part << cymbal_clip
+close_hats_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 
-complete_part >> P
+tom_clip = Note(tom, 1/16, Step(2)) * 1 << TrackName("Tom")
+tom_clip += tom_clip + Beats(2)
+
+snare_clip = Note(snare, 1/16, Step(4)) * 1 << TrackName("Snare")
+snare_clip += snare_clip + Beats(2)
+
+kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick") << Velocity(80)
+
+
+# Extend pattern by 8 measures, each clip is 1 measure long
+complete_part = Part(open_hats_clip, close_hats_clip, tom_clip, snare_clip, kick_clip) * 4
+
+snare_tom_part = Part(tom_clip, snare_clip) * 4
+
+complete_part + Measure(0) >> snare_tom_part + Measure(4) >> P
+
+complete_song = Song(complete_part)
 
 R(1/2) >> P
-complete_part["Kick"] >> P
-
-R(1/2) >> P
-complete_part["Cymbal"] * 1 >> P
+complete_song >> snare_tom_part + Position(4) >> P
 

@@ -13,13 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")

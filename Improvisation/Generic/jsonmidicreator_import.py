@@ -13,29 +13,30 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+
+# jsonmidicreator_import.py
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
 
+def add_src_to_path():
+    """Dynamically finds and adds 'src' directory to sys.path."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    while current_dir:
+        src_path = os.path.join(current_dir, 'src')
+        if os.path.exists(src_path):
+            if src_path not in sys.path:
+                sys.path.append(src_path)
+            break
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:  # Stop if we reach the root
+            break
+        current_dir = parent_dir
+
+# Add 'src' to sys.path before importing JsonMidiCreator
+add_src_to_path()
+
+# Import everything from JsonMidiCreator
 from JsonMidiCreator import *
 
 
-# Global Staff setting up
-defaults << Tempo(100)
-
-
-sixteen_notes = Note() * 16 << Loop(1, 4, 5, 1)
-
-# sixteen_notes >> Play()
-
-filtered_notes = sixteen_notes >> Measure(1)
-filtered_notes << Measure(0)
-filtered_notes += Note(6, Step(10))
-filtered_notes[0] % Position() % float() >> Print()
-filtered_notes >> L >> P
-filtered_notes << Measure(1)
-filtered_notes[0] % Position() % float() >> Print()
-
-sixteen_notes * 2 >> P

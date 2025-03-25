@@ -13,18 +13,14 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
 device_list >> Print()
 defaults << Device(device_list)
+
+defaults << Tempo(90)
 
 
 # Processing Degrees
@@ -39,23 +35,38 @@ closed_hat  = Channel(6)
 open_hat    = Channel(7)
 cymbal      = Channel(8)
 
-# https://youtu.be/VJtg7pJO3hQ?si=-cPdOfONCXdw1ID6
-defaults << Tempo(135)
+kick_ptn = Note(kick) * 3
+kick_ptn /= Duration(2)
+snare_ptn = Note(snare) * 1
 
-open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16))
-open_hats_clip << TrackName("Open Hat")
-open_hats_clip += open_hats_clip + Beats(2)
+full_clip = kick_ptn + snare_ptn << Duration(1/16)
 
-close_hat_4_4_clip = Note(closed_hat, 1/4) * 4 << TrackName("Closed Hat")
+# full_clip * 4 >> P
+R() >> P
 
-tom_clip = Note(tom, 1/16, Step(2)) * 1 << TrackName("Tom")
-tom_clip += tom_clip + Beats(2)
+closed_hat_ptn = Note(closed_hat, 1/16) * 16
 
-snare_clip = Note(snare, 1/16, Step(4)) * 1 << TrackName("Snare")
-snare_clip += snare_clip + Beats(2)
+full_clip += closed_hat_ptn
 
-kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick") << Velocity(80)
+# full_clip * 4 >> P
+
+# Extend pattern by 16 measures
+full_clip *= 4
+complete_part = Part(full_clip)
+
+cymbal_ptn = Note(cymbal, 1/1) * 1
+cymbal_first = cymbal_ptn + CPar(Position(1.0))
+cymbal_second = cymbal_ptn + CPar(Position(3.0))
+
+complete_part << cymbal_first
+complete_part << cymbal_second
 
 
-close_hat_4_4_clip * 16 >> P
+repeated_part = complete_part + Position(4)
+
+complete_part >>= repeated_part
+
+complete_part >> P
+
+
 

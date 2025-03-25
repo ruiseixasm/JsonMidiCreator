@@ -13,36 +13,30 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+
+# jsonmidicreator_import.py
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
 
+def add_src_to_path():
+    """Dynamically finds and adds 'src' directory to sys.path."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    while current_dir:
+        src_path = os.path.join(current_dir, 'src')
+        if os.path.exists(src_path):
+            if src_path not in sys.path:
+                sys.path.append(src_path)
+            break
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:  # Stop if we reach the root
+            break
+        current_dir = parent_dir
+
+# Add 'src' to sys.path before importing JsonMidiCreator
+add_src_to_path()
+
+# Import everything from JsonMidiCreator
 from JsonMidiCreator import *
-
-device_list = defaults % Devices() % list() >> Print()
-device_list.insert(0, "Blofeld")
-device_list >> Print()
-defaults << Device(device_list)
-
-defaults << Tempo(90)
-
-eight_notes = Note(Dotted(1/16)) * 7 << Nth(7)**Dotted(1/4) >> L
-eight_notes[6] % Length() % Fraction() >> Print()
-
-
-# Processing Degrees
-chooser = Input(SinX() * 100)
-degrees = Choice(1, 3, 5, 6, -1, -7, (5, Octave(3)))
-pattern = UpDown([0, 1, 1, -1], Degree)
-
-for iteration in range(1000):
-    eight_notes << chooser**degrees
-    if eight_notes.filter(Nth(1, 2, 3, 4)) == pattern:
-        print(f"Iteration: {iteration}.")
-        eight_notes >> P
-        R() >> P
-
 
 

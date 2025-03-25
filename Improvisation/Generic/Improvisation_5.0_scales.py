@@ -13,31 +13,27 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-from JsonMidiCreator import *
-
-# https://youtu.be/1v578xNBDyY?si=_eveiFQ4K4cfyhuB
+# https://youtu.be/TbDUsEmbsPw?si=kkpOfJ1vrp1ECd1x
 
 # Global Staff setting up
-defaults << Tempo(110)
+defaults << Tempo(120)
 
-tonic_key = Tonic("C")
-chromatic_notes = Cluster(tonic_key, [0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/8)) * 1
+# All whites
+b_minor_scale = KeyScale(Scale("Dorian"), "D")
+b_minor_scale >> P
+R() >> P
 
-for key in range(8):
-    chromatic_notes += Tonic(key)
-    chromatic_notes >> Play()
-    Rest() >> Play()
+seven_keys = Note(1/1) / 7 << Iterate()
+seven_keys >> P
+R() >> P
 
-chromatic_notes << tonic_key
-Rest(1/2) >> Play()
+seven_keys << CParameter(Scale("Dorian"))
+seven_keys >> P
+R() >> P
 
-for key in range(8):
-    chromatic_notes += Semitone(key)
-    chromatic_notes >> Play()
-    Rest() >> Play()
+seven_keys << Degree(0) # Degree 0 sets the Scale natural tonic
+seven_keys >> P
+R() >> P
+

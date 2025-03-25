@@ -13,33 +13,30 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+
+# jsonmidicreator_import.py
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
 
+def add_src_to_path():
+    """Dynamically finds and adds 'src' directory to sys.path."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    while current_dir:
+        src_path = os.path.join(current_dir, 'src')
+        if os.path.exists(src_path):
+            if src_path not in sys.path:
+                sys.path.append(src_path)
+            break
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:  # Stop if we reach the root
+            break
+        current_dir = parent_dir
+
+# Add 'src' to sys.path before importing JsonMidiCreator
+add_src_to_path()
+
+# Import everything from JsonMidiCreator
 from JsonMidiCreator import *
 
-# https://youtu.be/TbDUsEmbsPw?si=kkpOfJ1vrp1ECd1x
-
-# Global Staff setting up
-defaults << Tempo(120)
-
-# All whites
-b_minor_scale = KeyScale(Scale("Dorian"), "D")
-b_minor_scale >> P
-R() >> P
-
-seven_keys = Note(1/1) / 7 << Iterate()
-seven_keys >> P
-R() >> P
-
-seven_keys << CParameter(Scale("Dorian"))
-seven_keys >> P
-R() >> P
-
-seven_keys << Degree(0) # Degree 0 sets the Scale natural tonic
-seven_keys >> P
-R() >> P
 

@@ -13,19 +13,23 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 
 # Global Staff setting up
-defaults << Tempo(140)
+defaults << Tempo(100)
 
-for amount in (8, 10):
-    Note(1/64) * amount << Loop(1, 3, 4) >> Play()
-    Rest() >> Play()
 
+sixteen_notes = Note() * 16 << Loop(1, 4, 5, 1)
+
+# sixteen_notes >> Play()
+
+filtered_notes = sixteen_notes >> Measure(1)
+filtered_notes << Measure(0)
+filtered_notes += Note(6, Step(10))
+filtered_notes[0] % Position() % float() >> Print()
+filtered_notes >> L >> P
+filtered_notes << Measure(1)
+filtered_notes[0] % Position() % float() >> Print()
+
+sixteen_notes * 2 >> P

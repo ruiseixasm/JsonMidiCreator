@@ -13,36 +13,30 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
-
-from JsonMidiCreator import *
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 # https://youtu.be/sIBSN1_9Geo?si=_AW-FASDVtHK8irY
 
 # Global Staff setting up
 defaults << Tempo(120)
-defaults << Minor()
 
-first_notes = Note(1/8) * 3 << Duration(1/16)
-
-# Sets the right C minor Key Signature
-first_notes << CParameter(Key("C")) << None # Resets the Tonic key from A to C
-first_notes % KeySignature() % int() >> Print()
-first_notes % KeySignature() % str() >> Print()
-
-
-# C - G - Bb | C minor
-first_notes << Foreach("C", "G", "B")**Key()
+# C - G - A# | A minor with Tonic C
+KeyScale(Scale("minor"), Tonic("C"), 2.0) >> P
+first_notes = Note("C", 1/8) * 3 << Minor() << Foreach("C", "G", "A")**Key() << Duration(1/16)
 first_notes[0] % Degree() % int() >> Print()
 first_notes[1] % Degree() % int() >> Print()
 first_notes[2] % Degree() % int() >> Print()
+# first_notes >> P
 
+# Rest() >> P
 second_notes = first_notes + Step(1)
+# second_notes >> P
+
+# Rest() >> P
 patter_notes = first_notes + second_notes + Even()**Octave(1)
 
 final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
-final_pattern * 8 >> P >> MidiExport("Midi/improvisation_4.1.mid")
+
+
+final_pattern * 8 >> P >> MidiExport("Midi/improvisation_4.0.mid")
+
