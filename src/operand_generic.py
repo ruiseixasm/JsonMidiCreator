@@ -707,11 +707,12 @@ class Pitch(Generic):
             self += pitch_offset
         return self
 
+
 class Controller(Generic):
     def __init__(self, *parameters):
-        self._number: int       = ou.Number("Pan")._unit    # Same as MSB
+        self._number_msb: int   = ou.Number("Pan")._unit    # Same as MSB
         self._lsb: int          = 0 # lsb for 14 bits messages
-        self._value: int        = ou.Number.getDefault(self._number)
+        self._value: int        = ou.Number.getDefault(self._number_msb)
         self._nrpn: bool        = False
         self._high: bool        = False
         super().__init__(*parameters)
@@ -730,7 +731,7 @@ class Controller(Generic):
 
     def _midi_nrpn_values(self) -> tuple[int]:
 
-        cc_99_msb: int  = self._number
+        cc_99_msb: int  = self._number_msb
         cc_98_lsb: int  = self._lsb
         cc_6_msb: int   = (self._value >> 7) & 127
         cc_38_lsb: int  = self._value & 127
@@ -759,14 +760,14 @@ class Controller(Generic):
                 return self.copy()
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():           return operand._data << od.DataSource(self._number)
+                    case ou.Number():           return operand._data << od.DataSource(self._number_msb)
                     case ou.LSB():              return operand._data << od.DataSource(self._lsb)
                     case ou.Value():            return operand._data << od.DataSource(self._value)
                     case ou.NRPN():             return operand._data << od.DataSource(self._nrpn)
                     case ou.HighResolution():   return operand._data << od.DataSource(self._high)
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
-            case ou.Number():           return operand.copy() << od.DataSource(self._number)
+            case ou.Number():           return operand.copy() << od.DataSource(self._number_msb)
             case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
             case ou.Value():            return operand.copy() << od.DataSource(self._value)
             case ou.NRPN():             return operand.copy() << od.DataSource(self._nrpn)
@@ -775,8 +776,7 @@ class Controller(Generic):
             case float():               return float(self._value)
             case dict():
                 controller_dict: dict[str, int] = {
-                    "NUMBER": self._number,
-                    "MSB": self._number,
+                    "MSB": self._number_msb,
                     "LSB": self._lsb,
                     "VALUE": self._value,
                     "NRPN": self._nrpn,
@@ -791,7 +791,7 @@ class Controller(Generic):
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Controller):
-            return self._number == other._number and self._lsb == other._lsb \
+            return self._number_msb == other._number_msb and self._lsb == other._lsb \
                 and self._value == other._value and self._nrpn == other._nrpn \
                 and self._high == other._high
         if isinstance(other, od.Conditional):
@@ -800,26 +800,26 @@ class Controller(Generic):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number"]   = self.serialize( self._number )
-        serialization["parameters"]["lsb"]      = self.serialize( self._lsb )
-        serialization["parameters"]["value"]    = self.serialize( self._value )
-        serialization["parameters"]["nrpn"]     = self.serialize( self._nrpn )
-        serialization["parameters"]["high"]     = self.serialize( self._high )
+        serialization["parameters"]["number_msb"]   = self.serialize( self._number_msb )
+        serialization["parameters"]["lsb"]          = self.serialize( self._lsb )
+        serialization["parameters"]["value"]        = self.serialize( self._value )
+        serialization["parameters"]["nrpn"]         = self.serialize( self._nrpn )
+        serialization["parameters"]["high"]         = self.serialize( self._high )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "number" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"] and
+            "number_msb" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"] and
             "nrpn" in serialization["parameters"] and "high" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number    = self.deserialize( serialization["parameters"]["number"] )
-            self._lsb       = self.deserialize( serialization["parameters"]["lsb"] )
-            self._value     = self.deserialize( serialization["parameters"]["value"] )
-            self._nrpn      = self.deserialize( serialization["parameters"]["nrpn"] )
-            self._high      = self.deserialize( serialization["parameters"]["high"] )
+            self._number_msb    = self.deserialize( serialization["parameters"]["number_msb"] )
+            self._lsb           = self.deserialize( serialization["parameters"]["lsb"] )
+            self._value         = self.deserialize( serialization["parameters"]["value"] )
+            self._nrpn          = self.deserialize( serialization["parameters"]["nrpn"] )
+            self._high          = self.deserialize( serialization["parameters"]["high"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -827,14 +827,14 @@ class Controller(Generic):
         match operand:
             case Controller():
                 super().__lshift__(operand)
-                self._number    = operand._number
-                self._lsb       = operand._lsb
-                self._value     = operand._value
-                self._nrpn      = operand._nrpn
-                self._high      = operand._high
+                self._number_msb    = operand._number_msb
+                self._lsb           = operand._lsb
+                self._value         = operand._value
+                self._nrpn          = operand._nrpn
+                self._high          = operand._high
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():           self._number = operand._data._unit
+                    case ou.Number():           self._number_msb = operand._data._unit
                     case ou.LSB():              self._lsb = operand._data._unit
                     case ou.Value():            self._value = operand._data._unit
                     case ou.NRPN():             self._nrpn = bool(operand._data._unit)
@@ -842,14 +842,14 @@ class Controller(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.MSB():      # Must be check before the Number class
-                self._number = operand._unit
+                self._number_msb = operand._unit
             case ou.Number():   # Includes ou.MSB() as a subclass pf Number
-                self._number = operand._unit
+                self._number_msb = operand._unit
                 # Number has implicit 7 bytes CC
                 self._nrpn = False
                 self._high = False
             case str():
-                self._number = ou.Number(self._number, operand)._unit
+                self._number_msb = ou.Number(self._number_msb, operand)._unit
             case ou.LSB():
                 self._lsb = operand._unit
             case ou.Value():
@@ -866,13 +866,13 @@ class Controller(Generic):
                 self._value = int(operand)
             case dict():
                 if "NUMBER" in operand and isinstance(operand["NUMBER"], int):
-                    self._number = operand["NUMBER"]
+                    self._number_msb = operand["NUMBER"]
                     # Number has implicit 7 bytes CC
                     self._nrpn = False
                     self._high = False
                 else:
                     if "MSB" in operand and isinstance(operand["MSB"], int):
-                        self._number = operand["MSB"]
+                        self._number_msb = operand["MSB"]
                     if "NRPN" in operand and isinstance(operand["NRPN"], int):   # bool is a subclass of int !!
                         self._nrpn = bool(operand["NRPN"])
                     if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
