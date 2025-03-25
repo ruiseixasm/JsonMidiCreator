@@ -1756,10 +1756,46 @@ class Part(Container):
     
 
     def _sort_position(self) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._sort_position()
-        self._items.sort(key=lambda x: x % ra.Position())
+        # Clips and Playlist have no Position
         return self
+
+    def len(self, just_clips: bool = False) -> int:
+
+        if just_clips:
+            total_clips: int = 0
+            for single_item in self._items:
+                if isinstance(single_item, Clip):
+                    total_clips += 1
+            return total_clips
+
+        return super().len()
+
+
+    def finish(self) -> ra.Position:
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
+        finish_position: ra.Position = None
+
+        if self.len() > 0:
+            staff_reference: og.Staff = self[0]._staff
+            finish_beats: Fraction = Fraction(0)
+            for item in self._items:
+                if isinstance(item, Clip):
+                    single_element: oe.Element = item
+                    element_finish: Fraction = single_element._position_beats \
+                        + (single_element % ra.Length())._rational
+                    if element_finish > finish_beats:
+                        finish_beats = element_finish
+            finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
+        return finish_position
 
 
     def __mod__(self, operand: o.T) -> o.T:
