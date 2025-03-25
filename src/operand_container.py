@@ -1006,7 +1006,7 @@ class Clip(Container):  # Just a container of Elements
                 self += operand # It's equivalent
             case oe.Element():
                 if self.len() > 0:  # Avoids infinite recursion
-                    self /= Clip(operand) # It's equivalent
+                    self /= operand # Stacks elements directly
                 else:
                     self += operand
 
