@@ -43,6 +43,8 @@ class Blofeld(Variables):
 
     device          = od.Device("Blofeld")
 
+    # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
+
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
             ] = {
