@@ -2079,10 +2079,8 @@ class Song(Container):
         return self
 
     def test_staff_reference(self) -> bool:
-        clip_staff_id: int = id(self._staff)
         for single_part in self._items:
-            element_staff_id: int = id( single_part._staff_reference )
-            if element_staff_id != clip_staff_id:
+            if single_part._staff_reference is not self._staff:
                 return False
         return True
 

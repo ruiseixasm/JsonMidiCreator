@@ -263,6 +263,7 @@ def test_rshift_container():
     part_song = Song(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
+    assert part_song.test_staff_reference()
 
     part_song >> clip_part
     assert part_song.len() == 2
