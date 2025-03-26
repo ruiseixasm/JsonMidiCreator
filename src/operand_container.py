@@ -1351,6 +1351,53 @@ class Clip(Container):  # Just a container of Elements
                 position_steps += 1
 
         return self._sort_position()
+
+
+    def automate(self, pattern: str | list[int | None] = "1... 1... 1... 1...", values: list[int] = None, controller: og.Controller = None) -> Self:
+
+        controller = og.Controller(controller)
+
+        # Ensure values is a non-empty list with only integers ≥ 0
+        if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
+            values = [100, 70, 30, 100]
+
+        if not isinstance(pattern, list):
+            pattern = [values[i % len(values)] if char == '1' else None
+                   for i, char in enumerate(pattern.replace(" ", "").replace("-", ""))]
+
+        # Find indices of known values
+        known_indices = [i for i, val in enumerate(pattern) if val is not None]
+        
+        if not known_indices:
+            raise ValueError("List must contain at least one integer.")
+        
+        automation = pattern[:] # makes a copy of pattern list
+        
+        for i in range(len(pattern)):
+            if automation[i] is None:
+                # Find closest known values before and after
+                left_idx = max([idx for idx in known_indices if idx < i], default=None)
+                right_idx = min([idx for idx in known_indices if idx > i], default=None)
+                
+                if left_idx is None:
+                    automation[i] = automation[right_idx]   # Use the right value if no left
+                elif right_idx is None:
+                    automation[i] = automation[left_idx]    # Use the left value if no right
+                else:
+                    # Linear interpolation
+                    left_val = automation[left_idx]
+                    right_val = automation[right_idx]
+                    step = (right_val - left_val) / (right_idx - left_idx)
+                    automation[i] = int(left_val + step * (i - left_idx))
+
+
+        position_steps: ra.Steps = ra.Steps(0)
+        for value in automation:
+            self += oe.ControlChange(controller, value, position_steps)
+            position_steps += 1
+
+        return self._sort_position()
+    
     
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """
