@@ -2161,14 +2161,16 @@ class Song(Container):
                     for single_part in operand:
                         self += single_part + position_offset
             case Part():
-                self._append([ operand.copy() ])._sort_position()
+                if operand.len() > 0:
+                    self_last_position: ra.Position = self.last_position()
+                    next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
+                    self._append([ operand.copy( next_position ) ])._sort_position()
             case Clip():
                 clip_part: Part = Part(operand)
-                self._append([ clip_part ])._sort_position()
+                self *= clip_part
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                clip_part: Part = Part(element_clip)
-                self._append([ clip_part ])._sort_position()
+                element_part: Part = Part( Clip(operand) )
+                self *= element_part
                 
             case tuple():
                 for single_operand in operand:
