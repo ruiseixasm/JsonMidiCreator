@@ -1397,11 +1397,12 @@ class Clip(Container):  # Just a container of Elements
             return self._sort_position()
         
         return self
-    
+
+
     def interpolate(self) -> Self:
 
+        # It's a shallow copy of self, so, adding elements to it also adds elements to self!
         control_change_clip: Clip = self.filter(of.OperandType(oe.ControlChange))
-        pitch_bend_clip: Clip = self.filter(of.OperandType(oe.PitchBend))
 
         if control_change_clip.len() > 1:
 
@@ -1427,6 +1428,9 @@ class Clip(Container):  # Just a container of Elements
                     control_change_clip += control_change_template << value << position_steps
                 position_steps += 1
 
+        # It's a shallow copy of self, so, adding elements to it also adds elements to self!
+        pitch_bend_clip: Clip = self.filter(of.OperandType(oe.PitchBend))
+
         if pitch_bend_clip.len() > 1:
 
             pitch_bend_template: oe.PitchBend = pitch_bend_clip[0].copy()
@@ -1450,7 +1454,6 @@ class Clip(Container):  # Just a container of Elements
                 if index not in known_indices:   # None adds no Element
                     pitch_bend_clip += pitch_bend_template << value << position_steps
                 position_steps += 1
-
 
         return self._sort_position()
 

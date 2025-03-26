@@ -2064,21 +2064,21 @@ class ControlChange(Automation):
                     case _:                     super().__lshift__(operand)
             case og.Controller() | ou.Number() | ou.LSB() | str() | dict():
                 self._controller << operand
-            case ou.Value():
-                self._value = operand._unit
             case int():
                 self._value = operand
+            case ou.Value():
+                self._value = operand._unit
             case _: super().__lshift__(operand)
         return self
 
     def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Value():
-                self._value += operand._unit  # Specific and compounded parameter
-                return self
             case int():
                 self._value += operand  # Specific and compounded parameter
+                return self
+            case ou.Value():
+                self._value += operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -2086,11 +2086,11 @@ class ControlChange(Automation):
     def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Value():
-                self._value -= operand._unit  # Specific and compounded parameter
-                return self
             case int():
                 self._value -= operand  # Specific and compounded parameter
+                return self
+            case ou.Value():
+                self._value -= operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
@@ -2194,13 +2194,38 @@ class PitchBend(Automation):
                 match operand._data:
                     case ou.Bend():             self._bend = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case ou.Bend():
-                self._bend = operand._unit
             case int():
                 self._bend = operand
+            case ou.Bend():
+                self._bend = operand._unit
             case _:
                 super().__lshift__(operand)
         return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._bend += operand  # Specific and compounded parameter
+                return self
+            case ou.Bend():
+                self._bend += operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._bend -= operand  # Specific and compounded parameter
+                return self
+            case ou.Bend():
+                self._bend -= operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
+
 
 class Aftertouch(Automation):
     def __init__(self, *parameters):
