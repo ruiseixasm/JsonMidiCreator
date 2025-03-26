@@ -243,6 +243,7 @@ def test_rshift_container():
     clip_part >> note_clip  # Moves to the next Measure
     assert clip_part.len() == 2
 
+    # Occupies two Measures
     assert clip_part[0][0] % Position() == Measures(0) + Beats(0)
     assert clip_part[0][1] % Position() == Measures(0) + Beats(1)
     assert clip_part[1][0] % Position() == Measures(1) + Beats(0)
@@ -252,6 +253,12 @@ def test_rshift_container():
     part_song = Song(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
+
+    part_song >> clip_part
+    assert part_song.len() == 2
+    assert part_song[0] % Position() == Measures(0) + Beats(0)
+    # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
+    assert part_song[1] % Position() == Measures(2) + Beats(0)
 
 
 # test_rshift_container()

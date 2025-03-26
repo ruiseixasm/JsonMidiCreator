@@ -2122,7 +2122,7 @@ class Song(Container):
     def __rshift__(self, operand) -> Self:
         match operand:
             case Song() | Part() | Clip() | oe.Element():
-                self += operand
+                self *= operand # Stacks by Measure
                 return self
         return super().__rshift__(operand)
 
