@@ -918,8 +918,9 @@ class Stepper(Process):
 
 class Automate(Process):
 
-    def __init__(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: Any = "Pan"):
-        super().__init__((values, pattern, controller))
+    def __init__(self, values: list[int] = [100, 70, 30, 100],
+                 pattern: str = "1... 1... 1... 1...", controller: Any = "Pan", interpolate: bool = True):
+        super().__init__((values, pattern, controller, interpolate))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
