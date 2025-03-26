@@ -259,6 +259,15 @@ def test_rshift_container():
     assert new_part[3][0] % Position() == Measures(3) + Beats(0)
     assert new_part[3][1] % Position() == Measures(3) + Beats(1)
 
+    elements_part = Part(Note(), Note("A"))
+    assert elements_part.len() == 2
+    assert elements_part[0][0] == "C"
+    assert elements_part[1][0] == "A"
+    # Part stacks by Measure
+    assert elements_part[0][0] % Position() == Measures(0) + Beats(0)
+    assert elements_part[1][0] % Position() == Measures(1) + Beats(0)
+
+
     # Song testing ###################################################
     part_song = Song(clip_part)
     assert part_song.len() == 1
