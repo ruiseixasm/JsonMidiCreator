@@ -2494,9 +2494,8 @@ class ProgramChange(Element):
                 match operand._data:
                     case ou.Program():      return operand._data << od.DataSource(self._program)
                     case _:                 return super().__mod__(operand)
-            case ou.Program():      return ou.Program() << od.DataSource(self._program)
             case int():             return self._program
-            case float():           return float(self._program)
+            case ou.Program():      return ou.Program() << od.DataSource(self._program)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2559,17 +2558,40 @@ class ProgramChange(Element):
                 match operand._data:
                     case ou.Program():          self._program = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case ou.Program():
-                self._program = operand._unit
             case int():
                 self._program = operand
-            case float():
-                self._program = int(operand)
+            case ou.Program():
+                self._program = operand._unit
             case str():
                 self._program = ou.Program(self._program, operand)._unit
             case _:
                 super().__lshift__(operand)
         return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._program += operand  # Specific and compounded parameter
+                return self
+            case ou.Program():
+                self._program += operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._program -= operand  # Specific and compounded parameter
+                return self
+            case ou.Program():
+                self._program -= operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
+
 
 class Panic(Element):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
