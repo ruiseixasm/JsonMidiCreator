@@ -928,46 +928,74 @@ class UnoSynth(Variables):
                 # Controllers
                 "CONTROLLERS": {
                     "Modulation":   { "NUMBER": 1 },
-                    # "Breath":       { "NUMBER": 2 },
-                    # "Foot":         { "NUMBER": 4 },
-                    # "Sustain":      { "NUMBER": 64 }
+                    "Glide":        { "NUMBER": 65 },
+                    "Sustain":      { "NUMBER": 64 }
                 },
 
                 # Oscillators
                 "OSC COMMON": {
-                #     "Sync":         { "NUMBER": 49 },
-                #     "Pitchmod":     { "NUMBER": 50 },
-                #     "Glide Active": { "NUMBER": 65 },
-                #     "Glide Mode":   { "NUMBER": 51 },
                     "Glide Time":   { "NUMBER": 5 }
                 },
                 "OSC 1": {
-                    "Level":       { "NUMBER": 12 },
-                    "Wave":     { "NUMBER": 15 },
-                    "Tune":       { "NUMBER": 17 },
-                #     "FM":           { "NUMBER": 30 },
-                #     "Shape":        { "NUMBER": 31 },
-                #     "PW":           { "NUMBER": 33 },
+                    "Level":        { "NUMBER": 12 },
+                    "Wave":         { "NUMBER": 15 },
+                    "Tune":         { "NUMBER": 17 },
                     "PWM":          { "NUMBER": 48 },
-                    "Wave":          { "NUMBER": 50 }
+                    "Wave":         { "NUMBER": 50 }
                 },
                 "OSC 2": {
-                    "Level":       { "NUMBER": 13 },
-                    "Wave":     { "NUMBER": 16 },
-                    "Tune":       { "NUMBER": 18 },
-                #     "Octave":       { "NUMBER": 35 },
-                #     "Semitone":     { "NUMBER": 36 },
-                #     "Detune":       { "NUMBER": 37 },
-                #     "FM":           { "NUMBER": 38 },
-                #     "Shape":        { "NUMBER": 39 },
-                #     "PW":           { "NUMBER": 40 },
+                    "Level":        { "NUMBER": 13 },
+                    "Wave":         { "NUMBER": 16 },
+                    "Tune":         { "NUMBER": 18 },
                     "PWM":          { "NUMBER": 49 },
-                    "Wave":          { "NUMBER": 51 }
+                    "Wave":         { "NUMBER": 51 }
                 },
 
                 # Noise
                 "NOISE": {
-                    "Level":       { "NUMBER": 14 }
+                    "Level":        { "NUMBER": 14 }
+                },
+
+                # On Off
+                "ON OFF": {
+                    "Vibrato":      { "NUMBER": 77 },
+                    "Wah":          { "NUMBER": 78 },
+                    "Tremolo":      { "NUMBER": 79 },
+                    "Arpeggiator":  { "NUMBER": 82 },
+                    "Dive":         { "NUMBER": 89 },
+                    "Scoop":        { "NUMBER": 91 }
+                },
+
+                # Effects
+                "EFFECTS": {
+                    "Dive":         { "NUMBER": 90 },
+                    "Scoop":        { "NUMBER": 92 },
+                    "Pitch Bend Range":
+                                    { "NUMBER": 101 }
+                },
+
+                # Delay
+                "DELAY": {
+                    "Time":         { "NUMBER": 80 },
+                    "Mix":          { "NUMBER": 81 }
+                },
+
+                # Modulation
+                "MODULATION": {
+                    "LFO":          { "NUMBER": 93 },
+                    "Vibrato":      { "NUMBER": 94 },
+                    "Wah":          { "NUMBER": 95 },
+                    "Tremolo":      { "NUMBER": 96 },
+                    "Cutoff":       { "NUMBER": 97 }
+                },
+
+                # Velocity
+                "VELOCITY": {
+                    "VCA Amount":   { "NUMBER": 102 },
+                    "Cutoff":       { "NUMBER": 103 },
+                    "Envelop":      { "NUMBER": 104 },
+                    "LFO Rate":     { "NUMBER": 105 },
+                    "Notes Off":    { "NUMBER": 123 }
                 },
 
                 # Filters
@@ -976,130 +1004,65 @@ class UnoSynth(Variables):
                     "Cutoff":       { "NUMBER": 20 },
                     "Resonance":    { "NUMBER": 21 },
                     "Drive":        { "NUMBER": 22 },
-                #     "Keytrack":     { "NUMBER": 72 },
                     "Env Amount":   { "NUMBER": 23 },
-                #     "Env Velocity": { "NUMBER": 74 },
-                #     "Mod":          { "NUMBER": 75 },
-                #     "FM":           { "NUMBER": 76 },
-                #     "Pan":          { "NUMBER": 77 },
-                #     "Panmod":       { "NUMBER": 78 }
+                    "Keytrack":     { "NUMBER": 106 }
                 },
-                # "FILTER COMMON": {
-                #     "Routing":      { "NUMBER": 67 }
-                # },
-                # "FILTER 2": {
-                #     "Type":         { "NUMBER": 79 },
-                #     "Cutoff":       { "NUMBER": 80 },
-                #     "Resonance":    { "NUMBER": 81 },
-                #     "Drive":        { "NUMBER": 82 },
-                #     "Keytrack":     { "NUMBER": 83 },
-                #     "Env Amount":   { "NUMBER": 84 },
-                #     "Env Velocity": { "NUMBER": 85 },
-                #     "Mod":          { "NUMBER": 86 },
-                #     "FM":           { "NUMBER": 87 },
-                #     "Pan":          { "NUMBER": 88 },
-                #     "Panmod":       { "NUMBER": 89 }
-                # },
 
                 # Envelopes
                 "FILTER ENV": {
                     "Attack":       { "NUMBER": 44 },
                     "Decay":        { "NUMBER": 45 },
                     "Sustain":      { "NUMBER": 46 },
-                #     "Decay 2":      { "NUMBER": 98 },
-                #     "Sustain 2":    { "NUMBER": 99 },
                     "Release":      { "NUMBER": 47 }
                 },
                 "AMP ENV": {
                     "Attack":       { "NUMBER": 24 },
                     "Decay":        { "NUMBER": 25 },
                     "Sustain":      { "NUMBER": 26 },
-                #     "Decay 2":      { "NUMBER": 104 },
-                #     "Sustain 2":    { "NUMBER": 105 },
                     "Release":      { "NUMBER": 27 }
                 },
-                # "ENV 3": {
-                #     "Attack":       { "NUMBER": 107 },
-                #     "Decay":        { "NUMBER": 108 },
-                #     "Sustain":      { "NUMBER": 109 },
-                #     "Decay 2":      { "NUMBER": 110 },
-                #     "Sustain 2":    { "NUMBER": 111 },
-                #     "Release":      { "NUMBER": 112 }
-                # },
-                # "ENV 4": {
-                #     "Attack":       { "NUMBER": 113 },
-                #     "Decay":        { "NUMBER": 114 },
-                #     "Sustain":      { "NUMBER": 115 },
-                #     "Decay 2":      { "NUMBER": 116 },
-                #     "Sustain 2":    { "NUMBER": 117 },
-                #     "Release":      { "NUMBER": 118 }
-                # },
 
-                # # LFOs
-                # "LFO 1": {
-                #     "Shape":        { "NUMBER": 15 },
-                #     "Speed":        { "NUMBER": 16 },
-                #     "Sync":         { "NUMBER": 17 },
-                #     "Delay":        { "NUMBER": 18 }
-                # },
-                # "LFO 2": {
-                #     "Shape":        { "NUMBER": 19 },
-                #     "Speed":        { "NUMBER": 20 },
-                #     "Sync":         { "NUMBER": 21 },
-                #     "Delay":        { "NUMBER": 22 }
-                # },
-                # "LFO 3": {
-                #     "Shape":        { "NUMBER": 23 },
-                #     "Speed":        { "NUMBER": 24 },
-                #     "Sync":         { "NUMBER": 25 },
-                #     "Delay":        { "NUMBER": 26 }
-                # },
-
-                # # Amplifier
-                # "AMP COMMON": {
-                #     "Volume":       { "NUMBER": 90 },
-                #     "Velocity":     { "NUMBER": 91 },
-                #     "Mod":          { "NUMBER": 92 }
-                # },
-
-                # # Effects
-                "EFFECTS": {
-                    "Swing":        { "NUMBER": 9 },
-                #     "Mix 2":        { "NUMBER": 94 }
+                # LFOs
+                "LFO": {
+                    "Wave":         { "NUMBER": 66 },
+                    "Rate":         { "NUMBER": 67 },
+                    "Pitch":        { "NUMBER": 68 },
+                    "Cutoff":       { "NUMBER": 69 },
+                    "Tremolo":      { "NUMBER": 70 },
+                    "Wah":          { "NUMBER": 71 },
+                    "Vibrato":      { "NUMBER": 72 },
+                    "PWM 1":        { "NUMBER": 73 },
+                    "PWM 2":        { "NUMBER": 74 },
+                    "Waveform 1":   { "NUMBER": 75 },
+                    "Waveform 2":   { "NUMBER": 76 }
                 },
 
-                # # Arpeggiator
-                # "ARPEGGIATOR": {
-                #     "Octave":       { "NUMBER": 12 },
-                #     "Length":       { "NUMBER": 13 },
-                #     "Mode":         { "NUMBER": 14 }
-                # },
+                # Arpeggiator
+                "ARPEGGIATOR": {
+                    "Direction":    { "NUMBER": 83 },
+                    "Range":        { "NUMBER": 84 },
+                    "Gate":         { "NUMBER": 85 },
+                    "Swing":        { "NUMBER": 9 }
+                },
 
-                # # Mixers
+                # Sequencer
+                "SEQUENCER": {
+                    "Direction":    { "NUMBER": 86 },
+                    "Range":        { "NUMBER": 87 },
+                    "Gate":         { "NUMBER": 85 },
+                    "Swing":        { "NUMBER": 9 }
+                },
+
+                # Mixers
                 "MIXER COMMON": {
                     "Volume":       { "NUMBER": 7 },
-                    "Balance":          { "NUMBER": 8 }
+                    "Balance":      { "NUMBER": 8 }
                 },
-                # "MIXER OSC 1": {
-                #     "Level":        { "NUMBER": 52 },
-                #     "Filter":       { "NUMBER": 53 }
-                # },
-                # "MIXER OSC 2": {
-                #     "Level":        { "NUMBER": 56 },
-                #     "Filter":       { "NUMBER": 57 }
-                # },
-                # "MIXER OSC 3": {
-                #     "Level":        { "NUMBER": 58 },
-                #     "Filter":       { "NUMBER": 59 }
-                # },
-                # "MIXER RING": {
-                #     "Level":        { "NUMBER": 54 },
-                #     "Filter":       { "NUMBER": 55 }
-                # },
-                # "MIXER NOISE": {
-                #     "Level":        { "NUMBER": 60 },
-                #     "Filter":       { "NUMBER": 61 }
-                # }
+
+                # Scale
+                "SCALE": {
+                    "Type":         { "NUMBER": 120 }
+                }
             }
 
 
