@@ -112,7 +112,7 @@ class Blofeld(Variables):
                     "Pan":          { "NUMBER": 77 },
                     "Panmod":       { "NUMBER": 78 }
                 },
-                "FILTER": {
+                "FILTER COMMON": {
                     "Routing":      { "NUMBER": 67 }
                 },
                 "FILTER 2": {
@@ -184,7 +184,7 @@ class Blofeld(Variables):
                 },
 
                 # Amplifier
-                "AMP": {
+                "AMP COMMON": {
                     "Volume":       { "NUMBER": 90 },
                     "Velocity":     { "NUMBER": 91 },
                     "Mod":          { "NUMBER": 92 }
