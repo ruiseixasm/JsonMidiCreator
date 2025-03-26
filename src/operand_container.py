@@ -1857,16 +1857,11 @@ class Part(Container):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case og.Staff():        return self._staff_reference
                     case ra.Position():
                         return operand._data << self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff_reference.copy()
             case ra.Position():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
-                | float() | Fraction():
-                return self._staff_reference % operand
             case _:
                 return super().__mod__(operand)
 
@@ -1912,12 +1907,9 @@ class Part(Container):
                 
             case od.DataSource():
                 match operand._data:
-                    case og.Staff():        self._staff_reference = operand._data
                     case ra.Position():     self._position_beats = self._staff_reference.convertToBeats(operand._data)._rational
                     case _:                 super().__lshift__(operand)
 
-            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
-                self._staff_reference << operand
             case ra.Position() | ra.TimeValue():
                 self._position_beats = self._staff_reference.convertToBeats(operand)._rational
             case Song() | Clip() | oe.Element():
@@ -2125,6 +2117,20 @@ class Song(Container):
         return None
 
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        return self._staff
+                    case _:                 return super().__mod__(operand)
+            case og.Staff():        return self._staff.copy()
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+                | float() | Fraction():
+                return self._staff % operand
+            case _:
+                return super().__mod__(operand)
+
+
     def getPlaylist(self) -> list:
         play_list: list = []
         for single_part in self:
@@ -2157,10 +2163,18 @@ class Song(Container):
         match operand:
             case Song():
                 super().__lshift__(operand)
+
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        self._staff = operand._data
+                    case _:                 super().__lshift__(operand)
+
             case Part() | Clip() | oe.Element():
                 self += operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff << operand
             case list():
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, Part)
