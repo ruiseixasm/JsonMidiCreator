@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 defaults % Devices() % list() >> Print()
-defaults += Digitakt.device
+defaults += Blofeld.device
 defaults % Devices() % list() >> Print()
 
 
@@ -26,29 +26,30 @@ chooser = Input(SinX() * 100)
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
 defaults << Tempo(120)
 
+long_note_c = Note(4/1)
 
 print("1st LOOP")
 
-level_cc = ControlChange(Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
-level_cc * 4 >> P
+level_cc = ControlChange(Blofeld.midi_cc["FILTER 1"]["Cutoff"]) * 16 << Iterate(step=1000)
+level_cc * 4 + long_note_c >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", Digitakt.midi_cc["TRACK"]["Level"]) << Digitakt.kick
-automation_cc * 4 >> P
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", Blofeld.midi_cc["FILTER 1"]["Cutoff"])
+automation_cc * 4 + long_note_c >> P
 
 print("3rd LOOP")
 
-automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", Digitakt.midi_cc["TRACK"]["Level"], False) << Digitakt.kick
-automation_cc * 4 >> P
+automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", Blofeld.midi_cc["FILTER 1"]["Cutoff"], False)
+automation_cc * 4 + long_note_c >> P
 
 print("4th LOOP")
 
-automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None) << Digitakt.cymbal
-automation_pitch * 4 >> P
+automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None)
+automation_pitch * 4 + long_note_c >> P
 
 
 
-defaults -= Digitakt.device
+defaults -= Blofeld.device
 defaults % Devices() % list() >> Print()
 

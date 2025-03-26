@@ -117,7 +117,7 @@ class Blofeld(Variables):
                     "Keytrack":     { "NUMBER": 72 },
                     "Env Amount":   { "NUMBER": 73 },
                     "Env Velocity": { "NUMBER": 74 },
-                    "Cutoff":       { "NUMBER": 75 },
+                    "Mod":          { "NUMBER": 75 },
                     "FM":           { "NUMBER": 76 },
                     "Pan":          { "NUMBER": 77 },
                     "Panmod":       { "NUMBER": 78 }
@@ -130,7 +130,7 @@ class Blofeld(Variables):
                     "Keytrack":     { "NUMBER": 83 },
                     "Env Amount":   { "NUMBER": 84 },
                     "Env Velocity": { "NUMBER": 85 },
-                    "Cutoff":       { "NUMBER": 86 },
+                    "Mod":          { "NUMBER": 86 },
                     "FM":           { "NUMBER": 87 },
                     "Pan":          { "NUMBER": 88 },
                     "Panmod":       { "NUMBER": 89 }
