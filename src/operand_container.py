@@ -2238,10 +2238,14 @@ class Song(Container):
                             self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
                         # Beats are the common unit of measurement across multiple Time Signatures !!
                         for single_part in operand._items:
-                            self._append([ single_part + position_offset ])
+                            new_part: Part = single_part.copy().set_staff_reference(self._staff)
+                            new_part += position_offset
+                            self._append([ new_part ])
                     else:
                         for single_part in operand._items:
-                            self._append([ single_part - operand_first_position ])
+                            new_part: Part = single_part.copy().set_staff_reference(self._staff)
+                            new_part -= operand_first_position
+                            self._append([ new_part ])
                 self._sort_position()
             case Part():
                 if operand.len() > 0:
