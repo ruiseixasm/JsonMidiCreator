@@ -1070,7 +1070,7 @@ class Clip(Container):  # Just a container of Elements
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
         match operand:
-            case Song() | Part() | Clip() | oe.Element():
+            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
                 # Quantized Stacking by Measures
                 self *= operand
                 return self
@@ -2120,7 +2120,7 @@ class Song(Container):
     # Pass trough method that always results in a Song (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Song() | Part() | Clip() | oe.Element():
+            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
                 self *= operand # Stacks by Measure
                 return self
         return super().__rshift__(operand)
@@ -2130,7 +2130,7 @@ class Song(Container):
         match operand:
             case Part():
                 self._append([ operand.copy() ])._sort_position()
-            case Clip():
+            case Clip() | od.Playlist():
                 clip_part: Part = Part(operand)
                 self._append([ clip_part ])._sort_position()
             case oe.Element():
@@ -2164,7 +2164,7 @@ class Song(Container):
                     self_last_position: ra.Position = self.last_position()
                     next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
                     self._append([ operand.copy( next_position ) ])._sort_position()
-            case Clip():
+            case Clip() | od.Playlist():
                 clip_part: Part = Part(operand)
                 self *= clip_part
             case oe.Element():
