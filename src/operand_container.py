@@ -2179,3 +2179,20 @@ class Song(Container):
                     item *= operand
         return self
 
+    def stack(self) -> Self:
+        for index, single_part in enumerate(self._items):
+            if index > 0:   # Not following Parts
+                previous_part: Part = self._items[index - 1]
+                next_position: ra.Position = previous_part.last_position()
+                if next_position:
+                    next_position = next_position.roundMeasures() + ou.Measure(1)
+                else:
+                    next_position = ra.Position(0)
+                # Parts have different Staffs, so, it needs Position transformation
+                transformed_position: ra.Position = single_part._staff.transformPosition(next_position)
+                single_part << transformed_position
+            else:           # THE FIRST PART!
+                single_part._position_beats = Fraction(0)   # everything starts at the beginning (0)!
+        
+        return self._sort_position()    # May be needed due to upper clips
+    
