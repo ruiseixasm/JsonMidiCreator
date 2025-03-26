@@ -152,6 +152,18 @@ def test_time_signature():
 # test_time_signature()
 
 
+def test_measurements_composition():
+
+    clip_2_4 = Clip() << TimeSignature(2, 4)
+
+    assert Measures(1) == Beats(4)
+    assert Measure(1) == Beats(4)
+    assert Measure(1) == Beat(4)
+
+
+# test_measurements_composition()
+
+
 def test_or_clip():
 
     # A Clip with a Measure of only 2 Beats

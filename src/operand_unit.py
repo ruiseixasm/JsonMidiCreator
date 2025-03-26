@@ -254,6 +254,36 @@ class TimeUnit(Unit):
         self._staff_reference = og.defaults._staff
         return self
 
+    def __eq__(self, other: any) -> bool:
+        import operand_rational as ra
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+                return self._staff_reference.convertToBeats(self)._rational == self._staff_reference.convertToBeats(other)._rational
+            case _:
+                return super().__eq__(other)
+        return False
+
+    def __lt__(self, other: any) -> bool:
+        import operand_rational as ra
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+                return self._staff_reference.convertToBeats(self)._rational < self._staff_reference.convertToBeats(other)._rational
+            case _:
+                return super().__lt__(other)
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        import operand_rational as ra
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+                return self._staff_reference.convertToBeats(self)._rational > self._staff_reference.convertToBeats(other)._rational
+            case _:
+                return super().__gt__(other)
+        return False
+
     #######################################################################
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
