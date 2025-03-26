@@ -2179,7 +2179,7 @@ class Song(Container):
                     item *= operand
         return self
 
-    def stack(self) -> Self:
+    def stack(self, non_empty_measures_only: bool = True) -> Self:
         for index, single_part in enumerate(self._items):
             if index > 0:   # Not following Parts
                 previous_part: Part = self._items[index - 1]

@@ -879,7 +879,7 @@ class Stack(Process):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        if isinstance(operand, oc.Clip):
+        if isinstance(operand, (oc.Clip, oc.Song)):
             return operand.stack(self._data)
         return super().__rrshift__(operand)
 
