@@ -1358,7 +1358,7 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
-            controller = og.Controller(controller)
+            control_change = oe.ControlChange().set_staff_reference(self._staff) << controller
 
             # Ensure values is a non-empty list with only integers ≥ 0
             if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
@@ -1402,7 +1402,7 @@ class Clip(Container):  # Just a container of Elements
 
             position_steps: ra.Steps = ra.Steps(0)
             for value in automation:
-                self += oe.ControlChange(controller, value, position_steps)
+                self += control_change << value << position_steps
                 position_steps += 1
 
             return self._sort_position()
