@@ -1991,8 +1991,7 @@ class Part(Container):
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
                     self._append([ clip_or_playlist ])
-            case Clip():
-                operand_copy: Part = operand.copy()
+            case Clip() | od.Playlist():
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self.last_position()
