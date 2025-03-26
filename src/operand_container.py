@@ -1405,63 +1405,38 @@ class Clip(Container):  # Just a container of Elements
 
     def interpolate(self) -> Self:
 
+        automations: list[Clip] = []
         # It's a shallow copy of self, so, adding elements to it also adds elements to self!
-        control_change_clip: Clip = self.filter(of.OperandType(oe.ControlChange))
+        automations.append( self.filter(of.OperandType(oe.ControlChange)) )
+        automations.append( self.filter(of.OperandType(oe.PitchBend)) )
 
-        if control_change_clip.len() > 1:
+        for automation_clip in automations:
 
-            control_change_template: oe.ControlChange = control_change_clip[0].copy()
-            
-            # Find indices of known values
-            known_indices = [
-                (control_change % ra.Position()).convertToSteps() % int() for control_change in control_change_clip._items
-            ]
+            if automation_clip.len() > 1:
 
-            total_messages: int = known_indices[-1] - known_indices[0] + 1
-            pattern_values = [ None ] * total_messages
+                element_template: oe.Element = automation_clip[0].copy()
+                
+                # Find indices of known values
+                known_indices = [
+                    (element % ra.Position()).convertToSteps() % int() for element in automation_clip._items
+                ]
 
-            element_index: int = 0
-            for index in range(total_messages):
-                if index in known_indices:
-                    pattern_values[index] = control_change_clip[element_index] % int()
-                    element_index += 1
+                total_messages: int = known_indices[-1] - known_indices[0] + 1
+                pattern_values = [ None ] * total_messages
 
-            automation = self._interpolate_list(known_indices, pattern_values)
+                element_index: int = 0
+                for index in range(total_messages):
+                    if index in known_indices:
+                        pattern_values[index] = automation_clip[element_index] % int()
+                        element_index += 1
 
-            position_steps: ra.Steps = ra.Steps(0)
-            for index, value in enumerate(automation):
-                if index not in known_indices:   # None adds no Element
-                    control_change_clip += control_change_template << value << position_steps
-                position_steps += 1
+                automation = self._interpolate_list(known_indices, pattern_values)
 
-        # It's a shallow copy of self, so, adding elements to it also adds elements to self!
-        pitch_bend_clip: Clip = self.filter(of.OperandType(oe.PitchBend))
-
-        if pitch_bend_clip.len() > 1:
-
-            pitch_bend_template: oe.PitchBend = pitch_bend_clip[0].copy()
-            
-            # Find indices of known values
-            known_indices = [
-                (pitch_bend % ra.Position()).convertToSteps() % int() for pitch_bend in pitch_bend_clip._items
-            ]
-
-            total_messages: int = known_indices[-1] - known_indices[0] + 1
-            pattern_values = [ None ] * total_messages
-
-            element_index: int = 0
-            for index in range(total_messages):
-                if index in known_indices:
-                    pattern_values[index] = pitch_bend_clip[element_index] % int()
-                    element_index += 1
-
-            automation = self._interpolate_list(known_indices, pattern_values)
-
-            position_steps: ra.Steps = ra.Steps(0)
-            for index, value in enumerate(automation):
-                if index not in known_indices:   # None adds no Element
-                    pitch_bend_clip += pitch_bend_template << value << position_steps
-                position_steps += 1
+                position_steps: ra.Steps = ra.Steps(0)
+                for index, value in enumerate(automation):
+                    if index not in known_indices:   # None adds no Element
+                        automation_clip += element_template << value << position_steps
+                    position_steps += 1
 
         return self._sort_position()
 
