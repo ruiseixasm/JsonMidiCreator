@@ -227,7 +227,7 @@ def test_new_container():
 
 def test_rshift_container():
 
-    # Clip testing
+    # Clip testing ###################################################
     note_clip = Clip(Note())
     assert note_clip[0] % Position() == 0.0
 
@@ -236,7 +236,7 @@ def test_rshift_container():
     assert note_clip[1] == "E"
     assert note_clip[1] % Position() == Beats(1)
 
-    # Part testing
+    # Part testing ###################################################
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
 
@@ -249,7 +249,7 @@ def test_rshift_container():
     assert clip_part[1][0] % Position() == Measures(1) + Beats(0)
     assert clip_part[1][1] % Position() == Measures(1) + Beats(1)
 
-    # Song testing
+    # Song testing ###################################################
     part_song = Song(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
@@ -260,8 +260,18 @@ def test_rshift_container():
     # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
     assert part_song[1] % Position() == Measures(2) + Beats(0)
 
+    part_song >> part_song  # >> changes the first element in the >> chain (sequence)
+    assert part_song.len() == 4
+    assert part_song[0] % Position() == Measures(0) + Beats(0)
+    # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
+    assert part_song[1] % Position() == Measures(2) + Beats(0)
+    # The two first parts are repeated at the Measure 4 and 6 respectively
+    assert part_song[2] % Position() == Measures(4) + Beats(0)
+    assert part_song[3] % Position() == Measures(6) + Beats(0)
 
-# test_rshift_container()
+
+
+test_rshift_container()
 
 
 def test_rrshift_clip():

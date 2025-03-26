@@ -1904,7 +1904,7 @@ class Part(Container):
 
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.TimeValue():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
             case Song() | Clip() | oe.Element():
                 self += operand
@@ -1946,6 +1946,8 @@ class Part(Container):
             case oe.Element():
                 element_clip: Clip = Clip(operand)
                 self._append([ element_clip ])
+            case ra.Position() | ra.TimeValue():
+                self << self % ra.Position() + operand
             case list():
                 self._append(self.deep_copy(operand))
             case tuple():
@@ -1962,6 +1964,8 @@ class Part(Container):
                 return self._delete(operand)
             case Part():
                 return self._delete(operand._items)
+            case ra.Position() | ra.TimeValue():
+                self << self % ra.Position() - operand
             case list():
                 return self._delete(operand)
             case tuple():
@@ -1977,7 +1981,7 @@ class Part(Container):
         match operand:
             case Song():
                 song_part: Part = Part()
-                for single_part in operand:
+                for single_part in operand._items:
                     song_part += single_part
                 self *= song_part
             case Part():
@@ -2076,7 +2080,7 @@ class Song(Container):
         if last_part:
             last_part_element: oe.Element = last_part.last()
             if last_part_element:
-                return last_part_element % ra.Position()
+                return last_part % ra.Position() + last_part_element % ra.Position()
         
         return None
 
@@ -2128,6 +2132,10 @@ class Song(Container):
 
     def __iadd__(self, operand: any) -> Self:
         match operand:
+            case Song():
+                for single_part in operand._items:
+                    self._append([ single_part.copy() ])
+                self._sort_position()
             case Part():
                 self._append([ operand.copy() ])._sort_position()
             case Clip() | od.Playlist():
@@ -2152,13 +2160,17 @@ class Song(Container):
         match operand:
             case Song():
                 if operand.len() > 0:
-                    self_last_position: ra.Position = self.last_position()
                     operand_first_position: ra.Position = operand[0] % ra.Position()
-                    position_offset: ra.Position = \
-                        self_last_position.roundMeasures() + ou.Measure(1) \
-                        - operand_first_position
-                    for single_part in operand:
-                        self += single_part + position_offset
+                    self_last_position: ra.Position = self.last_position()
+                    if self_last_position:
+                        position_offset: ra.Position = \
+                            self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
+                        for single_part in operand._items:
+                            self._append([ single_part + position_offset ])
+                    else:
+                        for single_part in operand._items:
+                            self._append([ single_part - operand_first_position ])
+                self._sort_position()
             case Part():
                 if operand.len() > 0:
                     self_last_position: ra.Position = self.last_position()
