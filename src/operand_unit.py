@@ -416,7 +416,7 @@ class TimeUnit(Unit):
             case self.__class__():
                 super().__lshift__(operand)
                 self._staff_reference = operand._staff_reference
-            case oe.Element() | oc.Clip():
+            case oe.Element() | oc.Composition():
                 self.set_staff_reference(operand.get_staff_reference())
             case _:
                 super().__lshift__(operand)

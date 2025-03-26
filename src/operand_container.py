@@ -704,7 +704,19 @@ class Devices(Container):
 
 
 class Composition(Container):
-    pass
+
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+        return self
+
+    def get_staff_reference(self) -> 'og.Staff':
+        return og.defaults._staff
+
+    def reset_staff_reference(self) -> Self:
+        return self
+
+    def test_staff_reference(self) -> bool:
+        return True
+
 
 
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
