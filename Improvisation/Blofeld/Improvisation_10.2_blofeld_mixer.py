@@ -31,7 +31,7 @@ long_note_c = Note(1/1) * 4
 print("1st LOOP")
 
 measure_cc = ControlChange(Blofeld.midi_cc["MIXER COMMON"]["Pan"]) * 16
-level_cc = Clip( measure_cc << Iterate(0, -7) ) 
+level_cc = measure_cc * 1 << Iterate(0, -7)
 level_cc *= measure_cc << Iterate(-7*16, 7)
 level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(7*16, -7)
