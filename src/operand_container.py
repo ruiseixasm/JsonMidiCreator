@@ -1341,11 +1341,16 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
-            control_change = oe.ControlChange().set_staff_reference(self._staff) << controller
-
-            # Ensure values is a non-empty list with only integers ≥ 0
-            if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
-                values = [100, 70, 30, 100]
+            if controller is None:  # Pitch Bend, special case
+                automate_element = oe.PitchBend().set_staff_reference(self._staff)
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
+                    values = [-20*64, -70*64, -50*64, 0*64]
+            else:
+                automate_element = oe.ControlChange().set_staff_reference(self._staff) << controller
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
+                    values = [80, 50, 30, 100]
                 
             pattern_values = []
             value_index = 0  # Keep track of which value to use
@@ -1384,8 +1389,8 @@ class Clip(Container):  # Just a container of Elements
 
             position_steps: ra.Steps = ra.Steps(0)
             for value in automation:
-                if value:   # None adds no Element
-                    self += control_change << value << position_steps
+                if value is not None:   # None adds no Element
+                    self += automate_element << value << position_steps
                 position_steps += 1
 
             return self._sort_position()

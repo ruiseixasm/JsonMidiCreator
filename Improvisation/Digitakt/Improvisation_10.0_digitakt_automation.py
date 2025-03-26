@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 defaults % Devices() % list() >> Print()
-defaults += Digitakt.device
+# defaults += Digitakt.device
 defaults % Devices() % list() >> Print()
 
 
@@ -30,17 +30,22 @@ defaults << Tempo(120)
 print("1st LOOP")
 
 level_cc = ControlChange(Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
-level_cc * 4 >> P
+# level_cc * 4 >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", Digitakt.midi_cc["TRACK"]["Level"]) << Digitakt.kick
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", Digitakt.midi_cc["TRACK"]["Level"]) << Digitakt.kick
 automation_cc * 4 >> P
 
 print("3rd LOOP")
 
 automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", Digitakt.midi_cc["TRACK"]["Level"], False) << Digitakt.kick
-automation_cc * 4 >> P
+# automation_cc * 4 >> P
+
+print("4th LOOP")
+
+automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None) << Digitakt.cymbal
+automation_pitch * 4 >> P
 
 
 
