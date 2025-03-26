@@ -1855,11 +1855,12 @@ class Automation(Element):
 class ControlChange(Automation):
     def __init__(self, *parameters):
         self._controller: og.Controller = og.defaults % og.Controller()
+        self._value: int                = ou.Number.getDefault(self._controller._number_msb)
         super().__init__(*parameters)
 
-    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None, value: Optional[int] = None) -> Self:
+    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
         self._controller = og.Controller(
-                ou.Number(msb), ou.LSB(lsb), ou.Value(value)
+                ou.Number(msb), ou.LSB(lsb)
             )
         return self
 
@@ -1879,9 +1880,12 @@ class ControlChange(Automation):
             case od.DataSource():
                 match operand._data:
                     case og.Controller():       return self._controller
+                    case ou.Value():            return operand._data << od.DataSource(self._value)
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case ou.Number() | ou.LSB() | ou.Value() | int() | float():
+            case ou.Value():            return ou.Value(self._value)
+            case int():                 return self._value
+            case ou.Number() | ou.LSB():
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
 
@@ -1890,7 +1894,7 @@ class ControlChange(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._controller == other._controller
+                    and self._controller == other._controller and self._value == other._value
             case _:
                 return super().__eq__(other)
     
@@ -1906,7 +1910,7 @@ class ControlChange(Automation):
         
         if self._controller._nrpn:
 
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values()
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
             self_playlist = [
                     {
@@ -1955,7 +1959,7 @@ class ControlChange(Automation):
 
         else:
 
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
 
             self_playlist = [
                     {
@@ -1989,13 +1993,13 @@ class ControlChange(Automation):
         if not self._enabled:
             return []
         self_midilist: list[dict] = super().getMidilist(midi_track, position_beats)
-        self_midilist[0]["event"]       = "ControllerEvent"
+        self_midilist[0]["event"] = "ControllerEvent"
 
         # Validation is done by midiutil Midi Range Validation
 
         if self._controller._nrpn:
 
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values()
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
             self_midilist[0]["number"]      = 99
             self_midilist[0]["value"]       = cc_99_msb
@@ -2016,7 +2020,7 @@ class ControlChange(Automation):
 
         else:
 
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
 
             self_midilist[0]["number"]      = self._controller._number_msb
             self_midilist[0]["value"]       = msb_value
@@ -2031,17 +2035,19 @@ class ControlChange(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["controller"] = self.serialize( self._controller )
+        serialization["parameters"]["controller"]   = self.serialize( self._controller )
+        serialization["parameters"]["value"]        = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "controller" in serialization["parameters"]):
+            "controller" in serialization["parameters"] and "value" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._controller = self.deserialize( serialization["parameters"]["controller"] )
+            self._controller    = self.deserialize( serialization["parameters"]["controller"] )
+            self._value         = self.deserialize( serialization["parameters"]["value"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2049,30 +2055,42 @@ class ControlChange(Automation):
         match operand:
             case ControlChange():
                 super().__lshift__(operand)
-                self._controller << operand._controller
+                self._controller    << operand._controller
+                self._value         = operand._value
             case od.DataSource():
                 match operand._data:
                     case og.Controller():       self._controller = operand._data
+                    case ou.Value():            self._value = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case og.Controller() | ou.Number() | ou.Value() | int() | float() | str() | dict():
+            case og.Controller() | ou.Number() | ou.LSB() | str() | dict():
                 self._controller << operand
+            case ou.Value():
+                self._value = operand._unit
+            case int():
+                self._value = operand
             case _: super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'ControlChange':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Value():
-                self._controller += operand  # Specific and compounded parameter
+            case ou.Value():
+                self._value += operand._unit  # Specific and compounded parameter
+                return self
+            case int():
+                self._value += operand  # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
 
-    def __isub__(self, operand: any) -> 'ControlChange':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Value():
-                self._controller -= operand  # Specific and compounded parameter
+            case ou.Value():
+                self._value -= operand._unit  # Specific and compounded parameter
+                return self
+            case int():
+                self._value -= operand  # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
