@@ -36,7 +36,7 @@ cymbal      = Channel(8)
 # https://youtu.be/VJtg7pJO3hQ?si=-cPdOfONCXdw1ID6
 defaults << Tempo(135)
 
-open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16))
+open_hats_clip = Clip() >> Stepper("..1..1..", open_hat)
 open_hats_clip << TrackName("Open Hat")
 open_hats_clip += open_hats_clip + Beats(2)
 
@@ -51,5 +51,5 @@ snare_clip += snare_clip + Beats(2)
 kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick") << Velocity(80)
 
 
-close_hat_4_4_clip * 16 >> P
+open_hats_clip * 16 >> P
 

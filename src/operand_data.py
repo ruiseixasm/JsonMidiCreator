@@ -907,8 +907,8 @@ class Arpeggiate(Process):
 
 class Stepper(Process):
 
-    def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
-        super().__init__((pattern, element))
+    def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = 1/16):
+        super().__init__((pattern, note))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
