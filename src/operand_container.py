@@ -1345,14 +1345,19 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
-            # ControlChange and PitchBend Elements have already 1 Step of Duration
-            if controller is None:  # Pitch Bend, special case
-                automate_element = oe.PitchBend().set_staff_reference(self._staff)
+            # ControlChange, PitchBend adn AfterTouch Elements have already 1 Step of Duration
+            if isinstance(controller, oe.AfterTouch):
+                automate_element: oe.Element = oe.AfterTouch().set_staff_reference(self._staff)
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
+                    values = [30, 70, 50, 0]
+            elif isinstance(controller, oe.PitchBend) or controller is None:  # Pitch Bend, special case
+                automate_element: oe.Element = oe.PitchBend().set_staff_reference(self._staff)
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [-20*64, -70*64, -50*64, 0*64]
             else:
-                automate_element = oe.ControlChange().set_staff_reference(self._staff) << controller
+                automate_element: oe.Element = oe.ControlChange().set_staff_reference(self._staff) << controller
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
                     values = [80, 50, 30, 100]
