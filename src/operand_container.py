@@ -703,11 +703,14 @@ class Devices(Container):
         return super().__isub__(operand)
 
 
+class Composition(Container):
+    pass
+
 
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
 
 
-class Clip(Container):  # Just a container of Elements
+class Clip(Composition):  # Just a container of Elements
     """
     This type of Operand aggregates Elements having itself a Position
     that propagates to them.
@@ -1841,7 +1844,7 @@ class Clip(Container):  # Just a container of Elements
         return self_left, self_right
 
 
-class Part(Container):
+class Part(Composition):
     # Part it's like a classic Pattern
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
@@ -2134,7 +2137,7 @@ class Part(Container):
         return self
 
 
-class Song(Container):
+class Song(Composition):
     def __init__(self, *operands):
         self._staff: og.Staff = og.defaults._staff.copy()
         super().__init__()
