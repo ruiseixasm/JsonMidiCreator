@@ -2409,7 +2409,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__isub__(operand)
 
-class ProgramChange(Automation):
+class ProgramChange(Element):
     def __init__(self, *parameters):
         self._program: int = ou.Program("Piano")._unit
         super().__init__(*parameters)
