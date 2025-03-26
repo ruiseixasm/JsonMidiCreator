@@ -135,7 +135,10 @@ class Element(o.Operand):
             case int():
                 return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )
-            case Fraction():        return self._duration_notevalue
+            case Fraction():
+                self_duration: ra.Duration = self % ra.Duration()
+                duration_steps: ra.Steps = self._staff_reference.convertToSteps(self_duration)
+                return duration_steps._rational
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case oc.Clip():
@@ -306,7 +309,9 @@ class Element(o.Operand):
                 self_position: ra.Position  = ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
-                self._duration_notevalue    = operand
+                steps: ra.Steps = ra.Steps(operand)
+                duration: ra.Duration = self._staff_reference.convertToDuration(steps)
+                self._duration_notevalue    = duration._rational
             case float():
                 self._duration_notevalue    = ra.Duration(operand)._rational
             case ra.Length():

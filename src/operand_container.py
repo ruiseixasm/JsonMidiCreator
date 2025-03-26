@@ -1318,8 +1318,8 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
-            step_duration: ra.Duration = self._staff.convertToDuration(ou.Step(1))
-            element_note: oe.Note = oe.Note().set_staff_reference(self._staff) << step_duration << note
+            # Fraction sets the Duration in Steps
+            element_note: oe.Note = oe.Note().set_staff_reference(self._staff) << Fraction(1) << note
 
             pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
 
@@ -1341,6 +1341,7 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
+            # ControlChange and PitchBend Elements have already 1 Step of Duration
             if controller is None:  # Pitch Bend, special case
                 automate_element = oe.PitchBend().set_staff_reference(self._staff)
                 # Ensure values is a non-empty list with only integers ≥ 0
