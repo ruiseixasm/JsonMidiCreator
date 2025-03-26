@@ -1409,6 +1409,7 @@ class Clip(Container):  # Just a container of Elements
         # It's a shallow copy of self, so, adding elements to it also adds elements to self!
         automations.append( self.filter(of.OperandType(oe.ControlChange)) )
         automations.append( self.filter(of.OperandType(oe.PitchBend)) )
+        automations.append( self.filter(of.OperandType(oe.Aftertouch)) )
 
         for automation_clip in automations:
 
