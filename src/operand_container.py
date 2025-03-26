@@ -1375,7 +1375,7 @@ class Clip(Container):  # Just a container of Elements
                     pattern_values.append(None)  # Empty slots
             pattern = pattern_values
             
-            automation = pattern[:] # makes a list of each char in the pattern string
+            automation = pattern[:] # makes a copy of pattern
             
 
             # Find indices of known values
@@ -1403,7 +1403,8 @@ class Clip(Container):  # Just a container of Elements
 
             position_steps: ra.Steps = ra.Steps(0)
             for value in automation:
-                self += control_change << value << position_steps
+                if value:   # None adds no Element
+                    self += control_change << value << position_steps
                 position_steps += 1
 
             return self._sort_position()
