@@ -1356,7 +1356,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
 
-    def automate(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: og.Controller = None) -> Self:
+    def automate(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: Any = "Pan") -> Self:
 
         if isinstance(pattern, str):
 

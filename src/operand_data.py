@@ -916,12 +916,9 @@ class Stepper(Process):
             return operand.stepper(*self._data)
         return super().__rrshift__(operand)
 
-if TYPE_CHECKING:
-    from operand_generic import Controller
-    
 class Automate(Process):
 
-    def __init__(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: 'Controller' = None):
+    def __init__(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: Any = "Pan"):
         super().__init__((values, pattern, controller))
 
     def __rrshift__(self, operand: o.T) -> o.T:
