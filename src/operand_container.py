@@ -1890,19 +1890,17 @@ class Part(Container):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"]        = self.serialize(self._staff_reference)
-        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
+        serialization["parameters"]["position"] = self.serialize(self._position_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff_reference             = self.deserialize(serialization["parameters"]["staff"])
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+            self._position_beats = self.deserialize(serialization["parameters"]["position"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2051,6 +2049,7 @@ class Part(Container):
 
 class Song(Container):
     def __init__(self, *operands):
+        self._staff: og.Staff = og.defaults._staff.copy()
         super().__init__()
         self._items: list[Part] = []
         for single_operand in operands:
@@ -2069,6 +2068,31 @@ class Song(Container):
             self._upper_container._sort_position()
         self._items.sort(key=lambda x: x % ra.Position())
         return self
+
+
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+        if isinstance(staff_reference, og.Staff):
+            self._staff << staff_reference
+        for single_part in self._items:
+            single_part.set_staff_reference(self._staff)
+        return self
+
+    def get_staff_reference(self) -> 'og.Staff':
+        return self._staff
+
+    def reset_staff_reference(self) -> Self:
+        self._staff = og.defaults._staff.copy()
+        for single_part in self._items:
+            single_part.set_staff_reference(self._staff)
+        return self
+
+    def test_staff_reference(self) -> bool:
+        clip_staff_id: int = id(self._staff)
+        for single_part in self._items:
+            element_staff_id: int = id( single_part._staff_reference )
+            if element_staff_id != clip_staff_id:
+                return False
+        return True
 
 
     def finish(self) -> ra.Position:
@@ -2113,7 +2137,21 @@ class Song(Container):
             midi_list.extend(single_part.getMidilist())
         return midi_list
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+
+        serialization["parameters"]["staff"] = self.serialize(self._staff)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "staff" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._staff = self.deserialize(serialization["parameters"]["staff"])
+        return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
