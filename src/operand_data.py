@@ -916,6 +916,20 @@ class Stepper(Process):
             return operand.stepper(*self._data)
         return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_generic import Controller
+    
+class Automate(Process):
+
+    def __init__(self, pattern: str | list[int | None] = "1... 1... 1... 1...", values: list[int] = None, controller: 'Controller' = None):
+        super().__init__((pattern, values, controller))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.automate(*self._data)
+        return super().__rrshift__(operand)
+
 class Tie(Process):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
