@@ -1380,22 +1380,8 @@ class Clip(Container):  # Just a container of Elements
                 
                 if not known_indices:
                     raise ValueError("List must contain at least one integer.")
-                for i in range(len(pattern_values)):
-                    if automation[i] is None:
-                        # Find closest known values before and after
-                        left_idx = max([idx for idx in known_indices if idx < i], default=None)
-                        right_idx = min([idx for idx in known_indices if idx > i], default=None)
-                        
-                        if left_idx is None:
-                            automation[i] = automation[right_idx]   # Use the right value if no left
-                        elif right_idx is None:
-                            automation[i] = automation[left_idx]    # Use the left value if no right
-                        else:
-                            # Linear interpolation
-                            left_val = automation[left_idx]
-                            right_val = automation[right_idx]
-                            step = (right_val - left_val) / (right_idx - left_idx)
-                            automation[i] = int(left_val + step * (i - left_idx))
+                else:
+                    automation = self._interpolate_list(known_indices, pattern_values)
 
             position_steps: ra.Steps = ra.Steps(0)
             for value in automation:
