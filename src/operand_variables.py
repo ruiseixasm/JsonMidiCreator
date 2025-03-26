@@ -65,14 +65,14 @@ class Blofeld(Variables):
                 },
 
                 # Oscillators
-                "OSCILLATOR COMMON": {
+                "OSC COMMON": {
                     "Sync":         { "NUMBER": 49 },
                     "Pitchmod":     { "NUMBER": 50 },
                     "Glide Active": { "NUMBER": 65 },
                     "Glide Mode":   { "NUMBER": 51 },
                     "Glide Rate":   { "NUMBER": 5 }
                 },
-                "OSCILLATOR 1": {
+                "OSC 1": {
                     "Octave":       { "NUMBER": 63 },
                     "Semitone":     { "NUMBER": 64 },
                     "Detune":       { "NUMBER": 29 },
@@ -81,7 +81,7 @@ class Blofeld(Variables):
                     "PW":           { "NUMBER": 33 },
                     "PWM":          { "NUMBER": 34 }
                 },
-                "OSCILLATOR 2": {
+                "OSC 2": {
                     "Octave":       { "NUMBER": 35 },
                     "Semitone":     { "NUMBER": 36 },
                     "Detune":       { "NUMBER": 37 },
@@ -90,7 +90,7 @@ class Blofeld(Variables):
                     "PW":           { "NUMBER": 40 },
                     "PWM":          { "NUMBER": 41 }
                 },
-                "OSCILLATOR 3": {
+                "OSC 3": {
                     "Octave":       { "NUMBER": 42 },
                     "Semitone":     { "NUMBER": 43 },
                     "Detune":       { "NUMBER": 44 },
@@ -106,9 +106,6 @@ class Blofeld(Variables):
                 },
 
                 # Filters
-                "FILTER COMMON": {
-                    "Routing":      { "NUMBER": 67 }
-                },
                 "FILTER 1": {
                     "Type":         { "NUMBER": 68 },
                     "Cutoff":       { "NUMBER": 69 },
@@ -121,6 +118,9 @@ class Blofeld(Variables):
                     "FM":           { "NUMBER": 76 },
                     "Pan":          { "NUMBER": 77 },
                     "Panmod":       { "NUMBER": 78 }
+                },
+                "FILTER": {
+                    "Routing":      { "NUMBER": 67 }
                 },
                 "FILTER 2": {
                     "Type":         { "NUMBER": 79 },
@@ -137,7 +137,7 @@ class Blofeld(Variables):
                 },
 
                 # Envelopes
-                "ENVELOPE FILTER": {
+                "FILTER ENV": {
                     "Attack":       { "NUMBER": 95 },
                     "Decay":        { "NUMBER": 96 },
                     "Sustain":      { "NUMBER": 97 },
@@ -145,7 +145,7 @@ class Blofeld(Variables):
                     "Sustain 2":    { "NUMBER": 99 },
                     "Release":      { "NUMBER": 100 }
                 },
-                "ENVELOPE AMP": {
+                "AMP ENV": {
                     "Attack":       { "NUMBER": 101 },
                     "Decay":        { "NUMBER": 102 },
                     "Sustain":      { "NUMBER": 103 },
@@ -153,7 +153,7 @@ class Blofeld(Variables):
                     "Sustain 2":    { "NUMBER": 105 },
                     "Release":      { "NUMBER": 106 }
                 },
-                "ENVELOPE AUX 3": {
+                "ENV 3": {
                     "Attack":       { "NUMBER": 107 },
                     "Decay":        { "NUMBER": 108 },
                     "Sustain":      { "NUMBER": 109 },
@@ -161,7 +161,7 @@ class Blofeld(Variables):
                     "Sustain 2":    { "NUMBER": 111 },
                     "Release":      { "NUMBER": 112 }
                 },
-                "ENVELOPE AUX 4": {
+                "ENV 4": {
                     "Attack":       { "NUMBER": 113 },
                     "Decay":        { "NUMBER": 114 },
                     "Sustain":      { "NUMBER": 115 },
@@ -190,17 +190,17 @@ class Blofeld(Variables):
                     "Delay":        { "NUMBER": 26 }
                 },
 
-                # Effects
-                "EFFECTS": {
-                    "FX1":          { "NUMBER": 93 },
-                    "FX2":          { "NUMBER": 94 }
-                },
-
                 # Amplifier
-                "AMP COMMON": {
+                "AMP": {
                     "Volume":       { "NUMBER": 90 },
                     "Velocity":     { "NUMBER": 91 },
                     "Mod":          { "NUMBER": 92 }
+                },
+
+                # Effects
+                "EFFECTS": {
+                    "Mix 1":        { "NUMBER": 93 },
+                    "Mix 2":        { "NUMBER": 94 }
                 },
 
                 # Mixers
