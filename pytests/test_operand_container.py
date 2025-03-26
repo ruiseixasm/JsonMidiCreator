@@ -898,7 +898,7 @@ def test_part_operations():
     assert part_2.len() == 2
 
     assert (part_1 + clip_2).len() == 3
-    assert (part_1 - clip_2).len() == 1
+    assert (part_1 - part_1[1].copy()).len() == 1
     assert (part_1 + part_2).len() == 4
 
     # Becomes a Part of two Clips due to * operator

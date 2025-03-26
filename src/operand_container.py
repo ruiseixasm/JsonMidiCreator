@@ -1953,8 +1953,8 @@ class Part(Container):
 
             case ra.Position() | ra.TimeValue():
                 self._position_beats = self._staff_reference.convertToBeats(operand)._rational
-            case Song() | Clip() | oe.Element():
-                self += operand
+            case Clip() | oe.Element():
+                self *= operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -1974,7 +1974,7 @@ class Part(Container):
     # Pass trough method that always results in a Part (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
+            case Part() | Clip() | oe.Element() | od.Playlist():
                 self *= operand
                 return self
         return super().__rshift__(operand)
@@ -1982,10 +1982,6 @@ class Part(Container):
 
     def __iadd__(self, operand: any) -> Self:
         match operand:
-            case Song():
-                for single_part in operand._items:
-                    self += single_part
-                return self
             case Part():
                 self._append(self.deep_copy(operand._items))
             case Clip() | od.Playlist():
@@ -2007,10 +2003,10 @@ class Part(Container):
 
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case Clip() | od.Playlist():
-                return self._delete(operand)
             case Part():
                 return self._delete(operand._items)
+            case Clip() | od.Playlist():
+                return self._delete(operand)
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
             case list():
@@ -2024,13 +2020,7 @@ class Part(Container):
         return self
 
     def __imul__(self, operand: any) -> Self:
-        import operand_selection as os
         match operand:
-            case Song():
-                song_part: Part = Part()
-                for single_part in operand._items:
-                    song_part += single_part
-                self *= song_part
             case Part():
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
