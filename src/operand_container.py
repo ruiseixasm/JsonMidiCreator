@@ -2251,12 +2251,13 @@ class Song(Container):
                 if operand.len() > 0:
                     self_last_position: ra.Position = self.last_position()
                     next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
-                    self._append([ operand.copy( next_position ) ])._sort_position()
+                    new_part: Part = operand.copy().set_staff_reference(self._staff) << next_position
+                    self._append([ new_part ])._sort_position()
             case Clip() | od.Playlist():
                 clip_part: Part = Part(operand)
                 self *= clip_part
             case oe.Element():
-                element_part: Part = Part( Clip(operand) )
+                element_part: Part = Part( Clip(operand) << self._staff )
                 self *= element_part
                 
             case tuple():
