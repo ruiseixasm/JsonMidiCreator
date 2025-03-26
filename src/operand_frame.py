@@ -592,13 +592,13 @@ class Nth(Selector):
         self._multi_data['operand'] = 0
         return self << parameters
     
-class Type(Selector):
+class OperandType(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        for object in self._multi_data['operand']:
-            if isinstance(input, type(object)):
+        for operand_class in self._multi_data['operand']:
+            if isinstance(input, operand_class):
                 return super().__and__(input)
         return super().__and__(ol.Null())
 

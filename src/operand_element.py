@@ -2124,7 +2124,6 @@ class PitchBend(Automation):
                     case _:                 return super().__mod__(operand)
             case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
             case int():             return self._bend
-            case float():           return float(self._bend)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2199,8 +2198,6 @@ class PitchBend(Automation):
                 self._bend = operand._unit
             case int():
                 self._bend = operand
-            case float():
-                self._bend = int(operand)
             case _:
                 super().__lshift__(operand)
         return self

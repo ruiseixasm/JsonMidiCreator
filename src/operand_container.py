@@ -1398,6 +1398,86 @@ class Clip(Container):  # Just a container of Elements
         
         return self
     
+    def interpolate(self) -> Self:
+
+        control_change_clip: Clip = self.filter(of.OperandType(oe.ControlChange))
+        pitch_bend_clip: Clip = self.filter(of.OperandType(oe.PitchBend))
+
+        if control_change_clip.len() > 1:
+
+            control_change_template: oe.ControlChange = control_change_clip[0].copy()
+            
+            # Find indices of known values
+            known_indices = [
+                (control_change % ra.Position()).convertToSteps() % int() for control_change in control_change_clip._items
+            ]
+
+            total_messages: int = known_indices[-1] - known_indices[0] + 1
+            pattern_values = [ None ] * total_messages
+
+            for index in range(total_messages):
+                if index in known_indices:
+                    pattern_values[index] = control_change_clip[index] % int()
+
+            automation = self._interpolate_list(known_indices, pattern_values)
+
+            position_steps: ra.Steps = ra.Steps(0)
+            for index, value in enumerate(automation):
+                if index not in known_indices:   # None adds no Element
+                    control_change_clip += control_change_template << value << position_steps
+                position_steps += 1
+
+        if pitch_bend_clip.len() > 1:
+
+            pitch_bend_template: oe.PitchBend = pitch_bend_clip[0].copy()
+            
+            # Find indices of known values
+            known_indices = [
+                (pitch_bend % ra.Position()).convertToSteps() % int() for pitch_bend in pitch_bend_clip._items
+            ]
+
+            total_messages: int = known_indices[-1] - known_indices[0] + 1
+            pattern_values = [ None ] * total_messages
+
+            for index in range(total_messages):
+                if index in known_indices:
+                    pattern_values[index] = pitch_bend_clip[index] % int()
+
+            automation = self._interpolate_list(known_indices, pattern_values)
+
+            position_steps: ra.Steps = ra.Steps(0)
+            for index, value in enumerate(automation):
+                if index not in known_indices:   # None adds no Element
+                    pitch_bend_clip += pitch_bend_template << value << position_steps
+                position_steps += 1
+
+
+        return self._sort_position()
+
+
+    def _interpolate_list(self, known_indices, pattern_values) -> list:
+
+        automation = pattern_values[:] # makes a copy of pattern_values
+            
+        for i in range(len(pattern_values)):
+            if automation[i] is None:
+                    # Find closest known values before and after
+                left_idx = max([idx for idx in known_indices if idx < i], default=None)
+                right_idx = min([idx for idx in known_indices if idx > i], default=None)
+                    
+                if left_idx is None:
+                    automation[i] = automation[right_idx]   # Use the right value if no left
+                elif right_idx is None:
+                    automation[i] = automation[left_idx]    # Use the left value if no right
+                else:
+                        # Linear interpolation
+                    left_val = automation[left_idx]
+                    right_val = automation[right_idx]
+                    step = (right_val - left_val) / (right_idx - left_idx)
+                    automation[i] = int(left_val + step * (i - left_idx))
+
+        return automation
+    
     
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """

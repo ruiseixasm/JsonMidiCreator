@@ -368,7 +368,7 @@ def test_modulation_mod():
 def test_pitchbend_mod():
 
     # Perform the operation
-    pitch_bend = PitchBend(8190 / 2 + 1)
+    pitch_bend = PitchBend(int(8190 / 2 + 1))
     pitch_bend_int = pitch_bend % int()
 
     assert pitch_bend_int == 4096
