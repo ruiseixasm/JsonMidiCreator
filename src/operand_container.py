@@ -1345,9 +1345,9 @@ class Clip(Container):  # Just a container of Elements
 
         if isinstance(pattern, str):
 
-            # ControlChange, PitchBend adn AfterTouch Elements have already 1 Step of Duration
-            if isinstance(automation, oe.AfterTouch):
-                automate_element: oe.Element = oe.AfterTouch().set_staff_reference(self._staff) << automation
+            # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
+            if isinstance(automation, oe.Aftertouch):
+                automate_element: oe.Element = oe.Aftertouch().set_staff_reference(self._staff) << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [30, 70, 50, 0]
