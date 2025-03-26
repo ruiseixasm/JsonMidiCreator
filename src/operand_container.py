@@ -1984,7 +1984,7 @@ class Part(Container):
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: oe.Position = self.last_position()
+                last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
                     
@@ -1995,7 +1995,7 @@ class Part(Container):
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: oe.Position = self.last_position()
+                last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
 
@@ -2004,7 +2004,7 @@ class Part(Container):
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: oe.Position = self.last_position()
+                last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
                 clip_operand: Clip = Clip(operand)
