@@ -763,7 +763,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference
+            self._staff << staff_reference  # Does a copy
         for single_element in self:
             if isinstance(single_element, oe.Element):
                 single_element.set_staff_reference(self._staff)
@@ -1057,6 +1057,9 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+
+            case Composition():
+                self.set_staff_reference(operand.get_staff_reference())
 
             case _: # Works for Frame too
                 for item in self._items:
@@ -2174,7 +2177,7 @@ class Song(Composition):
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference
+            self._staff << staff_reference  # Does a copy
         for single_part in self._items:
             single_part.set_staff_reference(self._staff)
         return self
