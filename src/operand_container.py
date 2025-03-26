@@ -1987,7 +1987,7 @@ class Part(Container):
                 last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
-                    
+                # Clips have no Position, so, it's implicit position is always 0
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
                     self._append([ clip_or_playlist ])
@@ -1998,7 +1998,7 @@ class Part(Container):
                 last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
-
+                # Clips have no Position, so, it's implicit position is always 0
                 self._append([ operand + add_measure ])
             case oe.Element():
                 operand_copy: Part = operand.copy()
@@ -2007,6 +2007,7 @@ class Part(Container):
                 last_position: ra.Position = self.last_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
+                # Clips have no Position, so, it's implicit position is always 0
                 clip_operand: Clip = Clip(operand)
                 clip_operand += add_measure
                 self._append([ clip_operand ])
