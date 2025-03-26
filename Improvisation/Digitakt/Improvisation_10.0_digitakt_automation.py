@@ -30,7 +30,7 @@ defaults << Tempo(120)
 print("1st LOOP")
 
 level_cc = ControlChange(Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
-# level_cc * 4 >> P
+level_cc * 4 >> P
 
 print("2nd LOOP")
 
