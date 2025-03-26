@@ -2147,3 +2147,33 @@ class Song(Container):
                     item += operand
         return self
 
+
+    def __imul__(self, operand: any) -> Self:
+        match operand:
+            case Song():
+                if operand.len() > 0:
+                    self_last_position: ra.Position = self.last_position()
+                    operand_first_position: ra.Position = operand[0] % ra.Position()
+                    position_offset: ra.Position = \
+                        self_last_position.roundMeasures() + ou.Measure(1) \
+                        - operand_first_position
+                    for single_part in operand:
+                        self += single_part + position_offset
+            case Part():
+                self._append([ operand.copy() ])._sort_position()
+            case Clip():
+                clip_part: Part = Part(operand)
+                self._append([ clip_part ])._sort_position()
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                self._append([ clip_part ])._sort_position()
+                
+            case tuple():
+                for single_operand in operand:
+                    self *= single_operand
+            case _:
+                for item in self._items:
+                    item *= operand
+        return self
+
