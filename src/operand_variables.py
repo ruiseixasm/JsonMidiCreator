@@ -57,13 +57,6 @@ class Blofeld(Variables):
                     "Sustain":      { "NUMBER": 64 }
                 },
 
-                # Arpeggiator
-                "ARPEGGIATOR": {
-                    "Range":        { "NUMBER": 12 },
-                    "Length":       { "NUMBER": 13 },
-                    "Active":       { "NUMBER": 14 }
-                },
-
                 # Oscillators
                 "OSC COMMON": {
                     "Sync":         { "NUMBER": 49 },
@@ -201,6 +194,13 @@ class Blofeld(Variables):
                 "EFFECTS": {
                     "Mix 1":        { "NUMBER": 93 },
                     "Mix 2":        { "NUMBER": 94 }
+                },
+
+                # Arpeggiator
+                "ARPEGGIATOR": {
+                    "Octave":       { "NUMBER": 12 },
+                    "Length":       { "NUMBER": 13 },
+                    "Mode":         { "NUMBER": 14 }
                 },
 
                 # Mixers
