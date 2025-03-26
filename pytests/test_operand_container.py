@@ -225,6 +225,38 @@ def test_new_container():
 # test_new_container()
 
 
+def test_rshift_container():
+
+    # Clip testing
+    note_clip = Clip(Note())
+    assert note_clip[0] % Position() == 0.0
+
+    note_clip >> Note("E")
+    assert note_clip[0] != "E"
+    assert note_clip[1] == "E"
+    assert note_clip[1] % Position() == Beats(1)
+
+    # Part testing
+    clip_part = Part(note_clip)
+    assert clip_part % Position() == Beats(0)
+
+    clip_part >> note_clip  # Moves to the next Measure
+    assert clip_part.len() == 2
+
+    assert clip_part[0][0] % Position() == Measures(0) + Beats(0)
+    assert clip_part[0][1] % Position() == Measures(0) + Beats(1)
+    assert clip_part[1][0] % Position() == Measures(1) + Beats(0)
+    assert clip_part[1][1] % Position() == Measures(1) + Beats(1)
+
+    # Song testing
+    part_song = Song(clip_part)
+    assert part_song.len() == 1
+    assert part_song[0] % Position() == Measures(0) + Beats(0)
+
+
+# test_rshift_container()
+
+
 def test_rrshift_clip():
 
     two_notes: Clip = Note() * 2
