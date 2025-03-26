@@ -1354,7 +1354,8 @@ class Clip(Container):  # Just a container of Elements
         return self
 
 
-    def automate(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: Any = "Pan") -> Self:
+    def automate(self, values: list[int] = [100, 70, 30, 100],
+                 pattern: str = "1... 1... 1... 1...", controller: Any = "Pan", interpolate: bool = True) -> Self:
 
         if isinstance(pattern, str):
 
@@ -1373,15 +1374,15 @@ class Clip(Container):  # Just a container of Elements
                 else:
                     pattern_values.append(None)  # Empty slots
             pattern = pattern_values
+            
+            automation = pattern[:] # makes a list of each char in the pattern string
+            
 
             # Find indices of known values
             known_indices = [i for i, val in enumerate(pattern) if val is not None]
             
             if not known_indices:
                 raise ValueError("List must contain at least one integer.")
-            
-            automation = pattern[:] # makes a copy of pattern list
-            
             for i in range(len(pattern)):
                 if automation[i] is None:
                     # Find closest known values before and after
