@@ -49,13 +49,14 @@ class Element(o.Operand):
         self._devices: list[str]            = og.defaults._devices.copy()
         self._enabled: bool                 = True
 
+        # Clip sets the Staff, this is just a reference
         self._staff_reference: og.Staff     = og.defaults._staff
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
         return self
@@ -63,7 +64,7 @@ class Element(o.Operand):
     def get_staff_reference(self) -> 'og.Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> 'Element':
+    def reset_staff_reference(self) -> Self:
         self._staff_reference = og.defaults._staff
         return self
 

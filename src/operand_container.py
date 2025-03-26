@@ -1739,12 +1739,28 @@ class Clip(Container):  # Just a container of Elements
 class Part(Container):
     # Part it's like a classic Pattern
     def __init__(self, *operands):
-        self._staff: og.Staff = og.defaults._staff.copy()
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip | od.Playlist] = []
+
+        # Song sets the Staff, this is just a reference
+        self._staff_reference: og.Staff = og.defaults._staff
+
         for single_operand in operands:
             self << single_operand
+
+
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+        if isinstance(staff_reference, og.Staff):
+            self._staff_reference = staff_reference
+        return self
+
+    def get_staff_reference(self) -> 'og.Staff':
+        return self._staff_reference
+
+    def reset_staff_reference(self) -> Self:
+        self._staff_reference = og.defaults._staff
+        return self
 
 
     def __getitem__(self, key: str | int) -> Clip | od.Playlist:
@@ -1841,16 +1857,16 @@ class Part(Container):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case og.Staff():        return self._staff
+                    case og.Staff():        return self._staff_reference
                     case ra.Position():
-                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                        return operand._data << self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff.copy()
+            case og.Staff():        return self._staff_reference.copy()
             case ra.Position():
-                return self._staff.convertToPosition(ra.Beats(self._position_beats))
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | float() | Fraction():
-                return self._staff % operand
+                return self._staff_reference % operand
             case _:
                 return super().__mod__(operand)
 
@@ -1874,7 +1890,7 @@ class Part(Container):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"]        = self.serialize(self._staff)
+        serialization["parameters"]["staff"]        = self.serialize(self._staff_reference)
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         return serialization
 
@@ -1885,7 +1901,7 @@ class Part(Container):
             "staff" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff             = self.deserialize(serialization["parameters"]["staff"])
+            self._staff_reference             = self.deserialize(serialization["parameters"]["staff"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
         return self
 
@@ -1894,18 +1910,18 @@ class Part(Container):
             case Part():
                 super().__lshift__(operand)
                 self._position_beats    = operand._position_beats
-                self._staff             << operand._staff
+                self._staff_reference             << operand._staff_reference
                 
             case od.DataSource():
                 match operand._data:
-                    case og.Staff():        self._staff = operand._data
-                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
+                    case og.Staff():        self._staff_reference = operand._data
+                    case ra.Position():     self._position_beats = self._staff_reference.convertToBeats(operand._data)._rational
                     case _:                 super().__lshift__(operand)
 
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
-                self._staff << operand
+                self._staff_reference << operand
             case ra.Position() | ra.TimeValue():
-                self._position_beats = self._staff.convertToBeats(operand)._rational
+                self._position_beats = self._staff_reference.convertToBeats(operand)._rational
             case Song() | Clip() | oe.Element():
                 self += operand
             case od.Serialization():
