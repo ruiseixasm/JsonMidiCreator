@@ -1361,10 +1361,17 @@ class Clip(Container):  # Just a container of Elements
         if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
             values = [100, 70, 30, 100]
 
-        if not isinstance(pattern, list):
-            if isinstance(pattern, str):
-                pattern = [values[i % len(values)] if char == '1' else None
-                    for i, char in enumerate(pattern.replace(" ", "").replace("-", ""))]
+        # Convert pattern string to list of values
+        if isinstance(pattern, str):
+            pattern_values = []
+            value_index = 0  # Keep track of which value to use
+            for char in pattern.replace(" ", "").replace("-", ""):
+                if char == "1":
+                    pattern_values.append(values[value_index])
+                    value_index = (value_index + 1) % len(values)  # Cycle through values
+                else:
+                    pattern_values.append(None)  # Empty slots
+            pattern = pattern_values
 
         # Find indices of known values
         known_indices = [i for i, val in enumerate(pattern) if val is not None]
