@@ -1332,7 +1332,7 @@ class Clip(Container):  # Just a container of Elements
             element._position_beats = original_positions[index]
         return self
     
-    def stepper(self, pattern: str = "1... 1... 1... 1...", note: Any = 1/16) -> Self:
+    def stepper(self, pattern: str = "1... 1... 1... 1...", note: Any = None) -> Self:
 
         if isinstance(pattern, str):
 
