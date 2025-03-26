@@ -1002,8 +1002,6 @@ class Clip(Container):  # Just a container of Elements
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
 
-            case Song() | Part():
-                self *= operand     # Stacks by Measure
             case oe.Element():
                 if self.len() > 0:  # Avoids infinite recursion
                     self /= operand # Stacks elements directly
@@ -1070,7 +1068,7 @@ class Clip(Container):  # Just a container of Elements
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
         match operand:
-            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
+            case Clip() | oe.Element():
                 # Quantized Stacking by Measures
                 self *= operand
                 return self
@@ -1087,15 +1085,6 @@ class Clip(Container):  # Just a container of Elements
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> Self:
         match operand:
-            case Song():
-                for single_part in operand._items:
-                    self += single_part
-                return self
-            case Part():
-                for single_item in operand._items:
-                    if isinstance(single_item, Clip):
-                        self += single_item
-                return self
             case Clip():
                 operand_elements = [
                     single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
@@ -1135,9 +1124,6 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case Clip():
                 return self._delete(operand._items)
-            case Part():
-                operand -= self # Order is irrelevant in Part
-                return operand
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -1158,10 +1144,6 @@ class Clip(Container):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         import operand_selection as os
         match operand:
-            case Song() | Part():
-                operand_clip: Clip = Clip()
-                operand_clip += operand
-                self *= operand_clip
             case Clip():
                 right_start_position: ra.Position = operand.start()
                 if self._length_beats < 0:
