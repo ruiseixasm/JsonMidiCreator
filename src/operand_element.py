@@ -1883,8 +1883,8 @@ class ControlChange(Automation):
                     case ou.Value():            return operand._data << od.DataSource(self._value)
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case ou.Value():            return ou.Value(self._value)
             case int():                 return self._value
+            case ou.Value():            return ou.Value(self._value)
             case ou.Number() | ou.LSB():
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
@@ -2122,8 +2122,8 @@ class PitchBend(Automation):
                 match operand._data:
                     case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
                     case _:                 return super().__mod__(operand)
-            case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
             case int():             return self._bend
+            case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2253,9 +2253,8 @@ class Aftertouch(Automation):
                 match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
                     case _:                 return super().__mod__(operand)
-            case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
             case int():             return self._pressure
-            case float():           return float(self._pressure)
+            case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2318,15 +2317,37 @@ class Aftertouch(Automation):
                 match operand._data:
                     case ou.Pressure():         self._pressure = operand._data // int()
                     case _:                     super().__lshift__(operand)
-            case ou.Pressure():
-                self._pressure = operand // int()
             case int():
                 self._pressure = operand
-            case float():
-                self._pressure = int(operand)
+            case ou.Pressure():
+                self._pressure = operand // int()
             case _:
                 super().__lshift__(operand)
         return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._pressure += operand  # Specific and compounded parameter
+                return self
+            case ou.Pressure():
+                self._pressure += operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._pressure -= operand  # Specific and compounded parameter
+                return self
+            case ou.Pressure():
+                self._pressure -= operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
 
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
