@@ -2378,6 +2378,10 @@ class Song(Composition):
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
+
+            case Composition():
+                self.set_staff_reference(operand.get_staff_reference())
+
             case _:
                 for item in self._items:
                     item *= operand
