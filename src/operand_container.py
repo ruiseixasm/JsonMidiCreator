@@ -2165,6 +2165,7 @@ class Song(Container):
                     if self_last_position:
                         position_offset: ra.Position = \
                             self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
+                        # Beats are the common unit of measurement across multiple Time Signatures !!
                         for single_part in operand._items:
                             self._append([ single_part + position_offset ])
                     else:
@@ -2200,9 +2201,7 @@ class Song(Container):
                     next_position = next_position.roundMeasures() + ou.Measure(1)
                 else:
                     next_position = ra.Position(0)
-                # Parts have different Staffs, so, it needs Position transformation
-                transformed_position: ra.Position = single_part._staff.transformPosition(next_position)
-                single_part << transformed_position
+                single_part << next_position
             else:           # THE FIRST PART!
                 single_part._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
