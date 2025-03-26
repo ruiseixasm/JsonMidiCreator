@@ -1373,33 +1373,32 @@ class Clip(Container):  # Just a container of Elements
                     value_index = (value_index + 1) % len(values)  # Cycle through values
                 else:
                     pattern_values.append(None)  # Empty slots
-            pattern = pattern_values
             
-            automation = pattern[:] # makes a copy of pattern
-            
+            automation = pattern_values[:] # makes a copy of pattern_values
 
-            # Find indices of known values
-            known_indices = [i for i, val in enumerate(pattern) if val is not None]
-            
-            if not known_indices:
-                raise ValueError("List must contain at least one integer.")
-            for i in range(len(pattern)):
-                if automation[i] is None:
-                    # Find closest known values before and after
-                    left_idx = max([idx for idx in known_indices if idx < i], default=None)
-                    right_idx = min([idx for idx in known_indices if idx > i], default=None)
-                    
-                    if left_idx is None:
-                        automation[i] = automation[right_idx]   # Use the right value if no left
-                    elif right_idx is None:
-                        automation[i] = automation[left_idx]    # Use the left value if no right
-                    else:
-                        # Linear interpolation
-                        left_val = automation[left_idx]
-                        right_val = automation[right_idx]
-                        step = (right_val - left_val) / (right_idx - left_idx)
-                        automation[i] = int(left_val + step * (i - left_idx))
+            if interpolate:
 
+                # Find indices of known values
+                known_indices = [i for i, val in enumerate(pattern_values) if val is not None]
+                
+                if not known_indices:
+                    raise ValueError("List must contain at least one integer.")
+                for i in range(len(pattern_values)):
+                    if automation[i] is None:
+                        # Find closest known values before and after
+                        left_idx = max([idx for idx in known_indices if idx < i], default=None)
+                        right_idx = min([idx for idx in known_indices if idx > i], default=None)
+                        
+                        if left_idx is None:
+                            automation[i] = automation[right_idx]   # Use the right value if no left
+                        elif right_idx is None:
+                            automation[i] = automation[left_idx]    # Use the left value if no right
+                        else:
+                            # Linear interpolation
+                            left_val = automation[left_idx]
+                            right_val = automation[right_idx]
+                            step = (right_val - left_val) / (right_idx - left_idx)
+                            automation[i] = int(left_val + step * (i - left_idx))
 
             position_steps: ra.Steps = ra.Steps(0)
             for value in automation:
