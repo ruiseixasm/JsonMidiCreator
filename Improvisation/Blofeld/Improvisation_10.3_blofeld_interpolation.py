@@ -31,7 +31,7 @@ long_note_c = Note(1/1)
 print("1st LOOP")
 
 level_cc = ControlChange(Blofeld.midi_cc["EFFECTS"]["Mix 1"]) * 2
-level_cc[1] += Measure(1) - Step(1)
+level_cc[1] += Measures(1) - Step(1)
 level_cc >> Interpolate()
 (level_cc + long_note_c) * 4 >> P
 

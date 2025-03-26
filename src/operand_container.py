@@ -1420,9 +1420,11 @@ class Clip(Container):  # Just a container of Elements
             total_messages: int = known_indices[-1] - known_indices[0] + 1
             pattern_values = [ None ] * total_messages
 
+            element_index: int = 0
             for index in range(total_messages):
                 if index in known_indices:
-                    pattern_values[index] = control_change_clip[index] % int()
+                    pattern_values[index] = control_change_clip[element_index] % int()
+                    element_index += 1
 
             automation = self._interpolate_list(known_indices, pattern_values)
 
@@ -1447,9 +1449,11 @@ class Clip(Container):  # Just a container of Elements
             total_messages: int = known_indices[-1] - known_indices[0] + 1
             pattern_values = [ None ] * total_messages
 
+            element_index: int = 0
             for index in range(total_messages):
                 if index in known_indices:
-                    pattern_values[index] = pitch_bend_clip[index] % int()
+                    pattern_values[index] = pitch_bend_clip[element_index] % int()
+                    element_index += 1
 
             automation = self._interpolate_list(known_indices, pattern_values)
 
