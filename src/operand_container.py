@@ -1927,7 +1927,7 @@ class Part(Container):
     # Pass trough method that always results in a Part (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Song() | Part() | Clip() | oe.Element():
+            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
                 self *= operand
                 return self
         return super().__rshift__(operand)
@@ -1941,7 +1941,7 @@ class Part(Container):
                 return self
             case Part():
                 self._append(self.deep_copy(operand._items))
-            case Clip():
+            case Clip() | od.Playlist():
                 self._append([ operand.copy() ])
             case oe.Element():
                 element_clip: Clip = Clip(operand)
@@ -1958,7 +1958,7 @@ class Part(Container):
 
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case Clip():
+            case Clip() | od.Playlist():
                 return self._delete(operand)
             case Part():
                 return self._delete(operand._items)
