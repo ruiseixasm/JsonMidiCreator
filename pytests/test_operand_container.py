@@ -236,6 +236,9 @@ def test_rshift_container():
     assert note_clip[1] == "E"
     assert note_clip[1] % Position() == Beats(1)
 
+    new_clip = Clip() >> note_clip >> note_clip
+    assert new_clip.len() == 4
+
     # Part testing ###################################################
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
@@ -248,6 +251,13 @@ def test_rshift_container():
     assert clip_part[0][1] % Position() == Measures(0) + Beats(1)
     assert clip_part[1][0] % Position() == Measures(1) + Beats(0)
     assert clip_part[1][1] % Position() == Measures(1) + Beats(1)
+
+    new_part = Part() >> clip_part >> clip_part
+    assert new_part.len() == 4
+    assert new_part[2][0] % Position() == Measures(2) + Beats(0)
+    assert new_part[2][1] % Position() == Measures(2) + Beats(1)
+    assert new_part[3][0] % Position() == Measures(3) + Beats(0)
+    assert new_part[3][1] % Position() == Measures(3) + Beats(1)
 
     # Song testing ###################################################
     part_song = Song(clip_part)
@@ -269,9 +279,7 @@ def test_rshift_container():
     assert part_song[2] % Position() == Measures(4) + Beats(0)
     assert part_song[3] % Position() == Measures(6) + Beats(0)
 
-
-
-test_rshift_container()
+# test_rshift_container()
 
 
 def test_rrshift_clip():
