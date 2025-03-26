@@ -156,10 +156,15 @@ def test_measurements_composition():
 
     clip_2_4 = Clip() << TimeSignature(2, 4)
 
+    # Here the measurements still use the default staff 4/4
     assert Measures(1) == Beats(4)
     assert Measure(1) == Beats(4)
     assert Measure(1) == Beat(4)
 
+    # Here the measurements are being set as clip_2_4 measurements
+    assert Measures(clip_2_4, 1) == Beats(2)
+    assert Measure(clip_2_4, 1) == Beats(2)
+    assert Measure(clip_2_4, 1) == Beat(2)
 
 # test_measurements_composition()
 
