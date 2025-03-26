@@ -2202,19 +2202,22 @@ class Song(Container):
         match operand:
             case Song():
                 for single_part in operand._items:
-                    self._append([ single_part.copy() ])
+                    self._append([ single_part.copy().set_staff_reference(self._staff) ])
                 self._sort_position()
             case Part():
-                self._append([ operand.copy() ])._sort_position()
+                self._append([ operand.copy().set_staff_reference(self._staff) ])._sort_position()
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand)
+                clip_part: Part = Part(operand).set_staff_reference(self._staff)
                 self._append([ clip_part ])._sort_position()
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                clip_part: Part = Part(element_clip)
+                element_clip: Clip = Clip(operand) << self._staff
+                clip_part: Part = Part(element_clip).set_staff_reference(self._staff)
                 self._append([ clip_part ])._sort_position()
             case list():
-                self._append(self.deep_copy(operand))._sort_position()
+                for item in operand:
+                    if isinstance(item, Part):
+                        self._append([ item.copy().set_staff_reference(self._staff) ])
+                self._sort_position()
             case tuple():
                 for single_operand in operand:
                     self += single_operand
