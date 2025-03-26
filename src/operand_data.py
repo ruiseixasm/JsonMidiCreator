@@ -907,7 +907,7 @@ class Arpeggiate(Process):
 
 class Stepper(Process):
 
-    def __init__(self, pattern: str | list[int] = "1... 1... 1... 1...", element: 'Element' = None):
+    def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
         super().__init__((pattern, element))
 
     def __rrshift__(self, operand: o.T) -> o.T:
@@ -921,8 +921,8 @@ if TYPE_CHECKING:
     
 class Automate(Process):
 
-    def __init__(self, pattern: str | list[int | None] = "1... 1... 1... 1...", values: list[int] = None, controller: 'Controller' = None):
-        super().__init__((pattern, values, controller))
+    def __init__(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: 'Controller' = None):
+        super().__init__((values, pattern, controller))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc

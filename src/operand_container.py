@@ -1332,37 +1332,40 @@ class Clip(Container):  # Just a container of Elements
             element._position_beats = original_positions[index]
         return self
     
-    def stepper(self, pattern: str | list[int] = "1... 1... 1... 1...", element: oe.Element = None) -> Self:
+    def stepper(self, pattern: str = "1... 1... 1... 1...", element: oe.Element = None) -> Self:
 
-        if not isinstance(element, oe.Element):
-            element = oe.Note().set_staff_reference(self._staff)
-        else:
-            element = element.copy().set_staff_reference(self._staff)
-        
         if isinstance(pattern, str):
+
+            if not isinstance(element, oe.Element):
+                element = oe.Note().set_staff_reference(self._staff)
+            else:
+                element = element.copy().set_staff_reference(self._staff)
+
             pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
 
-        if isinstance(pattern, list):
+            if isinstance(pattern, list):
 
-            position_steps: ra.Steps = ra.Steps(0)
-            for single_step in pattern:
-                if single_step == 1:
-                    self += element << position_steps
-                position_steps += 1
+                position_steps: ra.Steps = ra.Steps(0)
+                for single_step in pattern:
+                    if single_step == 1:
+                        self += element << position_steps
+                    position_steps += 1
 
-        return self._sort_position()
+            return self._sort_position()
+
+        return self
 
 
-    def automate(self, pattern: str | list[int | None] = "1... 1... 1... 1...", values: list[int] = None, controller: og.Controller = None) -> Self:
+    def automate(self, values: list[int] = [100, 70, 30, 100], pattern: str = "1... 1... 1... 1...", controller: og.Controller = None) -> Self:
 
-        controller = og.Controller(controller)
-
-        # Ensure values is a non-empty list with only integers ≥ 0
-        if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
-            values = [100, 70, 30, 100]
-
-        # Convert pattern string to list of values
         if isinstance(pattern, str):
+
+            controller = og.Controller(controller)
+
+            # Ensure values is a non-empty list with only integers ≥ 0
+            if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
+                values = [100, 70, 30, 100]
+                
             pattern_values = []
             value_index = 0  # Keep track of which value to use
             for char in pattern.replace(" ", "").replace("-", ""):
@@ -1373,38 +1376,40 @@ class Clip(Container):  # Just a container of Elements
                     pattern_values.append(None)  # Empty slots
             pattern = pattern_values
 
-        # Find indices of known values
-        known_indices = [i for i, val in enumerate(pattern) if val is not None]
-        
-        if not known_indices:
-            raise ValueError("List must contain at least one integer.")
-        
-        automation = pattern[:] # makes a copy of pattern list
-        
-        for i in range(len(pattern)):
-            if automation[i] is None:
-                # Find closest known values before and after
-                left_idx = max([idx for idx in known_indices if idx < i], default=None)
-                right_idx = min([idx for idx in known_indices if idx > i], default=None)
-                
-                if left_idx is None:
-                    automation[i] = automation[right_idx]   # Use the right value if no left
-                elif right_idx is None:
-                    automation[i] = automation[left_idx]    # Use the left value if no right
-                else:
-                    # Linear interpolation
-                    left_val = automation[left_idx]
-                    right_val = automation[right_idx]
-                    step = (right_val - left_val) / (right_idx - left_idx)
-                    automation[i] = int(left_val + step * (i - left_idx))
+            # Find indices of known values
+            known_indices = [i for i, val in enumerate(pattern) if val is not None]
+            
+            if not known_indices:
+                raise ValueError("List must contain at least one integer.")
+            
+            automation = pattern[:] # makes a copy of pattern list
+            
+            for i in range(len(pattern)):
+                if automation[i] is None:
+                    # Find closest known values before and after
+                    left_idx = max([idx for idx in known_indices if idx < i], default=None)
+                    right_idx = min([idx for idx in known_indices if idx > i], default=None)
+                    
+                    if left_idx is None:
+                        automation[i] = automation[right_idx]   # Use the right value if no left
+                    elif right_idx is None:
+                        automation[i] = automation[left_idx]    # Use the left value if no right
+                    else:
+                        # Linear interpolation
+                        left_val = automation[left_idx]
+                        right_val = automation[right_idx]
+                        step = (right_val - left_val) / (right_idx - left_idx)
+                        automation[i] = int(left_val + step * (i - left_idx))
 
 
-        position_steps: ra.Steps = ra.Steps(0)
-        for value in automation:
-            self += oe.ControlChange(controller, value, position_steps)
-            position_steps += 1
+            position_steps: ra.Steps = ra.Steps(0)
+            for value in automation:
+                self += oe.ControlChange(controller, value, position_steps)
+                position_steps += 1
 
-        return self._sort_position()
+            return self._sort_position()
+        
+        return self
     
     
     def reverse(self, non_empty_measures_only: bool = True) -> Self:

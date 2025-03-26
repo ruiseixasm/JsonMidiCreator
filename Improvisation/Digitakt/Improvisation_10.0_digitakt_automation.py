@@ -34,7 +34,7 @@ level_cc * 4 >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate("1... 1.1. .1.. ..1.", [100, 50, 20, 50, 100], Digitakt.midi_cc["TRACK"]["Level"]) << Digitakt.kick
+automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", Digitakt.midi_cc["TRACK"]["Level"]) << Digitakt.kick
 automation_cc * 4 >> P
 
 
