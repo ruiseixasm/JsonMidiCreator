@@ -45,6 +45,10 @@ class Container(o.Operand):
         
     def __getitem__(self, index: int) -> any:
         return self._items[index]
+    
+    def __setitem__(self, index, value) -> Self:
+        self._items[index] = value
+        return self
 
     def __iter__(self) -> Self:
         return self
