@@ -329,6 +329,8 @@ class Element(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case oc.Composition():
+                self.set_staff_reference(operand.get_staff_reference())
         return self
 
 
