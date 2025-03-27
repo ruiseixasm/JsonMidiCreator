@@ -46,7 +46,6 @@ class Element(o.Operand):
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_notevalue: Fraction  = og.defaults._duration
         self._channel: int                  = og.defaults._channel
-        self._devices: list[str]            = og.defaults._devices.copy()
         self._enabled: bool                 = True
 
         # Clip sets the Staff, this is just a reference
@@ -105,7 +104,6 @@ class Element(o.Operand):
                     case ra.Length():
                         return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
-                    case oc.Devices():      return oc.Devices(self._devices)
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
@@ -124,7 +122,6 @@ class Element(o.Operand):
             case ra.TimeValue() | ou.TimeUnit():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
-            case oc.Devices():      return oc.Devices(self._devices)
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
@@ -253,7 +250,6 @@ class Element(o.Operand):
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]     = self.serialize(self._duration_notevalue)
         serialization["parameters"]["channel"]      = self.serialize(self._channel)
-        serialization["parameters"]["devices"]      = self.serialize(self._devices)
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         return serialization
 
@@ -262,14 +258,12 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
-            "enabled" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
             self._duration_notevalue    = self.deserialize(serialization["parameters"]["duration"])
             self._channel               = self.deserialize(serialization["parameters"]["channel"])
-            self._devices               = self.deserialize(serialization["parameters"]["devices"])
             self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
 
         return self
@@ -284,7 +278,6 @@ class Element(o.Operand):
                 self._position_beats        = operand._position_beats
                 self._duration_notevalue    = operand._duration_notevalue
                 self._channel               = operand._channel
-                self._devices               = operand._devices.copy()
                 self._enabled               = operand._enabled
                 self._staff_reference       = operand._staff_reference
 
@@ -293,7 +286,7 @@ class Element(o.Operand):
                     case ra.Position():     self._position_beats  = operand._data
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
                     case ou.Channel():      self._channel = operand._data._unit
-                    case oc.Devices():      self._devices = operand // list()
+
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
@@ -315,8 +308,6 @@ class Element(o.Operand):
                 self._position_beats        = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
             case ou.Channel():
                 self._channel               = operand._unit
-            case oc.Devices():
-                self._devices               = operand % list()
             case ou.Enable():
                 self._enabled               = operand._unit != 0
             case ou.Disable():

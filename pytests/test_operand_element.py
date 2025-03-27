@@ -33,20 +33,13 @@ import sys
 def test_element_mod():
 
     element = Element()
-    element_devices = element % Devices()
 
     # Redirect stdout to capture the print output
     captured_output = StringIO()
     sys.stdout = captured_output
 
-    # Perform the operation
-    element_devices % list() >> Print()
-
     # Restore stdout
     sys.stdout = sys.__stdout__
-
-    # Assert the captured output
-    assert captured_output.getvalue().strip() in ["['VMPK', 'FLUID']", "['loopMIDI', 'Microsoft']"]
 
     assert element % Enable()
     assert not element % Disable()
