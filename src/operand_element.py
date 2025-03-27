@@ -154,8 +154,7 @@ class Element(o.Operand):
             and self._duration_notevalue      == other._duration_notevalue
 
     def eq_midi(self, other: 'Element') -> bool:
-        return  self._channel       == other._channel \
-            and self._devices        == other._devices
+        return  self._channel == other._channel
 
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -629,7 +628,7 @@ class Clock(Element):
                         "time_ms": self.get_time_ms(self_position_ms),
                         "midi_message": {
                             "status_byte": 0xFA,    # Start Track
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 ]
@@ -641,7 +640,7 @@ class Clock(Element):
                         "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                         "midi_message": {
                             "status_byte": 0xF8,    # Timing Clock
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 )
@@ -652,7 +651,7 @@ class Clock(Element):
                     "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                     "midi_message": {
                         "status_byte": 0xFC,    # Stop Track
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             )
@@ -798,7 +797,7 @@ class Note(Element):
                         "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._velocity,
-                        "device": self._devices
+                        "device": devices
                     }
                 },
                 {
@@ -807,7 +806,7 @@ class Note(Element):
                         "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": 0,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             ]
@@ -1888,7 +1887,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": 99,
                             "data_byte_2": cc_99_msb,
-                            "device": self._devices
+                            "device": devices
                         }
                     },
                     {
@@ -1897,7 +1896,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": 98,
                             "data_byte_2": cc_98_lsb,
-                            "device": self._devices
+                            "device": devices
                         }
                     },
                     {
@@ -1906,7 +1905,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": 6,
                             "data_byte_2": cc_6_msb,
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 ]
@@ -1920,7 +1919,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": 38,
                             "data_byte_2": cc_38_lsb,
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 )
@@ -1937,7 +1936,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": self._controller._number_msb,
                             "data_byte_2": msb_value,
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 ]
@@ -1951,7 +1950,7 @@ class ControlChange(Automation):
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": self._controller._lsb,
                             "data_byte_2": lsb_value,
-                            "device": self._devices
+                            "device": devices
                         }
                     }
                 )
@@ -2125,7 +2124,7 @@ class PitchBend(Automation):
                         "status_byte": 0xE0 | 0x0F & self._channel - 1,
                         "data_byte_1": lsb_midi,
                         "data_byte_2": msb_midi,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             ]
@@ -2249,7 +2248,7 @@ class Aftertouch(Automation):
                     "midi_message": {
                         "status_byte": 0xD0 | 0x0F & self._channel - 1,
                         "data_byte": self._pressure,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             ]
@@ -2389,7 +2388,7 @@ class PolyAftertouch(Aftertouch):
                         "status_byte": 0xA0 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._pressure,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             ]
@@ -2494,7 +2493,7 @@ class ProgramChange(Element):
                     "midi_message": {
                         "status_byte": 0xC0 | 0x0F & self._channel - 1,
                         "data_byte": self._program - 1,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             ]
@@ -2589,7 +2588,7 @@ class Panic(Element):
                         "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,   # 0 means it will result in no sound
-                        "device": self._devices
+                        "device": devices
                     }
                 },
                 {
@@ -2598,7 +2597,7 @@ class Panic(Element):
                         "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
-                        "device": self._devices
+                        "device": devices
                     }
                 }
             )

@@ -925,7 +925,7 @@ class Clip(Composition):  # Just a container of Elements
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
-            case ou.TrackNumber() | od.TrackName() | str():
+            case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
@@ -1013,7 +1013,7 @@ class Clip(Composition):  # Just a container of Elements
                     case om.Mutation():     operand._data.mutate(self)
                     case _:                 super().__lshift__(operand)
 
-            case ou.MidiTrack() | ou.TrackNumber() | od.TrackName():
+            case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices():
                 self._midi_track << operand
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
