@@ -621,6 +621,7 @@ class Clock(Element):
         if total_clock_pulses > 0:
 
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
+            devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
             # First quarter note pulse (total 1 in 24 pulses per quarter note)
             self_playlist = [
@@ -787,6 +788,7 @@ class Note(Element):
             return []
 
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list = [
@@ -1870,6 +1872,7 @@ class ControlChange(Automation):
 
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
         time_ms: float = self.get_time_ms(self_position_ms)
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -2105,6 +2108,7 @@ class PitchBend(Automation):
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # from -8192 to 8191
         amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
@@ -2236,6 +2240,7 @@ class Aftertouch(Automation):
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -2373,6 +2378,7 @@ class PolyAftertouch(Aftertouch):
             return []
 
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -2479,6 +2485,7 @@ class ProgramChange(Element):
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -2571,6 +2578,7 @@ class Panic(Element):
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats))
 
         on_time_ms = self.get_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         for key_note_midi in range(128):
