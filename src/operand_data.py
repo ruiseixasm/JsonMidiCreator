@@ -980,6 +980,7 @@ class Play(Process):
         import operand_container as oc
         import operand_generic as og
         match operand:
+
             case oc.Composition() | oe.Element():
 
                 playlist: list[dict] = []
@@ -990,9 +991,9 @@ class Play(Process):
                     clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
                     clock <<= clock_length  # Equivalent to << od.DataSource( )
                     for device in clocked_devices:
-                        playlist.append( clock.getPlaylist(clocked_device = device) )
+                        playlist.extend( clock.getPlaylist(clocked_device = device) )
                                     
-                playlist.append( operand.getPlaylist() )
+                playlist.extend( operand.getPlaylist() )
 
                 c.jsonMidiPlay(playlist, False if self._data == 0 else True )
                 return operand
