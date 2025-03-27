@@ -688,7 +688,26 @@ class Chain(Data):
 
 
 class Process(Data):
-    pass
+    @staticmethod
+    def _get_playlist(operand: o.T) -> list[dict]:
+        import operand_rational as ra
+        import operand_generic as og
+        import operand_element as oe
+
+        playlist: list[dict] = []
+
+        clocked_devices: list[str] = og.defaults._clocked_devices
+        if len(clocked_devices) > 0:
+            clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
+            clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
+            clock <<= clock_length  # Equivalent to << od.DataSource( )
+            for device in clocked_devices:
+                playlist.extend( clock.getPlaylist(clocked_device = device) )
+                                    
+        playlist.extend( operand.getPlaylist() )
+
+        return playlist
+
     
 class SideEffects(Process):
     def __init__(self, operand: o.Operand = None):
@@ -726,9 +745,16 @@ class Export(Process):
         super().__init__(file_name)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            c.saveJsonMidiPlay(operand.getPlaylist(), self._data)
-            return operand
+        import operand_element as oe
+        import operand_container as oc
+        match operand:
+            case oc.Composition() | oe.Element():
+                playlist: list[dict] = self._get_playlist(operand)
+                c.saveJsonMidiPlay(playlist, self._data)
+                return operand
+            case Playlist():
+                c.saveJsonMidiPlay(operand.getPlaylist(), self._data)
+                return operand
         return super().__rrshift__(operand)
 
 class MidiExport(Process):
@@ -975,29 +1001,13 @@ class Play(Process):
         super().__init__(1 if verbose else 0)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
-        import operand_generic as og
         match operand:
-
             case oc.Composition() | oe.Element():
-
-                playlist: list[dict] = []
-
-                clocked_devices: list[str] = og.defaults._clocked_devices
-                if len(clocked_devices) > 0:
-                    clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                    clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
-                    clock <<= clock_length  # Equivalent to << od.DataSource( )
-                    for device in clocked_devices:
-                        playlist.extend( clock.getPlaylist(clocked_device = device) )
-                                    
-                playlist.extend( operand.getPlaylist() )
-
+                playlist: list[dict] = self._get_playlist(operand)
                 c.jsonMidiPlay(playlist, False if self._data == 0 else True )
                 return operand
-            
             case Playlist():
                 c.jsonMidiPlay(operand.getPlaylist(), False if self._data == 0 else True )
                 return operand
