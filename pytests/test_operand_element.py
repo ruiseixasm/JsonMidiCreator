@@ -71,7 +71,7 @@ def test_clock_mod():
 
 def test_clock_div_floor():
 
-    clock: Clock = Clock()
+    clock: Clock = Clock(Length(8))
     assert clock // Duration() == 8
 
 # test_clock_div_floor()
@@ -424,7 +424,7 @@ def test_milliseconds_duration():
 
 def test_clock_element():
 
-    clock_measure = Clock(Measures(1))
+    clock_measure = Clock(Length(1))
     clock_playlist: list = clock_measure.getPlaylist()
     expected_messages: int = 1 * 4 * 24 + 1 # +1 for the Stop clock message
     total_messages: int = len(clock_playlist)

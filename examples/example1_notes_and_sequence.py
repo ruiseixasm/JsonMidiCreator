@@ -23,10 +23,10 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(110) << Measures(6)
+defaults << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) * 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")
 # single_clock = Clock(MidiTrack("Clock Track")) >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played

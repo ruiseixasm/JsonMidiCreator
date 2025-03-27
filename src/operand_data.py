@@ -706,6 +706,7 @@ class Process(Data):
                     clock << clock_length  # Element converts Length to Duration
                     for device in clocked_devices:
                         playlist.extend( clock.getPlaylist(clocked_device = device) )
+                playlist.extend( operand.getPlaylist() )
             case Playlist():
                 playlist = operand.getPlaylist()
 

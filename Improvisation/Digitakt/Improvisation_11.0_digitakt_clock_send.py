@@ -35,6 +35,10 @@ long_rest >> P
 time.sleep(0.5)
 long_element >> P
 
+half_measure_element = Element(1/2)
+time.sleep(0.5)
+half_measure_element >> P
+
 
 defaults -= Digitakt.device
 defaults % Devices() % list() >> Print()

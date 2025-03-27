@@ -23,8 +23,8 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(120) << Measures(1)
-single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
+defaults << Tempo(120)
+single_clock = Clock(Length(1)) * 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()

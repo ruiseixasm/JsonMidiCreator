@@ -30,10 +30,10 @@ results_list        = []
 ####### TEST1 ############
 
 # Global Staff setting up
-defaults << Tempo(110) << Measures(6)
+defaults << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
@@ -175,8 +175,8 @@ results_list.append({
 ############### TEST3 #######################
 
 # Global Staff setting up
-defaults << Tempo(120) << Measures(1)
-single_clock: Clip = Clock() * 1 << MidiTrack(0, "Clock Track")
+defaults << Tempo(120)
+single_clock: Clip = Clock(Length(1)) * 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")

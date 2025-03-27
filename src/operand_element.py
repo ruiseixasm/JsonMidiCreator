@@ -557,7 +557,6 @@ class Group(Element):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration_notevalue = self._staff_reference.convertToDuration(ra.Measures(og.defaults._staff._measures))._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -582,12 +581,8 @@ class Clock(Element):
             case od.DataSource():
                 match operand._data:
                     case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
-                    case ra.Measures() | ou.Measure():
-                                            return operand << self._duration_notevalue
                     case _:                 return super().__mod__(operand)
             case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
-            case ra.Measures() | ou.Measure():
-                                    return operand.copy() << self._duration_notevalue
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -678,12 +673,8 @@ class Clock(Element):
             case od.DataSource():
                 match operand._data:
                     case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
-                    case ra.Measures() | ou.Measure():
-                                            self._duration_notevalue = self._staff_reference.convertToDuration(operand._data)._rational
                     case _:                 super().__lshift__(operand)
             case ou.PPQN():         self._pulses_per_quarternote = operand._unit
-            case ra.Measures() | ou.Measure():
-                                    self._duration_notevalue = self._staff_reference.convertToDuration(operand)._rational
             case _: super().__lshift__(operand)
         return self
 
