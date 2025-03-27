@@ -1916,6 +1916,7 @@ class PPQN(Midi):
     def __init__(self, *parameters):
         super().__init__(24, *parameters)
 
+
 class MidiTrack(Midi):
     """`Unit -> Midi -> MidiTrack`
 
@@ -1929,20 +1930,33 @@ class MidiTrack(Midi):
         The name of the Track, there default is "Track 1".
     """
     def __init__(self, *parameters):
-        self._name: str = "Track 1"
+        import operand_generic as og
+        self._name: str             = "Track 1"
+        self._devices: list[str]    = og.defaults._devices.copy()
         super().__init__(1, *parameters)
 
+    def devices(self, devices: list[str] = None) -> Self:
+        import operand_generic as og
+        if devices is not None:
+            self._devices = devices
+        else:
+            self._devices = og.defaults._devices.copy()
+        return self
+
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
                     case TrackNumber():         return operand._data << od.DataSource(self._unit)
                     case od.TrackName():        return operand._data << od.DataSource(self._name)
+                    case oc.Devices():          return oc.Devices(self._devices)
                     case str():                 return self._name
                     case _:                     return super().__mod__(operand)
             case TrackNumber():         return TrackNumber(self._unit)
             case od.TrackName():        return od.TrackName(self._name)
             case str():                 return self._name
+            case oc.Devices():          return oc.Devices(self._devices)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1950,7 +1964,8 @@ class MidiTrack(Midi):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return super().__eq__(other) and self._name == other._name
+                return super().__eq__(other) \
+                    and self._name == other._name and self._devices == other._devices
             case TrackNumber():
                 return self._unit == other._unit
             case od.TrackName():
@@ -1962,40 +1977,48 @@ class MidiTrack(Midi):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["name"] = self._name        # It's a string already
+        serialization["parameters"]["name"]     = self._name    # It's a string already
+        serialization["parameters"]["devices"]  = self.serialize(self._devices)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "name" in serialization["parameters"]):
+            "name" in serialization["parameters"] and "devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._name = serialization["parameters"]["name"]    # It's a string already
+            self._name      = serialization["parameters"]["name"]    # It's a string already
+            self._devices   = self.deserialize(serialization["parameters"]["devices"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case MidiTrack():
                 super().__lshift__(operand)
-                self._name = operand._name
+                self._name      = operand._name
+                self._devices   = operand._devices.copy()
             case od.DataSource():
                 match operand._data:
                     case TrackNumber():         self._unit = operand._data._unit
                     case od.TrackName():        self._name = operand._data._data
                     case str():                 self._name = operand._data
+                    case oc.Devices():          self._devices = operand // list()
                     case _:                     super().__lshift__(operand)
             case TrackNumber():         self._unit = operand._unit
             case od.TrackName():        self._name = operand._data
             case str():                 self._name = operand
+            case oc.Devices():          self._devices = operand % list()
             case _:                     super().__lshift__(operand)
         return self
+
 
 class TrackNumber(Midi):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default is Track number 1
+
 
 class Channel(Midi):
     """`Unit -> Midi -> Channel`

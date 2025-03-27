@@ -81,10 +81,6 @@ class Element(o.Operand):
         self._channel = channel
         return self
 
-    def device(self, device: list[str] = None) -> Self:
-        self._devices = device
-        return self
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,

@@ -191,9 +191,10 @@ def test_dictionary_getter():
 
     parameters: dict = get_dict_key_data("parameters", serialization)
     print(parameters)
-    assert parameters == {'unit': 3, 'name': 'Drums'}
+    assert parameters == {'unit': 3, 'name': 'Drums', 'devices': ['VMPK', 'FLUID']}
+
     parameters = serialization % Data("parameters")
     print(parameters)
-    assert parameters == {'unit': 3, 'name': 'Drums'}
+    assert parameters == {'unit': 3, 'name': 'Drums', 'devices': ['VMPK', 'FLUID']}
 
 # test_dictionary_getter()
