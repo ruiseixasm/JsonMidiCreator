@@ -269,10 +269,10 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
-    def getPlaylist(self, position = None) -> list:
+    def getPlaylist(self, position = None) -> list[dict]:
         return []
 
-    def getMidilist(self, midi_track = None, position = None) -> list:
+    def getMidilist(self, midi_track = None, position = None) -> list[dict]:
         return []
 
     def getSerialization(self) -> dict:
