@@ -1813,7 +1813,7 @@ class Defaults(Generic):
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case Staff():               return self._staff
                     case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                        | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                        | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff // operand._data
                     case ra.Duration():         return operand << self._duration
@@ -1827,7 +1827,7 @@ class Defaults(Generic):
             case of.Frame():            return self % operand
             case Staff():               return self._staff.copy()
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
             case ra.Duration():         return operand.copy() << self._duration
