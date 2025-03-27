@@ -693,18 +693,21 @@ class Process(Data):
         import operand_rational as ra
         import operand_generic as og
         import operand_element as oe
+        import operand_container as oc
 
         playlist: list[dict] = []
 
-        clocked_devices: list[str] = og.defaults._clocked_devices
-        if clocked_devices:
-            clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-            clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
-            clock << clock_length  # Element converts Length to Duration
-            for device in clocked_devices:
-                playlist.extend( clock.getPlaylist(clocked_device = device) )
-                                    
-        playlist.extend( operand.getPlaylist() )
+        match operand:
+            case oc.Composition() | oe.Element():
+                clocked_devices: list[str] = og.defaults._clocked_devices
+                if clocked_devices:
+                    clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
+                    clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
+                    clock << clock_length  # Element converts Length to Duration
+                    for device in clocked_devices:
+                        playlist.extend( clock.getPlaylist(clocked_device = device) )
+            case Playlist():
+                playlist = operand.getPlaylist()
 
         return playlist
 
@@ -745,17 +748,13 @@ class Export(Process):
         super().__init__(file_name)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
         match operand:
-            case oc.Composition() | oe.Element():
+            case o.Operand():
                 playlist: list[dict] = self._clocked_playlist(operand)
                 c.saveJsonMidiPlay(playlist, self._data)
                 return operand
-            case Playlist():
-                c.saveJsonMidiPlay(operand.getPlaylist(), self._data)
-                return operand
-        return super().__rrshift__(operand)
+            case _:
+                return super().__rrshift__(operand)
 
 class MidiExport(Process):
     def __init__(self, file_name: str = "song.mid"):
@@ -1001,15 +1000,10 @@ class Play(Process):
         super().__init__(1 if verbose else 0)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
         match operand:
-            case oc.Composition() | oe.Element():
+            case o.Operand():
                 playlist: list[dict] = self._clocked_playlist(operand)
                 c.jsonMidiPlay(playlist, False if self._data == 0 else True )
-                return operand
-            case Playlist():
-                c.jsonMidiPlay(operand.getPlaylist(), False if self._data == 0 else True )
                 return operand
             case _:
                 return super().__rrshift__(operand)
