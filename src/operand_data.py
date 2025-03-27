@@ -975,19 +975,23 @@ class Play(Process):
         super().__init__(1 if verbose else 0)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_unit as ou
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
+        import operand_generic as og
         match operand:
             case oc.Composition() | oe.Element():
 
+                playlist: list[dict] = []
+
                 clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                clock: oe.Clock = oe.Clock(clock_length)
-
-                # playlist: list[dict] = clock.getPlaylist()
-
-                playlist: list[dict] = operand.getPlaylist()
+                clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
+                clock <<= clock_length  # Equivalent to << od.DataSource( )
+                clocked_devices: list[str] = og.defaults._clocked_devices
+                for device in clocked_devices:
+                    playlist.append( clock.getPlaylist(clocked_device = device) )
+                                    
+                playlist.append( operand.getPlaylist() )
 
                 c.jsonMidiPlay(playlist, False if self._data == 0 else True )
                 return operand
