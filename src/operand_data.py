@@ -689,7 +689,7 @@ class Chain(Data):
 
 class Process(Data):
     @staticmethod
-    def _get_playlist(operand: o.T) -> list[dict]:
+    def _clocked_playlist(operand: o.T) -> list[dict]:
         import operand_rational as ra
         import operand_generic as og
         import operand_element as oe
@@ -697,10 +697,10 @@ class Process(Data):
         playlist: list[dict] = []
 
         clocked_devices: list[str] = og.defaults._clocked_devices
-        if len(clocked_devices) > 0:
+        if clocked_devices:
             clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
             clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
-            clock <<= clock_length  # Equivalent to << od.DataSource( )
+            clock << clock_length  # Element converts Length to Duration
             for device in clocked_devices:
                 playlist.extend( clock.getPlaylist(clocked_device = device) )
                                     
@@ -749,7 +749,7 @@ class Export(Process):
         import operand_container as oc
         match operand:
             case oc.Composition() | oe.Element():
-                playlist: list[dict] = self._get_playlist(operand)
+                playlist: list[dict] = self._clocked_playlist(operand)
                 c.saveJsonMidiPlay(playlist, self._data)
                 return operand
             case Playlist():
@@ -1005,7 +1005,7 @@ class Play(Process):
         import operand_container as oc
         match operand:
             case oc.Composition() | oe.Element():
-                playlist: list[dict] = self._get_playlist(operand)
+                playlist: list[dict] = self._clocked_playlist(operand)
                 c.jsonMidiPlay(playlist, False if self._data == 0 else True )
                 return operand
             case Playlist():

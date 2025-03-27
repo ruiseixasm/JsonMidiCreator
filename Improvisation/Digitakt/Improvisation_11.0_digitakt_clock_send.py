@@ -25,8 +25,8 @@ defaults << ClockedDevices(Digitakt.device)
 defaults % ClockedDevices() % list() >> Print()
 
 
-long_rest = Rest(2/1)
-long_element = Element(2/1)
+long_rest = Rest(4/1)
+long_element = Element(4/1)
 
 long_rest % Length() % float() >> Print()
 long_element % Length() % float() >> Print()
