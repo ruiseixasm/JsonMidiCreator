@@ -984,12 +984,13 @@ class Play(Process):
 
                 playlist: list[dict] = []
 
-                clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
-                clock <<= clock_length  # Equivalent to << od.DataSource( )
                 clocked_devices: list[str] = og.defaults._clocked_devices
-                for device in clocked_devices:
-                    playlist.append( clock.getPlaylist(clocked_device = device) )
+                if len(clocked_devices) > 0:
+                    clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
+                    clock: oe.Clock = oe.Clock().set_staff_reference(operand.get_staff_reference())
+                    clock <<= clock_length  # Equivalent to << od.DataSource( )
+                    for device in clocked_devices:
+                        playlist.append( clock.getPlaylist(clocked_device = device) )
                                     
                 playlist.append( operand.getPlaylist() )
 
