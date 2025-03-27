@@ -599,7 +599,8 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, \
+                    clocked_devices: list[str] = None) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -611,7 +612,9 @@ class Clock(Element):
         if total_clock_pulses > 0:
 
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
-            devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+            devices: list[str] = clocked_devices
+            if not devices:
+                devices = midi_track._devices if midi_track else og.defaults._devices
 
             # First quarter note pulse (total 1 in 24 pulses per quarter note)
             self_playlist = [
