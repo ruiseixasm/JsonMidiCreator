@@ -1281,7 +1281,8 @@ class Staff(Generic):
                     case Scale():               return self._scale
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
-                    case ra.Measures():         return ra.Measures(self._measures)
+                    case ra.Measures():
+                        return ra.Measures(self._measures)
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
@@ -1304,8 +1305,10 @@ class Staff(Generic):
                                         return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
-            case ra.Measures():         return ra.Measures(self._measures)
-            case ou.Measure():          return ou.Measure(self._measures)
+            case ra.Measures():
+                return ra.Measures(self._measures)
+            case ou.Measure():
+                return ou.Measure(self._measures)
             # Calculated Values
             case ou.Tonic():
                 return ou.Tonic(self % float())
@@ -1546,7 +1549,8 @@ class Staff(Generic):
                     case Scale():               self._scale = operand._data
                     case ra.TimeSignatureParameter():
                                                 self._time_signature << od.DataSource( operand._data )
-                    case ra.Measures():         self._measures = operand._data // int()
+                    case ra.Measures():
+                        self._measures = operand._data // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational

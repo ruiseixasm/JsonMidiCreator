@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Measures(7) << Tempo(120)
+defaults << Tempo(120)
 
 (Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() >> Play(True)
 

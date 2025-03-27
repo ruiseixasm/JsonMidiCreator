@@ -97,8 +97,6 @@ triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") 
 triplets_two = (Note3("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
-defaults << Measures(2)
-
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
 composition + triplets_one * triplets_two \
@@ -131,7 +129,7 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 ############### TEST5 #######################
 
 # Global Staff setting up
-defaults << Tempo(120) << Measures(7)
+defaults << Tempo(120)
 
 (Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
@@ -150,7 +148,7 @@ Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
 ############### TEST6 #######################
 
 # Global Staff setting up
-defaults << Tempo(120) << Measures(7)
+defaults << Tempo(120)
 
 (Chord(1/4) * 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
@@ -186,7 +184,7 @@ defaults << Tempo(120)
 
 
 # Global Staff setting up
-defaults << Tempo(120) << Measures(7)
+defaults << Tempo(120)
 
 (Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
@@ -199,7 +197,7 @@ defaults << Tempo(120) << Measures(7)
 
 
 # Global Staff setting up
-defaults << Tempo(240) << Measures(7)
+defaults << Tempo(240)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
