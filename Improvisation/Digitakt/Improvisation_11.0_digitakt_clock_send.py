@@ -16,12 +16,13 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 defaults % Devices() % list() >> Print()
-defaults += Digitakt.device
+# defaults += Digitakt.device
 defaults % Devices() % list() >> Print()
 
 # Send Clock signal to the Digitakt
 defaults % ClockedDevices() % list() >> Print()
-defaults << ClockedDevices(Digitakt.device)
+# defaults << ClockedDevices(Digitakt.device)
+defaults << ClockedDevices("loopMIDI")
 defaults % ClockedDevices() % list() >> Print()
 
 
