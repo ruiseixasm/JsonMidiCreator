@@ -1911,10 +1911,55 @@ class PPQN(Midi):
     Parameters
     ----------
     first : integer_like
-        The typical and the default value is 24, but it can be set multiples of 24
+        The typical and the default value is 24, but it can be set( multiples of 24
     """
     def __init__(self, *parameters):
         super().__init__(24, *parameters)
+
+class ClockStopModes(Midi):
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case str():                     return ClockStopModes._stop_modes_int[self._unit % 4]
+                    case _:                         return super().__mod__(operand)
+            case str():                 return ClockStopModes._stop_modes_int[self._unit % 4]
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case str():
+                        mode_name: str = operand._data.strip()
+                        if mode_name in ClockStopModes._stop_modes_str:
+                            self._unit = ClockStopModes._stop_modes_str[mode_name]
+                    case _:                         super().__lshift__(operand)
+            case str():
+                mode_name: str = operand.strip()
+                if mode_name in ClockStopModes._stop_modes_str:
+                    self._unit = ClockStopModes._stop_modes_str[mode_name]
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _stop_modes_str: dict[str, int] = {
+        "Stop":     0,
+        "Pause":    1,
+        "Reset":    2,
+        "Exit":     3
+    }
+
+    _stop_modes_int: dict[int, str] = {
+        0:          "Stop",
+        1:          "Pause",
+        2:          "Reset",
+        3:          "Exit"
+    }
 
 
 class MidiTrack(Midi):
