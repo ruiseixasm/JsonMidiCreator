@@ -1795,7 +1795,8 @@ class Defaults(Generic):
         self._velocity: int                         = 100
         self._controller: Controller                = Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: int                          = 1
-        self._devices: list                         = list(["Microsoft", "FLUID", "Apple"])
+        self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
+        self._clocked_devices: list[str]            = []
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1816,6 +1817,7 @@ class Defaults(Generic):
                     case ou.Velocity():         return ou.Velocity(self._velocity)
                     case Controller():          return self._controller
                     case ou.Channel():          return ou.Channel(self._channel)
+                    case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
@@ -1831,6 +1833,7 @@ class Defaults(Generic):
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return ou.Channel(self._channel)
+            case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case _:                     return super().__mod__(operand)
 
@@ -1848,7 +1851,8 @@ class Defaults(Generic):
             and self._velocity          == other._velocity \
             and self._controller        == other._controller \
             and self._channel           == other._channel \
-            and self._devices           == other._devices
+            and self._devices           == other._devices \
+            and self._clocked_devices   == other._clocked_devices
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1859,6 +1863,7 @@ class Defaults(Generic):
         serialization["parameters"]["controller"]       = self.serialize( self._controller )
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
         serialization["parameters"]["devices"]          = self.serialize( self._devices )
+        serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1867,7 +1872,7 @@ class Defaults(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "devices" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
@@ -1877,6 +1882,7 @@ class Defaults(Generic):
             self._controller        = self.deserialize( serialization["parameters"]["controller"] )
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
             self._devices           = self.deserialize( serialization["parameters"]["devices"] )
+            self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1891,6 +1897,7 @@ class Defaults(Generic):
                 self._controller        << operand._controller
                 self._channel           = operand._channel
                 self._devices           = operand._devices.copy()
+                self._clocked_devices   = operand._clocked_devices.copy()
             case od.DataSource():
                 match operand._data:
                     case Staff():               self._staff = operand._data
@@ -1899,6 +1906,7 @@ class Defaults(Generic):
                     case ou.Velocity():         self._velocity = operand._data._unit
                     case Controller():          self._controller = operand._data
                     case ou.Channel():          self._channel = operand._data._unit
+                    case oc.ClockedDevices():   self._clocked_devices = operand._data // list()
                     case oc.Devices():          self._devices = operand._data // list()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -1912,6 +1920,7 @@ class Defaults(Generic):
             case Controller() | ou.Number() | ou.Value():
                                         self._controller << operand
             case ou.Channel():          self._channel = operand._unit
+            case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
             case tuple():
