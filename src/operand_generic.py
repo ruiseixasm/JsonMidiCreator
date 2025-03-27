@@ -1169,7 +1169,6 @@ class Staff(Generic):
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._scale: Scale                          = Scale([])
-        self._measures: int                         = 8
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
