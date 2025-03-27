@@ -958,7 +958,7 @@ class Clip(Composition):  # Just a container of Elements
         return [
             single_playlist
                 for single_element in self._items
-                for single_playlist in single_element.getPlaylist(position_beats)
+                for single_playlist in single_element.getPlaylist(self._midi_track, position_beats)
         ]
 
     def getMidilist(self, position: ra.Position = None) -> list[dict]:
