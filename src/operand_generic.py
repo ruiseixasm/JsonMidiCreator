@@ -1779,6 +1779,7 @@ class Arpeggio(Generic):
 
 class Defaults(Generic):
     def __init__(self, *parameters):
+        import operand_element as oe
         super().__init__()
         self._staff: Staff                          = Staff()
         self._duration: Fraction                    = Fraction(1/4)
@@ -1788,6 +1789,8 @@ class Defaults(Generic):
         self._channel: int                          = 1
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
+        self._clock_ppqn: int                       = 24
+        self._clock_stop_mode: int                  = 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 

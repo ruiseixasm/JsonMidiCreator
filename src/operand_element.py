@@ -558,6 +558,7 @@ class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._pulses_per_quarternote: int   = 24
+        self._clock_stop_mode: int          = 0
         self._reset_position: bool          = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
