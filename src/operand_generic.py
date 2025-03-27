@@ -1915,7 +1915,7 @@ class Defaults(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
             case ra.Duration():         self._duration = operand._rational
