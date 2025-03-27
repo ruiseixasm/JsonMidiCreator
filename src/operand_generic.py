@@ -1170,8 +1170,10 @@ class Staff(Generic):
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._scale: Scale                          = Scale([])
         self._measures: int                         = 8
+
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
         self._tied_notes: dict[int, dict[str, any]] = {}
@@ -1549,8 +1551,6 @@ class Staff(Generic):
                     case Scale():               self._scale = operand._data
                     case ra.TimeSignatureParameter():
                                                 self._time_signature << od.DataSource( operand._data )
-                    case ra.Measures():
-                        self._measures = operand._data // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
@@ -1558,8 +1558,6 @@ class Staff(Generic):
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
             case Scale():               self._scale << operand
-            case ra.Measures() | ou.Measure():         
-                                        self._measures = operand // int()
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()
