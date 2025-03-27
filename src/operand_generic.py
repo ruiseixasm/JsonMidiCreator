@@ -1347,8 +1347,7 @@ class Staff(Generic):
         return  self._tempo             == other._tempo \
             and self._time_signature    == other._time_signature \
             and self._quantization      == other._quantization \
-            and self._key_signature     == other._key_signature \
-            and self._measures          == other._measures
+            and self._key_signature     == other._key_signature
 
     #######################################################################
     # Conversion (Simple, One-way) | Only destination Staff is considered #
@@ -1512,14 +1511,13 @@ class Staff(Generic):
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
-        serialization["parameters"]["measures"]         = self.serialize( self._measures )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
+            "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "scale" in serialization["parameters"] and "quantization" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1528,7 +1526,6 @@ class Staff(Generic):
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
             self._scale             = self.deserialize( serialization["parameters"]["scale"] )
-            self._measures          = self.deserialize( serialization["parameters"]["measures"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1541,7 +1538,6 @@ class Staff(Generic):
                 self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
                 self._scale             << operand._scale
-                self._measures          = operand._measures
             case od.DataSource():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
