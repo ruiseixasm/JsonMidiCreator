@@ -19,6 +19,10 @@ defaults % Devices() % list() >> Print()
 defaults += Digitakt.device
 defaults % Devices() % list() >> Print()
 
+# Send Clock signal to the Digitakt
+defaults % ClockedDevices() % list() >> Print()
+defaults << ClockedDevices(Digitakt.device)
+defaults % ClockedDevices() % list() >> Print()
 
 # Processing Degrees
 chooser = Input(SinX() * 100)
