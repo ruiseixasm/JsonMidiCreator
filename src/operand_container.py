@@ -702,6 +702,9 @@ class Devices(Container):
                 return self._delete([ operand._data ])
         return super().__isub__(operand)
 
+class ClockDevices(Devices):
+    pass
+
 
 class Composition(Container):
 
