@@ -222,6 +222,7 @@ def test_add_container():
 
 # test_add_container()
 
+
 def test_new_container():
 
     clip = Clip(Note())
@@ -255,6 +256,7 @@ def test_rshift_container():
 
     new_clip = Clip() >> note_clip >> note_clip
     assert new_clip.len() == 4
+
 
     # Part testing ###################################################
     clip_part = Part(note_clip)
@@ -366,7 +368,7 @@ def test_milliseconds_duration():
 
     duration = NoteValue(1/16 * (3*4 + 2))
     duration >> Print()
-    rest_clip = Rest(duration) * 1
+    rest_clip = Note(duration) * 1
     clip_playlist = rest_clip.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
@@ -382,7 +384,7 @@ def test_milliseconds_duration():
     assert clip_start["time_ms"] == 0.0
     assert clip_stop["time_ms"] == 1750.0
 
-    rest_default_clip = Rest() * 1
+    rest_default_clip = Note() * 1
     clip_playlist = rest_default_clip.getPlaylist()
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
     clip_start = clip_playlist[0]

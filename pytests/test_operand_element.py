@@ -404,29 +404,29 @@ def test_program_change_mod():
 def test_milliseconds_duration():
 
     duration_steps = NoteValue(1/16 * (3*4 + 2))
-    rest = Rest(duration_steps)
-    rest_playlist = rest.getPlaylist()
+    note = Note(duration_steps)
+    note_playlist = note.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    rest_start = rest_playlist[0]
-    rest_stop = rest_playlist[1]
-    assert rest_start["time_ms"] == 0.0
-    assert rest_stop["time_ms"] == 1750.0
+    note_start = note_playlist[0]
+    note_stop = note_playlist[1]
+    assert note_start["time_ms"] == 0.0
+    assert note_stop["time_ms"] == 1750.0
 
-    rest_copy = rest.copy()
-    rest_playlist = rest_copy.getPlaylist()
+    note_copy = note.copy()
+    note_playlist = note_copy.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    rest_start = rest_playlist[0]
-    rest_stop = rest_playlist[1]
-    assert rest_start["time_ms"] == 0.0
-    assert rest_stop["time_ms"] == 1750.0
+    note_start = note_playlist[0]
+    note_stop = note_playlist[1]
+    assert note_start["time_ms"] == 0.0
+    assert note_stop["time_ms"] == 1750.0
 
-    rest_default = Rest()
-    rest_playlist = rest_default.getPlaylist()
+    note_default = Note()
+    note_playlist = note_default.getPlaylist()
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
-    rest_start = rest_playlist[0]
-    rest_stop = rest_playlist[1]
-    assert rest_start["time_ms"] == 0.0
-    assert rest_stop["time_ms"] == 500.0
+    note_start = note_playlist[0]
+    note_stop = note_playlist[1]
+    assert note_start["time_ms"] == 0.0
+    assert note_stop["time_ms"] == 500.0
 
 
 def test_clock_element():

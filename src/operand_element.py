@@ -694,37 +694,7 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        if not self._enabled:
-            return []
-        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
-
-        # Midi validation is done in the JsonMidiPlayer program
-        return [
-                {
-                    "time_ms": self.get_time_ms(self_position_ms),
-                    "midi_message": {
-                        "status_byte": 0x00 | 0x0F & self._channel - 1,
-                        "device": self._devices
-                    }
-                },
-                {
-                    "time_ms": self.get_time_ms(self_position_ms + self_duration_ms),
-                    "midi_message": {
-                        "status_byte": 0x00 | 0x0F & self._channel - 1,
-                        "device": self._devices
-                    }
-                }
-            ]
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        if not self._enabled:
-            return []
-        self_midilist: list = super().getMidilist(midi_track, position_beats)
-        self_midilist[0]["event"]       = "Rest"
-        return self_midilist
-
+    pass
 
 class Note(Element):
     def __init__(self, *parameters):
