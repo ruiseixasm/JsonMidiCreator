@@ -559,7 +559,7 @@ class Clock(Element):
         super().__init__()
         self._devices: list[str]    = []
         self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
-        self._clock_stop_mode: int  = 0     # 0 - "Reset", 1 - "Stop", 2 - "Pause", 3 - "Total"
+        self._clock_stop_mode: int  = 0     # 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total"
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -622,7 +622,7 @@ class Clock(Element):
             if isinstance(clocked_device, str):
                 devices = [ clocked_device ]
 
-            if self._clock_stop_mode == 2:
+            if self._clock_stop_mode == 2:  # 2 - "Continue"
 
                 # First quarter note pulse (total 1 in 24 pulses per quarter note)
                 self_playlist = [

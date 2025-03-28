@@ -1948,16 +1948,16 @@ class ClockStopModes(Midi):
         return self
 
     _stop_modes_str: dict[str, int] = {
-        "Reset":    0,
-        "Stop":     1,
-        "Pause":    2,
+        "Stop":     0,
+        "Pause":    1,
+        "Continue": 2,
         "Total":    3
     }
 
     _stop_modes_int: dict[int, str] = {
-        0:          "Reset",
-        1:          "Stop",
-        2:          "Pause",
+        0:          "Stop",
+        1:          "Pause",
+        2:          "Continue",
         3:          "Total"
     }
 
