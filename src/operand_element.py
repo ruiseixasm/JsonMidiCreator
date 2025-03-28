@@ -618,89 +618,94 @@ class Clock(Element):
         if total_clock_pulses > 0:
 
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
-            devices: list[str] = self._devices
-            if not devices:
-                devices = midi_track._devices if midi_track else og.defaults._devices
 
+            json_midi_player_devices: list[list[str]] = [
+                list(clocked_device) for clocked_device in self._devices
+            ]
 
-            if self._clock_stop_mode == 2:  # 2 - "Continue"
+            if not self._devices:
+                json_midi_player_devices = [ midi_track._devices if midi_track else og.defaults._devices ]
 
-                # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                self_playlist = [
+            for player_device in json_midi_player_devices:
+
+                if self._clock_stop_mode == 2:  # 2 - "Continue"
+
+                    # First quarter note pulse (total 1 in 24 pulses per quarter note)
+                    self_playlist = [
+                            {
+                                "time_ms": self.get_time_ms(self_position_ms),
+                                "midi_message": {
+                                    "status_byte": 0xFB,    # Continue Track
+                                    "device": player_device
+                                }
+                            }
+                        ]
+            
+                else:
+
+                    # First quarter note pulse (total 1 in 24 pulses per quarter note)
+                    self_playlist = [
+                            {
+                                "time_ms": self.get_time_ms(self_position_ms),
+                                "midi_message": {
+                                    "status_byte": 0xFA,    # Start Track
+                                    "device": player_device
+                                }
+                            }
+                        ]
+            
+                # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+                for clock_pulse in range(1, total_clock_pulses):
+                    self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(self_position_ms),
+                            "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                             "midi_message": {
-                                "status_byte": 0xFB,    # Continue Track
-                                "device": devices
+                                "status_byte": 0xF8,    # Timing Clock
+                                "device": player_device
                             }
                         }
-                    ]
-        
-            else:
+                    )
 
-                # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                self_playlist = [
-                        {
-                            "time_ms": self.get_time_ms(self_position_ms),
-                            "midi_message": {
-                                "status_byte": 0xFA,    # Start Track
-                                "device": devices
-                            }
-                        }
-                    ]
-        
-            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-            for clock_pulse in range(1, total_clock_pulses):
-                self_playlist.append(
-                    {
-                        "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
-                        "midi_message": {
-                            "status_byte": 0xF8,    # Timing Clock
-                            "device": devices
-                        }
-                    }
-                )
-
-            # Last quarter note pulse (45 pulses where this last one sets the stop)
-            self_playlist.append(
-                {
-                    "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
-                    "midi_message": {
-                        "status_byte": 0xFC,    # Stop Track
-                        "device": devices
-                    }
-                }
-            )
-
-            if self._clock_stop_mode == 0 or self._clock_stop_mode == 3:
-
-                # Resets the position back to 0
+                # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
                         "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                         "midi_message": {
-                            "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
-                            "data_byte_1": 0,       # Reset
-                            "data_byte_2": 0,       # Reset
-                            "device": devices
+                            "status_byte": 0xFC,    # Stop Track
+                            "device": player_device
                         }
                     }
                 )
 
-            if self._clock_stop_mode == 3:  # 3 - "Total"
+                if self._clock_stop_mode == 0 or self._clock_stop_mode == 3:
 
-                # Sends a SysEx Stop Message
-                self_playlist.append(
-                    {
-                        "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                    # Resets the position back to 0
+                    self_playlist.append(
+                        {
+                            "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                             "midi_message": {
-                            "status_byte": 0xF0,    # Start of SysEx
-                            "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
-                                                    # Byte 0xF7 Ends the SysEx stream (implicit)
-                            "device": devices
+                                "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
+                                "data_byte_1": 0,       # Reset
+                                "data_byte_2": 0,       # Reset
+                                "device": player_device
+                            }
                         }
-                    }
-                )
+                    )
+
+                if self._clock_stop_mode == 3:  # 3 - "Total"
+
+                    # Sends a SysEx Stop Message
+                    self_playlist.append(
+                        {
+                            "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                                "midi_message": {
+                                "status_byte": 0xF0,    # Start of SysEx
+                                "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
+                                                        # Byte 0xF7 Ends the SysEx stream (implicit)
+                                "device": player_device
+                            }
+                        }
+                    )
 
             return self_playlist
 

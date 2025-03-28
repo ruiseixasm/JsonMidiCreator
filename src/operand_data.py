@@ -704,8 +704,7 @@ class Process(Data):
                     default_clock: oe.Clock = og.defaults % oe.Clock()
                     clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
                     default_clock.set_staff_reference(operand.get_staff_reference()) << clock_length    # Element converts Length to Duration
-                    for device in clocked_devices:
-                        playlist.extend( default_clock.getPlaylist() )
+                    playlist.extend( default_clock.getPlaylist() )
                 playlist.extend( operand.getPlaylist() )
             case Playlist():
                 playlist = operand.getPlaylist()
