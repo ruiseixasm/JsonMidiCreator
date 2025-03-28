@@ -42,7 +42,7 @@ long_element >> P
 
 half_measure_element = Element(1/2)
 time.sleep(0.5)
-half_measure_element >> P >> Export("json/_Export_11.1_sysex_stop.json")
+half_measure_element >> Play(1) >> Export("json/_Export_11.1_sysex_stop.json")
 
 
 defaults -= Digitakt.device
