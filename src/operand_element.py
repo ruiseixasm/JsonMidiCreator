@@ -686,6 +686,21 @@ class Clock(Element):
                     }
                 )
 
+            if self._clock_stop_mode == 3:  # 3 - "Total"
+
+                # Sends a SysEx Stop Message
+                self_playlist.append(
+                    {
+                        "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                            "midi_message": {
+                            "status_byte": 0xF0,    # Start of SysEx
+                            "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
+                                                    # Byte 0xF7 Ends the SysEx stream
+                            "device": devices
+                        }
+                    }
+                )
+
             return self_playlist
 
         return []
