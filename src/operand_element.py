@@ -605,8 +605,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, \
-                    clocked_device: str = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -621,8 +620,7 @@ class Clock(Element):
             devices: list[str] = self._devices
             if not devices:
                 devices = midi_track._devices if midi_track else og.defaults._devices
-            if isinstance(clocked_device, str):
-                devices = [ clocked_device ]
+
 
             if self._clock_stop_mode == 2:  # 2 - "Continue"
 
