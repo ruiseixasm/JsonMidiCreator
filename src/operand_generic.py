@@ -1893,6 +1893,7 @@ class Defaults(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Defaults():
@@ -1936,6 +1937,8 @@ class Defaults(Generic):
             case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
+            case oe.Clock():
+                self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockStopModes() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand
