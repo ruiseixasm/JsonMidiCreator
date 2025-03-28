@@ -1814,6 +1814,7 @@ class Defaults(Generic):
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
+                    case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Staff():               return self._staff.copy()
@@ -1831,6 +1832,7 @@ class Defaults(Generic):
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
+            case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
@@ -1914,6 +1916,7 @@ class Defaults(Generic):
                     case oc.ClockedDevices():   self._clocked_devices = operand._data // list()
                     case oc.Devices():          self._devices = operand._data // list()
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
+                    case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
@@ -1930,6 +1933,7 @@ class Defaults(Generic):
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
             case ou.PPQN():             self._clock_ppqn = operand._unit
+            case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
             case tuple():
                 for single_operand in operand:
                     self << single_operand
