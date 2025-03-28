@@ -20,13 +20,13 @@ defaults << ClockStopModes("Total")
 
 
 defaults % Devices() % list() >> Print()
-# defaults += Digitakt.device
+defaults += Digitakt.device
 defaults % Devices() % list() >> Print()
 
 # Send Clock signal to the Digitakt
 defaults % ClockedDevices() % list() >> Print()
-# defaults << ClockedDevices(Digitakt.device)
-defaults << ClockedDevices("loopMIDI")
+defaults << ClockedDevices(Digitakt.device)
+# defaults << ClockedDevices("loopMIDI")
 defaults % ClockedDevices() % list() >> Print()
 
 
@@ -36,12 +36,12 @@ long_element = Element(4/1)
 long_rest % Length() % float() >> Print()
 long_element % Length() % float() >> Print()
 
-# long_rest >> P
-# time.sleep(0.5)
-# long_element >> P
+long_rest >> P
+time.sleep(0.5)
+long_element >> P
 
 half_measure_element = Element(1/2)
-# time.sleep(0.5)
+time.sleep(0.5)
 half_measure_element >> P >> Export("json/_Export_11.1_sysex_stop.json")
 
 
