@@ -592,6 +592,7 @@ class Clock(Element):
             case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+            case str():                 return ou.ClockStopModes(self._clock_stop_mode) % str()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -745,6 +746,7 @@ class Clock(Element):
             case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
+            case str():                 self._clock_stop_mode = ou.ClockStopModes(operand)._unit
             case _:                     super().__lshift__(operand)
         return self
 
