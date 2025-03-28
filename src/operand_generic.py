@@ -1848,7 +1848,9 @@ class Defaults(Generic):
             and self._controller        == other._controller \
             and self._channel           == other._channel \
             and self._devices           == other._devices \
-            and self._clocked_devices   == other._clocked_devices
+            and self._clocked_devices   == other._clocked_devices \
+            and self._clock_ppqn        == other._clock_ppqn \
+            and self._clock_stop_mode   == other._clock_stop_mode
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1860,6 +1862,8 @@ class Defaults(Generic):
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
         serialization["parameters"]["devices"]          = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
+        serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
+        serialization["parameters"]["clock_stop_mode"]  = self.serialize( self._clock_stop_mode )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1868,7 +1872,8 @@ class Defaults(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and
+            "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
@@ -1879,6 +1884,8 @@ class Defaults(Generic):
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
             self._devices           = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
+            self._clock_stop_mode   = self.deserialize( serialization["parameters"]["clock_stop_mode"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1894,6 +1901,8 @@ class Defaults(Generic):
                 self._channel           = operand._channel
                 self._devices           = operand._devices.copy()
                 self._clocked_devices   = operand._clocked_devices.copy()
+                self._clock_ppqn        = operand._clock_ppqn
+                self._clock_stop_mode   = operand._clock_stop_mode
             case od.DataSource():
                 match operand._data:
                     case Staff():               self._staff = operand._data
