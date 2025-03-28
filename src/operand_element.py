@@ -623,7 +623,7 @@ class Clock(Element):
                 list(clocked_device) for clocked_device in self._devices
             ]
 
-            if not self._devices:
+            if not json_midi_player_devices:
                 json_midi_player_devices = [ midi_track._devices if midi_track else og.defaults._devices ]
 
             for player_device in json_midi_player_devices:
