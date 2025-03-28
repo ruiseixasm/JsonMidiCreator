@@ -618,7 +618,9 @@ class Clock(Element):
         if total_clock_pulses > 0:
 
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
-            devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+            devices: list[str] = self._devices
+            if not devices:
+                devices = midi_track._devices if midi_track else og.defaults._devices
             if isinstance(clocked_device, str):
                 devices = [ clocked_device ]
 
@@ -695,7 +697,7 @@ class Clock(Element):
                             "midi_message": {
                             "status_byte": 0xF0,    # Start of SysEx
                             "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
-                                                    # Byte 0xF7 Ends the SysEx stream
+                                                    # Byte 0xF7 Ends the SysEx stream (implicit)
                             "device": devices
                         }
                     }
