@@ -1795,6 +1795,7 @@ class Defaults(Generic):
             self << single_parameter
 
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_element as oe
         match operand:
             case self.__class__():
                 return self.copy()
@@ -1833,6 +1834,7 @@ class Defaults(Generic):
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockStopModes())
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
