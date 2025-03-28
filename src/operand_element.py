@@ -557,14 +557,17 @@ class Group(Element):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._pulses_per_quarternote: int   = 24
-        self._clock_stop_mode: int          = 0
+        self._devices: list[str]    = []
+        self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
+        self._clock_stop_mode: int  = 0
+
+
         self._reset_position: bool          = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def ppqn(self, ppqn: int = None) -> Self:
-        self._pulses_per_quarternote = ppqn
+        self._clock_ppqn = ppqn
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -579,13 +582,24 @@ class Clock(Element):
         >>> clock % Duration() >> Print(0)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'Measure', 'parameters': {'value': 4.0}}}}
         """
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
+                    case oc.Devices():          return oc.Devices(self._devices)
+                    case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
+                    case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
+                    case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+
+
                     case bool():            return self._reset_position
                     case _:                 return super().__mod__(operand)
-            case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
+            case oc.Devices():          return oc.Devices(self._devices)
+            case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
+            case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
+            case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+
+            
             case bool():            return self._reset_position
             case _:                 return super().__mod__(operand)
 
@@ -594,7 +608,7 @@ class Clock(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pulses_per_quarternote == other._pulses_per_quarternote \
+                    and self._clock_ppqn == other._clock_ppqn \
                     and self._reset_position == other._reset_position
             case _:
                 return super().__eq__(other)
@@ -605,7 +619,7 @@ class Clock(Element):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
-        pulses_per_note: int = self._pulses_per_quarternote * 4
+        pulses_per_note: int = self._clock_ppqn * 4
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
         total_clock_pulses: int = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
@@ -671,7 +685,12 @@ class Clock(Element):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pulses_per_quarternote"]   = self.serialize( self._pulses_per_quarternote )
+        serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
+        serialization["parameters"]["devices"]          = self.serialize( self._devices )
+        serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
+        serialization["parameters"]["clock_stop_mode"]  = self.serialize( self._clock_stop_mode )
+
+
         serialization["parameters"]["reset_position"]           = self.serialize( self._reset_position )
         return serialization
 
@@ -679,26 +698,47 @@ class Clock(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pulses_per_quarternote" in serialization["parameters"] and "reset_position" in serialization["parameters"]):
+            "clock_ppqn" in serialization["parameters"] and "reset_position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pulses_per_quarternote    = self.deserialize( serialization["parameters"]["pulses_per_quarternote"] )
+            self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
+            self._devices           = self.deserialize( serialization["parameters"]["devices"] )
+            self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
+            self._clock_stop_mode   = self.deserialize( serialization["parameters"]["clock_stop_mode"] )
+
+
             self._reset_position            = self.deserialize( serialization["parameters"]["reset_position"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Clock():
                 super().__lshift__(operand)
-                self._pulses_per_quarternote = operand._pulses_per_quarternote
+                self._devices           = operand._devices.copy()
+                self._clock_ppqn        = operand._clock_ppqn
+                self._clock_stop_mode   = operand._clock_stop_mode
+
+
                 self._reset_position = operand._reset_position
             case od.DataSource():
                 match operand._data:
-                    case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
+                    case oc.ClockedDevices():   self._devices = operand._data // list()
+                    case oc.Devices():          self._devices = operand._data // list()
+                    case ou.PPQN():             self._clock_ppqn = operand._data._unit
+                    case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
+
+
                     case bool():            self._reset_position = operand._data
                     case _:                 super().__lshift__(operand)
-            case ou.PPQN():         self._pulses_per_quarternote = operand._unit
+            case oc.ClockedDevices():   self._devices = operand % list()
+            case oc.Devices():          self._devices = operand % list()
+            case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
+            case ou.PPQN():             self._clock_ppqn = operand._unit
+            case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
+
+
             case bool():            self._reset_position = operand
             case _: super().__lshift__(operand)
         return self
