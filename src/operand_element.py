@@ -207,7 +207,7 @@ class Element(o.Operand):
     def finish(self) -> ra.Position:
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -474,7 +474,7 @@ class Element(o.Operand):
 
 
 class ClipDevices(Element):
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         return [
@@ -515,10 +515,10 @@ class Group(Element):
     def get_component_elements(self) -> list[Element]:
         return self._elements
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -618,7 +618,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -1098,10 +1098,10 @@ class Cluster(Note):
             cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1225,10 +1225,10 @@ class KeyScale(Note):
                 scale_notes.append( new_note )
         return self._arpeggio.arpeggiate(scale_notes)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1311,10 +1311,10 @@ class Polychord(KeyScale):
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
         return self._arpeggio.arpeggiate(polychord_notes)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1494,10 +1494,10 @@ class Chord(KeyScale):
                             not_first_note = True # to result in another while loop
         return self._arpeggio.arpeggiate(chord_notes)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats))    # extends the list with other list
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))    # extends the list with other list
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1663,10 +1663,10 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1832,10 +1832,10 @@ class Tuplet(Element):
             self_iteration += 1
         return tuplet_elements
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats))
+            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
@@ -1961,7 +1961,7 @@ class ControlChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
@@ -2199,7 +2199,7 @@ class PitchBend(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -2331,7 +2331,7 @@ class Aftertouch(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -2468,7 +2468,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
 
@@ -2576,7 +2576,7 @@ class ProgramChange(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -2664,13 +2664,13 @@ class ProgramChange(Element):
 
 
 class Panic(Element):
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         self_playlist: list = []
-        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(midi_track, position_beats))
-        self_playlist.extend(PitchBend(0).getPlaylist(midi_track, position_beats))
-        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(midi_track, position_beats))
-        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats))
-        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats))
+        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
+        self_playlist.extend(PitchBend(0).getPlaylist(midi_track, position_beats, devices_header))
+        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
+        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
+        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
 
         on_time_ms = self.get_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
