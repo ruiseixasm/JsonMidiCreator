@@ -872,6 +872,13 @@ class Note(Element):
 
         self_playlist: list[dict] = []
     
+        if devices_header:
+            self_playlist.append(
+                {
+                    "devices": devices
+                }
+            )
+
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist.append(
             {
@@ -896,6 +903,10 @@ class Note(Element):
             }
         )
 
+        self_playlist_time_ms: list[dict] = self_playlist 
+        if devices_header:
+            self_playlist_time_ms = o.playlist_time_ms( self_playlist )
+
         # Checks if it's a tied note first
         if self._tied:
             self_position: Fraction = self._position_beats
@@ -913,26 +924,19 @@ class Note(Element):
             else:
                 # This note becomes the last tied note
                 self._staff_reference.add_tied_note(self_pitch, 
-                    self_position, self_length, self_playlist
+                    self_position, self_length, self_playlist_time_ms
                 )
 
         # Record present Note on the Staff stacked notes
         if not self._staff_reference.stack_note(
-            self_playlist[0]["time_ms"],
-            self_playlist[0]["midi_message"]["status_byte"],
-            self_playlist[0]["midi_message"]["data_byte_1"],
-            self_playlist[0]["midi_message"]["device"],
+            self_playlist_time_ms[0]["time_ms"],
+            self_playlist_time_ms[0]["midi_message"]["status_byte"],
+            self_playlist_time_ms[0]["midi_message"]["data_byte_1"],
+            self_playlist_time_ms[0]["midi_message"]["device"],
         ):
             print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
-                  f"and Pitch {self_playlist[0]['midi_message']['data_byte_1']} with same time start!")
+                  f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
             return []
-
-        # if devices_header:
-        #     self_playlist.insert(0,
-        #         {
-        #             "devices": devices
-        #         }
-        #     )
 
         return self_playlist
 
