@@ -606,7 +606,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
@@ -626,33 +626,35 @@ class Clock(Element):
             if not json_midi_player_devices:
                 json_midi_player_devices = [ midi_track._devices if midi_track else og.defaults._devices ]
 
+            self_playlist: list[dict] = []
+
             for player_device in json_midi_player_devices:
 
                 if self._clock_stop_mode == 2:  # 2 - "Continue"
 
                     # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                    self_playlist = [
-                            {
-                                "time_ms": self.get_time_ms(self_position_ms),
-                                "midi_message": {
-                                    "status_byte": 0xFB,    # Continue Track
-                                    "device": player_device
-                                }
+                    self_playlist.append(
+                        {
+                            "time_ms": self.get_time_ms(self_position_ms),
+                            "midi_message": {
+                                "status_byte": 0xFB,    # Continue Track
+                                "device": player_device
                             }
-                        ]
+                        }
+                    )
             
                 else:
 
                     # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                    self_playlist = [
-                            {
-                                "time_ms": self.get_time_ms(self_position_ms),
-                                "midi_message": {
-                                    "status_byte": 0xFA,    # Start Track
-                                    "device": player_device
-                                }
+                    self_playlist.append(
+                        {
+                            "time_ms": self.get_time_ms(self_position_ms),
+                            "midi_message": {
+                                "status_byte": 0xFA,    # Start Track
+                                "device": player_device
                             }
-                        ]
+                        }
+                    )
             
                 # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
                 for clock_pulse in range(1, total_clock_pulses):
