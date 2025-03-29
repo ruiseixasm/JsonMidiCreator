@@ -619,9 +619,13 @@ class Clock(Element):
 
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
 
-            json_midi_player_devices: list[list[str]] = [
-                [ clocked_device ] for clocked_device in self._devices
-            ]
+            single_devices: set[str] = set()
+            json_midi_player_devices: list[list[str]] = []
+
+            for clocked_device in self._devices:
+                if clocked_device not in single_devices:
+                    json_midi_player_devices.append([clocked_device])
+                    single_devices.add(clocked_device)
 
             if not json_midi_player_devices:
                 json_midi_player_devices = [ midi_track._devices if midi_track else og.defaults._devices ]
