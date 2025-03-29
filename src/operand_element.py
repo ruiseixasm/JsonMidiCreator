@@ -870,8 +870,7 @@ class Note(Element):
                 "midi_message": {
                     "status_byte": 0x90 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
-                    "data_byte_2": self._velocity,
-                    "device": devices
+                    "data_byte_2": self._velocity
                 }
             }
         )
@@ -881,8 +880,7 @@ class Note(Element):
                 "midi_message": {
                     "status_byte": 0x80 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
-                    "data_byte_2": 0,
-                    "device": devices
+                    "data_byte_2": 0
                 }
             }
         )
@@ -915,8 +913,7 @@ class Note(Element):
         if not self._staff_reference.stack_note(
             self_playlist_time_ms[0]["time_ms"],
             self_playlist_time_ms[0]["midi_message"]["status_byte"],
-            self_playlist_time_ms[0]["midi_message"]["data_byte_1"],
-            self_playlist_time_ms[0]["midi_message"]["device"],
+            self_playlist_time_ms[0]["midi_message"]["data_byte_1"]
         ):
             print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
                   f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
@@ -1967,35 +1964,32 @@ class ControlChange(Automation):
 
             cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
-            self_playlist = [
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 99,
-                            "data_byte_2": cc_99_msb,
-                            "device": devices
-                        }
-                    },
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 98,
-                            "data_byte_2": cc_98_lsb,
-                            "device": devices
-                        }
-                    },
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 6,
-                            "data_byte_2": cc_6_msb,
-                            "device": devices
-                        }
+            self_playlist.append(
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 99,
+                        "data_byte_2": cc_99_msb
                     }
-                ]
+                },
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 98,
+                        "data_byte_2": cc_98_lsb
+                    }
+                },
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 6,
+                        "data_byte_2": cc_6_msb
+                    }
+                }
+            )
 
             if self._controller._high:
 
@@ -2005,28 +1999,25 @@ class ControlChange(Automation):
                         "midi_message": {
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": 38,
-                            "data_byte_2": cc_38_lsb,
-                            "device": devices
+                            "data_byte_2": cc_38_lsb
                         }
                     }
                 )
-        
 
         else:
 
             msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
 
-            self_playlist = [
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": self._controller._number_msb,
-                            "data_byte_2": msb_value,
-                            "device": devices
-                        }
+            self_playlist.append(
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": self._controller._number_msb,
+                        "data_byte_2": msb_value
                     }
-                ]
+                }
+            )
 
             if self._controller._high:
 
@@ -2036,8 +2027,7 @@ class ControlChange(Automation):
                         "midi_message": {
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
                             "data_byte_1": self._controller._lsb,
-                            "data_byte_2": lsb_value,
-                            "device": devices
+                            "data_byte_2": lsb_value
                         }
                     }
                 )
@@ -2219,8 +2209,7 @@ class PitchBend(Automation):
                 "midi_message": {
                     "status_byte": 0xE0 | 0x0F & self._channel - 1,
                     "data_byte_1": lsb_midi,
-                    "data_byte_2": msb_midi,
-                    "device": devices
+                    "data_byte_2": msb_midi
                 }
             }
         )
@@ -2355,8 +2344,7 @@ class Aftertouch(Automation):
                 "time_ms": self.get_time_ms(self_position_ms),
                 "midi_message": {
                     "status_byte": 0xD0 | 0x0F & self._channel - 1,
-                    "data_byte": self._pressure,
-                    "device": devices
+                    "data_byte": self._pressure
                 }
             }
         )
@@ -2507,8 +2495,7 @@ class PolyAftertouch(Aftertouch):
                 "midi_message": {
                     "status_byte": 0xA0 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
-                    "data_byte_2": self._pressure,
-                    "device": devices
+                    "data_byte_2": self._pressure
                 }
             }
         )
@@ -2623,8 +2610,7 @@ class ProgramChange(Element):
                 "time_ms": self.get_time_ms(self_position_ms),
                 "midi_message": {
                     "status_byte": 0xC0 | 0x0F & self._channel - 1,
-                    "data_byte": self._program - 1,
-                    "device": devices
+                    "data_byte": self._program - 1
                 }
             }
         )
@@ -2720,8 +2706,7 @@ class Panic(Element):
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
-                        "data_byte_2": 0,   # 0 means it will result in no sound
-                        "device": devices
+                        "data_byte_2": 0    # 0 means it will result in no sound
                     }
                 },
                 {
@@ -2729,8 +2714,7 @@ class Panic(Element):
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
-                        "data_byte_2": 0,
-                        "device": devices
+                        "data_byte_2": 0
                     }
                 }
             )
