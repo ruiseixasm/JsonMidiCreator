@@ -644,8 +644,7 @@ class Clock(Element):
                         {
                             "time_ms": self.get_time_ms(self_position_ms),
                             "midi_message": {
-                                "status_byte": 0xFB,    # Continue Track
-                                "device": player_devices
+                                "status_byte": 0xFB     # Continue Track
                             }
                         }
                     )
@@ -657,8 +656,7 @@ class Clock(Element):
                         {
                             "time_ms": self.get_time_ms(self_position_ms),
                             "midi_message": {
-                                "status_byte": 0xFA,    # Start Track
-                                "device": player_devices
+                                "status_byte": 0xFA     # Start Track
                             }
                         }
                     )
@@ -669,8 +667,7 @@ class Clock(Element):
                         {
                             "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                             "midi_message": {
-                                "status_byte": 0xF8,    # Timing Clock
-                                "device": player_devices
+                                "status_byte": 0xF8     # Timing Clock
                             }
                         }
                     )
@@ -680,8 +677,7 @@ class Clock(Element):
                     {
                         "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                         "midi_message": {
-                            "status_byte": 0xFC,    # Stop Track
-                            "device": player_devices
+                            "status_byte": 0xFC         # Stop Track
                         }
                     }
                 )
@@ -695,8 +691,7 @@ class Clock(Element):
                             "midi_message": {
                                 "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
                                 "data_byte_1": 0,       # Reset
-                                "data_byte_2": 0,       # Reset
-                                "device": player_devices
+                                "data_byte_2": 0        # Reset
                             }
                         }
                     )
@@ -709,9 +704,8 @@ class Clock(Element):
                             "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                                 "midi_message": {
                                 "status_byte": 0xF0,    # Start of SysEx
-                                "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
-                                                        # Byte 0xF7 Ends the SysEx stream (implicit)
-                                "device": player_devices
+                                "data_bytes": [0x7F, 0x7F, 0x06, 0x01]  # Universal Stop command
+                                                    # Byte 0xF7 Ends the SysEx stream (implicit)
                             }
                         }
                     )
