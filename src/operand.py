@@ -145,6 +145,22 @@ def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]
     return [item for item in items if condition(item)]
 
 
+def playlist_index(playlist: list[dict], index: int) -> dict:
+    for single_dict in playlist:
+        if "time_ms" in single_dict:
+            if index == 0:
+                return single_dict
+            index -= 1
+    return {"time_ms": 0}
+
+
+def playlist_time_ms(playlist: list[dict]) -> list[dict]:
+    return [
+        single_dict for single_dict in playlist
+        if "time_ms" in single_dict
+    ]
+
+
 # GLOBAL CLASSES
 
 class Operand:
@@ -453,15 +469,6 @@ class Operand:
 
     # STATIC METHODS
     # @staticmethod decorator is needed in order to be possible to call it with self !!
-
-    @staticmethod
-    def playlist_index(playlist: list[dict], index: int) -> dict:
-        for single_dict in playlist:
-            if "time_ms" in single_dict:
-                if index == 0:
-                    return single_dict
-                index -= 1
-        return {"time_ms": 0}
 
     @staticmethod
     def convert_to_int(number: any) -> int:
