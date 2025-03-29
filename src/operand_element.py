@@ -475,11 +475,9 @@ class Element(o.Operand):
 
 class ClipDevices(Element):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
-        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         return [
             {
-                "time_ms": self.get_time_ms(self_position_ms),
                 "devices": midi_track._devices if midi_track else og.defaults._devices
             }
         ]
@@ -645,7 +643,6 @@ class Clock(Element):
                 # Starts by setting the Devices
                 self_playlist.append(
                     {
-                        "time_ms": self.get_time_ms(self_position_ms),
                         "devices": player_devices
                     }
                 )
@@ -933,7 +930,6 @@ class Note(Element):
         # if devices_header:
         #     self_playlist.insert(0,
         #         {
-        #             "time_ms": self.get_time_ms(self_position_ms),
         #             "devices": devices
         #         }
         #     )

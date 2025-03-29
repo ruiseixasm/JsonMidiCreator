@@ -431,7 +431,7 @@ def test_clock_element():
     print(f"{total_messages} / {expected_messages}")
     assert total_messages == expected_messages
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 120 * 60 * 1000
-    clock_start = clock_playlist[0]
+    clock_start = clock_playlist[1]
     clock_stop = clock_playlist[total_messages - 1]
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
@@ -441,7 +441,7 @@ def test_clock_element():
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
-    clock_start = clock_playlist[0]
+    clock_start = clock_playlist[1]
     clock_stop = clock_playlist[total_messages - 1]
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
@@ -450,7 +450,7 @@ def test_clock_element():
     clock_playlist = clock_clock.getPlaylist()
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
-    clock_start = clock_playlist[0]
+    clock_start = clock_playlist[1]
     clock_stop = clock_playlist[total_messages - 1]
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
