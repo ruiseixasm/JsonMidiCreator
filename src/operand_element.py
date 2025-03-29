@@ -628,7 +628,15 @@ class Clock(Element):
 
             self_playlist: list[dict] = []
 
-            for player_device in json_midi_player_devices:
+            for player_devices in json_midi_player_devices:
+
+                # Starts by setting the Devices
+                self_playlist.append(
+                    {
+                        "time_ms": self.get_time_ms(self_position_ms),
+                        "devices": player_devices
+                    }
+                )
 
                 if self._clock_stop_mode == 2:  # 2 - "Continue"
 
@@ -638,7 +646,7 @@ class Clock(Element):
                             "time_ms": self.get_time_ms(self_position_ms),
                             "midi_message": {
                                 "status_byte": 0xFB,    # Continue Track
-                                "device": player_device
+                                "device": player_devices
                             }
                         }
                     )
@@ -651,7 +659,7 @@ class Clock(Element):
                             "time_ms": self.get_time_ms(self_position_ms),
                             "midi_message": {
                                 "status_byte": 0xFA,    # Start Track
-                                "device": player_device
+                                "device": player_devices
                             }
                         }
                     )
@@ -663,7 +671,7 @@ class Clock(Element):
                             "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                             "midi_message": {
                                 "status_byte": 0xF8,    # Timing Clock
-                                "device": player_device
+                                "device": player_devices
                             }
                         }
                     )
@@ -674,7 +682,7 @@ class Clock(Element):
                         "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                         "midi_message": {
                             "status_byte": 0xFC,    # Stop Track
-                            "device": player_device
+                            "device": player_devices
                         }
                     }
                 )
@@ -689,7 +697,7 @@ class Clock(Element):
                                 "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
                                 "data_byte_1": 0,       # Reset
                                 "data_byte_2": 0,       # Reset
-                                "device": player_device
+                                "device": player_devices
                             }
                         }
                     )
@@ -704,7 +712,7 @@ class Clock(Element):
                                 "status_byte": 0xF0,    # Start of SysEx
                                 "data_bytes": [0x7F, 0x7F, 0x06, 0x01],  # Universal Stop command
                                                         # Byte 0xF7 Ends the SysEx stream (implicit)
-                                "device": player_device
+                                "device": player_devices
                             }
                         }
                     )
@@ -842,7 +850,7 @@ class Note(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -853,27 +861,31 @@ class Note(Element):
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
+        self_playlist: list[dict] = []
+    
         # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list = [
-                {
-                    "time_ms": self.get_time_ms(self_position_ms),
-                    "midi_message": {
-                        "status_byte": 0x90 | 0x0F & self._channel - 1,
-                        "data_byte_1": pitch_int,
-                        "data_byte_2": self._velocity,
-                        "device": devices
-                    }
-                },
-                {
-                    "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate),
-                    "midi_message": {
-                        "status_byte": 0x80 | 0x0F & self._channel - 1,
-                        "data_byte_1": pitch_int,
-                        "data_byte_2": 0,
-                        "device": devices
-                    }
+        self_playlist.append(
+            {
+                "time_ms": self.get_time_ms(self_position_ms),
+                "midi_message": {
+                    "status_byte": 0x90 | 0x0F & self._channel - 1,
+                    "data_byte_1": pitch_int,
+                    "data_byte_2": self._velocity,
+                    "device": devices
                 }
-            ]
+            }
+        )
+        self_playlist.append(
+            {
+                "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate),
+                "midi_message": {
+                    "status_byte": 0x80 | 0x0F & self._channel - 1,
+                    "data_byte_1": pitch_int,
+                    "data_byte_2": 0,
+                    "device": devices
+                }
+            }
+        )
 
         # Checks if it's a tied note first
         if self._tied:
@@ -905,6 +917,14 @@ class Note(Element):
             print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
                   f"and Pitch {self_playlist[0]['midi_message']['data_byte_1']} with same time start!")
             return []
+
+        # if devices_header:
+        #     self_playlist.insert(0,
+        #         {
+        #             "time_ms": self.get_time_ms(self_position_ms),
+        #             "devices": devices
+        #         }
+        #     )
 
         return self_playlist
 

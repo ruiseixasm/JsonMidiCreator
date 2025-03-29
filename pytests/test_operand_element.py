@@ -426,7 +426,7 @@ def test_clock_element():
 
     clock_measure = Clock(Length(1), ClockStopModes("Pause"))
     clock_playlist: list = clock_measure.getPlaylist()
-    expected_messages: int = 1 * 4 * 24 + 1 # +1 for the Stop clock message
+    expected_messages: int = 1 + 1 * 4 * 24 + 1 # +1 for the Stop clock message
     total_messages: int = len(clock_playlist)
     print(f"{total_messages} / {expected_messages}")
     assert total_messages == expected_messages
