@@ -369,7 +369,7 @@ def test_milliseconds_duration():
     duration = NoteValue(1/16 * (3*4 + 2))
     duration >> Print()
     rest_clip = Note(duration) * 1
-    clip_playlist = rest_clip.getPlaylist()
+    clip_playlist = playlist_time_ms( rest_clip.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
     clip_stop = clip_playlist[1]
@@ -377,7 +377,7 @@ def test_milliseconds_duration():
     assert clip_stop["time_ms"] == 1750.0
 
     rest_clip_copy = rest_clip.copy()
-    clip_playlist = rest_clip_copy.getPlaylist()
+    clip_playlist = playlist_time_ms( rest_clip_copy.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
     clip_stop = clip_playlist[1]
@@ -385,7 +385,7 @@ def test_milliseconds_duration():
     assert clip_stop["time_ms"] == 1750.0
 
     rest_default_clip = Note() * 1
-    clip_playlist = rest_default_clip.getPlaylist()
+    clip_playlist = playlist_time_ms( rest_default_clip.getPlaylist() )
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
     clip_start = clip_playlist[0]
     clip_stop = clip_playlist[1]
@@ -396,7 +396,7 @@ def test_milliseconds_duration():
 def test_playlists():
 
     two_notes = Note() * 2
-    playlist = two_notes.getPlaylist()
+    playlist = playlist_time_ms( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     assert midi_pitch_1 == midi_pitch_2
@@ -404,14 +404,14 @@ def test_playlists():
     assert two_notes[0] % Pitch() == two_notes[1] % Pitch()
     two_notes << Nth(1)**Sharp()
     assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
-    playlist = two_notes.getPlaylist()
+    playlist = playlist_time_ms( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     assert midi_pitch_1 == midi_pitch_2
 
     two_notes.reverse()
     assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
-    playlist = two_notes.getPlaylist()
+    playlist = playlist_time_ms( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     assert midi_pitch_1 != midi_pitch_2
@@ -900,12 +900,12 @@ def test_clip_content():
 def test_tied_notes():
 
     notes = Note() * 2
-    playlist = notes.getPlaylist()
+    playlist = playlist_time_ms( notes.getPlaylist() )
     note_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 4
         
     tied_notes = Note(Tied()) * 2
-    playlist = tied_notes.getPlaylist()
+    playlist = playlist_time_ms( tied_notes.getPlaylist() )
     tied_notes_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 2
 
