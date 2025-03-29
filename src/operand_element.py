@@ -473,6 +473,18 @@ class Element(o.Operand):
         return round(float(minutes * 60_000), 3)
 
 
+class ClipDevices(Element):
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+
+        return [
+            {
+                "time_ms": self.get_time_ms(self_position_ms),
+                "devices": midi_track._devices if midi_track else og.defaults._devices
+            }
+        ]
+
+
 class Group(Element):
     def __init__(self, *parameters):
         self._elements: list[Element] = [
