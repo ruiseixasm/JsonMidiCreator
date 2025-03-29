@@ -207,13 +207,13 @@ class Element(o.Operand):
     def finish(self) -> ra.Position:
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
         return [
                 {
-                    "time_ms":  self.get_time_ms(self_position_ms)
+                    "time_ms": self.get_time_ms(self_position_ms)
                 }
             ]
 

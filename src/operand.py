@@ -455,6 +455,15 @@ class Operand:
     # @staticmethod decorator is needed in order to be possible to call it with self !!
 
     @staticmethod
+    def playlist_index(playlist: list[dict], index: int) -> dict:
+        for single_dict in playlist:
+            if "time_ms" in single_dict:
+                if index == 0:
+                    return single_dict
+                index -= 1
+        return {"time_ms": 0}
+
+    @staticmethod
     def convert_to_int(number: any) -> int:
         import operand_unit as ou
         import operand_rational as ra
