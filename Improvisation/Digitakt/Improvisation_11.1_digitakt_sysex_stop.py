@@ -36,13 +36,18 @@ long_element = Element(4/1)
 long_rest % Length() % float() >> Print()
 long_element % Length() % float() >> Print()
 
-long_rest >> P
-time.sleep(0.5)
-long_element >> P
+# long_rest >> P
+# time.sleep(0.5)
+# long_element >> P
 
 half_measure_element = Element(1/2)
-time.sleep(0.5)
+# time.sleep(0.5)
 half_measure_element >> Play(1) >> Export("json/_Export_11.1_sysex_stop.json")
+# Test repeated clock signals
+defaults << ClockedDevices("loopMIDI", "loopMIDI") 
+time.sleep(0.5)
+# Now half the Clock message must be removed for being redundant
+half_measure_element >> Play(1) >> Export("json/_Export_11.1.1_redundant.json")
 
 
 defaults -= Digitakt.device

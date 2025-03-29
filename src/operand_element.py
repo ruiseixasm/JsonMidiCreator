@@ -620,7 +620,7 @@ class Clock(Element):
             single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
 
             json_midi_player_devices: list[list[str]] = [
-                list(clocked_device) for clocked_device in self._devices
+                [ clocked_device ] for clocked_device in self._devices
             ]
 
             if not json_midi_player_devices:
