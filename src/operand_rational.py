@@ -927,21 +927,30 @@ class Measurement(Convertible):
                 self -= Measures(operand)
         return self
     
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __imul__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
-                multiplier: Fraction = operand.convertToMeasures()._rational
-                return super().__imul__(multiplier)
-        return super().__imul__(operand)
+            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+                self_measures: Measures = self % Measures()
+                operand_measures: Measures = operand % Measures()
+                self << self_measures * operand_measures
+            case int() | float() | Fraction():
+                self *= Measures(operand)  # Default variable is Measures
+        return self
     
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
-                divider: Fraction = operand.convertToMeasures()._rational
-                return super().__itruediv__(divider)
-        return super().__itruediv__(operand)
+            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+                self_measures: Measures = self % Measures()
+                operand_measures: Measures = operand % Measures()
+                if operand_measures != Measures(0):
+                    self << self_measures / operand_measures
+            case int() | float() | Fraction():
+                self /= Measures(operand)  # Default variable is Measures
+        return self
 
 
 class Length(Measurement):

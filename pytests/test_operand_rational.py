@@ -301,24 +301,27 @@ def test_sub_note_value():
 def test_div_time_values():
 
     position = Position(5)
-    measures = Measures(2.5)
     position /= Measures(2)
-    assert position == measures
+    print(f"Measures(5) / Measures(2) == {position % Measures() % Fraction()}")
+    assert position == Measures(2.5)    # Direct, same as / 2
 
     position = Position(5)
-    measures = Measures(2.5)
-    position /= Beats(2)
-    assert position == measures
+    position /= Beats(2)    # Same as Measures(2 / 4) = Measures(1/2)
+    print(f"Measures(5) / Measures(1/2) == {position % Measures() % Fraction()}")
+    assert position == Measures(10)     # Same as * 2
 
     position = Position(5)
-    measures = Measures(2.5)
-    position /= Steps(2)
-    assert position == measures
+    position /= Steps(2)    # Same as Measures(2 / 16) = Measures(1/8)
+    print(f"Measures(5) / Measures(1/8) == {position % Measures() % Fraction()}")
+    assert position == Measures(40)     # Same as * 8
 
     position = Position(5)
-    measures = Measures(2.5)
-    position /= Duration(2)
-    assert position == measures
+    position /= Duration(2) # Same as Measures(2 / 1) = Measures(2)
+    print(f"Measures(5) / Measures(2/1) == {position % Measures() % Fraction()}")
+    assert position == Measures(2.5)     # Same as / 2
+
+# test_div_time_values()
+
 
 def test_div_time():
 
@@ -337,6 +340,11 @@ def test_div_time():
     measures = Measures(2.5)
     position /= NoteValue(2)     # Duration is in NoteValue
     assert position == measures
+
+    position = Position(1/4)
+    length = Length(1/1)
+    assert position / length % float() == 1/4   # Measures
+
 
 # test_div_time()
 
@@ -358,6 +366,8 @@ def test_basic_conversions():
     assert duration % Fraction() == 0
     duration << quantization
     assert duration % Fraction() == 1/16
+
+    assert Beats(2) % Measures() == Measures(1/2)
 
 # test_basic_conversions()
 
