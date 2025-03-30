@@ -25,18 +25,23 @@ from JsonMidiCreator import *
 # Global Staff setting up
 defaults << Tempo(60)
 
-# chord = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
-# controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) \
-#               | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()) \
-#                 >> Save("json/_Save_4.2_control_change.json")
+chord = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
+controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) \
+              | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()) \
+                >> Save("json/_Save_4.2_control_change.json")
     
-# chord + controller >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
+chord + controller >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
 
 # The length of the entire wave is one Measure or 4 beats or 16 steps
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
 
+# Stepping by 4 Steps is equivalent ot step by 1 Beat, same as , 1/4 Measure
+# The default wavelength of the Oscillator is 1 Measure, so, for each PitchBend position:
+#   0 Step = 0
+#   1 Step = peak = 8191 / 2 = +4095
+#   2 Step = 0
 pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() \
-    << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(4)**Steps()
+    << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(step=4)**Steps()
 
 chord + pitch_bend >> Play(1) >> Save("json/_Save_4.2_pitch_bend.json") >> Export("json/_Export_4.2_pitch_bend.json")

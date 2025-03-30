@@ -254,11 +254,12 @@ class Oscillator(Operator):
                 element_position: ra.Position = operand % ra.Position()
                 wave_position: ra.Position = element_position - self._position
                 wavelength:ra.Length = self._length
+                # The default unit of measurement of Position and Length is in Measures !!
                 wave_phase: float = wave_position / wavelength % float() * 360 # degrees
                 # int * float results in a float
                 # Fraction * float results in a float
                 # Fraction * Fraction results in a Fraction
-                wave_time_amplitude_int = round(self._amplitude * math.sin(math.radians(wave_phase)))
+                wave_time_amplitude_int = int(self._amplitude * math.sin(math.radians(wave_phase)))
                 wave_time_amplitude_int += int(self._offset)
                 if isinstance(self._operand, o.Operand):
                     operand << (self._operand << wave_time_amplitude_int)
