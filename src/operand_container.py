@@ -2048,7 +2048,7 @@ class Part(Composition):
             case ra.Position() | ra.TimeValue():
                 self._position_beats = self._staff_reference.convertToBeats(operand)._rational
             case Clip() | oe.Element():
-                self *= operand
+                self += operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():

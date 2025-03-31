@@ -284,7 +284,7 @@ def test_rshift_container():
     assert elements_part[1][0] == "A"
     # Part stacks by Measure
     assert elements_part[0][0] % Position() == Measures(0) + Beats(0)
-    assert elements_part[1][0] % Position() == Measures(1) + Beats(0)
+    assert elements_part[1][0] % Position() == Measures(0) + Beats(0)
 
 
     # Song testing ###################################################
