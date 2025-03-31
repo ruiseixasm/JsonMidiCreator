@@ -718,9 +718,10 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "clock": {
-                        "bpm": float(self._staff_reference._tempo),
-                        "beats": self._staff_reference.convertToBeats(ra.Duration(self._duration_notevalue)) % int(),
-                        "ppqn": self._clock_ppqn,
+                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                        "total_clock_pulses": total_clock_pulses,
+                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
                         "stop_mode": self._clock_stop_mode,
                         "devices": self._devices
                     }
