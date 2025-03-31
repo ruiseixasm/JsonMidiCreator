@@ -28,5 +28,5 @@ time.sleep(0.5)
 Note() >> Play(True)
 Clip(Chord()) >> Play(True)
 KeyScale() >> Play(True)
-Clip(KeyScale()) >> Play(True)
+Clip(KeyScale()) >> Play(True) >> Export("json/_Export_Specific_test_1.2_keyscale.json")
 

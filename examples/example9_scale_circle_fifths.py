@@ -29,7 +29,7 @@ defaults << Tempo(240)
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
     + Iterate( 7 )**Semitone()
     << Duration(1) << Velocity(70) << Octave(4))
-play_list_1 >> Play()
+play_list_1 >> Play(True)
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
@@ -53,5 +53,5 @@ play_list_1 + Measures(0 * 8) \
     >> play_list_2 + Measures(1 * 8) \
     >> play_list_3 + Measures(2 * 8) \
     >> play_list_4 + Measures(3 * 8) \
-    >> Play(True)
+    >> Play(True) >> Export("json/_Export_Example9_circle_fifths.json")
 # play_list_2 >> Play()
