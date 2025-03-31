@@ -21,5 +21,5 @@ defaults << Tempo(120)
 
 automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 99], "1... 1.1. .1.. ..11")
 
-automation_cc >> P
+automation_cc >> Play(True)
 
