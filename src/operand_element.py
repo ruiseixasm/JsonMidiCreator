@@ -615,42 +615,41 @@ class Clock(Element):
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
         total_clock_pulses: int = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
+        self_playlist: list[dict] = []
+
         if total_clock_pulses > 0:
 
             single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-            single_devices: set[str] = set()
-            json_midi_player_devices: list[list[str]] = []
+            if not devices_header and midi_track is None:
 
-            for clocked_device in self._devices:
-                if clocked_device not in single_devices:
-                    json_midi_player_devices.append([clocked_device])
-                    single_devices.add(clocked_device)
+                single_devices: set[str] = set()
+                self_clock_devices: list[list[str]] = []
 
-            if not json_midi_player_devices:
-                json_midi_player_devices = [ midi_track._devices if midi_track else og.defaults._devices ]
+                for clocked_device in self._devices:
+                    if clocked_device not in single_devices:
+                        self_clock_devices.append([clocked_device])
+                        single_devices.add(clocked_device)
 
-            self_playlist: list[dict] = []
-
-            self_playlist.append(
-                {
-                    "clock": {
-                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                        "total_clock_pulses": total_clock_pulses,
-                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                        "stop_mode": self._clock_stop_mode,
-                        "devices": self._devices
+                self_playlist.append(
+                    {
+                        "clock": {
+                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                            "total_clock_pulses": total_clock_pulses,
+                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                            "stop_mode": self._clock_stop_mode,
+                            "devices": self_clock_devices
+                        }
                     }
-                }
-            )
+                )
 
-            for player_devices in json_midi_player_devices:
+            else:
 
                 # Starts by setting the Devices
                 self_playlist.append(
                     {
-                        "devices": player_devices
+                        "devices": [ midi_track._devices if midi_track else og.defaults._devices ]
                     }
                 )
 
@@ -727,9 +726,8 @@ class Clock(Element):
                         }
                     )
 
-            return self_playlist
+        return self_playlist
 
-        return []
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

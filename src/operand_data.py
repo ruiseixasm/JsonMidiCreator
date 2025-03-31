@@ -699,12 +699,11 @@ class Process(Data):
 
         match operand:
             case oc.Composition() | oe.Element():
-                clocked_devices: list[str] = og.defaults._clocked_devices
-                if clocked_devices:
+                if og.defaults._clocked_devices:
                     default_clock: oe.Clock = og.defaults % oe.Clock()
                     clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
                     default_clock.set_staff_reference(operand.get_staff_reference()) << clock_length    # Element converts Length to Duration
-                    playlist.extend( default_clock.getPlaylist() )
+                    playlist.extend( default_clock.getPlaylist(devices_header=False) )
                 playlist.extend( operand.getPlaylist() )
             case Playlist():
                 playlist = operand.getPlaylist()
