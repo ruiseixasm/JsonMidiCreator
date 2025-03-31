@@ -632,6 +632,19 @@ class Clock(Element):
 
             self_playlist: list[dict] = []
 
+            self_playlist.append(
+                {
+                    "clock": {
+                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                        "total_clock_pulses": total_clock_pulses,
+                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                        "stop_mode": self._clock_stop_mode,
+                        "devices": self._devices
+                    }
+                }
+            )
+
             for player_devices in json_midi_player_devices:
 
                 # Starts by setting the Devices
@@ -713,20 +726,6 @@ class Clock(Element):
                             }
                         }
                     )
-
-            
-            self_playlist.append(
-                {
-                    "clock": {
-                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                        "total_clock_pulses": total_clock_pulses,
-                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                        "stop_mode": self._clock_stop_mode,
-                        "devices": self._devices
-                    }
-                }
-            )
 
             return self_playlist
 
