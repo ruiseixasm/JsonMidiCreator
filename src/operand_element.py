@@ -1968,7 +1968,7 @@ class ControlChange(Automation):
 
             cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
-            self_playlist.append(
+            self_playlist.extend([
                 {
                     "time_ms": time_ms,
                     "midi_message": {
@@ -1993,7 +1993,7 @@ class ControlChange(Automation):
                         "data_byte_2": cc_6_msb
                     }
                 }
-            )
+            ])
 
             if self._controller._high:
 
@@ -2692,19 +2692,29 @@ class ProgramChange(Element):
 
 class Panic(Element):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
-        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
-        self_playlist.extend(PitchBend(0).getPlaylist(midi_track, position_beats, devices_header))
-        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
-        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
-        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats, devices_header))
+        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+
+        self_playlist: list[dict] = []
+    
+        if devices_header:
+            self_playlist.append(
+                {
+                    "devices": devices
+                }
+            )
+
+        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
+        self_playlist.extend(PitchBend(0).getPlaylist(midi_track, position_beats, False))
+        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
+        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
+        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
 
         on_time_ms = self.get_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         for key_note_midi in range(128):
-            self_playlist.append(
+            self_playlist.extend([
                 {   # Needs the Note On first in order to the following Note Off not be considered redundant
                     "time_ms": on_time_ms,
                     "midi_message": {
@@ -2721,10 +2731,10 @@ class Panic(Element):
                         "data_byte_2": 0
                     }
                 }
-            )
+            ])
 
-        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(midi_track, position_beats))
-        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(midi_track, position_beats))
+        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(midi_track, position_beats, False))
+        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(midi_track, position_beats, False))
 
         return self_playlist
 
