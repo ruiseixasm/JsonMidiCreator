@@ -95,7 +95,8 @@ O9 = Octave(9)
 # Actions
 L = Link()
 S = Stack()
-P = Play()
+P = Play(False)
+Pv = Play(True)
 
 # Note Values alias, abbreviations
 NV1 = whole = Duration(1/1)
