@@ -1025,10 +1025,11 @@ class Clip(Composition):  # Just a container of Elements
                     case om.Mutation():     operand._data.mutate(self)
                     case _:                 super().__lshift__(operand)
 
+            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ClockedDevices() | \
+                    ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff << operand
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
-            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
-                self._staff << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
