@@ -19,7 +19,14 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 defaults << Tempo(120)
 
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 99], "1... 1.1. .1.. ..11")
+automation_cc = Clip(Note()) >> Automate([95, 50, 20, 50, 90, 99], "1... 1.1. .1.. ..11")
 
 automation_cc >> Play(True)
+
+
+time.sleep(0.5)
+Note() >> Play(True)
+Clip(Chord()) >> Play(True)
+KeyScale() >> Play(True)
+Clip(KeyScale()) >> Play(True)
 
