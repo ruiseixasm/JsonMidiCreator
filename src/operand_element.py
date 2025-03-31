@@ -628,7 +628,7 @@ class Clock(Element):
 
                 for clocked_device in self._devices:
                     if clocked_device not in single_devices:
-                        self_clock_devices.append([clocked_device])
+                        self_clock_devices.append(clocked_device)
                         single_devices.add(clocked_device)
 
                 self_playlist.append(
