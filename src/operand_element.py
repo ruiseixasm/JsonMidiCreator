@@ -617,34 +617,34 @@ class Clock(Element):
 
         self_playlist: list[dict] = []
 
-        if total_clock_pulses > 0:
+        single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+        if not devices_header and midi_track is None:
 
-            if not devices_header and midi_track is None:
+            single_devices: set[str] = set()
+            self_clock_devices: list[list[str]] = []
 
-                single_devices: set[str] = set()
-                self_clock_devices: list[list[str]] = []
+            for clocked_device in self._devices:
+                if clocked_device not in single_devices:
+                    self_clock_devices.append(clocked_device)
+                    single_devices.add(clocked_device)
 
-                for clocked_device in self._devices:
-                    if clocked_device not in single_devices:
-                        self_clock_devices.append(clocked_device)
-                        single_devices.add(clocked_device)
-
-                self_playlist.append(
-                    {
-                        "clock": {
-                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                            "total_clock_pulses": total_clock_pulses,
-                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                            "stop_mode": self._clock_stop_mode,
-                            "devices": self_clock_devices
-                        }
+            self_playlist.append(
+                {
+                    "clock": {
+                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                        "total_clock_pulses": total_clock_pulses,
+                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                        "stop_mode": self._clock_stop_mode,
+                        "devices": self_clock_devices
                     }
-                )
+                }
+            )
 
-            else:
+        else:
+
+            if total_clock_pulses > 0:
 
                 # Starts by setting the Devices
                 self_playlist.append(
