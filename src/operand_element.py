@@ -706,13 +706,26 @@ class Clock(Element):
                     self_playlist.append(
                         {
                             "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
-                                "midi_message": {
+                            "midi_message": {
                                 "status_byte": 0xF0,    # Start of SysEx
                                 "data_bytes": [0x7F, 0x7F, 0x06, 0x01]  # Universal Stop command
                                                     # Byte 0xF7 Ends the SysEx stream (implicit)
                             }
                         }
                     )
+
+            
+            self_playlist.append(
+                {
+                    "clock": {
+                        "bpm": float(self._staff_reference._tempo),
+                        "beats": self._staff_reference.convertToBeats(ra.Duration(self._duration_notevalue)) % od.DataSource( float() ),
+                        "ppqn": self._clock_ppqn,
+                        "stop_mode": self._clock_stop_mode,
+                        "devices": self._devices
+                    }
+                }
+            )
 
             return self_playlist
 
