@@ -617,7 +617,7 @@ class Clock(Element):
 
         if total_clock_pulses > 0:
 
-            single_pulse_duration_ms: Fraction = self_duration_min / total_clock_pulses
+            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
             single_devices: set[str] = set()
             json_midi_player_devices: list[list[str]] = []
@@ -669,7 +669,7 @@ class Clock(Element):
                 for clock_pulse in range(1, total_clock_pulses):
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
+                            "time_ms": self.get_time_ms(single_pulse_duration_min * clock_pulse),
                             "midi_message": {
                                 "status_byte": 0xF8     # Timing Clock
                             }
@@ -679,7 +679,7 @@ class Clock(Element):
                 # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
-                        "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                        "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
                         "midi_message": {
                             "status_byte": 0xFC         # Stop Track
                         }
@@ -691,7 +691,7 @@ class Clock(Element):
                     # Resets the position back to 0
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                            "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
                             "midi_message": {
                                 "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
                                 "data_byte_1": 0,       # Reset
@@ -705,7 +705,7 @@ class Clock(Element):
                     # Sends a SysEx Stop Message
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                            "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
                             "midi_message": {
                                 "status_byte": 0xF0,    # Start of SysEx
                                 "data_bytes": [0x7F, 0x7F, 0x06, 0x01]  # Universal Stop command
