@@ -97,6 +97,7 @@ L = Link()
 S = Stack()
 P = Play(False)
 Pv = Play(True)
+Pr = Print()
 
 # Note Values alias, abbreviations
 NV1 = whole = Duration(1/1)
