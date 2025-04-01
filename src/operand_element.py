@@ -617,8 +617,6 @@ class Clock(Element):
 
         self_playlist: list[dict] = []
 
-        single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
-
         if not devices_header and midi_track is None:
 
             single_devices: set[str] = set()
@@ -634,13 +632,18 @@ class Clock(Element):
                     "clock": {
                         # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
                         "total_clock_pulses": total_clock_pulses,
-                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                        "pulse_duration_min_numerator": 0,
+                        "pulse_duration_min_denominator": 1,
                         "stop_mode": self._clock_stop_mode,
                         "devices": self_clock_devices
                     }
                 }
             )
+
+            if total_clock_pulses > 0:
+                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+                self_playlist[0]["pulse_duration_min_numerator"] = single_pulse_duration_min.numerator
+                self_playlist[0]["pulse_duration_min_denominator"] = single_pulse_duration_min.denominator
 
         else:
 
@@ -677,6 +680,8 @@ class Clock(Element):
                         }
                     )
             
+                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+
                 # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
                 for clock_pulse in range(1, total_clock_pulses):
                     self_playlist.append(
