@@ -699,12 +699,12 @@ class Process(Data):
 
         match operand:
             case oc.Composition() | oe.Element():
-                if og.defaults._clocked_devices:
-                    default_clock: oe.Clock = og.defaults % oe.Clock()
-                    clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                    default_clock.set_staff_reference(operand.get_staff_reference()) << clock_length    # Element converts Length to Duration
-                    playlist.extend( default_clock.getPlaylist(devices_header=False) )
-                playlist.extend( operand.getPlaylist() )
+                # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
+                default_clock: oe.Clock = og.defaults % oe.Clock()
+                clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
+                default_clock.set_staff_reference(operand.get_staff_reference()) << clock_length    # Element converts Length to Duration
+                playlist.extend( default_clock.getPlaylist(devices_header=False) )  # Clock Playlist
+                playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case Playlist():
                 playlist = operand.getPlaylist()
 
