@@ -2572,11 +2572,11 @@ class PolyAftertouch(Aftertouch):
 
 class ProgramChange(Element):
     def __init__(self, *parameters):
-        self._program: int = ou.Program("Piano")._unit
+        self._program: ou.Program = ou.Program("Piano")
         super().__init__(*parameters)
 
     def program(self, program: int | str = "Piano") -> Self:
-        self._program = ou.Program(program)._unit
+        self._program = ou.Program(program)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2594,10 +2594,10 @@ class ProgramChange(Element):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():      return operand._data << od.DataSource(self._program)
+                    case ou.Program():      return self._program
                     case _:                 return super().__mod__(operand)
-            case int():             return self._program
-            case ou.Program():      return ou.Program() << od.DataSource(self._program)
+            case int():             return self._program % int()
+            case ou.Program():      return self._program.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2630,7 +2630,7 @@ class ProgramChange(Element):
                 "time_ms": self.get_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xC0 | 0x0F & self._channel - 1,
-                    "data_byte": self._program - 1
+                    "data_byte": self._program._unit - 1
                 }
             }
         )
@@ -2643,7 +2643,7 @@ class ProgramChange(Element):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
-        self_midilist[0]["program"]     = self._program
+        self_midilist[0]["program"]     = self._program._unit
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -2669,14 +2669,10 @@ class ProgramChange(Element):
                 self._program = operand._program
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():          self._program = operand._data._unit
+                    case ou.Program():          self._program = operand._data
                     case _:                     super().__lshift__(operand)
-            case int():
-                self._program = operand
-            case ou.Program():
-                self._program = operand._unit
-            case str():
-                self._program = ou.Program(self._program, operand)._unit
+            case ou.Program() | int() | str():
+                self._program << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -2684,26 +2680,20 @@ class ProgramChange(Element):
     def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int():
+            case int() | ou.Program():
                 self._program += operand  # Specific and compounded parameter
-                return self
-            case ou.Program():
-                self._program += operand._unit  # Specific and compounded parameter
-                return self
             case _:
                 return super().__iadd__(operand)
+        return self
 
     def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int():
+            case int() | ou.Program():
                 self._program -= operand  # Specific and compounded parameter
-                return self
-            case ou.Program():
-                self._program -= operand._unit  # Specific and compounded parameter
-                return self
             case _:
                 return super().__isub__(operand)
+        return self
 
 
 class Panic(Element):
