@@ -424,22 +424,13 @@ class Playlist(Data):
             if other is None:
                 return True
             return False
-        # Self list stript of the global clock
-        self_net_playlist: list[dict] = [
-            single_dict for single_dict in self._data
-            if isinstance(single_dict, dict) and "clock" not in single_dict
-        ]
         match other:
             case list():
-                return self_net_playlist == other
+                return self._data == other
             case Playlist():
-                other_net_playlist: list[dict] = [
-                    single_dict for single_dict in other._data
-                    if isinstance(single_dict, dict) and "clock" not in single_dict
-                ]
-                return self_net_playlist == other_net_playlist
+                return self._data == other._data
             case o.Operand():
-                return self_net_playlist == other.getPlaylist()
+                return self._data == other.getPlaylist()
         return super().__eq__(other)
 
     def start(self) -> float:
@@ -621,6 +612,11 @@ class Import(Playlist):
         if isinstance(file_name, str):
             # No need to copy (fresh data)
             self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
+            # Filter out the JsonMidiPlayer global clock
+            self._data = [
+                single_dict for single_dict in self._data
+                if isinstance(single_dict, dict) and "clock" not in single_dict
+            ]
 
 
 class Device(Data):
