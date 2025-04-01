@@ -45,6 +45,11 @@ class Blofeld(Variables):
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
+    def controller(group: str, parameter: str) -> og.Controller:
+        group = group.strip().upper()
+        parameter = parameter.strip()
+        return og.Controller(Blofeld.midi_cc[group][parameter])
+
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
             ] = {
@@ -258,6 +263,13 @@ class Digitakt(Variables):
         "G": list(range(6 * 16, 7 * 16 + 1)),   # 97 to 112
         "H": list(range(7 * 16, 8 * 16 + 1))    # 113 to 128
     }
+
+    def controller(group: str, parameter: str, nrpn: bool = False) -> og.Controller:
+        group = group.strip().upper()
+        parameter = parameter.strip()
+        if nrpn:
+            return og.Controller(Digitakt.midi_nrpn[group][parameter])
+        return og.Controller(Digitakt.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[str,
@@ -920,6 +932,11 @@ class Digitakt(Variables):
 class UnoSynth(Variables):
 
     device          = od.Device("UNO")
+
+    def controller(group: str, parameter: str) -> og.Controller:
+        group = group.strip().upper()
+        parameter = parameter.strip()
+        return og.Controller(UnoSynth.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
