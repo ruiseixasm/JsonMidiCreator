@@ -2625,6 +2625,11 @@ class ProgramChange(Element):
                 }
             )
 
+        if isinstance(self._program._bank_select, og.BankSelect):
+            self_playlist.extend(
+                ControlChange(self._program._bank_select).getPlaylist(devices_header=False)
+            )
+
         self_playlist.append(
             {
                 "time_ms": self.get_time_ms(self_position_min),
