@@ -642,8 +642,8 @@ class Clock(Element):
 
             if total_clock_pulses > 0:
                 single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
-                self_playlist[0]["pulse_duration_min_numerator"] = single_pulse_duration_min.numerator
-                self_playlist[0]["pulse_duration_min_denominator"] = single_pulse_duration_min.denominator
+                self_playlist[0]["clock"]["pulse_duration_min_numerator"] = single_pulse_duration_min.numerator
+                self_playlist[0]["clock"]["pulse_duration_min_denominator"] = single_pulse_duration_min.denominator
 
         else:
 
