@@ -48,10 +48,10 @@ class Blofeld(Variables):
 
     def program(sound: int, bank: str = "A") -> ou.Program:
         bank = bank.strip().upper()
-        return ou.Program(sound, og.BankSelect(Blofeld.bank_select[bank]))
+        return ou.Program(sound, ou.Bank(Blofeld.banks[bank]))
 
     # A total of 8 banks
-    bank_select: dict[str, int] = {
+    banks: dict[str, int] = {
         "A":    0,
         "B":    1,
         "C":    2,
