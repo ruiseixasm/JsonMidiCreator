@@ -2117,9 +2117,6 @@ class Bend(Midi):
     """
     pass
 
-class Bank(Midi):   # Value of 0 means no Bank selected
-    pass
-
 class Program(Midi):
     """`Unit -> Midi -> Program`
 
@@ -2379,6 +2376,9 @@ class Value(Midi):
         The Value shall be set from 0 to 127 or 0 to 16,383
         accordingly to the range of CC Midi values for 7 and 14 bits respectively
     """
+    pass
+
+class Bank(Value):   # Value of 0 means no Bank selected
     pass
 
 class Number(Midi):
