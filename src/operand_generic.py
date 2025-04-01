@@ -884,6 +884,12 @@ class BankSelect(Controller):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Controller():
+                super().__lshift__(operand)
+                # Avoids the usage of other upper class to set it's arguments indirectly
+                self._number_msb    = 0
+                self._lsb           = 32
+                self._nrpn          = False
             case od.DataSource():
                 pass    # Avoids changing of any self parameter
             case od.Serialization():
