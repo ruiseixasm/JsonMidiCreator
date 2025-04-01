@@ -650,11 +650,12 @@ class Clock(Element):
             if total_clock_pulses > 0:
 
                 # Starts by setting the Devices
-                self_playlist.append(
-                    {
-                        "devices": midi_track._devices if midi_track else og.defaults._devices
-                    }
-                )
+                if devices_header:
+                    self_playlist.append(
+                        {
+                            "devices": midi_track._devices if midi_track else og.defaults._devices
+                        }
+                    )
 
                 if self._clock_stop_mode == 2:  # 2 - "Continue"
 
