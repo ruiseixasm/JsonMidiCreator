@@ -652,7 +652,7 @@ class Clock(Element):
                 # Starts by setting the Devices
                 self_playlist.append(
                     {
-                        "devices": [ midi_track._devices if midi_track else og.defaults._devices ]
+                        "devices": midi_track._devices if midi_track else og.defaults._devices
                     }
                 )
 
