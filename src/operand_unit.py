@@ -2128,26 +2128,37 @@ class Program(Midi):
         A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
     def __init__(self, *parameters):
+        import operand_generic as og
+        self._bank_select: og.BankSelect = None
         super().__init__(1, *parameters)         # By default is 1 the Piano
 
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
         match operand:
             case od.DataSource():
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit) + 1
+                    case og.BankSelect():           return self._bank_select
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit - 1)
+            case og.BankSelect():
+                if self._bank_select is None:
+                    return None
+                return self._bank_select.copy()
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
+        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
+                    case og.BankSelect():           self._bank_select = operand._data
+                    case None:                      self._bank_select = None
                     case _:                         super().__lshift__(operand)
             case str():
                 operand = operand.strip()
@@ -2155,7 +2166,12 @@ class Program(Midi):
                     self._unit = int(operand)
                 else:
                     self.nameToNumber(operand)
-            case _:                 super().__lshift__(operand)
+            case og.BankSelect():
+                self._bank_select = operand.copy()
+            case None:
+                self._bank_select = None
+            case _:
+                super().__lshift__(operand)
         return self
 
     _instruments = [

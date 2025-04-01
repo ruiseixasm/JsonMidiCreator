@@ -897,6 +897,8 @@ class BankSelect(Controller):
             case dict():
                 if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
                     self._high = bool(operand["HIGH"])
+            case _:
+                super().__lshift__(operand)
         return self
 
 
