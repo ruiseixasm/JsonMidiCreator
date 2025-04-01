@@ -2627,7 +2627,7 @@ class ProgramChange(Element):
 
         if isinstance(self._program._bank_select, og.BankSelect):
             self_playlist.extend(
-                ControlChange(self._program._bank_select).getPlaylist(devices_header=False)
+                ControlChange(self._program._bank_select, self._program._bank).getPlaylist(devices_header=False)
             )
 
         self_playlist.append(

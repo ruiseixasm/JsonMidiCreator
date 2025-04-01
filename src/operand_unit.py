@@ -2118,7 +2118,29 @@ class Bend(Midi):
     pass
 
 class Bank(Midi):
-    pass
+    def __init__(self, *parameters):
+        super().__init__(-1, *parameters)   # -1 means no bank
+
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        match operand:
+            case bool():
+                return False if self._unit < 0 else True
+            case _:
+                return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case bool():
+                self._unit = 0 if operand else -1
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Program(Midi):
     """`Unit -> Midi -> Program`
@@ -2132,8 +2154,8 @@ class Program(Midi):
     """
     def __init__(self, *parameters):
         import operand_generic as og
-        self._bank_select: og.BankSelect = None
-        self._bank: int = 0
+        self._bank_select: og.BankSelect = og.BankSelect()
+        self._bank: int = Bank()._unit
         super().__init__(1, *parameters)         # By default is 1 the Piano
 
     def __eq__(self, other: any) -> bool:
@@ -2153,10 +2175,7 @@ class Program(Midi):
                     case Bank():                    return operand._data << self._bank
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit - 1)
-            case og.BankSelect():
-                if self._bank_select is None:
-                    return None
-                return self._bank_select.copy()
+            case og.BankSelect():       return self._bank_select.copy()
             case Bank():                return Bank(self._bank)
             case _:                     return super().__mod__(operand)
 
@@ -2183,10 +2202,7 @@ class Program(Midi):
         match operand:
             case Program():
                 super().__lshift__(operand)
-                if isinstance(operand._bank_select, og.BankSelect):
-                    self._bank_select   << operand._bank_select
-                else:
-                    self._bank_select   = operand._bank_select
+                self._bank_select   << operand._bank_select
                 self._bank          = operand._bank
             case od.DataSource():
                 match operand._data:
@@ -2202,10 +2218,7 @@ class Program(Midi):
                 else:
                     self.nameToNumber(operand)
             case og.BankSelect():
-                if isinstance(operand, og.BankSelect):
-                    self._bank_select   << operand
-                else:
-                    self._bank_select   = operand
+                self._bank_select << operand
             case None:
                 self._bank_select = None
             case Bank():
