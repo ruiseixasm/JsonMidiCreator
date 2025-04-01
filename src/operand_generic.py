@@ -877,7 +877,7 @@ class BankSelect(Controller):
         # 32 - Bank Select (LSB)
         self._number_msb    = 0
         self._lsb           = 32
-        self._high          = True
+        # By default is a coarse Bank Select, and thus no High Precision (False)
 
     # CHAINABLE OPERATIONS
 
@@ -888,9 +888,15 @@ class BankSelect(Controller):
                 pass    # Avoids changing of any self parameter
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.MSB() | ou.Number() | str() | ou.LSB() \
-                | ou.NRPN() | ou.HighResolution() | bool() | dict():
+            case ou.MSB() | ou.Number() | str() | ou.LSB() | ou.NRPN():
                 pass    # Avoids changing of any self parameter
+            case ou.HighResolution():
+                self._high = bool(operand._unit)
+            case bool():   # bool is a subclass of int !!
+                self._high = operand
+            case dict():
+                if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
+                    self._high = bool(operand["HIGH"])
         return self
 
 
