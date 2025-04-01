@@ -870,6 +870,17 @@ class Controller(Generic):
                     self << single_operand
         return self
 
+class BankSelect(Controller):
+    def __init__(self, *parameters):
+        super().__init__()
+        # 0 -  Bank Select (MSB)
+        # 32 - Bank Select (LSB)
+        self._number_msb = 0
+        self._lsb = 32
+
+
+
+
 
 class Scale(Generic):
     """
