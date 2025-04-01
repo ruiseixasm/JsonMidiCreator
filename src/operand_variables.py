@@ -45,6 +45,24 @@ class Blofeld(Variables):
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
+
+    def program(sound: int, bank: str = "A") -> ou.Program:
+        bank = bank.strip().upper()
+        return ou.Program(sound, og.BankSelect(Blofeld.bank_select[bank]))
+
+    # A total of 8 banks
+    bank_select: dict[str, int] = {
+        "A":    0,
+        "B":    1,
+        "C":    2,
+        "D":    3,
+        "E":    4,
+        "F":    5,
+        "G":    6,
+        "H":    7
+    }
+
+
     def controller(parameter: str = "Cutoff", group: str = "FILTER 1") -> og.Controller:
         parameter = parameter.strip()
         group = group.strip().upper()

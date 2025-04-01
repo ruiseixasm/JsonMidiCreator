@@ -2117,6 +2117,9 @@ class Bend(Midi):
     """
     pass
 
+class Bank(Midi):
+    pass
+
 class Program(Midi):
     """`Unit -> Midi -> Program`
 
@@ -2130,12 +2133,14 @@ class Program(Midi):
     def __init__(self, *parameters):
         import operand_generic as og
         self._bank_select: og.BankSelect = None
+        self._bank: int = 0
         super().__init__(1, *parameters)         # By default is 1 the Piano
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Program):
-            return super().__eq__(other) and self._bank_select == other._bank_select
+            return super().__eq__(other) \
+                and self._bank_select == other._bank_select and self._bank == other._bank
         return super().__eq__(other)
     
     def __mod__(self, operand: o.T) -> o.T:
@@ -2145,39 +2150,50 @@ class Program(Midi):
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit) + 1
                     case og.BankSelect():           return self._bank_select
+                    case Bank():                    return operand._data << self._bank
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit - 1)
             case og.BankSelect():
                 if self._bank_select is None:
                     return None
                 return self._bank_select.copy()
+            case Bank():                return Bank(self._bank)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["bank_select"] = self.serialize( self._bank_select )
+        serialization["parameters"]["bank_select"]  = self.serialize( self._bank_select )
+        serialization["parameters"]["bank"]         = self.serialize( self._bank )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "bank_select" in serialization["parameters"]):
+            "bank_select" in serialization["parameters"] and "bank" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._bank_select = self.deserialize( serialization["parameters"]["bank_select"] )
+            self._bank_select   = self.deserialize( serialization["parameters"]["bank_select"] )
+            self._bank          = self.deserialize( serialization["parameters"]["bank"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Program():
+                super().__lshift__(operand)
+                if isinstance(operand._bank_select, og.BankSelect):
+                    self._bank_select   << operand._bank_select
+                else:
+                    self._bank_select   = operand._bank_select
+                self._bank          = operand._bank
             case od.DataSource():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case og.BankSelect():           self._bank_select = operand._data
                     case None:                      self._bank_select = None
+                    case Bank():                    self._bank = operand._data._unit
                     case _:                         super().__lshift__(operand)
             case str():
                 operand = operand.strip()
@@ -2186,9 +2202,14 @@ class Program(Midi):
                 else:
                     self.nameToNumber(operand)
             case og.BankSelect():
-                self._bank_select = operand.copy()
+                if isinstance(operand, og.BankSelect):
+                    self._bank_select   << operand
+                else:
+                    self._bank_select   = operand
             case None:
                 self._bank_select = None
+            case Bank():
+                self._bank = operand._unit
             case _:
                 super().__lshift__(operand)
         return self
