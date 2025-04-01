@@ -2380,7 +2380,6 @@ class Value(Midi):
 
 class Bank(Value):   # Value of 0 means no Bank selected because Banks are 1 based
     def __init__(self, *parameters):
-        self._bank: int = Bank()._unit          # 0 means no Bank selected
         super().__init__(1, *parameters)        # By default is 1 the Bank "A"
 
 class Number(Midi):
