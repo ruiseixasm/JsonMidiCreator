@@ -1973,84 +1973,86 @@ class ControlChange(Automation):
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
         
-        if devices_header:
-            self_playlist.append(
-                {
-                    "devices": devices
-                }
-            )
+        if self._value >= 0:
 
-        if self._controller._nrpn:
-
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-
-            self_playlist.extend([
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": 99,
-                        "data_byte_2": cc_99_msb
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
                     }
-                },
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": 98,
-                        "data_byte_2": cc_98_lsb
-                    }
-                },
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": 6,
-                        "data_byte_2": cc_6_msb
-                    }
-                }
-            ])
+                )
 
-            if self._controller._high:
+            if self._controller._nrpn:
+
+                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+
+                self_playlist.extend([
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 99,
+                            "data_byte_2": cc_99_msb
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 98,
+                            "data_byte_2": cc_98_lsb
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 6,
+                            "data_byte_2": cc_6_msb
+                        }
+                    }
+                ])
+
+                if self._controller._high:
+
+                    self_playlist.append(
+                        {
+                            "time_ms": time_ms,
+                            "midi_message": {
+                                "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                                "data_byte_1": 38,
+                                "data_byte_2": cc_38_lsb
+                            }
+                        }
+                    )
+
+            else:
+
+                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
 
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
                         "midi_message": {
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 38,
-                            "data_byte_2": cc_38_lsb
+                            "data_byte_1": self._controller._number_msb,
+                            "data_byte_2": msb_value
                         }
                     }
                 )
 
-        else:
+                if self._controller._high:
 
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-
-            self_playlist.append(
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                        "data_byte_1": self._controller._number_msb,
-                        "data_byte_2": msb_value
-                    }
-                }
-            )
-
-            if self._controller._high:
-
-                self_playlist.append(
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": self._controller._lsb,
-                            "data_byte_2": lsb_value
+                    self_playlist.append(
+                        {
+                            "time_ms": time_ms,
+                            "midi_message": {
+                                "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                                "data_byte_1": self._controller._lsb,
+                                "data_byte_2": lsb_value
+                            }
                         }
-                    }
-                )
+                    )
         
         return self_playlist
     
@@ -2160,10 +2162,28 @@ class ControlChange(Automation):
             case _:
                 return super().__isub__(operand)
 
+class BankSelect(ControlChange):
+    def __init__(self, *parameters):
+        super().__init__()
+        # 0 -  Bank Select (MSB)
+        # 32 - Bank Select (LSB)
+        self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
+        self._value = 0  # Value Byte: 0 (Bank A) (Data Byte 2)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
+        return self
+
 class AllNotesOff(ControlChange):
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << og.Controller(123)      # Control Change Number (CC): 123   (Data Byte 1)
+        self._controller << ou.Number(123)      # Control Change Number (CC): 123   (Data Byte 1)
         self._value = 0                             # Value Byte: 0                     (Data Byte 2)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -2173,7 +2193,7 @@ class AllNotesOff(ControlChange):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         super().__lshift__(operand)
-        self._controller << og.Controller(123)
+        self._controller << ou.Number(123)
         self._value = 0
         return self
 
@@ -2648,10 +2668,9 @@ class ProgramChange(Element):
                 }
             )
 
-        if isinstance(self._program._bank_select, og.BankSelect):
-            self_playlist.extend(
-                ControlChange(self._program._bank_select, self._program._bank).getPlaylist(devices_header=False)
-            )
+        self_playlist.extend(
+            BankSelect(self._program._bank).getPlaylist(devices_header=False)
+        )
 
         self_playlist.append(
             {

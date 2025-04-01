@@ -872,36 +872,6 @@ class Controller(Generic):
                     self << single_operand
         return self
 
-class BankSelect(Controller):
-    def __init__(self, *parameters):
-        super().__init__()
-        # 0 -  Bank Select (MSB)
-        # 32 - Bank Select (LSB)
-        self._number_msb    = 0
-        self._lsb           = 32
-        # By default is a coarse Bank Select, and thus no High Precision (False)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.HighResolution():
-                self._high = bool(operand._unit)
-            case bool():   # bool is a subclass of int !!
-                self._high = operand
-            case dict():
-                if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
-                    self._high = bool(operand["HIGH"])
-            case _:
-                super().__lshift__(operand)
-        # Avoids the usage of other upper class to set it's arguments indirectly
-        self._number_msb    = 0
-        self._lsb           = 32
-        self._nrpn          = False
-        return self
-
-
 
 class Scale(Generic):
     """
