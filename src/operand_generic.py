@@ -835,12 +835,12 @@ class Controller(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.MSB():      # Must be check before the Number class
                 self._number_msb = operand._unit
-            case int():   # Includes ou.MSB() as a subclass pf Number
+            case int():         # Includes ou.MSB() as a subclass of Number
                 self._number_msb = operand
                 # Number has implicit 7 bytes CC
                 self._nrpn = False
                 self._high = False
-            case ou.Number():   # Includes ou.MSB() as a subclass pf Number
+            case ou.Number():   # Includes ou.MSB() as a subclass of Number
                 self << operand._unit
             case str():
                 self._number_msb = ou.Number(self._number_msb, operand)._unit

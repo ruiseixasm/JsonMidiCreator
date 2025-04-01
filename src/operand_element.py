@@ -2163,8 +2163,8 @@ class ControlChange(Automation):
 class AllNotesOff(ControlChange):
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << og.Controller(123)
-        self._value = 0
+        self._controller << og.Controller(123)      # Control Change Number (CC): 123   (Data Byte 1)
+        self._value = 0                             # Value Byte: 0                     (Data Byte 2)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 

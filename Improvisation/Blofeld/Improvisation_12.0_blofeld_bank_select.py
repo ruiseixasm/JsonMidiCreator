@@ -24,5 +24,5 @@ ProgramChange(Blofeld.program(95, "B")) >> Pv
 for bank in range(8):
     program = Blofeld.program(1, bank)
     ProgramChange(program) + Chord() >> P
-    
+    AllNotesOff() >> P
 
