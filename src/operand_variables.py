@@ -46,9 +46,10 @@ class Blofeld(Variables):
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
 
-    def program(sound: int, bank: str = "A") -> ou.Program:
-        bank = bank.strip().upper()
-        return ou.Program(sound, ou.Bank(Blofeld.banks[bank]))
+    def program(sound: int, bank: str | int = "A") -> ou.Program:
+        if isinstance(bank, str):
+            bank = ou.Bank(Blofeld.banks[bank.strip().upper()])
+        return ou.Program(sound, ou.Bank(bank))
 
     # A total of 8 banks
     banks: dict[str, int] = {
@@ -270,9 +271,10 @@ class Digitakt(Variables):
     fx_control_ch   = ou.Channel(9)
     auto_channel    = ou.Channel(10)
 
-    def program(pattern: int, bank: str = "A") -> ou.Program:
-        bank = bank.strip().upper()
-        return ou.Program(pattern + Digitakt.bank_pattern[bank][0])
+    def program(pattern: int, bank: str | int = "A") -> ou.Program:
+        if isinstance(bank, str):
+            bank = Digitakt.bank_pattern[bank.strip().upper()][0]
+        return ou.Program(bank + pattern)
 
     bank_pattern: dict[str, list[int]] = {
         # The first column is just for offset purposes
