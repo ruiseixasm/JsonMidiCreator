@@ -2168,15 +2168,40 @@ class BankSelect(ControlChange):
         # 0 -  Bank Select (MSB)
         # 32 - Bank Select (LSB)
         self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
-        self._value = 0  # Value Byte: 0 (Bank A) (Data Byte 2)
+        self._value = 0  # Value Byte: 0 (Bank A) (Data Byte 2) (internally, -1 means no Bank selected)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a ControlChange,
+        those Parameters are the ones of the Element, like Position and Duration,
+        and the Controller Number and Value as Number and Value.
+
+        Examples
+        --------
+        >>> controller = Controller("Modulation")
+        >>> controller % Number() % int() >> Print()
+        1
+        """
+        match operand:
+            # Bank Select is 1 based and not 0 based
+            case int():                 return self._value + 1
+            case ou.Value():            return ou.Value(self._value + 1)
+            case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        super().__lshift__(operand)
+        match operand:
+            # Bank Select is 1 based and not 0 based
+            case int():
+                self._value = operand - 1
+            case ou.Value():
+                self._value = operand._unit - 1
+            case _:
+                super().__lshift__(operand)
         self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
         return self
 

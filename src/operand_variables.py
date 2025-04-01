@@ -53,14 +53,14 @@ class Blofeld(Variables):
 
     # A total of 8 banks
     banks: dict[str, int] = {
-        "A":    0,
-        "B":    1,
-        "C":    2,
-        "D":    3,
-        "E":    4,
-        "F":    5,
-        "G":    6,
-        "H":    7
+        "A":    1,
+        "B":    2,
+        "C":    3,
+        "D":    4,
+        "E":    5,
+        "F":    6,
+        "G":    7,
+        "H":    8
     }
 
 
@@ -274,7 +274,7 @@ class Digitakt(Variables):
     def program(pattern: int, bank: str | int = "A") -> ou.Program:
         if isinstance(bank, str):
             bank = Digitakt.bank_pattern[bank.strip().upper()][0]
-        return ou.Program(bank + pattern)
+        return ou.Program(bank + pattern)   # based 1 data
 
     bank_pattern: dict[str, list[int]] = {
         # The first column is just for offset purposes

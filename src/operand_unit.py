@@ -2117,30 +2117,8 @@ class Bend(Midi):
     """
     pass
 
-class Bank(Midi):
-    def __init__(self, *parameters):
-        super().__init__(-1, *parameters)   # -1 means no bank
-
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        match operand:
-            case bool():
-                return False if self._unit < 0 else True
-            case _:
-                return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case bool():
-                self._unit = 0 if operand else -1
-            case _:
-                super().__lshift__(operand)
-        return self
-
+class Bank(Midi):   # Value of 0 means no Bank selected
+    pass
 
 class Program(Midi):
     """`Unit -> Midi -> Program`
@@ -2153,8 +2131,8 @@ class Program(Midi):
         A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
     def __init__(self, *parameters):
-        self._bank: int = Bank()._unit
-        super().__init__(1, *parameters)         # By default is 1 the Piano
+        self._bank: int = Bank()._unit          # 0 means no Bank selected
+        super().__init__(1, *parameters)        # By default is 1 the Piano
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
