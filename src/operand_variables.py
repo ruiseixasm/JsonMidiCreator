@@ -45,9 +45,9 @@ class Blofeld(Variables):
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
-    def controller(group: str, parameter: str) -> og.Controller:
-        group = group.strip().upper()
+    def controller(parameter: str = "Cutoff", group: str = "FILTER 1") -> og.Controller:
         parameter = parameter.strip()
+        group = group.strip().upper()
         return og.Controller(Blofeld.midi_cc[group][parameter])
 
     midi_cc: dict[str,
@@ -268,9 +268,9 @@ class Digitakt(Variables):
         "H": list(range(7 * 16, 8 * 16 + 1))    # 113 to 128
     }
 
-    def controller(group: str, parameter: str, nrpn: bool = False) -> og.Controller:
-        group = group.strip().upper()
+    def controller(parameter: str = "Frequency", group: str = "FILTER", nrpn: bool = False) -> og.Controller:
         parameter = parameter.strip()
+        group = group.strip().upper()
         if nrpn:
             return og.Controller(Digitakt.midi_nrpn[group][parameter])
         return og.Controller(Digitakt.midi_cc[group][parameter])
@@ -937,9 +937,9 @@ class UnoSynth(Variables):
 
     device          = od.Device("UNO")
 
-    def controller(group: str, parameter: str) -> og.Controller:
-        group = group.strip().upper()
+    def controller(parameter: str = "Cutoff", group: str = "FILTER") -> og.Controller:
         parameter = parameter.strip()
+        group = group.strip().upper()
         return og.Controller(UnoSynth.midi_cc[group][parameter])
 
     midi_cc: dict[str,
