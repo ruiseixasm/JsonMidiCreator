@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!-- saved from url=(0063)https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node158.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MIDI Messages</title>
+<meta name="description" content="MIDI Messages">
+<meta name="keywords" content="BSC_MM_CALLER">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta http-equiv="Content-Type" content="text/html; charset=iso_8859_1">
+<link rel="STYLESHEET" href="./MIDI Messages_files/BSC_MM_CALLER.css">
+<link rel="next" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">
+<link rel="previous" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node157.html">
+<link rel="up" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node155.html">
+<link rel="next" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">
+</head>
+<body>
+<!--Navigation Panel-->
+<a name="tex2html2405" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">
+<img width="37" height="24" align="BOTTOM" border="0" alt="next" src="./MIDI Messages_files/next_motif.gif"></a> 
+<a name="tex2html2403" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node155.html">
+<img width="26" height="24" align="BOTTOM" border="0" alt="up" src="./MIDI Messages_files/up_motif.gif"></a> 
+<a name="tex2html2397" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node157.html">
+<img width="63" height="24" align="BOTTOM" border="0" alt="previous" src="./MIDI Messages_files/previous_motif.gif"></a>   
+<br>
+<b> Next:</b> <a name="tex2html2406" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">General MIDI</a>
+<b> Up:</b> <a name="tex2html2404" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node155.html">Introduction to MIDI (Musical</a>
+<b> Previous:</b> <a name="tex2html2398" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node157.html">Hardware Aspects of MIDI</a>
+<br>
+<br>
+<!--End of Navigation Panel-->
+<h2><a name="SECTION04133000000000000000">
+MIDI Messages</a>
+</h2>
+<p>
+MIDI messages are used by MIDI devices to communicate with each other.
+</p><p></p><p>
+Structure of MIDI messages:
+</p><ul>
+<li> MIDI message includes a status byte and up to two data bytes.
+</li><li> Status byte
+   <ul>
+<li> The most significant bit of status byte is set to 1.
+</li><li> The 4 low-order bits identify which channel it belongs to (four bits produce 16 possible channels).
+</li><li> The 3 remaining bits identify the message.
+   </li></ul>
+</li><li> The most significant bit of data byte is set to 0.
+</li></ul>
+<p>
+Classification of MIDI messages:
+</p><p></p><pre>                                               ----- voice messages
+                   ---- channel messages -----|
+                  |                            ----- mode messages
+                  |
+MIDI messages ----| 
+                  |                            ---- common messages
+                   ----- system messages -----|---- real-time messages
+                                               ---- exclusive messages
+</pre>
+<p><b>A.  Channel messages:</b>
+</p><p>
+- messages that are transmitted on individual
+channels rather that globally to all devices in the MIDI network.
+</p><p></p><p><i>A.1. Channel voice messages:</i>
+</p><ul>
+<li> Instruct the receiving instrument to assign particular
+sounds to its voice
+</li><li> Turn notes on and off
+</li><li> Alter the sound of the currently active note or notes 
+</li></ul>
+<p></p><pre>Voice Message           Status Byte      Data Byte1          Data Byte2
+-------------           -----------   -----------------   -----------------
+Note off                      8x      Key number          Note Off velocity
+Note on                       9x      Key number          Note on velocity
+Polyphonic Key Pressure       Ax      Key number          Amount of pressure
+Control Change                Bx      Controller number   Controller value
+Program Change                Cx      Program number      None
+Channel Pressure              Dx      Pressure value      None            
+Pitch Bend                    Ex      MSB                 LSB
+</pre>
+<p></p><p>
+Notes: `x' in status byte hex value stands for a channel number.
+</p><p></p><p>
+Example: a Note On message is followed by two bytes, one to identify
+the note, and on to specify the velocity.
+</p><p>
+To play note number 80 with maximum velocity on channel 13, the MIDI
+device would send these three hexadecimal byte values:
+ 9C  50  7F
+</p><p></p><p><i>A.2. Channel mode messages:</i>
+- Channel mode messages are a special case of the Control Change
+message ( Bx or 1011nnnn).
+The difference between a Control message and a Channel
+Mode message, which share the same status byte value, is in the first
+data byte.  Data byte values 121 through 127 have been reserved in the
+Control Change message for the channel mode messages.
+</p><p></p><p></p><ul>
+<li> Channel mode messages determine how an instrument
+will process MIDI voice messages.
+</li></ul>
+<p>
+</p><pre>1st Data Byte      Description                Meaning of 2nd Data Byte
+-------------   ----------------------        ------------------------
+     79        Reset all  controllers            None; set to 0
+     7A        Local control                     0 = off; 127  = on
+     7B        All notes off                     None; set to 0
+     7C        Omni mode off                     None; set to 0
+     7D        Omni mode on                      None; set to 0
+     7E        Mono mode on (Poly mode off)      **
+     7F        Poly mode on (Mono mode off)      None; set to 0
+</pre>
+<p>** if value = 0 then the number of channels used is determined by
+the receiver; all other values set a specific number of channels,
+beginning with the current basic channel.
+</p><p></p><p><b>B. System Messages:</b>
+</p><p></p><ul>
+<li> System messages carry information that is not channel specific,
+such as timing signal for synchronization,
+positioning information in pre-recorded MIDI sequences, and
+detailed setup information for the destination device.
+</li></ul>
+<p><i>B.1. System real-time messages:</i>
+</p><p></p><ul>
+<li> messages related to synchronization
+</li></ul>
+<p></p><pre>System Real-Time Message         Status Byte 
+------------------------         -----------
+Timing Clock                         F8
+Start Sequence                       FA
+Continue Sequence                    FB
+Stop Sequence                        FC
+Active Sensing                       FE
+System Reset                         FF
+</pre>
+<p></p><p><i>B.2. System common messages:</i>
+</p><p></p><ul>
+<li> contain the following unrelated messages
+</li></ul>
+<p></p><pre>System Common Message   Status Byte      Number of Data Bytes
+---------------------   -----------      --------------------
+MIDI Timing Code            F1                   1
+Song Position Pointer       F2                   2
+Song Select                 F3                   1
+Tune Request                F6                  None
+</pre>
+<p></p><p><i>B.3. System exclusive message:</i>
+</p><p></p><ul>
+<li> (a) Messages
+related to things that cannot be standardized, (b) addition to the original MIDI
+specification.
+</li><li> It is just a stream of bytes, all with their
+high bits set to 0, bracketed by a pair of system exclusive start
+and end messages (F0 and  F7).
+</li></ul>
+<p>
+</p><p></p><hr>
+<!--Navigation Panel-->
+<a name="tex2html2405" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">
+<img width="37" height="24" align="BOTTOM" border="0" alt="next" src="./MIDI Messages_files/next_motif.gif"></a> 
+<a name="tex2html2403" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node155.html">
+<img width="26" height="24" align="BOTTOM" border="0" alt="up" src="./MIDI Messages_files/up_motif.gif"></a> 
+<a name="tex2html2397" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node157.html">
+<img width="63" height="24" align="BOTTOM" border="0" alt="previous" src="./MIDI Messages_files/previous_motif.gif"></a>   
+<br>
+<b> Next:</b> <a name="tex2html2406" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node159.html">General MIDI</a>
+<b> Up:</b> <a name="tex2html2404" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node155.html">Introduction to MIDI (Musical</a>
+<b> Previous:</b> <a name="tex2html2398" href="https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node157.html">Hardware Aspects of MIDI</a>
+<!--End of Navigation Panel-->
+<address>
+<i>Dave Marshall</i>
+<br><i>10/4/2001</i>
+</address>
+
+
+</body></html>

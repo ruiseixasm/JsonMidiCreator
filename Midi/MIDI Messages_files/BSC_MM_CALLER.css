@@ -1,0 +1,49 @@
+
+SMALL.TINY		{ font-size : xx-small }
+SMALL.SCRIPTSIZE	{ font-size : xx-small }
+SMALL.FOOTNOTESIZE	{ font-size : x-small  }
+SMALL.SMALL		{ font-size : small    }
+BIG.LARGE		{ font-size : large    }
+BIG.XLARGE		{ font-size : x-large  }
+BIG.XXLARGE		{ font-size : xx-large }
+BIG.HUGE		{ font-size : xx-large }
+BIG.XHUGE		{ font-size : xx-large }
+
+BLOCKQUOTE { FONT-FAMILY: Courier, monospace }
+
+BODY {
+  background: url(/Images/comscbg.gif) repeat-y white;
+ margin-left: 1.2in;
+  FONT-WEIGHT: normal;
+}
+
+ADDRESS { TEXT-INDENT: 0in}
+
+
+BR { TEXT-INDENT: 0.0in}
+
+CITE { FONT-VARIANT: normal }
+
+DD { FONT-WEIGHT: normal }
+
+DT { FONT-WEIGHT: bold }
+
+EM { FONT-WEIGHT: bold }
+
+H1 { FONT-STYLE: normal;
+      TEXT-INDENT: 0in}
+
+H2 { FONT-STYLE: normal }
+
+H3 { FONT-VARIANT: normal }
+
+P {  TEXT-INDENT: 0.0in;
+      FONT-VARIANT: normal }
+
+
+LI {  TEXT-INDENT: 0.0in}
+
+HR {TEXT-INDENT: 0.0in}
+
+STRONG { FONT-WEIGHT: bold }
+

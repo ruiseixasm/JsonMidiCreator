@@ -2153,7 +2153,6 @@ class Program(Midi):
         A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
     def __init__(self, *parameters):
-        import operand_generic as og
         self._bank: int = Bank()._unit
         super().__init__(1, *parameters)         # By default is 1 the Piano
 
@@ -2191,7 +2190,6 @@ class Program(Midi):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Program():

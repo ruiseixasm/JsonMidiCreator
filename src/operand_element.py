@@ -2180,11 +2180,77 @@ class BankSelect(ControlChange):
         self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
         return self
 
-class AllNotesOff(ControlChange):
+
+    # Channel mode messages determine how an instrument will process MIDI voice messages.
+
+    # 1st Data Byte      Description                Meaning of 2nd Data Byte
+    # -------------   ----------------------        ------------------------
+    #     79        Reset all  controllers            None; set to 0
+    #     7A        Local control                     0 = off; 127  = on
+    #     7B        All notes off                     None; set to 0
+    #     7C        Omni mode off                     None; set to 0
+    #     7D        Omni mode on                      None; set to 0
+    #     7E        Mono mode on (Poly mode off)      **
+    #     7F        Poly mode on (Mono mode off)      None; set to 0
+
+    # ** if value = 0 then the number of channels used is determined by the receiver;
+    #   all other values set a specific number of channels, beginning with the current basic channel.
+
+class NoneValue(ControlChange):
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(123)      # Control Change Number (CC): 123   (Data Byte 1)
-        self._value = 0                             # Value Byte: 0                     (Data Byte 2)
+        self._value = 0                     # None
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._value = 0                     # None
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        return self
+
+class ResetAllControllers(NoneValue):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(121)  # 0x79
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(121)  # 0x79
+        return self
+
+class LocalControl(ControlChange):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(121)  # 0x7A
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(121)  # 0x7A
+        return self
+
+class AllNotesOff(NoneValue):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(123)  # Control Change Number (CC): 123   (Data Byte 1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2194,13 +2260,66 @@ class AllNotesOff(ControlChange):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         super().__lshift__(operand)
         self._controller << ou.Number(123)
-        self._value = 0
         return self
 
-    def __iadd__(self, operand: any) -> Self:
+class OmniModeOff(NoneValue):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(124)  # 0x7C
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(124)  # 0x7C
         return self
 
-    def __isub__(self, operand: any) -> Self:
+class OmniModeOn(NoneValue):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(125)  # 0x7D
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(125)  # 0x7D
+        return self
+
+class MonoModeOn(ControlChange):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(126)  # 0x7E
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(126)  # 0x7E
+        return self
+
+class MonoModeOff(NoneValue):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << ou.Number(127)  # 0x7F
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << ou.Number(127)  # 0x7F
         return self
 
 
