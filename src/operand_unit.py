@@ -2128,7 +2128,7 @@ class Program(Midi):
         A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
     def __init__(self, *parameters):
-        self._bank: int = Bank()._unit          # 0 means no Bank selected
+        self._bank: int = Bank(0)._unit         # 0 means no Bank selected
         super().__init__(1, *parameters)        # By default is 1 the Piano
 
     def __eq__(self, other: any) -> bool:
@@ -2378,8 +2378,10 @@ class Value(Midi):
     """
     pass
 
-class Bank(Value):   # Value of 0 means no Bank selected
-    pass
+class Bank(Value):   # Value of 0 means no Bank selected because Banks are 1 based
+    def __init__(self, *parameters):
+        self._bank: int = Bank()._unit          # 0 means no Bank selected
+        super().__init__(1, *parameters)        # By default is 1 the Bank "A"
 
 class Number(Midi):
     """`Unit -> Midi -> Number`
