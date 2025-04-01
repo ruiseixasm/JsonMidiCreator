@@ -389,7 +389,6 @@ if TYPE_CHECKING:
 
 class Playlist(Data):
     def __init__(self, *parameters):
-        import operand_generic as og
         super().__init__([])
         self._track_name: str = "Playlist 1"
         for single_parameter in parameters: # Faster than passing a tuple
@@ -408,8 +407,6 @@ class Playlist(Data):
         >>> play_list >> Play()
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
-        import operand_rational as ra
-        import operand_generic as og
         match operand:
             case DataSource():
                 match operand._data:
@@ -427,11 +424,22 @@ class Playlist(Data):
             if other is None:
                 return True
             return False
+        # Self list stript of the global clock
+        self_net_playlist: list[dict] = [
+            single_dict for single_dict in self._data
+            if isinstance(single_dict, dict) and "clock" not in single_dict
+        ]
         match other:
             case list():
-                return self._data == other
+                return self_net_playlist == other
+            case Playlist():
+                other_net_playlist: list[dict] = [
+                    single_dict for single_dict in other._data
+                    if isinstance(single_dict, dict) and "clock" not in single_dict
+                ]
+                return self_net_playlist == other_net_playlist
             case o.Operand():
-                return self._data == other.getPlaylist()
+                return self_net_playlist == other.getPlaylist()
         return super().__eq__(other)
 
     def start(self) -> float:
@@ -452,7 +460,7 @@ class Playlist(Data):
             return finish_position_ms
         return 0.0
   
-    def getPlaylist(self, position: 'Position' = None) -> list:
+    def getPlaylist(self, position: 'Position' = None) -> list[dict]:
         import operand_rational as ra
         if isinstance(self._data, list) and len(self._data) > 0:
             if not isinstance(position, ra.Position):
@@ -486,8 +494,6 @@ class Playlist(Data):
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
         import operand_element as oe
-        import operand_rational as ra
-        import operand_generic as og
         
         if isinstance(operand, Parameters):
             for single_parameter in operand._data:
@@ -596,9 +602,7 @@ class Playlist(Data):
     def shallow_playlist_list_copy(playlist: list[dict]) -> list[dict]:
         if isinstance(playlist, list):
             return [
-                single_dict.copy()
-                    for single_dict in playlist
-                    if isinstance(single_dict, dict) and "time_ms" in single_dict
+                single_dict.copy() for single_dict in playlist if isinstance(single_dict, dict)
             ]
         return []
 
