@@ -2208,7 +2208,6 @@ class Program(Midi):
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case og.BankSelect():           self._bank_select = operand._data
-                    case None:                      self._bank_select = None
                     case Bank():                    self._bank = operand._data._unit
                     case _:                         super().__lshift__(operand)
             case str():
@@ -2219,8 +2218,6 @@ class Program(Midi):
                     self.nameToNumber(operand)
             case og.BankSelect():
                 self._bank_select << operand
-            case None:
-                self._bank_select = None
             case Bank():
                 self._bank = operand._unit
             case _:
