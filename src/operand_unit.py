@@ -2132,6 +2132,12 @@ class Program(Midi):
         self._bank_select: og.BankSelect = None
         super().__init__(1, *parameters)         # By default is 1 the Piano
 
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Program):
+            return super().__eq__(other) and self._bank_select == other._bank_select
+        return super().__eq__(other)
+    
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
@@ -2147,8 +2153,21 @@ class Program(Midi):
                 return self._bank_select.copy()
             case _:                     return super().__mod__(operand)
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["bank_select"] = self.serialize( self._bank_select )
+        return serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "bank_select" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._bank_select = self.deserialize( serialization["parameters"]["bank_select"] )
+        return self
+        
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         import operand_generic as og
