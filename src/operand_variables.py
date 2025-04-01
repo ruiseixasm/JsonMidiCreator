@@ -252,6 +252,10 @@ class Digitakt(Variables):
     fx_control_ch   = ou.Channel(9)
     auto_channel    = ou.Channel(10)
 
+    def program(pattern: int, bank: str = "A") -> ou.Program:
+        bank = bank.strip().upper()
+        return ou.Program(pattern + Digitakt.bank_pattern[bank][0])
+
     bank_pattern: dict[str, list[int]] = {
         # The first column is just for offset purposes
         "A": list(range(0 * 16, 1 * 16 + 1)),   # 1 to 16
