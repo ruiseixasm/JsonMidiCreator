@@ -875,10 +875,23 @@ class BankSelect(Controller):
         super().__init__()
         # 0 -  Bank Select (MSB)
         # 32 - Bank Select (LSB)
-        self._number_msb = 0
-        self._lsb = 32
+        self._number_msb    = 0
+        self._lsb           = 32
+        self._high          = True
 
+    # CHAINABLE OPERATIONS
 
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                pass    # Avoids changing of any self parameter
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ou.MSB() | ou.Number() | str() | ou.LSB() \
+                | ou.NRPN() | ou.HighResolution() | bool() | dict():
+                pass    # Avoids changing of any self parameter
+        return self
 
 
 
