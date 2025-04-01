@@ -886,18 +886,6 @@ class BankSelect(Controller):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Controller():
-                super().__lshift__(operand)
-                # Avoids the usage of other upper class to set it's arguments indirectly
-                self._number_msb    = 0
-                self._lsb           = 32
-                self._nrpn          = False
-            case od.DataSource():
-                pass    # Avoids changing of any self parameter
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case ou.MSB() | ou.Number() | str() | ou.LSB() | ou.NRPN():
-                pass    # Avoids changing of any self parameter
             case ou.HighResolution():
                 self._high = bool(operand._unit)
             case bool():   # bool is a subclass of int !!
@@ -907,6 +895,10 @@ class BankSelect(Controller):
                     self._high = bool(operand["HIGH"])
             case _:
                 super().__lshift__(operand)
+        # Avoids the usage of other upper class to set it's arguments indirectly
+        self._number_msb    = 0
+        self._lsb           = 32
+        self._nrpn          = False
         return self
 
 
