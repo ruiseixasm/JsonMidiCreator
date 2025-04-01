@@ -20,5 +20,9 @@ defaults << Blofeld.device << ClockedDevices(Blofeld.device) << Tempo(110)
 # Set a sound of a given Bank
 ProgramChange(Blofeld.program(95, "B")) >> Pv
 
-
+# Plays a Major chords for each Bank first Sound
+for bank in range(8):
+    program = Blofeld.program(1, bank)
+    ProgramChange(program) + Chord() >> P
+    
 

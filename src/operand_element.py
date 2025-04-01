@@ -2160,6 +2160,29 @@ class ControlChange(Automation):
             case _:
                 return super().__isub__(operand)
 
+class AllNotesOff(ControlChange):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._controller << og.Controller(123)
+        self._value = 0
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        self._controller << og.Controller(123)
+        self._value = 0
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        return self
+
 
 class PitchBend(Automation):
     def __init__(self, *parameters):
