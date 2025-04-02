@@ -2901,13 +2901,6 @@ class Panic(Element):
         # Cycles all channels, from 1 to 16
         for channel in range(1, 17):
 
-            # Starts by turning off All keys for all pitches, from 0 to 127
-            for pitch in range(128):
-                note_on_off_playlist: list[dict] = Note(ou.Channel(channel), og.Pitch(float(pitch))).getPlaylist(midi_track, position_beats, False)
-                # Set Note On speed to 0
-                note_on_off_playlist[0]["midi_message"]["data_byte_2"] = 0
-                self_playlist.extend(note_on_off_playlist)
-
             self_playlist.extend(AllNotesOff(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
             self_playlist.extend(PitchBend(ou.Channel(channel), 0).getPlaylist(midi_track, position_beats, False))
 
@@ -2918,6 +2911,13 @@ class Panic(Element):
             self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(11), ou.Value(127)).getPlaylist(midi_track, position_beats, False))    # 11 - Expression
 
             self_playlist.extend(ResetAllControllers(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
+
+            # Starts by turning off All keys for all pitches, from 0 to 127
+            for pitch in range(128):
+                note_on_off_playlist: list[dict] = Note(ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16))).getPlaylist(midi_track, position_beats, False)
+                # Set Note On speed to 0
+                note_on_off_playlist[0]["midi_message"]["data_byte_2"] = 0
+                self_playlist.extend(note_on_off_playlist)
 
 
         return self_playlist
