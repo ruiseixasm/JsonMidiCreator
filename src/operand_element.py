@@ -2256,7 +2256,7 @@ class ResetAllControllers(NoneValue):
 class LocalControl(ControlChange):
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(121)  # 0x7A
+        self._controller << ou.Number(122)  # 0x7A
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2265,7 +2265,7 @@ class LocalControl(ControlChange):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         super().__lshift__(operand)
-        self._controller << ou.Number(121)  # 0x7A
+        self._controller << ou.Number(122)  # 0x7A
         return self
 
 class AllNotesOff(NoneValue):
@@ -2884,11 +2884,13 @@ class ProgramChange(Element):
 
 
 class Panic(Element):
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
+        # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
-    
+        
         if devices_header:
             self_playlist.append(
                 {
@@ -2896,42 +2898,31 @@ class Panic(Element):
                 }
             )
 
-        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
-        self_playlist.extend(PitchBend(0).getPlaylist(midi_track, position_beats, False))
-        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
-        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
-        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
+        # Cycles all channels, from 1 to 16
+        for channel in range(1, 17):
 
-        on_time_ms = o.minutes_to_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+            # Starts by turning off All keys for all pitches, from 0 to 127
+            for pitch in range(128):
+                note_on_off_playlist: list[dict] = Note(ou.Channel(channel), og.Pitch(float(pitch))).getPlaylist(midi_track, position_beats, False)
+                # Set Note On speed to 0
+                note_on_off_playlist[0]["midi_message"]["data_byte_2"] = 0
+                self_playlist.extend(note_on_off_playlist)
 
-        # Midi validation is done in the JsonMidiPlayer program
-        for key_note_midi in range(128):
-            self_playlist.extend([
-                {   # Needs the Note On first in order to the following Note Off not be considered redundant
-                    "time_ms": on_time_ms,
-                    "midi_message": {
-                        "status_byte": 0x90 | 0x0F & self._channel - 1,
-                        "data_byte_1": key_note_midi,
-                        "data_byte_2": 0    # 0 means it will result in no sound
-                    }
-                },
-                {
-                    "time_ms": on_time_ms,
-                    "midi_message": {
-                        "status_byte": 0x80 | 0x0F & self._channel - 1,
-                        "data_byte_1": key_note_midi,
-                        "data_byte_2": 0
-                    }
-                }
-            ])
+            self_playlist.extend(AllNotesOff(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
+            self_playlist.extend(PitchBend(ou.Channel(channel), 0).getPlaylist(midi_track, position_beats, False))
 
-        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(midi_track, position_beats, False))
-        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(midi_track, position_beats, False))
+            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(10), ou.Value(64)).getPlaylist(midi_track, position_beats, False))     # 10 - Pan
+            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(64), ou.Value(0)).getPlaylist(midi_track, position_beats, False))      # 64 - Pedal (sustain)
+            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(1), ou.Value(0)).getPlaylist(midi_track, position_beats, False))       # 1 - Modulation
+            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(7), ou.Value(100)).getPlaylist(midi_track, position_beats, False))     # 7 - Volume
+            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(11), ou.Value(127)).getPlaylist(midi_track, position_beats, False))    # 11 - Expression
+
+            self_playlist.extend(ResetAllControllers(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
+
 
         return self_playlist
 
-    # CHAINABLE OPERATIONS
+
 
 
 
