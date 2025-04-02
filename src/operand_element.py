@@ -279,7 +279,7 @@ class Element(o.Operand):
                 self._duration_notevalue    = operand._duration_notevalue
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                self._staff_reference       = operand._staff_reference
+                self.set_staff_reference(operand._staff_reference)  # Has to use the method in order to propagate setting
 
             case od.DataSource():
                 match operand._data:
@@ -2808,8 +2808,9 @@ class ProgramChange(Element):
                 }
             )
 
+        # Has to pass self first to set equivalent parameters and staff
         self_playlist.extend(
-            BankSelect(self._program._bank).getPlaylist(devices_header=False)
+            BankSelect(self, self._program._bank).getPlaylist(devices_header=False)
         )
 
         self_playlist.append(

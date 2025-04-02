@@ -17,11 +17,11 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
-defaults += Device("Blofeld")
+defaults += Device("Virtual")
 start_program = ProgramChange(Blofeld.program(4, "A"))
 reset_program = ProgramChange(Blofeld.program(1, "B"))
 # Devices to sync
-defaults << ClockedDevices("Blofeld")
+# defaults << ClockedDevices("Blofeld")
 
 two_notes = Note() / 2 << Iterate(step=2)**Beats()
 
