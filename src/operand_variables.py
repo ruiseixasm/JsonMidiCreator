@@ -64,10 +64,10 @@ class Blofeld(Variables):
     }
 
 
-    def controller(parameter: str = "Cutoff", group: str = "FILTER 1") -> og.Controller:
+    def control_change(parameter: str = "Cutoff", group: str = "FILTER 1") -> oe.ControlChange:
         parameter = parameter.strip()
         group = group.strip().upper()
-        return og.Controller(Blofeld.midi_cc[group][parameter])
+        return oe.ControlChange(Blofeld.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
@@ -957,10 +957,10 @@ class UnoSynth(Variables):
 
     device          = od.Device("UNO")
 
-    def controller(parameter: str = "Cutoff", group: str = "FILTER") -> og.Controller:
+    def control_change(parameter: str = "Cutoff", group: str = "FILTER") -> oe.ControlChange:
         parameter = parameter.strip()
         group = group.strip().upper()
-        return og.Controller(UnoSynth.midi_cc[group][parameter])
+        return oe.ControlChange(UnoSynth.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
