@@ -1945,7 +1945,7 @@ class ControlChange(Automation):
             case og.Controller():       return self._controller.copy()
             case int():                 return self._value
             case ou.Value():            return ou.Value(self._value)
-            case ou.Number() | ou.LSB():
+            case ou.Number() | ou.LSB() | dict():
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
 
