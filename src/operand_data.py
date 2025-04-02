@@ -706,14 +706,14 @@ class Process(Data):
             case Playlist():
 
                 operand_playlist = operand.getPlaylist()
-
                 playlist_time_ms: list[dict] = [
                     dict_time_ms for dict_time_ms in operand_playlist
                     if "time_ms" in dict_time_ms
                 ]
 
                 if playlist_time_ms:
-                    last_time_ms: float = playlist_time_ms[-1]["time_ms"]
+                    last_time_ms: float = \
+                        sorted(playlist_time_ms, key=lambda x: x['time_ms'])[-1]["time_ms"]
                     # By default, time classes use the defaults Staff
                     single_measure_ms: float = o.minutes_to_time_ms( ra.Measures(1).getMillis_rational() )
                     total_measures: int = last_time_ms // single_measure_ms
