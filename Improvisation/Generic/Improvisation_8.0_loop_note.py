@@ -18,15 +18,22 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 defaults += Device("Blofeld")
-start_program = ProgramChange(Blofeld.program(4, "A"))
-reset_program = ProgramChange(Blofeld.program(1, "B"))
-# Devices to sync
-# defaults << ClockedDevices("Blofeld")
+start_program = ProgramChange(Blofeld.program(4, "A")) >> P
+# Devices to sync that also guarantee the total playing up to the end of Measures
+# Note that Rest has no impact im prolonging the playing time without the global Clock on
+defaults << ClockedDevices("Blofeld")
 
 two_notes = Note() / 2 << Iterate(step=2)**Beats()
+possibilities = Loop(1, 2, 3, 4, 5, 6, 7)**Degree()
 
-full_clip = start_program + two_notes * 2 * Rest() * reset_program
-full_clip % Length() % float() >> Pr
-full_clip >> Export("json/_Export_8.0_loop_note.json") >> Pv
 
+for degree in range(1, 8):  # 7 degrees in total
+    degree >> Pr
+    two_notes >> Nth(2) << degree
+    try_clip = two_notes * 2 * Rest()
+    try_clip >> P
+    
+
+
+reset_program = ProgramChange(Blofeld.program(1, "B")) > P
 
