@@ -2914,10 +2914,10 @@ class Panic(Element):
 
             # Starts by turning off All keys for all pitches, from 0 to 127
             for pitch in range(128):
-                note_on_off_playlist: list[dict] = Note(ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16))).getPlaylist(midi_track, position_beats, False)
-                # Set Note On speed to 0
-                note_on_off_playlist[0]["midi_message"]["data_byte_2"] = 0
-                self_playlist.extend(note_on_off_playlist)
+                self_playlist.extend(
+                    Note(ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16)), ou.Velocity(0))
+                        .getPlaylist(midi_track, position_beats, False)
+                )
 
 
         return self_playlist
