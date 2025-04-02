@@ -340,7 +340,6 @@ class Container(o.Operand):
     def upper(self, level: int = None) -> Self:
         if self._upper_container is self:
             return self
-        
         if isinstance(level, int):
             if level == 0:
                 return self
@@ -348,8 +347,7 @@ class Container(o.Operand):
                 level -= 1
             else:
                 return self
-        else:
-            return self._upper_container.upper(level)
+        return self._upper_container.upper(level)
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
