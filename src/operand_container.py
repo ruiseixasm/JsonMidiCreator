@@ -341,8 +341,6 @@ class Container(o.Operand):
         if self._upper_container is self:
             return self
         if isinstance(level, int):
-            if level == 0:
-                return self
             if level > 0:
                 level -= 1
             else:
