@@ -15,35 +15,19 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults % Devices() % list() >> Print()
-defaults += Digitakt.device
-defaults % Devices() % list() >> Print()
-
-# Send Clock signal to the Digitakt
-defaults % ClockedDevices() % list() >> Print()
-defaults << ClockedDevices(Digitakt.device)
-# defaults << ClockedDevices("loopMIDI", "VMPK", "FLUID")
-defaults % ClockedDevices() % list() >> Print()
 
 
-long_rest = Rest(4/1)
-long_element = Element(4/1)
+# Devices to sync
+defaults << ClockedDevices("Blofeld")
+defaults += Device("Blofeld")
 
-long_rest % Length() % float() >> Print()
-long_element % Length() % float() >> Print()
+ProgramChange(Blofeld.program(4)) >> P
 
-long_rest >> P
-time.sleep(0.5)
-long_element >> P
+two_notes = Note() / 2 << Iterate(step=2)**Beats()
 
-half_measure_element = Element(1/2)
-time.sleep(0.5)
-half_measure_element >> P
+two_notes * 2 >> Rest() >> Pv
 
 
-defaults -= Digitakt.device
-defaults % Devices() % list() >> Print()
+# AllNotesOff() >> Pv
+ProgramChange(Blofeld.program(1)) >> P
 
-
-defaults << ClockedDevices()
-AllNotesOff() >> Pv >> Export("json/_Export_all_notes_off.json")
