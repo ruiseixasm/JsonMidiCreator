@@ -337,6 +337,20 @@ class Container(o.Operand):
             self << single_parameter
         return self
     
+    def upper(self, level: int = None) -> Self:
+        if self._upper_container is self:
+            return self
+        
+        if isinstance(level, int):
+            if level == 0:
+                return self
+            if level > 0:
+                level -= 1
+            else:
+                return self
+        else:
+            return self._upper_container.upper(level)
+
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
         Sorts the self list based on a given type of parameter.

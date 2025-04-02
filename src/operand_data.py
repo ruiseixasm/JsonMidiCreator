@@ -886,6 +886,16 @@ class Erase(Process):
             return operand.erase(*self._data)
         return super().__rrshift__(operand)
 
+class Upper(Process):
+    def __init__(self, level: int = None):
+        super().__init__(level)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.upper(self._data)
+        return super().__rrshift__(operand)
+
 class Fit(Process):
     
     from operand_rational import Length
