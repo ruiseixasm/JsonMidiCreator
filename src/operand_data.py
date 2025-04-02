@@ -610,11 +610,10 @@ class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__()
         if isinstance(file_name, str):
-            # Filter out the JsonMidiPlayer global clock
-            self._data = [
-                single_dict for single_dict in ([] if file_name is None else c.loadJsonMidiPlay(file_name))
-                if isinstance(single_dict, dict) and "clock" not in single_dict
-            ]
+            self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
+            if self._data and "clock" in self._data[0]:
+                # Remove "clock" header
+                self._data.pop(0)
 
 
 class Device(Data):
