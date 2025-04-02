@@ -2755,7 +2755,8 @@ class PolyAftertouch(Aftertouch):
 
 class ProgramChange(Element):
     def __init__(self, *parameters):
-        self._program: ou.Program = ou.Program("Piano")
+        self._program: int  = 1
+        self._bank: ou.Bank = ou.Bank(0)
         super().__init__(*parameters)
 
     def program(self, program: int | str = "Piano") -> Self:
@@ -2777,10 +2778,12 @@ class ProgramChange(Element):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():      return self._program
+                    case ou.Program():      return operand._data << self._program
+                    case ou.Bank():         return self._bank
                     case _:                 return super().__mod__(operand)
-            case int():             return self._program % int()
-            case ou.Program():      return self._program.copy()
+            case int():             return self._program
+            case ou.Program():      return ou.Program(self._program)
+            case ou.Bank():         return self._bank.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2788,7 +2791,7 @@ class ProgramChange(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._program == other._program
+                    and self._program == other._program and self._bank == other._bank
             case _:
                 return super().__eq__(other)
     
@@ -2808,17 +2811,18 @@ class ProgramChange(Element):
                 }
             )
 
-        # Has to pass self first to set equivalent parameters like position and staff
-        self_playlist.extend(
-            BankSelect(self, self._program._bank).getPlaylist(devices_header=False)
-        )
+        if self._bank > 0:
+            # Has to pass self first to set equivalent parameters like position and staff
+            self_playlist.extend(
+                BankSelect(self, self._bank).getPlaylist(devices_header=False)
+            )
 
         self_playlist.append(
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xC0 | 0x0F & self._channel - 1,
-                    "data_byte": self._program._unit - 1
+                    "data_byte": self._program - 1
                 }
             }
         )
@@ -2831,22 +2835,24 @@ class ProgramChange(Element):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
-        self_midilist[0]["program"]     = self._program._unit
+        self_midilist[0]["program"]     = self._program - 1
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["program"] = self.serialize( self._program )
+        serialization["parameters"]["program"]  = self.serialize( self._program )
+        serialization["parameters"]["bank"]     = self.serialize( self._bank )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "program" in serialization["parameters"]):
+            "program" in serialization["parameters"] and "bank" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program = self.deserialize( serialization["parameters"]["program"] )
+            self._program   = self.deserialize( serialization["parameters"]["program"] )
+            self._bank      = self.deserialize( serialization["parameters"]["bank"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -2854,13 +2860,19 @@ class ProgramChange(Element):
         match operand:
             case ProgramChange():
                 super().__lshift__(operand)
-                self._program = operand._program
+                self._program   = operand._program
+                self._bank      << operand._bank
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():          self._program = operand._data
+                    case ou.Program():          self._program = operand._data._unit
+                    case ou.Bank():             self._bank = operand._data
                     case _:                     super().__lshift__(operand)
-            case ou.Program() | int() | str():
-                self._program << operand
+            case int():
+                self._program = operand
+            case ou.Program() | str():
+                self._program = ou.Program(operand)._unit
+            case ou.Bank():
+                self._bank << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -2868,8 +2880,10 @@ class ProgramChange(Element):
     def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | ou.Program():
+            case int():
                 self._program += operand  # Specific and compounded parameter
+            case ou.Program():
+                self += operand._unit
             case _:
                 return super().__iadd__(operand)
         return self
@@ -2877,8 +2891,10 @@ class ProgramChange(Element):
     def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | ou.Program():
+            case int():
                 self._program -= operand  # Specific and compounded parameter
+            case ou.Program():
+                self -= operand._unit
             case _:
                 return super().__isub__(operand)
         return self
