@@ -1495,7 +1495,7 @@ class Staff(Generic):
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         import operand_element as oe
-        return [{ "time_ms": oe.Element.get_time_ms(self.getMinutes(position)) }]
+        return [{ "time_ms": o.minutes_to_time_ms(self.getMinutes(position)) }]
 
 
     def getSerialization(self) -> dict:

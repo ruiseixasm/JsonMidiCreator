@@ -213,7 +213,7 @@ class Element(o.Operand):
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         return [
                 {
-                    "time_ms": self.get_time_ms(self_position_min)
+                    "time_ms": o.minutes_to_time_ms(self_position_min)
                 }
             ]
 
@@ -467,11 +467,6 @@ class Element(o.Operand):
     def get_beats_minutes(self, beats: Fraction) -> Fraction:
         return self._staff_reference.getMinutes( ra.Beats(beats) )
 
-    @staticmethod
-    def get_time_ms(minutes: Fraction) -> float:
-        # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
-        return round(float(minutes * 60_000), 3)
-
 
 class Group(Element):
     def __init__(self, *parameters):
@@ -662,7 +657,7 @@ class Clock(Element):
                     # First quarter note pulse (total 1 in 24 pulses per quarter note)
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(self_position_min),
+                            "time_ms": o.minutes_to_time_ms(self_position_min),
                             "midi_message": {
                                 "status_byte": 0xFB     # Continue Track
                             }
@@ -674,7 +669,7 @@ class Clock(Element):
                     # First quarter note pulse (total 1 in 24 pulses per quarter note)
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(self_position_min),
+                            "time_ms": o.minutes_to_time_ms(self_position_min),
                             "midi_message": {
                                 "status_byte": 0xFA     # Start Track
                             }
@@ -687,7 +682,7 @@ class Clock(Element):
                 for clock_pulse in range(1, total_clock_pulses):
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_min * clock_pulse),
+                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * clock_pulse),
                             "midi_message": {
                                 "status_byte": 0xF8     # Timing Clock
                             }
@@ -697,7 +692,7 @@ class Clock(Element):
                 # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
-                        "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
+                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
                         "midi_message": {
                             "status_byte": 0xFC         # Stop Track
                         }
@@ -709,7 +704,7 @@ class Clock(Element):
                     # Resets the position back to 0
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
+                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
                             "midi_message": {
                                 "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
                                 "data_byte_1": 0,       # Reset
@@ -723,7 +718,7 @@ class Clock(Element):
                     # Sends a SysEx Stop Message
                     self_playlist.append(
                         {
-                            "time_ms": self.get_time_ms(single_pulse_duration_min * total_clock_pulses),
+                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
                             "midi_message": {
                                 "status_byte": 0xF0,    # Start of SysEx
                                 "data_bytes": [0x7F, 0x7F, 0x06, 0x01]  # Universal Stop command
@@ -887,7 +882,7 @@ class Note(Element):
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min),
+                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0x90 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
@@ -897,7 +892,7 @@ class Note(Element):
         )
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min + self_duration_min * self._gate),
+                "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * self._gate),
                 "midi_message": {
                     "status_byte": 0x80 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
@@ -918,7 +913,7 @@ class Note(Element):
             last_tied_note = self._staff_reference.get_tied_note(self_pitch)
             if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
                 # Extend last note
-                off_position_ms: float = self.get_time_ms(
+                off_position_ms: float = o.minutes_to_time_ms(
                     self.get_beats_minutes(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
                 )
                 last_tied_note["note_list"][1]["time_ms"] = off_position_ms
@@ -1968,7 +1963,7 @@ class ControlChange(Automation):
             return []
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        time_ms: float = self.get_time_ms(self_position_min)
+        time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -2413,7 +2408,7 @@ class PitchBend(Automation):
 
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min),
+                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xE0 | 0x0F & self._channel - 1,
                     "data_byte_1": lsb_midi,
@@ -2549,7 +2544,7 @@ class Aftertouch(Automation):
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min),
+                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xD0 | 0x0F & self._channel - 1,
                     "data_byte": self._pressure
@@ -2699,7 +2694,7 @@ class PolyAftertouch(Aftertouch):
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min),
+                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xA0 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
@@ -2819,7 +2814,7 @@ class ProgramChange(Element):
 
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(self_position_min),
+                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xC0 | 0x0F & self._channel - 1,
                     "data_byte": self._program._unit - 1
@@ -2907,7 +2902,7 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(midi_track, position_beats, False))
 
-        on_time_ms = self.get_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
+        on_time_ms = o.minutes_to_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # Midi validation is done in the JsonMidiPlayer program

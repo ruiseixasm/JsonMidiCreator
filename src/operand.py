@@ -160,6 +160,10 @@ def playlist_time_ms(playlist: list[dict]) -> list[dict]:
         if "time_ms" in single_dict
     ]
 
+def minutes_to_time_ms(minutes: Fraction) -> float:
+    # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
+    return round(float(minutes * 60_000), 3)
+
 
 # GLOBAL CLASSES
 

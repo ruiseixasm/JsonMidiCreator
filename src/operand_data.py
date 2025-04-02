@@ -704,7 +704,25 @@ class Process(Data):
                 playlist.extend( default_clock.getPlaylist(devices_header=False) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case Playlist():
-                playlist = operand.getPlaylist()
+
+                operand_playlist = operand.getPlaylist()
+
+                playlist_time_ms: list[dict] = [
+                    dict_time_ms for dict_time_ms in operand_playlist
+                    if "time_ms" in dict_time_ms
+                ]
+
+                if playlist_time_ms:
+                    last_time_ms: float = playlist_time_ms[-1]["time_ms"]
+                    # By default, time classes use the defaults Staff
+                    single_measure_ms: float = o.minutes_to_time_ms( ra.Measures(1).getMillis_rational() )
+                    total_measures: int = last_time_ms // single_measure_ms
+                    if last_time_ms > int(last_time_ms):
+                        total_measures += 1
+                    # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
+                    default_clock: oe.Clock = og.defaults % oe.Clock() << ra.Length(total_measures)
+                    playlist.extend( default_clock.getPlaylist(devices_header=False) )  # Clock Playlist
+                    playlist.extend( operand_playlist ) # Operand Playlist
 
         return playlist
 
