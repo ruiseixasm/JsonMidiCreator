@@ -17,7 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
-defaults += Device("Virtual")
+defaults += Device("Blofeld")
 start_program = ProgramChange(Blofeld.program(4, "A"))
 reset_program = ProgramChange(Blofeld.program(1, "B"))
 # Devices to sync

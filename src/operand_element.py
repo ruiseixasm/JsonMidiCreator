@@ -2808,7 +2808,7 @@ class ProgramChange(Element):
                 }
             )
 
-        # Has to pass self first to set equivalent parameters and staff
+        # Has to pass self first to set equivalent parameters like position and staff
         self_playlist.extend(
             BankSelect(self, self._program._bank).getPlaylist(devices_header=False)
         )
@@ -2902,21 +2902,23 @@ class Panic(Element):
         # Cycles all channels, from 1 to 16
         for channel in range(1, 17):
 
-            self_playlist.extend(AllNotesOff(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
-            self_playlist.extend(PitchBend(ou.Channel(channel), 0).getPlaylist(midi_track, position_beats, False))
+            # self needs to be given to each of these elements in order to preserve self parameters like position
 
-            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(10), ou.Value(64)).getPlaylist(midi_track, position_beats, False))     # 10 - Pan
-            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(64), ou.Value(0)).getPlaylist(midi_track, position_beats, False))      # 64 - Pedal (sustain)
-            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(1), ou.Value(0)).getPlaylist(midi_track, position_beats, False))       # 1 - Modulation
-            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(7), ou.Value(100)).getPlaylist(midi_track, position_beats, False))     # 7 - Volume
-            self_playlist.extend(ControlChange(ou.Channel(channel), ou.Number(11), ou.Value(127)).getPlaylist(midi_track, position_beats, False))    # 11 - Expression
+            self_playlist.extend(AllNotesOff(self, ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
+            self_playlist.extend(PitchBend(self, ou.Channel(channel), 0).getPlaylist(midi_track, position_beats, False))
 
-            self_playlist.extend(ResetAllControllers(ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
+            self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(10), ou.Value(64)).getPlaylist(midi_track, position_beats, False))  # 10 - Pan
+            self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(64), ou.Value(0)).getPlaylist(midi_track, position_beats, False))   # 64 - Pedal (sustain)
+            self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(1), ou.Value(0)).getPlaylist(midi_track, position_beats, False))    # 1 - Modulation
+            self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(7), ou.Value(100)).getPlaylist(midi_track, position_beats, False))  # 7 - Volume
+            self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(11), ou.Value(127)).getPlaylist(midi_track, position_beats, False)) # 11 - Expression
+
+            self_playlist.extend(ResetAllControllers(self, ou.Channel(channel)).getPlaylist(midi_track, position_beats, False))
 
             # Starts by turning off All keys for all pitches, from 0 to 127
             for pitch in range(128):
                 self_playlist.extend(
-                    Note(ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16)), ou.Velocity(0))
+                    Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16)), ou.Velocity(0))
                         .getPlaylist(midi_track, position_beats, False)
                 )
 
