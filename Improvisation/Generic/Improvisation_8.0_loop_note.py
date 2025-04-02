@@ -17,17 +17,16 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
+defaults += Device("Blofeld")
+start_program = ProgramChange(Blofeld.program(4, "A"))
+reset_program = ProgramChange(Blofeld.program(1, "B"))
 # Devices to sync
 defaults << ClockedDevices("Blofeld")
-defaults += Device("Blofeld")
-
-ProgramChange(Blofeld.program(4)) >> P
 
 two_notes = Note() / 2 << Iterate(step=2)**Beats()
 
-two_notes * 2 >> Rest() >> Pv
+full_clip = start_program + two_notes * 2 * Rest() * reset_program
+full_clip % Length() % float() >> Pr
+full_clip >> Export("json/_Export_8.0_loop_note.json") >> Pv
 
-
-# AllNotesOff() >> Pv
-ProgramChange(Blofeld.program(1)) >> P
 

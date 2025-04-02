@@ -1206,6 +1206,10 @@ class Clip(Composition):  # Just a container of Elements
                         if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
+                
+            case oe.Element():
+                self *= Clip(operand)
+
             case int():
                 if operand > 1:
                     if self._length_beats >= 0:
@@ -1239,11 +1243,6 @@ class Clip(Composition):  # Just a container of Elements
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 self *= self_repeating
-            case oe.Element():
-                next_position: ra.Position = self.finish()
-                self._items.append(
-                    operand.copy().set_staff_reference(self._staff) << next_position
-                )
             case od.Parameters():
                 for single_parameter in operand._data:
                     self *= od.ClipParameter(single_parameter)

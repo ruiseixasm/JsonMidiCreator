@@ -249,16 +249,18 @@ def test_rshift_container():
     note_clip = Clip(Note())
     assert note_clip[0] % Position() == 0.0
 
-    note_clip >> Note("E")
+    note_clip >> Note("E")  # Because note_clip is a Clip, element Note will be promoted to Clip too
     assert note_clip[0] != "E"
     assert note_clip[1] == "E"
-    assert note_clip[1] % Position() == Beats(1)
+    assert note_clip[1] % Position() == Measures(1)
 
     new_clip = Clip() >> note_clip >> note_clip
     assert new_clip.len() == 4
 
 
     # Part testing ###################################################
+    note_clip = Clip(Note(), Note("E")) << Iterate()**Beats() # A single Measure clip long!
+    note_clip % Length() % float() >> Pr
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
 
