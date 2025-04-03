@@ -1925,7 +1925,7 @@ class Clip(Composition):  # Just a container of Elements
                     height=0.5, color='green', edgecolor='black', linewidth=2)
     
         ax.set_xlabel("Time (Measures.Beats.Steps)")
-        ax.set_ylabel("Chromatic Key")
+        ax.set_ylabel("Chromatic Keys")
         ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
 
         # Set x-axis labels in 'Measure.Beat' format
