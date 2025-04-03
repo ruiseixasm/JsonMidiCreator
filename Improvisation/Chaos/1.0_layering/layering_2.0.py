@@ -27,9 +27,9 @@ defaults << ClockedDevices("Blofeld")
 iterations: list[int] = [-1, 2, 8]
 
 chaotic_calls: dict["str", dict] = {
-        "position": { "chaos": Chaos(150), "loops": 13 },
-        "duration": { "chaos": Chaos(300), "loops": 4 },
-        "degree":   { "chaos": Chaos(477), "loops": 9 },
+        "position": { "chaos": SinX(150), "loops": 5 },
+        "duration": { "chaos": SinX(300), "loops": -1 },
+        "degree":   { "chaos": SinX(455), "loops": 7 },
     }
 
 seed: Clip = Note() * 4 << Duration(1/8)
@@ -37,20 +37,19 @@ seed: Clip = Note() * 4 << Duration(1/8)
 for key, call in chaotic_calls.items():
     if call["loops"] >= 0:
         call["chaos"] *= call["loops"]
-        pick: int = call["chaos"] % int()
         match key:
             case "position":
-                seed << Nth(3)**Input(pick % 4)**Pick(7, 8, 9, 10)**Step()
+                seed << Nth(3)**Input(call["chaos"])**Choice(7, 8, 9, 10)**Step()
             case "duration":
-                seed << Nth(2, 4)**Input(pick % 8)**Pick(1/16, 1/8, 1/4, 1/2)**Duration()
+                seed << Nth(2, 4)**Input(call["chaos"])**Choice(1/16, 1/8, 1/4, 1/2)**Duration()
             case "degree":
-                seed << Nth(2, 4)**Input(pick % 8)**Pick(1, 4, 5, 6)**Degree()
+                seed << Nth(2, 4)**Input(call["chaos"])**Choice(1, 4, 5, 6)**Degree()
 
-seed * 4 >> Pv >> Save("json/_Save_Clip_layering_2.0.json")
+seed * 4 >> P >> Save("json/_Save_Clip_layering_2.0.json")
 
 defaults << ClockedDevices()
 AllNotesOff() + Blofeld.program_change(1, "A") >> P
 
 clip = Load("json/_Save_Clip_layering_2.0.json")
-clip >> Pv
+# clip >> Pv
 
