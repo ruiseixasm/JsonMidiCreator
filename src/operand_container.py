@@ -1883,20 +1883,22 @@ class Clip(Composition):  # Just a container of Elements
         import matplotlib.pyplot as plt
         import numpy as np
 
-        beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()
+        beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: float = ra.Duration(self, quantization).convertToLength() // float()
+        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
 
         notes_plotlist: list[dict] = [
             note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
         ]
-        last_position_off: float = max(note["position_off"] for note in notes_plotlist)
-        last_position_beat: int = int(last_position_off)
-        last_position_measure: int = last_position_beat // beats_per_measure * beats_per_measure + beats_per_measure
+        last_position_off: Fraction = max(note["position_off"] for note in notes_plotlist)
+        last_position_measures: Fraction = last_position_off / beats_per_measure
+        last_position_measure: int = int(last_position_measures)
+        if last_position_measure != last_position_measures:
+            last_position_measure += 1
 
         # Draw vertical grid lines based on beats and measures
-        grid_positions = np.arange(0.0, last_position_measure, quantization_beats)
-        measure_positions = np.arange(0.0, last_position_measure, beats_per_measure)
+        grid_positions = np.arange(0.0, float(last_position_measure * beats_per_measure), float(quantization_beats))
+        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure), float(beats_per_measure))
         
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
@@ -1915,7 +1917,7 @@ class Clip(Composition):  # Just a container of Elements
 
         # Plot notes
         for note in notes_plotlist:
-            ax.barh(y = note["pitch"], width = note["position_off"] - note["position_on"], left = note["position_on"], 
+            ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                     height=0.5, color='green', edgecolor='black', linewidth=2)
     
         ax.set_xlabel("Time (Measures.Beats)")
@@ -1923,7 +1925,7 @@ class Clip(Composition):  # Just a container of Elements
         ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
 
         # Set x-axis labels in 'Measure.Beat' format
-        beat_labels = [f"{int(pos // beats_per_measure) + 1}.{int(pos % beats_per_measure) + 1}" for pos in grid_positions]
+        beat_labels = [f"{int(pos // float(beats_per_measure)) + 1}.{int(pos % float(beats_per_measure)) + 1}" for pos in grid_positions]
         ax.set_xticks(grid_positions)
         ax.set_xticklabels(beat_labels, rotation=45)
 

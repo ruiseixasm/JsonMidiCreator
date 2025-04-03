@@ -881,8 +881,8 @@ class Note(Element):
         self_plotlist.append(
             {
                 "note": {
-                    "position_on": float(self._position_beats),
-                    "position_off": float(self._position_beats + self % ra.Length() // Fraction()),
+                    "position_on": self._position_beats,
+                    "position_off": self._position_beats + self % ra.Length() // Fraction(),
                     "pitch": int( self % og.Pitch() % float() ),
                     "channel": self._channel
                 }
