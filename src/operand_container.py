@@ -1869,6 +1869,14 @@ class Clip(Composition):  # Just a container of Elements
         import numpy as np
         from fractions import Fraction
 
+        just_notes_clip: Clip = self.empty_copy()
+        just_notes_clip._items = [
+            note_type for note_type in self._items if isinstance(note_type, oe.Note)
+        ]
+        just_notes_clip.decompose()    # In order to have just Notes
+        just_notes_list: list[oe.Note] = just_notes_clip._items
+
+
 
 
         return self
