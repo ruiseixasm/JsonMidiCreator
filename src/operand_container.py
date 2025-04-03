@@ -1867,7 +1867,6 @@ class Clip(Composition):  # Just a container of Elements
     def plot(self) -> Self:
         import matplotlib.pyplot as plt
         import numpy as np
-        from fractions import Fraction
 
         just_notes_clip: Clip = self.empty_copy()
         just_notes_clip._items = [
