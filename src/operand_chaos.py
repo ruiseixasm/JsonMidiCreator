@@ -146,6 +146,10 @@ class Chaos(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
     
+    # Pass trough method that always results in a Chaos (Self)
+    def __rshift__(self, operand: any) -> Self:
+        return super().__imul__(operand)
+
     # The @ operator in Python is used for matrix multiplication
     # Works in substitution of * without the subsequent self copy
     def __matmul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:

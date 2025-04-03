@@ -297,6 +297,8 @@ class Container(o.Operand):
                 return self
             case od.Process():
                 return operand.__rrshift__(self)
+            case ch.Chaos():
+                return self.shuffle(operand)
         return super().__rshift__(operand)
 
     # Pass trough operation as last resort
@@ -626,6 +628,8 @@ class Container(o.Operand):
             case os.Selection():
                 if operand != self:
                     self._items = []
+            case ch.Chaos():
+                return self.shuffle(operand.copy())
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
@@ -655,8 +659,6 @@ class Container(o.Operand):
             # Returns an altered Container with less info (truncated info)
             case od.Getter() | od.Process():
                 return self >> operand
-            case ch.Chaos():
-                return self.shuffle(operand)
             
             case tuple():
                 for single_operand in operand:
@@ -1123,6 +1125,9 @@ class Clip(Composition):  # Just a container of Elements
                 return self
             case od.Process():
                 return operand.__rrshift__(self)
+            case om.Mutation():
+                return operand.mutate(self)
+
         return super().__rshift__(operand)
 
 
@@ -1186,6 +1191,7 @@ class Clip(Composition):  # Just a container of Elements
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
+        import operand_mutation as om
         import operand_selection as os
         match operand:
             case Clip():
@@ -1247,6 +1253,9 @@ class Clip(Composition):  # Just a container of Elements
                 for single_parameter in operand._data:
                     self *= od.ClipParameter(single_parameter)
 
+            case om.Mutation():
+                return operand.copy().mutate(self)
+
             case os.Selection():
                 if operand != self:
                     self._items = []
@@ -1263,7 +1272,6 @@ class Clip(Composition):  # Just a container of Elements
         return self.__mul__(operand)
     
     def __itruediv__(self, operand: any) -> Self:
-        import operand_mutation as om
         match operand:
             case Clip():
                 if self._length_beats < 0:
@@ -1319,16 +1327,6 @@ class Clip(Composition):  # Just a container of Elements
             case od.Parameters():
                 for single_parameter in operand._data:
                     self /= od.ClipParameter(single_parameter)
-
-
-            # Returns an altered Clip with less info (truncated info)
-            case od.Getter() | od.Process():
-                return self >> operand
-
-            case ch.Chaos():
-                return self.shuffle(operand)
-            case om.Mutation():
-                return operand.copy().mutate(self)
 
             case tuple():
                 for single_operand in operand:
