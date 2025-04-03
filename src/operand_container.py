@@ -1902,6 +1902,11 @@ class Clip(Composition):  # Just a container of Elements
         beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
         measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
         
+
+        # Enable interactive mode (doesn't block the execution)
+        plt.ion()
+
+
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
             ax.axvline(measure_pos, color='black', linestyle='-', alpha=0.85, linewidth=1)  # Measure lines
@@ -1954,7 +1959,7 @@ class Clip(Composition):  # Just a container of Elements
         if block and pause == 0:
             plt.show(block=True)
         elif pause > 0:
-            plt.show(block=False)
+            plt.draw()
             plt.pause(pause)
         else:
             plt.show(block=False)
