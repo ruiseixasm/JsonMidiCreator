@@ -1890,8 +1890,8 @@ class Clip(Composition):  # Just a container of Elements
             ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
         # Get pitch range
-        min_pitch: int = int( min(note % og.Pitch() % float() for note in just_notes_list) )
-        max_pitch: int = int( max(note % og.Pitch() % float() for note in just_notes_list) )
+        min_pitch: int = int( min(note % og.Pitch() % float() for note in just_notes_list) ) // 12 * 12
+        max_pitch: int = int( max(note % og.Pitch() % float() for note in just_notes_list) ) // 12 * 12 + 12
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
@@ -1920,7 +1920,10 @@ class Clip(Composition):  # Just a container of Elements
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         plt.show()
-
+        # plt.show(block=False)
+        # # Keep script alive while plots are open
+        # while plt.get_fignums():  # Check if any figure is open
+        #     plt.pause(0.1)  # Pause to allow GUI event processing
 
         return self
 
