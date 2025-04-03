@@ -1934,7 +1934,7 @@ class Clip(Composition):  # Just a container of Elements
             for pos in beat_positions
         ]
         
-        ax.set_xticks(beat_positions)  # ✅ Only show measure & beat labels
+        ax.set_xticks(beat_positions)  # Only show measure & beat labels
         ax.set_xticklabels(beat_labels, rotation=45)
 
         chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
