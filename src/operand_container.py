@@ -966,6 +966,21 @@ class Clip(Composition):  # Just a container of Elements
         return position_beats
 
 
+    def getPlotlist(self, position: ra.Position = None) -> list[dict]:
+
+        position_beats: Fraction = self.get_position_beats(position)
+
+        self_plotlist: list[dict] = []
+    
+        self_plotlist.extend(
+            single_playlist
+                for single_element in self._items
+                for single_playlist in single_element.getPlotlist(self._midi_track, position_beats)
+        )
+
+        return self_plotlist
+
+
     def getPlaylist(self, position: ra.Position = None) -> list[dict]:
 
         position_beats: Fraction = self.get_position_beats(position)

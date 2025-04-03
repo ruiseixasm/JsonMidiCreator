@@ -207,6 +207,11 @@ class Element(o.Operand):
     def finish(self) -> ra.Position:
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
 
+
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        return []
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
@@ -858,7 +863,63 @@ class Note(Element):
                 return self._pitch._degree == other
             case _:
                 return super().__eq__(other)
+
+
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        if self_duration_min == 0:
+            return []
+
+        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+
+        self_plotlist: list[dict] = []
     
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "time_ms": o.minutes_to_time_ms(self_position_min), # Just for Staff processing
+                "on_position": float(self._position_beats),
+                "off_position": float(self._position_beats + self % ra.Length() // Fraction()),
+                "pitch": int( self % og.Pitch() % float() ),
+                "channel": self._channel - 1
+            }
+        )
+
+        # Checks if it's a tied note first
+        if self._tied:
+            self_position: Fraction = self._position_beats
+            self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
+            off_position: Fraction = self_position + self_length
+            self_pitch: int = pitch_int
+            last_tied_note = self._staff_reference.get_tied_note(self_pitch)
+            if last_tied_note and last_tied_note["off_position"] == self_position:
+                # Extend last note
+                off_position = last_tied_note["off_position"] + self_length * self._gate
+                last_tied_note["note_list"][0]["off_position"] = off_position
+                self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["off_position"] + self_length)
+                return []   # Discard self_plotlist, adjusts just the duration of the previous note
+            else:
+                # This note becomes the last tied note, off_position inplace of length has no problem
+                self._staff_reference.add_tied_note(self_pitch, 
+                    self_position, off_position, self_plotlist
+                )
+
+        # Record present Note on the Staff stacked notes
+        if not self._staff_reference.stack_note(
+            self_plotlist[0]["time_ms"],
+            self._channel - 1,
+            pitch_int
+        ):
+            print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
+                  f"and Pitch {self_plotlist[0]['pitch']} with same time start!")
+            return []
+
+        return self_plotlist
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
