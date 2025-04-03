@@ -10,6 +10,7 @@
         "Arpeggiator",
         "Automations",
         "backbeats",
+        "barh",
         "Bdim",
         "Blofeld",
         "breakbeat",
@@ -23,7 +24,9 @@
         "Cuica",
         "Diddley",
         "Digitakt",
+        "edgecolor",
         "Elektron",
+        "figsize",
         "Footswitch",
         "getrefcount",
         "Harpsicord",
@@ -91,6 +94,10 @@
         "Vibraslap",
         "viiº",
         "VMPK",
-        "Wavetable"
+        "Wavetable",
+        "xlabel",
+        "yaxis",
+        "ylabel",
+        "yticks"
     ]
 }
