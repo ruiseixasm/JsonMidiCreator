@@ -908,41 +908,42 @@ class Upper(Process):
             return operand.upper(self._data)
         return super().__rrshift__(operand)
 
-class Fit(Process):
+if TYPE_CHECKING:
+    from operand_container import Clip
+
+class ClipProcess(Process):
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return self.process(operand)
+        return super().__rrshift__(operand)
+
+    def process(self, operand: o.T) -> o.T:
+        return operand
+
+class Fit(ClipProcess):
     
     from operand_rational import Length
 
     def __init__(self, length: 'Length' = None):
         super().__init__(length)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.fit(self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
 
-if TYPE_CHECKING:
-    from operand_container import Clip
-
-class Link(Process):
+class Link(ClipProcess):
     def __init__(self, non_empty_measures_only: bool = True):
         super().__init__(non_empty_measures_only)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.link(self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.link(self._data)
 
-class Stack(Process):
+class Stack(ClipProcess):
     def __init__(self, non_empty_measures_only: bool = True):
         super().__init__(non_empty_measures_only)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, (oc.Clip, oc.Song)):
-            return operand.stack(self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.stack(self._data)
 
 class Decompose(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
