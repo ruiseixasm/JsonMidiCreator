@@ -45,7 +45,7 @@ for key, call in chaotic_calls.items():
             case "degree":
                 seed << Nth(2, 4)**Input(call["chaos"])**Choice(1, 4, 5, 6)**Degree()
 
-seed * 4 >> P >> Save("json/_Save_Clip_layering_2.0.json")
+seed * 4 >> Play(plot=True, block=True) >> Save("json/_Save_Clip_layering_2.0.json")
 
 defaults << ClockedDevices()
 AllNotesOff() + Blofeld.program_change(1, "A") >> P
@@ -53,5 +53,5 @@ AllNotesOff() + Blofeld.program_change(1, "A") >> P
 clip = Load("json/_Save_Clip_layering_2.0.json")
 # clip >> Pv
 
-clip >> Plot()
+# clip >> Plot()
 

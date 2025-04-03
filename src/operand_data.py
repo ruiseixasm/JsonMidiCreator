@@ -799,14 +799,23 @@ class Play(Process):
     first : integer_like
         By default it's configured without any verbose, set to 1 or True to enable verbose
     """
-    def __init__(self, verbose: bool = False):
-        super().__init__(1 if verbose else 0)
+    def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
+        super().__init__((verbose, plot, block))
 
     def __rrshift__(self, operand: o.T) -> o.T:
+        import threading
         match operand:
             case o.Operand():
                 playlist: list[dict] = self._clocked_playlist(operand)
-                c.jsonMidiPlay(playlist, False if self._data == 0 else True )
+                if self._data[1] and self._data[2]:
+                    # Start the function in a new process
+                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._data[0]))
+                    process.start()
+                    operand >> Plot(self._data[2])
+                else:
+                    if self._data[1] and not self._data[2]:
+                        operand >> Plot(self._data[2])
+                    c.jsonMidiPlay(playlist, self._data[0])
                 return operand
             case _:
                 return super().__rrshift__(operand)
