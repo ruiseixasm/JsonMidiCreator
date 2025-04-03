@@ -1863,6 +1863,17 @@ class Clip(Composition):  # Just a container of Elements
                 last_note = actual_note
         return self
     
+
+    def plot(self) -> Self:
+        import matplotlib.pyplot as plt
+        import numpy as np
+        from fractions import Fraction
+
+
+
+        return self
+
+
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
         """
         Splits the given clip in two at the given position.
@@ -1876,7 +1887,7 @@ class Clip(Composition):  # Just a container of Elements
         self_left: Clip     = self.filter(of.Less(position))
         self_right: Clip    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
-
+    
 
 class Part(Composition):
     # Part it's like a classic Pattern

@@ -1132,6 +1132,10 @@ class Fill(ClipProcess):
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.fill()
 
+class Plot(ClipProcess):
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.plot()
+
 
 
 
