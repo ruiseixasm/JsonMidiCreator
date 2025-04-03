@@ -599,7 +599,7 @@ class Playlist(Data):
 
 
 class Load(Serialization):
-    def __new__(self, filename: str = None):
+    def __new__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
         if isinstance(filename, str):
             operand_data = self.load_operand_data(filename)
             if operand_data:
