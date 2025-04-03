@@ -599,18 +599,24 @@ class Playlist(Data):
 
 
 class Load(Serialization):
-    def __init__(self, file_name: str = None):
-        super().__init__()
-        if isinstance(file_name, str):
-            # No need to copy (fresh data)
-            self._data = {} if file_name is None else c.loadJsonMidiCreator(file_name)
-            self._data = o.Operand().loadSerialization(self._data)    # Must convert to an Operand
+    def __new__(self, filename: str = None):
+        if isinstance(filename, str):
+            operand_data = self.load_operand_data(filename)
+            if operand_data:
+                return o.Operand().loadSerialization(operand_data)    # Must convert to an Operand
+            return None
+
+    @staticmethod
+    def load_operand_data(filename: str) -> dict:
+        return {} if filename is None else c.loadJsonMidiCreator(filename)
+    
+
 
 class Import(Playlist):
-    def __init__(self, file_name: str = None):
+    def __init__(self, filename: str = None):
         super().__init__()
-        if isinstance(file_name, str):
-            self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
+        if isinstance(filename, str):
+            self._data = [] if filename is None else c.loadJsonMidiPlay(filename)
             if self._data and "clock" in self._data[0]:
                 # Remove "clock" header
                 self._data.pop(0)
@@ -748,8 +754,8 @@ class RightShift(SideEffects):
         return super().__rrshift__(operand)
 
 class Save(Process):
-    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
-        super().__init__(file_name)
+    def __init__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
+        super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
@@ -758,8 +764,8 @@ class Save(Process):
         return super().__rrshift__(operand)
 
 class Export(Process):
-    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
-        super().__init__(file_name)
+    def __init__(self, filename: str = "json/_Export_jsonMidiPlayer.json"):
+        super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
@@ -771,8 +777,8 @@ class Export(Process):
                 return super().__rrshift__(operand)
 
 class MidiExport(Process):
-    def __init__(self, file_name: str = "song.mid"):
-        super().__init__(file_name)
+    def __init__(self, filename: str = "song.mid"):
+        super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):

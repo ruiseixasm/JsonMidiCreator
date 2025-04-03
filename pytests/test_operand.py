@@ -86,15 +86,17 @@ def test_operand_copy():
 
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
-        class_object: Operand = single_class() << basic_parameters
-        if class_object != class_object.copy():
-            print(f"Culprit: {single_class.__name__}")
-            assert class_object == class_object.copy()
+        class_object: Operand = single_class()
+        if class_object and not isinstance(class_object, (int)):
+            class_object << basic_parameters
+            if class_object != class_object.copy():
+                print(f"Culprit: {single_class.__name__}")
+                assert class_object == class_object.copy()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (int)):
+        if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
@@ -106,7 +108,7 @@ def test_operand_copy():
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (int)):
+        if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
@@ -133,22 +135,22 @@ def test_operand_serialization():
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object = single_class()
-        if not isinstance(class_object, (int)):
+        if class_object and not isinstance(class_object, (int)):
+            print(f"Culprit i: {single_class.__name__}")
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
-                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
-                print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (int)):
+        if class_object and not isinstance(class_object, (int)):
+            print(f"Culprit i: {single_class.__name__}")
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
@@ -157,16 +159,15 @@ def test_operand_serialization():
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
-                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
-                print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (int)):
+        if class_object and not isinstance(class_object, (int)):
+            print(f"Culprit i: {single_class.__name__}")
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
@@ -175,10 +176,8 @@ def test_operand_serialization():
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
-                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
-                print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
 
 # test_operand_serialization()
