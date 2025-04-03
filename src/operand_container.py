@@ -1875,7 +1875,51 @@ class Clip(Composition):  # Just a container of Elements
         just_notes_clip.decompose()    # In order to have just Notes
         just_notes_list: list[oe.Note] = just_notes_clip._items
 
+        quantization: float = self._staff % ra.Quantization() % float()
+        finish_beats: float = self.finish().convertToLength().roundMeasures() // float()
+        beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()
 
+        # Draw vertical grid lines based on beats and measures
+        grid_positions = np.arange(0.0, finish_beats, quantization)
+        measure_positions = np.arange(0.0, finish_beats, beats_per_measure)
+        
+        fig, ax = plt.subplots(figsize=(12, 6))
+        for measure_pos in measure_positions:
+            ax.axvline(measure_pos, color='black', linestyle='-', alpha=0.7, linewidth=1)  # Measure lines
+        for grid_pos in grid_positions:
+            ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+
+        # Get pitch range
+        min_pitch: float = min(note % og.Pitch() % float() for note in just_notes_list)
+        max_pitch: float = max(note % og.Pitch() % float() for note in just_notes_list)
+
+        # Shade black keys
+        for pitch in range(min_pitch, max_pitch + 1):
+            if o.is_black_key(int(pitch)):
+                ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+
+        # Plot notes
+        for note in just_notes_list:
+            ax.barh(y = int(note % og.Pitch() % float()), width = note % ra.Length() // float(), left = float(note._position_beats), 
+                    height=0.8, color='blue', edgecolor='black')
+    
+        ax.set_xlabel("Time (Measures.Beats)")
+        ax.set_ylabel("MIDI Note Number")
+        ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
+
+        # Set x-axis labels in 'Measure.Beat' format
+        beat_labels = [f"{int(pos // beats_per_measure) + 1}.{int(pos % beats_per_measure) + 1}" for pos in grid_positions]
+        ax.set_xticks(grid_positions)
+        ax.set_xticklabels(beat_labels, rotation=45)
+
+        # Set MIDI note ticks with Middle C in bold
+        ax.set_yticks(range(min_pitch, max_pitch + 1))
+        y_labels = [f"**{p}**" if p == 60 else str(p) for p in range(min_pitch, max_pitch + 1)]  # Bold Middle C
+        ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+
+        ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+        plt.show()
 
 
         return self

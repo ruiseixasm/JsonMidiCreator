@@ -165,6 +165,13 @@ def minutes_to_time_ms(minutes: Fraction) -> float:
     return round(float(minutes * 60_000), 3)
 
 
+def is_black_key(midi_note: int) -> bool:
+    """Returns True if the given MIDI note is a black key."""
+    black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
+    return (midi_note % 12) in black_keys
+
+
+
 # GLOBAL CLASSES
 
 class Operand:
