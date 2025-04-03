@@ -1941,6 +1941,7 @@ class Clip(Composition):  # Just a container of Elements
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+        plt.tight_layout()
 
         plt.show(block=block)
         # plt.show(block=False)
