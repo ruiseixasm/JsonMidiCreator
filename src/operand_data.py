@@ -901,7 +901,7 @@ class Filter(ContainerProcess):
     def process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._data)
 
-class Dropper(Process):
+class Dropper(ContainerProcess):
     def __init__(self, probability: float | Fraction = 1/16, chaos: 'Chaos' = None):
         super().__init__((probability, chaos))
 
@@ -911,7 +911,7 @@ class Dropper(Process):
             return operand.dropper(*self._data)
         return super().__rrshift__(operand)
 
-class Operate(Process):
+class Operate(ContainerProcess):
     def __init__(self, operand: any = None, operator: str = "<<"):
         super().__init__((operand, operator))
 
@@ -924,7 +924,7 @@ class Operate(Process):
 if TYPE_CHECKING:
     from operand_element import Note
 
-class Transform(Process):
+class Transform(ContainerProcess):
     def __init__(self, operand_type: type = 'Note'):
         super().__init__(operand_type)
 
@@ -938,7 +938,7 @@ if TYPE_CHECKING:
     from operand_chaos import Chaos
     from operand_rational import Probability
 
-class Shuffle(Process):
+class Shuffle(ContainerProcess):
     
     from operand_rational import Position
 
@@ -951,7 +951,7 @@ class Shuffle(Process):
             return operand.shuffle(*self._data)
         return super().__rrshift__(operand)
 
-class Swap(Process):
+class Swap(ContainerProcess):
     
     from operand_rational import Position
 
@@ -964,7 +964,7 @@ class Swap(Process):
             return operand.swap(*self._data)
         return super().__rrshift__(operand)
 
-class Reverse(Process):
+class Reverse(ContainerProcess):
     def __init__(self, non_empty_measures_only: bool = True):
         super().__init__(non_empty_measures_only)
 
@@ -974,7 +974,7 @@ class Reverse(Process):
             return operand.reverse(self._data)
         return super().__rrshift__(operand)
 
-class Recur(Process):
+class Recur(ContainerProcess):
     
     from operand_rational import Duration
 
@@ -987,7 +987,7 @@ class Recur(Process):
             return operand.recur(*self._data)
         return super().__rrshift__(operand)
 
-class Rotate(Process):
+class Rotate(ContainerProcess):
     
     from operand_rational import Position
 
@@ -1000,7 +1000,7 @@ class Rotate(Process):
             return operand.rotate(*self._data)
         return super().__rrshift__(operand)
 
-class Erase(Process):
+class Erase(ContainerProcess):
     """
     Erase() clears all the Container items and the same ones on the root container.
     """
@@ -1013,7 +1013,7 @@ class Erase(Process):
             return operand.erase(*self._data)
         return super().__rrshift__(operand)
 
-class Upper(Process):
+class Upper(ContainerProcess):
     def __init__(self, level: int = None):
         super().__init__(level)
 
@@ -1060,7 +1060,7 @@ class Stack(ClipProcess):
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.stack(self._data)
 
-class Decompose(Process):
+class Decompose(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -1071,7 +1071,7 @@ if TYPE_CHECKING:
     from operand_generic import Arpeggio
     from operand_element import Element
     
-class Arpeggiate(Process):
+class Arpeggiate(ClipProcess):
     
     def __init__(self, parameters: any = None):
         super().__init__(parameters)
@@ -1082,7 +1082,7 @@ class Arpeggiate(Process):
             return operand.arpeggiate(self._data)
         return super().__rrshift__(operand)
 
-class Stepper(Process):
+class Stepper(ClipProcess):
 
     def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
         super().__init__((pattern, note))
@@ -1093,7 +1093,7 @@ class Stepper(Process):
             return operand.stepper(*self._data)
         return super().__rrshift__(operand)
 
-class Automate(Process):
+class Automate(ClipProcess):
 
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
@@ -1105,14 +1105,14 @@ class Automate(Process):
             return operand.automate(*self._data)
         return super().__rrshift__(operand)
 
-class Interpolate(Process):
+class Interpolate(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.interpolate()
         return super().__rrshift__(operand)
 
-class Tie(Process):
+class Tie(ClipProcess):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
@@ -1122,7 +1122,7 @@ class Tie(Process):
             return operand.tie(self._data)
         return super().__rrshift__(operand)
 
-class Slur(Process):
+class Slur(ClipProcess):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
@@ -1132,21 +1132,21 @@ class Slur(Process):
             return operand.slur(self._data)
         return super().__rrshift__(operand)
 
-class Smooth(Process):
+class Smooth(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.smooth()
         return super().__rrshift__(operand)
 
-class Flip(Process):
+class Flip(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.flip()
         return super().__rrshift__(operand)
 
-class Snap(Process):
+class Snap(ClipProcess):
     def __init__(self, up: bool = False):
         super().__init__(up)
 
@@ -1159,7 +1159,7 @@ class Snap(Process):
 if TYPE_CHECKING:
     from operand_rational import Length
 
-class Extend(Process):
+class Extend(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
         
@@ -1169,7 +1169,7 @@ class Extend(Process):
             return operand.extend(self._data)
         return super().__rrshift__(operand)
 
-class Trim(Process):
+class Trim(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
         
@@ -1179,7 +1179,7 @@ class Trim(Process):
             return operand.trim(self._data)
         return super().__rrshift__(operand)
 
-class Cut(Process):
+class Cut(ClipProcess):
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
@@ -1191,7 +1191,7 @@ class Cut(Process):
             return operand.cut(*self._data)
         return super().__rrshift__(operand)
 
-class Select(Process):
+class Select(ClipProcess):
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
@@ -1203,14 +1203,14 @@ class Select(Process):
             return operand.select(*self._data)
         return super().__rrshift__(operand)
 
-class Monofy(Process):
+class Monofy(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.monofy()
         return super().__rrshift__(operand)
 
-class Fill(Process):
+class Fill(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
