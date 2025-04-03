@@ -46,8 +46,11 @@ for key, call in chaotic_calls.items():
             case "degree":
                 seed << Nth(2, 4)**Input(pick % 8)**Pick(1, 4, 5, 6)**Degree()
 
-seed * 4 >> Pv
+seed * 4 >> Pv >> Save("json/_Save_Clip_layering_2.0.json")
 
 defaults << ClockedDevices()
 AllNotesOff() + Blofeld.program_change(1, "A") >> P
+
+clip = Load("json/_Save_Clip_layering_2.0.json")
+clip >> Pv
 
