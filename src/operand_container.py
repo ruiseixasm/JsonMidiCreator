@@ -1879,7 +1879,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
     
 
-    def plot(self, block: bool = True) -> Self:
+    def plot(self, block: bool = True, pause: float = 0) -> Self:
         import matplotlib.pyplot as plt
         import numpy as np
 
@@ -1951,7 +1951,15 @@ class Clip(Composition):  # Just a container of Elements
         ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
         plt.tight_layout()
 
-        plt.show(block=block)
+        if block and pause == 0:
+            plt.show(block=True)
+        elif pause > 0:
+            plt.show(block=False)
+            plt.pause(pause)
+        else:
+            plt.show(block=False)
+
+
         # plt.show(block=False)
         # # Keep script alive while plots are open
         # while plt.get_fignums():  # Check if any figure is open
