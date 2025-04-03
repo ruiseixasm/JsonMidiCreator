@@ -1931,9 +1931,13 @@ class Clip(Composition):  # Just a container of Elements
         # Set x-axis labels in 'Measure.Beat' format
         beat_labels = [
             f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
-            for pos in step_positions
+            for pos in beat_positions
         ]
-        ax.set_xticks(step_positions)
+        
+        ax.set_xticks(beat_positions)  # ✅ Only show measure & beat labels
+        # ax.set_xticklabels([f"{int(pos // beats_per_measure) + 1}.{int(pos % beats_per_measure) + 1}" for pos in beat_positions], rotation=45)
+
+        # ax.set_xticks(step_positions)
         ax.set_xticklabels(beat_labels, rotation=45)
 
         # Set MIDI note ticks with Middle C in bold
