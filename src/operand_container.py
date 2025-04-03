@@ -1890,8 +1890,8 @@ class Clip(Composition):  # Just a container of Elements
             ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
         # Get pitch range
-        min_pitch: float = min(note % og.Pitch() % float() for note in just_notes_list)
-        max_pitch: float = max(note % og.Pitch() % float() for note in just_notes_list)
+        min_pitch: int = int( min(note % og.Pitch() % float() for note in just_notes_list) )
+        max_pitch: int = int( max(note % og.Pitch() % float() for note in just_notes_list) )
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
