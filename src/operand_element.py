@@ -881,11 +881,10 @@ class Note(Element):
         self_plotlist.append(
             {
                 "note": {
-                    "time_ms": o.minutes_to_time_ms(self_position_min), # Just for Staff processing
                     "on_position": float(self._position_beats),
                     "off_position": float(self._position_beats + self % ra.Length() // Fraction()),
                     "pitch": int( self % og.Pitch() % float() ),
-                    "channel": self._channel - 1
+                    "channel": self._channel
                 }
             }
         )
@@ -911,7 +910,7 @@ class Note(Element):
 
         # Record present Note on the Staff stacked notes
         if not self._staff_reference.stack_note(
-            self_plotlist[0]['note']["time_ms"],
+            self_plotlist[0]['note']["on_position"],
             self._channel - 1,
             pitch_int
         ):

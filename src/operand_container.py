@@ -1890,6 +1890,8 @@ class Clip(Composition):  # Just a container of Elements
         just_notes_clip.decompose()    # In order to have just Notes
         just_notes_list: list[oe.Note] = just_notes_clip._items
 
+        notes_plotlist: list[dict] = self.getPlotlist()
+
         quantization: float = self._staff % ra.Quantization() % float()
         finish_beats: float = self.finish().convertToLength().roundMeasures() // float()
         beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()

@@ -1178,9 +1178,9 @@ class Staff(Generic):
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
         self._tied_notes: dict[int, dict[str, any]] = {}
-        self._stacked_notes: dict[float,    # note on time
-                                  dict[int,     # status byte
-                                       set[int]     # set of pitches
+        self._stacked_notes: dict[float | Fraction, # note on time
+                                  dict[int,             # status byte
+                                       set[int]             # set of pitches
                                   ]
                             ] = {}
 
@@ -1230,7 +1230,7 @@ class Staff(Generic):
             return self._tied_notes[pitch]
         return None
 
-    def stack_note(self, note_on: float, channel_byte: int, pitch: int) -> bool:
+    def stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
         if self is not defaults._staff: # defaults's staff remains clean
             if note_on not in self._stacked_notes:
                 self._stacked_notes[note_on] = {
