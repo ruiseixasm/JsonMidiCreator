@@ -1883,27 +1883,17 @@ class Clip(Composition):  # Just a container of Elements
         import matplotlib.pyplot as plt
         import numpy as np
 
-        just_notes_clip: Clip = self.empty_copy()
-        just_notes_clip._items = [
-            note_type for note_type in self._items if isinstance(note_type, oe.Note)
-        ]
-        just_notes_clip.decompose()    # In order to have just Notes
-        just_notes_list: list[oe.Note] = just_notes_clip._items
+        beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()
+        quantization: float = self._staff % ra.Quantization() % float()
 
         notes_plotlist: list[dict] = [
             note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
         ]
-
-        
-
-
-        quantization: float = self._staff % ra.Quantization() % float()
-        finish_beats: float = self.finish().convertToLength().roundMeasures() // float()
-        beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()
+        last_position_off: float = max(note["position_off"] for note in notes_plotlist)
 
         # Draw vertical grid lines based on beats and measures
-        grid_positions = np.arange(0.0, finish_beats, quantization)
-        measure_positions = np.arange(0.0, finish_beats, beats_per_measure)
+        grid_positions = np.arange(0.0, last_position_off, quantization)
+        measure_positions = np.arange(0.0, last_position_off, beats_per_measure)
         
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
@@ -1912,8 +1902,8 @@ class Clip(Composition):  # Just a container of Elements
             ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
         # Get pitch range
-        min_pitch: int = int( min(note % og.Pitch() % float() for note in just_notes_list) ) // 12 * 12
-        max_pitch: int = int( max(note % og.Pitch() % float() for note in just_notes_list) ) // 12 * 12 + 12
+        min_pitch: int = min(note["pitch"] for note in notes_plotlist) // 12 * 12
+        max_pitch: int = max(note["pitch"] for note in notes_plotlist) // 12 * 12 + 12
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
@@ -1921,9 +1911,9 @@ class Clip(Composition):  # Just a container of Elements
                 ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
         # Plot notes
-        for note in just_notes_list:
-            ax.barh(y = int(note % og.Pitch() % float()), width = note % ra.Length() // float(), left = float(note._position_beats), 
-                    height=0.8, color='blue', edgecolor='black')
+        for note in notes_plotlist:
+            ax.barh(y = note["pitch"], width = note["position_off"] - note["position_on"], left = note["position_on"], 
+                    height=0.8, color='green', edgecolor='black', linewidth=2)
     
         ax.set_xlabel("Time (Measures.Beats)")
         ax.set_ylabel("MIDI Note Number")
@@ -1940,6 +1930,7 @@ class Clip(Composition):  # Just a container of Elements
         ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
 
         plt.show(block=block)
         # plt.show(block=False)
