@@ -786,6 +786,91 @@ class MidiExport(Process):
             return operand
         return super().__rrshift__(operand)
 
+class Play(Process):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : integer_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    def __init__(self, verbose: bool = False):
+        super().__init__(1 if verbose else 0)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        match operand:
+            case o.Operand():
+                playlist: list[dict] = self._clocked_playlist(operand)
+                c.jsonMidiPlay(playlist, False if self._data == 0 else True )
+                return operand
+            case _:
+                return super().__rrshift__(operand)
+
+class Print(Process):
+    """
+    Print() allows to get on the console the configuration of the source Operand in a JSON layout.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Sets the indent of the JSON print layout with the default as 4
+    """
+    def __init__(self, formatted: bool = True):
+        super().__init__( 1 if formatted is None else formatted )
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        match operand:
+            case o.Operand():
+                operand_serialization = operand.getSerialization()
+                if self._data:
+                    serialized_json_str = json.dumps(operand_serialization)
+                    json_object = json.loads(serialized_json_str)
+                    json_formatted_str = json.dumps(json_object, indent=4)
+                    print(json_formatted_str)
+                else:
+                    print(operand_serialization)
+            # case tuple():
+            #     return super().__rrshift__(operand)
+            case _: print(operand)
+        return operand
+
+class Copy(Process):
+    """
+    Copy() does an total duplication of the Operand including its parts.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.copy(*self._data)
+        return super().__rrshift__(operand)
+
+class Reset(Process):
+    """
+    Reset() does an total reset of the Operand including its non accessible parameters.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.reset(*self._data)
+        return super().__rrshift__(operand)
+
+class Clear(Process):
+    """
+    Clear() does an total clean up of all parameters including a reset.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.clear(*self._data)
+        return super().__rrshift__(operand)
+
 
 if TYPE_CHECKING:
     from operand_container import Container
@@ -849,40 +934,70 @@ class Transform(Process):
             return operand.transform(self._data)
         return super().__rrshift__(operand)
 
-class Copy(Process):
-    """
-    Copy() does an total duplication of the Operand including its parts.
-    """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+if TYPE_CHECKING:
+    from operand_chaos import Chaos
+    from operand_rational import Probability
+
+class Shuffle(Process):
+    
+    from operand_rational import Position
+
+    def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
+        super().__init__((chaos, parameter))
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.copy(*self._data)
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.shuffle(*self._data)
         return super().__rrshift__(operand)
 
-class Reset(Process):
-    """
-    Reset() does an total reset of the Operand including its non accessible parameters.
-    """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+class Swap(Process):
+    
+    from operand_rational import Position
+
+    def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
+        super().__init__((probability, chaos, parameter))
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.reset(*self._data)
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.swap(*self._data)
         return super().__rrshift__(operand)
 
-class Clear(Process):
-    """
-    Clear() does an total clean up of all parameters including a reset.
-    """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+class Reverse(Process):
+    def __init__(self, non_empty_measures_only: bool = True):
+        super().__init__(non_empty_measures_only)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.clear(*self._data)
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.reverse(self._data)
+        return super().__rrshift__(operand)
+
+class Recur(Process):
+    
+    from operand_rational import Duration
+
+    def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
+        super().__init__((recursion, parameter))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.recur(*self._data)
+        return super().__rrshift__(operand)
+
+class Rotate(Process):
+    
+    from operand_rational import Position
+
+    def __init__(self, offset: int = 1, parameter: type = Position):
+        super().__init__((offset, parameter))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.rotate(*self._data)
         return super().__rrshift__(operand)
 
 class Erase(Process):
@@ -1024,121 +1139,6 @@ class Smooth(Process):
             return operand.smooth()
         return super().__rrshift__(operand)
 
-class Play(Process):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : integer_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    def __init__(self, verbose: bool = False):
-        super().__init__(1 if verbose else 0)
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        match operand:
-            case o.Operand():
-                playlist: list[dict] = self._clocked_playlist(operand)
-                c.jsonMidiPlay(playlist, False if self._data == 0 else True )
-                return operand
-            case _:
-                return super().__rrshift__(operand)
-
-class Print(Process):
-    """
-    Print() allows to get on the console the configuration of the source Operand in a JSON layout.
-    
-    Parameters
-    ----------
-    first : integer_like
-        Sets the indent of the JSON print layout with the default as 4
-    """
-    def __init__(self, formatted: bool = True):
-        super().__init__( 1 if formatted is None else formatted )
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        match operand:
-            case o.Operand():
-                operand_serialization = operand.getSerialization()
-                if self._data:
-                    serialized_json_str = json.dumps(operand_serialization)
-                    json_object = json.loads(serialized_json_str)
-                    json_formatted_str = json.dumps(json_object, indent=4)
-                    print(json_formatted_str)
-                else:
-                    print(operand_serialization)
-            # case tuple():
-            #     return super().__rrshift__(operand)
-            case _: print(operand)
-        return operand
-
-if TYPE_CHECKING:
-    from operand_chaos import Chaos
-    from operand_rational import Probability
-
-class Shuffle(Process):
-    
-    from operand_rational import Position
-
-    def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
-        super().__init__((chaos, parameter))
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.shuffle(*self._data)
-        return super().__rrshift__(operand)
-
-class Swap(Process):
-    
-    from operand_rational import Position
-
-    def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
-        super().__init__((probability, chaos, parameter))
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.swap(*self._data)
-        return super().__rrshift__(operand)
-
-class Reverse(Process):
-    def __init__(self, non_empty_measures_only: bool = True):
-        super().__init__(non_empty_measures_only)
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.reverse(self._data)
-        return super().__rrshift__(operand)
-
-class Recur(Process):
-    
-    from operand_rational import Duration
-
-    def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
-        super().__init__((recursion, parameter))
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.recur(*self._data)
-        return super().__rrshift__(operand)
-
-class Rotate(Process):
-    
-    from operand_rational import Position
-
-    def __init__(self, offset: int = 1, parameter: type = Position):
-        super().__init__((offset, parameter))
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.rotate(*self._data)
-        return super().__rrshift__(operand)
-
 class Flip(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1216,6 +1216,9 @@ class Fill(Process):
         if isinstance(operand, oc.Clip):
             return operand.fill()
         return super().__rrshift__(operand)
+
+
+
 
 class Getter(Data):
     def __eq__(self, other: o.Operand) -> bool:
