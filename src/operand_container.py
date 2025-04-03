@@ -300,7 +300,7 @@ class Container(o.Operand):
         return super().__rshift__(operand)
 
     # The @ operator in Python is used for matrix multiplication
-    # Works in substitution of * without the subsequent self copy
+    # Works as >> with top precedence than >>
     def __matmul__(self, operand) -> Self:
         return self.__rshift__( operand )
     
