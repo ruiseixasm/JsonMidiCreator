@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 four_notes = Note() * 4
 
-four_notes >> Plot()
+four_notes >> Plot(False)
 
 four_notes << Key("A")
 

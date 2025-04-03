@@ -1864,7 +1864,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
     
 
-    def plot(self) -> Self:
+    def plot(self, block: bool = True) -> Self:
         import matplotlib.pyplot as plt
         import numpy as np
 
@@ -1919,7 +1919,7 @@ class Clip(Composition):  # Just a container of Elements
 
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
-        plt.show()
+        plt.show(block=block)
         # plt.show(block=False)
         # # Keep script alive while plots are open
         # while plt.get_fignums():  # Check if any figure is open

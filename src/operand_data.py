@@ -1133,8 +1133,11 @@ class Fill(ClipProcess):
         return operand.fill()
 
 class Plot(ClipProcess):
+    def __init__(self, block: bool = True):
+        super().__init__(block)
+
     def process(self, operand: 'Clip') -> 'Clip':
-        return operand.plot()
+        return operand.plot(self._data)
 
 
 
