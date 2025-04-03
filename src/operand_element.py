@@ -880,11 +880,13 @@ class Note(Element):
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
             {
-                "time_ms": o.minutes_to_time_ms(self_position_min), # Just for Staff processing
-                "on_position": float(self._position_beats),
-                "off_position": float(self._position_beats + self % ra.Length() // Fraction()),
-                "pitch": int( self % og.Pitch() % float() ),
-                "channel": self._channel - 1
+                "note": {
+                    "time_ms": o.minutes_to_time_ms(self_position_min), # Just for Staff processing
+                    "on_position": float(self._position_beats),
+                    "off_position": float(self._position_beats + self % ra.Length() // Fraction()),
+                    "pitch": int( self % og.Pitch() % float() ),
+                    "channel": self._channel - 1
+                }
             }
         )
 
@@ -898,7 +900,7 @@ class Note(Element):
             if last_tied_note and last_tied_note["off_position"] == self_position:
                 # Extend last note
                 off_position = last_tied_note["off_position"] + self_length * self._gate
-                last_tied_note["note_list"][0]["off_position"] = off_position
+                last_tied_note["note_list"][0]['note']["off_position"] = off_position
                 self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["off_position"] + self_length)
                 return []   # Discard self_plotlist, adjusts just the duration of the previous note
             else:
@@ -909,12 +911,12 @@ class Note(Element):
 
         # Record present Note on the Staff stacked notes
         if not self._staff_reference.stack_note(
-            self_plotlist[0]["time_ms"],
+            self_plotlist[0]['note']["time_ms"],
             self._channel - 1,
             pitch_int
         ):
             print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
-                  f"and Pitch {self_plotlist[0]['pitch']} with same time start!")
+                  f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
             return []
 
         return self_plotlist
