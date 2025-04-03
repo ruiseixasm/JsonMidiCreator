@@ -1913,7 +1913,7 @@ class Clip(Composition):  # Just a container of Elements
         # Plot notes
         for note in notes_plotlist:
             ax.barh(y = note["pitch"], width = note["position_off"] - note["position_on"], left = note["position_on"], 
-                    height=0.8, color='green', edgecolor='black', linewidth=2)
+                    height=0.5, color='green', edgecolor='black', linewidth=2)
     
         ax.set_xlabel("Time (Measures.Beats)")
         ax.set_ylabel("MIDI Note Number")
