@@ -299,6 +299,11 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
         return super().__rshift__(operand)
 
+    # The @ operator in Python is used for matrix multiplication
+    # Works in substitution of * without the subsequent self copy
+    def __matmul__(self, operand) -> Self:
+        return self.__rshift__( operand )
+    
     # Pass trough operation as last resort
     def __rrshift__(self, operand: o.T) -> o.T:
         self << operand # Left shifts remaining parameter (Pass Through)
