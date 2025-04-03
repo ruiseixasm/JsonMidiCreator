@@ -36,6 +36,7 @@ def test_mutation_mod():
     four_notes = Note() * 4 << Foreach(1, 3, 4, 5)
     # Perform the operation
     mutation = Shuffling() * 100 # Position parameter by default
+    # four_notes remains the same, just like mutation
     clip_100_1 = four_notes / mutation
     assert clip_100_1 != four_notes # Different positions
     mutation.reset()    # Resets the Chaos and sets Clip to None

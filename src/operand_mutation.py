@@ -554,8 +554,10 @@ class Translocation(Shuffling):
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
-            source_incision: int = self._chaos * self._step % int() % self._clip.len()
-            target_incision: int = self._chaos * self._step % int() % clip.len()
+            self._chaos *= self._step   # Keeps the history of self Chaos
+            source_incision: int = self._chaos % int() % self._clip.len()
+            self._chaos *= self._step   # Keeps the history of self Chaos
+            target_incision: int = self._chaos % int() % clip.len()
 
             source_right: list[oe.Element] = self._clip._items[source_incision:]
             target_right: list[oe.Element] = clip._items[target_incision:]

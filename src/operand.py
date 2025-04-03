@@ -340,9 +340,16 @@ class Operand:
         import operand_data as od
         return self << od.DataSource( operand )
 
+    # Same as ^ operator
     def __xor__(self, operand: any) -> Self:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
+    
+    # The @ operator in Python is used for matrix multiplication
+    def __matmul__(self,operand: any) -> Self:
+        import operand_data as od
+        return self.__lshift__( od.DataSource( operand ) )
+    
 
     def copy(self, *parameters) -> Self:
         self_copy = type(self)() << self
