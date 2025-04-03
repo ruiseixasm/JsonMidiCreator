@@ -1916,7 +1916,7 @@ class Clip(Composition):  # Just a container of Elements
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
-            if o.is_black_key(int(pitch)):
+            if o.is_black_key(pitch):
                 ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
         # Plot notes
@@ -1925,7 +1925,7 @@ class Clip(Composition):  # Just a container of Elements
                     height=0.5, color='green', edgecolor='black', linewidth=2)
     
         ax.set_xlabel("Time (Measures.Beats.Steps)")
-        ax.set_ylabel("MIDI Note Number")
+        ax.set_ylabel("Chromatic Key")
         ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
 
         # Set x-axis labels in 'Measure.Beat' format
@@ -1935,14 +1935,15 @@ class Clip(Composition):  # Just a container of Elements
         ]
         
         ax.set_xticks(beat_positions)  # ✅ Only show measure & beat labels
-        # ax.set_xticklabels([f"{int(pos // beats_per_measure) + 1}.{int(pos % beats_per_measure) + 1}" for pos in beat_positions], rotation=45)
-
-        # ax.set_xticks(step_positions)
         ax.set_xticklabels(beat_labels, rotation=45)
 
+        chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
         # Set MIDI note ticks with Middle C in bold
         ax.set_yticks(range(min_pitch, max_pitch + 1))
-        y_labels = [f"**{p}**" if p == 60 else str(p) for p in range(min_pitch, max_pitch + 1)]  # Bold Middle C
+        y_labels = [
+            chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
+            for p in range(min_pitch, max_pitch + 1)
+        ]  # Bold Middle C
         ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
