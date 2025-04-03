@@ -1023,6 +1023,7 @@ class Upper(ContainerProcess):
             return operand.upper(self._data)
         return super().__rrshift__(operand)
 
+
 if TYPE_CHECKING:
     from operand_container import Clip
 
@@ -1067,6 +1068,9 @@ class Decompose(ClipProcess):
             return operand.decompose()
         return super().__rrshift__(operand)
 
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
+
 if TYPE_CHECKING:
     from operand_generic import Arpeggio
     from operand_element import Element
@@ -1082,6 +1086,9 @@ class Arpeggiate(ClipProcess):
             return operand.arpeggiate(self._data)
         return super().__rrshift__(operand)
 
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
+
 class Stepper(ClipProcess):
 
     def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
@@ -1092,6 +1099,9 @@ class Stepper(ClipProcess):
         if isinstance(operand, oc.Clip):
             return operand.stepper(*self._data)
         return super().__rrshift__(operand)
+
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
 
 class Automate(ClipProcess):
 
@@ -1105,12 +1115,18 @@ class Automate(ClipProcess):
             return operand.automate(*self._data)
         return super().__rrshift__(operand)
 
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
+
 class Interpolate(ClipProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.interpolate()
         return super().__rrshift__(operand)
+
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
 
 class Tie(ClipProcess):
     def __init__(self, tied: bool = True):
@@ -1122,6 +1138,9 @@ class Tie(ClipProcess):
             return operand.tie(self._data)
         return super().__rrshift__(operand)
 
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
+
 class Slur(ClipProcess):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
@@ -1132,29 +1151,23 @@ class Slur(ClipProcess):
             return operand.slur(self._data)
         return super().__rrshift__(operand)
 
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._data)
+
 class Smooth(ClipProcess):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.smooth()
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.smooth()
 
 class Flip(ClipProcess):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.flip()
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.flip()
 
 class Snap(ClipProcess):
     def __init__(self, up: bool = False):
         super().__init__(up)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.snap(self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.snap(self._data)
 
 if TYPE_CHECKING:
     from operand_rational import Length
@@ -1162,22 +1175,16 @@ if TYPE_CHECKING:
 class Extend(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
-        
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.extend(self._data)
-        return super().__rrshift__(operand)
+
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.extend(self._data)
 
 class Trim(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
-        
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.trim(self._data)
-        return super().__rrshift__(operand)
+
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.trim(self._data)
 
 class Cut(ClipProcess):
     from operand_rational import Position
@@ -1185,11 +1192,8 @@ class Cut(ClipProcess):
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__((start, finish))
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.cut(*self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.cut(*self._data)
 
 class Select(ClipProcess):
     from operand_rational import Position
@@ -1197,25 +1201,16 @@ class Select(ClipProcess):
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__((start, finish))
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.select(*self._data)
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.select(*self._data)
 
 class Monofy(ClipProcess):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.monofy()
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.monofy()
 
 class Fill(ClipProcess):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.fill()
-        return super().__rrshift__(operand)
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.fill()
 
 
 
