@@ -53,3 +53,5 @@ AllNotesOff() + Blofeld.program_change(1, "A") >> P
 clip = Load("json/_Save_Clip_layering_2.0.json")
 # clip >> Pv
 
+clip >> Plot()
+

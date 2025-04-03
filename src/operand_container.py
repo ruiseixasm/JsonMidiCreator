@@ -1884,7 +1884,8 @@ class Clip(Composition):  # Just a container of Elements
         import numpy as np
 
         beats_per_measure: float = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % float()
-        quantization: float = self._staff % ra.Quantization() % float()
+        quantization: Fraction = self._staff % ra.Quantization() % Fraction()
+        quantization_beats: float = ra.Duration(self, quantization).convertToLength() // float()
 
         notes_plotlist: list[dict] = [
             note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
@@ -1892,7 +1893,7 @@ class Clip(Composition):  # Just a container of Elements
         last_position_off: float = max(note["position_off"] for note in notes_plotlist)
 
         # Draw vertical grid lines based on beats and measures
-        grid_positions = np.arange(0.0, last_position_off, quantization)
+        grid_positions = np.arange(0.0, last_position_off, quantization_beats)
         measure_positions = np.arange(0.0, last_position_off, beats_per_measure)
         
         fig, ax = plt.subplots(figsize=(12, 6))
