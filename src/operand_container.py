@@ -1891,10 +1891,12 @@ class Clip(Composition):  # Just a container of Elements
             note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
         ]
         last_position_off: float = max(note["position_off"] for note in notes_plotlist)
+        last_position_beat: int = int(last_position_off)
+        last_position_measure: int = last_position_beat // beats_per_measure * beats_per_measure + beats_per_measure
 
         # Draw vertical grid lines based on beats and measures
-        grid_positions = np.arange(0.0, last_position_off, quantization_beats)
-        measure_positions = np.arange(0.0, last_position_off, beats_per_measure)
+        grid_positions = np.arange(0.0, last_position_measure, quantization_beats)
+        measure_positions = np.arange(0.0, last_position_measure, beats_per_measure)
         
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
