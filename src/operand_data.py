@@ -943,7 +943,6 @@ class Shuffle(ContainerProcess):
         return operand.shuffle(*self._data)
 
 class Swap(ContainerProcess):
-    
     from operand_rational import Position
 
     def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
@@ -960,7 +959,6 @@ class Reverse(ContainerProcess):
         return operand.reverse(self._data)
 
 class Recur(ContainerProcess):
-    
     from operand_rational import Duration
 
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
@@ -970,7 +968,6 @@ class Recur(ContainerProcess):
         return operand.recur(*self._data)
 
 class Rotate(ContainerProcess):
-    
     from operand_rational import Position
 
     def __init__(self, offset: int = 1, parameter: type = Position):
@@ -1008,7 +1005,6 @@ class ClipProcess(Process):
         return operand
 
 class Fit(ClipProcess):
-    
     from operand_rational import Length
 
     def __init__(self, length: 'Length' = None):
