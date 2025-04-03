@@ -29,21 +29,22 @@ iterations: list[int] = [-1, 2, 8]
 chaotic_calls: dict["str", dict] = {
         "position": { "chaos": Chaos(150), "loops": 13 },
         "duration": { "chaos": Chaos(300), "loops": 4 },
-        "pitch":    { "chaos": Chaos(477), "loops": 9 },
+        "degree":   { "chaos": Chaos(477), "loops": 9 },
     }
 
-seed: Clip = Note() * 4
+seed: Clip = Note() * 4 << Duration(1/8)
 
 for key, call in chaotic_calls.items():
     if call["loops"] >= 0:
-        chaos = call["chaos"] * call["loops"]
+        call["chaos"] *= call["loops"]
+        pick: int = call["chaos"] % int()
         match key:
             case "position":
-                ...
+                seed << Nth(3)**Input(pick % 4)**Pick(7, 8, 9, 10)**Step()
             case "duration":
-                ...
-            case "pitch":
-                ...
+                seed << Nth(2, 4)**Input(pick % 8)**Pick(1/16, 1/8, 1/4, 1/2)**Duration()
+            case "degree":
+                seed << Nth(2, 4)**Input(pick % 8)**Pick(1, 4, 5, 6)**Degree()
 
 seed * 4 >> Pv
 
