@@ -396,6 +396,11 @@ class Operand:
             return self.filter(operand)
         return operand.__rrshift__(self)
 
+    # The @ operator in Python is used for matrix multiplication
+    # Works as >> with top precedence than >>
+    def __matmul__(self, operand) -> Self:
+        return self.__rshift__( operand )
+    
     # operand is the pusher
     def __rrshift__(self, operand: T) -> T:
         match operand:
