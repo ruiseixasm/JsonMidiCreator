@@ -1898,13 +1898,16 @@ class Clip(Composition):  # Just a container of Elements
             last_position_measure += 1
 
         # Draw vertical grid lines based on beats and measures
-        grid_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
+        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
         measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
         
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
-            ax.axvline(measure_pos, color='black', linestyle='-', alpha=0.7, linewidth=1)  # Measure lines
-        for grid_pos in grid_positions:
+            ax.axvline(measure_pos, color='black', linestyle='-', alpha=0.85, linewidth=1)  # Measure lines
+        for beat_pos in beat_positions:
+            ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+        for grid_pos in step_positions:
             ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
         # Get pitch range
@@ -1928,9 +1931,9 @@ class Clip(Composition):  # Just a container of Elements
         # Set x-axis labels in 'Measure.Beat' format
         beat_labels = [
             f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
-            for pos in grid_positions
+            for pos in step_positions
         ]
-        ax.set_xticks(grid_positions)
+        ax.set_xticks(step_positions)
         ax.set_xticklabels(beat_labels, rotation=45)
 
         # Set MIDI note ticks with Middle C in bold
