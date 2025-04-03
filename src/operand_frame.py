@@ -256,7 +256,8 @@ class Input(Left):
             return super().__and__(ol.Null())
         if isinstance(self._multi_data['operand'], ch.Chaos):
             self._index += 1
-            return super().__and__(self._multi_data['operand'] * 1) # Does single iteration (remains as Chaos)
+            self._multi_data['operand'] *= 1    # In order to not result in a copy of Chaos
+            return super().__and__(self._multi_data['operand'])
         return super().__and__(self._multi_data['operand'])
 
 

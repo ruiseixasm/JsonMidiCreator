@@ -136,7 +136,7 @@ class Chaos(o.Operand):
         total_iterations: int = round(integer_part * muted_iterations)
         return muted_iterations, total_iterations
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -219,7 +219,7 @@ class Modulus(Chaos):
         self._xn << (self._xn % float()) % (self._amplitude % float())
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -408,7 +408,7 @@ class Bouncer(Chaos):
         self._y << (self._y % float()) % (self._height % float())
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -496,7 +496,7 @@ class SinX(Chaos):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True

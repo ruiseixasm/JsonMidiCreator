@@ -36,16 +36,17 @@ def test_sinx_mod():
     # Perform the operation
     sin_x = SinX()
 
-    sin_x_1000 = sin_x * 1000 >> Copy()
-    sin_x_1001 = sin_x * 1 >> Copy()
+    # sin_x remains unchangeable
+    sin_x_1000  = sin_x * 1000   # Implicit copy
+    sin_x_1     = sin_x * 1      # Implicit copy
 
-    assert sin_x_1000 != sin_x_1001
-    assert sin_x_1001 == sin_x
-    sin_x.reset()
-    assert sin_x_1001 != sin_x
-    sin_x * 1000
+    assert sin_x_1000 != sin_x_1
+    assert sin_x_1000 == sin_x_1 * 999
+    sin_x_1.reset()
+    assert sin_x_1 == sin_x
+    sin_x *= 1000   # This changes the original sin_x
     assert sin_x_1000 == sin_x
-    assert sin_x_1000 * 1 == sin_x_1001
+    assert sin_x_1000 * 1 == sin_x_1 * 1000 * 1
 
 
 
