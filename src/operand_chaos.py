@@ -146,6 +146,11 @@ class Chaos(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
     
+    # The @ operator in Python is used for matrix multiplication
+    # Works in substitution of * without the subsequent self copy
+    def __matmul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
+        return self.__imul__( number )
+    
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self}')

@@ -63,7 +63,7 @@ class Mutation(o.Operand):
         target_picks = []
 
         while len(source_picks) > 0:
-            target_picks.append(source_picks.pop(self._chaos * self._step % int() % len(source_picks)))
+            target_picks.append(source_picks.pop(self._chaos @ self._step % int() % len(source_picks)))
 
         shuffled_list = []
         for pick in target_picks:
@@ -288,7 +288,7 @@ class Dropping(Haploid):
         if isinstance(clip, oc.Clip):
             clip._items = [
                 element for element in clip._items
-                if not self._chaos * self._step % int() \
+                if not self._chaos @ self._step % int() \
                     % self._probability.denominator < self._probability.numerator
             ]
         return clip
@@ -379,11 +379,11 @@ class Shuffling(Diploid):
 
             while len(source_picks) > 0 and len(target_picks) > 0:
 
-                source_index: int = self._chaos * self._step % int() % len(source_picks)
+                source_index: int = self._chaos @ self._step % int() % len(source_picks)
                 source_clip_index: int = source_picks[source_index]
                 del source_picks[source_index]
 
-                target_index: int = self._chaos * self._step % int() % len(target_picks)
+                target_index: int = self._chaos @ self._step % int() % len(target_picks)
                 target_clip_index: int = target_picks[target_index]
                 del target_picks[target_index]
 
@@ -439,7 +439,7 @@ class Shuffling(Diploid):
     
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         self._initiated = True
-        self._chaos * number
+        self._chaos *= number
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
 
@@ -502,7 +502,7 @@ class Swapping(Shuffling):
             for source_i in range(source_clip_len):
                 for target_j in range(target_clip_len):
                     
-                    if self._chaos * self._step % int() \
+                    if self._chaos @ self._step % int() \
                         % self._probability.denominator < self._probability.numerator:   # Make the swap
 
                         self.swap(target_clip, source_i, target_j)
@@ -586,9 +586,10 @@ class Crossover(Shuffling):
             
             target_clip_len: int = target_clip.len()
             for element_i in range(target_clip_len):
-                if self._chaos * self._step % int() \
-                    % self._probability.denominator < self._probability.numerator:   # Even
+                self._chaos *= self._step   # Updates the self chaos
+                if self._chaos % int() % self._probability.denominator < self._probability.numerator:   # Even
                     self.swap(target_clip, element_i, element_i)   # Same locus
+
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
