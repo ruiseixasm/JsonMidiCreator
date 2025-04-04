@@ -1879,7 +1879,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def plot_notes(self, plotlist: list[dict], fig, ax):
+    def plot_notes(self, plotlist: list[dict]):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -1920,11 +1920,11 @@ class Clip(Composition):  # Just a container of Elements
             measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
         
             for measure_pos in measure_positions:
-                ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+                self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
             for beat_pos in beat_positions:
-                ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+                self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
             for grid_pos in step_positions:
-                ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+                self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
             # Get pitch range
             min_pitch: int = min(note["pitch"] for note in plotlist) // 12 * 12
@@ -1933,16 +1933,16 @@ class Clip(Composition):  # Just a container of Elements
             # Shade black keys
             for pitch in range(min_pitch, max_pitch + 1):
                 if o.is_black_key(pitch):
-                    ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                    self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
             # Plot notes
             for note in plotlist:
-                ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                         height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
         
-            ax.set_xlabel("Time (Measures.Beats.Steps)")
-            ax.set_ylabel("Chromatic Keys")
-            ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
+            self._ax.set_xlabel("Time (Measures.Beats.Steps)")
+            self._ax.set_ylabel("Chromatic Keys")
+            self._ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
 
             # Set x-axis labels in 'Measure.Beat' format
             beat_labels = [
@@ -1950,19 +1950,22 @@ class Clip(Composition):  # Just a container of Elements
                 for pos in beat_positions
             ]
             
-            ax.set_xticks(beat_positions)  # Only show measure & beat labels
-            ax.set_xticklabels(beat_labels, rotation=45)
+            self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
+            self._ax.set_xticklabels(beat_labels, rotation=45)
 
             chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
             # Set MIDI note ticks with Middle C in bold
-            ax.set_yticks(range(min_pitch, max_pitch + 1))
+            self._ax.set_yticks(range(min_pitch, max_pitch + 1))
             y_labels = [
                 chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
                 for p in range(min_pitch, max_pitch + 1)
             ]  # Bold Middle C
-            ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+            self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
-            ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+            self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+            self._fig.canvas.draw_idle()
+
 
         return None
 
@@ -1977,6 +1980,10 @@ class Clip(Composition):  # Just a container of Elements
         clip_history.append(
             clip_function(self.copy())
         )
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
+        )
+
         return clip_history
 
     def plot(self, block: bool = True, pause: float = 0,
@@ -2007,14 +2014,13 @@ class Clip(Composition):  # Just a container of Elements
         plt.ion()
 
 
-        fig, ax = plt.subplots(figsize=(12, 6))
+        self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
         self.plot_notes(
-            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ],
-            fig, ax
+            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
         )
 
-        ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+        self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
         plt.tight_layout()
 
         if clip_function is not None:
