@@ -815,7 +815,7 @@ class Note(Element):
         self._gate = ra.Gate(gate)._rational
         return self
 
-    def tied(self, tied: bool = True) -> Self:
+    def tied(self, tied: int = 1) -> Self:
         self._tied = tied
         return self
 
@@ -1085,12 +1085,15 @@ class Note(Element):
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
-                    case ou.Tied():         self._tied      = operand._data // bool()
+                    case ou.Tied():         self._tied      = operand._data._unit
                     case og.Pitch():        self._pitch     = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
-            case ou.Tied():         self._tied = operand // bool()
+            case ou.Tied():
+                self._tied = operand._unit
+                if operand._unit > 0:
+                    operand._unit += 1
             case og.Pitch():
                 self._pitch << operand
                 self._pitch.set_staff_reference(self._staff_reference)
