@@ -2015,7 +2015,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-             clip_function: Optional[Callable] = None, composition: Optional[Composition] = None) -> Self:
+             clip_function: Optional[Callable] = None, composition: Optional[Composition] = None) -> 'Clip':
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
