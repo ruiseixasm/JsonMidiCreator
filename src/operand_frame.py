@@ -146,6 +146,14 @@ class Frame(o.Operand):
     # def __rrshift__(self, operand: o.T) -> o.T:
     #     return operand & self   # operand is the subject
 
+    def __imul__(self, operand) -> Self:
+        match operand:
+            case int():
+                for _ in range(operand):
+                    ol.Null() << self
+        return self
+
+
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
         for single_frame in self:
