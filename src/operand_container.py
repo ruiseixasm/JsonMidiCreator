@@ -1982,9 +1982,10 @@ class Clip(Composition):  # Just a container of Elements
 
 
         # Button Widget
+        original_clip: Clip = self.copy()
         ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
         play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
-        play_button.on_clicked(self.play)
+        play_button.on_clicked(original_clip.play)
 
 
         if block and pause == 0:
