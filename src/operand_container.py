@@ -1982,7 +1982,8 @@ class Clip(Composition):  # Just a container of Elements
 
 
         # Button Widget
-        
+        ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
+        play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
         
 
 
