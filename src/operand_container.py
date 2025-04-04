@@ -1879,8 +1879,11 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def play(self, verbose: bool = False) -> Self:
-        return self >> od.Play(verbose)
+    def play(self, channel: int = None) -> Self:
+        if isinstance(channel, int) and channel > 0:
+            # Filter already results in a shallow copy
+            return self.filter(ou.Channel(channel)) >> od.Play()
+        return self >> od.Play()
 
     def plot(self, block: bool = True, pause: float = 0) -> Self:
 
@@ -1889,14 +1892,15 @@ class Clip(Composition):  # Just a container of Elements
         RESET = "\033[0m"
             
         try:
-            # pip install midiutil
+            # pip install matplotlib
             import matplotlib.pyplot as plt
+            from matplotlib.widgets import Button
         except ImportError:
             print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
             print("Please install it by running 'pip install matplotlib'.")
             return self
         try:
-            # pip install midiutil
+            # pip install numpy
             import numpy as np
         except ImportError:
             print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
@@ -1975,6 +1979,12 @@ class Clip(Composition):  # Just a container of Elements
 
         ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
         plt.tight_layout()
+
+
+        # Button Widget
+        
+        
+
 
         if block and pause == 0:
             plt.show(block=True)
