@@ -895,22 +895,22 @@ class Note(Element):
             }
         )
 
-        # Checks if it's a tied note first
-        if self._tied:
+        # Checks if it's a following tied note first
+        if self._tied > 0:
             self_position: Fraction = self._position_beats
             self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
-            position_off: Fraction = self_position + self_length
-            self_pitch: int = pitch_int
-            last_tied_note = self._staff_reference.get_tied_note(self_pitch)
-            if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
-                # Extend last note
-                position_off = last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate
-                last_tied_note["note_list"][0]['note']["position_off"] = position_off
-                self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["position"] + last_tied_note["length"] + self_length)
-                return []   # Discard self_plotlist, adjusts just the duration of the previous note
-            else:
+            if self._tied > 1:
+                position_off: Fraction = self_position + self_length
+                last_tied_note = self._staff_reference.get_tied_note(pitch_int)
+                if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
+                    # Extend last note
+                    position_off = last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate
+                    last_tied_note["note_list"][0]['note']["position_off"] = position_off
+                    self._staff_reference.set_tied_note_length(pitch_int, last_tied_note["position"] + last_tied_note["length"] + self_length)
+                    return []   # Discard self_plotlist, adjusts just the duration of the previous note
+            else:   # Must be the first tied note
                 # This note becomes the last tied note, position_off inplace of length has no problem
-                self._staff_reference.add_tied_note(self_pitch, 
+                self._staff_reference.add_tied_note(pitch_int, 
                     self_position, self_length, self_plotlist
                 )
 
@@ -973,22 +973,22 @@ class Note(Element):
             self_playlist_time_ms = o.playlist_time_ms( self_playlist )
 
         # Checks if it's a tied note first
-        if self._tied:
+        if self._tied > 0:
             self_position: Fraction = self._position_beats
             self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
-            self_pitch: int = pitch_int
-            last_tied_note = self._staff_reference.get_tied_note(self_pitch)
-            if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
-                # Extend last note
-                position_off_ms: float = o.minutes_to_time_ms(
-                    self.get_beats_minutes(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
-                )
-                last_tied_note["note_list"][1]["time_ms"] = position_off_ms
-                self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["length"] + self_length)
-                return []   # Discard self_playlist, adjusts just the duration of the previous note
+            if self._tied > 1:
+                last_tied_note = self._staff_reference.get_tied_note(pitch_int)
+                if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
+                    # Extend last note
+                    position_off_ms: float = o.minutes_to_time_ms(
+                        self.get_beats_minutes(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
+                    )
+                    last_tied_note["note_list"][1]["time_ms"] = position_off_ms
+                    self._staff_reference.set_tied_note_length(pitch_int, last_tied_note["length"] + self_length)
+                    return []   # Discard self_playlist, adjusts just the duration of the previous note
             else:
                 # This note becomes the last tied note
-                self._staff_reference.add_tied_note(self_pitch, 
+                self._staff_reference.add_tied_note(pitch_int, 
                     self_position, self_length, self_playlist_time_ms
                 )
 
