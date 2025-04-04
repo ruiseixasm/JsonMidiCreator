@@ -1933,7 +1933,7 @@ class Clip(Composition):  # Just a container of Elements
 
         fig, ax = plt.subplots(figsize=(12, 6))
         for measure_pos in measure_positions:
-            ax.axvline(measure_pos, color='black', linestyle='-', alpha=0.85, linewidth=1)  # Measure lines
+            ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
         for beat_pos in beat_positions:
             ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
         for grid_pos in step_positions:
@@ -1951,7 +1951,7 @@ class Clip(Composition):  # Just a container of Elements
         # Plot notes
         for note in notes_plotlist:
             ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                    height=0.5, color='green', edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
+                    height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
     
         ax.set_xlabel("Time (Measures.Beats.Steps)")
         ax.set_ylabel("Chromatic Keys")
