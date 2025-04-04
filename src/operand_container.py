@@ -1879,17 +1879,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def play(self, channel: int = None) -> Self:
-        if isinstance(channel, int) and channel > 0:
-            # Filter already results in a shallow copy
-            return self.filter(ou.Channel(channel)) >> od.Play()
-        return self >> od.Play()
-
-    def clip_process(self, clip_function: Optional[Callable] = None) -> Self:
-        if clip_function is not None:
-            return clip_function(self)
-        return self
-
     def plot_notes(self, plotlist: list[dict]):
 
         # Define ANSI escape codes for colors
@@ -1990,6 +1979,18 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
 
+    def button_play(self, channel: int = None) -> Self:
+        if isinstance(channel, int) and channel > 0:
+            # Filter already results in a shallow copy
+            return self.filter(ou.Channel(channel)) >> od.Play()
+        return self >> od.Play()
+
+    def button_new(self, clip_history: list['Clip'], clip_function: Optional[Callable] = None) -> list['Clip']:
+        clip_history.append(
+            clip_function(self.copy())
+        )
+        return clip_history
+
     def plot(self, block: bool = True, pause: float = 0,
              clip_function: Optional[Callable] = None, composition_function: Optional[Callable] = None) -> Self:
 
@@ -2020,16 +2021,18 @@ class Clip(Composition):  # Just a container of Elements
         if plt:
 
             if clip_function is not None:
-                
+
+                clip_history: list[Clip] = [self.copy()]
+
                 # New Button Widget
                 ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
                 new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
-                new_button.on_clicked(self.clip_process)
+                new_button.on_clicked(lambda event: clip_history[-1].button_new(clip_history, clip_function))
 
             # Play Button Widget
             ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
             play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
-            play_button.on_clicked(self.play)
+            play_button.on_clicked(self.button_play)
 
             # processed_self: Clip = clip_function(self)
             # plt = self.plot_notes(
