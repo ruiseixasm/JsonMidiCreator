@@ -1986,7 +1986,8 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
 
-    def plot(self, block: bool = True, pause: float = 0) -> Self:
+    def plot(self, block: bool = True, pause: float = 0,
+             clip_function: Optional[Callable] = None, composition_function: Optional[Callable] = None) -> Self:
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
