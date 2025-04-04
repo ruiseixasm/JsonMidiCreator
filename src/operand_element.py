@@ -791,7 +791,7 @@ class Note(Element):
     def __init__(self, *parameters):
         self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
-        self._tied: bool            = False
+        self._tied: int             = 0
         self._pitch: og.Pitch       = og.Pitch()
         super().__init__(*parameters)
 
