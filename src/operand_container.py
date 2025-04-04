@@ -1919,6 +1919,8 @@ class Clip(Composition):  # Just a container of Elements
             beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
             measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
         
+            self._ax.clear()
+
             for measure_pos in measure_positions:
                 self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
             for beat_pos in beat_positions:
@@ -1968,15 +1970,18 @@ class Clip(Composition):  # Just a container of Elements
 
         return None
 
-    def run_play(self, channel: int = None) -> Self:
+    def run_play(self, even = None, channel: int = None) -> Self:
+        last_clip: Clip = self._clip_history[-1]
         if isinstance(channel, int) and channel > 0:
             # Filter already results in a shallow copy
-            return self.filter(ou.Channel(channel)) >> od.Play()
-        return self >> od.Play()
+            last_clip.filter(ou.Channel(channel)) >> od.Play()
+        else:
+            last_clip >> od.Play()
+        return self
 
-    def run_new(self) -> Self:
-        previous_clip: Clip = self._clip_history[-1]
-        new_clip: Clip = self._clip_function(previous_clip.copy())
+    def run_new(self, even = None) -> Self:
+        last_clip: Clip = self._clip_history[-1]
+        new_clip: Clip = self._clip_function(last_clip.copy())
         self._clip_history.append(new_clip)
         self.plot_notes(
             [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
@@ -2020,9 +2025,10 @@ class Clip(Composition):  # Just a container of Elements
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
         plt.tight_layout()
 
+        self._clip_history: list[Clip] = [self.copy()]
+
         if clip_function is not None:
 
-            self._clip_history: list[Clip] = [self.copy()]
             self._clip_function = clip_function
 
             # New Button Widget
