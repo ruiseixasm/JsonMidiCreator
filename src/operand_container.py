@@ -2008,8 +2008,8 @@ class Clip(Composition):  # Just a container of Elements
             last_clip >> od.Play()
         return self
 
-    def plot(self, block: bool = True, pause: float = 0,
-             clip_function: Optional[Callable] = None, composition_function: Optional[Callable] = None) -> Self:
+    def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
+             clip_function: Optional[Callable] = None, composition: Optional[Composition] = None) -> Self:
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
