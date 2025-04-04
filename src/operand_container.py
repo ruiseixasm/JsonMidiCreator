@@ -2008,28 +2008,29 @@ class Clip(Composition):  # Just a container of Elements
             print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
             print("Please install it by running 'pip install numpy'.")
             return None
-            
-        notes_plotlist: list[dict] = [
-            note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
-        ]
+        
+        if clip_function is None:
 
-        plt = self.plot_notes(notes_plotlist)
+            notes_plotlist: list[dict] = [
+                note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
+            ]
 
-        if plt:
+            plt = self.plot_notes(notes_plotlist)
 
-            # Button Widget
-            original_clip: Clip = self.copy()
-            ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
-            play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
-            play_button.on_clicked(original_clip.play)
+            if plt:
 
-            if block and pause == 0:
-                plt.show(block=True)
-            elif pause > 0:
-                plt.draw()
-                plt.pause(pause)
-            else:
-                plt.show(block=False)
+                # Button Widget
+                ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
+                play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
+                play_button.on_clicked(self.play)
+
+                if block and pause == 0:
+                    plt.show(block=True)
+                elif pause > 0:
+                    plt.draw()
+                    plt.pause(pause)
+                else:
+                    plt.show(block=False)
 
 
             # plt.show(block=False)

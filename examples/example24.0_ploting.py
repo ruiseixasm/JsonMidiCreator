@@ -21,6 +21,10 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
+def process_clip(clip: Clip) -> Clip:
+
+    return clip
+
 four_notes = Note() * 4
 # four_notes >> Plot(False)
 
@@ -29,6 +33,6 @@ four_notes << Key("A")
 
 (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 >> Plot()
 
-(Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot()
+# (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot()
 
 
