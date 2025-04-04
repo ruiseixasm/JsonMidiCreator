@@ -1970,25 +1970,6 @@ class Clip(Composition):  # Just a container of Elements
 
         return None
 
-    def run_play(self, even = None, channel: int = None) -> Self:
-        last_clip: Clip = self._clip_history[self._clip_position]
-        if isinstance(channel, int) and channel > 0:
-            # Filter already results in a shallow copy
-            last_clip.filter(ou.Channel(channel)) >> od.Play()
-        else:
-            last_clip >> od.Play()
-        return self
-
-    def run_new(self, even = None) -> Self:
-        last_clip: Clip = self._clip_history[-1]
-        new_clip: Clip = self._clip_function(last_clip.copy())
-        self._clip_position = len(self._clip_history)
-        self._clip_history.append(new_clip)
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
-        )
-        return self
-
     def run_previous(self, even = None) -> Self:
         if self._clip_position > 0:
             self._clip_position -= 1
@@ -2005,6 +1986,25 @@ class Clip(Composition):  # Just a container of Elements
         self.plot_notes(
             [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
         )
+        return self
+
+    def run_new(self, even = None) -> Self:
+        last_clip: Clip = self._clip_history[-1]
+        new_clip: Clip = self._clip_function(last_clip.copy())
+        self._clip_position = len(self._clip_history)
+        self._clip_history.append(new_clip)
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
+        )
+        return self
+
+    def run_play(self, even = None, channel: int = None) -> Self:
+        last_clip: Clip = self._clip_history[self._clip_position]
+        if isinstance(channel, int) and channel > 0:
+            # Filter already results in a shallow copy
+            last_clip.filter(ou.Channel(channel)) >> od.Play()
+        else:
+            last_clip >> od.Play()
         return self
 
     def plot(self, block: bool = True, pause: float = 0,
@@ -2051,8 +2051,18 @@ class Clip(Composition):  # Just a container of Elements
             self._clip_position: int = 0
             self._clip_function = clip_function
 
+            # Previous Button Widget
+            ax_button = plt.axes([0.767, 0.945, 0.03, 0.05])
+            previous_button = Button(ax_button, '<--', color='white', hovercolor='grey')
+            previous_button.on_clicked(self.run_previous)
+
+            # Next Button Widget
+            ax_button = plt.axes([0.798, 0.945, 0.03, 0.05])
+            next_button = Button(ax_button, '-->', color='white', hovercolor='grey')
+            next_button.on_clicked(self.run_next)
+
             # New Button Widget
-            ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
+            ax_button = plt.axes([0.830, 0.945, 0.05, 0.05])
             new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
             new_button.on_clicked(self.run_new)
 
