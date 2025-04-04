@@ -1879,7 +1879,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def plot_notes(self, plotlist: list[dict]):
+    def plot_notes(self, plotlist: list[dict], position: int = None):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -2034,7 +2034,14 @@ class Clip(Composition):  # Just a container of Elements
 
         self._clip_history: list[Clip] = [self.copy()]
         self._clip_position: int = 0
+        self._clip_function = clip_function
 
+        if self._clip_function is not None:
+            for _ in range(iterations):
+                last_clip: Clip = self._clip_history[-1]
+                new_clip: Clip = self._clip_function(last_clip.copy())
+                self._clip_position = len(self._clip_history)
+                self._clip_history.append(new_clip)
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
@@ -2047,9 +2054,7 @@ class Clip(Composition):  # Just a container of Elements
 
         plt.tight_layout()
 
-        if clip_function is not None:
-
-            self._clip_function = clip_function
+        if self._clip_function is not None:
 
             # Previous Button Widget
             ax_button = plt.axes([0.767, 0.945, 0.03, 0.05])
