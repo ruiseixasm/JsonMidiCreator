@@ -2,6 +2,7 @@
     "python.analysis.extraPaths": [
         "./src"
     ],
+    "python.defaultInterpreterPath": "/usr/bin/python3.13",
     "cSpell.words": [
         "aahs",
         "Aftertouch",
