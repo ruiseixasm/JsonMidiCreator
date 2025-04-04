@@ -1944,7 +1944,7 @@ class Clip(Composition):  # Just a container of Elements
         
             self._ax.set_xlabel("Time (Measures.Beats.Steps)")
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
+            self._ax.set_title(f"Iteration {self._clip_position + 1} of {len(self._clip_history)}")
 
             # Set x-axis labels in 'Measure.Beat' format
             beat_labels = [
@@ -1965,6 +1965,7 @@ class Clip(Composition):  # Just a container of Elements
             self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
             self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+            self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
             self._fig.canvas.draw_idle()
 
@@ -1973,19 +1974,19 @@ class Clip(Composition):  # Just a container of Elements
     def run_previous(self, even = None) -> Self:
         if self._clip_position > 0:
             self._clip_position -= 1
-        view_clip: Clip = self._clip_history[self._clip_position]
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
-        )
+            view_clip: Clip = self._clip_history[self._clip_position]
+            self.plot_notes(
+                [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
+            )
         return self
 
     def run_next(self, even = None) -> Self:
         if self._clip_position < len(self._clip_history) - 1:
             self._clip_position += 1
-        view_clip: Clip = self._clip_history[self._clip_position]
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
-        )
+            view_clip: Clip = self._clip_history[self._clip_position]
+            self.plot_notes(
+                [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
+            )
         return self
 
     def run_new(self, even = None) -> Self:
@@ -2031,9 +2032,12 @@ class Clip(Composition):  # Just a container of Elements
             return None
         
 
+        self._clip_history: list[Clip] = [self.copy()]
+        self._clip_position: int = 0
+
+
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
-
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
@@ -2041,14 +2045,10 @@ class Clip(Composition):  # Just a container of Elements
             [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
         )
 
-        self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
         plt.tight_layout()
-
-        self._clip_history: list[Clip] = [self.copy()]
 
         if clip_function is not None:
 
-            self._clip_position: int = 0
             self._clip_function = clip_function
 
             # Previous Button Widget
