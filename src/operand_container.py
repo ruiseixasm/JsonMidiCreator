@@ -1880,9 +1880,26 @@ class Clip(Composition):  # Just a container of Elements
     
 
     def plot(self, block: bool = True, pause: float = 0) -> Self:
-        import matplotlib.pyplot as plt
-        import numpy as np
 
+        # Define ANSI escape codes for colors
+        RED = "\033[91m"
+        RESET = "\033[0m"
+            
+        try:
+            # pip install midiutil
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
+            print("Please install it by running 'pip install matplotlib'.")
+            return self
+        try:
+            # pip install midiutil
+            import numpy as np
+        except ImportError:
+            print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
+            print("Please install it by running 'pip install numpy'.")
+            return self
+        
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization: Fraction = self._staff % ra.Quantization() % Fraction()
         quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
