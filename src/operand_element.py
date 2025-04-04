@@ -1284,14 +1284,20 @@ class KeyScale(Note):
                 scale_notes.append( new_note )
         return self._arpeggio.arpeggiate(scale_notes)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_plotlist: list[dict] = []
+        for single_note in self.get_component_elements():
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
+        return self_plotlist
+    
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+        self_playlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        self_midilist: list = []
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_midilist: list[dict] = []
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
         return self_midilist
@@ -1370,18 +1376,6 @@ class Polychord(KeyScale):
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
         return self._arpeggio.arpeggiate(polychord_notes)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
-        for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        self_midilist: list = []
-        for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
-        return self_midilist
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["degrees"] = self.serialize( self._degrees )
@@ -1552,18 +1546,6 @@ class Chord(KeyScale):
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
         return self._arpeggio.arpeggiate(chord_notes)
-    
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
-        for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))    # extends the list with other list
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        self_midilist: list = []
-        for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
-        return self_midilist
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
