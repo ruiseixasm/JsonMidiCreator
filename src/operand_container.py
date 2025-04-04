@@ -1879,7 +1879,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def plot_notes(self, plotlist: list[dict]):
+    def plot_notes(self, plotlist: list[dict], fig, ax):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -1918,13 +1918,7 @@ class Clip(Composition):  # Just a container of Elements
             step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
             beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
             measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
-            
-
-            # Enable interactive mode (doesn't block the execution)
-            plt.ion()
-
-
-            fig, ax = plt.subplots(figsize=(12, 6))
+        
             for measure_pos in measure_positions:
                 ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
             for beat_pos in beat_positions:
@@ -1970,12 +1964,6 @@ class Clip(Composition):  # Just a container of Elements
 
             ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
-            ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
-            plt.tight_layout()
-
-
-            return plt
-
         return None
 
 
@@ -2014,44 +2002,53 @@ class Clip(Composition):  # Just a container of Elements
             print("Please install it by running 'pip install numpy'.")
             return None
         
-        plt = self.plot_notes(
-            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
+
+        # Enable interactive mode (doesn't block the execution)
+        plt.ion()
+
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ],
+            fig, ax
         )
 
-        if plt:
+        ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+        plt.tight_layout()
 
-            if clip_function is not None:
+        if clip_function is not None:
 
-                clip_history: list[Clip] = [self.copy()]
+            clip_history: list[Clip] = [self.copy()]
 
-                # New Button Widget
-                ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
-                new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
-                new_button.on_clicked(lambda event: clip_history[-1].button_new(clip_history, clip_function))
+            # New Button Widget
+            ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
+            new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
+            new_button.on_clicked(lambda event: clip_history[-1].button_new(clip_history, clip_function))
 
-            # Play Button Widget
-            ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
-            play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
-            play_button.on_clicked(self.button_play)
+        # Play Button Widget
+        ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
+        play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
+        play_button.on_clicked(self.button_play)
 
-            # processed_self: Clip = clip_function(self)
-            # plt = self.plot_notes(
-            #     [ note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict ]
-            # )
+        # processed_self: Clip = clip_function(self)
+        # plt = self.plot_notes(
+        #     [ note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict ]
+        # )
 
-            if block and pause == 0:
-                plt.show(block=True)
-            elif pause > 0:
-                plt.draw()
-                plt.pause(pause)
-            else:
-                plt.show(block=False)
+        if block and pause == 0:
+            plt.show(block=True)
+        elif pause > 0:
+            plt.draw()
+            plt.pause(pause)
+        else:
+            plt.show(block=False)
 
 
-            # plt.show(block=False)
-            # # Keep script alive while plots are open
-            # while plt.get_fignums():  # Check if any figure is open
-            #     plt.pause(0.1)  # Pause to allow GUI event processing
+        # plt.show(block=False)
+        # # Keep script alive while plots are open
+        # while plt.get_fignums():  # Check if any figure is open
+        #     plt.pause(0.1)  # Pause to allow GUI event processing
 
         return self
 
