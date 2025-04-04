@@ -1951,7 +1951,7 @@ class Clip(Composition):  # Just a container of Elements
         # Plot notes
         for note in notes_plotlist:
             ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                    height=0.5, color='green', edgecolor='black', linewidth=2)
+                    height=0.5, color='green', edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
     
         ax.set_xlabel("Time (Measures.Beats.Steps)")
         ax.set_ylabel("Chromatic Keys")
