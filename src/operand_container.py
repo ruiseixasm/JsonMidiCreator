@@ -1885,6 +1885,10 @@ class Clip(Composition):  # Just a container of Elements
             return self.filter(ou.Channel(channel)) >> od.Play()
         return self >> od.Play()
 
+    def clip_process(self, clip_function: Optional[Callable] = None) -> Self:
+        if clip_function is not None:
+            return clip_function(self)
+        return self
 
     def plot_notes(self, plotlist: list[dict]):
 
@@ -2009,34 +2013,28 @@ class Clip(Composition):  # Just a container of Elements
             print("Please install it by running 'pip install numpy'.")
             return None
         
-        if clip_function is None:
-
-            plt = self.plot_notes(
-                [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
-            )
-
-        else:
-
-            processed_self: Clip = clip_function(self)
-            plt = self.plot_notes(
-                [ note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict ]
-            )
-
-            if plt:
-
-                # Button Widget
-                ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
-                new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
-                new_button.on_clicked(self.play)
-
-
+        plt = self.plot_notes(
+            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
+        )
 
         if plt:
 
-            # Button Widget
+            if clip_function is not None:
+                
+                # New Button Widget
+                ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
+                new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
+                new_button.on_clicked(self.clip_process)
+
+            # Play Button Widget
             ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
             play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
             play_button.on_clicked(self.play)
+
+            # processed_self: Clip = clip_function(self)
+            # plt = self.plot_notes(
+            #     [ note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict ]
+            # )
 
             if block and pause == 0:
                 plt.show(block=True)
