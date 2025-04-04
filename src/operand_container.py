@@ -2008,6 +2008,12 @@ class Clip(Composition):  # Just a container of Elements
             last_clip >> od.Play()
         return self
 
+    def run_composition(self, even = None) -> Self:
+        last_clip: Clip = self._clip_history[self._clip_position]
+        full_composition = self._composition + last_clip
+        full_composition >> od.Play()
+        return self
+
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
              clip_function: Optional[Callable] = None, composition: Optional[Composition] = None) -> Self:
 
@@ -2035,6 +2041,7 @@ class Clip(Composition):  # Just a container of Elements
         self._clip_history: list[Clip] = [self.copy()]
         self._clip_position: int = 0
         self._clip_function = clip_function
+        self._composition = composition
 
         if self._clip_function is not None:
             for _ in range(iterations):
