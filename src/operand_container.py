@@ -2077,6 +2077,14 @@ class Clip(Composition):  # Just a container of Elements
             new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
             new_button.on_clicked(self.run_new)
 
+        if self._composition is not None:
+
+            # Previous Button Widget
+            ax_button = plt.axes([0.979, 0.945, 0.015, 0.05])
+            composition_button = Button(ax_button, '!', color='white', hovercolor='grey')
+            composition_button.on_clicked(self.run_composition)
+
+
         # Play Button Widget
         ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
         play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
