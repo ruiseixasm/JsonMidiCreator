@@ -2154,7 +2154,7 @@ class Clip(Composition):  # Just a container of Elements
         # while plt.get_fignums():  # Check if any figure is open
         #     plt.pause(0.1)  # Pause to allow GUI event processing
 
-        return self
+        return self._clip_history[self._clip_position]
 
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
