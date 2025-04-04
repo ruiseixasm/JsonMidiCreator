@@ -2010,8 +2010,8 @@ class ControlChange(Automation):
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
             case int():                 return self._value
-            case ou.Value():            return ou.Value(self._value)
-            case ou.Number() | ou.LSB() | dict():
+            case ou.Value():            return operand.copy() << self._value
+            case ou.Number() | ou.LSB() | ou.HighResolution() | dict():
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
 
@@ -2191,7 +2191,7 @@ class ControlChange(Automation):
                     case og.Controller():       self._controller = operand._data
                     case ou.Value():            self._value = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case og.Controller() | ou.Number() | ou.LSB() | str() | dict():
+            case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | str() | dict():
                 self._controller << operand
             case int():
                 self._value = operand
@@ -2822,7 +2822,8 @@ class PolyAftertouch(Aftertouch):
 class ProgramChange(Element):
     def __init__(self, *parameters):
         self._program: int  = 1
-        self._bank: ou.Bank = ou.Bank(0)
+        self._bank: int     = 0
+        self._high: bool    = False
         super().__init__(*parameters)
 
     def program(self, program: int | str = "Piano") -> Self:
@@ -2844,20 +2845,23 @@ class ProgramChange(Element):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():      return operand._data << self._program
-                    case ou.Bank():         return self._bank
+                    case ou.Program():          return operand._data << self._program
+                    case ou.Bank():             return self._data << self._bank
+                    case ou.HighResolution():   return self._data << self._high
                     case _:                 return super().__mod__(operand)
-            case int():             return self._program
-            case ou.Program():      return ou.Program(self._program)
-            case ou.Bank():         return self._bank.copy()
-            case _:                 return super().__mod__(operand)
+            case int():                 return self._program
+            case ou.Program():          return ou.Program(self._program)
+            case ou.Bank():             return ou.Bank(self._bank)
+            case ou.HighResolution():   return ou.HighResolution(self._high)
+            case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._program == other._program and self._bank == other._bank
+                    and self._program == other._program \
+                    and self._bank == other._bank and self._high == other._high
             case _:
                 return super().__eq__(other)
     
@@ -2880,7 +2884,8 @@ class ProgramChange(Element):
         if self._bank > 0:
             # Has to pass self first to set equivalent parameters like position and staff
             self_playlist.extend(
-                BankSelect(self, self._bank).getPlaylist(devices_header=False)
+                BankSelect(self, self // ou.Bank(), self // ou.HighResolution())
+                    .getPlaylist(devices_header=False)
             )
 
         self_playlist.append(
@@ -2908,17 +2913,19 @@ class ProgramChange(Element):
         serialization = super().getSerialization()
         serialization["parameters"]["program"]  = self.serialize( self._program )
         serialization["parameters"]["bank"]     = self.serialize( self._bank )
+        serialization["parameters"]["high"]     = self.serialize( self._high )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "program" in serialization["parameters"] and "bank" in serialization["parameters"]):
+            "program" in serialization["parameters"] and "bank" in serialization["parameters"] and "high" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._program   = self.deserialize( serialization["parameters"]["program"] )
             self._bank      = self.deserialize( serialization["parameters"]["bank"] )
+            self._high      = self.deserialize( serialization["parameters"]["high"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -2927,18 +2934,22 @@ class ProgramChange(Element):
             case ProgramChange():
                 super().__lshift__(operand)
                 self._program   = operand._program
-                self._bank      << operand._bank
+                self._bank      = operand._bank
+                self._high      = operand._high
             case od.DataSource():
                 match operand._data:
                     case ou.Program():          self._program = operand._data._unit
-                    case ou.Bank():             self._bank = operand._data
+                    case ou.Bank():             self._bank = operand._data._unit
+                    case ou.HighResolution():   self._high = operand._data % bool()
                     case _:                     super().__lshift__(operand)
             case int():
                 self._program = operand
             case ou.Program() | str():
                 self._program = ou.Program(operand)._unit
             case ou.Bank():
-                self._bank << operand
+                self._bank = operand._unit
+            case ou.HighResolution():
+                self._high = operand % bool()
             case _:
                 super().__lshift__(operand)
         return self
