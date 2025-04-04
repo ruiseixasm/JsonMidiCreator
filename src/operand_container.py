@@ -1885,6 +1885,113 @@ class Clip(Composition):  # Just a container of Elements
             return self.filter(ou.Channel(channel)) >> od.Play()
         return self >> od.Play()
 
+
+    def plot_notes(self, plotlist: list[dict]) -> Self:
+
+        if plotlist:
+
+            # Define ANSI escape codes for colors
+            RED = "\033[91m"
+            RESET = "\033[0m"
+                
+            try:
+                # pip install matplotlib
+                import matplotlib.pyplot as plt
+                from matplotlib.widgets import Button
+            except ImportError:
+                print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
+                print("Please install it by running 'pip install matplotlib'.")
+                return self
+            try:
+                # pip install numpy
+                import numpy as np
+            except ImportError:
+                print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
+                print("Please install it by running 'pip install numpy'.")
+                return self
+            
+            beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
+            quantization: Fraction = self._staff % ra.Quantization() % Fraction()
+            quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
+            steps_per_measure: Fraction = beats_per_measure / quantization_beats
+
+            last_position_off: Fraction = max(note["position_off"] for note in plotlist)
+            last_position_measures: Fraction = last_position_off / beats_per_measure
+            last_position_measure: int = int(last_position_measures)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
+
+            # Draw vertical grid lines based on beats and measures
+            step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
+            beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
+            measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
+            
+
+            # Enable interactive mode (doesn't block the execution)
+            plt.ion()
+
+
+            fig, ax = plt.subplots(figsize=(12, 6))
+            for measure_pos in measure_positions:
+                ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+            for beat_pos in beat_positions:
+                ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+            for grid_pos in step_positions:
+                ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+
+            # Get pitch range
+            min_pitch: int = min(note["pitch"] for note in plotlist) // 12 * 12
+            max_pitch: int = max(note["pitch"] for note in plotlist) // 12 * 12 + 12
+
+            # Shade black keys
+            for pitch in range(min_pitch, max_pitch + 1):
+                if o.is_black_key(pitch):
+                    ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+
+            # Plot notes
+            for note in plotlist:
+                ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                        height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+        
+            ax.set_xlabel("Time (Measures.Beats.Steps)")
+            ax.set_ylabel("Chromatic Keys")
+            ax.set_title("Piano Roll with Full Quantization Grid and Beat Labels")
+
+            # Set x-axis labels in 'Measure.Beat' format
+            beat_labels = [
+                f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
+                for pos in beat_positions
+            ]
+            
+            ax.set_xticks(beat_positions)  # Only show measure & beat labels
+            ax.set_xticklabels(beat_labels, rotation=45)
+
+            chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+            # Set MIDI note ticks with Middle C in bold
+            ax.set_yticks(range(min_pitch, max_pitch + 1))
+            y_labels = [
+                chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
+                for p in range(min_pitch, max_pitch + 1)
+            ]  # Bold Middle C
+            ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+
+            ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+            ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+            plt.tight_layout()
+
+
+            # Button Widget
+            original_clip: Clip = self.copy()
+            ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
+            play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
+            play_button.on_clicked(original_clip.play)
+
+            return plt
+
+        return None
+
+
     def plot(self, block: bool = True, pause: float = 0) -> Self:
 
         # Define ANSI escape codes for colors

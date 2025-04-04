@@ -906,7 +906,7 @@ def test_tied_notes():
     note_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 4
         
-    tied_notes = Note(Tied()) * 2
+    tied_notes = Note() * 2 << Tied()
     playlist = playlist_time_ms( tied_notes.getPlaylist() )
     tied_notes_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 2
