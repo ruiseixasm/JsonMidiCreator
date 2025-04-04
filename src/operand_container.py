@@ -2040,7 +2040,6 @@ class Clip(Composition):  # Just a container of Elements
             for _ in range(iterations):
                 last_clip: Clip = self._clip_history[-1]
                 new_clip: Clip = self._clip_function(last_clip.copy())
-                self._clip_position = len(self._clip_history)
                 self._clip_history.append(new_clip)
 
         # Enable interactive mode (doesn't block the execution)
