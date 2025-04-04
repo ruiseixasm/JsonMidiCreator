@@ -1971,6 +1971,25 @@ class Clip(Composition):  # Just a container of Elements
 
         return None
 
+    def run_play(self, even = None, channel: int = None) -> Self:
+        last_clip: Clip = self._clip_history[self._clip_position]
+        if isinstance(channel, int) and channel > 0:
+            # Filter already results in a shallow copy
+            last_clip.filter(ou.Channel(channel)) >> od.Play()
+        else:
+            last_clip >> od.Play()
+        return self
+
+    def run_new(self, even = None) -> Self:
+        last_clip: Clip = self._clip_history[-1]
+        new_clip: Clip = self._clip_function(last_clip.copy())
+        self._clip_position = len(self._clip_history)
+        self._clip_history.append(new_clip)
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
+        )
+        return self
+
     def run_previous(self, even = None) -> Self:
         if self._clip_position > 0:
             self._clip_position -= 1
@@ -1987,25 +2006,6 @@ class Clip(Composition):  # Just a container of Elements
             self.plot_notes(
                 [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
             )
-        return self
-
-    def run_new(self, even = None) -> Self:
-        last_clip: Clip = self._clip_history[-1]
-        new_clip: Clip = self._clip_function(last_clip.copy())
-        self._clip_position = len(self._clip_history)
-        self._clip_history.append(new_clip)
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
-        )
-        return self
-
-    def run_play(self, even = None, channel: int = None) -> Self:
-        last_clip: Clip = self._clip_history[self._clip_position]
-        if isinstance(channel, int) and channel > 0:
-            # Filter already results in a shallow copy
-            last_clip.filter(ou.Channel(channel)) >> od.Play()
-        else:
-            last_clip >> od.Play()
         return self
 
     def run_composition(self, even = None) -> Self:
@@ -2060,35 +2060,35 @@ class Clip(Composition):  # Just a container of Elements
 
         plt.tight_layout()
 
+        # Play Button Widget
+        ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
+        play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
+        play_button.on_clicked(self.run_play)
+
         if self._clip_function is not None:
 
+            # New Button Widget
+            ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
+            new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
+            new_button.on_clicked(self.run_new)
+
             # Previous Button Widget
-            ax_button = plt.axes([0.767, 0.945, 0.03, 0.05])
-            previous_button = Button(ax_button, '<--', color='white', hovercolor='grey')
+            ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+            previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
             previous_button.on_clicked(self.run_previous)
 
             # Next Button Widget
-            ax_button = plt.axes([0.798, 0.945, 0.03, 0.05])
-            next_button = Button(ax_button, '-->', color='white', hovercolor='grey')
+            ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+            next_button = Button(ax_button, '>', color='white', hovercolor='grey')
             next_button.on_clicked(self.run_next)
-
-            # New Button Widget
-            ax_button = plt.axes([0.830, 0.945, 0.05, 0.05])
-            new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
-            new_button.on_clicked(self.run_new)
 
         if self._composition is not None:
 
             # Previous Button Widget
-            ax_button = plt.axes([0.979, 0.945, 0.015, 0.05])
-            composition_button = Button(ax_button, '!', color='white', hovercolor='grey')
+            ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
+            composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
             composition_button.on_clicked(self.run_composition)
 
-
-        # Play Button Widget
-        ax_button = plt.axes([0.893, 0.945, 0.08, 0.05])
-        play_button = Button(ax_button, 'Play', color='white', hovercolor='grey')
-        play_button.on_clicked(self.run_play)
 
         if block and pause == 0:
             plt.show(block=True)
