@@ -1980,16 +1980,6 @@ class Clip(Composition):  # Just a container of Elements
             last_clip >> od.Play()
         return self
 
-    def run_new(self, even = None) -> Self:
-        last_clip: Clip = self._clip_history[-1]
-        new_clip: Clip = self._clip_function(last_clip.copy())
-        self._clip_position = len(self._clip_history)
-        self._clip_history.append(new_clip)
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
-        )
-        return self
-
     def run_previous(self, even = None) -> Self:
         if self._clip_position > 0:
             self._clip_position -= 1
@@ -2006,6 +1996,16 @@ class Clip(Composition):  # Just a container of Elements
             self.plot_notes(
                 [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
             )
+        return self
+
+    def run_new(self, even = None) -> Self:
+        last_clip: Clip = self._clip_history[-1]
+        new_clip: Clip = self._clip_function(last_clip.copy())
+        self._clip_position = len(self._clip_history)
+        self._clip_history.append(new_clip)
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
+        )
         return self
 
     def run_composition(self, even = None) -> Self:
@@ -2065,39 +2065,25 @@ class Clip(Composition):  # Just a container of Elements
         play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
         play_button.on_clicked(self.run_play)
 
-        # New Button Widget
-        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
-        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
-        new_button.on_clicked(self.run_new)
-
         # Previous Button Widget
-        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
         previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
         previous_button.on_clicked(self.run_previous)
 
         # Next Button Widget
-        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
         next_button = Button(ax_button, '>', color='white', hovercolor='grey')
         next_button.on_clicked(self.run_next)
+
+        # New Button Widget
+        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
+        new_button.on_clicked(self.run_new)
 
         # Previous Button Widget
         ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self.run_composition)
-
-        if self._clip_function is None:
-
-            # New Button Widget
-            # Set disabled style
-            new_button.label.set_color('lightgray')         # Light text
-            new_button.ax.set_facecolor('none')             # No fill color
-            new_button.hovercolor = 'lightgray'
-            new_button.ax.spines['top'].set_color('lightgray')
-            new_button.ax.spines['bottom'].set_color('lightgray')
-            new_button.ax.spines['left'].set_color('lightgray')
-            new_button.ax.spines['right'].set_color('lightgray')
-            # Disable interactivity
-            new_button.disconnect_events()
 
         if self._clip_function is None and len(self._clip_history) == 1:
 
@@ -2125,6 +2111,19 @@ class Clip(Composition):  # Just a container of Elements
             # Disable interactivity
             next_button.disconnect_events()
 
+        if self._clip_function is None:
+
+            # New Button Widget
+            # Set disabled style
+            new_button.label.set_color('lightgray')         # Light text
+            new_button.ax.set_facecolor('none')             # No fill color
+            new_button.hovercolor = 'lightgray'
+            new_button.ax.spines['top'].set_color('lightgray')
+            new_button.ax.spines['bottom'].set_color('lightgray')
+            new_button.ax.spines['left'].set_color('lightgray')
+            new_button.ax.spines['right'].set_color('lightgray')
+            # Disable interactivity
+            new_button.disconnect_events()
 
         if self._composition is None:
             
