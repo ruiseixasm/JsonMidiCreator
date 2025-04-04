@@ -22,9 +22,11 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 four_notes = Note() * 4
-four_notes >> Plot(False)
+# four_notes >> Plot(False)
 
 four_notes << Key("A")
 # four_notes >> Plot()
 
-Chord() * 2 >> Plot()
+Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied() >> Plot()
+
+

@@ -902,16 +902,16 @@ class Note(Element):
             position_off: Fraction = self_position + self_length
             self_pitch: int = pitch_int
             last_tied_note = self._staff_reference.get_tied_note(self_pitch)
-            if last_tied_note and last_tied_note["position_off"] == self_position:
+            if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
                 # Extend last note
-                position_off = last_tied_note["position_off"] + self_length * self._gate
+                position_off = last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate
                 last_tied_note["note_list"][0]['note']["position_off"] = position_off
-                self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["position_off"] + self_length)
+                self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["position"] + last_tied_note["length"] + self_length)
                 return []   # Discard self_plotlist, adjusts just the duration of the previous note
             else:
                 # This note becomes the last tied note, position_off inplace of length has no problem
                 self._staff_reference.add_tied_note(self_pitch, 
-                    self_position, position_off, self_plotlist
+                    self_position, self_length, self_plotlist
                 )
 
         # Record present Note on the Staff stacked notes
