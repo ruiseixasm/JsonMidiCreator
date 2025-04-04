@@ -1971,7 +1971,7 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     def run_play(self, even = None, channel: int = None) -> Self:
-        last_clip: Clip = self._clip_history[-1]
+        last_clip: Clip = self._clip_history[self._clip_position]
         if isinstance(channel, int) and channel > 0:
             # Filter already results in a shallow copy
             last_clip.filter(ou.Channel(channel)) >> od.Play()
@@ -1982,9 +1982,28 @@ class Clip(Composition):  # Just a container of Elements
     def run_new(self, even = None) -> Self:
         last_clip: Clip = self._clip_history[-1]
         new_clip: Clip = self._clip_function(last_clip.copy())
+        self._clip_position = len(self._clip_history)
         self._clip_history.append(new_clip)
         self.plot_notes(
             [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
+        )
+        return self
+
+    def run_previous(self, even = None) -> Self:
+        if self._clip_position > 0:
+            self._clip_position -= 1
+        view_clip: Clip = self._clip_history[self._clip_position]
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
+        )
+        return self
+
+    def run_next(self, even = None) -> Self:
+        if self._clip_position < len(self._clip_history) - 1:
+            self._clip_position += 1
+        view_clip: Clip = self._clip_history[self._clip_position]
+        self.plot_notes(
+            [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
         )
         return self
 
@@ -2029,6 +2048,7 @@ class Clip(Composition):  # Just a container of Elements
 
         if clip_function is not None:
 
+            self._clip_position: int = 0
             self._clip_function = clip_function
 
             # New Button Widget
