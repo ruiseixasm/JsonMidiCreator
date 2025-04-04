@@ -1877,7 +1877,10 @@ class Clip(Composition):  # Just a container of Elements
                         actual_note._pitch -= ou.Octave(1)
                 last_note = actual_note
         return self
-    
+
+
+    def play(self, verbose: bool = False) -> Self:
+        return self >> od.Play(verbose)
 
     def plot(self, block: bool = True, pause: float = 0) -> Self:
 
