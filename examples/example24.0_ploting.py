@@ -27,6 +27,6 @@ four_notes = Note() * 4
 four_notes << Key("A")
 # four_notes >> Plot()
 
-Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied() >> Plot()
+(Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 >> Plot()
 
 
