@@ -2011,19 +2011,25 @@ class Clip(Composition):  # Just a container of Elements
         
         if clip_function is None:
 
-            notes_plotlist: list[dict] = [
-                note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict
-            ]
+            plt = self.plot_notes(
+                [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
+            )
 
         else:
 
             processed_self: Clip = clip_function(self)
-            notes_plotlist: list[dict] = [
-                note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict
-            ]
+            plt = self.plot_notes(
+                [ note_dict["note"] for note_dict in processed_self.getPlotlist() if "note" in note_dict ]
+            )
+
+            if plt:
+
+                # Button Widget
+                ax_button = plt.axes([0.840, 0.945, 0.05, 0.05])
+                new_button = Button(ax_button, 'New', color='white', hovercolor='grey')
+                new_button.on_clicked(self.play)
 
 
-        plt = self.plot_notes(notes_plotlist)
 
         if plt:
 
