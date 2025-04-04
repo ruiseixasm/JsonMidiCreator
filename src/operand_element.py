@@ -1704,14 +1704,20 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_plotlist: list[dict] = []
+        for single_note in self.get_component_elements():
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
+        return self_plotlist
+    
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+        self_playlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        self_midilist: list = []
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_midilist: list[dict] = []
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
@@ -1724,7 +1730,7 @@ class Retrigger(Note):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "division" in serialization["parameters"]):
 
