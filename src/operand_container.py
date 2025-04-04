@@ -2010,8 +2010,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def run_composition(self, even = None) -> Self:
         last_clip: Clip = self._clip_history[self._clip_position]
-        full_composition = self._composition + last_clip
-        full_composition >> od.Play()
+        self._composition + last_clip >> od.Play()
         return self
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
