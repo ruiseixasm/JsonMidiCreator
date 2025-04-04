@@ -925,7 +925,6 @@ class Note(Element):
 
         return self_plotlist
 
-
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
@@ -1162,14 +1161,20 @@ class Cluster(Note):
             cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
-        self_playlist: list = []
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_plotlist: list[dict] = []
+        for single_element in self.get_component_elements():
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats))
+        return self_plotlist
+    
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+        self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
-        self_midilist: list = []
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+        self_midilist: list[dict] = []
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
