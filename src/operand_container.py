@@ -2057,8 +2057,10 @@ class Clip(Composition):  # Just a container of Elements
         composition >> od.Play()
         return self
 
+
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-             n_button: Optional[Callable] = None, c_button: Optional[Callable] = None) -> 'Clip':
+             n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
+             filename: str = None) -> 'Clip':
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
