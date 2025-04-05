@@ -978,11 +978,16 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in self._items
                 for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, self_channels)
         )
+        # Because sort doesn't return anything, it just changes the list!
+        channels: list[int] = list(self_channels)
+        channels.sort(reverse=True)
         self_plotlist.insert(0, 
             {
-                "channels": list(self_channels).sort(reverse=True)
+                "channels": channels
             }
         )
+
+        print(list(self_channels).sort(reverse=True))
 
         return self_plotlist
 
@@ -1885,7 +1890,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def plot_notes(self, plotlist: list[dict], channels: list[int] = None):
+    def plot_notes(self, plotlist: list[dict], channels: list[int]):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -1963,24 +1968,16 @@ class Clip(Composition):  # Just a container of Elements
                     self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
             # Plot notes
-            if channels is None:
+            for channel in channels:
+                channel_color = channel_colors[channel - 1]
+                channel_plotlist = [
+                    channel_note for channel_note in plotlist
+                    if channel_note["channel"] == channel
+                ]
 
-                for note in plotlist:
+                for note in channel_plotlist:
                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                            height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
-        
-            else:
-
-                for channel in channels:
-                    channel_color = channel_colors[channel]
-                    channel_plotlist = [
-                        channel_note for channel_note in plotlist
-                        if channel_note["channel"] == channel
-                    ]
-
-                    for note in plotlist:
-                        self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+                            height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
         
 
             self._ax.set_xlabel("Time (Measures.Beats.Steps)")
@@ -2027,8 +2024,10 @@ class Clip(Composition):  # Just a container of Elements
         if self._iteration > 0:
             self._iteration -= 1
             view_clip: Clip = self._clip_iterations[self._iteration]
+            plotlist: list[dict] = view_clip.getPlotlist()
             self.plot_notes(
-                [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
+                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+                plotlist[0]["channels"]
             )
         return self
 
@@ -2036,8 +2035,10 @@ class Clip(Composition):  # Just a container of Elements
         if self._iteration < len(self._clip_iterations) - 1:
             self._iteration += 1
             view_clip: Clip = self._clip_iterations[self._iteration]
+            plotlist: list[dict] = view_clip.getPlotlist()
             self.plot_notes(
-                [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
+                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+                plotlist[0]["channels"]
             )
         return self
 
@@ -2046,8 +2047,10 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip = self._n_function(last_clip.copy())
         self._iteration = len(self._clip_iterations)
         self._clip_iterations.append(new_clip)
+        plotlist: list[dict] = new_clip.getPlotlist()
         self.plot_notes(
-            [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
+            [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+            plotlist[0]["channels"]
         )
         return self
 
@@ -2097,8 +2100,10 @@ class Clip(Composition):  # Just a container of Elements
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
+        plotlist: list[dict] = self.getPlotlist()
         self.plot_notes(
-            [ note_dict["note"] for note_dict in self.getPlotlist() if "note" in note_dict ]
+            [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+            plotlist[0]["channels"]
         )
 
         plt.tight_layout()
