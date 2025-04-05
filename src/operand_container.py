@@ -980,7 +980,7 @@ class Clip(Composition):  # Just a container of Elements
         )
         # Because sort doesn't return anything, it just changes the list!
         channels: list[int] = list(self_channels)
-        channels.sort(reverse=True)
+        channels.sort()
         self_plotlist.insert(0, 
             {
                 "channels": channels
