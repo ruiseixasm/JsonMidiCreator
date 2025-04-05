@@ -1944,7 +1944,7 @@ class Clip(Composition):  # Just a container of Elements
         
             self._ax.set_xlabel("Time (Measures.Beats.Steps)")
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.set_title(f"Iteration {self._clip_position + 1} of {len(self._clip_history)}")
+            self._ax.set_title(f"Iteration {self._iteration + 1} of {len(self._clip_iterations)}")
 
             # Set x-axis labels in 'Measure.Beat' format
             beat_labels = [
@@ -1972,7 +1972,7 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     def run_play(self, even = None, channel: int = None) -> Self:
-        last_clip: Clip = self._clip_history[self._clip_position]
+        last_clip: Clip = self._clip_iterations[self._iteration]
         if isinstance(channel, int) and channel > 0:
             # Filter already results in a shallow copy
             last_clip.filter(ou.Channel(channel)) >> od.Play()
@@ -1981,41 +1981,41 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def run_previous(self, even = None) -> Self:
-        if self._clip_position > 0:
-            self._clip_position -= 1
-            view_clip: Clip = self._clip_history[self._clip_position]
+        if self._iteration > 0:
+            self._iteration -= 1
+            view_clip: Clip = self._clip_iterations[self._iteration]
             self.plot_notes(
                 [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
             )
         return self
 
     def run_next(self, even = None) -> Self:
-        if self._clip_position < len(self._clip_history) - 1:
-            self._clip_position += 1
-            view_clip: Clip = self._clip_history[self._clip_position]
+        if self._iteration < len(self._clip_iterations) - 1:
+            self._iteration += 1
+            view_clip: Clip = self._clip_iterations[self._iteration]
             self.plot_notes(
                 [ note_dict["note"] for note_dict in view_clip.getPlotlist() if "note" in note_dict ]
             )
         return self
 
     def run_new(self, even = None) -> Self:
-        last_clip: Clip = self._clip_history[-1]
-        new_clip: Clip = self._clip_function(last_clip.copy())
-        self._clip_position = len(self._clip_history)
-        self._clip_history.append(new_clip)
+        last_clip: Clip = self._clip_iterations[-1]
+        new_clip: Clip = self._n_function(last_clip.copy())
+        self._iteration = len(self._clip_iterations)
+        self._clip_iterations.append(new_clip)
         self.plot_notes(
             [ note_dict["note"] for note_dict in new_clip.getPlotlist() if "note" in note_dict ]
         )
         return self
 
     def run_composition(self, even = None) -> Self:
-        last_clip: Clip = self._clip_history[self._clip_position]
-        composition: Composition = self._composition_function(last_clip)
+        last_clip: Clip = self._clip_iterations[self._iteration]
+        composition: Composition = self._c_function(last_clip)
         composition >> od.Play()
         return self
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-             clip_function: Optional[Callable] = None, composition_function: Optional[Callable] = None) -> 'Clip':
+             n_button: Optional[Callable] = None, c_button: Optional[Callable] = None) -> 'Clip':
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -2038,16 +2038,16 @@ class Clip(Composition):  # Just a container of Elements
             return None
         
 
-        self._clip_history: list[Clip] = [self.copy()]
-        self._clip_position: int = 0
-        self._clip_function = clip_function
-        self._composition_function = composition_function
+        self._clip_iterations: list[Clip] = [self.copy()]
+        self._iteration: int = 0
+        self._n_function = n_button
+        self._c_function = c_button
 
-        if self._clip_function is not None:
+        if self._n_function is not None:
             for _ in range(iterations):
-                last_clip: Clip = self._clip_history[-1]
-                new_clip: Clip = self._clip_function(last_clip.copy())
-                self._clip_history.append(new_clip)
+                last_clip: Clip = self._clip_iterations[-1]
+                new_clip: Clip = self._n_function(last_clip.copy())
+                self._clip_iterations.append(new_clip)
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
@@ -2085,7 +2085,7 @@ class Clip(Composition):  # Just a container of Elements
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self.run_composition)
 
-        if self._clip_function is None and len(self._clip_history) == 1:
+        if self._n_function is None and len(self._clip_iterations) == 1:
 
             # Previous Button Widget
             # Set disabled style
@@ -2111,7 +2111,7 @@ class Clip(Composition):  # Just a container of Elements
             # Disable interactivity
             next_button.disconnect_events()
 
-        if self._clip_function is None:
+        if self._n_function is None:
 
             # New Button Widget
             # Set disabled style
@@ -2125,7 +2125,7 @@ class Clip(Composition):  # Just a container of Elements
             # Disable interactivity
             new_button.disconnect_events()
 
-        if self._composition_function is None:
+        if self._c_function is None:
             
             # Composition Button Widget
             # Set disabled style
@@ -2154,7 +2154,7 @@ class Clip(Composition):  # Just a container of Elements
         # while plt.get_fignums():  # Check if any figure is open
         #     plt.pause(0.1)  # Pause to allow GUI event processing
 
-        return self._clip_history[self._clip_position]
+        return self._clip_iterations[self._iteration]
 
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:

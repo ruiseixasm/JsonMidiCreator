@@ -17,14 +17,14 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 chaos = SinX(340)
 
-def process_clip(clip: Clip) -> Clip:
+def new_clip(clip: Clip) -> Clip:
     clip << Input(chaos)**Choice(60, 70, 80, 90, 100)**Velocity()
     return clip
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
 snare_part = Part(ghost_notes)
 
-def process_composition(clip: Clip) -> Composition:
+def composition(clip: Clip) -> Composition:
     one_measure = clip >> Or(Measure(0), Measure(1))
     # Automatically sorted by position
     interrupted_clip = one_measure + Measures(4) + one_measure
@@ -37,7 +37,7 @@ four_notes << Key("A")
 # four_notes >> Plot()
 
 (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 \
-    >> Plot(iterations=10, clip_function=process_clip, composition_function=process_composition)
+    >> Plot(iterations=10, n_button=new_clip, c_button=composition)
 
 # (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot()
 
