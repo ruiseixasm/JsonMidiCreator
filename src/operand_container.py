@@ -1885,7 +1885,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def plot_notes(self, plotlist: list[dict], position: int = None):
+    def plot_notes(self, plotlist: list[dict], channels: list[int] = None):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -1907,6 +1907,25 @@ class Clip(Composition):  # Just a container of Elements
             print("Please install it by running 'pip install numpy'.")
             return None
             
+        channel_colors = [
+            "#4CAF50",  # Green (starting point)
+            "#FFEB3B",  # Bright Yellow
+            "#FF5722",  # Orange
+            "#9C27B0",  # Purple
+            "#2196F3",  # Blue
+            "#FF9800",  # Amber
+            "#E91E63",  # Pink
+            "#00BCD4",  # Cyan
+            "#8BC34A",  # Light Green
+            "#FFC107",  # Gold
+            "#3F51B5",  # Indigo
+            "#FF5252",  # Light Red
+            "#673AB7",  # Deep Purple
+            "#CDDC39",  # Lime
+            "#03A9F4",  # Light Blue
+            "#FF4081",  # Hot Pink
+        ]
+
         if plotlist:
 
             beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
@@ -1944,10 +1963,26 @@ class Clip(Composition):  # Just a container of Elements
                     self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
             # Plot notes
-            for note in plotlist:
-                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                        height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+            if channels is None:
+
+                for note in plotlist:
+                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                            height=0.5, color='green', edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
         
+            else:
+
+                for channel in channels:
+                    channel_color = channel_colors[channel]
+                    channel_plotlist = [
+                        channel_note for channel_note in plotlist
+                        if channel_note["channel"] == channel
+                    ]
+
+                    for note in plotlist:
+                        self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+        
+
             self._ax.set_xlabel("Time (Measures.Beats.Steps)")
             self._ax.set_ylabel("Chromatic Keys")
             self._ax.set_title(f"Iteration {self._iteration} of {
