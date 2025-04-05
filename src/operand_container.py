@@ -2010,11 +2010,12 @@ class Clip(Composition):  # Just a container of Elements
 
     def run_composition(self, even = None) -> Self:
         last_clip: Clip = self._clip_history[self._clip_position]
-        self._composition + last_clip >> od.Play()
+        composition: Composition = self._composition_function(last_clip)
+        composition >> od.Play()
         return self
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-             clip_function: Optional[Callable] = None, composition: Optional[Composition] = None) -> 'Clip':
+             clip_function: Optional[Callable] = None, composition_function: Optional[Callable] = None) -> 'Clip':
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -2040,7 +2041,7 @@ class Clip(Composition):  # Just a container of Elements
         self._clip_history: list[Clip] = [self.copy()]
         self._clip_position: int = 0
         self._clip_function = clip_function
-        self._composition = composition
+        self._composition_function = composition_function
 
         if self._clip_function is not None:
             for _ in range(iterations):
@@ -2124,7 +2125,7 @@ class Clip(Composition):  # Just a container of Elements
             # Disable interactivity
             new_button.disconnect_events()
 
-        if self._composition is None:
+        if self._composition_function is None:
             
             # Composition Button Widget
             # Set disabled style
