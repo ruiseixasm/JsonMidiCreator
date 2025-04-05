@@ -1888,6 +1888,25 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
+    _channel_colors = [
+        "#4CAF50",  # Green (starting point)
+        "#FFEB3B",  # Bright Yellow
+        "#FF5722",  # Orange
+        "#9C27B0",  # Purple
+        "#2196F3",  # Blue
+        "#FF9800",  # Amber
+        "#E91E63",  # Pink
+        "#00BCD4",  # Cyan
+        "#8BC34A",  # Light Green
+        "#FFC107",  # Gold
+        "#3F51B5",  # Indigo
+        "#FF5252",  # Light Red
+        "#673AB7",  # Deep Purple
+        "#CDDC39",  # Lime
+        "#03A9F4",  # Light Blue
+        "#FF4081",  # Hot Pink
+    ]
+
     def plot_notes(self, plotlist: list[dict], channels: list[int]):
 
         # Define ANSI escape codes for colors
@@ -1910,25 +1929,6 @@ class Clip(Composition):  # Just a container of Elements
             print("Please install it by running 'pip install numpy'.")
             return None
             
-        channel_colors = [
-            "#4CAF50",  # Green (starting point)
-            "#FFEB3B",  # Bright Yellow
-            "#FF5722",  # Orange
-            "#9C27B0",  # Purple
-            "#2196F3",  # Blue
-            "#FF9800",  # Amber
-            "#E91E63",  # Pink
-            "#00BCD4",  # Cyan
-            "#8BC34A",  # Light Green
-            "#FFC107",  # Gold
-            "#3F51B5",  # Indigo
-            "#FF5252",  # Light Red
-            "#673AB7",  # Deep Purple
-            "#CDDC39",  # Lime
-            "#03A9F4",  # Light Blue
-            "#FF4081",  # Hot Pink
-        ]
-
         if plotlist:
 
             beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
@@ -1967,7 +1967,7 @@ class Clip(Composition):  # Just a container of Elements
 
             # Plot notes
             for channel in channels:
-                channel_color = channel_colors[channel - 1]
+                channel_color = Clip._channel_colors[channel - 1]
                 channel_plotlist = [
                     channel_note for channel_note in plotlist
                     if channel_note["channel"] == channel
