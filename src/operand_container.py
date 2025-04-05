@@ -1944,7 +1944,9 @@ class Clip(Composition):  # Just a container of Elements
         
             self._ax.set_xlabel("Time (Measures.Beats.Steps)")
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.set_title(f"Iteration {self._iteration + 1} of {len(self._clip_iterations)}")
+            self._ax.set_title(f"Iteration {self._iteration} of {
+                len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
+            }")
 
             # Set x-axis labels in 'Measure.Beat' format
             beat_labels = [
