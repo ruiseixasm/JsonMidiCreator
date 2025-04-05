@@ -987,8 +987,6 @@ class Clip(Composition):  # Just a container of Elements
             }
         )
 
-        print(list(self_channels).sort(reverse=True))
-
         return self_plotlist
 
 

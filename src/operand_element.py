@@ -505,7 +505,7 @@ class Group(Element):
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats))
+            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
         return self_playlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -1171,7 +1171,7 @@ class Cluster(Note):
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats))
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -1304,7 +1304,7 @@ class KeyScale(Note):
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -1724,7 +1724,7 @@ class Retrigger(Note):
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -1899,7 +1899,7 @@ class Tuplet(Element):
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats))
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
