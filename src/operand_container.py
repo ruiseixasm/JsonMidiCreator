@@ -2021,8 +2021,7 @@ class Clip(Composition):  # Just a container of Elements
     def run_previous(self, even = None) -> Self:
         if self._iteration > 0:
             self._iteration -= 1
-            view_clip: Clip = self._clip_iterations[self._iteration]
-            plotlist: list[dict] = view_clip.getPlotlist()
+            plotlist: list[dict] = self._plot_lists[self._iteration]
             self.plot_notes(
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
@@ -2030,10 +2029,9 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def run_next(self, even = None) -> Self:
-        if self._iteration < len(self._clip_iterations) - 1:
+        if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
-            view_clip: Clip = self._clip_iterations[self._iteration]
-            plotlist: list[dict] = view_clip.getPlotlist()
+            plotlist: list[dict] = self._plot_lists[self._iteration]
             self.plot_notes(
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
@@ -2044,8 +2042,9 @@ class Clip(Composition):  # Just a container of Elements
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
         self._iteration = len(self._clip_iterations)
-        self._clip_iterations.append(new_clip)
         plotlist: list[dict] = new_clip.getPlotlist()
+        self._clip_iterations.append(new_clip)
+        self._plot_lists.append(plotlist)
         self.plot_notes(
             [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
             plotlist[0]["channels"]
@@ -2082,7 +2081,8 @@ class Clip(Composition):  # Just a container of Elements
             return None
         
 
-        self._clip_iterations: list[Clip] = [self.copy()]
+        self._clip_iterations: list[Clip] = [ self.copy() ]
+        self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._iteration: int = 0
         self._n_function = n_button
         self._c_function = c_button
@@ -2091,17 +2091,18 @@ class Clip(Composition):  # Just a container of Elements
             for _ in range(iterations):
                 last_clip: Clip = self._clip_iterations[-1]
                 new_clip: Clip = self._n_function(last_clip.copy())
+                plotlist: list[dict] = new_clip.getPlotlist()
                 self._clip_iterations.append(new_clip)
+                self._plot_lists.append(plotlist)
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
-        plotlist: list[dict] = self.getPlotlist()
         self.plot_notes(
-            [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-            plotlist[0]["channels"]
+            [ note_dict["note"] for note_dict in self._plot_lists[0] if "note" in note_dict ],
+            self._plot_lists[0][0]["channels"]
         )
 
         plt.tight_layout()
