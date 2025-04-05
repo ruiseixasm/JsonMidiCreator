@@ -208,7 +208,7 @@ class Element(o.Operand):
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
 
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         return []
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -502,7 +502,7 @@ class Group(Element):
     def get_component_elements(self) -> list[Element]:
         return self._elements
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats))
@@ -870,13 +870,16 @@ class Note(Element):
                 return super().__eq__(other)
 
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         if not self._enabled:
             return []
         
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         if self_duration_min == 0:
             return []
+
+        if channels is not None:
+            channels.add(self._channel)
 
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
@@ -1165,7 +1168,7 @@ class Cluster(Note):
             cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats))
@@ -1298,7 +1301,7 @@ class KeyScale(Note):
                 scale_notes.append( new_note )
         return self._arpeggio.arpeggiate(scale_notes)
     
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
@@ -1718,7 +1721,7 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats))
@@ -1893,7 +1896,7 @@ class Tuplet(Element):
             self_iteration += 1
         return tuplet_elements
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: set = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats))
