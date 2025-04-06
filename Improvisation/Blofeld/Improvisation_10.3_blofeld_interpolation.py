@@ -32,7 +32,7 @@ print("1st LOOP")
 
 level_cc = ControlChange(Blofeld.midi_cc["EFFECTS"]["Mix 1"]) / 2 << Foreach(10, 90)
 level_cc[1] += Measures(level_cc, 1) - Step(1)
-level_cc >> Interpolate()
+level_cc >> Interpolate() >> Plot()
 (level_cc + long_note_c) * 8 >> P
 
 print("2nd LOOP")

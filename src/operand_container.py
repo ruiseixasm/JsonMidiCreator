@@ -1462,21 +1462,22 @@ class Clip(Composition):  # Just a container of Elements
 
     def interpolate(self) -> Self:
 
-        automations: list[Clip] = []
         # It's a shallow copy of self, so, adding elements to it also adds elements to self!
-        automations.append( self.filter(of.OperandType(oe.ControlChange)) )
-        automations.append( self.filter(of.OperandType(oe.PitchBend)) )
-        automations.append( self.filter(of.OperandType(oe.Aftertouch)) )
+        clip_automations: Clip = self.filter(of.OperandType(oe.Automation))
+        plotlist: list[dict] = clip_automations.getPlotlist()
+        channels: list[int] = plotlist[0]["channels"]["automation"]
 
-        for automation_clip in automations:
+        for channel in channels:
 
-            if automation_clip.len() > 1:
+            channel_automation: Clip = clip_automations.filter(ou.Channel(channel))
 
-                element_template: oe.Element = automation_clip[0].copy()
+            if channel_automation.len() > 1:
+
+                element_template: oe.Element = channel_automation[0].copy()
                 
                 # Find indices of known values
                 known_indices = [
-                    (element % ra.Position()).convertToSteps() % int() for element in automation_clip._items
+                    (element % ra.Position()).convertToSteps() % int() for element in channel_automation._items
                 ]
 
                 total_messages: int = known_indices[-1] - known_indices[0] + 1
@@ -1485,7 +1486,7 @@ class Clip(Composition):  # Just a container of Elements
                 element_index: int = 0
                 for index in range(total_messages):
                     if index in known_indices:
-                        pattern_values[index] = automation_clip[element_index] % int()
+                        pattern_values[index] = channel_automation[element_index] % int()
                         element_index += 1
 
                 automation = self._interpolate_list(known_indices, pattern_values)
@@ -1493,7 +1494,7 @@ class Clip(Composition):  # Just a container of Elements
                 position_steps: ra.Steps = ra.Steps(0)
                 for index, value in enumerate(automation):
                     if index not in known_indices:   # None adds no Element
-                        automation_clip += element_template << value << position_steps
+                        channel_automation += element_template << value << position_steps
                     position_steps += 1
 
         return self._sort_position()
