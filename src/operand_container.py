@@ -2049,11 +2049,11 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_new(self, even = None) -> Self:
-        last_iteration: int = len(self._clip_iterations) - 1
+        last_iteration: int = self._iteration
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
         if isinstance(new_clip, Clip):
-            self._iteration = last_iteration + 1
+            self._iteration = len(self._clip_iterations)
             plotlist: list[dict] = new_clip.getPlotlist()
             self._clip_iterations.append(new_clip)
             self._plot_lists.append(plotlist)
