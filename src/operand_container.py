@@ -1912,7 +1912,7 @@ class Clip(Composition):  # Just a container of Elements
         "#FF4081",  # Hot Pink
     ]
 
-    def _plot_elements(self, plotlist: list[dict], channels: list[int]):
+    def _plot_elements(self, plotlist: list[dict]):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -1933,8 +1933,14 @@ class Clip(Composition):  # Just a container of Elements
             print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
             print("Please install it by running 'pip install numpy'.")
             return None
-            
-        if plotlist:
+        
+        note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
+        note_channels: list[int] = plotlist[0]["channels"]["note"]
+        automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
+        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
+
+
+        if note_plotlist:
 
             self._ax.clear()
 
@@ -1952,7 +1958,7 @@ class Clip(Composition):  # Just a container of Elements
             quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
             steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
-            last_position_off: Fraction = max(note["position_off"] for note in plotlist)
+            last_position_off: Fraction = max(note["position_off"] for note in note_plotlist)
             last_position_measures: Fraction = last_position_off / beats_per_measure
             last_position_measure: int = int(last_position_measures)
             if last_position_measure != last_position_measures:
@@ -1976,8 +1982,8 @@ class Clip(Composition):  # Just a container of Elements
             self._ax.set_ylabel("Chromatic Keys")
 
             # Get pitch range
-            min_pitch: int = min(note["pitch"] for note in plotlist) // 12 * 12
-            max_pitch: int = max(note["pitch"] for note in plotlist) // 12 * 12 + 12
+            min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
+            max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
 
             # Shade black keys
             for pitch in range(min_pitch, max_pitch + 1):
@@ -1985,10 +1991,10 @@ class Clip(Composition):  # Just a container of Elements
                     self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
             # Plot notes
-            for channel in channels["note"]:
+            for channel in note_channels:
                 channel_color = Clip._channel_colors[channel - 1]
                 channel_plotlist = [
-                    channel_note for channel_note in plotlist
+                    channel_note for channel_note in note_plotlist
                     if channel_note["channel"] == channel
                 ]
 
@@ -2035,30 +2041,21 @@ class Clip(Composition):  # Just a container of Elements
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(
-                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-                plotlist[0]["channels"]
-            )
+            self._plot_elements(plotlist)
         return self
 
     def _run_next(self, even = None) -> Self:
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(
-                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-                plotlist[0]["channels"]
-            )
+            self._plot_elements(plotlist)
         return self
 
     def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
         if plotlist != self._plot_lists[iteration]:
             self._plot_lists[iteration] = plotlist
             if iteration == self._iteration:
-                self._plot_elements(
-                    [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-                    plotlist[0]["channels"]
-                )
+                self._plot_elements(plotlist)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -2070,10 +2067,7 @@ class Clip(Composition):  # Just a container of Elements
             plotlist: list[dict] = new_clip.getPlotlist()
             self._clip_iterations.append(new_clip)
             self._plot_lists.append(plotlist)
-            self._plot_elements(
-                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-                plotlist[0]["channels"]
-            )
+            self._plot_elements(plotlist)
         # Updates the last_clip data and plot just in case
         self._update_iteration(iteration, last_clip.getPlotlist())
         return self
@@ -2154,10 +2148,7 @@ class Clip(Composition):  # Just a container of Elements
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
-        self._plot_elements(
-            [ note_dict["note"] for note_dict in self._plot_lists[0] if "note" in note_dict ],
-            self._plot_lists[0][0]["channels"]
-        )
+        self._plot_elements(self._plot_lists[0])
 
         plt.tight_layout()
 
