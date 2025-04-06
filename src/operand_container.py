@@ -2023,6 +2023,13 @@ class Clip(Composition):  # Just a container of Elements
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
+            # Updates X-Axis data
+            last_position = max(automation["position"] for automation in automation_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position_measures)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
+
             # Axis limits
             self._ax.set_ylim(-1, 128)
             # Ticks
@@ -2045,18 +2052,24 @@ class Clip(Composition):  # Just a container of Elements
                     if channel_automation["channel"] == channel
                 ]
 
-                # Plotting point lists
-                x: list[float]  = []
-                y: list[int]    = []
-                for automation in channel_plotlist:
-                    x.append( float(automation["position"]) )
-                    y.append( automation["value"] )
+                if channel_plotlist:
 
-                # Stepped line connecting the points
-                self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=2)
-                # Actual data points
-                self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
+                    channel_plotlist.sort(key=lambda a: a['position'])
 
+                    # Plotting point lists
+                    x: list[float]  = []
+                    y: list[int]    = []
+                    for automation in channel_plotlist:
+                        x.append( float(automation["position"]) )
+                        y.append( automation["value"] )
+
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
+                    # Actual data points
+                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
+
+                    if channel_plotlist[-1] != last_position_measure * beats_per_measure:
+                        ...
 
 
 
