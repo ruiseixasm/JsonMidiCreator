@@ -136,11 +136,11 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Environments (Unignore first if you wish some of these folders to have files included)
 .env
 .venv
 env/
-venv/
+# venv/
 ENV/
 env.bak/
 venv.bak/
@@ -187,3 +187,7 @@ Midi/*.mid
 Midi/*.smf
 json/*.json
 json/*/*.json
+
+# Include .txt files in Virtual Environment folder wit (!)
+!venv/*.txt
+
