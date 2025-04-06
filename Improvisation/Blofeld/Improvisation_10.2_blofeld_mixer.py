@@ -35,7 +35,7 @@ level_cc = measure_cc * 1 << Iterate(0, -7)
 level_cc *= measure_cc << Iterate(-7*16, 7)
 level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(7*16, -7)
-level_cc >> Plot()
+level_cc >> Export("json/_Export_improvisation_10.2.json") >> Plot()
 (level_cc + long_note_c) * 2 >> P
 
 print("2nd LOOP")

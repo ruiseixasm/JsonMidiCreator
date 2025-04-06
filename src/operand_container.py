@@ -1005,11 +1005,10 @@ class Clip(Composition):  # Just a container of Elements
             }
         ]
     
-        self_playlist.extend(
-            single_playlist
-                for single_element in self._items
-                for single_playlist in single_element.getPlaylist(self._midi_track, position_beats, False)
-        )
+        for single_element in self._items:
+            self_playlist.extend(
+                single_element.getPlaylist(self._midi_track, position_beats, False)
+            )
 
         return self_playlist
 

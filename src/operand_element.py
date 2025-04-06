@@ -1995,17 +1995,20 @@ class Automation(Element):
             channels["automation"].add(self._channel)
 
         self_plotlist: list[dict] = []
+        automation_msb_value: int = self._get_msb_value()
+
+        if automation_msb_value is not None:
     
-        # Midi validation is done in the JsonMidiPlayer program
-        self_plotlist.append(
-            {
-                "automation": {
-                    "position": self._position_beats,
-                    "value": self._get_msb_value(),
-                    "channel": self._channel
+            # Midi validation is done in the JsonMidiPlayer program
+            self_plotlist.append(
+                {
+                    "automation": {
+                        "position": self._position_beats,
+                        "value": automation_msb_value,
+                        "channel": self._channel
+                    }
                 }
-            }
-        )
+            )
 
         return self_plotlist
 
@@ -2059,6 +2062,8 @@ class ControlChange(Automation):
 
     def _get_msb_value(self) -> int:
         
+        if self._value >= 0:
+
             if self._controller._nrpn:
 
                 cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
@@ -2067,6 +2072,8 @@ class ControlChange(Automation):
 
                 msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
                 return msb_value
+            
+        return None
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -2171,39 +2178,41 @@ class ControlChange(Automation):
 
         # Validation is done by midiutil Midi Range Validation
 
-        if self._controller._nrpn:
+        if self._value >= 0:
 
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+            if self._controller._nrpn:
 
-            self_midilist[0]["number"]      = 99
-            self_midilist[0]["value"]       = cc_99_msb
+                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
-            self_midilist[1] = self_midilist[0].copy()
-            self_midilist[1]["number"]      = 98
-            self_midilist[1]["value"]       = cc_98_lsb
-
-            self_midilist[2] = self_midilist[0].copy()
-            self_midilist[2]["number"]      = 6
-            self_midilist[2]["value"]       = cc_6_msb
-
-            if self._controller._high:
-
-                self_midilist[3] = self_midilist[0].copy()
-                self_midilist[3]["number"]      = 38
-                self_midilist[3]["value"]       = cc_38_lsb
-
-        else:
-
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-
-            self_midilist[0]["number"]      = self._controller._number_msb
-            self_midilist[0]["value"]       = msb_value
-
-            if self._controller._high:
+                self_midilist[0]["number"]      = 99
+                self_midilist[0]["value"]       = cc_99_msb
 
                 self_midilist[1] = self_midilist[0].copy()
-                self_midilist[1]["number"]      = self._controller._lsb
-                self_midilist[1]["value"]       = lsb_value
+                self_midilist[1]["number"]      = 98
+                self_midilist[1]["value"]       = cc_98_lsb
+
+                self_midilist[2] = self_midilist[0].copy()
+                self_midilist[2]["number"]      = 6
+                self_midilist[2]["value"]       = cc_6_msb
+
+                if self._controller._high:
+
+                    self_midilist[3] = self_midilist[0].copy()
+                    self_midilist[3]["number"]      = 38
+                    self_midilist[3]["value"]       = cc_38_lsb
+
+            else:
+
+                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+
+                self_midilist[0]["number"]      = self._controller._number_msb
+                self_midilist[0]["value"]       = msb_value
+
+                if self._controller._high:
+
+                    self_midilist[1] = self_midilist[0].copy()
+                    self_midilist[1]["number"]      = self._controller._lsb
+                    self_midilist[1]["value"]       = lsb_value
 
         return self_midilist
 
@@ -2493,7 +2502,8 @@ class PitchBend(Automation):
                     and self._bend == other._bend
             case _:
                 return super().__eq__(other)
-    
+
+
     def _get_msb_value(self) -> int:
         
         # from -8192 to 8191
