@@ -2101,11 +2101,10 @@ class Clip(Composition):  # Just a container of Elements
         
         self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
         self._ax.set_xticklabels(beat_labels, rotation=45)
-
         self._fig.canvas.draw_idle()
 
-
         return None
+
 
     def _run_play(self, even = None, channel: int = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
@@ -2121,6 +2120,9 @@ class Clip(Composition):  # Just a container of Elements
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             self._plot_elements(plotlist)
+            self._enable_button(self._next_button)
+            if self._iteration == 0:
+                self._disable_button(self._previous_button)
         return self
 
     def _run_next(self, even = None) -> Self:
@@ -2128,6 +2130,9 @@ class Clip(Composition):  # Just a container of Elements
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             self._plot_elements(plotlist)
+            self._enable_button(self._previous_button)
+            if self._iteration == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
         return self
 
     def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
@@ -2138,33 +2143,38 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_new(self, even = None) -> Self:
-        iteration: int = self._iteration
-        last_clip: Clip = self._clip_iterations[-1]
-        new_clip: Clip = self._n_function(last_clip.copy())
-        if isinstance(new_clip, Clip):
-            self._iteration = len(self._clip_iterations)
-            plotlist: list[dict] = new_clip.getPlotlist()
-            self._clip_iterations.append(new_clip)
-            self._plot_lists.append(plotlist)
-            self._plot_elements(plotlist)
-        # Updates the last_clip data and plot just in case
-        self._update_iteration(iteration, last_clip.getPlotlist())
+        if self._n_function is not None:
+            iteration: int = self._iteration
+            last_clip: Clip = self._clip_iterations[-1]
+            new_clip: Clip = self._n_function(last_clip.copy())
+            if isinstance(new_clip, Clip):
+                self._iteration = len(self._clip_iterations)
+                plotlist: list[dict] = new_clip.getPlotlist()
+                self._clip_iterations.append(new_clip)
+                self._plot_lists.append(plotlist)
+                self._plot_elements(plotlist)
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(iteration, last_clip.getPlotlist())
+            self._enable_button(self._previous_button)
+            self._disable_button(self._next_button)
         return self
 
     def _run_composition(self, even = None) -> Self:
-        last_clip: Clip = self._clip_iterations[self._iteration]
-        composition: Composition = self._c_function(last_clip)
-        # Updates the last_clip data and plot just in case
-        self._update_iteration(self._iteration, last_clip.getPlotlist())
-        if isinstance(composition, Composition):
-            composition >> od.Play()
+        if self._c_function is not None:
+            last_clip: Clip = self._clip_iterations[self._iteration]
+            composition: Composition = self._c_function(last_clip)
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(self._iteration, last_clip.getPlotlist())
+            if isinstance(composition, Composition):
+                composition >> od.Play()
         return self
     
     def _run_execute(self, even = None) -> Self:
-        last_clip: Clip = self._clip_iterations[self._iteration]
-        self._e_function(last_clip)
-        # Updates the last_clip data and plot just in case
-        self._update_iteration(self._iteration, last_clip.getPlotlist())
+        if self._e_function is not None:
+            last_clip: Clip = self._clip_iterations[self._iteration]
+            self._e_function(last_clip)
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(self._iteration, last_clip.getPlotlist())
         return self
 
     @staticmethod
@@ -2172,25 +2182,19 @@ class Clip(Composition):  # Just a container of Elements
         # Set disabled style
         button.label.set_color('lightgray')         # Light text
         button.ax.set_facecolor('none')             # No fill color
-        button.hovercolor = 'lightgray'
-        button.ax.spines['top'].set_color('lightgray')
-        button.ax.spines['bottom'].set_color('lightgray')
-        button.ax.spines['left'].set_color('lightgray')
-        button.ax.spines['right'].set_color('lightgray')
-        # Disable interactivity
-        button.disconnect_events()
+        button.hovercolor = 'none'
+        for spine in button.ax.spines.values():
+            spine.set_color('lightgray')
         return button
 
-    def _enable_button(self, button: Button) -> Button:
+    @staticmethod
+    def _enable_button(button: Button) -> Button:
         # Set enabled style
-        if button is self._previous_button:
-            ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
-            self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
-            self._previous_button.on_clicked(self._run_previous)
-        elif button is self._next_button:
-            ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
-            self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
-            self._next_button.on_clicked(self._run_next)
+        button.ax.set_facecolor('white')
+        button.hovercolor = 'gray'
+        button.label.set_color('black')
+        for spine in button.ax.spines.values():
+            spine.set_color('black')
         return button
 
     def _on_move(self, event):
@@ -2258,9 +2262,9 @@ class Clip(Composition):  # Just a container of Elements
         execute_button = Button(ax_button, 'E', color='white', hovercolor='grey')
         execute_button.on_clicked(self._run_execute)
 
+        # Previous Button Widget
+        self._disable_button(self._previous_button)
         if self._n_function is None and len(self._clip_iterations) == 1:
-            # Previous Button Widget
-            self._disable_button(self._previous_button)
             # Next Button Widget
             self._disable_button(self._next_button)
 
