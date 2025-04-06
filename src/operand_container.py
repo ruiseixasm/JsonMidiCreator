@@ -1985,10 +1985,10 @@ class Clip(Composition):  # Just a container of Elements
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
 
-        if note_plotlist:
+        # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
 
-
-            # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
+        # Plot Notes
+        if note_plotlist or not automation_plotlist:
 
             self._ax.set_ylabel("Chromatic Keys")
 
@@ -2024,6 +2024,12 @@ class Clip(Composition):  # Just a container of Elements
             self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
             self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+        
+        # Plot Automations
+        else:
+
+            ...
 
 
         self._fig.canvas.draw_idle()
