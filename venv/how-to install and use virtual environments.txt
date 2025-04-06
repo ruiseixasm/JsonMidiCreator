@@ -1,0 +1,35 @@
+# How to manage virtual environments
+
+# Crete a virtual environment (adapt to the intended python version, like, python3.13)
+python -m venv .venv
+
+# Activate the Virtual Environment
+source venv/bin/activate
+
+# Deactivating Virtual Environments
+deactivate
+
+# Removing Virtual Environments
+rm -rf venv
+
+# Managing Multiple Environments
+python3 -m venv venv2       # copy original virtual environment
+source venv2/bin/activate   # activate new environment
+
+
+# Installing Libraries in a Virtual Environment
+pip install numpy
+pip install requests==2.25.1
+pip list
+
+# Exporting Environment Configuration
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+# Checking Environment Integrity
+pip check
+
+# Updating Dependencies
+pip install --upgrade -r requirements.txt
+
+
