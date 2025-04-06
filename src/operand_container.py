@@ -2067,9 +2067,10 @@ class Clip(Composition):  # Just a container of Elements
 
 
         # Draw vertical grid lines based on beats and measures
-        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
-        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
-        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
+        one_extra_subdivision: float = quantization_beats
+        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), 1)
+        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
     
         for measure_pos in measure_positions:
             self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
