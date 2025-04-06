@@ -972,12 +972,23 @@ class Clip(Composition):  # Just a container of Elements
 
         self_channels: set[int] = set()
         self_plotlist: list[dict] = []
+
+        channels: dict[str, set[int]] = {
+            "note":         set(),
+            "automation":   set()
+        }
     
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
                 for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, self_channels)
         )
+        # sorted(set) returns the sorted list from set
+        # list_none = list(set).sort() doesn't return anything but None !
+
+
+
+        
         # Because sort doesn't return anything, it just changes the list!
         channels: list[int] = list(self_channels)
         channels.sort()
