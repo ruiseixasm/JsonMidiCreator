@@ -1956,7 +1956,8 @@ class Clip(Composition):  # Just a container of Elements
         quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
-        last_position_off: Fraction = max(note["position_off"] for note in note_plotlist)
+        # By default it's 1 Measure long
+        last_position_off: Fraction = beats_per_measure
         last_position_measures: Fraction = last_position_off / beats_per_measure
         last_position_measure: int = int(last_position_measures)
         if last_position_measure != last_position_measures:
@@ -1967,6 +1968,13 @@ class Clip(Composition):  # Just a container of Elements
 
         # Plot Notes
         if note_plotlist or not automation_plotlist:
+
+            # Updates X-Axis data
+            last_position_off = max(note["position_off"] for note in note_plotlist)
+            last_position_measures = last_position_off / beats_per_measure
+            last_position_measure = int(last_position_measures)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
 
             self._ax.set_ylabel("Chromatic Keys")
 
