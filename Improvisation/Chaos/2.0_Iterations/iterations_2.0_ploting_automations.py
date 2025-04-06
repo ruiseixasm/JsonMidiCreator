@@ -30,7 +30,7 @@ def composition(clip: Clip) -> Composition:
     interrupted_clip = one_measure + Measures(4) + one_measure
     return snare_part + interrupted_clip
 
-volume_automation = ControlChange("Volume", 1/4) * 4
+volume_automation = ControlChange("Volume", 1/4) * 4 * 2
 
 volume_automation >> Plot(iterations=10, n_button=new_clip, c_button=composition)
 

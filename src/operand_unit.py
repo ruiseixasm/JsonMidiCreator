@@ -2381,11 +2381,35 @@ class Number(Midi):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.nameToNumber(operand._data)
+                    case str():                     self._unit = self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
-            case str():             self.nameToNumber(operand)
+            case str():             self._unit = self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
         return self
+
+    @staticmethod
+    def getDefault(number: int | str) -> int:
+        if isinstance(number, str):
+            number = Number.nameToNumber(number)
+        for controller in Number._controllers:
+            if controller["midi_number"] == number:
+                return controller["default_value"]
+        return 0
+
+    @staticmethod
+    def nameToNumber(name: str = "Pan") -> int:
+        for controller in Number._controllers:
+            for controller_name in controller["names"]:
+                if controller_name.lower().find(name.strip().lower()) != -1:
+                    return controller["midi_number"]
+        return 10   # Default is Pan
+
+    @staticmethod
+    def numberToName(number: int) -> str:
+        for controller in Number._controllers:
+            if controller["midi_number"] == number:
+                return controller["names"][0]
+        return "Unknown controller!"
 
     _controllers: list[dict[str, int | list[str]]] = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },
@@ -2439,27 +2463,6 @@ class Number(Midi):
         {   "midi_number": 126, "default_value": 0,     "names": ["Mono On", "Monophonic"]    },
         {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    }
     ]
-
-    @staticmethod
-    def getDefault(number: int) -> int:
-        for controller in Number._controllers:
-            if controller["midi_number"] == number:
-                return controller["default_value"]
-        return 0
-
-    def nameToNumber(self, name: str = "Pan"):
-        for controller in Number._controllers:
-            for controller_name in controller["names"]:
-                if controller_name.lower().find(name.strip().lower()) != -1:
-                    self._unit = controller["midi_number"]
-                    return
-
-    @staticmethod
-    def numberToName(number: int) -> str:
-        for controller in Number._controllers:
-            if controller["midi_number"] == number:
-                return controller["names"][0]
-        return "Unknown controller!"
 
 class MSB(Number):
     pass
