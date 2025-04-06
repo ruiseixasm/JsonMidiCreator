@@ -2062,9 +2062,10 @@ class Clip(Composition):  # Just a container of Elements
                         y.append( automation["value"] )
 
                     # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
                     # Actual data points
-                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
+                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
+                                  markeredgecolor='black', markeredgewidth=1, markersize=8)
 
                     # Add the tailed line up to the end of the chart
                     x = [
@@ -2076,7 +2077,7 @@ class Clip(Composition):  # Just a container of Elements
                         channel_plotlist[-1]["value"]
                     ]
                     # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
                     # Actual data points
                     self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
