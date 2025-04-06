@@ -1907,7 +1907,7 @@ class Clip(Composition):  # Just a container of Elements
         "#FF4081",  # Hot Pink
     ]
 
-    def plot_notes(self, plotlist: list[dict], channels: list[int]):
+    def _plot_elements(self, plotlist: list[dict], channels: list[int]):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -2022,7 +2022,7 @@ class Clip(Composition):  # Just a container of Elements
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self.plot_notes(
+            self._plot_elements(
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
             )
@@ -2032,7 +2032,7 @@ class Clip(Composition):  # Just a container of Elements
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self.plot_notes(
+            self._plot_elements(
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
             )
@@ -2041,20 +2041,22 @@ class Clip(Composition):  # Just a container of Elements
     def run_new(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
-        self._iteration = len(self._clip_iterations)
-        plotlist: list[dict] = new_clip.getPlotlist()
-        self._clip_iterations.append(new_clip)
-        self._plot_lists.append(plotlist)
-        self.plot_notes(
-            [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
-            plotlist[0]["channels"]
-        )
+        if isinstance(new_clip, Clip):
+            self._iteration = len(self._clip_iterations)
+            plotlist: list[dict] = new_clip.getPlotlist()
+            self._clip_iterations.append(new_clip)
+            self._plot_lists.append(plotlist)
+            self._plot_elements(
+                [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+                plotlist[0]["channels"]
+            )
         return self
 
     def run_composition(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
         composition: Composition = self._c_function(last_clip)
-        composition >> od.Play()
+        if isinstance(composition, Composition):
+            composition >> od.Play()
         return self
 
 
@@ -2102,7 +2104,7 @@ class Clip(Composition):  # Just a container of Elements
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
 
-        self.plot_notes(
+        self._plot_elements(
             [ note_dict["note"] for note_dict in self._plot_lists[0] if "note" in note_dict ],
             self._plot_lists[0][0]["channels"]
         )
