@@ -1934,11 +1934,6 @@ class Clip(Composition):  # Just a container of Elements
             print("Please install it by running 'pip install numpy'.")
             return None
         
-        note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
-        note_channels: list[int] = plotlist[0]["channels"]["note"]
-        automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
-        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
-
         self._ax.clear()
 
         self._ax.set_title(f"Iteration {self._iteration} of {
@@ -1966,8 +1961,13 @@ class Clip(Composition):  # Just a container of Elements
 
         # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
 
+        note_channels: list[int] = plotlist[0]["channels"]["note"]
+        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
+
         # Plot Notes
-        if note_plotlist or not automation_plotlist:
+        if note_channels or not automation_channels:
+
+            note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
             # Updates X-Axis data
             last_position_off = max(note["position_off"] for note in note_plotlist)
@@ -2019,7 +2019,7 @@ class Clip(Composition):  # Just a container of Elements
         # Plot Automations
         else:
 
-            ...
+            automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
 
         # Draw vertical grid lines based on beats and measures

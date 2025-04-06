@@ -1984,6 +1984,65 @@ class Automation(Element):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: dict[str, set[int]] = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        if self_duration_min == 0:
+            return []
+
+        if channels is not None:
+            channels["automation"].add(self._channel)
+
+        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+
+        self_plotlist: list[dict] = []
+    
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "note": {
+                    "position_on": self._position_beats,
+                    "position_off": self._position_beats + self % ra.Length() // Fraction(),
+                    "pitch": int( self % og.Pitch() % float() ),
+                    "velocity": self._velocity,
+                    "channel": self._channel
+                }
+            }
+        )
+
+        # Checks if it's a following tied note first
+        if self._tied > 0:
+            self_position: Fraction = self._position_beats
+            self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
+            if self._tied > 1:
+                position_off: Fraction = self_position + self_length
+                last_tied_note = self._staff_reference.get_tied_note(pitch_int)
+                if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
+                    # Extend last note
+                    position_off = last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate
+                    last_tied_note["note_list"][0]['note']["position_off"] = position_off
+                    self._staff_reference.set_tied_note_length(pitch_int, last_tied_note["position"] + last_tied_note["length"] + self_length)
+                    return []   # Discard self_plotlist, adjusts just the duration of the previous note
+            else:   # Must be the first tied note
+                # This note becomes the last tied note, position_off inplace of length has no problem
+                self._staff_reference.add_tied_note(pitch_int, 
+                    self_position, self_length, self_plotlist
+                )
+
+        # Record present Note on the Staff stacked notes
+        if not self._staff_reference.stack_note(
+            self_plotlist[0]['note']["position_on"],
+            self._channel - 1,
+            pitch_int
+        ):
+            print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
+                  f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
+            return []
+
+        return self_plotlist
+
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
