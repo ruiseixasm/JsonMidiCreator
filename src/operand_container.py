@@ -2038,11 +2038,22 @@ class Clip(Composition):  # Just a container of Elements
             )
         return self
 
+    def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
+        if plotlist != self._plot_lists[iteration]:
+            self._plot_lists[iteration] = plotlist
+            if iteration == self._iteration:
+                self._plot_elements(
+                    [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
+                    plotlist[0]["channels"]
+                )
+        return self
+
     def _run_new(self, even = None) -> Self:
+        last_iteration: int = len(self._clip_iterations) - 1
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
         if isinstance(new_clip, Clip):
-            self._iteration = len(self._clip_iterations)
+            self._iteration = last_iteration + 1
             plotlist: list[dict] = new_clip.getPlotlist()
             self._clip_iterations.append(new_clip)
             self._plot_lists.append(plotlist)
@@ -2050,6 +2061,7 @@ class Clip(Composition):  # Just a container of Elements
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
             )
+        self._update_iteration(last_iteration, last_clip.getPlotlist())
         return self
 
     def _run_composition(self, even = None) -> Self:
@@ -2063,13 +2075,7 @@ class Clip(Composition):  # Just a container of Elements
         last_clip: Clip = self._clip_iterations[self._iteration]
         self._e_function(last_clip)
         # Updates the last_clip data and plot just in case
-        last_plotlist: list[dict] = last_clip.getPlotlist()
-        if last_plotlist != self._plot_lists[self._iteration]:
-            self._plot_lists[self._iteration] = last_plotlist
-            self._plot_elements(
-                [ note_dict["note"] for note_dict in last_plotlist if "note" in note_dict ],
-                last_plotlist[0]["channels"]
-            )
+        self._update_iteration(self._iteration, last_clip.getPlotlist())
         return self
 
     @staticmethod
