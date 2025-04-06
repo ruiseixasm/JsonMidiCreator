@@ -2009,7 +2009,7 @@ class Clip(Composition):  # Just a container of Elements
 
         return None
 
-    def run_play(self, even = None, channel: int = None) -> Self:
+    def _run_play(self, even = None, channel: int = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
         if isinstance(channel, int) and channel > 0:
             # Filter already results in a shallow copy
@@ -2018,7 +2018,7 @@ class Clip(Composition):  # Just a container of Elements
             last_clip >> od.Play()
         return self
 
-    def run_previous(self, even = None) -> Self:
+    def _run_previous(self, even = None) -> Self:
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
@@ -2028,7 +2028,7 @@ class Clip(Composition):  # Just a container of Elements
             )
         return self
 
-    def run_next(self, even = None) -> Self:
+    def _run_next(self, even = None) -> Self:
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
@@ -2038,7 +2038,7 @@ class Clip(Composition):  # Just a container of Elements
             )
         return self
 
-    def run_new(self, even = None) -> Self:
+    def _run_new(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
         if isinstance(new_clip, Clip):
@@ -2052,12 +2052,30 @@ class Clip(Composition):  # Just a container of Elements
             )
         return self
 
-    def run_composition(self, even = None) -> Self:
+    def _run_composition(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
         composition: Composition = self._c_function(last_clip)
         if isinstance(composition, Composition):
             composition >> od.Play()
         return self
+    
+    def _run_extra(self, even = None) -> Self:
+
+        return self
+
+    @staticmethod
+    def _disable_button(button: o.T) -> o.T:
+        # Set disabled style
+        button.label.set_color('lightgray')         # Light text
+        button.ax.set_facecolor('none')             # No fill color
+        button.hovercolor = 'lightgray'
+        button.ax.spines['top'].set_color('lightgray')
+        button.ax.spines['bottom'].set_color('lightgray')
+        button.ax.spines['left'].set_color('lightgray')
+        button.ax.spines['right'].set_color('lightgray')
+        # Disable interactivity
+        button.disconnect_events()
+        return button
 
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
@@ -2114,81 +2132,41 @@ class Clip(Composition):  # Just a container of Elements
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
         play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
-        play_button.on_clicked(self.run_play)
+        play_button.on_clicked(self._run_play)
 
         # Previous Button Widget
         ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
         previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
-        previous_button.on_clicked(self.run_previous)
+        previous_button.on_clicked(self._run_previous)
 
         # Next Button Widget
         ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
         next_button = Button(ax_button, '>', color='white', hovercolor='grey')
-        next_button.on_clicked(self.run_next)
+        next_button.on_clicked(self._run_next)
 
         # New Button Widget
         ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
         new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
-        new_button.on_clicked(self.run_new)
+        new_button.on_clicked(self._run_new)
 
         # Previous Button Widget
         ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
-        composition_button.on_clicked(self.run_composition)
+        composition_button.on_clicked(self._run_composition)
 
         if self._n_function is None and len(self._clip_iterations) == 1:
-
             # Previous Button Widget
-            # Set disabled style
-            previous_button.label.set_color('lightgray')         # Light text
-            previous_button.ax.set_facecolor('none')             # No fill color
-            previous_button.hovercolor = 'lightgray'
-            previous_button.ax.spines['top'].set_color('lightgray')
-            previous_button.ax.spines['bottom'].set_color('lightgray')
-            previous_button.ax.spines['left'].set_color('lightgray')
-            previous_button.ax.spines['right'].set_color('lightgray')
-            # Disable interactivity
-            previous_button.disconnect_events()
-
+            self._disable_button(previous_button)
             # Next Button Widget
-            # Set disabled style
-            next_button.label.set_color('lightgray')         # Light text
-            next_button.ax.set_facecolor('none')             # No fill color
-            next_button.hovercolor = 'lightgray'
-            next_button.ax.spines['top'].set_color('lightgray')
-            next_button.ax.spines['bottom'].set_color('lightgray')
-            next_button.ax.spines['left'].set_color('lightgray')
-            next_button.ax.spines['right'].set_color('lightgray')
-            # Disable interactivity
-            next_button.disconnect_events()
+            self._disable_button(next_button)
 
         if self._n_function is None:
-
             # New Button Widget
-            # Set disabled style
-            new_button.label.set_color('lightgray')         # Light text
-            new_button.ax.set_facecolor('none')             # No fill color
-            new_button.hovercolor = 'lightgray'
-            new_button.ax.spines['top'].set_color('lightgray')
-            new_button.ax.spines['bottom'].set_color('lightgray')
-            new_button.ax.spines['left'].set_color('lightgray')
-            new_button.ax.spines['right'].set_color('lightgray')
-            # Disable interactivity
-            new_button.disconnect_events()
+            self._disable_button(new_button)
 
         if self._c_function is None:
-            
             # Composition Button Widget
-            # Set disabled style
-            composition_button.label.set_color('lightgray')         # Light text
-            composition_button.ax.set_facecolor('none')             # No fill color
-            composition_button.hovercolor = 'lightgray'
-            composition_button.ax.spines['top'].set_color('lightgray')
-            composition_button.ax.spines['bottom'].set_color('lightgray')
-            composition_button.ax.spines['left'].set_color('lightgray')
-            composition_button.ax.spines['right'].set_color('lightgray')
-            # Disable interactivity
-            composition_button.disconnect_events()
+            self._disable_button(composition_button)
 
 
         if block and pause == 0:
