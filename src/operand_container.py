@@ -2061,12 +2061,15 @@ class Clip(Composition):  # Just a container of Elements
                 [ note_dict["note"] for note_dict in plotlist if "note" in note_dict ],
                 plotlist[0]["channels"]
             )
+        # Updates the last_clip data and plot just in case
         self._update_iteration(last_iteration, last_clip.getPlotlist())
         return self
 
     def _run_composition(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
         composition: Composition = self._c_function(last_clip)
+        # Updates the last_clip data and plot just in case
+        self._update_iteration(self._iteration, last_clip.getPlotlist())
         if isinstance(composition, Composition):
             composition >> od.Play()
         return self
