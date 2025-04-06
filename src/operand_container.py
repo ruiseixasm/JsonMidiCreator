@@ -981,9 +981,12 @@ class Clip(Composition):  # Just a container of Elements
         # Because sort doesn't return anything, it just changes the list!
         channels: list[int] = list(self_channels)
         channels.sort()
-        self_plotlist.insert(0, 
+        self_plotlist.insert(0,
             {
-                "channels": channels
+                "channels": {
+                    "note":         channels,
+                    "automation":   channels
+                }
             }
         )
 
@@ -1966,7 +1969,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
             # Plot notes
-            for channel in channels:
+            for channel in channels["note"]:
                 channel_color = Clip._channel_colors[channel - 1]
                 channel_plotlist = [
                     channel_note for channel_note in plotlist
