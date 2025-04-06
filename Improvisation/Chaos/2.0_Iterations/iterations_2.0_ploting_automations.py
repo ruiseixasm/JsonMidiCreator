@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 chaos = SinX(340)
 
 def new_clip(clip: Clip) -> Clip:
-    clip << Input(chaos)**Choice(60, 70, 80, 90, 100)**Value()
+    clip << Input(chaos)**Choice(30, 50, 60, 75, 100)**Value()
     return clip
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
@@ -30,7 +30,7 @@ def composition(clip: Clip) -> Composition:
     interrupted_clip = one_measure + Measures(4) + one_measure
     return snare_part + interrupted_clip
 
-volume_automation = ControlChange("Volume", 1/4) * 4 * 2
+volume_automation = ControlChange("Volume", 1/4) * 4 * 2 << Channel(10)
 
 volume_automation >> Plot(iterations=10, n_button=new_clip, c_button=composition)
 
