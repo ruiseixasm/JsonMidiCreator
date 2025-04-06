@@ -1953,6 +1953,10 @@ class Clip(Composition):  # Just a container of Elements
 
         # By default it's 1 Measure long
         last_position: Fraction = beats_per_measure
+        last_position_measures: Fraction = last_position / beats_per_measure
+        last_position_measure: int = int(last_position / beats_per_measure)
+        if last_position_measure != last_position_measures:
+            last_position_measure += 1
 
 
         # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
@@ -1969,6 +1973,10 @@ class Clip(Composition):  # Just a container of Elements
 
             # Updates X-Axis data
             last_position = max(note["position_off"] for note in note_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position / beats_per_measure)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
 
             # Get pitch range
             min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
@@ -2017,6 +2025,10 @@ class Clip(Composition):  # Just a container of Elements
 
             # Updates X-Axis data
             last_position = max(automation["position"] for automation in automation_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position / beats_per_measure)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
 
             # Axis limits
             self._ax.set_ylim(-1, 128)
@@ -2056,14 +2068,21 @@ class Clip(Composition):  # Just a container of Elements
                     # Actual data points
                     self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
 
-                    if channel_plotlist[-1] != int(last_position / beats_per_measure) * beats_per_measure:
-                        ...
+                    if channel_plotlist[-1]["position"] != last_position_measure * beats_per_measure:
+                        x = [
+                            float(channel_plotlist[-1]["position"]),
+                            float(last_position_measure * beats_per_measure)
+                        ]
+                        y = [
+                            channel_plotlist[-1]["value"],
+                            channel_plotlist[-1]["value"]
+                        ]
+                        # Stepped line connecting the points
+                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
+                        # Actual data points
+                        self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
 
-        last_position_measures: Fraction = last_position / beats_per_measure
-        last_position_measure: int = int(last_position / beats_per_measure)
-        if last_position_measure != last_position_measures:
-            last_position_measure += 1
 
 
         # Draw vertical grid lines based on beats and measures
