@@ -136,7 +136,7 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments (Unignore first if you wish some of these folders to have files included)
+# Environments
 .env
 .venv
 env/
@@ -188,6 +188,11 @@ Midi/*.smf
 json/*.json
 json/*/*.json
 
+# Redo the ignoring fo the folder "venv"
+
+# Ignore everything in venv
+venv/*
 # Include .txt files in Virtual Environment folder wit (!)
 !venv/*.txt
-
+# Also not the folder itself
+!venv/
