@@ -1936,6 +1936,17 @@ class Clip(Composition):  # Just a container of Elements
             
         if plotlist:
 
+            self._ax.clear()
+
+            self._ax.set_title(f"Iteration {self._iteration} of {
+                len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
+            }")
+
+
+            # Horizontal X-Axis, Time related (COMMON)
+
+            self._ax.set_xlabel("Time (Measures.Beats.Steps)")
+
             beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
             quantization: Fraction = self._staff % ra.Quantization() % Fraction()
             quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
@@ -1952,14 +1963,17 @@ class Clip(Composition):  # Just a container of Elements
             beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
             measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
         
-            self._ax.clear()
-
             for measure_pos in measure_positions:
                 self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
             for beat_pos in beat_positions:
                 self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
             for grid_pos in step_positions:
                 self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+
+
+            # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
+
+            self._ax.set_ylabel("Chromatic Keys")
 
             # Get pitch range
             min_pitch: int = min(note["pitch"] for note in plotlist) // 12 * 12
@@ -1982,12 +1996,6 @@ class Clip(Composition):  # Just a container of Elements
                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                             height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
         
-
-            self._ax.set_xlabel("Time (Measures.Beats.Steps)")
-            self._ax.set_ylabel("Chromatic Keys")
-            self._ax.set_title(f"Iteration {self._iteration} of {
-                len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
-            }")
 
             # Set x-axis labels in 'Measure.Beat' format
             beat_labels = [
