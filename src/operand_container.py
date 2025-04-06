@@ -1968,7 +1968,7 @@ class Clip(Composition):  # Just a container of Elements
         if note_channels or not automation_channels:
 
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Pitch = {int(y)}"
+            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
@@ -2017,7 +2017,7 @@ class Clip(Composition):  # Just a container of Elements
         else:
 
             self._ax.set_ylabel("Automation Values (MSB)")
-            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Value = {int(y)}"
+            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Value = {int(y + 0.5)}"
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
