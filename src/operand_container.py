@@ -33,6 +33,24 @@ import operand_element as oe
 import operand_frame as of
 import operand_chaos as ch
 
+# Define ANSI escape codes for colors
+RED = "\033[91m"
+RESET = "\033[0m"
+        
+try:
+    # pip install matplotlib
+    import matplotlib.pyplot as plt
+    from matplotlib.widgets import Button
+except ImportError:
+    print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
+    print("Please install it by running 'pip install matplotlib'.")
+try:
+    # pip install numpy
+    import numpy as np
+except ImportError:
+    print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
+    print("Please install it by running 'pip install numpy'.")
+        
 
 class Container(o.Operand):
     def __init__(self, *operands):
@@ -1914,26 +1932,6 @@ class Clip(Composition):  # Just a container of Elements
 
     def _plot_elements(self, plotlist: list[dict]):
 
-        # Define ANSI escape codes for colors
-        RED = "\033[91m"
-        RESET = "\033[0m"
-                
-        try:
-            # pip install matplotlib
-            import matplotlib.pyplot as plt
-            from matplotlib.widgets import Button
-        except ImportError:
-            print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
-            print("Please install it by running 'pip install matplotlib'.")
-            return None
-        try:
-            # pip install numpy
-            import numpy as np
-        except ImportError:
-            print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
-            print("Please install it by running 'pip install numpy'.")
-            return None
-        
         self._ax.clear()
 
         self._ax.set_title(f"Iteration {self._iteration} of {
@@ -2170,7 +2168,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     @staticmethod
-    def _disable_button(button: o.T) -> o.T:
+    def _disable_button(button: Button) -> Button:
         # Set disabled style
         button.label.set_color('lightgray')         # Light text
         button.ax.set_facecolor('none')             # No fill color
@@ -2183,6 +2181,18 @@ class Clip(Composition):  # Just a container of Elements
         button.disconnect_events()
         return button
 
+    def _enable_button(self, button: Button) -> Button:
+        # Set enabled style
+        if button is self._previous_button:
+            ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
+            self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
+            self._previous_button.on_clicked(self._run_previous)
+        elif button is self._next_button:
+            ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+            self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
+            self._next_button.on_clicked(self._run_next)
+        return button
+
     def _on_move(self, event):
         if event.inaxes == self._ax:
             print(f"x = {event.xdata}, y = {event.ydata}")
@@ -2192,26 +2202,6 @@ class Clip(Composition):  # Just a container of Elements
              n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
              e_button: Optional[Callable] = None):
 
-        # Define ANSI escape codes for colors
-        RED = "\033[91m"
-        RESET = "\033[0m"
-                
-        try:
-            # pip install matplotlib
-            import matplotlib.pyplot as plt
-            from matplotlib.widgets import Button
-        except ImportError:
-            print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
-            print("Please install it by running 'pip install matplotlib'.")
-            return None
-        try:
-            # pip install numpy
-            import numpy as np
-        except ImportError:
-            print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
-            print("Please install it by running 'pip install numpy'.")
-            return None
-        
 
         self._clip_iterations: list[Clip] = [ self.copy() ]
         self._plot_lists: list[list] = [ self.getPlotlist() ]
@@ -2245,13 +2235,13 @@ class Clip(Composition):  # Just a container of Elements
 
         # Previous Button Widget
         ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
-        previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
-        previous_button.on_clicked(self._run_previous)
+        self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
+        self._previous_button.on_clicked(self._run_previous)
 
         # Next Button Widget
         ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
-        next_button = Button(ax_button, '>', color='white', hovercolor='grey')
-        next_button.on_clicked(self._run_next)
+        self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
+        self._next_button.on_clicked(self._run_next)
 
         # New Button Widget
         ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
@@ -2270,9 +2260,9 @@ class Clip(Composition):  # Just a container of Elements
 
         if self._n_function is None and len(self._clip_iterations) == 1:
             # Previous Button Widget
-            self._disable_button(previous_button)
+            self._disable_button(self._previous_button)
             # Next Button Widget
-            self._disable_button(next_button)
+            self._disable_button(self._next_button)
 
         if self._n_function is None:
             # New Button Widget
