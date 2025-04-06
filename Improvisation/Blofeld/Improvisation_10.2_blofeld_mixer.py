@@ -35,12 +35,13 @@ level_cc = measure_cc * 1 << Iterate(0, -7)
 level_cc *= measure_cc << Iterate(-7*16, 7)
 level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(7*16, -7)
-(level_cc + long_note_c) * 8 >> P
+level_cc >> Plot()
+(level_cc + long_note_c) * 2 >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", Blofeld.midi_cc["MIXER COMMON"]["Volume"])
-(automation_cc * 4 + long_note_c) * 8 >> P
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", Blofeld.midi_cc["MIXER COMMON"]["Volume"]) >> Plot()
+(automation_cc * 4 + long_note_c) * 2 >> P
 
 
 
