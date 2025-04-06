@@ -1939,42 +1939,53 @@ class Clip(Composition):  # Just a container of Elements
         automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
         automation_channels: list[int] = plotlist[0]["channels"]["automation"]
 
+        self._ax.clear()
+
+        self._ax.set_title(f"Iteration {self._iteration} of {
+            len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
+        }")
+
+
+        # Horizontal X-Axis, Time related (COMMON)
+
+        self._ax.set_xlabel("Time (Measures.Beats.Steps)")
+
+        beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
+        quantization: Fraction = self._staff % ra.Quantization() % Fraction()
+        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
+        steps_per_measure: Fraction = beats_per_measure / quantization_beats
+
+        last_position_off: Fraction = max(note["position_off"] for note in note_plotlist)
+        last_position_measures: Fraction = last_position_off / beats_per_measure
+        last_position_measure: int = int(last_position_measures)
+        if last_position_measure != last_position_measures:
+            last_position_measure += 1
+
+        # Draw vertical grid lines based on beats and measures
+        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
+        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
+    
+        for measure_pos in measure_positions:
+            self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+        for beat_pos in beat_positions:
+            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+        for grid_pos in step_positions:
+            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+
+        # Set x-axis labels in 'Measure.Beat' format
+        beat_labels = [
+            f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
+            for pos in beat_positions
+        ]
+        
+        self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
+        self._ax.set_xticklabels(beat_labels, rotation=45)
+
+        self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+
 
         if note_plotlist:
-
-            self._ax.clear()
-
-            self._ax.set_title(f"Iteration {self._iteration} of {
-                len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
-            }")
-
-
-            # Horizontal X-Axis, Time related (COMMON)
-
-            self._ax.set_xlabel("Time (Measures.Beats.Steps)")
-
-            beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
-            quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-            quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
-            steps_per_measure: Fraction = beats_per_measure / quantization_beats
-
-            last_position_off: Fraction = max(note["position_off"] for note in note_plotlist)
-            last_position_measures: Fraction = last_position_off / beats_per_measure
-            last_position_measure: int = int(last_position_measures)
-            if last_position_measure != last_position_measures:
-                last_position_measure += 1
-
-            # Draw vertical grid lines based on beats and measures
-            step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(quantization_beats))
-            beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), 1)
-            measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + quantization_beats), float(beats_per_measure))
-        
-            for measure_pos in measure_positions:
-                self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
-            for beat_pos in beat_positions:
-                self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
-            for grid_pos in step_positions:
-                self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
 
 
             # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
@@ -2003,15 +2014,6 @@ class Clip(Composition):  # Just a container of Elements
                             height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
         
 
-            # Set x-axis labels in 'Measure.Beat' format
-            beat_labels = [
-                f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
-                for pos in beat_positions
-            ]
-            
-            self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
-            self._ax.set_xticklabels(beat_labels, rotation=45)
-
             chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
             # Set MIDI note ticks with Middle C in bold
             self._ax.set_yticks(range(min_pitch, max_pitch + 1))
@@ -2022,9 +2024,9 @@ class Clip(Composition):  # Just a container of Elements
             self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
             self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
-            self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
-            self._fig.canvas.draw_idle()
+
+        self._fig.canvas.draw_idle()
 
         return None
 
