@@ -2059,8 +2059,9 @@ class Clip(Composition):  # Just a container of Elements
             composition >> od.Play()
         return self
     
-    def _run_extra(self, even = None) -> Self:
-
+    def _run_execute(self, even = None) -> Self:
+        last_clip: Clip = self._clip_iterations[self._iteration]
+        self._e_function(last_clip)
         return self
 
     @staticmethod
@@ -2080,7 +2081,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
              n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
-             filename: str = None) -> 'Clip':
+             e_button: Optional[Callable] = None):
 
         # Define ANSI escape codes for colors
         RED = "\033[91m"
@@ -2108,6 +2109,7 @@ class Clip(Composition):  # Just a container of Elements
         self._iteration: int = 0
         self._n_function = n_button
         self._c_function = c_button
+        self._e_function = e_button
 
         if self._n_function is not None:
             for _ in range(iterations):
@@ -2149,10 +2151,15 @@ class Clip(Composition):  # Just a container of Elements
         new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
         new_button.on_clicked(self._run_new)
 
-        # Previous Button Widget
+        # Composition Button Widget
         ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self._run_composition)
+
+        # Execution Button Widget
+        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        execute_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        execute_button.on_clicked(self._run_execute)
 
         if self._n_function is None and len(self._clip_iterations) == 1:
             # Previous Button Widget
@@ -2167,6 +2174,10 @@ class Clip(Composition):  # Just a container of Elements
         if self._c_function is None:
             # Composition Button Widget
             self._disable_button(composition_button)
+
+        if self._e_function is None:
+            # Composition Button Widget
+            self._disable_button(execute_button)
 
 
         if block and pause == 0:
