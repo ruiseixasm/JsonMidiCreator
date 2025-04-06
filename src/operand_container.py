@@ -1967,6 +1967,8 @@ class Clip(Composition):  # Just a container of Elements
         # Plot Notes
         if note_channels or not automation_channels:
 
+            self._ax.set_ylabel("Chromatic Keys")
+
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
             # Updates X-Axis data
@@ -1975,8 +1977,6 @@ class Clip(Composition):  # Just a container of Elements
             last_position_measure = int(last_position_measures)
             if last_position_measure != last_position_measures:
                 last_position_measure += 1
-
-            self._ax.set_ylabel("Chromatic Keys")
 
             # Get pitch range
             min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
@@ -2019,7 +2019,26 @@ class Clip(Composition):  # Just a container of Elements
         # Plot Automations
         else:
 
+            self._ax.set_ylabel("Automation Values (MSB)")
+
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
+
+
+            # Axis limits
+            self._ax.set_ylim(-1, 128)
+            # Ticks
+            self._ax.set_yticks(range(0, 129, 8))
+
+            # Dashed horizontal lines at multiples of 16 (except 64)
+            for i in range(0, 129, 16):
+                if i != 64:
+                    self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
+            # Dashed line at y = 127
+            self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
+            # Solid line at y = 64
+            self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+
+
 
 
         # Draw vertical grid lines based on beats and measures
