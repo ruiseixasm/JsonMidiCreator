@@ -1995,20 +1995,17 @@ class Automation(Element):
             channels["automation"].add(self._channel)
 
         self_plotlist: list[dict] = []
-        automation_msb_value: int = self._get_msb_value()
-
-        if automation_msb_value is not None:
-    
-            # Midi validation is done in the JsonMidiPlayer program
-            self_plotlist.append(
-                {
-                    "automation": {
-                        "position": self._position_beats,
-                        "value": automation_msb_value,
-                        "channel": self._channel
-                    }
+        
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "automation": {
+                    "position": self._position_beats,
+                    "value": self._get_msb_value(),
+                    "channel": self._channel
                 }
-            )
+            }
+        )
 
         return self_plotlist
 
@@ -2062,19 +2059,15 @@ class ControlChange(Automation):
 
     def _get_msb_value(self) -> int:
         
-        if self._value >= 0:
+        if self._controller._nrpn:
 
-            if self._controller._nrpn:
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+            return cc_6_msb
+        else:
 
-                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-                return cc_6_msb
-            else:
-
-                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-                return msb_value
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+            return msb_value
             
-        return None
-
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
@@ -2087,86 +2080,84 @@ class ControlChange(Automation):
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
         
-        if self._value >= 0:
+        if devices_header:
+            self_playlist.append(
+                {
+                    "devices": devices
+                }
+            )
 
-            if devices_header:
-                self_playlist.append(
-                    {
-                        "devices": devices
+        if self._controller._nrpn:
+
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+
+            self_playlist.extend([
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 99,
+                        "data_byte_2": cc_99_msb
                     }
-                )
-
-            if self._controller._nrpn:
-
-                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-
-                self_playlist.extend([
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 99,
-                            "data_byte_2": cc_99_msb
-                        }
-                    },
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 98,
-                            "data_byte_2": cc_98_lsb
-                        }
-                    },
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": 6,
-                            "data_byte_2": cc_6_msb
-                        }
+                },
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 98,
+                        "data_byte_2": cc_98_lsb
                     }
-                ])
+                },
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": 6,
+                        "data_byte_2": cc_6_msb
+                    }
+                }
+            ])
 
-                if self._controller._high:
-
-                    self_playlist.append(
-                        {
-                            "time_ms": time_ms,
-                            "midi_message": {
-                                "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                                "data_byte_1": 38,
-                                "data_byte_2": cc_38_lsb
-                            }
-                        }
-                    )
-
-            else:
-
-                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+            if self._controller._high:
 
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
                         "midi_message": {
                             "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                            "data_byte_1": self._controller._number_msb,
-                            "data_byte_2": msb_value
+                            "data_byte_1": 38,
+                            "data_byte_2": cc_38_lsb
                         }
                     }
                 )
 
-                if self._controller._high:
+        else:
 
-                    self_playlist.append(
-                        {
-                            "time_ms": time_ms,
-                            "midi_message": {
-                                "status_byte": 0xB0 | 0x0F & self._channel - 1,
-                                "data_byte_1": self._controller._lsb,
-                                "data_byte_2": lsb_value
-                            }
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+
+            self_playlist.append(
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": self._controller._number_msb,
+                        "data_byte_2": msb_value
+                    }
+                }
+            )
+
+            if self._controller._high:
+
+                self_playlist.append(
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": self._controller._lsb,
+                            "data_byte_2": lsb_value
                         }
-                    )
+                    }
+                )
         
         return self_playlist
     
@@ -2178,41 +2169,39 @@ class ControlChange(Automation):
 
         # Validation is done by midiutil Midi Range Validation
 
-        if self._value >= 0:
+        if self._controller._nrpn:
 
-            if self._controller._nrpn:
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
 
-                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+            self_midilist[0]["number"]      = 99
+            self_midilist[0]["value"]       = cc_99_msb
 
-                self_midilist[0]["number"]      = 99
-                self_midilist[0]["value"]       = cc_99_msb
+            self_midilist[1] = self_midilist[0].copy()
+            self_midilist[1]["number"]      = 98
+            self_midilist[1]["value"]       = cc_98_lsb
+
+            self_midilist[2] = self_midilist[0].copy()
+            self_midilist[2]["number"]      = 6
+            self_midilist[2]["value"]       = cc_6_msb
+
+            if self._controller._high:
+
+                self_midilist[3] = self_midilist[0].copy()
+                self_midilist[3]["number"]      = 38
+                self_midilist[3]["value"]       = cc_38_lsb
+
+        else:
+
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+
+            self_midilist[0]["number"]      = self._controller._number_msb
+            self_midilist[0]["value"]       = msb_value
+
+            if self._controller._high:
 
                 self_midilist[1] = self_midilist[0].copy()
-                self_midilist[1]["number"]      = 98
-                self_midilist[1]["value"]       = cc_98_lsb
-
-                self_midilist[2] = self_midilist[0].copy()
-                self_midilist[2]["number"]      = 6
-                self_midilist[2]["value"]       = cc_6_msb
-
-                if self._controller._high:
-
-                    self_midilist[3] = self_midilist[0].copy()
-                    self_midilist[3]["number"]      = 38
-                    self_midilist[3]["value"]       = cc_38_lsb
-
-            else:
-
-                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-
-                self_midilist[0]["number"]      = self._controller._number_msb
-                self_midilist[0]["value"]       = msb_value
-
-                if self._controller._high:
-
-                    self_midilist[1] = self_midilist[0].copy()
-                    self_midilist[1]["number"]      = self._controller._lsb
-                    self_midilist[1]["value"]       = lsb_value
+                self_midilist[1]["number"]      = self._controller._lsb
+                self_midilist[1]["value"]       = lsb_value
 
         return self_midilist
 
