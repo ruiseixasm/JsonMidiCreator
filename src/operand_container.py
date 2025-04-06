@@ -2023,7 +2023,6 @@ class Clip(Composition):  # Just a container of Elements
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
-
             # Axis limits
             self._ax.set_ylim(-1, 128)
             # Ticks
@@ -2037,6 +2036,27 @@ class Clip(Composition):  # Just a container of Elements
             self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
             # Solid line at y = 64
             self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+
+            # Plot automations
+            for channel in automation_channels:
+                channel_color = Clip._channel_colors[channel - 1]
+                channel_plotlist = [
+                    channel_automation for channel_automation in automation_plotlist
+                    if channel_automation["channel"] == channel
+                ]
+
+                # Plotting point lists
+                x: list[float]  = []
+                y: list[int]    = []
+                for automation in channel_plotlist:
+                    x.append( float(automation["position"]) )
+                    y.append( automation["value"] )
+
+                # Stepped line connecting the points
+                self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=2)
+                # Actual data points
+                self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
+
 
 
 
