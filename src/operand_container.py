@@ -2049,7 +2049,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_new(self, even = None) -> Self:
-        last_iteration: int = self._iteration
+        iteration: int = self._iteration
         last_clip: Clip = self._clip_iterations[-1]
         new_clip: Clip = self._n_function(last_clip.copy())
         if isinstance(new_clip, Clip):
@@ -2062,7 +2062,7 @@ class Clip(Composition):  # Just a container of Elements
                 plotlist[0]["channels"]
             )
         # Updates the last_clip data and plot just in case
-        self._update_iteration(last_iteration, last_clip.getPlotlist())
+        self._update_iteration(iteration, last_clip.getPlotlist())
         return self
 
     def _run_composition(self, even = None) -> Self:
