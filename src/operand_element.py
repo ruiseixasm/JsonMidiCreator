@@ -2238,8 +2238,6 @@ class ControlChange(Automation):
                     case _:                     super().__lshift__(operand)
             case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | str() | dict():
                 self._controller << operand
-                if isinstance(operand, str):
-                    self._value = ou.Number.getDefault(operand)
             case int():
                 self._value = operand
             case ou.Value():
@@ -2650,7 +2648,7 @@ class Aftertouch(Automation):
             case _:
                 return super().__eq__(other)
     
-
+    
     def _get_msb_value(self) -> int:
         return self._pressure
 
