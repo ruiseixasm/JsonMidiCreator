@@ -2062,6 +2062,14 @@ class Clip(Composition):  # Just a container of Elements
     def _run_execute(self, even = None) -> Self:
         last_clip: Clip = self._clip_iterations[self._iteration]
         self._e_function(last_clip)
+        # Updates the last_clip data and plot just in case
+        last_plotlist: list[dict] = last_clip.getPlotlist()
+        if last_plotlist != self._plot_lists[self._iteration]:
+            self._plot_lists[self._iteration] = last_plotlist
+            self._plot_elements(
+                [ note_dict["note"] for note_dict in last_plotlist if "note" in note_dict ],
+                last_plotlist[0]["channels"]
+            )
         return self
 
     @staticmethod
