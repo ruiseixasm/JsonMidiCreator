@@ -1895,10 +1895,10 @@ class Clip(Composition):  # Just a container of Elements
 
     _channel_colors = [
         "#4CAF50",  # Green (starting point)
-        "#FFEB3B",  # Bright Yellow
+        "#2196F3",  # Blue
         "#FF5722",  # Orange
         "#9C27B0",  # Purple
-        "#2196F3",  # Blue
+        "#FFEB3B",  # Bright Yellow
         "#FF9800",  # Amber
         "#E91E63",  # Pink
         "#00BCD4",  # Cyan
@@ -1968,6 +1968,7 @@ class Clip(Composition):  # Just a container of Elements
         if note_channels or not automation_channels:
 
             self._ax.set_ylabel("Chromatic Keys")
+            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Pitch = {int(y)}"
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
@@ -2011,15 +2012,12 @@ class Clip(Composition):  # Just a container of Elements
 
             self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
-
-            # Draw each Note bar
-
-
         
         # Plot Automations
         else:
 
             self._ax.set_ylabel("Automation Values (MSB)")
+            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Value = {int(y)}"
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
@@ -2068,21 +2066,19 @@ class Clip(Composition):  # Just a container of Elements
                     # Actual data points
                     self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color, markersize=6)
 
-                    if channel_plotlist[-1]["position"] != last_position_measure * beats_per_measure:
-                        x = [
-                            float(channel_plotlist[-1]["position"]),
-                            float(last_position_measure * beats_per_measure)
-                        ]
-                        y = [
-                            channel_plotlist[-1]["value"],
-                            channel_plotlist[-1]["value"]
-                        ]
-                        # Stepped line connecting the points
-                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
-                        # Actual data points
-                        self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
-
-
+                    # Add the tailed line up to the end of the chart
+                    x = [
+                        float(channel_plotlist[-1]["position"]),
+                        float(last_position_measure * beats_per_measure)
+                    ]
+                    y = [
+                        channel_plotlist[-1]["value"],
+                        channel_plotlist[-1]["value"]
+                    ]
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=1)
+                    # Actual data points
+                    self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
 
         # Draw vertical grid lines based on beats and measures
@@ -2186,6 +2182,10 @@ class Clip(Composition):  # Just a container of Elements
         button.disconnect_events()
         return button
 
+    def _on_move(self, event):
+        if event.inaxes == self._ax:
+            print(f"x = {event.xdata}, y = {event.ydata}")
+
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
              n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
@@ -2231,6 +2231,7 @@ class Clip(Composition):  # Just a container of Elements
         plt.ion()
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
+        # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
 
         self._plot_elements(self._plot_lists[0])
 
