@@ -2055,7 +2055,20 @@ class ControlChange(Automation):
                     and self._controller == other._controller and self._value == other._value
             case _:
                 return super().__eq__(other)
-    
+
+
+    def _get_msb_value(self) -> int:
+        
+            if self._controller._nrpn:
+
+                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+                return cc_6_msb
+            else:
+
+                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+                return msb_value
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
@@ -2481,6 +2494,18 @@ class PitchBend(Automation):
             case _:
                 return super().__eq__(other)
     
+    def _get_msb_value(self) -> int:
+        
+        # from -8192 to 8191
+        amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0) # midi safe
+
+        msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb_midi: int = amount & 0x7F       # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+    
+        return msb_midi
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
@@ -2623,6 +2648,11 @@ class Aftertouch(Automation):
             case _:
                 return super().__eq__(other)
     
+    
+    def _get_msb_value(self) -> int:
+        return self._pressure
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
         if not self._enabled:
             return []
