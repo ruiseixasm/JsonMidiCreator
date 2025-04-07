@@ -1967,7 +1967,8 @@ class Clip(Composition):  # Just a container of Elements
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        self._ax.set_xlabel("Time (Measures.Beats.Steps)")
+        clip_tempo: float = self % ra.Tempo() % float()
+        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) ({round(clip_tempo, 1)} bpm)")
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
