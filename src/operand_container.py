@@ -1216,6 +1216,8 @@ class Clip(Composition):  # Just a container of Elements
                     return self._append(operand_elements, self_last_element)
                 return self._append(operand_elements)
 
+            case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff += operand
             case od.Parameters():
                 for single_parameter in operand._data:
                     self += od.ClipParameter(single_parameter)
@@ -1238,6 +1240,9 @@ class Clip(Composition):  # Just a container of Elements
                 return self._delete([ operand ])
             case list():
                 return self._delete(operand)
+            
+            case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff -= operand
             case od.Parameters():
                 for single_parameter in operand._data:
                     self -= od.ClipParameter(single_parameter)

@@ -15,16 +15,14 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults << Tempo(90)
 
 def new_tempo(clip: Clip) -> Clip:
 
-    global defaults
-    defaults += Tempo(5)
-
+    clip += Tempo(5)
+    clip % Tempo() % int() >> Pr
     return clip
 
-many_notes = N() * 4
+many_notes = N() * 4 << Tempo(90)
 
 many_notes << Velocity(65) << First()**Velocity(100)
 
