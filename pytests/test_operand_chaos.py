@@ -49,4 +49,20 @@ def test_sinx_mod():
     assert sin_x_1000 * 1 == sin_x_1 * 1000 * 1
 
 
+def test_modulus():
 
+    modulus = Modulus(Length(4))
+
+    assert modulus * 0 % int() == 0
+    assert modulus * 1 % int() == 1
+    assert modulus * 2 % int() == 2
+    assert modulus * 3 % int() == 3
+    assert modulus * 4 % int() == 0
+
+    assert modulus @ 0 % int() == 0
+    assert modulus @ 1 % int() == 1
+    assert modulus @ 1 % int() == 2
+    assert modulus @ 1 % int() == 3
+    assert modulus @ 1 % int() == 0
+
+test_modulus()

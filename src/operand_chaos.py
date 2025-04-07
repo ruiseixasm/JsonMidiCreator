@@ -123,7 +123,7 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def muted_and_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
+    def reportable_per_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations = 1
         match number:
@@ -132,16 +132,16 @@ class Chaos(o.Operand):
             case int() | float() | Fraction():
                 iterations = float(number)
         fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
-        muted_iterations: int = round(abs(fractional_part) * (10 ** 2) + 1)
-        total_iterations: int = round(integer_part * muted_iterations)
-        return muted_iterations, total_iterations
+        reportable_iteration: int = int(fractional_part * 10**2)
+        total_iterations: int = int(integer_part)
+        return reportable_iteration, total_iterations
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(1, total_iterations + 1):
-                if actual_iteration % muted_iterations == 0:
+            for actual_iteration in range(total_iterations):
+                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
@@ -225,13 +225,13 @@ class Modulus(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(1, total_iterations + 1):
+            for actual_iteration in range(total_iterations):
                 self._xn += self._steps
                 self._xn << (self._xn % float()) % (self._amplitude % float())
-                if actual_iteration % muted_iterations == 0:
+                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
@@ -414,10 +414,10 @@ class Bouncer(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(1, total_iterations + 1):
+            for actual_iteration in range(total_iterations):
                 for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
                     new_position = direction_data[0] + direction_data[1]
                     if new_position < 0:
@@ -427,7 +427,7 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
-                if actual_iteration % muted_iterations == 0:
+                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
@@ -502,12 +502,14 @@ class SinX(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(1, total_iterations + 1):
+            for actual_iteration in range(total_iterations):
                 self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-                if actual_iteration % muted_iterations == 0:
+                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
+
+
