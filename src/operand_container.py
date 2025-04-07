@@ -2136,10 +2136,9 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
-        if plotlist != self._plot_lists[iteration]:
-            self._plot_lists[iteration] = plotlist
-            if iteration == self._iteration:
-                self._plot_elements(plotlist)
+        self._plot_lists[iteration] = plotlist
+        if iteration == self._iteration:
+            self._plot_elements(plotlist)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -2265,19 +2264,19 @@ class Clip(Composition):  # Just a container of Elements
 
         # Previous Button Widget
         self._disable_button(self._previous_button)
-        if self._n_function is None and len(self._clip_iterations) == 1:
+        if len(self._clip_iterations) == 1:
             # Next Button Widget
             self._disable_button(self._next_button)
 
-        if self._n_function is None:
+        if not callable(self._n_function):
             # New Button Widget
             self._disable_button(new_button)
 
-        if self._c_function is None:
+        if not callable(self._c_function):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._e_function is None:
+        if not callable(self._e_function):
             # Composition Button Widget
             self._disable_button(execute_button)
 
