@@ -2143,7 +2143,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_new(self, even = None) -> Self:
-        if self._n_function is not None:
+        if callable(self._n_function):
             iteration: int = self._iteration
             last_clip: Clip = self._clip_iterations[-1]
             new_clip: Clip = self._n_function(last_clip.copy())
@@ -2160,7 +2160,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_composition(self, even = None) -> Self:
-        if self._c_function is not None:
+        if callable(self._c_function):
             last_clip: Clip = self._clip_iterations[self._iteration]
             composition: Composition = self._c_function(last_clip)
             # Updates the last_clip data and plot just in case
@@ -2168,9 +2168,9 @@ class Clip(Composition):  # Just a container of Elements
             if isinstance(composition, Composition):
                 composition >> od.Play()
         return self
-    
+
     def _run_execute(self, even = None) -> Self:
-        if self._e_function is not None:
+        if callable(self._e_function):
             last_clip: Clip = self._clip_iterations[self._iteration]
             self._e_function(last_clip)
             # Updates the last_clip data and plot just in case
@@ -2214,7 +2214,8 @@ class Clip(Composition):  # Just a container of Elements
         self._c_function = c_button
         self._e_function = e_button
 
-        if self._n_function is not None:
+        if callable(self._n_function) \
+                and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
                 last_clip: Clip = self._clip_iterations[-1]
                 new_clip: Clip = self._n_function(last_clip.copy())
