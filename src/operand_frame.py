@@ -259,13 +259,13 @@ class Input(Left):
         if isinstance(self._multi_data['operand'], oc.Container):
             if self._multi_data['operand'].len() > 0:
                 item = self._multi_data['operand'][self._index % self._multi_data['operand'].len()]
-                self._index += 1
+                self._index += 1    # Always increases afterwards!
                 return super().__and__(item)
             return super().__and__(ol.Null())
         if isinstance(self._multi_data['operand'], ch.Chaos):
-            self._index += 1
             actual_chaos: ch.Chaos = self._multi_data['operand'] * 0    # Makes a copy without iterating
             self._multi_data['operand'] *= 1    # In order to not result in a copy of Chaos
+            self._index += 1        # Always increases afterwards!
             return super().__and__(actual_chaos)
         return super().__and__(self._multi_data['operand'])
 
