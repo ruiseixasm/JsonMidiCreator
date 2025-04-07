@@ -800,6 +800,7 @@ class Clip(Composition):  # Just a container of Elements
         for single_element in self:
             if isinstance(single_element, oe.Element):
                 single_element.set_staff_reference(self._staff)
+                single_element.set_clip_reference(self)
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
@@ -810,15 +811,15 @@ class Clip(Composition):  # Just a container of Elements
         for single_element in self:
             if isinstance(single_element, oe.Element):
                 single_element.set_staff_reference(self._staff)
+                single_element.set_clip_reference(self)
         return self
 
     def test_staff_reference(self) -> bool:
-        clip_staff_id: int = id(self._staff)
         for single_element in self:
-            if isinstance(single_element, oe.Element):
-                element_staff_id: int = id( single_element._staff_reference )
-                if element_staff_id != clip_staff_id:
-                    return False
+            if isinstance(single_element, oe.Element) and not (
+                single_element._staff_reference is self._staff and True
+            ):
+                return False
         return True
 
 
