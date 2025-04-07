@@ -2047,7 +2047,7 @@ class ControlChange(Automation):
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():

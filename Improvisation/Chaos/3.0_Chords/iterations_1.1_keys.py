@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 chaos = Modulus(Cycle(7))   # Works like a cyclic picker
 
 def new_clip(clip: Clip) -> Clip:
-    clip << Input(chaos)**Choice("C", "D", "E", "F", "G", "A", "B")**Key()
+    clip << Input(chaos)**Choice("C", "D", "E", "F", "G", "A", "B")
     return clip
 
 triads = Chord(1/2) * 7    # Equivalent to 3 Measures and 2 Beats

@@ -1428,6 +1428,9 @@ class Gate(Rational):
 class Amplitude(Rational):
     pass
 
+class Cycle(Rational):
+    pass
+
 class Offset(Rational):
     pass
 

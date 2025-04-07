@@ -163,8 +163,8 @@ class Chaos(o.Operand):
 class Modulus(Chaos):
     def __init__(self, *parameters):
         super().__init__()
-        self._amplitude: ra.Amplitude   = ra.Amplitude(12)
-        self._steps: ra.Steps           = ra.Steps(1)
+        self._cycle: Fraction   = ra.Cycle(12)._rational
+        self._steps: Fraction   = ra.Steps(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -172,37 +172,37 @@ class Modulus(Chaos):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Amplitude():        return self._amplitude
-                    case ra.Steps():            return self._steps
+                    case ra.Cycle():            return operand._data << self._cycle
+                    case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
-            case ra.Amplitude():        return self._amplitude.copy()
-            case ra.Steps():            return self._steps.copy()
+            case ra.Cycle():            return ra.Cycle(self._cycle)
+            case ra.Steps():            return ra.Steps(self._cycle)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Chaos') -> bool:
+    def __eq__(self, other: Any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if super().__eq__(other):
-            return  self._amplitude == other % od.DataSource( ra.Amplitude() ) \
-                and self._steps == other % od.DataSource( ra.Steps() )
-        return False
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._cycle == other._cycle and self._steps == other._steps
+            case _:
+                return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["amplitude"]    = self.serialize( self._amplitude )
-        serialization["parameters"]["steps"]        = self.serialize( self._steps )
+        serialization["parameters"]["cycle"]    = self.serialize( self._cycle )
+        serialization["parameters"]["steps"]    = self.serialize( self._steps )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "amplitude" in serialization["parameters"] and "steps" in serialization["parameters"]):
+            "cycle" in serialization["parameters"] and "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._amplitude         = self.deserialize( serialization["parameters"]["amplitude"] )
-            self._steps             = self.deserialize( serialization["parameters"]["steps"] )
+            self._cycle = self.deserialize( serialization["parameters"]["cycle"] )
+            self._steps = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -210,18 +210,19 @@ class Modulus(Chaos):
         match operand:
             case Modulus():
                 super().__lshift__(operand)
-                self._amplitude     << operand._amplitude
-                self._steps         << operand._steps
+                self._cycle     = operand._cycle
+                self._steps     = operand._steps
             case od.DataSource():
                 match operand._data:
-                    case ra.Amplitude():            self._amplitude = operand._data
-                    case ra.Steps():                 self._steps = operand._data
-                    case _:                         super().__lshift__(operand)
-            case ra.Amplitude():            self._amplitude << operand
-            case ra.Steps():                self._steps << operand
+                    case ra.Cycle():            self._cycle = operand._data._rational
+                    case ra.Steps():            self._steps = operand._data._rational
+                    case _:                     super().__lshift__(operand)
+            case ra.Cycle():       self._cycle = operand._rational
+            case ra.Steps():       self._steps = operand._rational
             case _:
                 super().__lshift__(operand)
-        self._xn << (self._xn % float()) % (self._amplitude % float())
+        # Makes sure xn isn't out of the cycle
+        self._xn << (self._xn % float()) % float(self._cycle)
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
@@ -230,7 +231,7 @@ class Modulus(Chaos):
             self._initiated = True
             for actual_iteration in range(total_iterations):
                 self._xn += self._steps
-                self._xn << (self._xn % float()) % (self._amplitude % float())
+                self._xn << (self._xn % float()) % float(self._cycle)
                 if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
@@ -239,8 +240,8 @@ class Modulus(Chaos):
 class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
-        self._amplitude                 << 2
-        self._split: ra.Split           = ra.Split(1)
+        self._cycle             = ra.Cycle(2)._rational
+        self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -252,22 +253,23 @@ class Flipper(Modulus):
                     case int() | float():
                         self_index = super().__mod__(od.DataSource( operand._data ))
                         if isinstance(operand._data, int):
-                            return 0 if self_index < self._split % int() else 1
-                        return 0.0 if self_index < self._split % float() else 1.0
+                            return 0 if self_index < int(self._split) else 1
+                        return 0.0 if self_index < self._split else 1.0
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
-            case int():                 return 0 if super().__mod__(int()) < self._split % int() else 1
-            case float():               return 0.0 if super().__mod__(float()) < self._split % float() else 1.0
+            case int():                 return 0 if super().__mod__(int()) < int(self._split) else 1
+            case float():               return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
             case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Flipper') -> bool:
+    def __eq__(self, other: Any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if super().__eq__(other):
-            return  self._split == other % od.DataSource( ra.Split() )
-        return False
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._split == other._split
+            case _:
+                return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -289,13 +291,14 @@ class Flipper(Modulus):
         match operand:
             case Flipper():
                 super().__lshift__(operand)
-                self._split         << operand._split
+                self._split = operand._split
             case od.DataSource():
                 match operand._data:
-                    case ra.Split():                self._split = operand._data
+                    case ra.Split():                self._split = operand._data._rational
                     case _:                         super().__lshift__(operand)
-            case ra.Split():                self._split << operand
-            case _: super().__lshift__(operand)
+            case ra.Split():                self._split = operand._rational
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Bouncer(Chaos):
