@@ -2202,8 +2202,9 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-             n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
-             e_button: Optional[Callable] = None):
+            n_button: Optional[Callable[['Clip'], 'Clip']] = None,
+            c_button: Optional[Callable[['Clip'], Composition]] = None,
+            e_button: Optional[Callable[['Clip'], Any]] = None):
 
 
         self._clip_iterations: list[Clip] = [ self.copy() ]

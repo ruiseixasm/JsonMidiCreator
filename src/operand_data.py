@@ -1001,6 +1001,7 @@ class Upper(ContainerProcess):
 
 
 if TYPE_CHECKING:
+    from operand_container import Composition
     from operand_container import Clip
 
 class ClipProcess(Process):
@@ -1143,8 +1144,9 @@ class Fill(ClipProcess):
 
 class Plot(ClipProcess):
     def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable] = None, c_button: Optional[Callable] = None,
-                 e_button: Optional[Callable] = None):
+                 n_button: Optional[Callable[[Clip], Clip]] = None,
+                 c_button: Optional[Callable[[Clip], Composition]] = None,
+                 e_button: Optional[Callable[[Clip], Any]] = None):
         super().__init__((block, pause, iterations, n_button, c_button, e_button))
 
     def process(self, operand: 'Clip') -> 'Clip':
