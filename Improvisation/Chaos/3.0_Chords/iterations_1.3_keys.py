@@ -19,11 +19,13 @@ modulus = Modulus(Cycle(7))   # Works like a cyclic picker
 flipper = Flipper(Cycle(7), Split(3))   # Works like a cyclic picker
 
 def new_clip(clip: Clip) -> Clip:
-
     clip \
         << Input(flipper * 0)**Choice(4, 3)**Octave() \
         << Input(flipper * 0)**Choice(0, 1)**Inversion() \
         << Input(flipper @ 1)**Null()   # Moves flipper root to next Iteration
+    # flipper is a Global variable, so, make sure it's always passed as parameter to a class or method!
+    # So, never do this:
+    #     flipper *= 1
     return clip
 
 # Equivalent to 3 Measures and 2 Beats
