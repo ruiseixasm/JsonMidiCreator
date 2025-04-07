@@ -1017,7 +1017,8 @@ class Clip(Composition):  # Just a container of Elements
                 "channels": {
                     "note":         sorted(channels["note"]),
                     "automation":   sorted(channels["automation"])
-                }
+                },
+                "tempo": self._staff._tempo
             }
         )
 
@@ -1148,26 +1149,6 @@ class Clip(Composition):  # Just a container of Elements
                 for item in self._items:
                     item << operand
         return self
-
-    def empty_copy(self, *parameters) -> Self:
-        empty_copy: Clip                = super().empty_copy()
-        empty_copy._staff               << self._staff
-        empty_copy._midi_track          << self._midi_track
-        empty_copy._length_beats        = self._length_beats
-        for single_parameter in parameters:
-            empty_copy << single_parameter
-        return empty_copy
-    
-    def shallow_copy(self, *parameters) -> Self:
-        shallow_copy: Clip              = super().shallow_copy()
-        # It's a shallow copy, so it shares the same Staff and midi track
-        shallow_copy._staff             = self._staff   
-        shallow_copy._midi_track        = self._midi_track
-        shallow_copy._length_beats      = self._length_beats
-        for single_parameter in parameters:
-            shallow_copy << single_parameter
-        return shallow_copy
-
 
     # Pass trough method that always results in a Clip (Self)
     def __rshift__(self, operand) -> Self:
@@ -1407,6 +1388,25 @@ class Clip(Composition):  # Just a container of Elements
                 for item in self._items:
                     item /= operand
         return self._sort_position()  # Shall be sorted!
+
+    def empty_copy(self, *parameters) -> Self:
+        empty_copy: Clip                = super().empty_copy()
+        empty_copy._staff               << self._staff
+        empty_copy._midi_track          << self._midi_track
+        empty_copy._length_beats        = self._length_beats
+        for single_parameter in parameters:
+            empty_copy << single_parameter
+        return empty_copy
+    
+    def shallow_copy(self, *parameters) -> Self:
+        shallow_copy: Clip              = super().shallow_copy()
+        # It's a shallow copy, so it shares the same Staff and midi track
+        shallow_copy._staff             = self._staff   
+        shallow_copy._midi_track        = self._midi_track
+        shallow_copy._length_beats      = self._length_beats
+        for single_parameter in parameters:
+            shallow_copy << single_parameter
+        return shallow_copy
 
     
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
@@ -1967,8 +1967,8 @@ class Clip(Composition):  # Just a container of Elements
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        clip_tempo: float = self % ra.Tempo() % float()
-        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) ({round(clip_tempo, 1)} bpm)")
+        clip_tempo: float = float(plotlist[0]["tempo"])
+        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) at {round(clip_tempo, 1)} bpm")
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
@@ -1993,7 +1993,8 @@ class Clip(Composition):  # Just a container of Elements
         if note_channels or not automation_channels:
 
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
+            self._ax.format_coord = \
+                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Pitch = {int(y + 0.5)}"
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
@@ -2042,7 +2043,8 @@ class Clip(Composition):  # Just a container of Elements
         else:
 
             self._ax.set_ylabel("Automation Values (MSB)")
-            self._ax.format_coord = lambda x, y: f"Beat = {int(x)}, Value = {int(y + 0.5)}"
+            self._ax.format_coord = \
+                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Value = {int(y + 0.5)}"
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
