@@ -29,14 +29,18 @@ import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
+if TYPE_CHECKING:
+    from operand_container import Container
 
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
     def __init__(self, *parameters):
+        import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
         self._next_operand: any = o.Operand()
         self._multi_data: dict  = {}
+        self._inside_container: oc.Container = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
         
@@ -53,6 +57,10 @@ class Frame(o.Operand):
             case Frame():   self._current_node = self._current_node._next_operand
             case _:         self._current_node = None
         return previous_node
+
+    def _set_inside_container(self, container: 'Container') -> Self:
+        self._inside_container = container
+        return self
 
     def __pow__(self, operand: any) -> 'Frame':
         if isinstance(operand, o.Operand):

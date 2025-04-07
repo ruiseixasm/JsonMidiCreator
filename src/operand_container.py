@@ -295,6 +295,7 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self << single_operand
             case of.Frame():
+                operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
             case _:
@@ -323,6 +324,164 @@ class Container(o.Operand):
     def __rrshift__(self, operand: o.T) -> o.T:
         self << operand # Left shifts remaining parameter (Pass Through)
         return operand
+
+    # Avoids the costly copy of Container self doing +=
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case Container():
+                operand_items = [
+                    self.deep_copy(single_item) for single_item in operand._items
+                ]
+                if self.len() > 0:
+                    self_last_item: any = self[-1]
+                    return self._append(operand_items, self_last_item)
+                return self._append(operand_items)
+            case list():
+                operand_items = [
+                    self.deep_copy(single_item) for single_item in operand
+                ]
+                if len(operand_items) > 0:
+                    self_last_item: any = self[-1]
+                    return self._append(operand_items, self_last_item)
+                return self._append(operand_items)
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
+            case of.Frame():
+                operand._set_inside_container(self)
+                for item in self._items:
+                    item += operand
+            case _:
+                if self.len() > 0:
+                    self_last_item: any = self[-1]
+                    return self._append([ self.deep_copy(operand) ], self_last_item)
+                return self._append([ self.deep_copy(operand) ])
+        return self
+
+    def __radd__(self, operand: any) -> Self:
+        self_copy: Container = self.copy()
+        self_copy._insert([ self.deep_copy( operand ) ])
+        return self_copy
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case Container():
+                return self._delete(operand._items)
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
+            case int(): # repeat n times the last argument if any
+                if len(self._items) > 0:
+                    while operand > 0 and len(self._items) > 0:
+                        self._items.pop()
+                        operand -= 1
+            case of.Frame():
+                operand._set_inside_container(self)
+                for item in self._items:
+                    item -= operand
+            case _:
+                return self._delete([ operand ])
+        return self
+
+    # multiply with a scalar 
+    def __imul__(self, operand: any) -> Self:
+        import operand_selection as os
+        match operand:
+            case Container():
+                pass
+            case o.Operand():
+                pass
+            case int(): # repeat n times the self content if any
+                if operand > 1:
+                    items_copy: list = [
+                        self.deep_copy( data ) for data in self._items
+                    ]
+                    while operand > 2:
+                        self._items.extend(
+                            self.deep_copy( data ) for data in items_copy
+                        )
+                        operand -= 1
+                    self._items.extend( items_copy )
+                elif operand == 0:
+                    self._items = []
+            case os.Selection():
+                if operand != self:
+                    self._items = []
+            case ch.Chaos():
+                return self.shuffle(operand.copy())
+            case tuple():
+                for single_operand in operand:
+                    self *= single_operand
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item *= operand
+        return self
+    
+    def __itruediv__(self, operand: any) -> Self:
+        match operand:
+            case Container():
+                pass
+            case o.Operand():
+                pass
+            case int(): # split n times the self content if any
+                if operand > 0:
+                    many_operands = self.__class__()    # with an empty list
+                    cut_len: int = self.len() // operand
+                    nth_item: int = cut_len
+                    while nth_item > 0:
+                        many_operands._items.append(
+                                self.deep_copy( self._items[cut_len - nth_item] )
+                            )
+                        nth_item -= 1
+                    return many_operands
+
+            # Returns an altered Container with less info (truncated info)
+            case od.Getter() | od.Process():
+                return self >> operand
+            
+            case tuple():
+                for single_operand in operand:
+                    self /= single_operand
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item /= operand
+        return self
+
+
+    def __pow__(self, operand: any) -> Self:
+        for item in self._items:
+            if isinstance(item, o.Operand):
+                item.__pow__(operand)
+        return self
+
+
+    def __or__(self, operand: any) -> Self:
+        return self.shallow_copy().__ior__(operand)
+
+    def __ior__(self, operand: any) -> Self:
+        import operand_mutation as om
+        match operand:
+            case Container():
+                self._items.extend( item for item in operand )
+            case od.Getter() | od.Process():
+                self >>= operand
+            case ch.Chaos():
+                self.shuffle(operand)
+            case om.Mutation():
+                operand.mutate(self)
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                self.filter(operand, False)
+        return self
+
+    def __ror__(self, operand: any) -> Self:
+        return self.__or__(operand)
+
 
     def empty_copy(self, *parameters) -> Self:
         empty_copy: Container = self.__class__()
@@ -565,155 +724,6 @@ class Container(o.Operand):
             self._replace(item, operand_type(item))
         return self
 
-
-    # Avoids the costly copy of Container self doing +=
-    def __iadd__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                operand_items = [
-                    self.deep_copy(single_item) for single_item in operand._items
-                ]
-                if self.len() > 0:
-                    self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
-            case list():
-                operand_items = [
-                    self.deep_copy(single_item) for single_item in operand
-                ]
-                if len(operand_items) > 0:
-                    self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
-            case tuple():
-                for single_operand in operand:
-                    self += single_operand
-            case of.Frame():
-                for item in self._items:
-                    item += operand
-            case _:
-                if self.len() > 0:
-                    self_last_item: any = self[-1]
-                    return self._append([ self.deep_copy(operand) ], self_last_item)
-                return self._append([ self.deep_copy(operand) ])
-        return self
-
-    def __radd__(self, operand: any) -> Self:
-        self_copy: Container = self.copy()
-        self_copy._insert([ self.deep_copy( operand ) ])
-        return self_copy
-
-    def __isub__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                return self._delete(operand._items)
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
-            case int(): # repeat n times the last argument if any
-                if len(self._items) > 0:
-                    while operand > 0 and len(self._items) > 0:
-                        self._items.pop()
-                        operand -= 1
-            case of.Frame():
-                for item in self._items:
-                    item -= operand
-            case _:
-                return self._delete([ operand ])
-        return self
-
-    # multiply with a scalar 
-    def __imul__(self, operand: any) -> Self:
-        import operand_selection as os
-        match operand:
-            case Container():
-                pass
-            case o.Operand():
-                pass
-            case int(): # repeat n times the self content if any
-                if operand > 1:
-                    items_copy: list = [
-                        self.deep_copy( data ) for data in self._items
-                    ]
-                    while operand > 2:
-                        self._items.extend(
-                            self.deep_copy( data ) for data in items_copy
-                        )
-                        operand -= 1
-                    self._items.extend( items_copy )
-                elif operand == 0:
-                    self._items = []
-            case os.Selection():
-                if operand != self:
-                    self._items = []
-            case ch.Chaos():
-                return self.shuffle(operand.copy())
-            case tuple():
-                for single_operand in operand:
-                    self *= single_operand
-            case _:
-                for item in self._items:
-                    item *= operand
-        return self
-    
-    def __itruediv__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                pass
-            case o.Operand():
-                pass
-            case int(): # split n times the self content if any
-                if operand > 0:
-                    many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len() // operand
-                    nth_item: int = cut_len
-                    while nth_item > 0:
-                        many_operands._items.append(
-                                self.deep_copy( self._items[cut_len - nth_item] )
-                            )
-                        nth_item -= 1
-                    return many_operands
-
-            # Returns an altered Container with less info (truncated info)
-            case od.Getter() | od.Process():
-                return self >> operand
-            
-            case tuple():
-                for single_operand in operand:
-                    self /= single_operand
-            case _:
-                for item in self._items:
-                    item /= operand
-        return self
-
-
-    def __pow__(self, operand: any) -> Self:
-        for item in self._items:
-            if isinstance(item, o.Operand):
-                item.__pow__(operand)
-        return self
-
-
-    def __or__(self, operand: any) -> Self:
-        return self.shallow_copy().__ior__(operand)
-
-    def __ior__(self, operand: any) -> Self:
-        import operand_mutation as om
-        match operand:
-            case Container():
-                self._items.extend( item for item in operand )
-            case od.Getter() | od.Process():
-                self >>= operand
-            case ch.Chaos():
-                self.shuffle(operand)
-            case om.Mutation():
-                operand.mutate(self)
-            case _:
-                self.filter(operand, False)
-        return self
-
-    def __ror__(self, operand: any) -> Self:
-        return self.__or__(operand)
 
 
 class Devices(Container):
@@ -1133,6 +1143,8 @@ class Clip(Composition):  # Just a container of Elements
                 self.set_staff_reference(operand.get_staff_reference())
 
             case _: # Works for Frame too
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
         return self
@@ -1212,6 +1224,8 @@ class Clip(Composition):  # Just a container of Elements
                 for single_operand in operand:
                     self += single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
         return self._sort_position()  # Shall be sorted!
@@ -1232,6 +1246,8 @@ class Clip(Composition):  # Just a container of Elements
                 for single_operand in operand:
                     self -= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item -= operand
         return self._sort_position()  # Shall be sorted!
@@ -1311,6 +1327,8 @@ class Clip(Composition):  # Just a container of Elements
                 for single_operand in operand:
                     self *= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item *= operand
         return self._sort_position()  # Shall be sorted!
@@ -1379,6 +1397,8 @@ class Clip(Composition):  # Just a container of Elements
                 for single_operand in operand:
                     self /= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item /= operand
         return self._sort_position()  # Shall be sorted!
@@ -2508,6 +2528,8 @@ class Part(Composition):
                 self.set_staff_reference(operand.get_staff_reference())
 
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
         return self
@@ -2539,6 +2561,8 @@ class Part(Composition):
                 for single_operand in operand:
                     self += single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
         return self
@@ -2557,6 +2581,8 @@ class Part(Composition):
                 for single_operand in operand:
                     self -= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item -= operand
         return self
@@ -2597,6 +2623,8 @@ class Part(Composition):
                 for single_operand in operand:
                     self *= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item *= operand
         return self
@@ -2607,6 +2635,8 @@ class Part(Composition):
                 for single_operand in operand:
                     self /= single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item /= operand
         return self
@@ -2755,6 +2785,8 @@ class Song(Composition):
                 for single_operand in operand:
                     self << single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for single_part in self._items:
                     single_part << operand
         return self
@@ -2793,6 +2825,8 @@ class Song(Composition):
                 for single_operand in operand:
                     self += single_operand
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
         return self
@@ -2839,6 +2873,8 @@ class Song(Composition):
                 self.set_staff_reference(operand.get_staff_reference())
 
             case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
                 for item in self._items:
                     item *= operand
         return self
