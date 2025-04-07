@@ -1567,6 +1567,20 @@ class Staff(Generic):
                 self._key_signature << operand
         return self
 
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case ra.Tempo():
+                self._tempo += operand._rational
+                return self
+        return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case ra.Tempo():
+                self._tempo -= operand._rational
+                return self
+        return super().__isub__(operand)
+
 
 class Arpeggio(Generic):
     def __init__(self, *parameters):
@@ -1954,6 +1968,9 @@ class Defaults(Generic):
                     self_devices += operand
                     self._devices = self_devices // list()
                 return self
+            case ra.Tempo():
+                self._staff += operand
+                return self
         return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
@@ -1962,6 +1979,9 @@ class Defaults(Generic):
                 self_devices = self // oc.Devices()
                 self_devices -= operand
                 self._devices = self_devices // list()
+                return self
+            case ra.Tempo():
+                self._staff -= operand
                 return self
         return super().__isub__(operand)
 
