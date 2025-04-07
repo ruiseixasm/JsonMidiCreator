@@ -51,7 +51,7 @@ def test_sinx_mod():
 
 def test_modulus():
 
-    modulus = Modulus(Length(4))
+    modulus = Modulus(Amplitude(4))
 
     assert modulus * 0 % int() == 0
     assert modulus * 1 % int() == 1
@@ -65,4 +65,4 @@ def test_modulus():
     assert modulus @ 1 % int() == 3
     assert modulus @ 1 % int() == 0
 
-test_modulus()
+# test_modulus()
