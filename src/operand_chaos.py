@@ -164,7 +164,7 @@ class Modulus(Chaos):
     def __init__(self, *parameters):
         super().__init__()
         self._amplitude: ra.Amplitude   = ra.Amplitude(12)
-        self._steps: ra.Steps             = ra.Steps(1)
+        self._steps: ra.Steps           = ra.Steps(1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -173,10 +173,10 @@ class Modulus(Chaos):
             case od.DataSource():
                 match operand._data:
                     case ra.Amplitude():        return self._amplitude
-                    case ra.Steps():             return self._steps
+                    case ra.Steps():            return self._steps
                     case _:                     return super().__mod__(operand)
             case ra.Amplitude():        return self._amplitude.copy()
-            case ra.Steps():             return self._steps.copy()
+            case ra.Steps():            return self._steps.copy()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Chaos') -> bool:
@@ -191,7 +191,7 @@ class Modulus(Chaos):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["amplitude"]    = self.serialize( self._amplitude )
-        serialization["parameters"]["steps"]         = self.serialize( self._steps )
+        serialization["parameters"]["steps"]        = self.serialize( self._steps )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -202,7 +202,7 @@ class Modulus(Chaos):
 
             super().loadSerialization(serialization)
             self._amplitude         = self.deserialize( serialization["parameters"]["amplitude"] )
-            self._steps              = self.deserialize( serialization["parameters"]["steps"] )
+            self._steps             = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -219,7 +219,8 @@ class Modulus(Chaos):
                     case _:                         super().__lshift__(operand)
             case ra.Amplitude():            self._amplitude << operand
             case ra.Steps():                self._steps << operand
-            case _: super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
         self._xn << (self._xn % float()) % (self._amplitude % float())
         return self
 
