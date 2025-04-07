@@ -250,16 +250,10 @@ class Flipper(Modulus):
             case od.DataSource():
                 match operand._data:
                     case ra.Split():            return self._split
-                    case int() | float():
-                        self_index = super().__mod__(od.DataSource( operand._data ))
-                        if isinstance(operand._data, int):
-                            return 0 if self_index < int(self._split) else 1
-                        return 0.0 if self_index < self._split else 1.0
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
             case int():                 return 0 if super().__mod__(int()) < int(self._split) else 1
             case float():               return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
-            case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -300,6 +294,15 @@ class Flipper(Modulus):
             case _:
                 super().__lshift__(operand)
         return self
+
+class Counter(Modulus):
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case int():                 return super().__mod__(int()) % int(self._cycle)
+            case float():               return super().__mod__(float()) % float(self._cycle)
+            case _:
+                return super().__mod__(operand)
+
 
 class Bouncer(Chaos):
     def __init__(self, *parameters):
