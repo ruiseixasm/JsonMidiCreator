@@ -35,7 +35,7 @@ duration_mutation = Shuffling(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
 minimum_notes = Least(8)
-total_plays = First(12)
+total_plays = Before(12)
 
 for _ in range(400):
     mutated_clip <<= duration_mutation

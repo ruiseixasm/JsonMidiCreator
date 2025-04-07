@@ -35,9 +35,9 @@ duration_mutation = Shuffling(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
 minimum_notes = Least(8)
-total_plays = First(12)
+total_plays = Before(12)
 final_clip = Clip()
-first_clip = First(1)
+first_clip = Before(1)
 original_clip = mutated_clip.copy() - Octave()
 
 for _ in range(400):

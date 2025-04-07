@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 
 class Element(o.Operand):
     def __init__(self, *parameters):
+        import operand_container as oc
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_notevalue: Fraction  = og.defaults._duration
@@ -50,6 +51,7 @@ class Element(o.Operand):
 
         # Clip sets the Staff, this is just a reference
         self._staff_reference: og.Staff     = og.defaults._staff
+        self._clip_reference: oc.Clip       = None
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -65,6 +67,19 @@ class Element(o.Operand):
 
     def reset_staff_reference(self) -> Self:
         self._staff_reference = og.defaults._staff
+        return self
+
+    def set_clip_reference(self, clip_reference: 'Clip' = None) -> Self:
+        import operand_container as oc
+        if isinstance(clip_reference, oc.Clip):
+            self._clip_reference = clip_reference
+        return self
+
+    def get_clip_reference(self) -> 'Clip':
+        return self._clip_reference
+
+    def reset_clip_reference(self) -> Self:
+        self._clip_reference = None
         return self
 
 
@@ -283,7 +298,9 @@ class Element(o.Operand):
                 self._duration_notevalue    = operand._duration_notevalue
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                self.set_staff_reference(operand._staff_reference)  # Has to use the method in order to propagate setting
+                # Has to use the method in order to propagate setting
+                self.set_staff_reference(operand._staff_reference)
+                self.set_clip_reference(operand._clip_reference)
 
             case od.DataSource():
                 match operand._data:
@@ -405,6 +422,7 @@ class Element(o.Operand):
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
                 self.set_staff_reference(self_clip._staff)
+                self.set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip += ( self % ra.Length() ).convertToPosition()
                     self_clip._insert([ self ], self_clip[0])
@@ -437,6 +455,7 @@ class Element(o.Operand):
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
                 self.set_staff_reference(self_clip._staff)
+                self.set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip._insert([ self ], self_clip[0])
                 else:
@@ -1163,7 +1182,7 @@ class Cluster(Note):
     def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
-            new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+            new_note: Note = Note(self)
             new_note += single_set
             cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
@@ -1289,14 +1308,14 @@ class KeyScale(Note):
         if self._scale.hasScale():
             for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
                 transposition: int = self._scale.transposition(key_note_i)
-                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+                new_note: Note = Note(self)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
             staff_scale: list = self._staff_reference % list()
             total_degrees: int = sum(1 for key in staff_scale if key != 0)
             for degree_i in range(total_degrees):
-                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+                new_note: Note = Note(self)
                 new_note._pitch += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
         return self._arpeggio.arpeggiate(scale_notes)
@@ -1390,7 +1409,7 @@ class Polychord(KeyScale):
     def get_component_elements(self) -> list[Element]:
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
-            polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
+            polychord_notes.append( Note(self) << ou.Degree(single_degree) )
         return self._arpeggio.arpeggiate(polychord_notes)
 
     def getSerialization(self) -> dict:
@@ -1534,7 +1553,7 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+                new_note: Note = Note(self)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
@@ -1546,7 +1565,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+                new_note: Note = Note(self)
                 new_note._pitch += key_degree # Jumps by degrees (scale tones)
                 chord_notes.append( new_note )
 

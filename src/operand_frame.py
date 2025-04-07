@@ -527,14 +527,28 @@ class All(Selector):
 
     def __and__(self, input: o.Operand) -> o.Operand:
         return super().__and__(input)
-        
+
+# class First(Selector):
+    
+#     def __and__(self, input: o.Operand) -> o.Operand:
+#         import operand_container as oc
+#         if isinstance(input, oc.Container):
+#             if input.len() > 0:
+#                 first_item = input.first()
+#                 if self._multi_data['operand'] % 2 == 1:    # Selected to pass
+#                 if isinstance(self._next_operand, Frame):
+#                     return self._next_operand & input
+#                 return self._next_operand        
+#         return ol.Null()
+
+
 class Odd(Selector):
     def __init__(self):
         super().__init__(0)
 
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['operand'] += 1
-        if self._multi_data['operand'] % 2 == 1:
+        if self._multi_data['operand'] % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
             return self._next_operand

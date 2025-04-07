@@ -584,7 +584,7 @@ class Threshold(Selection):
                     self << single_operand
         return self
 
-class First(Threshold):
+class Before(Threshold):
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
