@@ -302,6 +302,7 @@ class Element(o.Operand):
                 if self._clip_reference is None:
                     # Has to use the method in order to propagate setting
                     self.set_staff_reference(operand._staff_reference)
+                    self.set_clip_reference(operand._clip_reference)
 
             case od.DataSource():
                 match operand._data:
