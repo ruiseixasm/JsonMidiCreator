@@ -2375,6 +2375,7 @@ class Part(Composition):
 
         # Song sets the Staff, this is just a reference
         self._staff_reference: og.Staff = og.defaults._staff
+        self._song_reference: Song      = None
 
         for single_operand in operands:
             self << single_operand
@@ -2390,6 +2391,18 @@ class Part(Composition):
 
     def reset_staff_reference(self) -> Self:
         self._staff_reference = og.defaults._staff
+        return self
+
+    def set_song_reference(self, song_reference: 'Song' = None) -> Self:
+        if isinstance(song_reference, Song):
+            self._song_reference = song_reference
+        return self
+
+    def get_song_reference(self) -> 'Song':
+        return self._song_reference
+
+    def reset_song_reference(self) -> Self:
+        self._song_reference = None
         return self
 
 
@@ -2701,6 +2714,7 @@ class Song(Composition):
             self._staff << staff_reference  # Does a copy
         for single_part in self._items:
             single_part.set_staff_reference(self._staff)
+            single_part.set_song_reference(self)
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
