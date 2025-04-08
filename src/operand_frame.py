@@ -80,7 +80,6 @@ class Frame(o.Operand):
             operand._set = False
             if isinstance(operand, Frame):
                 operand._root_frame = False
-                self._index_iterator = None
         self._next_operand = operand
         return self
 
