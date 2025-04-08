@@ -1494,7 +1494,8 @@ class Staff(Generic):
         return self.convertToBeats(time)._rational / self._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
-        import operand_element as oe
+        if position is None:
+            return [{ "time_ms": 0.0 }]
         return [{ "time_ms": o.minutes_to_time_ms(self.getMinutes(position)) }]
 
 

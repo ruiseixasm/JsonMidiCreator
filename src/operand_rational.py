@@ -749,13 +749,8 @@ class Convertible(Rational):
     def getMinutes(self) -> Fraction:
         return self._get_staff().getMinutes(self)
 
-
-    def getPlaylist(self, position: 'Position' = None) -> list:
-        match position:
-            case None:
-                return self._staff_reference.getPlaylist(self)
-            case _:
-                return self._staff_reference.getPlaylist(position)
+    def getPlaylist(self) -> list:
+        return self._get_staff().getPlaylist(self)
 
     # CHAINABLE OPERATIONS
 
