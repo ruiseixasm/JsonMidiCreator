@@ -617,9 +617,11 @@ class Convertible(Rational):
         self._staff_reference = None
         return self
 
-    def _get_staff(self) -> 'Staff':
+    def _get_staff(self, other: Union['Convertible', 'ou.TimeUnit'] = None) -> 'Staff':
         import operand_generic as og
         if self._staff_reference is None:
+            if isinstance(other, (Convertible, ou.TimeUnit)) and other._staff_reference is not None:
+                return other._staff_reference
             return og.defaults._staff
         return self._staff_reference
 
@@ -640,7 +642,7 @@ class Convertible(Rational):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Measurement() | TimeValue() | Duration():
+            case Convertible():
                 return self._get_staff().convertToBeats(self)._rational \
                     == self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
