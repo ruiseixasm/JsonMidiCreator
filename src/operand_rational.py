@@ -602,10 +602,10 @@ class Convertible(Rational):
     if TYPE_CHECKING:
         from operand_generic import Staff
 
-    def set_staff_reference(self, self_staff: 'Staff' = None) -> Self:
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
         import operand_generic as og
-        if isinstance(self_staff, og.Staff):
-            self._staff_reference = self_staff
+        if isinstance(staff_reference, og.Staff):
+            self._staff_reference = staff_reference
         return self
 
     def get_staff_reference(self) -> 'Staff':
@@ -616,37 +616,36 @@ class Convertible(Rational):
         self._staff_reference = og.defaults._staff
         return self
 
-    def __mod__(self, operand: o.T) -> o.T:
+    def _get_staff(self) -> 'Staff':
         import operand_generic as og
-        self_staff: og.Staff = self._staff_reference
-        if self_staff is None:
-            self_staff = og.defaults._staff
+        if self._staff_reference is None:
+            return og.defaults._staff
+        return self._staff_reference
+
+
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case Beats():               return self_staff.convertToBeats(self)
-            case Measures():            return self_staff.convertToMeasures(self)
-            case Duration():            return self_staff.convertToDuration(self)
-            case Steps():               return self_staff.convertToSteps(self)
-            case ou.Measure():          return self_staff.convertToMeasure(self)
-            case ou.Beat():             return self_staff.convertToBeat(self)
-            case ou.Step():             return self_staff.convertToStep(self)
-            case Position():            return self_staff.convertToPosition(self)
-            case Length():              return self_staff.convertToLength(self)
+            case Beats():               return self._get_staff().convertToBeats(self)
+            case Measures():            return self._get_staff().convertToMeasures(self)
+            case Duration():            return self._get_staff().convertToDuration(self)
+            case Steps():               return self._get_staff().convertToSteps(self)
+            case ou.Measure():          return self._get_staff().convertToMeasure(self)
+            case ou.Beat():             return self._get_staff().convertToBeat(self)
+            case ou.Step():             return self._get_staff().convertToStep(self)
+            case Position():            return self._get_staff().convertToPosition(self)
+            case Length():              return self._get_staff().convertToLength(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        import operand_generic as og
-        self_staff: og.Staff = self._staff_reference
-        if self_staff is None:
-            self_staff = og.defaults._staff
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 if other._staff_reference is None:
-                    return self_staff.convertToBeats(self)._rational \
-                        == self_staff.convertToBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        == self._get_staff().convertToBeats(other)._rational
                 else:
-                    return self_staff.convertToBeats(self)._rational \
-                        == self_staff.transformBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        == self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -654,19 +653,15 @@ class Convertible(Rational):
         return False
 
     def __lt__(self, other: any) -> bool:
-        import operand_generic as og
-        self_staff: og.Staff = self._staff_reference
-        if self_staff is None:
-            self_staff = og.defaults._staff
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 if other._staff_reference is None:
-                    return self_staff.convertToBeats(self)._rational \
-                        < self_staff.convertToBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        < self._get_staff().convertToBeats(other)._rational
                 else:
-                    return self_staff.convertToBeats(self)._rational \
-                        < self_staff.transformBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        < self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
             case _:
@@ -674,19 +669,15 @@ class Convertible(Rational):
         return False
     
     def __gt__(self, other: any) -> bool:
-        import operand_generic as og
-        self_staff: og.Staff = self._staff_reference
-        if self_staff is None:
-            self_staff = og.defaults._staff
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 if other._staff_reference is None:
-                    return self_staff.convertToBeats(self)._rational \
-                        > self_staff.convertToBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        > self._get_staff().convertToBeats(other)._rational
                 else:
-                    return self_staff.convertToBeats(self)._rational \
-                        > self_staff.transformBeats(other)._rational
+                    return self._get_staff().convertToBeats(self)._rational \
+                        > self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
             case _:
