@@ -614,8 +614,7 @@ class Convertible(Rational):
         return self._staff_reference
 
     def reset_staff_reference(self) -> Self:
-        import operand_generic as og
-        self._staff_reference = og.defaults._staff
+        self._staff_reference = None
         return self
 
     def _get_staff(self) -> 'Staff':

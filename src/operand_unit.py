@@ -250,9 +250,15 @@ class TimeUnit(Unit):
         return self._staff_reference
 
     def reset_staff_reference(self) -> 'TimeUnit':
-        import operand_generic as og
-        self._staff_reference = og.defaults._staff
+        self._staff_reference = None
         return self
+
+    def _get_staff(self) -> 'Staff':
+        import operand_generic as og
+        if self._staff_reference is None:
+            return og.defaults._staff
+        return self._staff_reference
+
 
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
