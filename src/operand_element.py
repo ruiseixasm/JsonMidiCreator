@@ -160,25 +160,13 @@ class Element(o.Operand):
     def get_component_elements(self) -> list['Element']:
         return [ self ]
 
-    def eq_time(self, other: 'Element') -> bool:
-        return  self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) \
-                    == other._staff_reference.convertToPosition(ra.Beats(other._position_beats)) \
-            and self._duration_notevalue      == other._duration_notevalue
-
-    def eq_midi(self, other: 'Element') -> bool:
-        return  self._channel == other._channel
-
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Element():
-                return self.eq_time(other) and self.eq_midi(other)
-            case ra.Duration():
-                return self._duration_notevalue == other._rational
-            case ra.TimeValue():
-                return ra.Beats(self._position_beats) == other
-            case ou.TimeUnit():
-                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) == other
+                return self % ra.Position() == other % ra.Position() \
+                    and self % ra.Duration() == other % ra.Duration() \
+                    and self._channel == other._channel
             case od.Conditional():
                 return other == self
             case _:
@@ -193,12 +181,6 @@ class Element(o.Operand):
         match other:
             case Element():
                 return self % ra.Position() < other % ra.Position()
-            case ra.Duration():
-                return self._duration_notevalue < other._rational
-            case ra.TimeValue():
-                return ra.Beats(self._position_beats) < other
-            case ou.TimeUnit():
-                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) < other
             case _:
                 return self % other < other
     
@@ -207,12 +189,6 @@ class Element(o.Operand):
         match other:
             case Element():
                 return self % ra.Position() > other % ra.Position()
-            case ra.Duration():
-                return self._duration_notevalue > other._rational
-            case ra.TimeValue():
-                return ra.Beats(self._position_beats) > other
-            case ou.TimeUnit():
-                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) > other
             case _:
                 return self % other > other
     
