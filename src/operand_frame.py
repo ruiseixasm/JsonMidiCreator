@@ -560,41 +560,25 @@ class Last(Selector):
         return ol.Null()
 
 class Odd(Selector):
-    def __init__(self):
-        super().__init__(0)
-
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._multi_data['operand'] += 1
-        if self._multi_data['operand'] % 2 == 1:    # Selected to pass
+        self._index += 1
+        if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
             return self._next_operand
         else:
             return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['operand'] = 0
-        return self << parameters
-    
 class Even(Selector):
-    def __init__(self):
-        super().__init__(0)
-        
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._multi_data['operand'] += 1
-        if self._multi_data['operand'] % 2 == 0:
+        self._index += 1
+        if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
             return self._next_operand
         else:
             return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['operand'] = 0
-        return self << parameters
-    
 class Every(Selector):
     def __init__(self, nths: int = 4):
         super().__init__(0)
