@@ -2545,8 +2545,11 @@ class Part(Composition):
         match operand:
             case Part():
                 super().__lshift__(operand)
-                self._position_beats    = operand._position_beats
-                self._staff_reference             << operand._staff_reference
+                self._position_beats = operand._position_beats
+                # Makes sure isn't a Song owned Part first
+                if self._song_reference is None:
+                    # Has to use the method in order to propagate setting
+                    self.set_staff_reference(operand._staff_reference).set_song_reference(operand._song_reference)
                 
             case od.DataSource():
                 match operand._data:
