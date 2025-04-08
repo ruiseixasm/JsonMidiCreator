@@ -600,23 +600,18 @@ class Every(Selector):
     
 class Nth(Selector):
     def __init__(self, *parameters):
-        super().__init__(0)
+        super().__init__()
         self._multi_data['parameters'] = parameters
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._multi_data['operand'] += 1
-        if self._multi_data['operand'] in self._multi_data['parameters']:
+        self._index += 1
+        if self._index in self._multi_data['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
             return self._next_operand
         else:
             return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['operand'] = 0
-        return self << parameters
-    
 class OperandType(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
