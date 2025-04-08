@@ -2136,12 +2136,17 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _run_play(self, even = None, channel: int = None) -> Self:
+        import threading
         last_clip: Clip = self._clip_iterations[self._iteration]
         if isinstance(channel, int) and channel > 0:
             # Filter already results in a shallow copy
-            last_clip.filter(ou.Channel(channel)) >> od.Play()
+            threading.Thread(target=od.Play.play, args=(
+                last_clip.filter(ou.Channel(channel)),
+            )).start()
+            # last_clip.filter(ou.Channel(channel)) >> od.Play()
         else:
-            last_clip >> od.Play()
+            threading.Thread(target=od.Play.play, args=(last_clip,)).start()
+            # last_clip >> od.Play()
         return self
 
     def _run_previous(self, even = None) -> Self:
@@ -2188,13 +2193,15 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def _run_composition(self, even = None) -> Self:
+        import threading
         if callable(self._c_function):
             last_clip: Clip = self._clip_iterations[self._iteration]
             composition: Composition = self._c_function(last_clip)
+            if isinstance(composition, Composition):
+                threading.Thread(target=od.Play.play, args=(composition,)).start()
+                # composition >> od.Play()
             # Updates the last_clip data and plot just in case
             self._update_iteration(self._iteration, last_clip.getPlotlist())
-            if isinstance(composition, Composition):
-                composition >> od.Play()
         return self
 
     def _run_execute(self, even = None) -> Self:

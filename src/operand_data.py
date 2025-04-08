@@ -819,6 +819,11 @@ class Play(Process):
                 return operand
             case _:
                 return super().__rrshift__(operand)
+    
+    @staticmethod
+    def play(operand: o.T) -> o.T:
+        return Play().__rrshift__(operand)
+
 
 class Print(Process):
     """
