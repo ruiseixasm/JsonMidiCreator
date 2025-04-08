@@ -596,7 +596,9 @@ class Quantization(StaffParameter):
 class Convertible(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
-        self._staff_reference: og.Staff     = og.defaults._staff
+        # By default Time values have no Staff reference,
+        # so, they aren't transformed, just converted !!
+        self._staff_reference: og.Staff = None
         super().__init__(*parameters)
 
     if TYPE_CHECKING:
