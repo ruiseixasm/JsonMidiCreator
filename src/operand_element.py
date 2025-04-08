@@ -301,8 +301,7 @@ class Element(o.Operand):
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
                     # Has to use the method in order to propagate setting
-                    self.set_staff_reference(operand._staff_reference)
-                    self.set_clip_reference(operand._clip_reference)
+                    self.set_staff_reference(operand._staff_reference).set_clip_reference(operand._clip_reference)
 
             case od.DataSource():
                 match operand._data:
@@ -423,8 +422,7 @@ class Element(o.Operand):
                 return extended_clip
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
-                self.set_staff_reference(self_clip._staff)
-                self.set_clip_reference(self_clip)
+                self.set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip += ( self % ra.Length() ).convertToPosition()
                     self_clip._insert([ self ], self_clip[0])
@@ -456,8 +454,7 @@ class Element(o.Operand):
                 return self + operand
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
-                self.set_staff_reference(self_clip._staff)
-                self.set_clip_reference(self_clip)
+                self.set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip._insert([ self ], self_clip[0])
                 else:
