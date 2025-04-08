@@ -752,7 +752,7 @@ class Composition(Container):
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
-        return og.defaults._staff
+        return None
 
     def reset_staff_reference(self) -> Self:
         return self
