@@ -87,6 +87,10 @@ def test_operand_copy():
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
             if class_object != class_object.copy():
@@ -100,6 +104,10 @@ def test_operand_copy():
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        # if isinstance(class_object, Song):
+        #     class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
@@ -116,6 +124,10 @@ def test_operand_copy():
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        # if isinstance(class_object, Song):
+        #     class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
@@ -147,6 +159,10 @@ def test_operand_serialization():
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
@@ -166,6 +182,10 @@ def test_operand_serialization():
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
@@ -188,6 +208,10 @@ def test_operand_serialization():
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:

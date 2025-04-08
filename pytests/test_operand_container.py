@@ -181,6 +181,7 @@ def test_or_clip():
 
 # test_or_clip()
 
+
 def test_copy_container():
 
     clip = Clip(Note())

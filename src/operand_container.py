@@ -1073,6 +1073,7 @@ class Clip(Composition):  # Just a container of Elements
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
             self._length_beats      = self.deserialize(serialization["parameters"]["length"])
+            self.set_staff_reference()
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2788,12 +2789,14 @@ class Song(Composition):
 
             super().loadSerialization(serialization)
             self._staff = self.deserialize(serialization["parameters"]["staff"])
+            self.set_staff_reference()
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Song():
                 super().__lshift__(operand)
+                self.set_staff_reference()
 
             case od.DataSource():
                 match operand._data:
