@@ -747,6 +747,7 @@ class Convertible(Rational):
     def transformPosition(self) -> 'Position':
         return self._get_staff().transformPosition(self)
 
+
     def getMinutes(self) -> Fraction:
         return self._get_staff().getMinutes(self)
 

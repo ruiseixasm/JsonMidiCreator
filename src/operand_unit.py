@@ -302,143 +302,67 @@ class TimeUnit(Unit):
     if TYPE_CHECKING:
         from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps
 
-    def convertToBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
-        match time:
-            case None:
-                return self._get_staff().convertToBeats(self)
-            case _:
-                return self._get_staff().convertToBeats(time)
+    def convertToBeats(self) -> 'Beats':
+        return self._get_staff().convertToBeats(self)
 
-    def convertToMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
-        match time:
-            case None:
-                return self._get_staff().convertToMeasures(self)
-            case _:
-                return self._get_staff().convertToMeasures(time)
+    def convertToMeasures(self) -> 'Measures':
+        return self._get_staff().convertToMeasures(self)
         
-    def convertToSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
-        match time:
-            case None:
-                return self._get_staff().convertToSteps(self)
-            case _:
-                return self._get_staff().convertToSteps(time)
+    def convertToSteps(self) -> 'Steps':
+        return self._get_staff().convertToSteps(self)
 
-    def convertToDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
-        match time:
-            case None:
-                return self._get_staff().convertToDuration(self)
-            case _:
-                return self._get_staff().convertToDuration(time)
+    def convertToDuration(self) -> 'Duration':
+        return self._get_staff().convertToDuration(self)
 
-    def convertToMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
-        match time:
-            case None:
-                return self._get_staff().convertToMeasure(self)
-            case _:
-                return self._get_staff().convertToMeasure(time)
+    def convertToMeasure(self) -> 'Measure':
+        return self._get_staff().convertToMeasure(self)
 
-    def convertToBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
-        match time:
-            case None:
-                return self._get_staff().convertToBeat(self)
-            case _:
-                return self._get_staff().convertToBeat(time)
+    def convertToBeat(self) -> 'Beat':
+        return self._get_staff().convertToBeat(self)
 
-    def convertToStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
-        match time:
-            case None:
-                return self._get_staff().convertToStep(self)
-            case _:
-                return self._get_staff().convertToStep(time)
+    def convertToStep(self) -> 'Step':
+        return self._get_staff().convertToStep(self)
 
-    def convertToPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
-        match time:
-            case None:
-                return self._get_staff().convertToPosition(self)
-            case _:
-                return self._get_staff().convertToPosition(time)
+    def convertToPosition(self) -> 'Position':
+        return self._get_staff().convertToPosition(self)
 
-    def convertToLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
-        match time:
-            case None:
-                return self._get_staff().convertToLength(self)
-            case _:
-                return self._get_staff().convertToLength(time)
+    def convertToLength(self) -> 'Length':
+        return self._get_staff().convertToLength(self)
 
     ################################################################################################################
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
     ################################################################################################################
 
-    def transformBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
-        match time:
-            case None:
-                return self._get_staff().transformBeats(self)
-            case _:
-                return self._get_staff().transformBeats(time)
+    def transformBeats(self) -> 'Beats':
+        return self._get_staff().transformBeats(self)
 
-    def transformMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
-        match time:
-            case None:
-                return self._get_staff().transformMeasures(self)
-            case _:
-                return self._get_staff().transformMeasures(time)
+    def transformMeasures(self) -> 'Measures':
+        return self._get_staff().transformMeasures(self)
 
-    def transformSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
-        match time:
-            case None:
-                return self._get_staff().transformSteps(self)
-            case _:
-                return self._get_staff().transformSteps(time)
+    def transformSteps(self) -> 'Steps':
+        return self._get_staff().transformSteps(self)
 
-    def transformDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
-        match time:
-            case None:
-                return self._get_staff().transformDuration(self)
-            case _:
-                return self._get_staff().transformDuration(time)
+    def transformDuration(self) -> 'Duration':
+        return self._get_staff().transformDuration(self)
 
-    def transformMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
-        match time:
-            case None:
-                return self._get_staff().transformMeasure(self)
-            case _:
-                return self._get_staff().transformMeasure(time)
+    def transformMeasure(self) -> 'Measure':
+        return self._get_staff().transformMeasure(self)
 
-    def transformBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
-        match time:
-            case None:
-                return self._get_staff().transformBeat(self)
-            case _:
-                return self._get_staff().transformBeat(time)
+    def transformBeat(self) -> 'Beat':
+        return self._get_staff().transformBeat(self)
 
-    def transformStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
-        match time:
-            case None:
-                return self._get_staff().transformStep(self)
-            case _:
-                return self._get_staff().transformStep(time)
+    def transformStep(self) -> 'Step':
+        return self._get_staff().transformStep(self)
 
-    def transformPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
-        match time:
-            case None:
-                return self._get_staff().transformPosition(self)
-            case _:
-                return self._get_staff().transformPosition(time)
+    def transformPosition(self) -> 'Position':
+        return self._get_staff().transformPosition(self)
 
-    def transformLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
-        match time:
-            case None:
-                return self._get_staff().transformLength(self)
-            case _:
-                return self._get_staff().transformLength(time)
+    def transformLength(self) -> 'Length':
+        return self._get_staff().transformLength(self)
 
 
-    def getMillis_rational(self, time: Union['Convertible', 'TimeUnit'] = None) -> Fraction:
-        match time:
-            case None:
-                return self._get_staff().getMinutes(self)
-            case _:
-                return self._get_staff().getMinutes(time)
+    def getMinutes(self) -> Fraction:
+        return self._get_staff().getMinutes(self)
 
     def getPlaylist(self, position: 'Position' = None) -> list:
         match position:
