@@ -42,7 +42,7 @@ class Frame(o.Operand):
         self._multi_data: dict  = {}
         self._inside_container: oc.Container = None
         self._root_frame: bool = True
-        self._index_iterator: Frame = None
+        self._index_iterator: Type = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
         
@@ -60,10 +60,10 @@ class Frame(o.Operand):
             case _:         self._current_node = None
         return previous_node
 
-    def _increment_index(self) -> Self:
-        if self._index_iterator is None or self._index_iterator is self:
+    def _increment_index(self, type: Type) -> Self:
+        if self._index_iterator is None or self._index_iterator == type:
             self._index += 1
-            self._index_iterator = self
+            self._index_iterator = type
         return self
 
     def _set_inside_container(self, container: 'Container') -> Self:
@@ -280,7 +280,7 @@ class Input(Left):
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
-        self._increment_index()
+        self._increment_index(Input)
         if isinstance(self._multi_data['operand'], oc.Container):
             if self._multi_data['operand'].len() > 0:
                 item = self._multi_data['operand'][(self._index - 1) % self._multi_data['operand'].len()]
@@ -452,7 +452,7 @@ class Iterate(Left):
         super().__init__(iterator)
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Iterate)
         self_operand = super().__and__(
             self.deep_copy(self._multi_data['operand']['current'])
         )
@@ -486,7 +486,7 @@ class Loop(Left):
         super().__init__(tuple(processed_params))
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Loop)
         operand_len: int = len(self._multi_data['operand'])
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._multi_data['operand'][(self._index - 1) % operand_len]
@@ -576,7 +576,7 @@ class Last(Selector):
 
 class Odd(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Odd)
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -586,7 +586,7 @@ class Odd(Selector):
 
 class Even(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Even)
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -600,7 +600,7 @@ class Every(Selector):
         self._multi_data['nths'] = nths
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Every)
         if self._multi_data['nths'] > 0 and self._index % self._multi_data['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -614,7 +614,7 @@ class Nth(Selector):
         self._multi_data['parameters'] = parameters
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._increment_index()
+        self._increment_index(Nth)
         if self._index in self._multi_data['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
