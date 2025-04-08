@@ -60,6 +60,8 @@ class Frame(o.Operand):
 
     def _set_inside_container(self, container: 'Container') -> Self:
         self._inside_container = container
+        # For each container, index needs to be reset
+        self._index = 0
         return self
 
     def __pow__(self, operand: any) -> 'Frame':
@@ -491,6 +493,7 @@ class Transition(Left):
         self._multi_data['step'] = 1
         self._multi_data['last_subject'] = ol.Null()
 
+    # NEEDS TO BE REVIEWED AND TESTED
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
