@@ -60,6 +60,9 @@ class Frame(o.Operand):
         return previous_node
 
     def _set_inside_container(self, container: 'Container') -> Self:
+        # Needs to propagate the settings to the next Frames
+        if isinstance(self._next_operand, Frame):
+            self._next_operand._set_inside_container(container)
         self._inside_container = container
         # For each container, index needs to be reset
         self._index = 0
