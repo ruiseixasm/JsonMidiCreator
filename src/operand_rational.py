@@ -641,12 +641,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                if other._staff_reference is None:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        == self._get_staff().convertToBeats(other)._rational
-                else:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        == self._get_staff().transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    == self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -657,12 +653,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                if other._staff_reference is None:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        < self._get_staff().convertToBeats(other)._rational
-                else:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        < self._get_staff().transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    < self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
             case _:
@@ -673,12 +665,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                if other._staff_reference is None:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        > self._get_staff().convertToBeats(other)._rational
-                else:
-                    return self._get_staff().convertToBeats(self)._rational \
-                        > self._get_staff().transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    > self._get_staff().transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
             case _:

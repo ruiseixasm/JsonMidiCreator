@@ -1454,6 +1454,11 @@ class Staff(Generic):
     ################################################################################################################
 
     def transformBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Beats':
+        # By default Time values have no Staff reference,
+        # so, they aren't transformed, just converted !!
+        if isinstance(time, (ra.Convertible, ou.TimeUnit)) \
+                and time._staff_reference is None:
+            return self.convertToBeats(time)
         match time:
             case ra.Beats() | ra.Measurement():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
