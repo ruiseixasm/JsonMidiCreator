@@ -42,6 +42,7 @@ class Frame(o.Operand):
         self._multi_data: dict  = {}
         self._inside_container: oc.Container = None
         self._root_frame: bool = True
+        self._index_iterator: Frame = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
         
@@ -59,6 +60,12 @@ class Frame(o.Operand):
             case _:         self._current_node = None
         return previous_node
 
+    def _increment_index(self) -> Self:
+        if self._index_iterator is None or self._index_iterator is self:
+            self._index += 1
+            self._index_iterator = self
+        return self
+
     def _set_inside_container(self, container: 'Container') -> Self:
         # Needs to propagate the settings to the next Frames
         if isinstance(self._next_operand, Frame):
@@ -73,6 +80,7 @@ class Frame(o.Operand):
             operand._set = False
             if isinstance(operand, Frame):
                 operand._root_frame = False
+                self._index_iterator = None
         self._next_operand = operand
         return self
 
