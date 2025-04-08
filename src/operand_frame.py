@@ -486,10 +486,10 @@ class Loop(Left):
         super().__init__(tuple(processed_params))
 
     def __and__(self, input: o.Operand) -> o.Operand:
+        self._increment_index()
         operand_len: int = len(self._multi_data['operand'])
         if operand_len > 0:    # In case it its own parameters to iterate trough
-            input = self._multi_data['operand'][self._index % operand_len]
-            self._index += 1
+            input = self._multi_data['operand'][(self._index - 1) % operand_len]
             return super().__and__(input)
         return ol.Null()
 
