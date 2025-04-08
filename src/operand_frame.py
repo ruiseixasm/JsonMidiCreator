@@ -581,23 +581,18 @@ class Even(Selector):
 
 class Every(Selector):
     def __init__(self, nths: int = 4):
-        super().__init__(0)
+        super().__init__()
         self._multi_data['nths'] = nths
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._multi_data['operand'] += 1
-        if self._multi_data['nths'] > 0 and self._multi_data['operand'] % self._multi_data['nths'] == 0:
+        self._index += 1
+        if self._multi_data['nths'] > 0 and self._index % self._multi_data['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
             return self._next_operand
         else:
             return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['operand'] = 0
-        return self << parameters
-    
 class Nth(Selector):
     def __init__(self, *parameters):
         super().__init__()
