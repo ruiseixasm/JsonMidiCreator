@@ -298,9 +298,10 @@ class Element(o.Operand):
                 self._duration_notevalue    = operand._duration_notevalue
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                # Has to use the method in order to propagate setting
-                self.set_staff_reference(operand._staff_reference)
-                self.set_clip_reference(operand._clip_reference)
+                # Makes sure isn't an Clip owned Element first
+                if self._clip_reference is None:
+                    # Has to use the method in order to propagate setting
+                    self.set_staff_reference(operand._staff_reference)
 
             case od.DataSource():
                 match operand._data:
