@@ -452,12 +452,12 @@ class Iterate(Left):
         super().__init__(iterator)
 
     def __and__(self, input: o.Operand) -> o.Operand:
+        self._increment_index()
         self_operand = super().__and__(
             self.deep_copy(self._multi_data['operand']['current'])
         )
         # iterates whenever called
         self._multi_data['operand']['current'] += self._multi_data['operand']['step']
-        self._index += 1
         return self_operand
 
 class Drag(Left):
