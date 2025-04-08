@@ -827,7 +827,8 @@ class Clip(Composition):  # Just a container of Elements
     def test_staff_reference(self) -> bool:
         for single_element in self:
             if isinstance(single_element, oe.Element) and not (
-                single_element._staff_reference is self._staff and True
+                single_element._staff_reference is self._staff and
+                single_element._clip_reference is not None
             ):
                 return False
         return True
@@ -1176,21 +1177,23 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_elements = [
-                    single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
+                    single_element.copy().set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_element in operand._items
                 ]
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
                     return self._append(operand_elements, self_last_element)._sort_position()  # Shall be sorted!
                 return self._append(operand_elements)._sort_position() # Shall be sorted!
             case oe.Element():
-                new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
+                new_element: oe.Element = operand.copy().set_staff_reference(self._staff).set_clip_reference(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
                     return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
                 return self._append([ new_element ])._sort_position()  # Shall be sorted!
             case list():
                 operand_elements = [
-                    single_element.copy().set_staff_reference(self._staff) for single_element in operand if isinstance(single_element, oe.Element)
+                    single_element.copy().set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_element in operand if isinstance(single_element, oe.Element)
                 ]
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
@@ -1257,8 +1260,8 @@ class Clip(Composition):  # Just a container of Elements
                     self._length_beats += (operand % ra.Length())._rational
                     add_position: ra.Position = left_end_position - right_start_position
                 operand_elements = [
-                    (single_data + add_position).set_staff_reference(self._staff) for single_data in operand._items
-                        if isinstance(single_data, oe.Element)
+                    (single_data + add_position).set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_data in operand._items if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
                 
@@ -1285,8 +1288,8 @@ class Clip(Composition):  # Just a container of Elements
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
                     self._items.extend(
-                        single_element.set_staff_reference(self._staff) for single_element in self_copy
-                        if isinstance(single_element, oe.Element)
+                        single_element.set_staff_reference(self._staff).set_clip_reference(self)
+                        for single_element in self_copy if isinstance(single_element, oe.Element)
                     )
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
@@ -1335,8 +1338,8 @@ class Clip(Composition):  # Just a container of Elements
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(length_shift)
                 operand_elements = [
-                    (single_data + add_position).set_staff_reference(self._staff) for single_data in operand._items
-                        if isinstance(single_data, oe.Element)
+                    (single_data + add_position).set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_data in operand._items if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
 
@@ -1356,8 +1359,8 @@ class Clip(Composition):  # Just a container of Elements
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
                     self._items.extend(
-                        single_element.set_staff_reference(self._staff) for single_element in self_copy
-                        if isinstance(single_element, oe.Element)
+                        single_element.set_staff_reference(self._staff).set_clip_reference(self)
+                        for single_element in self_copy if isinstance(single_element, oe.Element)
                     )
                     if self._length_beats >= 0:
                         finish_position_beats: Fraction = self.finish()._rational
@@ -1432,7 +1435,9 @@ class Clip(Composition):  # Just a container of Elements
         if isinstance(pattern, str):
 
             # Fraction sets the Duration in Steps
-            element_note: oe.Note = oe.Note().set_staff_reference(self._staff) << Fraction(1) << note
+            element_note: oe.Note = \
+                oe.Note().set_staff_reference(self._staff).set_clip_reference(self) \
+                << Fraction(1) << note
 
             pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
 
@@ -1456,17 +1461,23 @@ class Clip(Composition):  # Just a container of Elements
 
             # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
             if isinstance(automation, oe.Aftertouch):
-                automate_element: oe.Element = oe.Aftertouch().set_staff_reference(self._staff) << automation
+                automate_element: oe.Element = \
+                    oe.Aftertouch().set_staff_reference(self._staff).set_clip_reference(self) \
+                    << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [30, 70, 50, 0]
             elif isinstance(automation, oe.PitchBend) or automation is None:  # Pitch Bend, special case
-                automate_element: oe.Element = oe.PitchBend().set_staff_reference(self._staff) << automation
+                automate_element: oe.Element = \
+                    oe.PitchBend().set_staff_reference(self._staff).set_clip_reference(self) \
+                    << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [-20*64, -70*64, -50*64, 0*64]
             else:
-                automate_element: oe.Element = oe.ControlChange().set_staff_reference(self._staff) << automation
+                automate_element: oe.Element = \
+                    oe.ControlChange().set_staff_reference(self._staff).set_clip_reference(self) \
+                    << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
                     values = [80, 50, 30, 100]
@@ -1769,14 +1780,18 @@ class Clip(Composition):  # Just a container of Elements
             next_element: oe.Element = shallow_copy._items[index + 1]
             if current_element.finish() < next_element.start():
                 rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
-                rest_element: oe.Rest = oe.Rest().set_staff_reference(self._staff) << rest_length
+                rest_element: oe.Rest = \
+                    oe.Rest().set_staff_reference(self._staff).set_clip_reference(self) \
+                    << rest_length
                 self += rest_element
         
         last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
         staff_end: ra.Position = last_element.finish().convertToLength().roundMeasures().convertToPosition()
         if last_element.finish() < staff_end:
             rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
-            rest_element: oe.Rest = oe.Rest().set_staff_reference(self._staff) << rest_length
+            rest_element: oe.Rest = \
+                oe.Rest().set_staff_reference(self._staff).set_clip_reference(self) \
+                << rest_length
             self += rest_element
 
         return self
