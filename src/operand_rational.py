@@ -633,7 +633,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self)._rational == self._staff_reference.convertToBeats(other)._rational
+                return self._staff_reference.convertToBeats(self)._rational \
+                    == self._staff_reference.transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -644,7 +645,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self)._rational < self._staff_reference.convertToBeats(other)._rational
+                return self._staff_reference.convertToBeats(self)._rational \
+                    < self._staff_reference.transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
             case _:
@@ -655,7 +657,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self)._rational > self._staff_reference.convertToBeats(other)._rational
+                return self._staff_reference.convertToBeats(self)._rational \
+                    > self._staff_reference.transformBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
             case _:
