@@ -41,6 +41,7 @@ class Frame(o.Operand):
         self._next_operand: any = o.Operand()
         self._multi_data: dict  = {}
         self._inside_container: oc.Container = None
+        self._root_frame: bool = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
         
@@ -67,6 +68,8 @@ class Frame(o.Operand):
     def __pow__(self, operand: any) -> 'Frame':
         if isinstance(operand, o.Operand):
             operand._set = False
+            if isinstance(operand, Frame):
+                operand._root_frame = False
         self._next_operand = operand
         return self
 
