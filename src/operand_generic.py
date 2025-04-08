@@ -1462,10 +1462,8 @@ class Staff(Generic):
                 tempo_b : Fraction = self._tempo
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
                 return ra.Beats(beats_b).set_staff_reference(self)
-            case ra.Convertible():
+            case ra.Convertible() | ou.TimeUnit():
                 return self.transformBeats(time._get_staff().convertToBeats(time))
-            case ou.TimeUnit():
-                return self.transformBeats(time._staff_reference.convertToBeats(time))
         return ra.Beats()
 
     def transformMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Measures':

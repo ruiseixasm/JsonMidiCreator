@@ -234,7 +234,9 @@ class Total(Unit):
 class TimeUnit(Unit):
     def __init__(self, *parameters):
         import operand_generic as og
-        self._staff_reference: og.Staff     = og.defaults._staff
+        # By default Time values have no Staff reference,
+        # so, they aren't transformed, just converted !!
+        self._staff_reference: og.Staff = None
         super().__init__(*parameters)
 
     if TYPE_CHECKING:
@@ -265,8 +267,8 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._staff_reference.convertToBeats(self)._rational \
-                    == self._staff_reference.transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    == self._get_staff().transformBeats(other)._rational
             case _:
                 return super().__eq__(other)
         return False
@@ -276,8 +278,8 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._staff_reference.convertToBeats(self)._rational \
-                    < self._staff_reference.transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    < self._get_staff().transformBeats(other)._rational
             case _:
                 return super().__lt__(other)
         return False
@@ -287,8 +289,8 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._staff_reference.convertToBeats(self)._rational \
-                    > self._staff_reference.transformBeats(other)._rational
+                return self._get_staff().convertToBeats(self)._rational \
+                    > self._get_staff().transformBeats(other)._rational
             case _:
                 return super().__gt__(other)
         return False
@@ -303,65 +305,65 @@ class TimeUnit(Unit):
     def convertToBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
         match time:
             case None:
-                return self._staff_reference.convertToBeats(self)
+                return self._get_staff().convertToBeats(self)
             case _:
-                return self._staff_reference.convertToBeats(time)
+                return self._get_staff().convertToBeats(time)
 
     def convertToMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
         match time:
             case None:
-                return self._staff_reference.convertToMeasures(self)
+                return self._get_staff().convertToMeasures(self)
             case _:
-                return self._staff_reference.convertToMeasures(time)
+                return self._get_staff().convertToMeasures(time)
         
     def convertToSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
         match time:
             case None:
-                return self._staff_reference.convertToSteps(self)
+                return self._get_staff().convertToSteps(self)
             case _:
-                return self._staff_reference.convertToSteps(time)
+                return self._get_staff().convertToSteps(time)
 
     def convertToDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
         match time:
             case None:
-                return self._staff_reference.convertToDuration(self)
+                return self._get_staff().convertToDuration(self)
             case _:
-                return self._staff_reference.convertToDuration(time)
+                return self._get_staff().convertToDuration(time)
 
     def convertToMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
         match time:
             case None:
-                return self._staff_reference.convertToMeasure(self)
+                return self._get_staff().convertToMeasure(self)
             case _:
-                return self._staff_reference.convertToMeasure(time)
+                return self._get_staff().convertToMeasure(time)
 
     def convertToBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
         match time:
             case None:
-                return self._staff_reference.convertToBeat(self)
+                return self._get_staff().convertToBeat(self)
             case _:
-                return self._staff_reference.convertToBeat(time)
+                return self._get_staff().convertToBeat(time)
 
     def convertToStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
         match time:
             case None:
-                return self._staff_reference.convertToStep(self)
+                return self._get_staff().convertToStep(self)
             case _:
-                return self._staff_reference.convertToStep(time)
+                return self._get_staff().convertToStep(time)
 
     def convertToPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
         match time:
             case None:
-                return self._staff_reference.convertToPosition(self)
+                return self._get_staff().convertToPosition(self)
             case _:
-                return self._staff_reference.convertToPosition(time)
+                return self._get_staff().convertToPosition(time)
 
     def convertToLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
         match time:
             case None:
-                return self._staff_reference.convertToLength(self)
+                return self._get_staff().convertToLength(self)
             case _:
-                return self._staff_reference.convertToLength(time)
+                return self._get_staff().convertToLength(time)
 
     ################################################################################################################
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
@@ -370,80 +372,80 @@ class TimeUnit(Unit):
     def transformBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
         match time:
             case None:
-                return self._staff_reference.transformBeats(self)
+                return self._get_staff().transformBeats(self)
             case _:
-                return self._staff_reference.transformBeats(time)
+                return self._get_staff().transformBeats(time)
 
     def transformMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
         match time:
             case None:
-                return self._staff_reference.transformMeasures(self)
+                return self._get_staff().transformMeasures(self)
             case _:
-                return self._staff_reference.transformMeasures(time)
+                return self._get_staff().transformMeasures(time)
 
     def transformSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
         match time:
             case None:
-                return self._staff_reference.transformSteps(self)
+                return self._get_staff().transformSteps(self)
             case _:
-                return self._staff_reference.transformSteps(time)
+                return self._get_staff().transformSteps(time)
 
     def transformDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
         match time:
             case None:
-                return self._staff_reference.transformDuration(self)
+                return self._get_staff().transformDuration(self)
             case _:
-                return self._staff_reference.transformDuration(time)
+                return self._get_staff().transformDuration(time)
 
     def transformMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
         match time:
             case None:
-                return self._staff_reference.transformMeasure(self)
+                return self._get_staff().transformMeasure(self)
             case _:
-                return self._staff_reference.transformMeasure(time)
+                return self._get_staff().transformMeasure(time)
 
     def transformBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
         match time:
             case None:
-                return self._staff_reference.transformBeat(self)
+                return self._get_staff().transformBeat(self)
             case _:
-                return self._staff_reference.transformBeat(time)
+                return self._get_staff().transformBeat(time)
 
     def transformStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
         match time:
             case None:
-                return self._staff_reference.transformStep(self)
+                return self._get_staff().transformStep(self)
             case _:
-                return self._staff_reference.transformStep(time)
+                return self._get_staff().transformStep(time)
 
     def transformPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
         match time:
             case None:
-                return self._staff_reference.transformPosition(self)
+                return self._get_staff().transformPosition(self)
             case _:
-                return self._staff_reference.transformPosition(time)
+                return self._get_staff().transformPosition(time)
 
     def transformLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
         match time:
             case None:
-                return self._staff_reference.transformLength(self)
+                return self._get_staff().transformLength(self)
             case _:
-                return self._staff_reference.transformLength(time)
+                return self._get_staff().transformLength(time)
 
 
     def getMillis_rational(self, time: Union['Convertible', 'TimeUnit'] = None) -> Fraction:
         match time:
             case None:
-                return self._staff_reference.getMinutes(self)
+                return self._get_staff().getMinutes(self)
             case _:
-                return self._staff_reference.getMinutes(time)
+                return self._get_staff().getMinutes(time)
 
     def getPlaylist(self, position: 'Position' = None) -> list:
         match position:
             case None:
-                return self._staff_reference.getPlaylist(self)
+                return self._get_staff().getPlaylist(self)
             case _:
-                return self._staff_reference.getPlaylist(position)
+                return self._get_staff().getPlaylist(position)
 
     # CHAINABLE OPERATIONS
 
@@ -495,7 +497,7 @@ class Measure(TimeUnit):
             case self.__class__():
                 super().__lshift__(operand)
             case TimeUnit() | ra.Convertible():
-                self._unit = self._staff_reference.convertToMeasure(operand)._unit
+                self._unit = self._get_staff().convertToMeasure(operand)._unit
             case _:
                 super().__lshift__(operand)
         return self
@@ -505,7 +507,7 @@ class Measure(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__iadd__(self._staff_reference.convertToMeasure(operand)._unit)
+                super().__iadd__(self._get_staff().convertToMeasure(operand)._unit)
             case _:
                 super().__iadd__(operand)
         return self
@@ -515,7 +517,7 @@ class Measure(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__isub__(self._staff_reference.convertToMeasure(operand)._unit)
+                super().__isub__(self._get_staff().convertToMeasure(operand)._unit)
             case _:
                 super().__isub__(operand)
         return self
@@ -525,7 +527,7 @@ class Measure(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__imul__(self._staff_reference.convertToMeasure(operand)._unit)
+                super().__imul__(self._get_staff().convertToMeasure(operand)._unit)
             case _:
                 super().__imul__(operand)
         return self
@@ -535,7 +537,7 @@ class Measure(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__itruediv__(self._staff_reference.convertToMeasure(operand)._unit)
+                super().__itruediv__(self._get_staff().convertToMeasure(operand)._unit)
             case _:
                 super().__itruediv__(operand)
         return self
@@ -574,7 +576,7 @@ class Beat(TimeUnit):
             case self.__class__():
                 super().__lshift__(operand)
             case TimeUnit() | ra.Convertible():
-                self._unit = self._staff_reference.convertToBeat(operand)._unit
+                self._unit = self._get_staff().convertToBeat(operand)._unit
             case _:
                 super().__lshift__(operand)
         return self
@@ -584,7 +586,7 @@ class Beat(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__iadd__(self._staff_reference.convertToBeat(operand)._unit)
+                super().__iadd__(self._get_staff().convertToBeat(operand)._unit)
             case _:
                 super().__iadd__(operand)
         return self
@@ -594,7 +596,7 @@ class Beat(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__isub__(self._staff_reference.convertToBeat(operand)._unit)
+                super().__isub__(self._get_staff().convertToBeat(operand)._unit)
             case _:
                 super().__isub__(operand)
         return self
@@ -604,7 +606,7 @@ class Beat(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__imul__(self._staff_reference.convertToBeat(operand)._unit)
+                super().__imul__(self._get_staff().convertToBeat(operand)._unit)
             case _:
                 super().__imul__(operand)
         return self
@@ -614,7 +616,7 @@ class Beat(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__itruediv__(self._staff_reference.convertToBeat(operand)._unit)
+                super().__itruediv__(self._get_staff().convertToBeat(operand)._unit)
             case _:
                 super().__itruediv__(operand)
         return self
@@ -652,7 +654,7 @@ class Step(TimeUnit):
             case self.__class__():
                 super().__lshift__(operand)
             case TimeUnit() | ra.Convertible():
-                self._unit = self._staff_reference.convertToStep(operand)._unit
+                self._unit = self._get_staff().convertToStep(operand)._unit
             case _:
                 super().__lshift__(operand)
         return self
@@ -662,7 +664,7 @@ class Step(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__iadd__(self._staff_reference.convertToStep(operand)._unit)
+                super().__iadd__(self._get_staff().convertToStep(operand)._unit)
             case _:
                 super().__iadd__(operand)
         return self
@@ -672,7 +674,7 @@ class Step(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__isub__(self._staff_reference.convertToStep(operand)._unit)
+                super().__isub__(self._get_staff().convertToStep(operand)._unit)
             case _:
                 super().__isub__(operand)
         return self
@@ -682,7 +684,7 @@ class Step(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__imul__(self._staff_reference.convertToStep(operand)._unit)
+                super().__imul__(self._get_staff().convertToStep(operand)._unit)
             case _:
                 super().__imul__(operand)
         return self
@@ -692,7 +694,7 @@ class Step(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
-                super().__itruediv__(self._staff_reference.convertToStep(operand)._unit)
+                super().__itruediv__(self._get_staff().convertToStep(operand)._unit)
             case _:
                 super().__itruediv__(operand)
         return self
