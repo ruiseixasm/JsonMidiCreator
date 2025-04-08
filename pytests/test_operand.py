@@ -92,6 +92,10 @@ def test_operand_copy():
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
+            if isinstance(class_object, (Clip, Song)):
+                if not class_object.test_staff_reference():
+                    print(f"Culprit: {single_class.__name__}")
+                    assert class_object.test_staff_reference()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
@@ -104,6 +108,10 @@ def test_operand_copy():
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
+            if isinstance(class_object, (Clip, Song)):
+                if not class_object.test_staff_reference():
+                    print(f"Culprit: {single_class.__name__}")
+                    assert class_object.test_staff_reference()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
@@ -116,6 +124,10 @@ def test_operand_copy():
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
+            if isinstance(class_object, (Clip, Song)):
+                if not class_object.test_staff_reference():
+                    print(f"Culprit: {single_class.__name__}")
+                    assert class_object.test_staff_reference()
 
 # test_operand_copy()
 
@@ -136,21 +148,25 @@ def test_operand_serialization():
     for single_class in list_all_classes:
         class_object = single_class()
         if class_object and not isinstance(class_object, (int)):
-            print(f"Culprit i: {single_class.__name__}")
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
+                print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
+            if isinstance(loaded_instantiation, (Clip, Song)):
+                if not loaded_instantiation.test_staff_reference():
+                    print(f"Culprit i: {single_class.__name__}")
+                    assert loaded_instantiation.test_staff_reference()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if class_object and not isinstance(class_object, (int)):
-            print(f"Culprit i: {single_class.__name__}")
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
@@ -159,15 +175,20 @@ def test_operand_serialization():
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
+                print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
+            if isinstance(loaded_instantiation, (Clip, Song)):
+                if not loaded_instantiation.test_staff_reference():
+                    print(f"Culprit i: {single_class.__name__}")
+                    assert loaded_instantiation.test_staff_reference()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if class_object and not isinstance(class_object, (int)):
-            print(f"Culprit i: {single_class.__name__}")
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
@@ -176,9 +197,15 @@ def test_operand_serialization():
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
             if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
+                print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
+            if isinstance(loaded_instantiation, (Clip, Song)):
+                if not loaded_instantiation.test_staff_reference():
+                    print(f"Culprit i: {single_class.__name__}")
+                    assert loaded_instantiation.test_staff_reference()
 
 # test_operand_serialization()
 
