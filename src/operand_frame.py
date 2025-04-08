@@ -544,19 +544,21 @@ class All(Selector):
 
 class First(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._index += 1
-        if self._index == 1:    # Selected first call to pass
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand & input
-            return self._next_operand
+        import operand_container as oc
+        if isinstance(self._inside_container, oc.Container):
+            first_item = self._inside_container.first()
+            if input is first_item:    # Selected first call to pass
+                if isinstance(self._next_operand, Frame):
+                    return self._next_operand & input
+                return self._next_operand
         return ol.Null()
 
 class Last(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
-        self._index += 1
         if isinstance(self._inside_container, oc.Container):
-            if self._index == self._inside_container.len():    # Selected first call to pass
+            last_item = self._inside_container.last()
+            if input is last_item:    # Selected first call to pass
                 if isinstance(self._next_operand, Frame):
                     return self._next_operand & input
                 return self._next_operand
