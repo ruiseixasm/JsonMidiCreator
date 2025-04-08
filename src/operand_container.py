@@ -2434,6 +2434,38 @@ class Part(Composition):
         return super().len()
 
 
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Part():
+                return super().__eq__(other) \
+                    and self % ra.Position() == other % ra.Position()
+            case ra.Position():
+                return self % ra.Position() == other
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Part():
+                return self % ra.Position() < other % ra.Position()
+            case ra.Position():
+                return self % ra.Position() < other
+            case _:
+                return super().__lt__(other)
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Part():
+                return self % ra.Position() > other % ra.Position()
+            case ra.Position():
+                return self % ra.Position() > other
+            case _:
+                return super().__gt__(other)
+    
+
     def finish(self) -> ra.Position:
         """
         Processes each element Position plus Length and returns the finish position
