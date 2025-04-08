@@ -724,7 +724,7 @@ class Process(Data):
                     last_time_ms: float = \
                         sorted(playlist_time_ms, key=lambda x: x['time_ms'])[-1]["time_ms"]
                     # By default, time classes use the defaults Staff
-                    single_measure_ms: float = o.minutes_to_time_ms( ra.Measures(1).getMillis_rational() )
+                    single_measure_ms: float = o.minutes_to_time_ms( ra.Measures(1).getMinutes() )
                     total_measures: int = last_time_ms // single_measure_ms
                     if last_time_ms > int(last_time_ms):
                         total_measures += 1
