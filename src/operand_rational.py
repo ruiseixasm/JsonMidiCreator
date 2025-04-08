@@ -688,12 +688,8 @@ class Convertible(Rational):
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
 
-    def convertToBeats(self, time: Union['Convertible', 'ou.TimeUnit'] = None) -> 'Beats':
-        match time:
-            case None:
-                return self._staff_reference.convertToBeats(self)
-            case _:
-                return self._staff_reference.convertToBeats(time)
+    def convertToBeats(self) -> 'Beats':
+        return self._get_staff().convertToBeats(self)
 
     def convertToMeasures(self, time: Union['Convertible', 'ou.TimeUnit'] = None) -> 'Measures':
         match time:
@@ -924,7 +920,9 @@ class Measurement(Convertible):
                 self._rational = (self._staff_reference.convertToBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
                 self_measure: ou.Measure = self._staff_reference.convertToMeasure(self)
-                self._rational = (self.convertToBeats(self_measure) + self.convertToBeats(operand))._rational
+                self._rational = (
+                    self._get_staff().convertToBeats(self_measure) + self._get_staff().convertToBeats(operand)
+                    )._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
             case _:
