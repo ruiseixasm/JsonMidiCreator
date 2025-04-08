@@ -576,7 +576,7 @@ class Last(Selector):
 
 class Odd(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._index += 1
+        self._increment_index()
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -586,7 +586,7 @@ class Odd(Selector):
 
 class Even(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._index += 1
+        self._increment_index()
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -600,7 +600,7 @@ class Every(Selector):
         self._multi_data['nths'] = nths
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._index += 1
+        self._increment_index()
         if self._multi_data['nths'] > 0 and self._index % self._multi_data['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
@@ -614,7 +614,7 @@ class Nth(Selector):
         self._multi_data['parameters'] = parameters
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        self._index += 1
+        self._increment_index()
         if self._index in self._multi_data['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & input
