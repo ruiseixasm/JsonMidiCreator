@@ -2796,7 +2796,7 @@ class Song(Composition):
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self.set_staff_reference()
+                self.set_staff_reference(operand.get_staff_reference())
 
             case od.DataSource():
                 match operand._data:
