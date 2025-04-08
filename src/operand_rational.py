@@ -710,11 +710,11 @@ class Convertible(Rational):
     def convertToStep(self) -> 'ou.Step':
         return self._get_staff().convertToStep(self)
 
-    def convertToLength(self) -> 'Length':
-        return self._get_staff().convertToLength(self)
-
     def convertToPosition(self) -> 'Position':
         return self._get_staff().convertToPosition(self)
+
+    def convertToLength(self) -> 'Length':
+        return self._get_staff().convertToLength(self)
 
     ################################################################################################################
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
@@ -741,11 +741,11 @@ class Convertible(Rational):
     def transformStep(self) -> 'ou.Step':
         return self._get_staff().transformStep(self)
 
-    def transformLength(self) -> 'Length':
-        return self._get_staff().transformLength(self)
-
     def transformPosition(self) -> 'Position':
         return self._get_staff().transformPosition(self)
+
+    def transformLength(self) -> 'Length':
+        return self._get_staff().transformLength(self)
 
 
     def getMinutes(self) -> Fraction:

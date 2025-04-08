@@ -364,12 +364,8 @@ class TimeUnit(Unit):
     def getMinutes(self) -> Fraction:
         return self._get_staff().getMinutes(self)
 
-    def getPlaylist(self, position: 'Position' = None) -> list:
-        match position:
-            case None:
-                return self._get_staff().getPlaylist(self)
-            case _:
-                return self._get_staff().getPlaylist(position)
+    def getPlaylist(self) -> list:
+        return self._get_staff().getPlaylist(self)
 
     # CHAINABLE OPERATIONS
 
