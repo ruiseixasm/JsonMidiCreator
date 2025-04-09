@@ -630,7 +630,7 @@ class Convertible(Rational):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case Beats():               return self._get_staff(operand).transformBeats(self)
+            case Beats():               return self._get_staff(operand).transformToBeats(self)
             case Measures():            return self._get_staff(operand).convertToMeasures(self)
             case Duration():            return self._get_staff(operand).convertToDuration(self)
             case Steps():               return self._get_staff(operand).convertToSteps(self)
@@ -645,8 +645,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_staff(other).transformBeats(self)._rational \
-                    == self._get_staff(other).transformBeats(other)._rational
+                return self._get_staff(other).transformToBeats(self)._rational \
+                    == self._get_staff(other).transformToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -657,8 +657,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                return self._get_staff(other).transformBeats(self)._rational \
-                    < self._get_staff(other).transformBeats(other)._rational
+                return self._get_staff(other).transformToBeats(self)._rational \
+                    < self._get_staff(other).transformToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
             case _:
@@ -669,8 +669,8 @@ class Convertible(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
-                return self._get_staff(other).transformBeats(self)._rational \
-                    > self._get_staff(other).transformBeats(other)._rational
+                return self._get_staff(other).transformToBeats(self)._rational \
+                    > self._get_staff(other).transformToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
             case _:
@@ -713,31 +713,31 @@ class Convertible(Rational):
     ################################################################################################################
 
     def transformBeats(self) -> 'Beats':
-        return self._get_staff().transformBeats(self)
+        return self._get_staff().transformToBeats(self)
 
     def transformMeasures(self) -> 'Measures':
-        return self._get_staff().transformMeasures(self)
+        return self._get_staff().transformToMeasures(self)
 
     def transformSteps(self) -> 'Steps':
-        return self._get_staff().transformSteps(self)
+        return self._get_staff().transformToSteps(self)
 
     def transformDuration(self) -> 'Duration':
-        return self._get_staff().transformDuration(self)
+        return self._get_staff().transformToDuration(self)
 
     def transformMeasure(self) -> 'ou.Measure':
-        return self._get_staff().transformMeasure(self)
+        return self._get_staff().transformToMeasure(self)
 
     def transformBeat(self) -> 'ou.Beat':
-        return self._get_staff().transformBeat(self)
+        return self._get_staff().transformToBeat(self)
 
     def transformStep(self) -> 'ou.Step':
-        return self._get_staff().transformStep(self)
+        return self._get_staff().transformToStep(self)
 
     def transformPosition(self) -> 'Position':
-        return self._get_staff().transformPosition(self)
+        return self._get_staff().transformToPosition(self)
 
     def transformLength(self) -> 'Length':
-        return self._get_staff().transformLength(self)
+        return self._get_staff().transformToLength(self)
 
 
     def getMinutes(self) -> Fraction:
@@ -830,15 +830,15 @@ class Measurement(Convertible):
             case Measurement():
                 super().__lshift__(operand)
             case TimeValue() | Duration():
-                self._rational = self._get_staff(operand).transformBeats(operand)._rational
+                self._rational = self._get_staff(operand).transformToBeats(operand)._rational
             case ou.Measure():
-                measure_beats: Beats = self._get_staff(operand).transformBeats(self) \
-                    - self._get_staff(operand).transformBeats(self._get_staff(operand).convertToMeasure(self))
-                self._rational = (self._get_staff(operand).transformBeats(operand) + measure_beats)._rational
+                measure_beats: Beats = self._get_staff(operand).transformToBeats(self) \
+                    - self._get_staff(operand).transformToBeats(self._get_staff(operand).convertToMeasure(self))
+                self._rational = (self._get_staff(operand).transformToBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
                 self_measure: ou.Measure = self._get_staff(operand).convertToMeasure(self)
                 self._rational = (
-                    self._get_staff(operand).transformBeats(self_measure) + self._get_staff(operand).transformBeats(operand)
+                    self._get_staff(operand).transformToBeats(self_measure) + self._get_staff(operand).transformToBeats(operand)
                     )._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
@@ -850,7 +850,7 @@ class Measurement(Convertible):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
-                self._rational += self._get_staff(operand).transformBeats(operand)._rational
+                self._rational += self._get_staff(operand).transformToBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
         return self
@@ -859,7 +859,7 @@ class Measurement(Convertible):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
-                self._rational -= self._get_staff(operand).transformBeats(operand)._rational
+                self._rational -= self._get_staff(operand).transformToBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
         return self
@@ -1064,7 +1064,7 @@ class Beats(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).transformBeats(operand)._rational
+                self._rational = self._get_staff(operand).transformToBeats(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1075,7 +1075,7 @@ class Beats(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).transformBeats(operand)._rational
+                self._rational = self._get_staff(operand).transformToBeats(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1084,7 +1084,7 @@ class Beats(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__iadd__(self._get_staff(operand).transformBeats(operand)._rational)
+                super().__iadd__(self._get_staff(operand).transformToBeats(operand)._rational)
             case _:
                 super().__iadd__(operand)
         return self
@@ -1093,7 +1093,7 @@ class Beats(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__isub__(self._get_staff(operand).transformBeats(operand)._rational)
+                super().__isub__(self._get_staff(operand).transformToBeats(operand)._rational)
             case _:
                 super().__isub__(operand)
         return self
@@ -1102,7 +1102,7 @@ class Beats(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__imul__(self._get_staff(operand).transformBeats(operand)._rational)
+                super().__imul__(self._get_staff(operand).transformToBeats(operand)._rational)
             case _:
                 super().__imul__(operand)
         return self
@@ -1111,7 +1111,7 @@ class Beats(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__itruediv__(self._get_staff(operand).transformBeats(operand)._rational)
+                super().__itruediv__(self._get_staff(operand).transformToBeats(operand)._rational)
             case _:
                 super().__itruediv__(operand)
         return self

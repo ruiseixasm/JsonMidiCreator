@@ -991,7 +991,7 @@ class Clip(Composition):  # Just a container of Elements
         position_beats: Fraction = Fraction(0)
 
         if isinstance(position, ra.Position):
-            position_beats += self._staff.transformPosition(position)._rational
+            position_beats += self._staff.transformToPosition(position)._rational
 
         return position_beats
 

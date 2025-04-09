@@ -273,7 +273,7 @@ class TimeUnit(Unit):
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
-                    == self._get_staff(other).transformBeats(other)._rational
+                    == self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__eq__(other)
         return False
@@ -284,7 +284,7 @@ class TimeUnit(Unit):
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
-                    < self._get_staff(other).transformBeats(other)._rational
+                    < self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__lt__(other)
         return False
@@ -295,7 +295,7 @@ class TimeUnit(Unit):
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
-                    > self._get_staff(other).transformBeats(other)._rational
+                    > self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__gt__(other)
         return False
@@ -339,31 +339,31 @@ class TimeUnit(Unit):
     ################################################################################################################
 
     def transformBeats(self) -> 'Beats':
-        return self._get_staff().transformBeats(self)
+        return self._get_staff().transformToBeats(self)
 
     def transformMeasures(self) -> 'Measures':
-        return self._get_staff().transformMeasures(self)
+        return self._get_staff().transformToMeasures(self)
 
     def transformSteps(self) -> 'Steps':
-        return self._get_staff().transformSteps(self)
+        return self._get_staff().transformToSteps(self)
 
     def transformDuration(self) -> 'Duration':
-        return self._get_staff().transformDuration(self)
+        return self._get_staff().transformToDuration(self)
 
     def transformMeasure(self) -> 'Measure':
-        return self._get_staff().transformMeasure(self)
+        return self._get_staff().transformToMeasure(self)
 
     def transformBeat(self) -> 'Beat':
-        return self._get_staff().transformBeat(self)
+        return self._get_staff().transformToBeat(self)
 
     def transformStep(self) -> 'Step':
-        return self._get_staff().transformStep(self)
+        return self._get_staff().transformToStep(self)
 
     def transformPosition(self) -> 'Position':
-        return self._get_staff().transformPosition(self)
+        return self._get_staff().transformToPosition(self)
 
     def transformLength(self) -> 'Length':
-        return self._get_staff().transformLength(self)
+        return self._get_staff().transformToLength(self)
 
 
     def getMinutes(self) -> Fraction:
