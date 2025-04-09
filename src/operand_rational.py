@@ -943,21 +943,21 @@ class Position(Measurement):
 
     # Position round type: [...)
     def roundMeasures(self) -> Self:
-        measures: Fraction = self.convertToMeasures()._rational
+        measures: Fraction = self.transformToMeasures()._rational
         measures = Fraction( int(measures) )
-        return self._get_staff().convertToPosition( Measures(measures) )
+        return self._get_staff().transformToPosition( Measures(measures) )
 
     # Position round type: [...)
     def roundBeats(self) -> Self:
-        beats: Fraction = self.convertToBeats()._rational
+        beats: Fraction = self.transformToBeats()._rational
         beats = Fraction( int(beats) )
-        return self._get_staff().convertToPosition( Beats(beats) )
+        return self._get_staff().transformToPosition( Beats(beats) )
     
     # Position round type: [...)
     def roundSteps(self) -> Self:
-        steps: Fraction = self.convertToSteps()._rational
+        steps: Fraction = self.transformToSteps()._rational
         steps = Fraction( int(steps) )
-        return self._get_staff().convertToPosition( Steps(steps) )
+        return self._get_staff().transformToPosition( Steps(steps) )
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
