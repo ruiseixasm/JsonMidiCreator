@@ -787,9 +787,9 @@ class Measurement(Convertible):
         8.0
         """
         match operand:
-            case int():                 return self._get_staff(operand).convertToMeasure(self) % int()
-            case float():               return self._get_staff(operand).convertToMeasures(self) % float()
-            case Fraction():            return self._get_staff(operand).convertToMeasures(self) % Fraction()
+            case int():                 return self._get_staff().convertToMeasure(self) % int()
+            case float():               return self._get_staff().convertToMeasures(self) % float()
+            case Fraction():            return self._get_staff().convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
     # Measurement/Length round type: (...]
