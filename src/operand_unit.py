@@ -338,31 +338,31 @@ class TimeUnit(Unit):
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
     ################################################################################################################
 
-    def transformBeats(self) -> 'Beats':
+    def transformToBeats(self) -> 'Beats':
         return self._get_staff().transformToBeats(self)
 
-    def transformMeasures(self) -> 'Measures':
+    def transformToMeasures(self) -> 'Measures':
         return self._get_staff().transformToMeasures(self)
 
-    def transformSteps(self) -> 'Steps':
+    def transformToSteps(self) -> 'Steps':
         return self._get_staff().transformToSteps(self)
 
-    def transformDuration(self) -> 'Duration':
+    def transformToDuration(self) -> 'Duration':
         return self._get_staff().transformToDuration(self)
 
-    def transformMeasure(self) -> 'Measure':
+    def transformToMeasure(self) -> 'Measure':
         return self._get_staff().transformToMeasure(self)
 
-    def transformBeat(self) -> 'Beat':
+    def transformToBeat(self) -> 'Beat':
         return self._get_staff().transformToBeat(self)
 
-    def transformStep(self) -> 'Step':
+    def transformToStep(self) -> 'Step':
         return self._get_staff().transformToStep(self)
 
-    def transformPosition(self) -> 'Position':
+    def transformToPosition(self) -> 'Position':
         return self._get_staff().transformToPosition(self)
 
-    def transformLength(self) -> 'Length':
+    def transformToLength(self) -> 'Length':
         return self._get_staff().transformToLength(self)
 
 
