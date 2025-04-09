@@ -395,22 +395,22 @@ def test_full_conversions():
 
     for time_value in (Measures(10.5), Beats(10.5 * 4),
                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
-        assert position_staff.transformToMeasures(time_value) == 10.5
-        assert position_staff.transformToMeasure(time_value) == 10
-        assert position_staff.transformToBeats(time_value) == 10.5 * 4
-        assert position_staff.transformToBeat(time_value) == 2
-        assert position_staff.transformToSteps(time_value) == 10.5 * 4 * 4
-        assert position_staff.transformToStep(time_value) == 2 * 4
-        assert position_staff.transformToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert position_staff.convertToMeasures(time_value) == 10.5
+        assert position_staff.convertToMeasure(time_value) == 10
+        assert position_staff.convertToBeats(time_value) == 10.5 * 4
+        assert position_staff.convertToBeat(time_value) == 2
+        assert position_staff.convertToSteps(time_value) == 10.5 * 4 * 4
+        assert position_staff.convertToStep(time_value) == 2 * 4
+        assert position_staff.convertToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
 
     for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
-        assert position_staff.transformToMeasures(time_unit) == 10
-        assert position_staff.transformToMeasure(time_unit) == 10
-        assert position_staff.transformToBeats(time_unit) == 10 * 4
-        assert position_staff.transformToBeat(time_unit) == 0
-        assert position_staff.transformToSteps(time_unit) == 10 * 4 * 4
-        assert position_staff.transformToStep(time_unit) == 0 * 4
-        assert position_staff.transformToDuration(time_unit) == 10 * (1/1)
+        assert position_staff.convertToMeasures(time_unit) == 10
+        assert position_staff.convertToMeasure(time_unit) == 10
+        assert position_staff.convertToBeats(time_unit) == 10 * 4
+        assert position_staff.convertToBeat(time_unit) == 0
+        assert position_staff.convertToSteps(time_unit) == 10 * 4 * 4
+        assert position_staff.convertToStep(time_unit) == 0 * 4
+        assert position_staff.convertToDuration(time_unit) == 10 * (1/1)
 
 # test_full_conversions()
 

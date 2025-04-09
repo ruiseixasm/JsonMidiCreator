@@ -1343,7 +1343,7 @@ class Staff(Generic):
             and self._quantization      == other._quantization \
             and self._key_signature     == other._key_signature
 
-    def transformToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Beats':
+    def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Beats':
         match time:
             case ra.Beats() | ra.Measurement():
                 time_staff: Staff = time._get_staff(self)
@@ -1376,61 +1376,61 @@ class Staff(Generic):
                 return ra.Beats(beats).set_staff_reference(self)
             case ou.Measure():
                 time_staff: Staff = time._get_staff(self)
-                return self.transformToBeats(
+                return self.convertToBeats(
                     ra.Measures(time._unit).set_staff_reference(time_staff)
                 )
             case ou.Beat():
                 time_staff: Staff = time._get_staff(self)
-                return self.transformToBeats(
+                return self.convertToBeats(
                     ra.Beats(time._unit).set_staff_reference(time_staff)
                 )
             case ou.Step():
                 time_staff: Staff = time._get_staff(self)
-                return self.transformToBeats(
+                return self.convertToBeats(
                     ra.Steps(time._unit).set_staff_reference(time_staff)
                 )
             case float() | int() | Fraction():
-                return self.transformToBeats(ra.Measures(time))
+                return self.convertToBeats(ra.Measures(time))
         return ra.Beats().set_staff_reference(self)
 
-    def transformToMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Measures':
-        time_beats: ra.Beats = self.transformToBeats(time)
+    def convertToMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Measures':
+        time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_measure: int = self._time_signature._top
         measures: Fraction = time_beats._rational / beats_per_measure
         return ra.Measures(measures).set_staff_reference(self)
 
 
-    def transformToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Steps':
-        time_beats: ra.Beats = self.transformToBeats(time)
+    def convertToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Steps':
+        time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_note: int = self._time_signature._bottom
         notes_per_step: Fraction = self._quantization
         beats_per_step: Fraction = beats_per_note * notes_per_step
         steps: Fraction = time_beats._rational / beats_per_step
         return ra.Steps(steps).set_staff_reference(self)
 
-    def transformToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Duration':
-        time_beats: ra.Beats = self.transformToBeats(time)
+    def convertToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Duration':
+        time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_note: int = self._time_signature._bottom
         duration: Fraction = time_beats._rational / beats_per_note
         return ra.Duration(duration).set_staff_reference(self)
 
-    def transformToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Measure':
+    def convertToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Measure':
         if isinstance(time, ra.Measurement):
             time = time.roundMeasures()
-        return ou.Measure( self.transformToMeasures(time)._rational ).set_staff_reference(self)
+        return ou.Measure( self.convertToMeasures(time)._rational ).set_staff_reference(self)
 
-    def transformToBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Beat':
+    def convertToBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Beat':
         if isinstance(time, ra.Measurement):
             time = time.roundBeats()
-        absolute_beat: int = self.transformToBeats(time) % int()
+        absolute_beat: int = self.convertToBeats(time) % int()
         beats_per_measure: int = self._time_signature._top
         relative_beat: int = absolute_beat % beats_per_measure
         return ou.Beat(relative_beat).set_staff_reference(self)
 
-    def transformToStep(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Step':
+    def convertToStep(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ou.Step':
         if isinstance(time, ra.Measurement):
             time = time.roundSteps()
-        absolute_step: int = self.transformToSteps(time) % int()
+        absolute_step: int = self.convertToSteps(time) % int()
         beats_per_measure: int = self._time_signature._top
         beats_per_note: int = self._time_signature._bottom
         notes_per_step: Fraction = self._quantization
@@ -1439,17 +1439,17 @@ class Staff(Generic):
         relative_step: int = absolute_step % steps_per_measure
         return ou.Step(relative_step).set_staff_reference(self)
 
-    def transformToPosition(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Position':
-        time_beats: ra.Beats = self.transformToBeats(time)
+    def convertToPosition(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Position':
+        time_beats: ra.Beats = self.convertToBeats(time)
         return ra.Position(time_beats).set_staff_reference(self)
 
-    def transformToLength(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Length':
-        time_beats: ra.Beats = self.transformToBeats(time)
+    def convertToLength(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> 'ra.Length':
+        time_beats: ra.Beats = self.convertToBeats(time)
         return ra.Length(time_beats).set_staff_reference(self)
 
 
     def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction]) -> Fraction:
-        time_beats: ra.Beats = self.transformToBeats(time)
+        time_beats: ra.Beats = self.convertToBeats(time)
         return time_beats._rational / self._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
@@ -1618,7 +1618,7 @@ class Arpeggio(Generic):
             element_start_position: ra.Position = elements[0] // ra.Position()
             arpeggio_length: ra.Length = elements[0] // ra.Length()
             arpeggio_end_position: ra.Position = arpeggio_length.transformToPosition()
-            element_length: ra.Length = staff_reference.transformToLength(ra.Duration(self._duration_notevalue))
+            element_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = element_length * 2 * self._swing
             even_length: ra.Length = element_length * 2 - odd_length
             
