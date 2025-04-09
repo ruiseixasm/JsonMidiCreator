@@ -1570,10 +1570,7 @@ class Staff(Generic):
 
     def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> Fraction:
         time_beats: ra.Beats = self.transformToBeats(time)
-
-
-
-        return self.convertToBeats(time)._rational / self._tempo
+        return time_beats._rational / self._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         if position is None:
