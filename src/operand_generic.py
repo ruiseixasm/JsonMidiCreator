@@ -1518,9 +1518,11 @@ class Staff(Generic):
 
     def transformToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Duration':
         time_beats: ra.Beats = self.transformToBeats(time)
+        beats_per_note: int = self._time_signature._bottom
+        duration: Fraction = time_beats._rational / beats_per_note
+        return ra.Duration(duration).set_staff_reference(self)
 
-
-        return self.convertToDuration(self.transformToBeats(time))
+        # return self.convertToDuration(self.transformToBeats(time))
 
     def transformToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Measure':
         if isinstance(time, ra.Measurement):
