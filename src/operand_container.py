@@ -2283,7 +2283,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._run_next(event)
             case 'm':
                 self._run_first(event)
-            case '/' | "-":
+            case '/' | "-" | ";":
                 self._run_last(event)
         return self
 
