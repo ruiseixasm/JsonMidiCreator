@@ -712,31 +712,31 @@ class Convertible(Rational):
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
     ################################################################################################################
 
-    def transformBeats(self) -> 'Beats':
+    def transformToBeats(self) -> 'Beats':
         return self._get_staff().transformToBeats(self)
 
-    def transformMeasures(self) -> 'Measures':
+    def transformToMeasures(self) -> 'Measures':
         return self._get_staff().transformToMeasures(self)
 
-    def transformSteps(self) -> 'Steps':
+    def transformToSteps(self) -> 'Steps':
         return self._get_staff().transformToSteps(self)
 
-    def transformDuration(self) -> 'Duration':
+    def transformToDuration(self) -> 'Duration':
         return self._get_staff().transformToDuration(self)
 
-    def transformMeasure(self) -> 'ou.Measure':
+    def transformToMeasure(self) -> 'ou.Measure':
         return self._get_staff().transformToMeasure(self)
 
-    def transformBeat(self) -> 'ou.Beat':
+    def transformToBeat(self) -> 'ou.Beat':
         return self._get_staff().transformToBeat(self)
 
-    def transformStep(self) -> 'ou.Step':
+    def transformToStep(self) -> 'ou.Step':
         return self._get_staff().transformToStep(self)
 
-    def transformPosition(self) -> 'Position':
+    def transformToPosition(self) -> 'Position':
         return self._get_staff().transformToPosition(self)
 
-    def transformLength(self) -> 'Length':
+    def transformToLength(self) -> 'Length':
         return self._get_staff().transformToLength(self)
 
 
