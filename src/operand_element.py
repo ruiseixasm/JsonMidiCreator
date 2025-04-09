@@ -3073,15 +3073,15 @@ class Panic(Element):
                 .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))
 
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(10), ou.Value(64))
-                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))  # 10 - Pan
+                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 10 - Pan
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(64), ou.Value(0))
                 .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 64 - Pedal (sustain)
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(1), ou.Value(0))
-                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))    # 1 - Modulation
+                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 1 - Modulation
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(7), ou.Value(100))
-                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))  # 7 - Volume
+                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 7 - Volume
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(11), ou.Value(127))
-                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False)) # 11 - Expression
+                .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 11 - Expression
 
             self_playlist.extend(ResetAllControllers(self, ou.Channel(channel))
                 .set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))
