@@ -1512,12 +1512,18 @@ class Staff(Generic):
         return self.convertToDuration(self.transformToBeats(time))
 
     def transformToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Measure':
+        if isinstance(time, ra.Measurement):
+            time = time.roundMeasures()
         return self.convertToMeasure(self.transformToBeats(time))
 
     def transformToBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Beat':
+        if isinstance(time, ra.Measurement):
+            time = time.roundBeats()
         return self.convertToBeat(self.transformToBeats(time))
 
     def transformToStep(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Step':
+        if isinstance(time, ra.Measurement):
+            time = time.roundSteps()
         return self.convertToStep(self.transformToBeats(time))
 
     def transformToPosition(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Position':

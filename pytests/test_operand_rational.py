@@ -130,11 +130,27 @@ def test_position_default():
 # # test_position_specific()
 
 
+def test_position_unit():
+
+    position: Position = Position()
+    assert position % Measure() == 0
+    # Test if position as Position was round down
+    assert position + Steps(1/2) == 0             # 0 Measure (int)
+    assert position + Steps(1/2) == Measure(0)    # 0 Measure
+    assert position + Steps(1/2) == Beat(0)       # 0 Beat
+    assert position + Steps(1/2) == Step(0)       # 0 Beat
+
+# test_position_unit()
+
 def test_length_unit():
 
     length: Length = Length()
     assert length % Measure() == 0
-    assert (length + Step(1)) == 1  # Measure
+    # Test if length as Length was round up
+    assert length + Steps(1/2) == 1             # 1 Measure (int)
+    assert length + Steps(1/2) == Measure(1)    # 1 Measure
+    assert length + Steps(1/2) == Beat(1)       # 1 Beat
+    assert length + Steps(1/2) == Step(1)       # 1 Beat
 
 # test_length_unit()
 
