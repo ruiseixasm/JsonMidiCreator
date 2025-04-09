@@ -2916,8 +2916,8 @@ class ProgramChange(Element):
             case od.DataSource():
                 match operand._data:
                     case ou.Program():          return operand._data << self._program
-                    case ou.Bank():             return self._data << self._bank
-                    case ou.HighResolution():   return self._data << self._high
+                    case ou.Bank():             return operand._data << self._bank
+                    case ou.HighResolution():   return operand._data << self._high
                     case _:                 return super().__mod__(operand)
             case int():                 return self._program
             case ou.Program():          return ou.Program(self._program)
