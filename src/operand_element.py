@@ -115,9 +115,10 @@ class Element(o.Operand):
                     case ra.Duration():
                         return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
                     case ra.Position():
-                        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+                        return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._position_beats )
                     case ra.Length():
-                        return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+                        return operand._data.set_staff_reference(self._staff_reference) \
+                            << self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
