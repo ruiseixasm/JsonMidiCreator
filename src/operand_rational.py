@@ -635,7 +635,7 @@ class Convertible(Rational):
             case Measures():            return self._get_staff(operand).transformToMeasures(self)
             case Duration():            return self._get_staff(operand).transformToDuration(self)
             case Steps():               return self._get_staff(operand).transformToSteps(self)
-            case ou.Measure():          return self._get_staff(operand).convertToMeasure(self)
+            case ou.Measure():          return self._get_staff(operand).transformToMeasure(self)
             case ou.Beat():             return self._get_staff(operand).transformToBeat(self)
             case ou.Step():             return self._get_staff(operand).transformToStep(self)
             case Position():            return self._get_staff(operand).transformToPosition(self)
@@ -788,8 +788,7 @@ class Measurement(Convertible):
         8.0
         """
         match operand:
-            case int():
-                return self._get_staff().transformToMeasure(self) % int()
+            case int():                 return self._get_staff().transformToMeasure(self) % int()
             case float():               return self._get_staff().transformToMeasures(self) % float()
             case Fraction():            return self._get_staff().transformToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
