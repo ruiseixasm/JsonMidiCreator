@@ -40,6 +40,7 @@ RESET = "\033[0m"
 try:
     # pip install matplotlib
     import matplotlib.pyplot as plt
+    from matplotlib.backend_bases import MouseEvent
     from matplotlib.widgets import Button
 except ImportError:
     print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
@@ -2151,18 +2152,11 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
 
-    def _run_play(self, even = None, channel: int = None) -> Self:
+    def _run_play(self, even = None) -> Self:
         import threading
         last_clip: Clip = self._clip_iterations[self._iteration]
-        if isinstance(channel, int) and channel > 0:
-            # Filter already results in a shallow copy
-            threading.Thread(target=od.Play.play, args=(
-                last_clip.filter(ou.Channel(channel)),
-            )).start()
-            # last_clip.filter(ou.Channel(channel)) >> od.Play()
-        else:
-            threading.Thread(target=od.Play.play, args=(last_clip,)).start()
-            # last_clip >> od.Play()
+        threading.Thread(target=od.Play.play, args=(last_clip,)).start()
+        # last_clip >> od.Play()
         return self
 
     def _run_previous(self, even = None) -> Self:
@@ -2248,9 +2242,26 @@ class Clip(Composition):  # Just a container of Elements
             spine.set_color('black')
         return button
 
-    def _on_move(self, event):
+    def _on_move(self, event: MouseEvent) -> Self:
         if event.inaxes == self._ax:
             print(f"x = {event.xdata}, y = {event.ydata}")
+        return self
+
+    def _on_key(self, event: MouseEvent) -> Self:
+        match event.key:
+            case 'p':
+                self._run_play(event)
+            case ',':
+                self._run_previous(event)
+            case '.':
+                self._run_next(event)
+            case 'n':
+                self._run_new(event)
+            case 'c':
+                self._run_composition(event)
+            case 'e':
+                self._run_execute(event)
+        return self
 
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
@@ -2280,6 +2291,7 @@ class Clip(Composition):  # Just a container of Elements
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
         # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
+        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
 
         self._plot_elements(self._plot_lists[0])
 
