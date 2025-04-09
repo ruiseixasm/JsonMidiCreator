@@ -100,37 +100,45 @@ def test_position_default():
 # test_position_default()
 
 
-# def test_position_specific():
+def test_position_specific():
 
-#     position_measures: Position = Position(TimeSignature(3, 8), Quantization(1/32), 1.5)  # 1.5 Measures
-#     beats_per_measure: int = 3
-#     beats_per_note: int = 8
-#     steps_per_note: int = 32
-#     steps_per_beat: float = steps_per_note / beats_per_note
-#     steps_per_measure: int = steps_per_beat * beats_per_measure
+    defaults << TimeSignature(3, 8) << Quantization(1/32)
 
-#     print(position_measures % Beats() % DataSource( Fraction() ))
-#     assert position_measures % Beats() == 1.5 * beats_per_measure
-#     print(position_measures % Steps() % DataSource( Fraction() ))
-#     print(1.5 * beats_per_measure * steps_per_beat)
-#     assert position_measures.getSteps() == 1.5 * beats_per_measure * steps_per_beat
-#     print(int(1.5 * beats_per_measure) % beats_per_measure)
-#     assert position_measures.getBeat() == int(1.5 * beats_per_measure) % beats_per_measure
-#     print(int(1.5 * steps_per_measure) % steps_per_measure)
-#     assert position_measures.getStep() == int(1.5 * steps_per_measure) % steps_per_measure
+    position: Position = Position(1.5)  # 1.5 Measures
+    # Same as a 3/8 time signature
+    beats_per_measure: int = 3
+    beats_per_note: int = 8
+    # Quantization of 1/32 (note value)
+    steps_per_note: int = 32
+    steps_per_beat: int = int(steps_per_note / beats_per_note)
+    steps_per_measure: int = steps_per_beat * beats_per_measure
 
-#     position_copy: Position = Position(position_measures)
-#     assert position_copy == position_measures
-#     assert position_copy.getBeats() == position_measures.getBeats()
+    print(position % Beats() % DataSource( Fraction() ))
+    assert position % Beats() == 1.5 * beats_per_measure
+    print(position % Steps() % DataSource( Fraction() ))
+    print(1.5 * beats_per_measure * steps_per_beat)
+    assert position.convertToSteps() == 1.5 * beats_per_measure * steps_per_beat
+    print(int(1.5 * beats_per_measure) % beats_per_measure)
+    assert position.convertToBeat() == int(1.5 * beats_per_measure) % beats_per_measure
+    print(int(1.5 * steps_per_measure) % steps_per_measure)
+    assert position.convertToStep() == int(1.5 * steps_per_measure) % steps_per_measure
 
-#     position_copy << Tempo(120 / 2)
-#     assert position_copy != position_measures
-#     assert position_measures.getBeats(position_copy) == position_measures.getBeats() * 2 # Double the tempo
+    position_copy: Position = Position(position)
 
-# # test_position_specific()
+    different_staff = defaults % Staff() << Tempo(120 / 2)
+
+    assert position_copy == position
+    # Slower Beat takes longer than a faster one, meaning, it's twice as long
+    assert different_staff.convertToBeats(position_copy) == position.convertToBeats() * 2 # Double the tempo
+
+    defaults << TimeSignature(4, 4) << Quantization(1/16)
+
+# test_position_specific()
 
 
 def test_position_unit():
+
+    defaults << TimeSignature(4, 4) << Quantization(1/16)
 
     position: Position = Position()
     assert position % Measure() == 0
