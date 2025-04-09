@@ -1349,7 +1349,7 @@ class Staff(Generic):
                 time_staff: Staff = time._get_staff(self)
                 # By default Time values have no Staff reference,
                 # so, they aren't transformed, just converted !!
-                if time_staff is self:
+                if time_staff._tempo == self._tempo:
                     return ra.Beats(time._rational).set_staff_reference(self)
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a: Fraction = time._rational
