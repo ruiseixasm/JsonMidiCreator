@@ -720,34 +720,34 @@ def test_full_conversions():
 
     for time_value in (Position(10.5), Measures(10.5), Beats(10.5 * 4),
                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
-        assert default_staff.convertToMeasures(time_value) == 10.5
-        assert default_staff.convertToMeasure(time_value) == 10
-        assert default_staff.convertToBeats(time_value) == 10.5 * 4
-        assert default_staff.convertToBeat(time_value) == 2
-        assert default_staff.convertToSteps(time_value) == 10.5 * 4 * 4
-        assert default_staff.convertToStep(time_value) == 2 * 4
-        assert default_staff.convertToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
-        assert default_staff.convertToLength(time_value) == 10.5
+        assert default_staff.transformToMeasures(time_value) == 10.5
+        assert default_staff.transformToMeasure(time_value) == 10
+        assert default_staff.transformToBeats(time_value) == 10.5 * 4
+        assert default_staff.transformToBeat(time_value) == 2
+        assert default_staff.transformToSteps(time_value) == 10.5 * 4 * 4
+        assert default_staff.transformToStep(time_value) == 2 * 4
+        assert default_staff.transformToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert default_staff.transformToLength(time_value) == 10.5
 
     for time_value in (Length(10.5)):
-        assert default_staff.convertToMeasures(time_value) == 10.5
-        assert default_staff.convertToMeasure(time_value) == 11   # Considers entire Measure where it's present
-        assert default_staff.convertToBeats(time_value) == 10.5 * 4
-        assert default_staff.convertToBeat(time_value) == 2
-        assert default_staff.convertToSteps(time_value) == 10.5 * 4 * 4
-        assert default_staff.convertToStep(time_value) == 2 * 4
-        assert default_staff.convertToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
-        assert default_staff.convertToLength(time_value) == 10.5
+        assert default_staff.transformToMeasures(time_value) == 10.5
+        assert default_staff.transformToMeasure(time_value) == 11   # Considers entire Measure where it's present
+        assert default_staff.transformToBeats(time_value) == 10.5 * 4
+        assert default_staff.transformToBeat(time_value) == 2
+        assert default_staff.transformToSteps(time_value) == 10.5 * 4 * 4
+        assert default_staff.transformToStep(time_value) == 2 * 4
+        assert default_staff.transformToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert default_staff.transformToLength(time_value) == 10.5
 
     for time_unit in (Position(10), Length(10), Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
-        assert default_staff.convertToMeasures(time_unit) == 10
-        assert default_staff.convertToMeasure(time_unit) == 10
-        assert default_staff.convertToBeats(time_unit) == 10 * 4
-        assert default_staff.convertToBeat(time_unit) == 0
-        assert default_staff.convertToSteps(time_unit) == 10 * 4 * 4
-        assert default_staff.convertToStep(time_unit) == 0 * 4
-        assert default_staff.convertToDuration(time_unit) == 10 * (1/1)
-        assert default_staff.convertToLength(time_unit) == 10.0
+        assert default_staff.transformToMeasures(time_unit) == 10
+        assert default_staff.transformToMeasure(time_unit) == 10
+        assert default_staff.transformToBeats(time_unit) == 10 * 4
+        assert default_staff.transformToBeat(time_unit) == 0
+        assert default_staff.transformToSteps(time_unit) == 10 * 4 * 4
+        assert default_staff.transformToStep(time_unit) == 0 * 4
+        assert default_staff.transformToDuration(time_unit) == 10 * (1/1)
+        assert default_staff.transformToLength(time_unit) == 10.0
 
 # test_full_conversions()
 
