@@ -862,13 +862,13 @@ class Measurement(Convertible):
 class Length(Measurement):
     """`Rational -> Convertible -> Measurement -> Length`
 
-    Length() is a Parameter applicable to Element and Clip objects. The input and output
-    is given in Measures and their TimeUnit returns are rounded up to the NEXT one.
-    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
+    Length() is a Parameter applicable to `Element` and `Clip` objects. The input and output
+    is given in `Measures` and their `TimeUnit` returns are rounded up to the NEXT one.
+    Internally though, the values are in `Beats` and can be directly accessed with the `//` operator.
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
+    *args : Convertible, TimeUnit, integer, float, Fraction
         The last passed argument is the one being considered. If no parameters are provided,
         the default is 0 of Length.
     
@@ -888,13 +888,13 @@ class Length(Measurement):
 class Position(Measurement):
     """`Rational -> Convertible -> Measurement -> Position`
 
-    Position() is a Parameter applicable to Element and Clip objects. The input and output
-    is given in Measures and their TimeUnit returns are rounded up to the SAME one.
-    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
+    Position() is a Parameter applicable to `Element` and `Clip` objects. The input and output
+    is given in `Measures` and their `TimeUnit` returns are rounded up to the SAME one.
+    Internally though, the values are in `Beats` and can be directly accessed with the `//` operator.
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
+    *args : Convertible, TimeUnit, integer, float, Fraction
         The last passed argument is the one being considered. If no parameters are provided,
         the default is 0.
     
@@ -932,7 +932,7 @@ class Position(Measurement):
 class TimeValue(Convertible):  # Works as Absolute Beats
     """`Rational -> Convertible -> TimeValue`
 
-    TimeValue() represents any Time variables like Measure, Beat, NoteValue and Step.
+    TimeValue() represents any Time variables like `Measure`, `Beat`, `Duration` and `Step`.
     
     Parameters
     ----------
@@ -945,12 +945,12 @@ class TimeValue(Convertible):  # Works as Absolute Beats
 class Measures(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Measures`
 
-    Measures() represents the Staff Time Length, also known as Bar.
+    Measures() represents the fundamental unitary staff time Length, also known as Bar.
     
     Parameters
     ----------
     first : float_like
-        Proportional value to a Measures on the Staff
+        Proportional value to a `Measure` on the staff
     """
     # CHAINABLE OPERATIONS
 
@@ -1005,12 +1005,12 @@ class Measures(TimeValue):
 class Beats(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Beats`
 
-    Beats() represents the Staff Time Length in Beats on which the Tempo is based on (BPM).
+    Beats() represents the staff Time Length in `Beats` on which the `Tempo` is based on (BPM).
     
     Parameters
     ----------
     first : float_like
-        Proportional value to a Beat on the Staff
+        Proportional value to a `Beat` on the staff
     """
     # CHAINABLE OPERATIONS
 
@@ -1065,7 +1065,7 @@ class Beats(TimeValue):
 class Steps(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Steps`
 
-    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
+    A Step() represents the Length given by the `Quantization`, normally 1/16 Note Value.
     
     Parameters
     ----------
@@ -1125,7 +1125,7 @@ class Steps(TimeValue):
 class Duration(Convertible):
     """`Rational -> Convertible -> Duration`
 
-    Duration() represents the Note Value of a Note, a Duration typically comes as 1/4, 1/8 and 1/16.
+    Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
     
     Parameters
     ----------
