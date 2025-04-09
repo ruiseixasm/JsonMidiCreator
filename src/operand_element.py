@@ -282,14 +282,14 @@ class Element(o.Operand):
 
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():     self._position_beats  = operand._data
+                    case ra.Position():     self._position_beats  = operand._data._rational
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
                     case ou.Channel():      self._channel = operand._data._unit
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
-                self._duration_notevalue    = operand._rational
+                self._duration_notevalue    = self._staff_reference.convertToDuration(operand)._rational
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._staff_reference.convertToBeats(operand)._rational
             case ou.TimeUnit():
