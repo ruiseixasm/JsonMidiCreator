@@ -2159,6 +2159,16 @@ class Clip(Composition):  # Just a container of Elements
         # last_clip >> od.Play()
         return self
 
+    def _run_first(self, even = None) -> Self:
+        if self._iteration > 0:
+            self._iteration = 0
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._next_button)
+            if self._iteration == 0:
+                self._disable_button(self._previous_button)
+        return self
+
     def _run_previous(self, even = None) -> Self:
         if self._iteration > 0:
             self._iteration -= 1
@@ -2172,6 +2182,16 @@ class Clip(Composition):  # Just a container of Elements
     def _run_next(self, even = None) -> Self:
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._previous_button)
+            if self._iteration == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
+        return self
+
+    def _run_last(self, even = None) -> Self:
+        if self._iteration < len(self._plot_lists) - 1:
+            self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             self._plot_elements(plotlist)
             self._enable_button(self._previous_button)
@@ -2261,6 +2281,10 @@ class Clip(Composition):  # Just a container of Elements
                 self._run_composition(event)
             case 'e':
                 self._run_execute(event)
+            case 'm':
+                self._run_first(event)
+            case '/' | "-":
+                self._run_last(event)
         return self
 
 
