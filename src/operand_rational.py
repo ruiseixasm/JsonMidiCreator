@@ -631,14 +631,14 @@ class Convertible(Rational):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Beats():               return self._get_staff(operand).transformToBeats(self)
-            case Measures():            return self._get_staff(operand).convertToMeasures(self)
-            case Duration():            return self._get_staff(operand).convertToDuration(self)
-            case Steps():               return self._get_staff(operand).convertToSteps(self)
+            case Measures():            return self._get_staff(operand).transformToMeasures(self)
+            case Duration():            return self._get_staff(operand).transformToDuration(self)
+            case Steps():               return self._get_staff(operand).transformToSteps(self)
             case ou.Measure():          return self._get_staff(operand).convertToMeasure(self)
-            case ou.Beat():             return self._get_staff(operand).convertToBeat(self)
-            case ou.Step():             return self._get_staff(operand).convertToStep(self)
-            case Position():            return self._get_staff(operand).convertToPosition(self)
-            case Length():              return self._get_staff(operand).convertToLength(self)
+            case ou.Beat():             return self._get_staff(operand).transformToBeat(self)
+            case ou.Step():             return self._get_staff(operand).transformToStep(self)
+            case Position():            return self._get_staff(operand).transformToPosition(self)
+            case Length():              return self._get_staff(operand).transformToLength(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -788,8 +788,8 @@ class Measurement(Convertible):
         """
         match operand:
             case int():                 return self._get_staff().convertToMeasure(self) % int()
-            case float():               return self._get_staff().convertToMeasures(self) % float()
-            case Fraction():            return self._get_staff().convertToMeasures(self) % Fraction()
+            case float():               return self._get_staff().transformToMeasures(self) % float()
+            case Fraction():            return self._get_staff().transformToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
     # Measurement/Length round type: (...]
