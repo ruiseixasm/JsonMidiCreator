@@ -36,11 +36,11 @@ class Chaos(o.Operand):
 
     Chaos, contrarily to Randomness, is repeatable!
     This class allows trough parametrization the unpredictable return of data
-    and processing of other class object in a repeatable way.
+    and processing of other class objects in a repeatable way.
 
     Parameters
     ----------
-    first : any_like
+    first : Xn, X0, int, float
         Any type of parameter can be used to set Chaos. No defaults.
     """
     def __init__(self, *parameters):
@@ -167,7 +167,7 @@ class Modulus(Chaos):
 
     Parameters
     ----------
-    first : any_like
+    first : Xn, X0, Cycle, Steps, int, float
         The step is set with Steps() and the cycle is set with Cycle().
         The defaults are a step of 1 and a cycle of 12.
     """
@@ -256,7 +256,7 @@ class Flipper(Modulus):
 
     Parameters
     ----------
-    first : any_like
+    first : Xn, X0, Cycle, Steps, Split, int, float
         Beside the step and the cycle, the split is set with Split().
         The defaults are a step of 1 and a cycle of 2 and a split of 1.
     """
@@ -325,7 +325,7 @@ class Counter(Modulus):
 
     Parameters
     ----------
-    first : any_like
+    first : Xn, X0, Cycle, Steps, int, float
         The step is set with Steps() and the cycle is set with Cycle().
         The defaults are a step of 1 and a cycle of 12.
     """
@@ -346,9 +346,8 @@ class Bouncer(Chaos):
 
     Parameters
     ----------
-    first : any_like
-        The step is set with Steps() and the cycle is set with Cycle().
-        The defaults are a step of 1 and a cycle of 12.
+    first : Xn, Yn, dX, dY, Width, Height, tuple
+        The defaults are `Width(16)`, `Height(9)`, `dX(0.555)` and `dY(0.555)`.
     """
     def __init__(self, *parameters):
         super().__init__()
