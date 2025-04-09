@@ -678,20 +678,6 @@ class Convertible(Rational):
                 return super().__gt__(other)
         return False
 
-    #######################################################################
-    # Conversion (Simple, One-way) | Only destination Staff is considered #
-    #######################################################################
-
-    def convertToPosition(self) -> 'Position':
-        return self._get_staff().convertToPosition(self)
-
-    def convertToLength(self) -> 'Length':
-        return self._get_staff().convertToLength(self)
-
-    ################################################################################################################
-    # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
-    ################################################################################################################
-
     def transformToBeats(self) -> 'Beats':
         return self._get_staff().transformToBeats(self)
 
