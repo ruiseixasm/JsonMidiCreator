@@ -276,7 +276,7 @@ class Element(o.Operand):
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
                     # Has to use the staff setting method in order to propagate setting
-                    self.set_staff_reference(operand._staff_reference).set_clip_reference(operand._clip_reference)
+                    self.set_staff_reference(operand._staff_reference)
                 if self._staff_reference is operand._staff_reference:
                     self._position_beats        = operand._position_beats
                     self._duration_notevalue    = operand._duration_notevalue
