@@ -991,7 +991,7 @@ class Measures(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).convertToMeasures(operand)._rational
+                self._rational = self._get_staff(operand).transformToMeasures(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1003,7 +1003,7 @@ class Measures(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).convertToMeasures(operand)._rational
+                self._rational = self._get_staff(operand).transformToMeasures(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1012,7 +1012,7 @@ class Measures(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__iadd__(self._get_staff(operand).convertToMeasures(operand)._rational)
+                super().__iadd__(self._get_staff(operand).transformToMeasures(operand)._rational)
             case _:
                 super().__iadd__(operand)
         return self
@@ -1021,7 +1021,7 @@ class Measures(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__isub__(self._get_staff(operand).convertToMeasures(operand)._rational)
+                super().__isub__(self._get_staff(operand).transformToMeasures(operand)._rational)
             case _:
                 super().__isub__(operand)
         return self
@@ -1030,7 +1030,7 @@ class Measures(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__imul__(self._get_staff(operand).convertToMeasures(operand)._rational)
+                super().__imul__(self._get_staff(operand).transformToMeasures(operand)._rational)
             case _:
                 super().__imul__(operand)
         return self
@@ -1039,7 +1039,7 @@ class Measures(TimeValue):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__itruediv__(self._get_staff(operand).convertToMeasures(operand)._rational)
+                super().__itruediv__(self._get_staff(operand).transformToMeasures(operand)._rational)
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1135,19 +1135,7 @@ class Steps(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).convertToSteps(operand)._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case self.__class__():
-                super().__lshift__(operand)
-            case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).convertToSteps(operand)._rational
+                self._rational = self._get_staff(operand).transformToSteps(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
