@@ -833,10 +833,10 @@ class Measurement(Convertible):
                 self._rational = self._get_staff(operand).transformToBeats(operand)._rational
             case ou.Measure():
                 measure_beats: Beats = self._get_staff(operand).transformToBeats(self) \
-                    - self._get_staff(operand).transformToBeats(self._get_staff(operand).convertToMeasure(self))
+                    - self._get_staff(operand).transformToBeats(self._get_staff(operand).transformToMeasure(self))
                 self._rational = (self._get_staff(operand).transformToBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
-                self_measure: ou.Measure = self._get_staff(operand).convertToMeasure(self)
+                self_measure: ou.Measure = self._get_staff(operand).transformToMeasure(self)
                 self._rational = (
                     self._get_staff(operand).transformToBeats(self_measure) + self._get_staff(operand).transformToBeats(operand)
                     )._rational
