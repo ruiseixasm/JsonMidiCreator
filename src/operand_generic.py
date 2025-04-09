@@ -1459,7 +1459,7 @@ class Staff(Generic):
                 # By default Time values have no Staff reference,
                 # so, they aren't transformed, just converted !!
                 if time._staff_reference is None or time._staff_reference is self:
-                    return self.convertToBeats(time)
+                    return ra.Beats(time._rational).set_staff_reference(self)
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
                 tempo_a : Fraction = time._staff_reference._tempo
@@ -1477,7 +1477,7 @@ class Staff(Generic):
         return ra.Measures(measures).set_staff_reference(self)
     
         # return self.convertToMeasures(self.transformToBeats(time))
-        
+
 
     def transformToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Steps':
         return self.convertToSteps(self.transformToBeats(time))
