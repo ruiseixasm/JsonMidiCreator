@@ -1471,7 +1471,13 @@ class Staff(Generic):
         return ra.Beats()
 
     def transformToMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Measures':
-        return self.convertToMeasures(self.transformToBeats(time))
+        time_beats: ra.Beats = self.transformToBeats(time)
+        beats_per_measure: int = self._time_signature._top
+        measures: Fraction = time_beats._rational / beats_per_measure
+        return ra.Measures(measures).set_staff_reference(self)
+    
+        # return self.convertToMeasures(self.transformToBeats(time))
+        
 
     def transformToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Steps':
         return self.convertToSteps(self.transformToBeats(time))
