@@ -279,15 +279,6 @@ class Width(HiPrecision):
 class Height(HiPrecision):
     pass
 
-class X(HiPrecision):
-    pass
-
-class Y(HiPrecision):
-    pass
-
-class Z(HiPrecision):
-    pass
-
 class dX(HiPrecision):
     pass
 
@@ -301,6 +292,18 @@ class X0(HiPrecision):
     pass
 
 class Xn(HiPrecision):
+    pass
+
+class Y0(HiPrecision):
+    pass
+
+class Yn(HiPrecision):
+    pass
+
+class Z0(HiPrecision):
+    pass
+
+class Zn(HiPrecision):
     pass
 
 class Lambda(HiPrecision):

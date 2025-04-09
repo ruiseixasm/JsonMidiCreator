@@ -161,6 +161,16 @@ class Chaos(o.Operand):
         return self
 
 class Modulus(Chaos):
+    """`Chaos -> Modulus`
+
+    Increments the Xn by each step and its return is the remainder of the given cycle.
+
+    Parameters
+    ----------
+    first : any_like
+        The step is set with Steps() and the cycle is set with Cycle().
+        The defaults are a step of 1 and a cycle of 12.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._cycle: Fraction   = ra.Cycle(12)._rational
@@ -238,6 +248,18 @@ class Modulus(Chaos):
         return self
 
 class Flipper(Modulus):
+    """`Chaos -> Modulus -> Flipper`
+
+    The Xn alternates like left and right, where left is 0 and right is 1.
+    It works just like a Modulus with the difference of returning only 0 or 1,
+    where a given split defines what belongs to left and what to right.
+
+    Parameters
+    ----------
+    first : any_like
+        Beside the step and the cycle, the split is set with Split().
+        The defaults are a step of 1 and a cycle of 2 and a split of 1.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._cycle             = ra.Cycle(2)._rational
@@ -296,24 +318,47 @@ class Flipper(Modulus):
         return self
 
 class Counter(Modulus):
+    """`Chaos -> Modulus -> Counter`
+
+    The Xn represents the total number of completed cycles.
+    Contrary to modulus, the counter returns the amount of completed cycles.
+
+    Parameters
+    ----------
+    first : any_like
+        The step is set with Steps() and the cycle is set with Cycle().
+        The defaults are a step of 1 and a cycle of 12.
+    """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case int():                 return super().__mod__(int()) % int(self._cycle)
-            case float():               return super().__mod__(float()) % float(self._cycle)
+            case int():                 return super().__mod__(int()) // int(self._cycle)
+            case float():               return super().__mod__(float()) // float(self._cycle)
             case _:
                 return super().__mod__(operand)
 
 
 class Bouncer(Chaos):
+    """`Chaos -> Bouncer`
+
+    Bouncer works much alike the moving word in a screen saver.
+    So, it is a two dimensional data generator, with a Xn and a Yn.
+    The `Bouncer() % int()` and `Bouncer() % float()` returns the hypotenuse.
+
+    Parameters
+    ----------
+    first : any_like
+        The step is set with Steps() and the cycle is set with Cycle().
+        The defaults are a step of 1 and a cycle of 12.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._width: ra.Width           = ra.Width(16)
         self._height: ra.Height         = ra.Height(9)
         self._dx: ra.dX                 = ra.dX(0.555)
         self._dy: ra.dY                 = ra.dY(0.555)
-        self._x: ra.X                   = ra.X(self._width / 2 % Fraction())
-        self._y: ra.Y                   = ra.Y(self._height / 2 % Fraction())
-        self._set_xy: tuple             = (self._x.copy(), self._y.copy())
+        self._xn: ra.Xn                 = ra.Xn(self._width / 2 % Fraction())
+        self._yn: ra.Yn                 = ra.Yn(self._height / 2 % Fraction())
+        self._set_xy: tuple             = (self._xn.copy(), self._yn.copy())
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -325,8 +370,8 @@ class Bouncer(Chaos):
                     case ra.Height():           return self._height
                     case ra.dX():               return self._dx
                     case ra.dY():               return self._dy
-                    case ra.X():                return self._x
-                    case ra.Y():                return self._y
+                    case ra.Xn():               return self._xn
+                    case ra.Yn():               return self._yn
                     case int() | float():
                         self_tuple = self % od.DataSource( tuple() )
                         hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
@@ -334,16 +379,16 @@ class Bouncer(Chaos):
                             return int(hypotenuse)
                         return hypotenuse
                     case tuple():
-                        self_x_float = self._x % float()
-                        self_y_float = self._y % float()
+                        self_x_float = self._xn % float()
+                        self_y_float = self._yn % float()
                         return (self_x_float, self_y_float)
                     case _:                     return super().__mod__(operand)
             case ra.Width():            return self._width.copy()
             case ra.Height():           return self._height.copy()
             case ra.dX():               return self._dx.copy()
             case ra.dY():               return self._dy.copy()
-            case ra.X():                return self._x.copy()
-            case ra.Y():                return self._y.copy()
+            case ra.Xn():               return self._xn.copy()
+            case ra.Yn():               return self._yn.copy()
             case int() | float() | tuple():
                                         return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
@@ -354,7 +399,7 @@ class Bouncer(Chaos):
             return True
         if type(self) != type(other):
             return False
-        return  self._x == other._x and self._y == other._y
+        return  self._xn == other._xn and self._yn == other._yn
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -362,8 +407,8 @@ class Bouncer(Chaos):
         serialization["parameters"]["height"]       = self.serialize( self._height )
         serialization["parameters"]["dx"]           = self.serialize( self._dx )
         serialization["parameters"]["dy"]           = self.serialize( self._dy )
-        serialization["parameters"]["x"]            = self.serialize( self._x )
-        serialization["parameters"]["y"]            = self.serialize( self._y )
+        serialization["parameters"]["xn"]           = self.serialize( self._xn )
+        serialization["parameters"]["yn"]           = self.serialize( self._yn )
         serialization["parameters"]["set_xy"]       = self.serialize( self._set_xy )
         return serialization
 
@@ -372,7 +417,7 @@ class Bouncer(Chaos):
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
-            "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"] and
+            "dy" in serialization["parameters"] and "xn" in serialization["parameters"] and "yn" in serialization["parameters"] and
             "set_xy" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -380,8 +425,8 @@ class Bouncer(Chaos):
             self._height            = self.deserialize( serialization["parameters"]["height"] )
             self._dx                = self.deserialize( serialization["parameters"]["dx"] )
             self._dy                = self.deserialize( serialization["parameters"]["dy"] )
-            self._x                 = self.deserialize( serialization["parameters"]["x"] )
-            self._y                 = self.deserialize( serialization["parameters"]["y"] )
+            self._xn                = self.deserialize( serialization["parameters"]["xn"] )
+            self._yn                = self.deserialize( serialization["parameters"]["yn"] )
             self._set_xy            = tuple(self.deserialize( serialization["parameters"]["set_xy"] ))
         return self
         
@@ -394,8 +439,8 @@ class Bouncer(Chaos):
                 self._height        << operand._height
                 self._dx            << operand._dx
                 self._dy            << operand._dy
-                self._x             << operand._x
-                self._y             << operand._y
+                self._xn            << operand._xn
+                self._yn            << operand._yn
                 set_x               = operand._set_xy[0].copy()
                 set_y               = operand._set_xy[1].copy()
                 self._set_xy        = (set_x, set_y)
@@ -405,18 +450,18 @@ class Bouncer(Chaos):
                     case ra.Height():               self._height = operand._data
                     case ra.dX():                   self._dx = operand._data
                     case ra.dY():                   self._dy = operand._data
-                    case ra.X():                    self._x = operand._data
-                    case ra.Y():                    self._y = operand._data
+                    case ra.Xn():                    self._xn = operand._data
+                    case ra.Yn():                    self._yn = operand._data
                     case _:                         super().__lshift__(operand)
             case ra.Width():                self._width << operand
             case ra.Height():               self._height << operand
             case ra.dX():                   self._dx << operand
             case ra.dY():                   self._dy << operand
-            case ra.X():                    self._x << operand
-            case ra.Y():                    self._y << operand
+            case ra.Xn():                    self._xn << operand
+            case ra.Yn():                    self._yn << operand
             case _: super().__lshift__(operand)
-        self._x << (self._x % float()) % (self._width % float())
-        self._y << (self._y % float()) % (self._height % float())
+        self._xn << (self._xn % float()) % (self._width % float())
+        self._yn << (self._yn % float()) % (self._height % float())
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
@@ -424,7 +469,7 @@ class Bouncer(Chaos):
         if total_iterations > 0:
             self._initiated = True
             for actual_iteration in range(total_iterations):
-                for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
+                for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
                     new_position = direction_data[0] + direction_data[1]
                     if new_position < 0:
                         direction_data[1] << direction_data[1] * -1 # flips direction
@@ -443,8 +488,8 @@ class Bouncer(Chaos):
     
     def reset(self, *parameters) -> 'Bouncer':
         super().reset(*parameters)
-        self._x         << self._set_xy[0]
-        self._y         << self._set_xy[1]
+        self._xn        << self._set_xy[0]
+        self._yn        << self._set_xy[1]
         return self
 
 class SinX(Chaos):
