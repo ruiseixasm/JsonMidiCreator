@@ -1527,11 +1527,9 @@ class Staff(Generic):
     def transformToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Measure':
         if isinstance(time, ra.Measurement):
             time = time.roundMeasures()
-        time_beats: ra.Beats = self.transformToBeats(time)
+        return ou.Measure( self.transformToMeasures(time)._rational ).set_staff_reference(self)
 
-
-
-        return self.convertToMeasure(self.transformToBeats(time))
+        # return self.convertToMeasure(self.transformToBeats(time))
 
     def transformToBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Beat':
         if isinstance(time, ra.Measurement):
