@@ -34,7 +34,7 @@ import operand_frame as of
 class Chaos(o.Operand):
     """`Chaos`
 
-    Chaos, contrarily to Randomness, is repeatable!
+    Chaos, contrarily to Randomness, is repeatable and has order in it.
     This class allows trough parametrization the unpredictable return of data
     and processing of other class objects in a repeatable way.
 
@@ -492,6 +492,15 @@ class Bouncer(Chaos):
         return self
 
 class SinX(Chaos):
+    """`Chaos -> SinX`
+
+    Represents a more traditional chaotic formulation with the use of the Sin function.
+
+    Parameters
+    ----------
+    first : Xn, X0, Lambda, int, float
+        The defaults are `Xn(2)`, `Lambda(77.238537)`.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._xn                        << 2
