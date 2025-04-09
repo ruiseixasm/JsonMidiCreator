@@ -682,18 +682,6 @@ class Convertible(Rational):
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
 
-    def convertToDuration(self) -> 'Duration':
-        return self._get_staff().convertToDuration(self)
-
-    def convertToMeasure(self) -> 'ou.Measure':
-        return self._get_staff().convertToMeasure(self)
-
-    def convertToBeat(self) -> 'ou.Beat':
-        return self._get_staff().convertToBeat(self)
-
-    def convertToStep(self) -> 'ou.Step':
-        return self._get_staff().convertToStep(self)
-
     def convertToPosition(self) -> 'Position':
         return self._get_staff().convertToPosition(self)
 

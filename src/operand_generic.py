@@ -1743,8 +1743,8 @@ class Arpeggio(Generic):
             staff_reference: Staff = elements[0]._staff_reference
             element_start_position: ra.Position = elements[0] // ra.Position()
             arpeggio_length: ra.Length = elements[0] // ra.Length()
-            arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
-            element_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            arpeggio_end_position: ra.Position = arpeggio_length.transformToPosition()
+            element_length: ra.Length = staff_reference.transformToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = element_length * 2 * self._swing
             even_length: ra.Length = element_length * 2 - odd_length
             
