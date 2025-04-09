@@ -997,18 +997,6 @@ class Measures(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case self.__class__():
-                super().__lshift__(operand)
-            case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).transformToMeasures(operand)._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
     def __iadd__(self, operand: any) -> 'Measures':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1057,18 +1045,6 @@ class Beats(TimeValue):
         Proportional value to a Beat on the Staff
     """
     # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case self.__class__():
-                super().__lshift__(operand)
-            case Convertible() | ou.TimeUnit():
-                self._rational = self._get_staff(operand).transformToBeats(operand)._rational
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
