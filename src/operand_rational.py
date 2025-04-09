@@ -678,31 +678,31 @@ class Convertible(Rational):
                 return super().__gt__(other)
         return False
 
-    def transformToBeats(self) -> 'Beats':
+    def convertToBeats(self) -> 'Beats':
         return self._get_staff().convertToBeats(self)
 
-    def transformToMeasures(self) -> 'Measures':
+    def convertToMeasures(self) -> 'Measures':
         return self._get_staff().convertToMeasures(self)
 
-    def transformToSteps(self) -> 'Steps':
+    def convertToSteps(self) -> 'Steps':
         return self._get_staff().convertToSteps(self)
 
-    def transformToDuration(self) -> 'Duration':
+    def convertToDuration(self) -> 'Duration':
         return self._get_staff().convertToDuration(self)
 
-    def transformToMeasure(self) -> 'ou.Measure':
+    def convertToMeasure(self) -> 'ou.Measure':
         return self._get_staff().convertToMeasure(self)
 
-    def transformToBeat(self) -> 'ou.Beat':
+    def convertToBeat(self) -> 'ou.Beat':
         return self._get_staff().convertToBeat(self)
 
-    def transformToStep(self) -> 'ou.Step':
+    def convertToStep(self) -> 'ou.Step':
         return self._get_staff().convertToStep(self)
 
-    def transformToPosition(self) -> 'Position':
+    def convertToPosition(self) -> 'Position':
         return self._get_staff().convertToPosition(self)
 
-    def transformToLength(self) -> 'Length':
+    def convertToLength(self) -> 'Length':
         return self._get_staff().convertToLength(self)
 
 
@@ -760,7 +760,7 @@ class Measurement(Convertible):
 
     # Measurement/Length round type: (...]
     def roundMeasures(self) -> Self:
-        measures: Fraction = self.transformToMeasures()._rational
+        measures: Fraction = self.convertToMeasures()._rational
         if measures.denominator != 1:
             measures = Fraction(int(measures) + 1)  # moves forward one unit
         else:
@@ -769,7 +769,7 @@ class Measurement(Convertible):
 
     # Measurement/Length round type: (...]
     def roundBeats(self) -> Self:
-        beats: Fraction = self.transformToBeats()._rational
+        beats: Fraction = self.convertToBeats()._rational
         if beats.denominator != 1:
             beats = Fraction(int(beats) + 1)  # moves forward one unit
         else:
@@ -778,7 +778,7 @@ class Measurement(Convertible):
     
     # Measurement/Length round type: (...]
     def roundSteps(self) -> Self:
-        steps: Fraction = self.transformToSteps()._rational
+        steps: Fraction = self.convertToSteps()._rational
         if steps.denominator != 1:
             steps = Fraction(int(steps) + 1)  # moves forward one unit
         else:
@@ -909,19 +909,19 @@ class Position(Measurement):
 
     # Position round type: [...)
     def roundMeasures(self) -> Self:
-        measures: Fraction = self.transformToMeasures()._rational
+        measures: Fraction = self.convertToMeasures()._rational
         measures = Fraction( int(measures) )
         return self._get_staff().convertToPosition( Measures(measures) )
 
     # Position round type: [...)
     def roundBeats(self) -> Self:
-        beats: Fraction = self.transformToBeats()._rational
+        beats: Fraction = self.convertToBeats()._rational
         beats = Fraction( int(beats) )
         return self._get_staff().convertToPosition( Beats(beats) )
     
     # Position round type: [...)
     def roundSteps(self) -> Self:
-        steps: Fraction = self.transformToSteps()._rational
+        steps: Fraction = self.convertToSteps()._rational
         steps = Fraction( int(steps) )
         return self._get_staff().convertToPosition( Steps(steps) )
 

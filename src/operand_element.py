@@ -400,7 +400,7 @@ class Element(o.Operand):
                 self_clip: oc.Clip = operand.copy()
                 self.set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
                 if self_clip.len() > 0:
-                    self_clip += ( self % ra.Length() ).transformToPosition()
+                    self_clip += ( self % ra.Length() ).convertToPosition()
                     self_clip._insert([ self ], self_clip[0])
                 else:
                     self_clip._insert([ self ])

@@ -933,7 +933,7 @@ class Clip(Composition):  # Just a container of Elements
         start = self.start()
         finish = self.finish()
         if start and finish:
-            return (finish - start).transformToLength()
+            return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
     def duration(self) -> ra.Duration:
@@ -946,7 +946,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Duration: Equal to length() but returning Duration.
         """
-        return self.length().transformToDuration()
+        return self.length().convertToDuration()
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1533,7 +1533,7 @@ class Clip(Composition):  # Just a container of Elements
                 
                 # Find indices of known values
                 known_indices = [
-                    (element % ra.Position()).transformToSteps() % int() for element in channel_automation._items
+                    (element % ra.Position()).convertToSteps() % int() for element in channel_automation._items
                 ]
 
                 total_messages: int = known_indices[-1] - known_indices[0] + 1
@@ -1788,7 +1788,7 @@ class Clip(Composition):  # Just a container of Elements
                 self += rest_element
         
         last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
-        staff_end: ra.Position = last_element.finish().transformToLength().roundMeasures().transformToPosition()
+        staff_end: ra.Position = last_element.finish().convertToLength().roundMeasures().convertToPosition()
         if last_element.finish() < staff_end:
             rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
             rest_element: oe.Rest = \
@@ -1990,7 +1990,7 @@ class Clip(Composition):  # Just a container of Elements
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: Fraction = ra.Duration(self, quantization).transformToLength() // Fraction()
+        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
