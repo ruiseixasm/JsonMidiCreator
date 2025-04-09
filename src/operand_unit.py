@@ -304,31 +304,31 @@ class TimeUnit(Unit):
     if TYPE_CHECKING:
         from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps
 
-    def transformToBeats(self) -> 'Beats':
+    def convertToBeats(self) -> 'Beats':
         return self._get_staff().convertToBeats(self)
 
-    def transformToMeasures(self) -> 'Measures':
+    def convertToMeasures(self) -> 'Measures':
         return self._get_staff().convertToMeasures(self)
 
-    def transformToSteps(self) -> 'Steps':
+    def convertToSteps(self) -> 'Steps':
         return self._get_staff().convertToSteps(self)
 
-    def transformToDuration(self) -> 'Duration':
+    def convertToDuration(self) -> 'Duration':
         return self._get_staff().convertToDuration(self)
 
-    def transformToMeasure(self) -> 'Measure':
+    def convertToMeasure(self) -> 'Measure':
         return self._get_staff().convertToMeasure(self)
 
-    def transformToBeat(self) -> 'Beat':
+    def convertToBeat(self) -> 'Beat':
         return self._get_staff().convertToBeat(self)
 
-    def transformToStep(self) -> 'Step':
+    def convertToStep(self) -> 'Step':
         return self._get_staff().convertToStep(self)
 
-    def transformToPosition(self) -> 'Position':
+    def convertToPosition(self) -> 'Position':
         return self._get_staff().convertToPosition(self)
 
-    def transformToLength(self) -> 'Length':
+    def convertToLength(self) -> 'Length':
         return self._get_staff().convertToLength(self)
 
 
