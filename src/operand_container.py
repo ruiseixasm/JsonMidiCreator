@@ -2271,16 +2271,16 @@ class Clip(Composition):  # Just a container of Elements
         match event.key:
             case 'p':
                 self._run_play(event)
-            case ',':
-                self._run_previous(event)
-            case '.':
-                self._run_next(event)
-            case 'n':
-                self._run_new(event)
             case 'c':
                 self._run_composition(event)
             case 'e':
                 self._run_execute(event)
+            case 'n':
+                self._run_new(event)
+            case ',':
+                self._run_previous(event)
+            case '.':
+                self._run_next(event)
             case 'm':
                 self._run_first(event)
             case '/' | "-":
