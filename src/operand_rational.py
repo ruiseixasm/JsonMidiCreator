@@ -794,30 +794,30 @@ class Measurement(Convertible):
 
     # Measurement/Length round type: (...]
     def roundMeasures(self) -> Self:
-        measures: Fraction = self.convertToMeasures()._rational
+        measures: Fraction = self.transformToMeasures()._rational
         if measures.denominator != 1:
             measures = Fraction(int(measures) + 1)  # moves forward one unit
         else:
             measures = Fraction( int(measures) )
-        return self._get_staff().convertToLength( Measures(measures) )
+        return self._get_staff().transformToLength( Measures(measures) )
 
     # Measurement/Length round type: (...]
     def roundBeats(self) -> Self:
-        beats: Fraction = self.convertToBeats()._rational
+        beats: Fraction = self.transformToBeats()._rational
         if beats.denominator != 1:
             beats = Fraction(int(beats) + 1)  # moves forward one unit
         else:
             beats = Fraction( int(beats) )
-        return self._get_staff().convertToLength( Beats(beats) )
+        return self._get_staff().transformToLength( Beats(beats) )
     
     # Measurement/Length round type: (...]
     def roundSteps(self) -> Self:
-        steps: Fraction = self.convertToSteps()._rational
+        steps: Fraction = self.transformToSteps()._rational
         if steps.denominator != 1:
             steps = Fraction(int(steps) + 1)  # moves forward one unit
         else:
             steps = Fraction( int(steps) )
-        return self._get_staff().convertToLength( Steps(steps) )
+        return self._get_staff().transformToLength( Steps(steps) )
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
