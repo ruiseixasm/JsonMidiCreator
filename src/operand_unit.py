@@ -259,9 +259,10 @@ class TimeUnit(Unit):
         import operand_generic as og
         import operand_rational as ra
         if self._staff_reference is None:
-            if isinstance(other, (ra.Convertible, TimeUnit)) and other._staff_reference is not None:
-                return other._staff_reference
-            if isinstance(other, og.Staff):
+            if isinstance(other, (ra.Convertible, TimeUnit)):
+                if other._staff_reference is not None:
+                    return other._staff_reference
+            elif isinstance(other, og.Staff):
                 return other
             return og.defaults._staff
         return self._staff_reference
