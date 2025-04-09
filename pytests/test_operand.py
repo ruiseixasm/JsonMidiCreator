@@ -141,6 +141,46 @@ def test_operand_copy():
                     print(f"Culprit: {single_class.__name__}")
                     assert class_object.test_staff_reference()
 
+    print("4th Cycle - DataSource Unit objects data")
+    for single_class in list_all_classes:
+        class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
+        if class_object and not isinstance(class_object, (int)):
+            list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
+            for single_unit_class in list_unit_classes:
+                unit_class_object: Unit = single_unit_class() << basic_parameters
+                class_object << DataSource( unit_class_object )     # DataSource injection
+            if class_object != class_object.copy():
+                print(f"Culprit: {single_class.__name__}")
+                assert class_object == class_object.copy()
+            if isinstance(class_object, (Clip, Song)):
+                if not class_object.test_staff_reference():
+                    print(f"Culprit: {single_class.__name__}")
+                    assert class_object.test_staff_reference()
+
+    print("5th Cycle - DataSource Rational objects data")
+    for single_class in list_all_classes:
+        class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << Note() << Rest()
+        if isinstance(class_object, Song):
+            class_object << Part(Clip(Note(),Rest()), Clip(Note(),Rest()))
+        if class_object and not isinstance(class_object, (int)):
+            list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
+            for single_rational_class in list_unit_classes:
+                rational_class_object: Rational = single_rational_class() << basic_parameters
+                class_object << DataSource( rational_class_object ) # DataSource injection
+            if class_object != class_object.copy():
+                print(f"Culprit: {single_class.__name__}")
+                assert class_object == class_object.copy()
+            if isinstance(class_object, (Clip, Song)):
+                if not class_object.test_staff_reference():
+                    print(f"Culprit: {single_class.__name__}")
+                    assert class_object.test_staff_reference()
+
 # test_operand_copy()
 
 
