@@ -272,7 +272,7 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._get_staff(other).convertToBeats(self)._rational \
+                return self._get_staff(other).transformToBeats(self)._rational \
                     == self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__eq__(other)
@@ -283,7 +283,7 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._get_staff(other).convertToBeats(self)._rational \
+                return self._get_staff(other).transformToBeats(self)._rational \
                     < self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__lt__(other)
@@ -294,7 +294,7 @@ class TimeUnit(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
-                return self._get_staff(other).convertToBeats(self)._rational \
+                return self._get_staff(other).transformToBeats(self)._rational \
                     > self._get_staff(other).transformToBeats(other)._rational
             case _:
                 return super().__gt__(other)
