@@ -2661,7 +2661,7 @@ class Part(Composition):
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
                     self.set_staff_reference(operand.get_staff_reference())
-            case og.Staff() | None:
+            case og.Staff():
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
                     self.set_staff_reference(operand)

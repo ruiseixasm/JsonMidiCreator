@@ -319,7 +319,7 @@ class Element(o.Operand):
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
                     self.set_staff_reference(operand.get_staff_reference())
-            case og.Staff() | None:
+            case og.Staff():
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
                     self.set_staff_reference(operand)
@@ -1116,7 +1116,7 @@ class Note(Element):
             case og.Pitch():
                 self._pitch << operand
                 self._pitch.set_staff_reference(self._staff_reference)
-            case ou.PitchParameter() | int() | str():
+            case ou.PitchParameter() | int() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
