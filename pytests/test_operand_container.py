@@ -977,6 +977,7 @@ def test_part_position():
     assert full_song[0] % Length() == 1/4
     assert full_song % Length() == full_song[1] % Length()
     assert full_song[0] % Length() == full_song[1] % Length() * 1/2
+    assert full_song.length().getMinutes() == full_song[1].length().getMinutes()
     assert full_song.length().getMinutes() == full_song[0].length().getMinutes() * 2
 
 # test_part_position()
