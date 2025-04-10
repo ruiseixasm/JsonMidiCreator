@@ -28,7 +28,14 @@ import operand_label as ol
 
 
 class Data(o.Operand):
+    """`Data`
 
+    Data has a single parameter that keeps Any type of data.
+
+    Parameters
+    ----------
+    Any(None) : Any type of parameter can be used to be set as data.
+    """
     def __init__(self, data = None):
         super().__init__()
         self._data = self.deep_copy(data)

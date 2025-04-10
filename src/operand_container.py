@@ -61,8 +61,8 @@ class Container(o.Operand):
 
     Parameters
     ----------
-    first : any, list
-        Any type of parameter can be used to be added as item. No defaults.
+    list() : Any type of parameter can be used to be added as item.
+    int : Returns the len of the list.
     """
     def __init__(self, *operands):
         super().__init__()

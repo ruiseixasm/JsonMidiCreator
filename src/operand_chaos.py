@@ -167,10 +167,10 @@ class Modulus(Chaos):
 
     Parameters
     ----------
-    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
-    Steps(1) : The increase amount for each iteration.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
+    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Steps(1) : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
         super().__init__()
