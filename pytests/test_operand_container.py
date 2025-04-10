@@ -966,6 +966,7 @@ def test_part_position():
     part_60 << Measures(2)
     assert part_120 % Position() == part_60 % Position()
     assert (part_120 % Position()).getMinutes() == (part_60 % Position()).getMinutes()
+    assert part_120 % Position() % Minutes() == part_60 % Position() % Minutes()
     print(f"Part Length: {part_120 % Length() % Fraction()}")
     assert part_120 % Length() == 1/4
     assert part_120 % Length() == part_60 % Length() * 1/2
@@ -974,13 +975,16 @@ def test_part_position():
     assert full_song.len() == 2
     assert full_song[0] % Position() == full_song[1] % Position()
     assert (full_song[0] % Position()).getMinutes() == (full_song[1] % Position()).getMinutes()
+    assert full_song[0] % Position() % Minutes() == full_song[1] % Position() % Minutes()
     print(f"Song Length: {full_song % Length() % Fraction()}")
     assert full_song % Length() == 1/4
     assert full_song[0] % Length() == 1/4
     assert full_song % Length() == full_song[1] % Length()
     assert full_song[0] % Length() == full_song[1] % Length() * 1/2
     assert full_song.length().getMinutes() == full_song[1].length().getMinutes()
+    assert full_song % Length() % Minutes() == full_song[1] % Length() % Minutes()
     assert full_song.length().getMinutes() == full_song[0].length().getMinutes() * 2
+    assert full_song % Length() % Minutes() == full_song[0] % Length() % Minutes() * 2
 
 # test_part_position()
 
