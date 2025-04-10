@@ -986,6 +986,16 @@ def test_part_position():
     assert full_song.length().getMinutes() == full_song[0].length().getMinutes() * 2
     assert full_song % Length() % Minutes() == full_song[0] % Length() % Minutes() * 2
 
+    song_playlist = playlist_time_ms( full_song.getPlaylist() )
+    # Notes On (Position)
+    assert song_playlist[0]["time_ms"] == song_playlist[2]["time_ms"]
+    # Notes Off (Length)
+    length_120_ms: float    = song_playlist[1]["time_ms"] - song_playlist[0]["time_ms"]
+    length_60_ms: float     = song_playlist[3]["time_ms"] - song_playlist[2]["time_ms"]
+    print(f"120: {length_120_ms} 60: {length_60_ms}")
+    # 120 bpm takes less time than 60 bpm (/ 2)
+    assert length_120_ms == length_60_ms / 2
+
 # test_part_position()
 
 
