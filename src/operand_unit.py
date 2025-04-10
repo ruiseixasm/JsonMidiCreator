@@ -351,7 +351,7 @@ class TimeUnit(Unit):
     def getMinutes(self) -> Fraction:
         return self._get_staff().getMinutes(self)
 
-    def getPlaylist(self) -> list:
+    def getPlaylist(self) -> list[dict]:
         return self._get_staff().getPlaylist(self)
 
     # CHAINABLE OPERATIONS

@@ -986,8 +986,11 @@ def test_part_position():
     assert full_song.length().getMinutes() == full_song[0].length().getMinutes() * 2
     assert full_song % Length() % Minutes() == full_song[0] % Length() % Minutes() * 2
 
+
+    position_playlist = (full_song[0] % Position()).getPlaylist()
     song_playlist = playlist_time_ms( full_song.getPlaylist() )
     # Notes On (Position)
+    assert song_playlist[0]["time_ms"] == position_playlist[0]["time_ms"]
     assert song_playlist[0]["time_ms"] == song_playlist[2]["time_ms"]
     # Notes Off (Length)
     length_120_ms: float    = song_playlist[1]["time_ms"] - song_playlist[0]["time_ms"]
