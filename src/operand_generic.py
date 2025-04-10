@@ -34,6 +34,14 @@ import operand_container as oc
 
 
 class Generic(o.Operand):
+    """`Generic`
+
+    Generic represents any `Operand` that doesn't fit any particular type of `Operand` in nature or parameters type.
+
+    Parameters
+    ----------
+    Any(None) : Generic doesn't have any self parameters.
+    """
     pass
 
 
