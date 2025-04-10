@@ -37,6 +37,10 @@ class Operator(o.Operand):
 
     Parameters
     ----------
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of cycles, for each chaotic iteration.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+
     first : o.Operand_like
         A Operand to be regulated
     """
@@ -62,14 +66,11 @@ class Operator(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case list():            return self._operator_list
-                    case Operator():        return self
                     case ol.Null() | None:  return ol.Null()
                     case o.Operand():       return self._operand
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
             case list():            return self._operator_list.copy()
-            # case list():            return self._operator_list.copy()
-            case Operator():        return self.copy()
             case ol.Null() | None:  return ol.Null()
             case o.Operand():       return self._operand.copy()
             case _:                 return super().__mod__(operand)
@@ -126,8 +127,10 @@ class Operator(o.Operand):
             case o.Operand():
                 if isinstance(self._operand, o.Operand):
                     self._operand << operand
-            case ol.Null() | None:  return self
-            case _:                 self._operand = operand
+            case ol.Null() | None:
+                return self
+            case _:
+                self._operand = operand
         return self
 
     def __or__(self, operand: any):
@@ -138,7 +141,6 @@ class Operator(o.Operand):
             case o.Operand():
                 for single_operator in self._operator_list:
                     operand = single_operator | operand
-                # self._operator_list = []    # Saved operators are used only once
         return operand
 
     def __ror__(self, operand: any) -> o.Operand:

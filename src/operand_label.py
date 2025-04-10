@@ -27,11 +27,20 @@ import operand_frame as of
 
 
 class Label(o.Operand):
+    """`Label`
+
+    Label is an `Operand` that contains no parameters and it's intended to be processed based in its name, as label.
+
+    Parameters
+    ----------
+    Any(None) : Generic doesn't have any self parameters.
+    """
     # By default a Label has no copies as it caries no data
     def copy(self, *parameters) -> Self:
         return self
 
     def __eq__(self, other: 'Label') -> bool:
+        import operand_data as od
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if type(self) == type(other) or type(other) == o.Operand or not other:
             return True
@@ -64,8 +73,5 @@ class Null(Label):
     pass
     
 class Dummy(Label):
-    pass
-
-class MidiValue(Label):
     pass
 

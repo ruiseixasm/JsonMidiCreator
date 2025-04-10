@@ -56,12 +56,12 @@ except ImportError:
 class Container(o.Operand):
     """`Container`
 
-    Container represents objects that contains multiple items, the typical case
+    Container represents an `Operand` that contains multiple items, the typical case
     is the `Clip` with multiple `Element` items in it.
 
     Parameters
     ----------
-    list() : Any type of parameter can be used to be added as item.
+    list([]) : Any type of parameter can be used to be added as item.
     int : Returns the len of the list.
     """
     def __init__(self, *operands):

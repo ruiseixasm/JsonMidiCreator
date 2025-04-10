@@ -40,13 +40,14 @@ import operand_chaos as ch
 class Mutation(o.Operand):
     """`Mutation`
 
-    Mutation can be Haploid or Diploid, the second one adds a second Clip so that Shuffle
+    Mutation can be Haploid or Diploid, the second one adds a second `Clip` so that Shuffle
     of Clips becomes a Diploid process.
 
     Parameters
     ----------
-    first : any_like
-        Any type of parameter can be used to set Mutation. Self clip as None is de default.
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of cycles, for each chaotic iteration.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
     def __init__(self, *parameters):
         super().__init__()

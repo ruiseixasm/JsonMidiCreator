@@ -36,7 +36,7 @@ class Chaos(o.Operand):
 
     Chaos, contrarily to Randomness, is repeatable and has order in it.
     This class allows trough parametrization the unpredictable return of data
-    and processing of other class objects in a repeatable way.
+    and processing of other `Operand` in a repeatable way.
 
     Parameters
     ----------
