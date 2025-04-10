@@ -41,6 +41,17 @@ if TYPE_CHECKING:
     from operand_container import Song
 
 class Element(o.Operand):
+    """`Element`
+
+    Element represents a type of midi message, like, `Note` and `ControlChange`.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults) : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         import operand_container as oc
         super().__init__()
