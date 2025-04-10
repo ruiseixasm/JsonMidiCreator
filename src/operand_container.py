@@ -951,7 +951,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         start = self.start()
         finish = self.finish()
-        if start and finish:
+        if start is not None and finish is not None:
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
@@ -994,7 +994,7 @@ class Clip(Composition):  # Just a container of Elements
                 return self._midi_track % operand
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
             case _:
@@ -2521,36 +2521,51 @@ class Part(Composition):
                 return super().__gt__(other)
     
 
+    def start(self) -> ra.Position:
+        start_position: ra.Position = None
+
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        for clip in clips_list:
+
+            clip_start: ra.Position = clip.start()
+            if clip_start:
+                if start_position is not None:
+                    if clip_start < start_position:
+                        start_position = clip_start
+                else:
+                    start_position = clip_start
+
+        return start_position
+
     def finish(self) -> ra.Position:
-        """
-        Processes each element Position plus Length and returns the finish position
-        as the maximum of all of them.
-
-        Args:
-            None
-
-        Returns:
-            Position: The maximum of Position + Length of all Elements.
-        """
         finish_position: ra.Position = None
 
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
         ]
 
-        if len(clips_list) > 0:
+        for clip in clips_list:
 
-            for clip in clips_list:
-
-                clip_finish: ra.Position = clip.finish()
-                if clip_finish:
-                    if finish_position:
-                        if clip_finish > finish_position:
-                            finish_position = clip_finish
-                    else:
+            clip_finish: ra.Position = clip.finish()
+            if clip_finish:
+                if finish_position is not None:
+                    if clip_finish > finish_position:
                         finish_position = clip_finish
+                else:
+                    finish_position = clip_finish
 
         return finish_position
+
+    def length(self) -> ra.Length:
+        start = self.start()
+        finish = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
+        return self._staff_reference.convertToLength()
+
 
     def last(self) -> oe.Element:
 
@@ -2592,6 +2607,8 @@ class Part(Composition):
                     case _:                 return super().__mod__(operand)
             case ra.Position():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Length():
+                return self.length()
             case _:
                 return super().__mod__(operand)
 
@@ -2831,23 +2848,43 @@ class Song(Composition):
         return True
 
 
-    def finish(self) -> ra.Position:
+    def start(self) -> ra.Position:
+        start_position: ra.Position = None
 
+        for part in self._items:
+
+            part_start: ra.Position = part.start()
+            if part_start:
+                if start_position is not None:
+                    if part_start < start_position:
+                        start_position = part_start
+                else:
+                    start_position = part_start
+
+        return start_position
+
+    def finish(self) -> ra.Position:
         finish_position: ra.Position = None
 
-        if self.len() > 0:
+        for part in self._items:
 
-            for part in self._items:
-
-                part_finish: ra.Position = part.finish()
-                if part_finish:
-                    if finish_position:
-                        if part_finish > finish_position:
-                            finish_position = part_finish
-                    else:
+            part_finish: ra.Position = part.finish()
+            if part_finish:
+                if finish_position is not None:
+                    if part_finish > finish_position:
                         finish_position = part_finish
+                else:
+                    finish_position = part_finish
 
         return finish_position
+
+    def length(self) -> ra.Length:
+        start = self.start()
+        finish = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
+        return self._staff.convertToLength()
+
 
 
     def last_position(self) -> ra.Position:
@@ -2868,9 +2905,11 @@ class Song(Composition):
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
+            case ra.Length():
+                return self.length()
             case _:
                 return super().__mod__(operand)
 

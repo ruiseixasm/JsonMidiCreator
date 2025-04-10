@@ -965,11 +965,16 @@ def test_part_position():
     assert part_120 % Position() != part_60 % Position()
     part_60 << Measures(2)
     assert part_120 % Position() == part_60 % Position()
+    print(f"Part Length: {part_120 % Length() % Fraction()}")
+    assert part_120 % Length() == 1/4
     assert part_120 % Length() == part_60 % Length() * 1/2
 
     full_song = Song(part_120, part_60) << Tempo(90)
     assert full_song.len() == 2
     assert full_song[0] % Position() == full_song[1] % Position()
+    print(f"Song Length: {full_song % Length() % Fraction()}")
+    assert full_song % Length() == 1/4
+    assert full_song[0] % Length() == 1/4
     assert full_song[0] % Length() == full_song[1] % Length() * 1/2
 
 # test_part_position()
