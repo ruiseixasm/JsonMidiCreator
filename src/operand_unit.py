@@ -268,6 +268,21 @@ class TimeUnit(Unit):
         return self._staff_reference
 
 
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_rational as ra
+        match operand:
+            case ra.Beats():            return self._get_staff(operand).convertToBeats(self)
+            case ra.Measures():         return self._get_staff(operand).convertToMeasures(self)
+            case ra.Duration():         return self._get_staff(operand).convertToDuration(self)
+            case ra.Steps():            return self._get_staff(operand).convertToSteps(self)
+            case Measure():             return self._get_staff(operand).convertToMeasure(self)
+            case Beat():                return self._get_staff(operand).convertToBeat(self)
+            case Step():                return self._get_staff(operand).convertToStep(self)
+            case ra.Position():         return self._get_staff(operand).convertToPosition(self)
+            case ra.Length():           return self._get_staff(operand).convertToLength(self)
+            case ra.Minutes():          return ra.Minutes( self._get_staff().getMinutes(self) )
+            case _:                     return super().__mod__(operand)
+
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -301,8 +316,9 @@ class TimeUnit(Unit):
                 return super().__gt__(other)
         return False
 
+
     if TYPE_CHECKING:
-        from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps
+        from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps, Minutes
 
     def convertToBeats(self) -> 'Beats':
         return self._get_staff().convertToBeats(self)

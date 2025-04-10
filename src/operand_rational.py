@@ -596,6 +596,9 @@ class Quantization(StaffParameter):
         return self
 
 
+class Minutes(Rational):
+    pass
+
 class Convertible(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
@@ -643,6 +646,7 @@ class Convertible(Rational):
             case ou.Step():             return self._get_staff(operand).convertToStep(self)
             case Position():            return self._get_staff(operand).convertToPosition(self)
             case Length():              return self._get_staff(operand).convertToLength(self)
+            case Minutes():             return Minutes( self._get_staff().getMinutes(self) )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
