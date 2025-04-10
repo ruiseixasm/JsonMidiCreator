@@ -40,8 +40,8 @@ class Chaos(o.Operand):
 
     Parameters
     ----------
-    Xn, X0, int, float
-        The Chaos defaults are `Xn(0)` and `X0(0)`.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -167,9 +167,10 @@ class Modulus(Chaos):
 
     Parameters
     ----------
-    first : Xn, X0, Cycle, Steps, int, float
-        The step is set with Steps() and the cycle is set with Cycle().
-        The defaults are a step of 1 and a cycle of 12.
+    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Steps(1) : The increase amount for each iteration.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     """
     def __init__(self, *parameters):
         super().__init__()
