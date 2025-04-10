@@ -952,3 +952,26 @@ def test_clip_length():
     assert two_notes * two_notes * two_notes % Length() == Beats(4 * 3)
 
 # test_clip_length()
+
+
+def test_part_position():
+
+    note_clip_120 = Note() * 1
+    note_clip_60 = note_clip_120 * 1 << Tempo(60)
+
+    part_120 = Part(note_clip_120) << Measures(2)
+    part_60 = Part(note_clip_60)
+
+    assert part_120 % Position() != part_60 % Position()
+    part_60 << Measures(2)
+    assert part_120 % Position() == part_60 % Position()
+    assert part_120 % Length() == part_60 % Length() * 1/2
+
+    full_song = Song(part_120, part_60) << Tempo(90)
+    assert full_song.len() == 2
+    assert full_song[0] % Position() == full_song[1] % Position()
+    assert full_song[0] % Length() == full_song[1] % Length() * 1/2
+
+# test_part_position()
+
+
