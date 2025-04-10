@@ -510,7 +510,6 @@ class Pitch(Generic):
                     case _:
                         super().__lshift__(operand)
 
-
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Tonic():    # Must come before than Key()
@@ -522,24 +521,24 @@ class Pitch(Generic):
                 self._sharp = 0
                 self._natural = False
                 self._degree = self.get_key_degree(operand._unit % 12)
-            case None:
-                self << 0   # Resets the Tonic key
-                self << 1   # Resets the degree to I
-                self._octave = 4
-                self._sharp = 0
-                self._natural = False
+
             case int():
-                if operand == 0:
+                if operand < 0:
+                    self << 0   # Resets the Tonic key
+                    self << 1   # Resets the degree to I
+                    self._octave = 4
+                    self._sharp = 0
+                    self._natural = False
+                elif operand == 0:
                     self._tonic_key = int( self._staff_reference % float() )
                 else:
                     staff_scale: list[int] = self._staff_reference % list()
                     total_degrees: int = sum(1 for key in staff_scale if key != 0)
                     self._degree = (operand - 1) % total_degrees + 1
-
-                    # self.set_degree(operand)
-
             case ou.Degree():
-                self << operand._unit
+                self << operand._unit   # Sets as int like above
+            case None:
+                self << -1
 
             case float() | Fraction():
                 self.set_chromatic_pitch(int(operand))

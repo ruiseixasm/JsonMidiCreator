@@ -54,6 +54,16 @@ except ImportError:
         
 
 class Container(o.Operand):
+    """`Container`
+
+    Container represents objects that contains multiple items, the typical case
+    is the `Clip` with multiple `Element` items in it.
+
+    Parameters
+    ----------
+    first : any, list
+        Any type of parameter can be used to be added as item. No defaults.
+    """
     def __init__(self, *operands):
         super().__init__()
         self._items: list = []
@@ -728,7 +738,16 @@ class Container(o.Operand):
 
 
 class Devices(Container):
-    
+    """`Container -> Devices`
+
+    Container represents objects that contains multiple items, the typical case
+    is the `Clip` with multiple `Element` items in it.
+
+    Parameters
+    ----------
+    first : any, list
+        Any type of parameter can be used to be added as item. No defaults.
+    """
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case od.Device():
@@ -2638,13 +2657,18 @@ class Part(Composition):
                     self.deep_copy(item) for item in operand if isinstance(item, (Clip, od.Playlist))
                 ]
                 self._sort_position()
+            case Composition():
+                # Makes sure isn't a Song owned Part first
+                if self._song_reference is None:
+                    self.set_staff_reference(operand.get_staff_reference())
+            case og.Staff() | None:
+                # Makes sure isn't a Song owned Part first
+                if self._song_reference is None:
+                    self.set_staff_reference(operand)
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-
-            case Composition():
-                self.set_staff_reference(operand.get_staff_reference())
-
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)

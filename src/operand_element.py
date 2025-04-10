@@ -315,11 +315,18 @@ class Element(o.Operand):
                 self._enabled               = operand._unit != 0
             case ou.Disable():
                 self._enabled               = operand._unit == 0
+            case oc.Composition():
+                # Makes sure isn't a Clip owned Element first
+                if self._clip_reference is None:
+                    self.set_staff_reference(operand.get_staff_reference())
+            case og.Staff() | None:
+                # Makes sure isn't a Clip owned Element first
+                if self._clip_reference is None:
+                    self.set_staff_reference(operand)
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-            case oc.Composition():
-                self.set_staff_reference(operand.get_staff_reference())
         return self
 
 
@@ -1109,7 +1116,7 @@ class Note(Element):
             case og.Pitch():
                 self._pitch << operand
                 self._pitch.set_staff_reference(self._staff_reference)
-            case ou.PitchParameter() | int() | str() | None:
+            case ou.PitchParameter() | int() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
