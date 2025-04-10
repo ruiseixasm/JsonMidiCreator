@@ -40,8 +40,8 @@ class Chaos(o.Operand):
 
     Parameters
     ----------
-    first : Xn, X0, int, float
-        Any type of parameter can be used to set Chaos. No defaults.
+    Xn, X0, int, float
+        The Chaos defaults are `Xn(0)` and `X0(0)`.
     """
     def __init__(self, *parameters):
         super().__init__()
