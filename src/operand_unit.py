@@ -341,6 +341,7 @@ class TimeUnit(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_generic as og
         import operand_element as oe
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -350,6 +351,8 @@ class TimeUnit(Unit):
                 self._staff_reference = operand._staff_reference
             case oe.Element() | oc.Composition():
                 self.set_staff_reference(operand.get_staff_reference())
+            case og.Staff() | None:
+                self.set_staff_reference(operand)
             case _:
                 super().__lshift__(operand)
         return self
