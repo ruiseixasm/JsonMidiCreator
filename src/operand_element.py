@@ -48,7 +48,7 @@ class Element(o.Operand):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults) : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
