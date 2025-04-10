@@ -34,6 +34,15 @@ if TYPE_CHECKING:
 
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
+    """`Frame`
+
+    Frame is used in conjugation with a `Composition` container to apply, frame, specific items.
+    Frames are chained with other Frames with the `**` operator.
+
+    Parameters
+    ----------
+    Any(None) : Frame doesn't have any self parameters.
+    """
     def __init__(self, *parameters):
         import operand_container as oc
         super().__init__()
