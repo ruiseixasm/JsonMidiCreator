@@ -151,6 +151,10 @@ class Chaos(o.Operand):
     # Pass trough method that always results in a Chaos (Self)
     def __rshift__(self, operand: any) -> Self:
         return self.__imul__(operand)
+    
+    def __and__(self, operand: o.T) -> o.T:
+         
+        return operand
 
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
