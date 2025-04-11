@@ -48,7 +48,7 @@ def test_sinx_mod():
     assert sin_x_1000 == sin_x
     assert sin_x_1000 * 1 == sin_x_1 * 1000 * 1
 
-# test_sinx_mod()
+test_sinx_mod()
 
 
 def test_modulus():
