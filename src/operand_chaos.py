@@ -158,7 +158,7 @@ class Chaos(o.Operand):
     def __and__(self, operand: int = 1) -> Self:
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
-            self << self._next_operand.__and__(self).__imul__(operand)
+            self << self._next_operand.__and__(operand).__imul__(operand)
         return self
 
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
