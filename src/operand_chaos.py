@@ -133,9 +133,7 @@ class Chaos(o.Operand):
         total_iterations: int = int(integer_part)
         return reportable_iteration, total_iterations
 
-    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational, 'Chaos']) -> 'Chaos':
-        if isinstance(number, Chaos):
-            return self.__imul__(number * 1 % int())
+    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> 'Chaos':
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
