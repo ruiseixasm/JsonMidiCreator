@@ -35,7 +35,8 @@ chord + control_change >> Print() >> Play(1) >> Export("json/_Export_4.1_control
 
 
 # The length of the entire wave is one Measure or 4 beats or 16 steps
-oscillator: Operator = Oscillator(Bend()) << Amplitude(8191 / 2)
+oscillator: Operator = Oscillator(Bend()) << Amplitude(128*128 / 2 - 1)
+oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1))
 
 # Stepping by 4 Steps is equivalent ot step by 1 Beat, same as , 1/4 Measure
 # The default wavelength of the Oscillator is 1 Measure, so, for each PitchBend position:

@@ -284,7 +284,7 @@ original_save       = Load("json/testing/_Save_Play_p.10.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.3_sequence.json")
 start_time = time.time()
 
-oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
+oscillator = Oscillator(Bend()) << Amplitude(128*128 / 2 - 1)
 pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(0, 4)**Steps()
 
 chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
