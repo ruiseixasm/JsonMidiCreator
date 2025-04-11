@@ -26,13 +26,9 @@ from JsonMidiCreator import *
 defaults << Tempo(60)
 
 chord: Element = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
-# oscillator: Operator = Oscillator(Value()) << Offset(64) << Amplitude(50)
 oscillate: Oscillate = Oscillate(50, offset=64)
 control_change: Clip = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
 control_change >> oscillate >> Save("json/_Save_4.2_control_change.json")
-# control_change: Clip = (
-#         oscillator | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
-#     ) >> Save("json/_Save_4.2_control_change.json")
     
 chord + control_change >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
