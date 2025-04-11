@@ -175,6 +175,17 @@ def is_black_key(midi_note: int) -> bool:
 # GLOBAL CLASSES
 
 class Operand:
+    """`Operand`
+
+    Operand is the root of all other classes, this is why it's omitted in the documented hierarchy
+    given it's omnipresence. Operand has no self parameters despite keeping some state variables.
+    It is possible to chain multiple operands with the operator `**` that result in operands being
+    processed from right to left as if the left ones were wrapped by the right ones.
+
+    Parameters
+    ----------
+    None : It has no parameters.
+    """
     def __init__(self, *parameters):
         self._next_operand: Operand = None
         self._initiated: bool   = False

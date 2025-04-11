@@ -38,8 +38,9 @@ import operand_chaos as ch
 class Variables(o.Operand):
     """`Variables`
 
-    This type of Operand is associated to an Integer.
-    This class is intended to represent parameters that are whole numbers like midi messages from 0 to 127.
+    This type of `Operand` is intended to work as an user stock of content, like Device configurations,
+    predefined operands with reusable parameters that are this way readily available without the need
+    of making them from scratch again and again. By other words, a presets bank of operands.
 
     Parameters
     ----------
