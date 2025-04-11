@@ -73,7 +73,6 @@ class Chaos(o.Operand):
         return f'{self._index + 1}: {self._xn % float()}'
     
     def __eq__(self, other: 'Chaos') -> bool:
-        # other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) == type(other):
@@ -101,7 +100,6 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chaos():
                 super().__lshift__(operand)
@@ -124,7 +122,6 @@ class Chaos(o.Operand):
         return self
 
     def reportable_per_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
-        # number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations = 1
         match number:
             case ou.Unit() | ra.Rational():
@@ -207,7 +204,6 @@ class Modulus(Chaos):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
-        # other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -233,7 +229,6 @@ class Modulus(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Modulus():
                 super().__lshift__(operand)
@@ -296,7 +291,6 @@ class Flipper(Modulus):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
-        # other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -320,7 +314,6 @@ class Flipper(Modulus):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Flipper():
                 super().__lshift__(operand)
@@ -410,7 +403,6 @@ class Bouncer(Chaos):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
-        # other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -447,7 +439,6 @@ class Bouncer(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
@@ -536,7 +527,6 @@ class SinX(Chaos):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'SinX') -> bool:
-        # other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if super().__eq__(other):
@@ -559,7 +549,6 @@ class SinX(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case SinX():
                 super().__lshift__(operand)
