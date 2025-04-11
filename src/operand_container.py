@@ -20,6 +20,7 @@ from typing import Self, cast
 from fractions import Fraction
 import json
 import enum
+import math
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -1598,6 +1599,35 @@ class Clip(Composition):  # Just a container of Elements
 
         return automation
     
+    def oscillate(self, amplitude: int = 64, offset: int = 0, wavelength: float = 1/1, phase: int = 0,
+                  parameter: type = None) -> Self:
+        """
+        This Operator has a function returns the given Operand regulated accordingly to the Oscillator parameters.
+
+        Parameters
+        ----------
+        first : o.Operand_like
+            A Operand to be regulated
+        """
+        for single_element in self._items:
+            
+            element_position: ra.Position = single_element % ra.Position()
+            wavelength_duration: Fraction = ra.Duration(wavelength)._rational
+            wavelength_position: Fraction = element_position.convertToDuration()._rational
+            wavelength_ratio: Fraction = wavelength_position / wavelength_duration
+            # The default unit of measurement of Position and Length is in Measures !!
+            wave_phase: float = float(wavelength_ratio * 360 + phase)   # degrees
+            # int * float results in a float
+            # Fraction * float results in a float
+            # Fraction * Fraction results in a Fraction
+            value: int = int(amplitude * math.sin(math.radians(wave_phase)))
+            value += offset
+            if parameter is not None and isinstance(parameter(), o.Operand):
+                single_element << parameter(value)
+            else:
+                single_element << value            
+
+        return self
     
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """
