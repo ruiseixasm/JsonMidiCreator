@@ -215,12 +215,6 @@ class Operand:
             list_size += 1
         return list_size
 
-    def __pow__(self, operand: 'Operand') -> Self:
-        match operand:
-            case Operand():     self._next_operand = operand
-            case _:             self._next_operand = None
-        return self
-
     def __mod__(self, operand: T) -> T:
         """
         The % symbol is used to extract a Parameter, each Operand
@@ -468,6 +462,12 @@ class Operand:
         return self.__mul__(operand)
 
     
+    def __pow__(self, operand: 'Operand') -> Self:
+        match operand:
+            case Operand():     self._next_operand = operand
+            case _:             self._next_operand = None
+        return self
+
     def __and__(self, operand: T) -> T:
         import operand_frame as of
         import operand_chaos as ch
