@@ -1538,13 +1538,14 @@ class Clip(Composition):  # Just a container of Elements
 
     def interpolate(self) -> Self:
 
-        # The automation is all done based on int()
-        plotlist: list[dict] = self.getPlotlist()
+        # The automation is all done based on int() on all Automation classes
+        automation_clip: Clip = self.filter(of.OperandType(oe.Automation))
+        plotlist: list[dict] = automation_clip.getPlotlist()
         channels: list[int] = plotlist[0]["channels"]["automation"]
 
         for channel in channels:
 
-            channel_automation: Clip = self.filter(ou.Channel(channel))
+            channel_automation: Clip = automation_clip.filter(ou.Channel(channel))
 
             if channel_automation.len() > 1:
 
@@ -1565,6 +1566,7 @@ class Clip(Composition):  # Just a container of Elements
                         pattern_values[index] = channel_automation[element_index] % int()
                         element_index += 1
 
+                # Calls a static method
                 automation = self._interpolate_list(known_indices, pattern_values)
 
                 position_steps: ra.Steps = ra.Steps(0)
@@ -1575,7 +1577,8 @@ class Clip(Composition):  # Just a container of Elements
 
         return self._sort_position()
 
-    def _interpolate_list(self, known_indices, pattern_values) -> list:
+    @staticmethod
+    def _interpolate_list(known_indices, pattern_values) -> list:
 
         automation = pattern_values[:] # makes a copy of pattern_values
             
