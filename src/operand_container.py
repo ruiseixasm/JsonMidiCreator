@@ -1622,7 +1622,7 @@ class Clip(Composition):  # Just a container of Elements
             # Fraction * Fraction results in a Fraction
             value: int = int(amplitude * math.sin(math.radians(wave_phase)))
             value += offset
-            if parameter is not None and isinstance(parameter(), o.Operand):
+            if parameter is not None:
                 single_element << parameter(value)
             else:
                 single_element << value            
