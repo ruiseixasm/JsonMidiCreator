@@ -447,6 +447,7 @@ class Iterate(Left):
     """
     def __init__(self, start: any = 0, step: any = 1):
         iterator: dict = {
+            "start":    start,
             "current":  start,
             "step":     step
         }
@@ -460,10 +461,17 @@ class Iterate(Left):
         super().__init__(iterator)
 
     def __and__(self, input: o.Operand) -> o.Operand:
+        import operand_chaos as ch
         self._increment_index(Iterate)
-        self_operand = super().__and__(
-            self.deep_copy(self._multi_data['operand']['current'])
-        )
+        if isinstance(input, ch.Chaos):
+            if self._multi_data['operand']['current'] == self._multi_data['operand']['start']:
+                input *= self._multi_data['operand']['start']
+            self_operand = super().__and__( input )
+            input *= self._multi_data['operand']['step']
+        else:
+            self_operand = super().__and__(
+                self.deep_copy(self._multi_data['operand']['current'])
+            )
         # iterates whenever called
         self._multi_data['operand']['current'] += self._multi_data['operand']['step']
         return self_operand
