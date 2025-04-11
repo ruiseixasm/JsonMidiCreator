@@ -119,8 +119,9 @@ controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 
 
-oscillator = Oscillator(Bend()) << Amplitude(128*128 / 2 - 1)
-pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(0, 4)**Steps()
+oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
+pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps()
+pitch_bend >> oscillate
 
 chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> Export("json/testing/_Export_Play_p.10.3_sequence.json") \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")

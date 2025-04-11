@@ -866,20 +866,17 @@ class WrapR(Right):
         super().__init__(wrapper)
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= input
         match self_operand:
             case o.Operand():
                 match self._multi_data['operand']:
-                    case oo.Operator(): wrapped_operand = self._multi_data['operand'] | self_operand.copy()
                     case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
                     case None:          wrapped_operand = ol.Null()
                     case _:             wrapped_operand = self._multi_data['operand']
             case _:
                 match self._multi_data['operand']:
-                    case oo.Operator(): wrapped_operand = self._multi_data['operand'] | self_operand
                     case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
                     case None:          wrapped_operand = ol.Null()
                     case _:             wrapped_operand = self._multi_data['operand']
@@ -895,7 +892,6 @@ class GetR(Right):
         super().__init__(operand)
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= input
