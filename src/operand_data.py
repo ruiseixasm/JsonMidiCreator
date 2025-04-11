@@ -1081,9 +1081,9 @@ class Interpolate(ClipProcess):
         return operand.interpolate()
 
 class Oscillate(ClipProcess):
-    def __init__(self, amplitude: int = 63, offset: int = 64, wavelength: float = 1/1, phase: int = 0,
+    def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                  parameter: type = None):
-        super().__init__((amplitude, offset, wavelength, phase, parameter))
+        super().__init__((amplitude, wavelength, offset, phase, parameter))
 
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.oscillate(*self._data)

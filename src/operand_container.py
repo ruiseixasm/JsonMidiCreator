@@ -1599,7 +1599,7 @@ class Clip(Composition):  # Just a container of Elements
         return automation
 
 
-    def oscillate(self, amplitude: int = 63, offset: int = 64, wavelength: float = 1/1, phase: int = 0,
+    def oscillate(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                   parameter: type = None) -> Self:
         """
         This Operator has a function returns the given Operand regulated accordingly to the Oscillator parameters.
