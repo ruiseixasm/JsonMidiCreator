@@ -493,7 +493,7 @@ class Group(Element):
     def __init__(self, *parameters):
         self._elements: list[Element] = [
             # From top to down, from left to right
-            ControlChange(ou.Number("Pan"), ou.Value(0)),
+            ControlChange(ou.Number("Pan"), 0),
             Note()
         ]
         super().__init__(*parameters)
@@ -1157,7 +1157,9 @@ class Note(Element):
 
 class Cluster(Note):
     def __init__(self, *parameters):
-        self._sets: list[int | float] = [0, 2, 4]
+        self._sets: list = [
+            ou.Degree(0), ou.Degree(2), ou.Degree(4)
+        ]
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
