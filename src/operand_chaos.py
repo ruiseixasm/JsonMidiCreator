@@ -155,13 +155,12 @@ class Chaos(o.Operand):
             case _:             self._next_operand = None
         return self
 
+    # operand here is the target object, thus, not the one to be returned as final subject
     def __and__(self, operand: o.T) -> o.T:
-        if isinstance(operand, Chaos):
-            return operand
-        if isinstance(self._next_operand, Chaos):
+        if self._next_operand:
+            # iteration is only done on tailed chaos operands and never on self
             self << self._next_operand.__and__(self) @ 1
         return self
-        # return operand
 
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
