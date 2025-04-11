@@ -26,16 +26,18 @@ from JsonMidiCreator import *
 defaults << Tempo(60)
 
 chord: Element = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
-oscillator: Operator = Oscillator(Value()) << Offset(64) << Amplitude(50)
-control_change: Clip = (
-        oscillator | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
-    ) >> Save("json/_Save_4.2_control_change.json")
+# oscillator: Operator = Oscillator(Value()) << Offset(64) << Amplitude(50)
+oscillate: Oscillate = Oscillate(50, offset=64)
+control_change: Clip = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
+control_change >> oscillate >> Save("json/_Save_4.2_control_change.json")
+# control_change: Clip = (
+#         oscillator | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
+#     ) >> Save("json/_Save_4.2_control_change.json")
     
 chord + control_change >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
 
 # The length of the entire wave is one Measure or 4 beats or 16 steps
-oscillator: Operator = Oscillator(Bend()) << Amplitude(128*128 / 2 - 1)
 oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
 
 # Stepping by 4 Steps is equivalent ot step by 1 Beat, same as , 1/4 Measure
@@ -44,7 +46,6 @@ oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
 #   1 Step = peak = 8191 / 2 = +4095
 #   2 Step = 0
 pitch_bend: Clip = PitchBend() * (2*16 + 1) << Iterate()**Steps()
-# pitch_bend << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(step=4)**Steps()
 pitch_bend >> oscillate
 
 chord + pitch_bend >> Play(1) >> Save("json/_Save_4.2_pitch_bend.json") >> Export("json/_Export_4.2_pitch_bend.json")

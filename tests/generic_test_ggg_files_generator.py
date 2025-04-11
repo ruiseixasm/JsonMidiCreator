@@ -113,8 +113,9 @@ composition + triplets \
 defaults << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
+oscillate: Oscillate = Oscillate(50, offset=64)
 controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
-controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >> Save("json/testing/_Save_4.2_control_change.json")
+controller >> oscillate >> Save("json/testing/_Save_4.2_control_change.json")
     
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 
