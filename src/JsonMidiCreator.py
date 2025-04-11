@@ -59,6 +59,7 @@ Bar = Mea = Measure
 Bts = Beats
 Pt = Pitch
 Vel = Velocity
+Deg = Degree
 Dur = Duration
 Pos = Position
 KS = KeySig = KeySignature
