@@ -1538,14 +1538,13 @@ class Clip(Composition):  # Just a container of Elements
 
     def interpolate(self) -> Self:
 
-        # It's a shallow copy of self, so, adding elements to it also adds elements to self!
-        clip_automations: Clip = self.filter(of.OperandType(oe.Automation))
-        plotlist: list[dict] = clip_automations.getPlotlist()
+        # The automation is all done based on int()
+        plotlist: list[dict] = self.getPlotlist()
         channels: list[int] = plotlist[0]["channels"]["automation"]
 
         for channel in channels:
 
-            channel_automation: Clip = clip_automations.filter(ou.Channel(channel))
+            channel_automation: Clip = self.filter(ou.Channel(channel))
 
             if channel_automation.len() > 1:
 
@@ -1562,6 +1561,7 @@ class Clip(Composition):  # Just a container of Elements
                 element_index: int = 0
                 for index in range(total_messages):
                     if index in known_indices:
+                        # Extracts int as what is being automated
                         pattern_values[index] = channel_automation[element_index] % int()
                         element_index += 1
 
