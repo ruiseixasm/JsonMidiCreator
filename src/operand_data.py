@@ -1062,7 +1062,6 @@ class Arpeggiate(ClipProcess):
         return operand.arpeggiate(self._data)
 
 class Stepper(ClipProcess):
-
     def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
         super().__init__((pattern, note))
 
@@ -1070,7 +1069,6 @@ class Stepper(ClipProcess):
         return operand.stepper(*self._data)
 
 class Automate(ClipProcess):
-
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
         super().__init__((values, pattern, automation, interpolate))
@@ -1081,6 +1079,14 @@ class Automate(ClipProcess):
 class Interpolate(ClipProcess):
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.interpolate()
+
+class Oscillate(ClipProcess):
+    def __init__(self, amplitude: int = 63, offset: int = 64, wavelength: float = 1/1, phase: int = 0,
+                 parameter: type = None):
+        super().__init__((amplitude, offset, wavelength, phase, parameter))
+
+    def process(self, operand: 'Clip') -> 'Clip':
+        return operand.oscillate(*self._data)
 
 class Tie(ClipProcess):
     def __init__(self, tied: bool = True):

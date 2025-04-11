@@ -1575,7 +1575,6 @@ class Clip(Composition):  # Just a container of Elements
 
         return self._sort_position()
 
-
     def _interpolate_list(self, known_indices, pattern_values) -> list:
 
         automation = pattern_values[:] # makes a copy of pattern_values
@@ -1598,8 +1597,9 @@ class Clip(Composition):  # Just a container of Elements
                     automation[i] = int(left_val + step * (i - left_idx))
 
         return automation
-    
-    def oscillate(self, amplitude: int = 64, offset: int = 0, wavelength: float = 1/1, phase: int = 0,
+
+
+    def oscillate(self, amplitude: int = 63, offset: int = 64, wavelength: float = 1/1, phase: int = 0,
                   parameter: type = None) -> Self:
         """
         This Operator has a function returns the given Operand regulated accordingly to the Oscillator parameters.
