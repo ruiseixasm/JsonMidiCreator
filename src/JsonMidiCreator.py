@@ -24,8 +24,8 @@ from operand_label import *
 from operand_frame import *
 from operand_operator import *
 from operand_generic import *
-from operand_container import *
 from operand_element import *
+from operand_container import *
 from operand_chaos import *
 from operand_mutation import *
 from operand_selection import *
