@@ -45,7 +45,7 @@ def test_frame_mod():
 
 def test_foreach_mod():
 
-    frame = Loop(1, 2, 3, 4, 5)  # ints represent Degrees
+    frame = Loop(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
     notes = Note() * 7  # default degree 1 relative to the note C
 
     notes += frame  # Original sequences aren't modified by + operator

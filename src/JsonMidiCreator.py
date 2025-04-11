@@ -58,10 +58,12 @@ Bars = Meas = Measures
 Bar = Mea = Measure
 Bts = Beats
 Pt = Pitch
+Pos = Position
+Dur = Duration
 Vel = Velocity
 Deg = Degree
-Dur = Duration
-Pos = Position
+W = Tone
+H = Semitone
 KS = KeySig = KeySignature
 TS = TimeSig = TimeSignature
 CC = ControlChange

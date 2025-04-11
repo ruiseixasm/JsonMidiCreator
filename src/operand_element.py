@@ -860,12 +860,13 @@ class Note(Element):
                     case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
                     case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
                     case og.Pitch():        return self._pitch
+                    case int():             return self._velocity
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
             case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
             case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case int():             return self._pitch._degree
+            case int():             return self._velocity
             case ou.PitchParameter() | str():
                                     return self._pitch % operand
             case ou.DrumKit():
@@ -1117,8 +1118,10 @@ class Note(Element):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data._unit
                     case og.Pitch():        self._pitch     = operand._data
+                    case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
+            case int():             self._velocity = operand
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand._unit
@@ -1127,7 +1130,7 @@ class Note(Element):
             case og.Pitch():
                 self._pitch << operand
                 self._pitch.set_staff_reference(self._staff_reference)
-            case ou.PitchParameter() | int() | str() | None:
+            case ou.PitchParameter() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -1139,7 +1142,9 @@ class Note(Element):
     def __iadd__(self, operand: any) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+            case int():
+                self._velocity += operand
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1148,7 +1153,9 @@ class Note(Element):
     def __isub__(self, operand: any) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+            case int():
+                self._velocity -= operand
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:

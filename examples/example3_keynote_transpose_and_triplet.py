@@ -28,7 +28,7 @@ single_clock = Clock(Length(1)) * 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
-note_transposed = single_note + 5.0 >> Play()
+note_transposed = single_note + Semitone(5) >> Play()
 
 triplets_one = (Note3("E") << NoteValue(1/16)) * 8
 triplets_one + composition >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)

@@ -193,7 +193,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.7.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.7.3_sequence.json")
 start_time = time.time()
-note_transposed = single_note + 5.0 >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+note_transposed = single_note + Semitone(5) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 3.2",

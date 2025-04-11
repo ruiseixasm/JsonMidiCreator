@@ -246,7 +246,7 @@ def test_note_scale():
     assert major_note % Pitch() % Key() == "D"
     major_note += Degree(1)
     assert major_note % Pitch() % Key() == "E"
-    major_note += 1 # integers are considered degree by Note
+    major_note += Deg(1)    # Deg alias to Degree
     assert major_note % Pitch() % Key() == "F"
 
     defaults << Scale("minor")
@@ -257,7 +257,7 @@ def test_note_scale():
     assert minor_note % Pitch() % Key() == "B"
     minor_note += Degree(1)
     assert minor_note % Pitch() % Key() == "C"
-    minor_note += 1 # integers are considered degree by Note
+    minor_note += Deg(1)    # Deg alias to Degree
     assert minor_note % Pitch() % Key() == "D"
 
     defaults << Scale([])
@@ -516,20 +516,20 @@ def test_note_pitch():
         note += Semitone(1)
 
     print("------")
-    note << 0 # Tonic key again
+    note << Deg(0)  # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        (note + degree) % str() >> Print()
-        assert note + degree == keys[degree]
+        (note + Deg(degree)) % str() >> Print()
+        assert note + Deg(degree) == keys[degree]
 
     print("------")
-    note << 0 << 1 # Tonic key again and resets the degree to 1
-    note << Octave(4)    # Makes sure it's C4 again
+    note << Deg(0) << Deg(1)    # Tonic key again and resets the degree to 1
+    note << Octave(4)           # Makes sure it's C4 again
     note_copy_2 = note.copy()
-    note_copy_2 += 2
+    note_copy_2 += Degree(2)
     print(f"Key: {(note_copy_2) % str()}, \
             tone: {(note_copy_2) % Pitch() % float()}, degree: {(note_copy_2) % Degree() % int()}")
-    assert note + 2 == Note("E")    # C - D - E
+    assert note + Degree(2) == Note("E")    # C - D - E
 
     
     note.clear()    # Becomes like a new note
