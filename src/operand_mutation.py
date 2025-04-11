@@ -46,7 +46,7 @@ class Mutation(o.Operand):
     Parameters
     ----------
     Chaos(SinX()) : The chaotic source generator of the Mutation.
-    int(1), float : Defines the amount of cycles, for each chaotic iteration.
+    int(1), float : Defines the amount of a single for each chaotic iteration.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
     def __init__(self, *parameters):

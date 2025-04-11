@@ -41,14 +41,12 @@ class Selection(o.Operand):
     """`Selection`
 
     Selection allows the choice of given clips than have been mutated many times accordingly
-    to a group of criteria.
+    to a group of criteria. It empties the Clip self elements list whenever isn't selected.
 
     Parameters
     ----------
-    first : any_like
-        Any type of parameter can be used to set Selection.
+    None : It has no parameters.
     """
-    
     def select(self, clip: oc.Clip) -> oc.Clip:
         if self != clip:
             clip._items = []

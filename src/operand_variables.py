@@ -36,6 +36,15 @@ import operand_chaos as ch
 
 
 class Variables(o.Operand):
+    """`Variables`
+
+    This type of Operand is associated to an Integer.
+    This class is intended to represent parameters that are whole numbers like midi messages from 0 to 127.
+
+    Parameters
+    ----------
+    None : It has no parameters.
+    """
     pass
 
 
