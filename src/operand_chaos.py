@@ -155,13 +155,13 @@ class Chaos(o.Operand):
         return self
 
     # operand here is the target object, thus, not the one to be returned as final subject
-    def __and__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
+    def __and__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Union[int, float, Fraction, ou.Unit, ra.Rational]:
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
             self << self._next_operand.__imul__(number) # __imul__ already includes __and__
-        return self
+        return number   # Has to keep compatibility with Operand __and__ method
 
-    def __iand__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
+    def __iand__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Union[int, float, Fraction, ou.Unit, ra.Rational]:
         return self.__and__(number)
     
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
