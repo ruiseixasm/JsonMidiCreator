@@ -158,10 +158,7 @@ class Chaos(o.Operand):
     def __and__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
-            self << self._next_operand.__and__(number).__imul__(number)
-            #                                    |                |
-            #                                    |                ------ Applier
-            #                                    ----------------------- Carrier
+            self << self._next_operand.__imul__(number) # __imul__ already includes __and__
         return self
 
     def __iand__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
