@@ -68,3 +68,12 @@ def test_modulus():
     assert modulus @ 1 % int() == 0
 
 # test_modulus()
+
+
+def test_chained_chaos():
+
+    modulus_sinx = Modulus()**SinX()
+    modulus_sinx *= 2.01
+
+    
+
