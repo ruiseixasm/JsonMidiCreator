@@ -129,8 +129,8 @@ class Chaos(o.Operand):
             case int() | float() | Fraction():
                 iterations = float(number)
         fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
-        reportable_iteration: int = int(fractional_part * 10**2)
-        total_iterations: int = int(integer_part)
+        reportable_iteration: int = round(fractional_part * 10**2)  # It has to be round given the float point error
+        total_iterations: int = round(integer_part)                 # It has to be round given the float point error
         return reportable_iteration, total_iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
