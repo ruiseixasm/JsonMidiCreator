@@ -474,7 +474,7 @@ class Operand:
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first
             return self & (operand & self)
         if isinstance(operand, ch.Chaos):   # For chaotic chaining
-            return operand.__and__()
+            return operand.__and__(0)   # Disables the normal processing of it
         if self._next_operand:
             result = self._next_operand & operand   # Recursively get result from the chain
             # Apply << operation between current next_operand and the result
