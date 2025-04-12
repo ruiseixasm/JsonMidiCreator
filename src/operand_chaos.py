@@ -131,10 +131,10 @@ class Chaos(o.Operand):
         fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
         reportable_iteration: int = int(fractional_part * 10**2)
         total_iterations: int = int(integer_part)
-        self.__and__(total_iterations)  # Propagates iterations
         return reportable_iteration, total_iterations
 
-    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> 'Chaos':
+    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
+        self &= number
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -155,10 +155,13 @@ class Chaos(o.Operand):
         return self
 
     # operand here is the target object, thus, not the one to be returned as final subject
-    def __and__(self, operand: int = 1) -> Self:
+    def __iand__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
-            self << self._next_operand.__and__(operand).__imul__(operand)
+            self << self._next_operand.__and__(number).__imul__(number)
+            #                                    |                |
+            #                                    |                ------ Applier
+            #                                    ----------------------- Carrier
         return self
 
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
@@ -246,6 +249,7 @@ class Modulus(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
+        self &= number
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -470,6 +474,7 @@ class Bouncer(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+        self &= number
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -565,6 +570,7 @@ class SinX(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
+        self &= number
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
