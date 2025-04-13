@@ -477,22 +477,11 @@ class Container(o.Operand):
     def __ior__(self, operand: any) -> Self:
         import operand_mutation as om
         match operand:
-            case Container():
-                self._items.extend( item for item in operand )
-            case od.Getter() | od.Process():
-                self >>= operand
-            case ch.Chaos():
-                self.shuffle(operand)
-            case om.Mutation():
-                operand.mutate(self)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 self.filter(operand, False)
         return self
-
-    def __ror__(self, operand: any) -> Self:
-        return self.__or__(operand)
 
 
     def empty_copy(self, *parameters) -> Self:

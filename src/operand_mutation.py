@@ -444,12 +444,6 @@ class Shuffling(Diploid):
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
 
-    def __or__(self, operand: any) -> Self:
-        return self.shallow_copy().__ior__(operand)
-
-    def __ior__(self, operand: any) -> Self:
-        return self.__itruediv__(operand)
-
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Shuffling():
