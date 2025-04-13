@@ -470,14 +470,14 @@ class Operand:
         return self
 
 
-    def __and__(self, operand: T) -> T:
-        return operand
+    def __and__(self, operand) -> Self:
+        return self
     
-    def __iand__(self, operand: T) -> T:
+    def __iand__(self, operand) -> Self:
         return self.__and__(operand)
     
     def __rand__(self, operand: T) -> T:
-        return self.__and__(operand)
+        return operand.__and__(self)
     
 
     def __or__(self, operand: T) -> T:
