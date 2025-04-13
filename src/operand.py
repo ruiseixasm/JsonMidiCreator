@@ -489,20 +489,6 @@ class Operand:
         return source  # Return source if there is no next operand in the chain
 
 
-    def __or__(self, operand: T) -> T:
-        operand &= self # Extracts the Frame operand first
-        if self._next_operand:
-            result = self._next_operand | operand   # Recursively get result from the chain
-            # Apply << operation between current next_operand and the result
-            return self._next_operand << result     # Ensures << is applied only if more elements in the chain
-        return operand  # Return operand if there is no next operand in the chain
-
-    def __ior__(self, operand: T) -> T:
-        return self.__or__(operand)
-    
-    def __ror__(self, operand: T) -> Self:
-        return self
-    
 
     # STATIC METHODS
     # @staticmethod decorator is needed in order to be possible to call it with self !!

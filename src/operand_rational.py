@@ -199,7 +199,7 @@ class Rational(o.Operand):
         return self
 
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        value = self | value    # Processes the tailed self operands or the Frame operand if any exists
+        value = self._tail_recur(value)    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case int():
                 self._rational += value
@@ -212,7 +212,7 @@ class Rational(o.Operand):
         return self
     
     def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        value = self | value    # Processes the tailed self operands or the Frame operand if any exists
+        value = self._tail_recur(value)    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case int():
                 self._rational -= value
@@ -225,7 +225,7 @@ class Rational(o.Operand):
         return self
     
     def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        value = self | value    # Processes the tailed self operands or the Frame operand if any exists
+        value = self._tail_recur(value)    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case int():
                 self._rational *= value
@@ -238,7 +238,7 @@ class Rational(o.Operand):
         return self
     
     def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        value = self | value    # Processes the tailed self operands or the Frame operand if any exists
+        value = self._tail_recur(value)    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case int():
                 if value != 0:

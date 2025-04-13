@@ -76,7 +76,7 @@ class TimeSignature(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_signature: 'TimeSignature') -> bool:
-        other_signature = self | other_signature    # Processes the tailed self operands or the Frame operand if any exists
+        other_signature = self._tail_recur(other_signature)    # Processes the tailed self operands or the Frame operand if any exists
         if other_signature.__class__ == o.Operand:
             return True
         if type(self) != type(other_signature):

@@ -164,16 +164,6 @@ class Chaos(o.Operand):
             self << self._next_operand.__imul__(number) # __imul__ already includes __or__
         return number   # Has to keep compatibility with Operand __or__ method
 
-    # operand here is the target object, thus, not the one to be returned as final subject
-    def __or__(self, number: o.T) -> o.T:
-        import operand_frame as of
-        if isinstance(number, of.Frame):   # Extracts the Frame operand first
-            return self | number & self
-        if self._next_operand:
-            # iteration is only done on tailed chaos operands and never on self
-            self << self._next_operand.__imul__(number) # __imul__ already includes __or__
-        return number   # Has to keep compatibility with Operand __or__ method
-
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self}')
