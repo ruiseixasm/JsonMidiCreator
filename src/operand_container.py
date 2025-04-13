@@ -2498,7 +2498,7 @@ class Part(Composition):
 
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return super().__eq__(other) \
@@ -2509,7 +2509,7 @@ class Part(Composition):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return self % ra.Position() < other % ra.Position()
@@ -2519,7 +2519,7 @@ class Part(Composition):
                 return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return self % ra.Position() > other % ra.Position()

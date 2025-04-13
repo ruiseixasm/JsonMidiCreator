@@ -266,7 +266,7 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
@@ -470,18 +470,18 @@ class Operand:
         return self
 
 
-    def __and__(self, operand) -> Self:
+    def __xor__(self, operand) -> Self:
         return self
     
     # Check "self_operand &= input" of operand_frame module!
-    def __iand__(self, operand) -> Self:
+    def __ixor__(self, operand) -> Self:
         return self
     
-    def __rand__(self, operand: T) -> T:
+    def __rxor__(self, operand: T) -> T:
         return operand
     
     def _tail_lshift(self, source: T) -> T:
-        source &= self # Extracts the Frame operand first
+        source ^= self # Extracts the Frame operand first
         if self._next_operand:
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_lshift(source)

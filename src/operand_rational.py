@@ -87,7 +87,7 @@ class Rational(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational == other
@@ -107,7 +107,7 @@ class Rational(o.Operand):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational < other
@@ -122,7 +122,7 @@ class Rational(o.Operand):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational > other
@@ -641,7 +641,7 @@ class Convertible(Rational):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -653,7 +653,7 @@ class Convertible(Rational):
         return False
 
     def __lt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -665,7 +665,7 @@ class Convertible(Rational):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 return self._get_staff(other).convertToBeats(self)._rational \

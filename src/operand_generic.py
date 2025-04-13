@@ -410,7 +410,7 @@ class Pitch(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         match other:
@@ -427,7 +427,7 @@ class Pitch(Generic):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
                 return self % float(-1.0) < other % float(-1.0)
@@ -440,7 +440,7 @@ class Pitch(Generic):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
                 return self % float(-1.0) > other % float(-1.0)
@@ -791,7 +791,7 @@ class Controller(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Controller):
@@ -940,7 +940,7 @@ class Scale(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1338,7 +1338,7 @@ class Staff(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: 'Staff') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1678,7 +1678,7 @@ class Arpeggio(Generic):
         return elements
 
     def __eq__(self, other: 'Arpeggio') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1820,7 +1820,7 @@ class Defaults(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):

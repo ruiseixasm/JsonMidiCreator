@@ -173,7 +173,7 @@ class Element(o.Operand):
         return [ self ]
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
                 return self % ra.Position() == other % ra.Position() \
@@ -189,7 +189,7 @@ class Element(o.Operand):
                 return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
                 return self % ra.Position() < other % ra.Position()
@@ -197,7 +197,7 @@ class Element(o.Operand):
                 return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
                 return self % ra.Position() > other % ra.Position()
@@ -508,7 +508,7 @@ class Group(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -618,7 +618,7 @@ class Clock(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -874,7 +874,7 @@ class Note(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1187,7 +1187,7 @@ class Cluster(Note):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1310,7 +1310,7 @@ class KeyScale(Note):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1415,7 +1415,7 @@ class Polychord(KeyScale):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1537,7 +1537,7 @@ class Chord(KeyScale):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1909,7 +1909,7 @@ class Tuplet(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2084,7 +2084,7 @@ class ControlChange(Automation):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2520,7 +2520,7 @@ class PitchBend(Automation):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2675,7 +2675,7 @@ class Aftertouch(Automation):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2828,7 +2828,7 @@ class PolyAftertouch(Aftertouch):
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2953,7 +2953,7 @@ class ProgramChange(Element):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other &= self    # Processes the Frame operand if any exists
+        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
