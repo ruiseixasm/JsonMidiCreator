@@ -492,8 +492,8 @@ class Operand:
     def __ior__(self, operand: T) -> T:
         return self.__or__(operand)
     
-    def __ror__(self, operand: T) -> T:
-        return self.__or__(operand)
+    def __ror__(self, operand: T) -> Self:
+        return self
     
 
     # STATIC METHODS
