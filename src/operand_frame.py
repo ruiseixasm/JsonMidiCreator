@@ -267,7 +267,7 @@ class Left(Frame):  # LEFT TO RIGHT
                 
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= input
+            self_operand = self_operand.__iand__(input)
         if isinstance(self_operand, tuple):
             self_operand_tuple: tuple = ()
             for single_operand in self_operand:
@@ -675,7 +675,7 @@ class Equal(Selector):
             if input == condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -701,7 +701,7 @@ class NotEqual(Selector):
             if not input == condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -727,7 +727,7 @@ class Greater(Selector):
             if input > condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -753,7 +753,7 @@ class Less(Selector):
             if input < condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -779,7 +779,7 @@ class GreaterEqual(Selector):
             if input >= condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -805,7 +805,7 @@ class LessEqual(Selector):
             if input <= condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
-                    self_operand &= input
+                    self_operand = self_operand.__iand__(input)
                 return self_operand
         return ol.Null()
 
@@ -886,7 +886,7 @@ class WrapR(Right):
     def __iand__(self, input: o.T) -> o.T:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= input
+            self_operand = self_operand.__iand__(input)
         match self_operand:
             case o.Operand():
                 match self._multi_data['operand']:
@@ -912,7 +912,7 @@ class GetR(Right):
     def __iand__(self, input: o.T) -> o.T:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= input
+            self_operand = self_operand.__iand__(input)
         extracted_data = self_operand
         if isinstance(self_operand, o.Operand):
             extracted_data = self_operand % self._multi_data['operand']
