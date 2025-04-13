@@ -229,7 +229,7 @@ class FrameFilter(Frame):
         super().__init__()
         for operand in input:
             if self == operand:
-                return self._next_operand & input
+                return self._next_operand.__and__(input)
         return ol.Null()
         
     def __eq__(self, other: o.Operand) -> bool:
@@ -586,7 +586,7 @@ class First(Selector):
             first_item = self._inside_container.first()
             if input is first_item:    # Selected first call to pass
                 if isinstance(self._next_operand, Frame):
-                    return self._next_operand & input
+                    return self._next_operand.__and__(input)
                 return self._next_operand
         return ol.Null()
 
@@ -597,7 +597,7 @@ class Last(Selector):
             last_item = self._inside_container.last()
             if input is last_item:    # Selected first call to pass
                 if isinstance(self._next_operand, Frame):
-                    return self._next_operand & input
+                    return self._next_operand.__and__(input)
                 return self._next_operand
         return ol.Null()
 
@@ -606,7 +606,7 @@ class Odd(Selector):
         self._increment_index(Odd)
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
-                return self._next_operand & input
+                return self._next_operand.__and__(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -616,7 +616,7 @@ class Even(Selector):
         self._increment_index(Even)
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand & input
+                return self._next_operand.__and__(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -630,7 +630,7 @@ class Every(Selector):
         self._increment_index(Every)
         if self._multi_data['nths'] > 0 and self._index % self._multi_data['nths'] == 0:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand & input
+                return self._next_operand.__and__(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -644,7 +644,7 @@ class Nth(Selector):
         self._increment_index(Nth)
         if self._index in self._multi_data['parameters']:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand & input
+                return self._next_operand.__and__(input)
             return self._next_operand
         else:
             return ol.Null()
