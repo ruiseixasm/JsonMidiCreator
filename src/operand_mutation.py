@@ -136,7 +136,7 @@ class Mutation(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Mutation():
                 super().__lshift__(operand)
@@ -205,7 +205,7 @@ class Choosing(Haploid):
         
     def __lshift__(self, operand: any) -> Self:
         if not isinstance(operand, of.Choice):
-            operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+            operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Choosing():
                 super().__lshift__(operand)
@@ -263,7 +263,7 @@ class Picking(Haploid):
         
     def __lshift__(self, operand: any) -> Self:
         if not isinstance(operand, of.Pick):
-            operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+            operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Picking():
                 super().__lshift__(operand)
@@ -319,7 +319,7 @@ class Dropping(Haploid):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Dropping():
                 super().__lshift__(operand)
@@ -423,7 +423,7 @@ class Shuffling(Diploid):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Shuffling():
                 super().__lshift__(operand)
@@ -529,7 +529,7 @@ class Swapping(Shuffling):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Swapping():
                 super().__lshift__(operand)
@@ -612,7 +612,7 @@ class Crossover(Shuffling):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Crossover():
                 super().__lshift__(operand)
@@ -659,7 +659,7 @@ class Operation(Mutation):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Operation():
                 super().__lshift__(operand)

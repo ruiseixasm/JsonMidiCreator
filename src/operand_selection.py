@@ -99,7 +99,7 @@ class IsNot(Selection):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case IsNot():
                 super().__lshift__(operand)
@@ -156,7 +156,7 @@ class Iterations(Selection):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Iterations():
                 super().__lshift__(operand)
@@ -252,7 +252,7 @@ class Condition(Selection):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Condition():
                 super().__lshift__(operand)
@@ -322,7 +322,7 @@ class Amount(Condition):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Amount():
                 super().__lshift__(operand)
@@ -406,7 +406,7 @@ class Comparison(Selection):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Comparison():
                 super().__lshift__(operand)
@@ -499,7 +499,7 @@ class Sequence(Comparison):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Sequence():
                 super().__lshift__(operand)
@@ -566,7 +566,7 @@ class Threshold(Selection):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Threshold():
                 super().__lshift__(operand)

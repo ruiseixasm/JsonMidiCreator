@@ -151,7 +151,7 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Unit():
                 super().__lshift__(operand)
@@ -358,7 +358,7 @@ class TimeUnit(Unit):
         import operand_generic as og
         import operand_element as oe
         import operand_container as oc
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -400,7 +400,7 @@ class Measure(TimeUnit):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -412,7 +412,7 @@ class Measure(TimeUnit):
 
     def __iadd__(self, operand: any) -> 'Measure':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__iadd__(self._get_staff(operand).convertToMeasure(operand)._unit)
@@ -422,7 +422,7 @@ class Measure(TimeUnit):
     
     def __isub__(self, operand: any) -> 'Measure':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__isub__(self._get_staff(operand).convertToMeasure(operand)._unit)
@@ -432,7 +432,7 @@ class Measure(TimeUnit):
     
     def __imul__(self, operand: any) -> 'Measure':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__imul__(self._get_staff(operand).convertToMeasure(operand)._unit)
@@ -442,7 +442,7 @@ class Measure(TimeUnit):
     
     def __itruediv__(self, operand: any) -> 'Measure':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__itruediv__(self._get_staff(operand).convertToMeasure(operand)._unit)
@@ -479,7 +479,7 @@ class Beat(TimeUnit):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -491,7 +491,7 @@ class Beat(TimeUnit):
 
     def __iadd__(self, operand: any) -> 'Beat':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__iadd__(self._get_staff(operand).convertToBeat(operand)._unit)
@@ -501,7 +501,7 @@ class Beat(TimeUnit):
     
     def __isub__(self, operand: any) -> 'Beat':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__isub__(self._get_staff(operand).convertToBeat(operand)._unit)
@@ -511,7 +511,7 @@ class Beat(TimeUnit):
     
     def __imul__(self, operand: any) -> 'Beat':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__imul__(self._get_staff(operand).convertToBeat(operand)._unit)
@@ -521,7 +521,7 @@ class Beat(TimeUnit):
     
     def __itruediv__(self, operand: any) -> 'Beat':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__itruediv__(self._get_staff(operand).convertToBeat(operand)._unit)
@@ -557,7 +557,7 @@ class Step(TimeUnit):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -569,7 +569,7 @@ class Step(TimeUnit):
 
     def __iadd__(self, operand: any) -> 'Step':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__iadd__(self._get_staff(operand).convertToStep(operand)._unit)
@@ -579,7 +579,7 @@ class Step(TimeUnit):
     
     def __isub__(self, operand: any) -> 'Step':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__isub__(self._get_staff(operand).convertToStep(operand)._unit)
@@ -589,7 +589,7 @@ class Step(TimeUnit):
     
     def __imul__(self, operand: any) -> 'Step':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__imul__(self._get_staff(operand).convertToStep(operand)._unit)
@@ -599,7 +599,7 @@ class Step(TimeUnit):
     
     def __itruediv__(self, operand: any) -> 'Step':
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeUnit() | ra.Convertible():
                 super().__itruediv__(self._get_staff(operand).convertToStep(operand)._unit)
@@ -624,7 +624,7 @@ class Sharps(Accidentals):  # Sharps (###)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 if len(operand) == 0:
@@ -650,7 +650,7 @@ class Flats(Accidentals):   # Flats (bbb)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 if len(operand) == 0:
@@ -791,7 +791,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeySignature():
                 super().__lshift__(operand)
@@ -1008,7 +1008,7 @@ class Key(PitchParameter):
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1124,7 +1124,7 @@ class Degree(PitchParameter):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1189,7 +1189,7 @@ class Sharp(PitchParameter):  # Sharp (#)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 if len(operand) == 0:
@@ -1221,7 +1221,7 @@ class Flat(PitchParameter):   # Flat (b)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 if len(operand) == 0:
@@ -1248,7 +1248,7 @@ class Order(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1337,7 +1337,7 @@ class DrumKit(Unit):
         
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1438,7 +1438,7 @@ class Boolean(Unit):
         super().__init__(1, *parameters)
 
     # def __or__(self, operand: any) -> 'Boolean':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
     #         case bool():
     #             return self._unit != 0 or operand
@@ -1494,7 +1494,7 @@ class Natural(Boolean):     # Natural (n)
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 if len(operand) == 0:
@@ -1516,7 +1516,7 @@ class Dominant(Boolean):    # Flats the seventh
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 self._unit = 0
@@ -1539,7 +1539,7 @@ class Diminished(Boolean):  # Flats the third and the fifth
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 self._unit = 0
@@ -1560,7 +1560,7 @@ class Augmented(Boolean):   # Sharps the fifth
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 self._unit = 0
@@ -1581,7 +1581,7 @@ class Sus2(Boolean):        # Second instead of the third
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 self._unit = 0
@@ -1602,7 +1602,7 @@ class Sus4(Boolean):        # Fourth instead of the third
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 self._unit = 0
@@ -1640,7 +1640,7 @@ class Mode(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1696,7 +1696,7 @@ class Size(Unit):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1852,7 +1852,7 @@ class ClockStopModes(Midi):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1960,7 +1960,7 @@ class MidiTrack(Midi):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case MidiTrack():
                 super().__lshift__(operand)
@@ -2064,7 +2064,7 @@ class Program(Midi):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -2296,7 +2296,7 @@ class Number(Midi):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand._data:

@@ -123,7 +123,7 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
@@ -186,7 +186,7 @@ class DataSource(Data):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case DataSource():
                 self._data = self.deep_copy(operand._data)
@@ -355,7 +355,7 @@ class Serialization(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Serialization():
                 super().__lshift__(operand)
@@ -679,7 +679,7 @@ class Chain(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chain():
                 self._data = self.deep_copy(operand._data)
