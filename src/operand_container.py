@@ -463,16 +463,11 @@ class Container(o.Operand):
                     item /= operand
         return self
 
-
     def __pow__(self, operand: any) -> Self:
         for item in self._items:
             if isinstance(item, o.Operand):
                 item.__pow__(operand)
         return self
-
-
-    def __or__(self, operand: any) -> Self:
-        return self.shallow_copy().filter(operand, False)
 
 
     def empty_copy(self, *parameters) -> Self:

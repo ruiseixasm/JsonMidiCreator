@@ -453,8 +453,8 @@ def test_sub_clip():
 
     single_note: Element = Note()
     four_notes: Clip = Note() * 4
-    notes_to_remove: Clip = four_notes | Nth(1, 3)
-    remaining_notes: Clip = four_notes | Nth(2, 4)
+    notes_to_remove: Clip = four_notes >> Nth(1, 3)
+    remaining_notes: Clip = four_notes >> Nth(2, 4)
 
     assert notes_to_remove.len() < four_notes.len()
     assert notes_to_remove.len() == remaining_notes.len()
@@ -663,7 +663,7 @@ def test_lshift_clip():
     two_measures: Clip = Note() * 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
-    one_measure: Clip = two_measures | Less(Measures(1))
+    one_measure: Clip = two_measures >> Less(Measures(1))
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60.0
@@ -698,12 +698,12 @@ def test_clip_filter():
 
     four_notes: Clip = Note() * 4
     assert four_notes.len() == 4
-    single_note: Clip = four_notes | Beat(2)
+    single_note: Clip = four_notes >> Beat(2)
     assert single_note.len() == 1
 
     eight_notes: Clip = Note() * 8
     assert eight_notes.len() == 8
-    single_note: Clip = eight_notes | Beat(2)
+    single_note: Clip = eight_notes >> Beat(2)
     assert single_note.len() == 2
 
 # test_clip_filter()
