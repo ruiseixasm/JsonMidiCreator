@@ -716,13 +716,15 @@ class Container(o.Operand):
 class Devices(Container):
     """`Container -> Devices`
 
-    Container represents objects that contains multiple items, the typical case
-    is the `Clip` with multiple `Element` items in it.
+    Represents a list of Devices to be passed to the clip track, these devices
+    aren't supposed to be all connected but just the first one in the list able
+    to be so end up being connected.
 
     Parameters
     ----------
-    first : any, list
-        Any type of parameter can be used to be added as item. No defaults.
+    list([]) : A list of Devices names, str, are intended to be considered Items.
+    str : A device name to be added to the beginning of the Devices list.
+    int : Returns the len of the list.
     """
     def __iadd__(self, operand: any) -> Self:
         match operand:
@@ -739,10 +741,30 @@ class Devices(Container):
         return super().__isub__(operand)
 
 class ClockedDevices(Devices):
+    """`Container -> Devices -> ClockedDevices`
+
+    Represents a list of Devices passed to the clip staff, all these devices are intended
+    to be connected as destiny of the generated Clock messages by the JsonMidiPlayer.
+
+    Parameters
+    ----------
+    list([]) : A list of Devices names, str, are intended to be considered Items.
+    str : A device name to be added to the beginning of the Devices list.
+    int : Returns the len of the list.
+    """
     pass
 
 
 class Composition(Container):
+    """`Container -> Composition`
+
+    A Composition is no more than the immediate super class of `Clip`, `Part` and `Song`.
+
+    Parameters
+    ----------
+    list([]) : A list of Items accordingly to the accepted type by the sub class.
+    int : Returns the len of the list.
+    """
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         return self
@@ -762,14 +784,18 @@ TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subcla
 
 
 class Clip(Composition):  # Just a container of Elements
-    """
-    This type of Operand aggregates Elements having itself a Position
-    that propagates to them.
+    """`Container -> Composition -> Clip`
+
+    This type of `Container` aggregates only `Element` items. This is the only class
+    that can be Plotted.
 
     Parameters
     ----------
-    first : list_like, operand_like
-        To set it with a group of Elements wrap them in a list to pass them
+    list([]) : A list of `Element` type items.
+    int : Returns the len of the list.
+    Staff(defaults) : A staff on which `TimeValue` units are based.
+    MidiTrack("Track 1") : Where the track name and respective Devices are set.
+    Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
