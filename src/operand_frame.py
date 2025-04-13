@@ -176,7 +176,7 @@ class Frame(o.Operand):
         return self
 
     # def __rrshift__(self, operand: o.T) -> o.T:
-    #     return operand & self   # operand is the subject
+    #     return operand ^ self   # operand is the subject
 
     def __imul__(self, operand) -> Self:
         match operand:
@@ -186,14 +186,14 @@ class Frame(o.Operand):
         return self
 
 
-    def __and__(self, operand) -> Any:
-        return self.__iand__(operand)
+    def __and__(self, input) -> Any:
+        return self.__iand__(input)
     
-    def __iand__(self, operand: o.T) -> o.T:
-        return operand
+    def __iand__(self, input: o.T) -> o.T:
+        return input
     
-    def __rand__(self, operand: Any) -> Any:
-        return self.__iand__(operand)
+    def __rand__(self, input: Any) -> Any:
+        return self.__iand__(input)
     
 
     def pop(self, frame: 'Frame') -> 'Frame':
