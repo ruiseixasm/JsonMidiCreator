@@ -100,7 +100,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand &= self    # Processes the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chaos():
                 super().__lshift__(operand)
@@ -135,7 +135,7 @@ class Chaos(o.Operand):
         return reportable_iteration, total_iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        number = self._tail_lshift(number)    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -155,7 +155,7 @@ class Chaos(o.Operand):
             case _:             self._next_operand = None
         return self
 
-    def _tail_lshift(self, number: o.T) -> o.T:
+    def _tail_imul(self, number: o.T) -> o.T:
         number &= self # Extracts the Frame operand first
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
@@ -228,7 +228,7 @@ class Modulus(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand &= self    # Processes the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Modulus():
                 super().__lshift__(operand)
@@ -248,7 +248,7 @@ class Modulus(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        number = self._tail_lshift(number)    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -315,7 +315,7 @@ class Flipper(Modulus):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand &= self    # Processes the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Flipper():
                 super().__lshift__(operand)
@@ -441,7 +441,7 @@ class Bouncer(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand &= self    # Processes the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
@@ -475,7 +475,7 @@ class Bouncer(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        number = self._tail_lshift(number)    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -553,7 +553,7 @@ class SinX(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand &= self    # Processes the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case SinX():
                 super().__lshift__(operand)
@@ -572,7 +572,7 @@ class SinX(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
-        number = self._tail_lshift(number)    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
