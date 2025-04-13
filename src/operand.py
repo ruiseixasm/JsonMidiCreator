@@ -471,11 +471,8 @@ class Operand:
 
     def __and__(self, operand: T) -> T:
         import operand_frame as of
-        import operand_chaos as ch
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first
             return self & (operand & self)
-        # if isinstance(operand, ch.Chaos):   # For chaotic chaining
-        #     return operand  # Just returns the Chaos as is
         if self._next_operand:
             result = self._next_operand & operand   # Recursively get result from the chain
             # Apply << operation between current next_operand and the result

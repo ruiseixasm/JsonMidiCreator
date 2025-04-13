@@ -134,7 +134,7 @@ class Chaos(o.Operand):
         return reportable_iteration, total_iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        self & number   # Propagates multiplication
+        number = self & number    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -155,15 +155,15 @@ class Chaos(o.Operand):
         return self
 
     # operand here is the target object, thus, not the one to be returned as final subject
-    def __and__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Union[int, float, Fraction, ou.Unit, ra.Rational]:
+    def __and__(self, number: o.T) -> o.T:
+        import operand_frame as of
+        if isinstance(number, of.Frame):   # Extracts the Frame operand first
+            return self & (number & self)
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
             self << self._next_operand.__imul__(number) # __imul__ already includes __and__
         return number   # Has to keep compatibility with Operand __and__ method
 
-    def __iand__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Union[int, float, Fraction, ou.Unit, ra.Rational]:
-        return self.__and__(number)
-    
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self}')
@@ -249,7 +249,7 @@ class Modulus(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        self & number   # Propagates multiplication
+        number = self & number    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -474,7 +474,7 @@ class Bouncer(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        self & number   # Propagates multiplication
+        number = self & number    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -570,7 +570,7 @@ class SinX(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
-        self & number   # Propagates multiplication
+        number = self & number    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
