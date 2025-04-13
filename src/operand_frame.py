@@ -186,11 +186,11 @@ class Frame(o.Operand):
         return self
 
 
-    def __and__(self, input) -> Any:
+    def __and__(self, input: Any) -> Any:
         return self.__iand__(input)
     
-    def __iand__(self, input: o.T) -> o.T:
-        return input
+    def __iand__(self, input: Any) -> o.Operand:
+        return o.Operand()
     
     def __rand__(self, input: Any) -> Any:
         return self.__iand__(input)
