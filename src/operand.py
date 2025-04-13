@@ -353,8 +353,8 @@ class Operand:
         import operand_data as od
         return self << od.DataSource( operand )
 
-    # Same as ^ operator
-    def __xor__(self, operand: any) -> Self:
+    # Same as | operator
+    def __or__(self, operand: any) -> Self:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
     
