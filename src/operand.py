@@ -477,7 +477,6 @@ class Operand:
             result = self._next_operand & operand   # Recursively get result from the chain
             # Apply << operation between current next_operand and the result
             return self._next_operand << result     # Ensures << is applied only if more elements in the chain
-    
         return operand  # Return operand if there is no next operand in the chain
     
     def __iand__(self, operand: T) -> T:
@@ -486,14 +485,21 @@ class Operand:
     def __rand__(self, operand: T) -> T:
         return self.__and__(operand)
     
-    def __or__(self, operand: any) -> Self:
-        return self.copy().__ior__(operand)
+    def __or__(self, operand: T) -> T:
+        import operand_frame as of
+        if isinstance(operand, of.Frame):   # Extracts the Frame operand first
+            return self | operand & self
+        if self._next_operand:
+            result = self._next_operand | operand   # Recursively get result from the chain
+            # Apply << operation between current next_operand and the result
+            return self._next_operand << result     # Ensures << is applied only if more elements in the chain
+        return operand  # Return operand if there is no next operand in the chain
 
-    def __ior__(self, operand: any) -> Self:
-        return self
-
+    def __ior__(self, operand: T) -> T:
+        return self.__or__(operand)
+    
     def __ror__(self, operand: T) -> T:
-        return operand
+        return self.__or__(operand)
     
 
     # STATIC METHODS
