@@ -189,9 +189,8 @@ class Frame(o.Operand):
     def __and__(self, operand) -> Any:
         return self.__iand__(operand)
     
-    # Check "self_operand &= input" of operand_frame module!
-    def __iand__(self, operand: Any) -> ol.Null:
-        return ol.Null()
+    def __iand__(self, operand: o.T) -> o.T:
+        return operand
     
     def __rand__(self, operand: Any) -> Any:
         return self.__iand__(operand)
