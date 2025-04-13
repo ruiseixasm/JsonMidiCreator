@@ -474,8 +474,8 @@ class Operand:
         return self
     
     # Check "self_operand &= input" of operand_frame module!
-    # def __iand__(self, operand) -> Self:
-    #     return self
+    def __iand__(self, operand) -> Self:
+        return self
     
     def __rand__(self, operand: T) -> T:
         return operand

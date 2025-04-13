@@ -186,6 +186,17 @@ class Frame(o.Operand):
         return self
 
 
+    def __and__(self, operand) -> ol.Null:
+        return ol.Null()
+    
+    # Check "self_operand &= input" of operand_frame module!
+    def __iand__(self, operand: Any) -> Any:
+        return self.__and__(operand)
+    
+    def __rand__(self, operand: Any) -> Any:
+        return self.__and__(operand)
+    
+
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
         for single_frame in self:
