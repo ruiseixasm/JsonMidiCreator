@@ -102,7 +102,7 @@ class Mutation(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Mutation):

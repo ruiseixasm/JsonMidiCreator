@@ -266,7 +266,7 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
@@ -483,11 +483,11 @@ class Operand:
     def _tail_recur(self, source: T) -> T:
         source &= self # Extracts the Frame operand first
         if self._next_operand:
-            result = self._next_operand | source   # Recursively get result from the chain
+            # Recursively get result from the tail chain
+            next_result = self._next_operand._tail_recur(source)
             # Apply << operation between current next_operand and the result
-            return self._next_operand << result     # Ensures << is applied only if more elements in the chain
+            return self._next_operand << next_result     
         return source  # Return source if there is no next operand in the chain
-
 
 
     # STATIC METHODS

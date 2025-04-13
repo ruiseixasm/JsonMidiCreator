@@ -78,4 +78,15 @@ def test_chained_chaos():
     modulus_sinx % int() >> Pr
     assert modulus_sinx % int() < 12
 
+    sinx = SinX()
+    modulus = Modulus()
+    assert modulus != modulus_sinx
+
+    sinx *= 2.01
+    modulus << sinx
+    modulus *= 2.01
+    assert modulus == modulus_sinx
+
 # test_chained_chaos()
+
+

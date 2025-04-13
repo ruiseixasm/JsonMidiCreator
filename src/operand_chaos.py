@@ -156,9 +156,7 @@ class Chaos(o.Operand):
         return self
 
     def _tail_recur(self, number: o.T) -> o.T:
-        import operand_frame as of
-        if isinstance(number, of.Frame):   # Extracts the Frame operand first
-            return self | number & self
+        number &= self # Extracts the Frame operand first
         if self._next_operand:
             # iteration is only done on tailed chaos operands and never on self
             self << self._next_operand.__imul__(number) # __imul__ already includes __or__

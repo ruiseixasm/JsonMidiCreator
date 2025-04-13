@@ -92,7 +92,7 @@ class Unit(o.Operand):
     
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit == other
@@ -109,7 +109,7 @@ class Unit(o.Operand):
     
     def __lt__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit < other
@@ -121,7 +121,7 @@ class Unit(o.Operand):
     
     def __gt__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit > other
@@ -283,7 +283,7 @@ class TimeUnit(Unit):
 
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -294,7 +294,7 @@ class TimeUnit(Unit):
 
     def __lt__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -305,7 +305,7 @@ class TimeUnit(Unit):
     
     def __gt__(self, other: any) -> bool:
         import operand_rational as ra
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -766,7 +766,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, KeySignature):
@@ -994,7 +994,7 @@ class Key(PitchParameter):
 
     def __eq__(self, other: o.Operand) -> bool:
         import operand_generic as og
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return self % int() == other % int()    # This get's in consideration the just final key pressed
@@ -1927,7 +1927,7 @@ class MidiTrack(Midi):
 
     def __eq__(self, other: o.Operand) -> bool:
         import operand_generic as og
-        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
+        other &= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
