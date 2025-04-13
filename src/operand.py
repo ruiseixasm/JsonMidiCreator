@@ -480,11 +480,11 @@ class Operand:
     def __rand__(self, operand: T) -> T:
         return operand
     
-    def _tail_recur(self, source: T) -> T:
+    def _tail_lshift(self, source: T) -> T:
         source &= self # Extracts the Frame operand first
         if self._next_operand:
             # Recursively get result from the tail chain
-            next_result = self._next_operand._tail_recur(source)
+            next_result = self._next_operand._tail_lshift(source)
             # Apply << operation between current next_operand and the result
             return self._next_operand << next_result     
         return source  # Return source if there is no next operand in the chain

@@ -1121,7 +1121,7 @@ class Clip(Composition):  # Just a container of Elements
                         self << od.ClipParameter(single_parameter)
                 else:
 
-                    operand._data = self._tail_recur(operand)._data    # Processes the tailed self operands or the Frame operand if any exists
+                    operand._data = self._tail_lshift(operand)._data    # Processes the tailed self operands or the Frame operand if any exists
                     match operand._data:
                         case ra.Length() | ra.Duration():
                             self._length_beats = self._staff.convertToBeats(operand._data)._rational

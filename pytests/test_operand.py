@@ -42,7 +42,7 @@ def test_tail_recur():
     assert note_degree_int != note_velocity
     assert note_degree_int == note_degree
 
-test_tail_recur()
+# test_tail_recur()
 
 
 def test_operand_mod():
