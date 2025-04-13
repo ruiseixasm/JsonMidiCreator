@@ -74,7 +74,7 @@ class IsNot(Selection):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, IsNot):
             return self._selection == other._selection
         if isinstance(other, oc.Clip):
@@ -131,7 +131,7 @@ class Iterations(Selection):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             if len(self._iterations) > 0:
                 self._index += 1
@@ -184,7 +184,7 @@ class Mono(Selection):
         return False
     
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             events_filo: list[ Dict[str, ra.Position] ] = []
             for element in other:
@@ -227,7 +227,7 @@ class Condition(Selection):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Condition):
             return self._and == other._and and self._or == other._or
         if isinstance(other, oc.Clip):
@@ -295,7 +295,7 @@ class Amount(Condition):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Amount):
             return super().__eq__(other) and self._amount == other._amount
         if isinstance(other, oc.Clip):
@@ -342,7 +342,7 @@ class Amount(Condition):
 
 class Above(Amount):
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             total: int = 0
             for element in other:
@@ -356,7 +356,7 @@ class Same(Amount):
 
 class Bellow(Amount):
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             total: int = 0
             for element in other:
@@ -381,7 +381,7 @@ class Comparison(Selection):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Comparison):
             return self._parameter == other._parameter
         return super().__eq__(other)
@@ -424,7 +424,7 @@ class Comparison(Selection):
 class Matching(Comparison):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
@@ -436,7 +436,7 @@ class Matching(Comparison):
 class Ascending(Comparison):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
@@ -448,7 +448,7 @@ class Ascending(Comparison):
 class Descending(Comparison):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
@@ -472,7 +472,7 @@ class Sequence(Comparison):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             if len(self._pattern) > 0:
                 parameter_instantiation = self._parameter()
@@ -517,7 +517,7 @@ class Sequence(Comparison):
 class UpDown(Sequence):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             if len(self._pattern) > 0:
                 parameter_instantiation = self._parameter()
@@ -585,7 +585,7 @@ class Threshold(Selection):
 class Before(Threshold):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):
@@ -599,7 +599,7 @@ class Before(Threshold):
 class After(Threshold):
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):
@@ -618,7 +618,7 @@ class Most(Threshold):
             self << single_operand
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):
@@ -635,7 +635,7 @@ class Least(Threshold):
             self << single_operand
 
     def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):

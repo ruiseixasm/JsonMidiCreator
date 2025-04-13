@@ -41,7 +41,7 @@ class Label(o.Operand):
 
     def __eq__(self, other: 'Label') -> bool:
         import operand_data as od
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if type(self) == type(other) or type(other) == o.Operand or not other:
             return True
         if isinstance(other, od.Conditional):

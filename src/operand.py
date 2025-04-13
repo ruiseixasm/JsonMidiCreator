@@ -266,7 +266,7 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
@@ -469,15 +469,9 @@ class Operand:
             case _:             self._next_operand = None
         return self
 
+
     def __and__(self, operand: T) -> T:
-        import operand_frame as of
-        if isinstance(operand, of.Frame):   # Extracts the Frame operand first
-            return self & (operand & self)
-        if self._next_operand:
-            result = self._next_operand & operand   # Recursively get result from the chain
-            # Apply << operation between current next_operand and the result
-            return self._next_operand << result     # Ensures << is applied only if more elements in the chain
-        return operand  # Return operand if there is no next operand in the chain
+        return operand
     
     def __iand__(self, operand: T) -> T:
         return self.__and__(operand)
@@ -485,6 +479,7 @@ class Operand:
     def __rand__(self, operand: T) -> T:
         return self.__and__(operand)
     
+
     def __or__(self, operand: T) -> T:
         import operand_frame as of
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first

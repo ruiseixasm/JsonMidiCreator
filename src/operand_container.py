@@ -1121,7 +1121,7 @@ class Clip(Composition):  # Just a container of Elements
                         self << od.ClipParameter(single_parameter)
                 else:
 
-                    operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                    operand._data = self | operand._data    # Processes the tailed self operands or the Frame operand if any exists
                     match operand._data:
                         case ra.Length() | ra.Duration():
                             self._length_beats = self._staff.convertToBeats(operand._data)._rational
@@ -2498,7 +2498,7 @@ class Part(Composition):
 
 
     def __eq__(self, other: o.Operand) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Part():
                 return super().__eq__(other) \
@@ -2509,7 +2509,7 @@ class Part(Composition):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Part():
                 return self % ra.Position() < other % ra.Position()
@@ -2519,7 +2519,7 @@ class Part(Composition):
                 return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Part():
                 return self % ra.Position() > other % ra.Position()
