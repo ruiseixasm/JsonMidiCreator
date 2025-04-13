@@ -80,7 +80,7 @@ class Data(o.Operand):
             case _:                         return ol.Null()
             
     def __eq__(self, other: o.Operand) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Data):
             return self._data == other._data
         if other.__class__ == o.Operand:
@@ -90,13 +90,13 @@ class Data(o.Operand):
         return False
     
     def __lt__(self, other: o.Operand) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Data):
             return self._data < other._data
         return False
     
     def __gt__(self, other: o.Operand) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Data):
             return self._data > other._data
         return False
@@ -123,7 +123,7 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
@@ -186,7 +186,7 @@ class DataSource(Data):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case DataSource():
                 self._data = self.deep_copy(operand._data)
@@ -217,7 +217,7 @@ class Conditional(Data):
 
 class And(Conditional):
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, And):
             return self._data == other._data
         for single_condition in self._data:
@@ -227,7 +227,7 @@ class And(Conditional):
 
 class Or(Conditional):
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Or):
             return self._data == other._data
         for single_condition in self._data:
@@ -306,7 +306,7 @@ class Serialization(Data):
         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
             if isinstance(other, Data) and other._data is None:
                 return True # If both have Null data then they are equal
@@ -355,7 +355,7 @@ class Serialization(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Serialization():
                 super().__lshift__(operand)
@@ -426,7 +426,7 @@ class Playlist(Data):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
             if other is None:
                 return True
@@ -679,7 +679,7 @@ class Chain(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chain():
                 self._data = self.deep_copy(operand._data)
@@ -1175,7 +1175,7 @@ class Plot(ClipProcess):
 
 class Getter(Data):
     def __eq__(self, other: o.Operand) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case str():
                 return self._data == other

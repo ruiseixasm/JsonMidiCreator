@@ -266,7 +266,7 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
@@ -340,7 +340,7 @@ class Operand:
        
     def __lshift__(self, operand: any) -> Self:
         # Don't do the line bellow, already done on sub class call
-        # operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        # operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
             self._index = operand._index

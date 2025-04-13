@@ -104,7 +104,7 @@ class TimeSignature(Generic):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeSignature():
                 super().__lshift__(operand)
@@ -410,7 +410,7 @@ class Pitch(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         match other:
@@ -427,7 +427,7 @@ class Pitch(Generic):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Pitch():
                 return self % float(-1.0) < other % float(-1.0)
@@ -440,7 +440,7 @@ class Pitch(Generic):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Pitch():
                 return self % float(-1.0) > other % float(-1.0)
@@ -479,7 +479,7 @@ class Pitch(Generic):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
                 super().__lshift__(operand)
@@ -588,7 +588,7 @@ class Pitch(Generic):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
                 self += operand % float(-1.0)
@@ -612,7 +612,7 @@ class Pitch(Generic):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
                 self -= operand % float(-1.0)
@@ -636,7 +636,7 @@ class Pitch(Generic):
         return self
 
     def __mul__(self, operand) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
                 new_keynote = self.__class__()
@@ -656,7 +656,7 @@ class Pitch(Generic):
                 return super().__mul__(operand)
     
     def __div__(self, operand) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
                 new_keynote = self.__class__()
@@ -791,7 +791,7 @@ class Controller(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Controller):
@@ -824,7 +824,7 @@ class Controller(Generic):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Controller():
                 super().__lshift__(operand)
@@ -940,7 +940,7 @@ class Scale(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1005,7 +1005,7 @@ class Scale(Generic):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Scale():
                 super().__lshift__(operand)
@@ -1338,7 +1338,7 @@ class Staff(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: 'Staff') -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1490,7 +1490,7 @@ class Staff(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Staff():
                 super().__lshift__(operand)
@@ -1678,7 +1678,7 @@ class Arpeggio(Generic):
         return elements
 
     def __eq__(self, other: 'Arpeggio') -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1714,7 +1714,7 @@ class Arpeggio(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Arpeggio():
                 super().__lshift__(operand)
@@ -1820,7 +1820,7 @@ class Defaults(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1876,7 +1876,7 @@ class Defaults(Generic):
     
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Defaults():
                 super().__lshift__(operand)

@@ -87,7 +87,7 @@ class Rational(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int():
                 return self._rational == other
@@ -107,7 +107,7 @@ class Rational(o.Operand):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int():
                 return self._rational < other
@@ -122,7 +122,7 @@ class Rational(o.Operand):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int():
                 return self._rational > other
@@ -156,7 +156,7 @@ class Rational(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Rational():
                 super().__lshift__(operand)
@@ -318,7 +318,7 @@ class Negative(Rational):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Negative():
                 super().__lshift__(operand)
@@ -504,7 +504,7 @@ class Tempo(StaffParameter):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
@@ -564,7 +564,7 @@ class Quantization(StaffParameter):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
                 time_division: str = operand.strip().upper()
@@ -641,7 +641,7 @@ class Convertible(Rational):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -653,7 +653,7 @@ class Convertible(Rational):
         return False
 
     def __lt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -665,7 +665,7 @@ class Convertible(Rational):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other = self | other    # Processes the tailed self operands or the Frame operand if any exists
+        other = self._tail_recur(other)    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Measurement() | TimeValue() | Duration():
                 return self._get_staff(other).convertToBeats(self)._rational \
@@ -716,7 +716,7 @@ class Convertible(Rational):
         import operand_generic as og
         import operand_element as oe
         import operand_container as oc
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -792,7 +792,7 @@ class Measurement(Convertible):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement():
                 super().__lshift__(operand)
@@ -814,7 +814,7 @@ class Measurement(Convertible):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
@@ -823,7 +823,7 @@ class Measurement(Convertible):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
@@ -833,7 +833,7 @@ class Measurement(Convertible):
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __imul__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
@@ -845,7 +845,7 @@ class Measurement(Convertible):
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __itruediv__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
@@ -953,7 +953,7 @@ class Measures(TimeValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -964,7 +964,7 @@ class Measures(TimeValue):
         return self
 
     def __iadd__(self, operand: any) -> 'Measures':
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__iadd__(self._get_staff(operand).convertToMeasures(operand)._rational)
@@ -973,7 +973,7 @@ class Measures(TimeValue):
         return self
     
     def __isub__(self, operand: any) -> 'Measures':
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__isub__(self._get_staff(operand).convertToMeasures(operand)._rational)
@@ -982,7 +982,7 @@ class Measures(TimeValue):
         return self
     
     def __imul__(self, operand: any) -> 'Measures':
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__imul__(self._get_staff(operand).convertToMeasures(operand)._rational)
@@ -991,7 +991,7 @@ class Measures(TimeValue):
         return self
     
     def __itruediv__(self, operand: any) -> 'Measures':
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__itruediv__(self._get_staff(operand).convertToMeasures(operand)._rational)
@@ -1013,7 +1013,7 @@ class Beats(TimeValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -1024,7 +1024,7 @@ class Beats(TimeValue):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__iadd__(self._get_staff(operand).convertToBeats(operand)._rational)
@@ -1033,7 +1033,7 @@ class Beats(TimeValue):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__isub__(self._get_staff(operand).convertToBeats(operand)._rational)
@@ -1042,7 +1042,7 @@ class Beats(TimeValue):
         return self
     
     def __imul__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__imul__(self._get_staff(operand).convertToBeats(operand)._rational)
@@ -1051,7 +1051,7 @@ class Beats(TimeValue):
         return self
     
     def __itruediv__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__itruediv__(self._get_staff(operand).convertToBeats(operand)._rational)
@@ -1073,7 +1073,7 @@ class Steps(TimeValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -1084,7 +1084,7 @@ class Steps(TimeValue):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__iadd__(self._get_staff(operand).convertToSteps(operand)._rational)
@@ -1093,7 +1093,7 @@ class Steps(TimeValue):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__isub__(self._get_staff(operand).convertToSteps(operand)._rational)
@@ -1102,7 +1102,7 @@ class Steps(TimeValue):
         return self
     
     def __imul__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__imul__(self._get_staff(operand).convertToSteps(operand)._rational)
@@ -1111,7 +1111,7 @@ class Steps(TimeValue):
         return self
     
     def __itruediv__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__itruediv__(self._get_staff(operand).convertToSteps(operand)._rational)
@@ -1133,7 +1133,7 @@ class Duration(Convertible):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Dotted():
                 self._rational = operand._rational * 2 / 3
@@ -1162,7 +1162,7 @@ class Duration(Convertible):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__iadd__(self._get_staff(operand).convertToDuration(operand)._rational)
@@ -1171,7 +1171,7 @@ class Duration(Convertible):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__isub__(self._get_staff(operand).convertToDuration(operand)._rational)
@@ -1180,7 +1180,7 @@ class Duration(Convertible):
         return self
     
     def __imul__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__imul__(self._get_staff(operand).convertToDuration(operand)._rational)
@@ -1189,7 +1189,7 @@ class Duration(Convertible):
         return self
     
     def __itruediv__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
                 super().__itruediv__(self._get_staff(operand).convertToDuration(operand)._rational)
@@ -1252,7 +1252,7 @@ class Dotted(Duration):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self | operand    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Dotted():
                 self._rational = operand._rational

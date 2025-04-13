@@ -135,7 +135,7 @@ class Chaos(o.Operand):
         return reportable_iteration, total_iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        number = self | number    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_recur(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -260,7 +260,7 @@ class Modulus(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        number = self | number    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_recur(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -487,7 +487,7 @@ class Bouncer(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        number = self | number    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_recur(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -584,7 +584,7 @@ class SinX(Chaos):
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
-        number = self | number    # Processes the tailed self operands or the Frame operand if any exists
+        number = self._tail_recur(number)    # Processes the tailed self operands or the Frame operand if any exists
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
