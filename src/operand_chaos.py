@@ -269,9 +269,11 @@ class Flipper(Modulus):
 
     Parameters
     ----------
-    first : Xn, X0, Cycle, Steps, Split, int, float
-        Beside the step and the cycle, the split is set with Split().
-        The defaults are a step of 1 and a cycle of 2 and a split of 1.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
+    Cycle(2) : The cyclic value on which the `Xn` modulus % operation is made.
+    Steps(1) : The increase amount for each iteration.
+    Split(1) : This sets the value below which is considered a "left" flip.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -337,9 +339,10 @@ class Counter(Modulus):
 
     Parameters
     ----------
-    first : Xn, X0, Cycle, Steps, int, float
-        The step is set with Steps() and the cycle is set with Cycle().
-        The defaults are a step of 1 and a cycle of 12.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
+    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Steps(1) : The increase amount for each iteration.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -358,8 +361,12 @@ class Bouncer(Chaos):
 
     Parameters
     ----------
-    first : Xn, Yn, dX, dY, Width, Height, tuple
-        The defaults are `Width(16)`, `Height(9)`, `dX(0.555)` and `dY(0.555)`.
+    Width(16) : Horizontal size of the "screen".
+    Height(9) : Vertical size of the "screen".
+    dX(0.555) : The incremental value for the horizontal position.
+    dY(0.555) : The incremental value for the vertical position.
+    Xn(Width(16) / 2), int, float : The resultant horizontal value of each iteration.
+    Yn(Height(9) / 2) : The resultant vertical value of each iteration.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -460,15 +467,15 @@ class Bouncer(Chaos):
                     case ra.Height():               self._height = operand._data
                     case ra.dX():                   self._dx = operand._data
                     case ra.dY():                   self._dy = operand._data
-                    case ra.Xn():                    self._xn = operand._data
-                    case ra.Yn():                    self._yn = operand._data
+                    case ra.Xn():                   self._xn = operand._data
+                    case ra.Yn():                   self._yn = operand._data
                     case _:                         super().__lshift__(operand)
             case ra.Width():                self._width << operand
             case ra.Height():               self._height << operand
             case ra.dX():                   self._dx << operand
             case ra.dY():                   self._dy << operand
-            case ra.Xn():                    self._xn << operand
-            case ra.Yn():                    self._yn << operand
+            case ra.Xn():                   self._xn << operand
+            case ra.Yn():                   self._yn << operand
             case _: super().__lshift__(operand)
         self._xn << (self._xn % float()) % (self._width % float())
         self._yn << (self._yn % float()) % (self._height % float())
@@ -510,8 +517,9 @@ class SinX(Chaos):
 
     Parameters
     ----------
-    first : Xn, X0, Lambda, int, float
-        The defaults are `Xn(2)`, `Lambda(77.238537)`.
+    Xn(2), int, float : The resultant value of each iteration.
+    X0(Xn(2)) : The starting value of all iterations possible to reset to.
+    Lambda(77.238537) : Sets the lambda constant of the formula `Xn + Lambda * Sin(Xn)`.
     """
     def __init__(self, *parameters):
         super().__init__()
