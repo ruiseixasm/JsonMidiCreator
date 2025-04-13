@@ -189,7 +189,7 @@ def test_even_odd():
     four_notes = 4 * Note()
 
     assert four_notes.len() == 4
-    four_notes |= Even()
+    four_notes >>= Even()
     assert four_notes.len() == 2
     four_notes >>= Filter(Odd())
     assert four_notes.len() == 1

@@ -472,16 +472,7 @@ class Container(o.Operand):
 
 
     def __or__(self, operand: any) -> Self:
-        return self.shallow_copy().__ior__(operand)
-
-    def __ior__(self, operand: any) -> Self:
-        import operand_mutation as om
-        match operand:
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
-                self.filter(operand, False)
-        return self
+        return self.shallow_copy().filter(operand, False)
 
 
     def empty_copy(self, *parameters) -> Self:
@@ -713,7 +704,7 @@ class Container(o.Operand):
             case "/":
                 self /= operand
             case "|":
-                self |= operand
+                self >>= operand
             case "<<=":
                 self <<= operand
             case "^":

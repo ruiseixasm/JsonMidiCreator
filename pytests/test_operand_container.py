@@ -175,7 +175,7 @@ def test_or_clip():
     four_notes: Clip = Note(1/8) * 4 << TimeSignature(2, 4)
 
     assert four_notes.len() == 4
-    four_notes |= Equal(Step(2), Step(4))
+    four_notes >>= Equal(Step(2), Step(4))
     print(four_notes.len())
     assert four_notes.len() == 2
 
@@ -515,7 +515,7 @@ def test_mul_clip():
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
     assert hi_hat.test_staff_reference()
-    hi_hat |= Nth(2, 4)
+    hi_hat >>= Nth(2, 4)
     assert hi_hat.len() == 2
     assert hi_hat.test_staff_reference()
     hi_hat *= 2

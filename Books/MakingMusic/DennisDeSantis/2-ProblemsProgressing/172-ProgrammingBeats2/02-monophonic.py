@@ -29,7 +29,7 @@ snare = Note(DrumKit("Snare"), 1/16) * 2 << Loop(1, 3)**Beat()
 drum = Note(DrumKit("Drum"), 1/16) * 4 << Iterate()**Beat()
 
 hi_hat /= Filter(Even())
-drum |= Odd()
+drum >>= Odd()
 
 (hi_hat + snare + drum) * 8 >> P
 
