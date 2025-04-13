@@ -473,11 +473,12 @@ class Operand:
     def __and__(self, operand) -> Self:
         return self
     
-    def __iand__(self, operand) -> Self:
-        return self.__and__(operand)
+    # Check "self_operand &= input" of operand_frame module!
+    # def __iand__(self, operand) -> Self:
+    #     return self
     
     def __rand__(self, operand: T) -> T:
-        return operand.__and__(self)
+        return operand
     
 
     def __or__(self, operand: T) -> T:
