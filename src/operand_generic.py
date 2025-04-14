@@ -226,7 +226,7 @@ class Pitch(Generic):
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
-            self._staff_reference.add_accidental(measure, key_int, True)
+            self._staff_reference._add_accidental(measure, key_int, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._staff_reference._key_signature._unit
                 if accidentals_int < 0:
@@ -234,12 +234,12 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif self._sharp != 0:
-            self._staff_reference.add_accidental(measure, key_int, self._sharp)
+            self._staff_reference._add_accidental(measure, key_int, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
         else:
-            staff_accidentals = self._staff_reference.get_accidental(measure, key_int)
+            staff_accidentals = self._staff_reference._get_accidental(measure, key_int)
             if staff_accidentals:    # Staff only set Sharps and Flats
                 if self._major_scale[key_int % 12] == 1:  # White key
                     key_int += staff_accidentals    # applies Pitch self accidentals
@@ -1191,11 +1191,11 @@ class Staff(Generic):
                                   ]
                             ] = {}
 
-    def reset_accidentals(self) -> Self:
+    def _reset_accidentals(self) -> Self:
         self._accidentals = { 0: {} }
         return self
 
-    def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
+    def _add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
         if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
                 # It's a new measure, includes cleaning every Measure before
@@ -1208,16 +1208,16 @@ class Staff(Generic):
                 self._accidentals[measure][pitch] = accidental
         return self
 
-    def get_accidental(self, measure: int, pitch: int) -> bool | int:
+    def _get_accidental(self, measure: int, pitch: int) -> bool | int:
         if measure in self._accidentals and pitch in self._accidentals[measure]:
             return self._accidentals[measure][pitch]
         return False
 
-    def reset_tied_note(self) -> Self:
+    def _reset_tied_note(self) -> Self:
         self._tied_notes = {}
         return self
 
-    def add_tied_note(self, pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
+    def _add_tied_note(self, pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
         if self is not defaults._staff: # defaults's staff remains clean
             tied_note = {
                 "position":     position,
@@ -1227,17 +1227,17 @@ class Staff(Generic):
             self._tied_notes[pitch] = tied_note
         return self
 
-    def set_tied_note_length(self, pitch: int, length: Fraction) -> Self:
+    def _set_tied_note_length(self, pitch: int, length: Fraction) -> Self:
         if pitch in self._tied_notes:
             self._tied_notes[pitch]["length"] = length
         return self
     
-    def get_tied_note(self, pitch: int):
+    def _get_tied_note(self, pitch: int):
         if pitch in self._tied_notes:
             return self._tied_notes[pitch]
         return None
 
-    def stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
+    def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
         if self is not defaults._staff: # defaults's staff remains clean
             if note_on not in self._stacked_notes:
                 self._stacked_notes[note_on] = {
@@ -1257,7 +1257,7 @@ class Staff(Generic):
                 return False
         return True
 
-    def reset_stacked_notes(self) -> Self:
+    def _reset_stacked_notes(self) -> Self:
         self._stacked_notes = {}
         return self
 

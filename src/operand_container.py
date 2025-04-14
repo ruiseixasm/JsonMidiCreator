@@ -881,6 +881,15 @@ class Clip(Composition):  # Just a container of Elements
         return super().last()
 
     def last_position(self) -> ra.Position:
+        """
+        Gets the last Element position.
+
+        Args:
+            None
+
+        Returns:
+            Position: The Position fo the last Element.
+        """
         last_element: oe.Element = self.last()
 
         if last_element:
@@ -1002,13 +1011,13 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 return super().__mod__(operand)
 
-    def get_position_beats(self, position: ra.Position = None) -> Fraction:
+    def _get_position_beats(self, position: ra.Position = None) -> Fraction:
 
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
-        self._staff.reset_accidentals()
-        self._staff.reset_tied_note()
-        self._staff.reset_stacked_notes()
+        self._staff._reset_accidentals()
+        self._staff._reset_tied_note()
+        self._staff._reset_stacked_notes()
 
         position_beats: Fraction = Fraction(0)
 
@@ -1020,7 +1029,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def getPlotlist(self, position: ra.Position = None) -> list[dict]:
 
-        position_beats: Fraction = self.get_position_beats(position)
+        position_beats: Fraction = self._get_position_beats(position)
 
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
@@ -1050,7 +1059,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def getPlaylist(self, position: ra.Position = None) -> list[dict]:
 
-        position_beats: Fraction = self.get_position_beats(position)
+        position_beats: Fraction = self._get_position_beats(position)
 
         self_playlist: list[dict] = [
             {
@@ -1068,7 +1077,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def getMidilist(self, position: ra.Position = None) -> list[dict]:
 
-        position_beats: Fraction = self.get_position_beats(position)
+        position_beats: Fraction = self._get_position_beats(position)
 
         return [
             single_midilist
