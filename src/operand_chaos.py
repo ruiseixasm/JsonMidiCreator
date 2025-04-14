@@ -100,7 +100,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand ^= self    # Processes the Frame operand if any exists
         match operand:
             case Chaos():
                 super().__lshift__(operand)
@@ -228,7 +228,7 @@ class Modulus(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand ^= self    # Processes the Frame operand if any exists
         match operand:
             case Modulus():
                 super().__lshift__(operand)
@@ -317,7 +317,7 @@ class Flipper(Modulus):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand ^= self    # Processes the Frame operand if any exists
         match operand:
             case Flipper():
                 super().__lshift__(operand)
@@ -448,7 +448,7 @@ class Bouncer(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand ^= self    # Processes the Frame operand if any exists
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
@@ -561,7 +561,7 @@ class SinX(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand ^= self    # Processes the Frame operand if any exists
         match operand:
             case SinX():
                 super().__lshift__(operand)
