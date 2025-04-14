@@ -793,7 +793,7 @@ class Clip(Composition):  # Just a container of Elements
     ----------
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
-    Staff(defaults) : A staff on which `TimeValue` units are based.
+    Staff(defaults) : A staff on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
     Length : Returns the length of all combined elements.
     """
