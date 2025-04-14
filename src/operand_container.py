@@ -471,6 +471,15 @@ class Container(o.Operand):
 
 
     def empty_copy(self, *parameters) -> Self:
+        """
+        Returns a Container with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with an empty list of items.
+        """
         empty_copy: Container = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
@@ -480,6 +489,16 @@ class Container(o.Operand):
         return empty_copy
 
     def shallow_copy(self, *parameters) -> Self:
+        """
+        Returns a Container with all the same parameters copied, but the list that
+        is just a reference of the same list of the original container.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with a list of the same items of the original one.
+        """
         shallow_copy: Container = self.empty_copy()
         # This copy of a list is a shallow copy, chains upper containers
         shallow_copy._upper_container = self
@@ -498,12 +517,33 @@ class Container(o.Operand):
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
+        """
+        Erases all the given items in the present container and propagates the deletion
+        of the same items for the containers above.
+
+        Args:
+            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns an empty self but with all the rest parameters untouched except the ones
+            changed by the imputed Args.
+        """
         self._delete(self._items)
         for single_parameter in parameters:
             self << single_parameter
         return self
     
     def upper(self, level: int = None) -> Self:
+        """
+        Returns self or the upper container if existent up to the last one if no argument is given, or,
+        up to the one above the level given.
+
+        Args:
+            level: The level at which the upper container is returned.
+
+        Returns:
+            Clip: Returns the upper container if existent or self otherwise.
+        """
         if self._upper_container is self:
             return self
         if isinstance(level, int):
@@ -534,7 +574,7 @@ class Container(o.Operand):
         Reaffects the given parameter type in a chaotic manner.
 
         Args:
-            chaos (ch.Chaos): An Chaos object to be used as sorter.
+            chaos (Chaos): An Chaos object to be used as sorter.
             parameter (type): The type of parameter being swapped around the items.
 
         Returns:
@@ -557,8 +597,8 @@ class Container(o.Operand):
         Reaffects the given parameter type in a chaotic manner accordingly to a probability.
 
         Args:
-            probability (ra.Probability): A given probability of swapping.
-            chaos (ch.Chaos): An Chaos object to be used as sorter.
+            probability (Probability): A given probability of swapping.
+            chaos (Chaos): An Chaos object to be used as sorter.
             parameter (type): The type of parameter being swapped around the items.
 
         Returns:
@@ -675,17 +715,35 @@ class Container(o.Operand):
         return self
 
     def dropper(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
+        """
+        Removes items based on a given probability of such removal happening.
+
+        Args:
+            probability (float): The probability of an item being removed.
+            chaos (Chaos): The chaotic generation targeted by the probability.
+
+        Returns:
+            Container: The same self object with the items removed if any.
+        """
         if not isinstance(chaos, ch.Chaos):
             chaos = ch.SinX()
-
         probability = ra.Probability(probability)._rational
         for single_item in self._items:
             if chaos * 1 % int() % probability.denominator < probability.numerator:
                 self._delete([ single_item ])
-
         return self
     
     def operate(self, operand: any = None, operator: str = "<<") -> Self:
+        """
+        Allows the setting of a specific operator as operation with a str as operator symbol.
+
+        Args:
+            operand (any): `Operand` that is the source of the operation.
+            operator (str): The operator `op` that becomes processed as `self op operand`.
+
+        Returns:
+            Container: The same self object after the given processed operation.
+        """
         operator = operator.strip()
         match operator:
             case "<<":
@@ -707,6 +765,15 @@ class Container(o.Operand):
         return self
 
     def transform(self, operand_type: type = oe.Note) -> Self:
+        """
+        Transforms each item by wrapping each one with the new operand type given.
+
+        Args:
+            operand_type (type): The type of `Operand` by which each item will be transformed in.
+
+        Returns:
+            Container: The same self object after the given processed items.
+        """
         for item in self._items:
             self._replace(item, operand_type(item))
         return self
@@ -1129,6 +1196,15 @@ class Clip(Composition):  # Just a container of Elements
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
+        """
+        Sets all `Clip` parameters based on a dictionary input previously generated by `getSerialization`.
+
+        Args:
+            serialization: A dictionary with all the `Clip` parameters.
+
+        Returns:
+            Clip: The self Clip object with the respective set parameters.
+        """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"] and
             "length" in serialization["parameters"]):
