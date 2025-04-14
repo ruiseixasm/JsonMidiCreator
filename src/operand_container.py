@@ -2456,7 +2456,18 @@ class Clip(Composition):  # Just a container of Elements
     
 
 class Part(Composition):
-    # Part it's like a classic Pattern
+    """`Container -> Composition -> Part`
+
+    This type of `Container` aggregates `Clip` items as also `Playlist` ones. This type
+    of `Composition` has a `Position` working similarly to `Element` operands.
+
+    Parameters
+    ----------
+    list([]) : A list of `Clip` and `Playlist` type items.
+    int : Returns the len of the list.
+    Position(0) : It is possible to place a Part on a staff `Position`.
+    Length : Returns the length of all combined clips.
+    """
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
@@ -2836,6 +2847,19 @@ class Part(Composition):
 
 
 class Song(Composition):
+    """`Container -> Composition -> Song`
+
+    This type of `Container` aggregates only `Part` items. This type
+    of `Composition` has a `Staff` working similarly to `Clip` operands, where
+    `Clip` contains `Element` items while `Song` contains `Part` ones.
+
+    Parameters
+    ----------
+    list([]) : A list of `Part` type items.
+    int : Returns the len of the list.
+    Staff(defaults) : It keeps its own staff on which their `Part` items are placed.
+    Length : Returns the length of all combined parts.
+    """
     def __init__(self, *operands):
         self._staff: og.Staff = og.defaults._staff.copy()
         super().__init__()
