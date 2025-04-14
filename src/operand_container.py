@@ -968,7 +968,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def duration(self) -> ra.Duration:
         """
-        Reruns the length wrapped as Duration.
+        Returns the length wrapped as Duration.
 
         Args:
             None
@@ -1028,7 +1028,15 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def getPlotlist(self, position: ra.Position = None) -> list[dict]:
+        """
+        Returns the plotlist for a given Position.
 
+        Args:
+            position: The reference Position where the Clip starts at.
+
+        Returns:
+            list[dict]: A list with multiple Plot configuration dictionaries.
+        """
         position_beats: Fraction = self._get_position_beats(position)
 
         self_plotlist: list[dict] = []
@@ -1058,7 +1066,15 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+        """
+        Returns the playlist for a given Position.
 
+        Args:
+            position: The reference Position where the Clip starts at.
+
+        Returns:
+            list[dict]: A list with multiple Play configuration dictionaries.
+        """
         position_beats: Fraction = self._get_position_beats(position)
 
         self_playlist: list[dict] = [
@@ -1076,7 +1092,15 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def getMidilist(self, position: ra.Position = None) -> list[dict]:
+        """
+        Returns the midilist for a given Position.
 
+        Args:
+            position: The reference Position where the Clip starts at.
+
+        Returns:
+            list[dict]: A list with multiple Midi file configuration dictionaries.
+        """
         position_beats: Fraction = self._get_position_beats(position)
 
         return [
@@ -1086,6 +1110,15 @@ class Clip(Composition):  # Just a container of Elements
         ]
 
     def getSerialization(self) -> dict:
+        """
+        Returns the serialization in a form of a dictionary of `Clip` parameters.
+
+        Args:
+            None
+
+        Returns:
+            dict: A dictionary with multiple the `Clip` configuration.
+        """
         serialization = super().getSerialization()
 
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
