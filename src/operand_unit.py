@@ -240,16 +240,16 @@ class TimeUnit(Unit):
     if TYPE_CHECKING:
         from operand_generic import Staff
 
-    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'TimeUnit':
+    def _set_staff_reference(self, staff_reference: 'Staff' = None) -> 'TimeUnit':
         import operand_generic as og
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
         return self
 
-    def get_staff_reference(self) -> 'Staff':
+    def _get_staff_reference(self) -> 'Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> 'TimeUnit':
+    def _reset_staff_reference(self) -> 'TimeUnit':
         self._staff_reference = None
         return self
 
@@ -364,9 +364,9 @@ class TimeUnit(Unit):
                 super().__lshift__(operand)
                 self._staff_reference = operand._staff_reference
             case oe.Element() | oc.Composition():
-                self.set_staff_reference(operand.get_staff_reference())
+                self._set_staff_reference(operand._get_staff_reference())
             case og.Staff() | None:
-                self.set_staff_reference(operand)
+                self._set_staff_reference(operand)
             case _:
                 super().__lshift__(operand)
         return self

@@ -716,7 +716,7 @@ class Process(Data):
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
                 default_clock: oe.Clock = og.defaults % oe.Clock()
                 clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                default_clock.set_staff_reference(operand.get_staff_reference()) << clock_length    # Element converts Length to Duration
+                default_clock._set_staff_reference(operand._get_staff_reference()) << clock_length    # Element converts Length to Duration
                 playlist.extend( default_clock.getPlaylist(devices_header=False) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case Playlist():

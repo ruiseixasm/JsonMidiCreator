@@ -833,16 +833,16 @@ class Composition(Container):
     int : Returns the len of the list.
     """
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         return self
 
-    def get_staff_reference(self) -> 'og.Staff':
+    def _get_staff_reference(self) -> 'og.Staff':
         return None
 
-    def reset_staff_reference(self) -> Self:
+    def _reset_staff_reference(self) -> Self:
         return self
 
-    def test_staff_reference(self) -> bool:
+    def _test_staff_reference(self) -> bool:
         return True
 
 
@@ -892,28 +892,27 @@ class Clip(Composition):  # Just a container of Elements
         self._items.sort(key=lambda x: x._position_beats)
         return self
 
-
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff << staff_reference  # Does a copy
         for single_element in self:
             if isinstance(single_element, oe.Element):
-                single_element.set_staff_reference(self._staff)
+                single_element._set_staff_reference(self._staff)
                 single_element.set_clip_reference(self)
         return self
 
-    def get_staff_reference(self) -> 'og.Staff':
+    def _get_staff_reference(self) -> 'og.Staff':
         return self._staff
 
-    def reset_staff_reference(self) -> Self:
+    def _reset_staff_reference(self) -> Self:
         self._staff = og.defaults._staff.copy()
         for single_element in self:
             if isinstance(single_element, oe.Element):
-                single_element.set_staff_reference(self._staff)
+                single_element._set_staff_reference(self._staff)
                 single_element.set_clip_reference(self)
         return self
 
-    def test_staff_reference(self) -> bool:
+    def _test_staff_reference(self) -> bool:
         for single_element in self:
             if isinstance(single_element, oe.Element) and not (
                 single_element._staff_reference is self._staff and
@@ -1213,7 +1212,7 @@ class Clip(Composition):  # Just a container of Elements
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
             self._length_beats      = self.deserialize(serialization["parameters"]["length"])
-            self.set_staff_reference()
+            self._set_staff_reference()
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1227,7 +1226,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items   = self.deep_copy( operand._items )
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand  = self.deep_copy(operand._next_operand)
-                self.set_staff_reference(operand._staff)
+                self._set_staff_reference(operand._staff)
 
             case od.DataSource():
                 match operand._data:
@@ -1283,7 +1282,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self.set_staff_reference(operand.get_staff_reference())
+                self._set_staff_reference(operand._get_staff_reference())
 
             case _: # Works for Frame too
                 if isinstance(operand, of.Frame):
@@ -1318,7 +1317,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_elements = [
-                    single_element.copy().set_staff_reference(self._staff).set_clip_reference(self)
+                    single_element.copy()._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand._items
                 ]
                 if self.len() > 0:
@@ -1326,14 +1325,14 @@ class Clip(Composition):  # Just a container of Elements
                     return self._append(operand_elements, self_last_element)._sort_position()  # Shall be sorted!
                 return self._append(operand_elements)._sort_position() # Shall be sorted!
             case oe.Element():
-                new_element: oe.Element = operand.copy().set_staff_reference(self._staff).set_clip_reference(self)
+                new_element: oe.Element = operand.copy()._set_staff_reference(self._staff).set_clip_reference(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
                     return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
                 return self._append([ new_element ])._sort_position()  # Shall be sorted!
             case list():
                 operand_elements = [
-                    single_element.copy().set_staff_reference(self._staff).set_clip_reference(self)
+                    single_element.copy()._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand if isinstance(single_element, oe.Element)
                 ]
                 if self.len() > 0:
@@ -1401,7 +1400,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._length_beats += (operand % ra.Length())._rational
                     add_position: ra.Position = left_end_position - right_start_position
                 operand_elements = [
-                    (single_data + add_position).set_staff_reference(self._staff).set_clip_reference(self)
+                    (single_data + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_data in operand._items if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
@@ -1429,7 +1428,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
                     self._items.extend(
-                        single_element.set_staff_reference(self._staff).set_clip_reference(self)
+                        single_element._set_staff_reference(self._staff).set_clip_reference(self)
                         for single_element in self_copy if isinstance(single_element, oe.Element)
                     )
                 elif operand == 0:   # Must be empty
@@ -1479,7 +1478,7 @@ class Clip(Composition):  # Just a container of Elements
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(length_shift)
                 operand_elements = [
-                    (single_data + add_position).set_staff_reference(self._staff).set_clip_reference(self)
+                    (single_data + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_data in operand._items if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
@@ -1500,7 +1499,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
                     self._items.extend(
-                        single_element.set_staff_reference(self._staff).set_clip_reference(self)
+                        single_element._set_staff_reference(self._staff).set_clip_reference(self)
                         for single_element in self_copy if isinstance(single_element, oe.Element)
                     )
                     if self._length_beats >= 0:
@@ -1577,7 +1576,7 @@ class Clip(Composition):  # Just a container of Elements
 
             # Fraction sets the Duration in Steps
             element_note: oe.Note = \
-                oe.Note().set_staff_reference(self._staff).set_clip_reference(self) \
+                oe.Note()._set_staff_reference(self._staff).set_clip_reference(self) \
                 << Fraction(1) << note
 
             pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
@@ -1603,21 +1602,21 @@ class Clip(Composition):  # Just a container of Elements
             # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
             if isinstance(automation, oe.Aftertouch):
                 automate_element: oe.Element = \
-                    oe.Aftertouch().set_staff_reference(self._staff).set_clip_reference(self) \
+                    oe.Aftertouch()._set_staff_reference(self._staff).set_clip_reference(self) \
                     << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [30, 70, 50, 0]
             elif isinstance(automation, oe.PitchBend) or automation is None:  # Pitch Bend, special case
                 automate_element: oe.Element = \
-                    oe.PitchBend().set_staff_reference(self._staff).set_clip_reference(self) \
+                    oe.PitchBend()._set_staff_reference(self._staff).set_clip_reference(self) \
                     << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
                     values = [-20*64, -70*64, -50*64, 0*64]
             else:
                 automate_element: oe.Element = \
-                    oe.ControlChange().set_staff_reference(self._staff).set_clip_reference(self) \
+                    oe.ControlChange()._set_staff_reference(self._staff).set_clip_reference(self) \
                     << automation
                 # Ensure values is a non-empty list with only integers ≥ 0
                 if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
@@ -1954,7 +1953,7 @@ class Clip(Composition):  # Just a container of Elements
             if current_element.finish() < next_element.start():
                 rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
                 rest_element: oe.Rest = \
-                    oe.Rest().set_staff_reference(self._staff).set_clip_reference(self) \
+                    oe.Rest()._set_staff_reference(self._staff).set_clip_reference(self) \
                     << rest_length
                 self += rest_element
         
@@ -1963,7 +1962,7 @@ class Clip(Composition):  # Just a container of Elements
         if last_element.finish() < staff_end:
             rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
             rest_element: oe.Rest = \
-                oe.Rest().set_staff_reference(self._staff).set_clip_reference(self) \
+                oe.Rest()._set_staff_reference(self._staff).set_clip_reference(self) \
                 << rest_length
             self += rest_element
 
@@ -2599,15 +2598,15 @@ class Part(Composition):
             self << single_operand
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
         return self
 
-    def get_staff_reference(self) -> 'og.Staff':
+    def _get_staff_reference(self) -> 'og.Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> Self:
+    def _reset_staff_reference(self) -> Self:
         self._staff_reference = og.defaults._staff
         return self
 
@@ -2815,7 +2814,7 @@ class Part(Composition):
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
                     # Has to use the method in order to propagate setting
-                    self.set_staff_reference(operand._staff_reference)
+                    self._set_staff_reference(operand._staff_reference)
                 if self._staff_reference is operand._staff_reference:
                     self._position_beats = operand._position_beats
                 else:
@@ -2840,11 +2839,11 @@ class Part(Composition):
             case Composition():
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
-                    self.set_staff_reference(operand.get_staff_reference())
+                    self._set_staff_reference(operand._get_staff_reference())
             case og.Staff():
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
-                    self.set_staff_reference(operand)
+                    self._set_staff_reference(operand)
 
             case tuple():
                 for single_operand in operand:
@@ -3000,24 +2999,24 @@ class Song(Composition):
         return self
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff << staff_reference  # Does a copy
         for single_part in self._items:
-            single_part.set_staff_reference(self._staff)
+            single_part._set_staff_reference(self._staff)
             single_part.set_song_reference(self)
         return self
 
-    def get_staff_reference(self) -> 'og.Staff':
+    def _get_staff_reference(self) -> 'og.Staff':
         return self._staff
 
-    def reset_staff_reference(self) -> Self:
+    def _reset_staff_reference(self) -> Self:
         self._staff = og.defaults._staff.copy()
         for single_part in self._items:
-            single_part.set_staff_reference(self._staff)
+            single_part._set_staff_reference(self._staff)
         return self
 
-    def test_staff_reference(self) -> bool:
+    def _test_staff_reference(self) -> bool:
         for single_part in self._items:
             if single_part._staff_reference is not self._staff:
                 return False
@@ -3116,14 +3115,14 @@ class Song(Composition):
 
             super().loadSerialization(serialization)
             self._staff = self.deserialize(serialization["parameters"]["staff"])
-            self.set_staff_reference()
+            self._set_staff_reference()
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self.set_staff_reference(operand.get_staff_reference())
+                self._set_staff_reference(operand._get_staff_reference())
 
             case od.DataSource():
                 match operand._data:
@@ -3165,21 +3164,21 @@ class Song(Composition):
         match operand:
             case Song():
                 for single_part in operand._items:
-                    self._append([ single_part.copy().set_staff_reference(self._staff) ])
+                    self._append([ single_part.copy()._set_staff_reference(self._staff) ])
                 self._sort_position()
             case Part():
-                self._append([ operand.copy().set_staff_reference(self._staff) ])._sort_position()
+                self._append([ operand.copy()._set_staff_reference(self._staff) ])._sort_position()
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand).set_staff_reference(self._staff)
+                clip_part: Part = Part(operand)._set_staff_reference(self._staff)
                 self._append([ clip_part ])._sort_position()
             case oe.Element():
                 element_clip: Clip = Clip(operand) << self._staff
-                clip_part: Part = Part(element_clip).set_staff_reference(self._staff)
+                clip_part: Part = Part(element_clip)._set_staff_reference(self._staff)
                 self._append([ clip_part ])._sort_position()
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy().set_staff_reference(self._staff) ])
+                        self._append([ item.copy()._set_staff_reference(self._staff) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
@@ -3203,12 +3202,12 @@ class Song(Composition):
                             self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
                         # Beats are the common unit of measurement across multiple Time Signatures !!
                         for single_part in operand._items:
-                            new_part: Part = single_part.copy().set_staff_reference(self._staff)
+                            new_part: Part = single_part.copy()._set_staff_reference(self._staff)
                             new_part += position_offset
                             self._append([ new_part ])
                     else:
                         for single_part in operand._items:
-                            new_part: Part = single_part.copy().set_staff_reference(self._staff)
+                            new_part: Part = single_part.copy()._set_staff_reference(self._staff)
                             new_part -= operand_first_position
                             self._append([ new_part ])
                 self._sort_position()
@@ -3216,7 +3215,7 @@ class Song(Composition):
                 if operand.len() > 0:
                     self_last_position: ra.Position = self.last_position()
                     next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
-                    new_part: Part = operand.copy().set_staff_reference(self._staff) << next_position
+                    new_part: Part = operand.copy()._set_staff_reference(self._staff) << next_position
                     self._append([ new_part ])._sort_position()
             case Clip() | od.Playlist():
                 clip_part: Part = Part(operand)
@@ -3230,7 +3229,7 @@ class Song(Composition):
                     self *= single_operand
 
             case Composition():
-                self.set_staff_reference(operand.get_staff_reference())
+                self._set_staff_reference(operand._get_staff_reference())
 
             case _:
                 if isinstance(operand, of.Frame):

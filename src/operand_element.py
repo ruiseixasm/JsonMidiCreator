@@ -68,15 +68,15 @@ class Element(o.Operand):
             self << single_parameter
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
         return self
 
-    def get_staff_reference(self) -> 'og.Staff':
+    def _get_staff_reference(self) -> 'og.Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> Self:
+    def _reset_staff_reference(self) -> Self:
         self._staff_reference = og.defaults._staff
         return self
 
@@ -124,11 +124,11 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case ra.Duration():
-                        return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+                        return operand._data._set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
                     case ra.Position():
-                        return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._position_beats )
+                        return operand._data._set_staff_reference(self._staff_reference) << od.DataSource( self._position_beats )
                     case ra.Length():
-                        return operand._data.set_staff_reference(self._staff_reference) \
+                        return operand._data._set_staff_reference(self._staff_reference) \
                             << self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case Element():         return self
@@ -141,7 +141,7 @@ class Element(o.Operand):
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
             case ra.Duration():
-                return operand.copy().set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+                return operand.copy()._set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
             case ra.Position():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
@@ -287,7 +287,7 @@ class Element(o.Operand):
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
                     # Has to use the staff setting method in order to propagate setting
-                    self.set_staff_reference(operand._staff_reference)
+                    self._set_staff_reference(operand._staff_reference)
                 if self._staff_reference is operand._staff_reference:
                     self._position_beats        = operand._position_beats
                     self._duration_notevalue    = operand._duration_notevalue
@@ -308,7 +308,7 @@ class Element(o.Operand):
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._staff_reference.convertToBeats(operand)._rational
             case ou.TimeUnit():
-                self_position: ra.Position  = ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) << operand
+                self_position: ra.Position  = ra.Position(od.DataSource( self._position_beats ))._set_staff_reference(self._staff_reference) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
                 steps: ra.Steps = ra.Steps(operand)
@@ -329,11 +329,11 @@ class Element(o.Operand):
             case oc.Composition():
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
-                    self.set_staff_reference(operand.get_staff_reference())
+                    self._set_staff_reference(operand._get_staff_reference())
             case og.Staff():
                 # Makes sure isn't a Clip owned Element first
                 if self._clip_reference is None:
-                    self.set_staff_reference(operand)
+                    self._set_staff_reference(operand)
 
             case tuple():
                 for single_operand in operand:
@@ -379,7 +379,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Clip(od.DataSource( [self, operand.copy()] )).set_staff_reference()._sort_position()
+                return oc.Clip(od.DataSource( [self, operand.copy()] ))._set_staff_reference()._sort_position()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
@@ -421,7 +421,7 @@ class Element(o.Operand):
                 return extended_clip
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
-                self.set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
+                self._set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip += ( self % ra.Length() ).convertToPosition()
                     self_clip._insert([ self ], self_clip[0])
@@ -434,7 +434,7 @@ class Element(o.Operand):
                     new_clip._items.append( self )
                     for _ in range(operand - 1):
                         new_clip._items.append( self.copy() )
-                return new_clip.stack().set_staff_reference()
+                return new_clip.stack()._set_staff_reference()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration_notevalue > 0:
@@ -453,7 +453,7 @@ class Element(o.Operand):
                 return self + operand
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
-                self.set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
+                self._set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
                 if self_clip.len() > 0:
                     self_clip._insert([ self ], self_clip[0])
                 else:
@@ -465,7 +465,7 @@ class Element(o.Operand):
                     new_clip._items.append( self )
                     for _ in range(operand - 1):
                         new_clip._items.append( self.copy() )
-                return new_clip.set_staff_reference()
+                return new_clip._set_staff_reference()
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
@@ -813,14 +813,14 @@ class Note(Element):
         super().__init__(*parameters)
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
-        super().set_staff_reference(staff_reference)
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super()._set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._staff_reference
         return self
 
-    def reset_staff_reference(self) -> 'Note':
-        super().reset_staff_reference()
-        self._pitch.reset_staff_reference()
+    def _reset_staff_reference(self) -> 'Note':
+        super()._reset_staff_reference()
+        self._pitch._reset_staff_reference()
         return self
 
 
@@ -837,7 +837,7 @@ class Note(Element):
         return self
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave)).set_staff_reference(self._staff_reference)
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._staff_reference)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1129,7 +1129,7 @@ class Note(Element):
                     operand._unit += 1
             case og.Pitch():
                 self._pitch << operand
-                self._pitch.set_staff_reference(self._staff_reference)
+                self._pitch._set_staff_reference(self._staff_reference)
             case ou.PitchParameter() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
@@ -2789,19 +2789,19 @@ class PolyAftertouch(Aftertouch):
         super().__init__(*parameters)
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
-        super().set_staff_reference(staff_reference)
+    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
+        super()._set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._staff_reference
         return self
 
-    def reset_staff_reference(self) -> 'PolyAftertouch':
-        super().reset_staff_reference()
-        self._pitch.reset_staff_reference()
+    def _reset_staff_reference(self) -> 'PolyAftertouch':
+        super()._reset_staff_reference()
+        self._pitch._reset_staff_reference()
         return self
 
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave)).set_staff_reference(self._staff_reference)
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._staff_reference)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:

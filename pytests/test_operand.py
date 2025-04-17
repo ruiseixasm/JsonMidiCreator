@@ -109,9 +109,9 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
             if isinstance(class_object, (Clip, Song)):
-                if not class_object.test_staff_reference():
+                if not class_object._test_staff_reference():
                     print(f"Culprit: {single_class.__name__}")
-                    assert class_object.test_staff_reference()
+                    assert class_object._test_staff_reference()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
@@ -129,9 +129,9 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
             if isinstance(class_object, (Clip, Song)):
-                if not class_object.test_staff_reference():
+                if not class_object._test_staff_reference():
                     print(f"Culprit: {single_class.__name__}")
-                    assert class_object.test_staff_reference()
+                    assert class_object._test_staff_reference()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
@@ -149,9 +149,9 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
             if isinstance(class_object, (Clip, Song)):
-                if not class_object.test_staff_reference():
+                if not class_object._test_staff_reference():
                     print(f"Culprit: {single_class.__name__}")
-                    assert class_object.test_staff_reference()
+                    assert class_object._test_staff_reference()
 
     print("4th Cycle - DataSource Unit objects data")
     for single_class in list_all_classes:
@@ -169,9 +169,9 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
             if isinstance(class_object, (Clip, Song)):
-                if not class_object.test_staff_reference():
+                if not class_object._test_staff_reference():
                     print(f"Culprit: {single_class.__name__}")
-                    assert class_object.test_staff_reference()
+                    assert class_object._test_staff_reference()
 
     print("5th Cycle - DataSource Rational objects data")
     for single_class in list_all_classes:
@@ -189,9 +189,9 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
             if isinstance(class_object, (Clip, Song)):
-                if not class_object.test_staff_reference():
+                if not class_object._test_staff_reference():
                     print(f"Culprit: {single_class.__name__}")
-                    assert class_object.test_staff_reference()
+                    assert class_object._test_staff_reference()
 
 # test_operand_copy()
 
@@ -227,9 +227,9 @@ def test_operand_serialization():
                 print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
             if isinstance(loaded_instantiation, (Clip, Song)):
-                if not loaded_instantiation.test_staff_reference():
+                if not loaded_instantiation._test_staff_reference():
                     print(f"Culprit i: {single_class.__name__}")
-                    assert loaded_instantiation.test_staff_reference()
+                    assert loaded_instantiation._test_staff_reference()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
@@ -253,9 +253,9 @@ def test_operand_serialization():
                 print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
             if isinstance(loaded_instantiation, (Clip, Song)):
-                if not loaded_instantiation.test_staff_reference():
+                if not loaded_instantiation._test_staff_reference():
                     print(f"Culprit i: {single_class.__name__}")
-                    assert loaded_instantiation.test_staff_reference()
+                    assert loaded_instantiation._test_staff_reference()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
@@ -279,9 +279,9 @@ def test_operand_serialization():
                 print(f"Culprit i: {single_class.__name__}")
                 assert loaded_instantiation == class_object
             if isinstance(loaded_instantiation, (Clip, Song)):
-                if not loaded_instantiation.test_staff_reference():
+                if not loaded_instantiation._test_staff_reference():
                     print(f"Culprit i: {single_class.__name__}")
-                    assert loaded_instantiation.test_staff_reference()
+                    assert loaded_instantiation._test_staff_reference()
 
 # test_operand_serialization()
 

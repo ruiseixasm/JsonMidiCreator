@@ -124,20 +124,20 @@ def test_clip_mod():
 # test_clip_mod()
 
 
-def test_staff_reference():
+def _test_staff_reference():
 
     clip_add: Clip = Note() + Note()
-    assert clip_add.test_staff_reference()
+    assert clip_add._test_staff_reference()
 
     clip_mul: Clip = Note() * 1
-    assert clip_mul.test_staff_reference()
+    assert clip_mul._test_staff_reference()
 
-    assert (clip_add + Note()).test_staff_reference()
-    assert (Note() + clip_add).test_staff_reference()
-    assert (clip_add + clip_mul).test_staff_reference()
-    assert (clip_add * clip_mul).test_staff_reference()
+    assert (clip_add + Note())._test_staff_reference()
+    assert (Note() + clip_add)._test_staff_reference()
+    assert (clip_add + clip_mul)._test_staff_reference()
+    assert (clip_add * clip_mul)._test_staff_reference()
 
-# test_staff_reference()
+# _test_staff_reference()
 
 
 def test_time_signature():
@@ -294,14 +294,14 @@ def test_rshift_container():
     part_song = Song(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
-    assert part_song.test_staff_reference()
+    assert part_song._test_staff_reference()
 
     part_song >> clip_part
     assert part_song.len() == 2
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
     assert part_song[1] % Position() == Measures(2) + Beats(0)
-    assert part_song.test_staff_reference()
+    assert part_song._test_staff_reference()
 
     part_song >> part_song  # >> changes the first element in the >> chain (sequence)
     assert part_song.len() == 4
@@ -311,7 +311,7 @@ def test_rshift_container():
     # The two first parts are repeated at the Measure 4 and 6 respectively
     assert part_song[2] % Position() == Measures(4) + Beats(0)
     assert part_song[3] % Position() == Measures(6) + Beats(0)
-    assert part_song.test_staff_reference()
+    assert part_song._test_staff_reference()
 
 # test_rshift_container()
 
@@ -514,13 +514,13 @@ def test_mul_clip():
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
-    assert hi_hat.test_staff_reference()
+    assert hi_hat._test_staff_reference()
     hi_hat >>= Nth(2, 4)
     assert hi_hat.len() == 2
-    assert hi_hat.test_staff_reference()
+    assert hi_hat._test_staff_reference()
     hi_hat *= 2
     assert hi_hat.len() == 4
-    assert hi_hat.test_staff_reference()
+    assert hi_hat._test_staff_reference()
     hi_hat[0] % Position() % Steps() % float() >> Print()
     assert hi_hat[0] % Position() % Steps() == 2.0
     hi_hat[1] % Position() % Steps() % float() >> Print()
