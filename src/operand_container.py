@@ -1635,7 +1635,7 @@ class Clip(Composition):  # Just a container of Elements
             interpolate (bool): Does an interpolation between the multiple triggered steps.
 
         Returns:
-            Clip: A clip with the notes placed at the triggered steps.
+            Clip: A clip with the triggers placed at the respective steps.
         """
         if isinstance(pattern, str):
 
@@ -1695,8 +1695,15 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def interpolate(self) -> Self:
+        """
+        Interpolates the multiple values of a given `Automation` element by `Channel`.
 
-        # The automation is all done based on int() on all Automation classes
+        Args:
+            None.
+
+        Returns:
+            Clip: A clip with added automated elements placed at intermediary steps.
+        """
         automation_clip: Clip = self.filter(of.OperandType(oe.Automation))
         plotlist: list[dict] = automation_clip.getPlotlist()
         channels: list[int] = plotlist[0]["channels"]["automation"]
@@ -1763,12 +1770,18 @@ class Clip(Composition):  # Just a container of Elements
     def oscillate(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                   parameter: type = None) -> Self:
         """
-        This Operator has a function returns the given Operand regulated accordingly to the Oscillator parameters.
+        Applies for each item element the value at the given position given by the osculation function at
+        that same position.
 
-        Parameters
-        ----------
-        first : o.Operand_like
-            A Operand to be regulated
+        Args:
+            amplitude: Amplitude of the wave.
+            wavelength: The length of the wave in note value.
+            offset: Sets the horizontal axis of the wave.
+            phase: Sets the starting degree of the wave.
+            parameter: The parameter used as the one being automated by the wave.
+
+        Returns:
+            Clip: A clip with each element having the wave value set on it.
         """
         for single_element in self._items:
             
