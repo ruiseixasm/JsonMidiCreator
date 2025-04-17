@@ -478,7 +478,7 @@ class Container(o.Operand):
             *parameters: Any given parameter will be operated with `<<` in the sequence given.
 
         Returns:
-            Clip: Returns the copy of self but with an empty list of items.
+            Container: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Container = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
@@ -497,7 +497,7 @@ class Container(o.Operand):
             *parameters: Any given parameter will be operated with `<<` in the sequence given.
 
         Returns:
-            Clip: Returns the copy of self but with a list of the same items of the original one.
+            Container: Returns the copy of self but with a list of the same items of the original one.
         """
         shallow_copy: Container = self.empty_copy()
         # This copy of a list is a shallow copy, chains upper containers
@@ -1533,6 +1533,15 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_position()  # Shall be sorted!
 
     def empty_copy(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with an empty list of items.
+        """
         empty_copy: Clip                = super().empty_copy()
         empty_copy._staff               << self._staff
         empty_copy._midi_track          << self._midi_track
@@ -1542,6 +1551,16 @@ class Clip(Composition):  # Just a container of Elements
         return empty_copy
     
     def shallow_copy(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters copied, but the list that
+        is just a reference of the same list of the original Clip.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with a list of the same items of the original one.
+        """
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same Staff and midi track
         shallow_copy._staff             = self._staff   
@@ -1560,7 +1579,7 @@ class Clip(Composition):  # Just a container of Elements
             parameter (type): The type of parameter being sorted by.
 
         Returns:
-            Container: The same self object with the items processed.
+            Clip: The same self object with the items processed.
         """
         original_positions: list[Fraction] = [
             element._position_beats for element in self._items
@@ -1571,7 +1590,16 @@ class Clip(Composition):  # Just a container of Elements
         return self
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", note: Any = None) -> Self:
+        """
+        Sets the steps in a Drum Machine for a given note.
 
+        Args:
+            pattern (str): A string where the 1s in it are where the triggered steps are.
+            note (Any): A note or any respective parameter that sets each note.
+
+        Returns:
+            Clip: A clip with the notes placed at the triggered steps.
+        """
         if isinstance(pattern, str):
 
             # Fraction sets the Duration in Steps
@@ -1596,7 +1624,19 @@ class Clip(Composition):  # Just a container of Elements
 
     def automate(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True) -> Self:
+        """
+        Distributes the values given by the Steps pattern in a very like the stepper Drum Machine fashion.
 
+        Args:
+            values (list[int]): The automation values at the triggered steps.
+            pattern (str): A string where the 1s in it are where the triggered midi messages are.
+            automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
+            the last one being the default.
+            interpolate (bool): Does an interpolation between the multiple triggered steps.
+
+        Returns:
+            Clip: A clip with the notes placed at the triggered steps.
+        """
         if isinstance(pattern, str):
 
             # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
