@@ -2105,6 +2105,16 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_position()    # May be needed due to upper clips
     
     def decompose(self) -> Self:
+        """
+        Transform each element in its own sub elements if it's a composed element,
+        like a chord is composed of multiple notes, so, it becomes those multiple notes.
+
+        Args:
+            None
+
+        Returns:
+            Clip: Equally sounding Clip but with its elements reduced to their components.
+        """
         decomposed_elements: list[oe.Element] = []
         for single_element in self._items:
             component_elements: list[oe.Element] = single_element.get_component_elements()
@@ -2114,6 +2124,15 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def arpeggiate(self, parameters: any = None) -> Self:
+        """
+        Distributes each element accordingly to the configured arpeggio by the parameters given.
+
+        Args:
+            parameters: Parameters that will be passed to the `Arpeggio`.
+
+        Returns:
+            Clip: Clip with its elements distributed in an arpeggiated manner.
+        """
         arpeggio = og.Arpeggio(parameters)
         arpeggio.arpeggiate_source(self._items, self.start(), self.length())
         return self
@@ -2515,8 +2534,21 @@ class Clip(Composition):  # Just a container of Elements
             n_button: Optional[Callable[['Clip'], 'Clip']] = None,
             c_button: Optional[Callable[['Clip'], Composition]] = None,
             e_button: Optional[Callable[['Clip'], Any]] = None):
+        """
+        Plots the Notes or the Automation as alternative existent in the Clip.
 
+        Args:
+            block: Suspends the program until the chart is closed.
+            pause: Sets a time in seconds before the chart is closed automatically.
+            iterations: Sets the amount of iterations automatically generated on the
+            chart opening, this is dependent on a n_button being given.
+            n_button: A function that takes a Clip to be used to generate a new iteration.
+            c_button: A function intended to play the plotted clip among other compositions.
+            e_button: A function to be executed by itself without any output required.
 
+        Returns:
+            Clip: Returns the presently plotted clip.
+        """
         self._clip_iterations: list[Clip] = [ self.copy() ]
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._iteration: int = 0
