@@ -206,6 +206,15 @@ class Container(o.Operand):
                 return super().__mod__(operand)
 
     def len(self) -> int:
+        """
+        Returns the total number of items.
+
+        Args:
+            None
+
+        Returns:
+            int: Returns the equivalent to the len(self._items).
+        """
         return len(self._items)
 
     def first(self) -> Any:
@@ -966,8 +975,7 @@ class Clip(Composition):  # Just a container of Elements
     def start(self) -> ra.Position:
         """
         Gets the starting position of all its Elements.
-        This is the same as the minimum Position of all
-        Element positions.
+        This is the same as the minimum Position of all `Element` positions.
 
         Args:
             None
@@ -2695,15 +2703,15 @@ class Part(Composition):
         self._staff_reference = og.defaults._staff
         return self
 
-    def set_song_reference(self, song_reference: 'Song' = None) -> Self:
+    def _set_song_reference(self, song_reference: 'Song' = None) -> Self:
         if isinstance(song_reference, Song):
             self._song_reference = song_reference
         return self
 
-    def get_song_reference(self) -> 'Song':
+    def _get_song_reference(self) -> 'Song':
         return self._song_reference
 
-    def reset_song_reference(self) -> Self:
+    def _reset_song_reference(self) -> Self:
         self._song_reference = None
         return self
 
@@ -2725,7 +2733,15 @@ class Part(Composition):
     
 
     def len(self, just_clips: bool = False) -> int:
+        """
+        Returns the total number of items.
 
+        Args:
+            just_clips: Excludes the `Playlist` items if True.
+
+        Returns:
+            int: Returns the equivalent to the len(self._items).
+        """
         if just_clips:
             total_clips: int = 0
             for single_item in self._items:
@@ -2769,6 +2785,16 @@ class Part(Composition):
     
 
     def start(self) -> ra.Position:
+        """
+        Gets the starting position of all its Clips.
+        This is the same as the minimum Position of all `Clip` positions.
+
+        Args:
+            None
+
+        Returns:
+            Position: The minimum Position of all Clips.
+        """
         start_position: ra.Position = None
 
         clips_list: list[Clip] = [
@@ -2788,6 +2814,16 @@ class Part(Composition):
         return start_position
 
     def finish(self) -> ra.Position:
+        """
+        Processes each clip Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum of Position + Length of all Clips.
+        """
         finish_position: ra.Position = None
 
         clips_list: list[Clip] = [
@@ -3089,7 +3125,7 @@ class Song(Composition):
             self._staff << staff_reference  # Does a copy
         for single_part in self._items:
             single_part._set_staff_reference(self._staff)
-            single_part.set_song_reference(self)
+            single_part._set_song_reference(self)
         return self
 
     def _get_staff_reference(self) -> 'og.Staff':
@@ -3144,8 +3180,6 @@ class Song(Composition):
         if start is not None and finish is not None:
             return (finish - start).convertToLength()
         return self._staff.convertToLength()
-
-
 
     def last_position(self) -> ra.Position:
 
