@@ -2787,14 +2787,14 @@ class Part(Composition):
     def start(self) -> ra.Position:
         """
         Gets the starting position of all its Clips.
-        This is the same as the minimum Position of all `Clip` positions.
+        This is the same as the minimum `Position` of all `Clip` positions.
         This position is Part reference_staff based position.
 
         Args:
             None
 
         Returns:
-            Position: The minimum Position of all Clips.
+            Position: The minimum `Position` of all Clips.
         """
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
@@ -2813,14 +2813,14 @@ class Part(Composition):
 
     def finish(self) -> ra.Position:
         """
-        Processes each clip Position plus Length and returns the finish position
-        as the maximum of all of them. This position is Part reference_staff based position.
+        Processes each clip `Position` plus Length and returns the finish position
+        as the maximum of all of them. This position is `Part` reference_staff based `Position`.
 
         Args:
             None
 
         Returns:
-            Position: The maximum of Position + Length of all Clips.
+            Position: The maximum of `Position` + Length of all Clips.
         """
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
@@ -2839,13 +2839,13 @@ class Part(Composition):
 
     def length(self) -> ra.Length:
         """
-        Returns the `Length` of the entire Part from start to finish.
+        Returns the `Length` of the entire `Part` from start to finish.
 
         Args:
             None
 
         Returns:
-            Length: The total Length from start to finish.
+            Length: The total `Length` from start to finish.
         """
         start = self.start()
         finish = self.finish()
@@ -3162,10 +3162,21 @@ class Song(Composition):
 
 
     def start(self) -> ra.Position:
+        """
+        Gets the starting position of all its Parts.
+        This is the same as the minimum `Position` of all `Part` positions, which ones,
+        share the same common Song Staff reference.
+
+        Args:
+            None
+
+        Returns:
+            Position: The minimum `Position` of all Parts.
+        """
         start_position: ra.Position = None
 
         for part in self._items:
-
+            # Already includes the Song Staff conversion
             part_start: ra.Position = part.start()
             if part_start:
                 if start_position is not None:
@@ -3173,14 +3184,24 @@ class Song(Composition):
                         start_position = part_start
                 else:
                     start_position = part_start
-
         return start_position
 
     def finish(self) -> ra.Position:
+        """
+        Gets the finishing position of all its Parts.
+        This is the same as the maximum `Position` of all `Part` positions, which ones,
+        share the same common Song Staff reference.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum `Position` of all Parts.
+        """
         finish_position: ra.Position = None
 
         for part in self._items:
-
+            # Already includes the Song Staff conversion
             part_finish: ra.Position = part.finish()
             if part_finish:
                 if finish_position is not None:
@@ -3188,24 +3209,66 @@ class Song(Composition):
                         finish_position = part_finish
                 else:
                     finish_position = part_finish
-
         return finish_position
 
     def length(self) -> ra.Length:
+        """
+        Returns the `Length` of the entire `Song` from start to finish.
+
+        Args:
+            None
+
+        Returns:
+            Length: The total `Length` from start to finish.
+        """
         start = self.start()
         finish = self.finish()
         if start is not None and finish is not None:
             return (finish - start).convertToLength()
         return self._staff.convertToLength()
 
-    def last_position(self) -> ra.Position:
+    def _last_position_element(self) -> tuple:
+        last_clips_list: list[tuple[ra.Position, Clip]] = []
+        for single_part in self._items:
+            last_clip: oe.Element = single_part.last()
+            if last_clip is not None:
+                last_clips_list.append(
+                    ( single_part % ra.Position() + last_clip % ra.Position(), last_clip )
+                )
+        # In this case a dictionary works like a list of pairs where [0] is the key
+        last_clips_list.sort(key=lambda pair: pair[0])
+        if len(last_clips_list) > 0:
+            return last_clips_list[-1]
+        return None
 
-        last_part: Part = self.last()
-        if last_part:
-            last_part_element: oe.Element = last_part.last()
-            if last_part_element:
-                return last_part % ra.Position() + last_part_element % ra.Position()
-        
+    def last(self) -> oe.Element:
+        """
+        Returns the `Element` with the last `Position` in the given `Part`.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last `Element` of all elements in each `Clip`.
+        """
+        last_position_element: tuple = self._last_position_element()
+        if last_position_element is not None:
+            return last_position_element[1]
+        return None
+
+    def last_position(self) -> ra.Position:
+        """
+        Returns the `Position` of tha last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The `Position` of the last `Element` of all elements in each `Part`.
+        """
+        last_position_element: tuple = self._last_position_element()
+        if last_position_element is not None:
+            return last_position_element[0]
         return None
 
 

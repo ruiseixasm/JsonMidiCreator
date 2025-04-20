@@ -298,8 +298,9 @@ def test_rshift_container():
 
     part_song >> clip_part
     assert part_song.len() == 2
+    # It's a Song and NOT a Part, thus, it's the Part position that is being returned
     assert part_song[0] % Position() == Measures(0) + Beats(0)
-    # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
+    # The second clip_part occupies two Measures, so, the next Part Measure sets at Position 2 (3rd one)
     assert part_song[1] % Position() == Measures(2) + Beats(0)
     assert part_song._test_staff_reference()
 
