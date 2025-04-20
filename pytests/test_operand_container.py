@@ -971,14 +971,17 @@ def test_part_position():
     assert part_120 % Length() == 1/4
     assert part_120 % Length() == part_60 % Length() * 1/2
 
-    full_song = Song(part_120, part_60) << Tempo(90)
+    full_song = Song(part_120, part_60) << Tempo(90)    # song with different Tempo, 90 vs 60, 3/2
     assert full_song.len() == 2
     assert full_song[0] % Position() == full_song[1] % Position()
     assert (full_song[0] % Position()).getMinutes() == (full_song[1] % Position()).getMinutes()
     assert full_song[0] % Position() % Minutes() == full_song[1] % Position() % Minutes()
+    print(f"Song Start: {full_song.start() % Fraction()}")
+    print(f"Song Finish: {full_song.finish() % Fraction()}")
     print(f"Song Length: {full_song % Length() % Fraction()}")
-    assert full_song % Length() == 1/4
-    assert full_song[0] % Length() == 1/4
+    assert full_song % Length() == 3/8      # Not 1/4 because different tempos, thus, it's 3/2 * 1/4 = 3/8
+    print(f"Song[0] Length: {full_song[0] % Length() % Fraction()}")
+    assert full_song[0] % Length() == 3/16  # Part now has the Song staff, 90 bpm instead of 120 bpm, 3/4, meaning, 1/4 * 3/4 = 3/16
     assert full_song % Length() == full_song[1] % Length()
     assert full_song[0] % Length() == full_song[1] % Length() * 1/2
     assert full_song.length().getMinutes() == full_song[1].length().getMinutes()

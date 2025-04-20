@@ -2795,15 +2795,13 @@ class Part(Composition):
         Returns:
             Position: The minimum Position of all Clips.
         """
-        start_position: ra.Position = None
-
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
         ]
 
+        start_position: ra.Position = None
         for clip in clips_list:
-
-            clip_start: ra.Position = clip.start()
+            clip_start: ra.Position = self._staff_reference.convertToPosition(clip.start())
             if clip_start:
                 if start_position is not None:
                     if clip_start < start_position:
@@ -2824,15 +2822,13 @@ class Part(Composition):
         Returns:
             Position: The maximum of Position + Length of all Clips.
         """
-        finish_position: ra.Position = None
-
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
         ]
 
+        finish_position: ra.Position = None
         for clip in clips_list:
-
-            clip_finish: ra.Position = clip.finish()
+            clip_finish: ra.Position = self._staff_reference.convertToPosition(clip.finish())
             if clip_finish:
                 if finish_position is not None:
                     if clip_finish > finish_position:
@@ -2843,6 +2839,15 @@ class Part(Composition):
         return finish_position
 
     def length(self) -> ra.Length:
+        """
+        Returns the `Length` of the entire Part from start to finish.
+
+        Args:
+            None
+
+        Returns:
+            Length: The total Length from start to finish.
+        """
         start = self.start()
         finish = self.finish()
         if start is not None and finish is not None:
