@@ -2788,6 +2788,7 @@ class Part(Composition):
         """
         Gets the starting position of all its Clips.
         This is the same as the minimum Position of all `Clip` positions.
+        This position is Part reference_staff based position.
 
         Args:
             None
@@ -2808,13 +2809,12 @@ class Part(Composition):
                         start_position = clip_start
                 else:
                     start_position = clip_start
-
         return start_position
 
     def finish(self) -> ra.Position:
         """
         Processes each clip Position plus Length and returns the finish position
-        as the maximum of all of them.
+        as the maximum of all of them. This position is Part reference_staff based position.
 
         Args:
             None
@@ -2835,7 +2835,6 @@ class Part(Composition):
                         finish_position = clip_finish
                 else:
                     finish_position = clip_finish
-
         return finish_position
 
     def length(self) -> ra.Length:
@@ -2856,33 +2855,46 @@ class Part(Composition):
 
 
     def last(self) -> oe.Element:
+        """
+        Returns the `Element` with the last `Position` in the given `Part`.
 
-        part_last: oe.Element = None
+        Args:
+            None
 
+        Returns:
+            Element: The last `Element` of all elements in each `Clip`.
+        """
         clips_list: list[Clip] = [
             clip for clip in self._items if isinstance(clip, Clip)
         ]
 
+        part_last: oe.Element = None
         if len(clips_list) > 0:
-
             for clip in clips_list:
-
                 clip_last: oe.Element = clip.last()
                 if clip_last:
                     if part_last:
+                        # Implicit conversion
                         if clip_last > part_last:
                             part_last = clip_last
                     else:
                         part_last = clip_last
-
         return part_last
 
     def last_position(self) -> ra.Position:
+        """
+        Returns the `Position` of tha last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The `Position` of the last `Element` of all elements in each `Clip`.
+        """
         last_element: oe.Element = self.last()
 
         if last_element:
             return last_element % ra.Position()
-        
         return None
 
 
