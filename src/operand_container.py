@@ -949,7 +949,7 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-    def first(self) -> oe.Element:
+    def _first_element(self) -> oe.Element:
         """
         Gets the first Element accordingly to it's Position on the Staff.
 
@@ -1004,7 +1004,7 @@ class Clip(Composition):  # Just a container of Elements
         if self._length_beats < 0:
             if self.len() > 0:
                 start_beats: Fraction = Fraction(0)
-                first_element: oe.Element = self.first()
+                first_element: oe.Element = self._first_element()
                 if first_element:
                     start_beats = first_element._position_beats
                 start_position = self._staff.convertToPosition(ra.Beats(start_beats))
@@ -2085,7 +2085,7 @@ class Clip(Composition):  # Just a container of Elements
                         ra.Beats(element._position_beats - previous_element._position_beats)
                     )
             # Add a Rest in the beginning if necessary
-            first_element: oe.Element = self.first()
+            first_element: oe.Element = self._first_element()
             last_element: oe.Element = self._last_element()
             starting_position_beats: Fraction = Fraction(0)
             if non_empty_measures_only:
