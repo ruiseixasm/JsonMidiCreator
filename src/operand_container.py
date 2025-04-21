@@ -987,7 +987,6 @@ class Clip(Composition):  # Just a container of Elements
 
         if last_element:
             return last_element % ra.Position()
-        
         return None
 
     def start(self) -> ra.Position:
