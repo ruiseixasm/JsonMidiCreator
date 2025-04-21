@@ -3295,7 +3295,7 @@ class Song(Composition):
             return last_clips_list[-1]
         return None
 
-    def last(self) -> oe.Element:
+    def _last_element(self) -> oe.Element:
         """
         Returns the `Element` with the last `Position` in the given `Part`.
 
@@ -3310,7 +3310,7 @@ class Song(Composition):
             return last_position_element[1]
         return None
 
-    def last_position(self) -> ra.Position:
+    def _last_element_position(self) -> ra.Position:
         """
         Returns the `Position` of tha last `Element`.
 
@@ -3483,7 +3483,7 @@ class Song(Composition):
             case Song():
                 if operand.len() > 0:
                     operand_first_position: ra.Position = operand[0] % ra.Position()
-                    self_last_position: ra.Position = self.last_position()
+                    self_last_position: ra.Position = self._last_element_position()
                     if self_last_position:
                         position_offset: ra.Position = \
                             self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
@@ -3500,7 +3500,7 @@ class Song(Composition):
                 self._sort_position()
             case Part():
                 if operand.len() > 0:
-                    self_last_position: ra.Position = self.last_position()
+                    self_last_position: ra.Position = self._last_element_position()
                     next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
                     new_part: Part = operand.copy()._set_staff_reference(self._staff) << next_position
                     self._append([ new_part ])._sort_position()
@@ -3540,7 +3540,7 @@ class Song(Composition):
         for index, single_part in enumerate(self._items):
             if index > 0:   # Not following Parts
                 previous_part: Part = self._items[index - 1]
-                element_position: ra.Position = previous_part.last_position()
+                element_position: ra.Position = previous_part._last_element_position()
                 if element_position is not None:
                     element_position = element_position.roundMeasures() + ou.Measure(1)
                 else:
