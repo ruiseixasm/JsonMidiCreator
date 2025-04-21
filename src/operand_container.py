@@ -3280,7 +3280,7 @@ class Song(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength()
 
-    def _last_position_element(self) -> tuple:
+    def _last_position_and_element(self) -> tuple:
         last_clips_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
             last_clip: oe.Element = single_part._last_element()
@@ -3304,7 +3304,7 @@ class Song(Composition):
         Returns:
             Element: The last `Element` of all elements in each `Clip`.
         """
-        last_position_element: tuple = self._last_position_element()
+        last_position_element: tuple = self._last_position_and_element()
         if last_position_element is not None:
             return last_position_element[1]
         return None
@@ -3319,7 +3319,7 @@ class Song(Composition):
         Returns:
             Position: The `Position` of the last `Element` of all elements in each `Part`.
         """
-        last_position_element: tuple = self._last_position_element()
+        last_position_element: tuple = self._last_position_and_element()
         if last_position_element is not None:
             return last_position_element[0]
         return None
