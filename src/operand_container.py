@@ -961,7 +961,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         return super().first()
 
-    def last(self) -> oe.Element:
+    def _last_element(self) -> oe.Element:
         """
         Gets the last Element accordingly to it's Position on the Staff.
 
@@ -973,7 +973,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         return super().last()
 
-    def last_position(self) -> ra.Position:
+    def _last_element_position(self) -> ra.Position:
         """
         Gets the last Element position.
 
@@ -983,7 +983,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The Position fo the last Element.
         """
-        last_element: oe.Element = self.last()
+        last_element: oe.Element = self._last_element()
 
         if last_element:
             return last_element % ra.Position()
@@ -1415,7 +1415,7 @@ class Clip(Composition):  # Just a container of Elements
                 right_start_position: ra.Position = operand.start()
                 if self._length_beats < 0:
                     # It's the position of the element that matters and not their tailed Duration
-                    last_position: oe.Position = self.last_position()
+                    last_position: oe.Position = self._last_element_position()
                     if last_position:
                         add_position: ra.Position = last_position.roundMeasures() + ou.Measure(1)
                     else:
@@ -1440,7 +1440,7 @@ class Clip(Composition):  # Just a container of Elements
                         self._length_beats *= operand
                     else:
                         # It's the position of the element that matters and not their tailed Duration
-                        last_element: oe.Element = self.last()
+                        last_element: oe.Element = self._last_element()
                         if last_element:
                             left_end_position: ra.Position = last_element % ra.Position()
                             add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
@@ -2086,7 +2086,7 @@ class Clip(Composition):  # Just a container of Elements
                     )
             # Add a Rest in the beginning if necessary
             first_element: oe.Element = self.first()
-            last_element: oe.Element = self.last()
+            last_element: oe.Element = self._last_element()
             starting_position_beats: Fraction = Fraction(0)
             if non_empty_measures_only:
                 starting_position_beats = (first_element // ra.Position()).roundMeasures()._rational
@@ -2871,7 +2871,7 @@ class Part(Composition):
         return self._staff_reference.convertToLength()
 
 
-    def last(self) -> oe.Element:
+    def _last_element(self) -> oe.Element:
         """
         Returns the `Element` with the last `Position` in the given `Part`.
 
@@ -2888,7 +2888,7 @@ class Part(Composition):
         part_last: oe.Element = None
         if len(clips_list) > 0:
             for clip in clips_list:
-                clip_last: oe.Element = clip.last()
+                clip_last: oe.Element = clip._last_element()
                 if clip_last:
                     if part_last:
                         # Implicit conversion
@@ -2898,7 +2898,7 @@ class Part(Composition):
                         part_last = clip_last
         return part_last
 
-    def last_position(self) -> ra.Position:
+    def _last_element_position(self) -> ra.Position:
         """
         Returns the `Position` of tha last `Element`.
 
@@ -2908,7 +2908,7 @@ class Part(Composition):
         Returns:
             Position: The `Position` of the last `Element` of all elements in each `Clip`.
         """
-        last_element: oe.Element = self.last()
+        last_element: oe.Element = self._last_element()
 
         if last_element:
             return last_element % ra.Position()
@@ -3105,7 +3105,7 @@ class Part(Composition):
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self.last_position()
+                last_position: ra.Position = self._last_element_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
                 # Clips have no Position, so, it's implicit position is always 0
@@ -3115,7 +3115,7 @@ class Part(Composition):
             case Clip() | od.Playlist():
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self.last_position()
+                last_position: ra.Position = self._last_element_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
                 # Clips have no Position, so, it's implicit position is always 0
@@ -3124,7 +3124,7 @@ class Part(Composition):
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self.last_position()
+                last_position: ra.Position = self._last_element_position()
                 if last_position:
                     add_measure = ou.Measure(1) + last_position.roundMeasures()
                 # Clips have no Position, so, it's implicit position is always 0
@@ -3283,7 +3283,7 @@ class Song(Composition):
     def _last_position_element(self) -> tuple:
         last_clips_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
-            last_clip: oe.Element = single_part.last()
+            last_clip: oe.Element = single_part._last_element()
             if last_clip is not None:
                 last_clips_list.append(
                     ( single_part % ra.Position() + last_clip % ra.Position(), last_clip )
