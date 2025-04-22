@@ -214,10 +214,26 @@ class Previous(Data):
 
 
 class Conditional(Data):
+    """`Data -> Conditional`
+
+    Operands that represent a Condition to be processed in bulk like And and Or.
+
+    Parameters
+    ----------
+    Any(None) : A sequence of Any type of items that will be processed in bulk.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
 class And(Conditional):
+    """`Data -> Conditional -> And`
+
+    A bulk of items that must all be validated as equal to the be considered equal.
+
+    Parameters
+    ----------
+    Any(None) : A sequence of Any type of items that will be processed in bulk.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, And):
@@ -228,6 +244,14 @@ class And(Conditional):
         return True
 
 class Or(Conditional):
+    """`Data -> Conditional -> Or`
+
+    A bulk of items that at least one must be validated as equal to all be considered equal.
+
+    Parameters
+    ----------
+    Any(None) : A sequence of Any type of items that will be processed in bulk.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Or):
