@@ -539,9 +539,18 @@ class Transition(Left):
         if len(self._multi_data['operand']) > 0:
             input = self._multi_data['operand'][self._index]
             if not self._multi_data['last_subject'] == input:
-                if isinstance(input, (oc.Container, ch.Chaos)):
-                    next_data = input % od.Next()
-                    input = next_data._data # Iterates to next subject
+
+                match input:
+                    case oc.Container():
+                        input._index += 1
+                        container_len: int = input.len()
+                        if container_len > 0:
+                            input = input[input._index % container_len]
+                        else:
+                            input = ol.Null()
+                    case ch.Chaos():
+                        input *= 1
+
                 self._index += self._multi_data['step']
                 self._index %= len(self._multi_data['operand'])
                 self._multi_data['last_subject'] = input

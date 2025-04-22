@@ -66,7 +66,6 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():       return self._xn % operand
-            case od.Next():             return od.Next(self * operand)
             case _:                     return super().__mod__(operand)
 
     def __str__(self) -> str:
