@@ -317,10 +317,27 @@ class SongParameter(Data):   # Just a data wrapper
         self._data = operand
 
 class DataMany(Data):
+    """`Data -> DataMany`
+
+    Works like an wrapper of multiple parameters.
+
+    Parameters
+    ----------
+    Any(None) : Group of data wrapped altogether.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
 class Parameters(DataMany):
+    """`Data -> DataMany -> Parameters`
+
+    Works like an wrapper of multiple parameters. It's like a named tuple.
+    Mainly used with `Clip` and `Part` operands to pass parameters directly to it.
+
+    Parameters
+    ----------
+    Any(None) : Group of parameters to be passed altogether at once.
+    """
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__()
         self._data = parameters
@@ -338,12 +355,28 @@ class Clips(DataMany):
     pass
 
 class TrackName(Data):
+    """`Data -> TrackName`
+
+    `Clip` parameter that sets the name of the track for the Midilist exporting.
+    Basically works like a tag on a `Clip`, where multiple clips can share the same track name.
+
+    Parameters
+    ----------
+    str("Track 1") : Name of the `Clip` track.
+    """
     def __init__(self, track_name: str = "Track 1"):    # By default is "Track 1"
         super().__init__(track_name)
 
 
-
 class Serialization(Data):
+    """`Data -> Serialization`
+
+    Serialized data representing all the parameters of a given `Operand`.
+
+    Parameters
+    ----------
+    dict(None) : A dictionary with all the `Operand` configuration.
+    """
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
         match serialization:
