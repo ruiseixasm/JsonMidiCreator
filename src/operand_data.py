@@ -507,11 +507,40 @@ class Serialization(Data):
     def __truediv__(self, operand: any) -> 'o.Operand':
         return self._data / operand
 
+class Load(Serialization):
+    """`Data -> Serialization -> Load`
+
+    This `Operand` allows the loading of a saved file directly in to its respective `Operand` type.
+
+    Parameters
+    ----------
+    str("json/_Save_jsonMidiCreator.json") : The filename and respective path to load the `Operand` serialization from.
+    """
+    def __new__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
+        if isinstance(filename, str):
+            operand_data = self.load_operand_data(filename)
+            if operand_data:
+                return o.Operand().loadSerialization(operand_data)    # Must convert to an Operand
+            return None
+
+    @staticmethod
+    def load_operand_data(filename: str) -> dict:
+        return {} if filename is None else c.loadJsonMidiCreator(filename)
+
+
 if TYPE_CHECKING:
     from operand_rational import Position
     from operand_generic import Staff
 
 class Playlist(Data):
+    """`Data -> Playlist`
+
+    Operand representing a Playlist that can be played or used as a `Clip` in a `Part`.
+
+    Parameters
+    ----------
+    list(None) : A list with all the Element dictionaries concerning their midi messages.
+    """
     def __init__(self, *parameters):
         super().__init__([])
         self._track_name: str = "Playlist 1"
@@ -721,76 +750,42 @@ class Playlist(Data):
             ]
         return []
 
+class Import(Playlist):
+    """`Data -> Playlist -> Import`
 
-class Load(Serialization):
-    def __new__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
+    Imports a given `Playlist` from a previously exported file.
+
+    Parameters
+    ----------
+    str("json/_Export_jsonMidiCreator.json") : The filename and respective path to load the playlist from.
+    """
+    def __new__(self, filename: str = "json/_Export_jsonMidiCreator.json"):
         if isinstance(filename, str):
-            operand_data = self.load_operand_data(filename)
+            operand_data = self.load_playlist(filename)
             if operand_data:
-                return o.Operand().loadSerialization(operand_data)    # Must convert to an Operand
+                if "clock" in operand_data[0]:
+                    # Remove "clock" header
+                    operand_data.pop(0)
+                return Playlist(DataSource( operand_data ))
             return None
 
     @staticmethod
-    def load_operand_data(filename: str) -> dict:
-        return {} if filename is None else c.loadJsonMidiCreator(filename)
-    
-
-
-class Import(Playlist):
-    def __init__(self, filename: str = None):
-        super().__init__()
-        if isinstance(filename, str):
-            self._data = [] if filename is None else c.loadJsonMidiPlay(filename)
-            if self._data and "clock" in self._data[0]:
-                # Remove "clock" header
-                self._data.pop(0)
+    def load_playlist(filename: str) -> list[dict]:
+        return [] if filename is None else c.loadJsonMidiPlay(filename)
 
 
 class Device(Data):
-    def __init__(self, device: str = None):
+    """`Data -> Playlist -> Import`
+
+    Keeps a string as the name of the given midi device it represents.
+    It can be a substring and not the full name of the device.
+
+    Parameters
+    ----------
+    str("Synth") : The device name connected via midi.
+    """
+    def __init__(self, device: str = "Synth"):
         super().__init__( device if isinstance(device, str) else "Synth" )
-
-class Result(Data):
-    pass
-
-class Chain(Data):
-    def __init__(self, *parameters):
-        super().__init__()
-        self << parameters
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        for process in self._data:
-            operand >>= process
-        return operand
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "data" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            data_list: list = self.deserialize(serialization["parameters"]["data"])
-            self._data = tuple(data_list)
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Chain():
-                self._data = self.deep_copy(operand._data)
-            case DataSource():
-                match operand._data:
-                    case tuple():
-                        self._data = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case tuple():
-                # self._data = operand
-                self._data = self.deep_copy(operand)
-            case _:
-                self._data = tuple(self.deep_copy(operand))
-        return self
 
 
 class Process(Data):
