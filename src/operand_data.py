@@ -843,7 +843,7 @@ class Process(Data):
 
     
 class SideEffect(Process):
-    """`Data -> SideEffects`
+    """`Data -> Process -> SideEffect`
 
     This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
     data in the respective self data without changing the respective chained data sequence.
@@ -857,7 +857,7 @@ class SideEffect(Process):
         self._data = operand    # needs to keep the original reference (no copy)
 
 class LeftShift(SideEffect):
-    """`Data -> SideEffects -> LeftShift`
+    """`Data -> Process -> SideEffect -> LeftShift`
 
     Applies the `<<` operation to self data without changing the original chained data or the chain itself.
 
@@ -873,7 +873,7 @@ class LeftShift(SideEffect):
         return super().__rrshift__(operand)
 
 class IAdd(SideEffect):    # i stands for "inplace"
-    """`Data -> SideEffects -> IAdd`
+    """`Data -> Process -> SideEffect -> IAdd`
 
     Applies the `+=` operation to self data without changing the original chained data or the chain itself.
 
@@ -889,7 +889,7 @@ class IAdd(SideEffect):    # i stands for "inplace"
         return super().__rrshift__(operand)
 
 class ISub(SideEffect):
-    """`Data -> SideEffects -> ISub`
+    """`Data -> Process -> SideEffect -> ISub`
 
     Applies the `-=` operation to self data without changing the original chained data or the chain itself.
 
@@ -905,7 +905,7 @@ class ISub(SideEffect):
         return super().__rrshift__(operand)
 
 class IMul(SideEffect):
-    """`Data -> SideEffects -> IMul`
+    """`Data -> Process -> SideEffect -> IMul`
 
     Applies the `*=` operation to self data without changing the original chained data or the chain itself.
 
@@ -921,7 +921,7 @@ class IMul(SideEffect):
         return super().__rrshift__(operand)
 
 class IDiv(SideEffect):
-    """`Data -> SideEffects -> IDiv`
+    """`Data -> Process -> SideEffect -> IDiv`
 
     Applies the `/=` operation to self data without changing the original chained data or the chain itself.
 
@@ -938,6 +938,14 @@ class IDiv(SideEffect):
 
 
 class Save(Process):
+    """`Data -> Process -> Save`
+
+    Saves all parameters' `Serialization` of a given `Operand` into a file.
+
+    Parameters
+    ----------
+    str("json/_Save_jsonMidiCreator.json") : The filename of the Operand's serialization data.
+    """
     def __init__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(filename)
 
@@ -948,6 +956,14 @@ class Save(Process):
         return super().__rrshift__(operand)
 
 class Export(Process):
+    """`Data -> Process -> Export`
+
+    Exports a file playable by the `JsonMidiPlayer` program.
+
+    Parameters
+    ----------
+    str("json/_Export_jsonMidiPlayer.json") : The filename of the JsonMidiPlayer playable file.
+    """
     def __init__(self, filename: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__(filename)
 
@@ -961,7 +977,15 @@ class Export(Process):
                 return super().__rrshift__(operand)
 
 class MidiExport(Process):
-    def __init__(self, filename: str = "song.mid"):
+    """`Data -> Process -> MidiExport`
+
+    Exports a file playable by any Midi player.
+
+    Parameters
+    ----------
+    str("midi/_MidiExport_song.mid") : The filename of the Midi playable file.
+    """
+    def __init__(self, filename: str = "midi/_MidiExport_song.mid"):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
