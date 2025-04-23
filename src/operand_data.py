@@ -792,7 +792,7 @@ class Process(Data):
     """`Data -> Process`
 
     A process is no more than a call of a `Container` method, so, in nature a `Process` is a
-    read only `Operand` without mutable parameters.
+    read only `Operand` without mutable parameters. Intended to be used in a chained `>>` sequence of operators.
 
     Parameters
     ----------
@@ -979,7 +979,7 @@ class Export(Process):
 class MidiExport(Process):
     """`Data -> Process -> MidiExport`
 
-    Exports a file playable by any Midi player.
+    Exports a file playable by a Midi player.
 
     Parameters
     ----------
@@ -995,13 +995,17 @@ class MidiExport(Process):
         return super().__rrshift__(operand)
 
 class Play(Process):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : integer_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """`Data -> Process -> Play`
+
+    Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
+
+    Args:
+        verbose (False): Defines the `verbose` mode of the playing.
+        plot (False): Plots a chart before playing it.
+        block (False): Blocks the Plot until is closed and then plays the plotted content.
+
+    Returns:
+        Operand: Returns the respective `Element` or `Composition`.
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
         super().__init__((verbose, plot, block))
@@ -1030,13 +1034,16 @@ class Play(Process):
 
 
 class Print(Process):
-    """
-    Print() allows to get on the console the configuration of the source Operand in a JSON layout.
-    
-    Parameters
-    ----------
-    first : integer_like
-        Sets the indent of the JSON print layout with the default as 4
+    """`Data -> Process -> Print`
+
+    Prints the Operand's parameters in a JSON alike layout if it's an `Operand` being given,
+    otherwise prints directly like the common `print` function.
+
+    Args:
+        formatted (True): If False prints the `Operand` content in a single line.
+
+    Returns:
+        Any: Returns the original input.
     """
     def __init__(self, formatted: bool = True):
         super().__init__( 1 if formatted is None else formatted )
