@@ -713,12 +713,12 @@ class Container(o.Operand):
                 offset += 1
         return self._sort_position()
 
-    def filter(self, condition: any, shallow_copy: bool = True) -> Self:
+    def filter(self, condition: Any, shallow_copy: bool = True) -> Self:
         """
         Filters out all items that don't meet the condition (equal to).
 
         Args:
-            parameter (any): The object to be compared with (==).
+            parameter (Any): The object to be compared with (==).
 
         Returns:
             Container: The same self object with the items processed.
@@ -730,7 +730,7 @@ class Container(o.Operand):
         self._items = [item for item in self._items if item == condition]
         return self
 
-    def dropper(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
+    def drop(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
         """
         Removes items based on a given probability of such removal happening.
 

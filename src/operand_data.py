@@ -1003,9 +1003,9 @@ class Play(Process):
     Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
 
     Args:
-        verbose (False): Defines the `verbose` mode of the playing.
-        plot (False): Plots a chart before playing it.
-        block (False): Blocks the Plot until is closed and then plays the plotted content.
+        verbose (bool): Defines the `verbose` mode of the playing.
+        plot (bool): Plots a chart before playing it.
+        block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
         super().__init__((verbose, plot, block))
@@ -1040,7 +1040,7 @@ class Print(Process):
     otherwise prints directly like the common `print` function.
 
     Args:
-        formatted (True): If False prints the `Operand` content in a single line.
+        formatted (bool): If False prints the `Operand` content in a single line.
     """
     def __init__(self, formatted: bool = True):
         super().__init__( 1 if formatted is None else formatted )
@@ -1146,8 +1146,8 @@ class Sort(ContainerProcess):
     Sorts the contained items by a given parameter type.
 
     Args:
-        parameter (Position): Defines the given parameter type to sort by.
-        reverse (False): Reverses the sorting if `True`.
+        parameter (type): Defines the given parameter type to sort by.
+        reverse (bool): Reverses the sorting if `True`.
     """
     from operand_rational import Position
 
@@ -1163,16 +1163,16 @@ class Filter(ContainerProcess):
     Filters the contained items by a given condition to be met.
 
     Args:
-        condition (None): Sets a condition to be compared with `==` operator.
-        shallow_copy (True): Copies each contained item if `False`.
+        condition (Any): Sets a condition to be compared with `==` operator.
+        shallow_copy (bool): Copies each contained item if `False`.
     """
-    def __init__(self, condition: any = None, shallow_copy: bool = True):
+    def __init__(self, condition: Any = None, shallow_copy: bool = True):
         super().__init__((condition, shallow_copy))
 
     def process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._data)
 
-class Dropper(ContainerProcess):
+class Drop(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Dropper`
 
     Removes items based on a given probability of such removal happening.
@@ -1185,9 +1185,17 @@ class Dropper(ContainerProcess):
         super().__init__((probability, chaos))
 
     def process(self, operand: 'Container') -> 'Container':
-        return operand.dropper(*self._data)
+        return operand.drop(*self._data)
 
 class Operate(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Operate`
+
+    Removes items based on a given probability of such removal happening.
+
+    Args:
+        probability (float): The probability of an item being removed.
+        chaos (Chaos): The chaotic generation targeted by the probability.
+    """
     def __init__(self, operand: any = None, operator: str = "<<"):
         super().__init__((operand, operator))
 
