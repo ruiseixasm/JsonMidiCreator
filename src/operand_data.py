@@ -843,25 +843,99 @@ class Process(Data):
 
     
 class SideEffects(Process):
+    """`Data -> SideEffects`
+
+    This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
+    data in the respective self data without changing the respective chained data sequence.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected inside the chained `>>` sequence.
+    """
     def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # needs to keep the original reference (no copy)
 
 class LeftShift(SideEffects):
+    """`Data -> SideEffects -> LeftShift`
+
+    Applies the `<<` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
+    """
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data << operand
+            self._data.__lshift__(operand)
             return operand
         return super().__rrshift__(operand)
 
-class RightShift(SideEffects):
+class IAdd(SideEffects):    # i stands for "inplace"
+    """`Data -> SideEffects -> IAdd`
+
+    Applies the `+=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
+    """
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            operand >> self._data
+            self._data.__iadd__(operand)
             return operand
         return super().__rrshift__(operand)
+
+class ISub(SideEffects):
+    """`Data -> SideEffects -> ISub`
+
+    Applies the `-=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            self._data.__isub__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IMul(SideEffects):
+    """`Data -> SideEffects -> IMul`
+
+    Applies the `*=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            self._data.__imul__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IDiv(SideEffects):
+    """`Data -> SideEffects -> IDiv`
+
+    Applies the `/=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            self._data.__itruediv__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
 
 class Save(Process):
     def __init__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
