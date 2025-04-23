@@ -775,7 +775,7 @@ class Import(Playlist):
 
 
 class Device(Data):
-    """`Data -> Playlist -> Import`
+    """`Data -> Device`
 
     Keeps a string as the name of the given midi device it represents.
     It can be a substring and not the full name of the device.
@@ -789,7 +789,15 @@ class Device(Data):
 
 
 class Process(Data):
-    
+    """`Data -> Process`
+
+    A process is no more than a call of a `Container` method, so, in nature a `Process` is a
+    read only `Operand` without mutable parameters.
+
+    Parameters
+    ----------
+    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+    """
     def __init__(self, parameters: any = None):
         super().__init__(parameters)
 
