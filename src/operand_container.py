@@ -749,12 +749,12 @@ class Container(o.Operand):
                 self._delete([ single_item ])
         return self
     
-    def operate(self, operand: any = None, operator: str = "<<") -> Self:
+    def operate(self, operand: Any = None, operator: str = "<<") -> Self:
         """
         Allows the setting of a specific operator as operation with a str as operator symbol.
 
         Args:
-            operand (any): `Operand` that is the source of the operation.
+            operand (Any): `Operand` that is the source of the operation.
             operator (str): The operator `op` that becomes processed as `self op operand`.
 
         Returns:
@@ -782,10 +782,10 @@ class Container(o.Operand):
 
     def transform(self, operand_type: type = oe.Note) -> Self:
         """
-        Transforms each item by wrapping each one with the new operand type given.
+        Transforms each item by wrapping it with the new operand type given.
 
         Args:
-            operand_type (type): The type of `Operand` by which each item will be transformed in.
+            operand_type (type): The type of `Operand` by which each item will be transformed into.
 
         Returns:
             Container: The same self object after the given processed items.

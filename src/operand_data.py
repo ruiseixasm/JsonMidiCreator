@@ -1190,13 +1190,13 @@ class Drop(ContainerProcess):
 class Operate(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Operate`
 
-    Removes items based on a given probability of such removal happening.
+    Allows the setting of a specific operator as operation with a str as operator symbol.
 
     Args:
-        probability (float): The probability of an item being removed.
-        chaos (Chaos): The chaotic generation targeted by the probability.
+        operand (Any): `Operand` that is the source of the operation.
+        operator (str): The operator `op` that becomes processed as `self op operand`.
     """
-    def __init__(self, operand: any = None, operator: str = "<<"):
+    def __init__(self, operand: Any = None, operator: str = "<<"):
         super().__init__((operand, operator))
 
     def process(self, operand: 'Container') -> 'Container':
@@ -1206,6 +1206,13 @@ if TYPE_CHECKING:
     from operand_element import Note
 
 class Transform(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Transform`
+
+    Transforms each item by wrapping it with the new operand type given.
+
+    Args:
+        operand_type (type): The type of `Operand` by which each item will be transformed into.
+    """
     def __init__(self, operand_type: type = 'Note'):
         super().__init__(operand_type)
 
