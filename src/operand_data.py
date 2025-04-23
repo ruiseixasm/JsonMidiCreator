@@ -797,6 +797,9 @@ class Process(Data):
     Parameters
     ----------
     Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+
+    Returns:
+        Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
     def __init__(self, parameters: any = None):
         super().__init__(parameters)
@@ -1003,9 +1006,6 @@ class Play(Process):
         verbose (False): Defines the `verbose` mode of the playing.
         plot (False): Plots a chart before playing it.
         block (False): Blocks the Plot until is closed and then plays the plotted content.
-
-    Returns:
-        Operand: Returns the respective `Element` or `Composition`.
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
         super().__init__((verbose, plot, block))
@@ -1041,9 +1041,6 @@ class Print(Process):
 
     Args:
         formatted (True): If False prints the `Operand` content in a single line.
-
-    Returns:
-        Any: Returns the original input.
     """
     def __init__(self, formatted: bool = True):
         super().__init__( 1 if formatted is None else formatted )
@@ -1065,8 +1062,16 @@ class Print(Process):
         return operand
 
 class Copy(Process):
-    """
-    Copy() does an total duplication of the Operand including its parts.
+    """`Data -> Process -> Copy`
+
+    Creates and returns a copy of the left side `>>` operand.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the copied `Operand`.
+
+    Returns:
+        Operand: Returns a copy of the left side `>>` operand.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -1077,8 +1082,16 @@ class Copy(Process):
         return super().__rrshift__(operand)
 
 class Reset(Process):
-    """
-    Reset() does an total reset of the Operand including its non accessible parameters.
+    """`Data -> Process -> Reset`
+
+    Does a reset of the Operand's original parameters and its volatile ones.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the reset `Operand`.
+
+    Returns:
+        Operand: Returns the same reset operand.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -1089,8 +1102,17 @@ class Reset(Process):
         return super().__rrshift__(operand)
 
 class Clear(Process):
-    """
-    Clear() does an total clean up of all parameters including a reset.
+    """`Data -> Process -> Clear`
+
+    Besides doing a reset of the Operand's original parameters and its volatile ones,
+    sets the default parameters associated with an empty Operand (blank slate).
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the cleared `Operand`.
+
+    Returns:
+        Operand: Returns the same cleared operand.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
