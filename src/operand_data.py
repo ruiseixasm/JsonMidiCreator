@@ -265,19 +265,77 @@ class Or(Conditional):
 
 
 class ClipParameter(Data):   # Just a data wrapper
+    """`Data -> ClipParameter`
+
+    It's just a wrapper of parameter data exclusive for the `Clip` operand.
+
+    Parameters
+    ----------
+    Any(None) : Any parameter concerning `Clip` operands.
+    """
     def __init__(self, operand: any = None):
         super().__init__()
         self._data = operand
 
 class PartParameter(Data):   # Just a data wrapper
+    """`Data -> PartParameter`
+
+    It's just a wrapper of parameter data exclusive for the `Part` operand.
+
+    Parameters
+    ----------
+    Any(None) : Any parameter concerning `Part` operands.
+    """
     def __init__(self, operand: any = None):
         super().__init__()
         self._data = operand
 
 class PlaylistParameter(Data):   # Just a data wrapper
+    """`Data -> PlaylistParameter`
+
+    It's just a wrapper of parameter data exclusive for the `Playlist` operand.
+
+    Parameters
+    ----------
+    Any(None) : Any parameter concerning `Playlist` operands.
+    """
     def __init__(self, operand: any = None):
         super().__init__()
         self._data = operand
+
+class SongParameter(Data):   # Just a data wrapper
+    """`Data -> SongParameter`
+
+    It's just a wrapper of parameter data exclusive for the `Song` operand.
+
+    Parameters
+    ----------
+    Any(None) : Any parameter concerning `Song` operands.
+    """
+    def __init__(self, operand: any = None):
+        super().__init__()
+        self._data = operand
+
+class DataMany(Data):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+class Parameters(DataMany):
+    def __init__(self, *parameters):    # Allows multiple parameters
+        super().__init__()
+        self._data = parameters
+
+class Performers(DataMany):
+    def reset(self, *parameters) -> 'Performers':
+        super().reset(*parameters)
+        if isinstance(self._data, (tuple, list)):
+            for single_operand in self._data:
+                if isinstance(single_operand, o.Operand):
+                    single_operand.reset()
+        return self
+
+class Clips(DataMany):
+    pass
 
 class TrackName(Data):
     def __init__(self, track_name: str = "Track 1"):    # By default is "Track 1"
@@ -658,27 +716,6 @@ class Import(Playlist):
 class Device(Data):
     def __init__(self, device: str = None):
         super().__init__( device if isinstance(device, str) else "Synth" )
-
-class DataMany(Data):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-
-class Parameters(DataMany):
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__()
-        self._data = parameters
-
-class Performers(DataMany):
-    def reset(self, *parameters) -> 'Performers':
-        super().reset(*parameters)
-        if isinstance(self._data, (tuple, list)):
-            for single_operand in self._data:
-                if isinstance(single_operand, o.Operand):
-                    single_operand.reset()
-        return self
-
-class Clips(DataMany):
-    pass
 
 class Result(Data):
     pass
