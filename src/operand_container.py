@@ -715,7 +715,7 @@ class Container(o.Operand):
 
     def filter(self, condition: any, shallow_copy: bool = True) -> Self:
         """
-        Filters out all items that don't met the condition (equal to).
+        Filters out all items that don't meet the condition (equal to).
 
         Args:
             parameter (any): The object to be compared with (==).

@@ -1104,7 +1104,7 @@ class Reset(Process):
 class Clear(Process):
     """`Data -> Process -> Clear`
 
-    Besides doing a reset of the Operand's original parameters and its volatile ones,
+    Besides doing a reset of the Operand's slate parameters and its volatile ones,
     sets the default parameters associated with an empty Operand (blank slate).
 
     Parameters
@@ -1127,6 +1127,10 @@ if TYPE_CHECKING:
     from operand_container import Container
 
 class ContainerProcess(Process):
+    """`Data -> Process -> ContainerProcess`
+
+    Processes applicable exclusively to `Container` operands.
+    """
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -1137,15 +1141,31 @@ class ContainerProcess(Process):
         return operand
 
 class Sort(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Sort`
+
+    Sorts the contained items by a given parameter type.
+
+    Args:
+        parameter (Position): Defines the given parameter type to sort by.
+        reverse (False): Reverses the sorting if `True`.
+    """
     from operand_rational import Position
 
-    def __init__(self, parameter: type = Position, reverse: bool = True):
+    def __init__(self, parameter: type = Position, reverse: bool = False):
         super().__init__((parameter, reverse))
 
     def process(self, operand: 'Container') -> 'Container':
         return operand.sort(*self._data)
 
 class Filter(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Filter`
+
+    Filters the contained items by a given condition to be met.
+
+    Args:
+        condition (None): Sets a condition to be compared with `==` operator.
+        shallow_copy (True): Copies each contained item if `False`.
+    """
     def __init__(self, condition: any = None, shallow_copy: bool = True):
         super().__init__((condition, shallow_copy))
 
@@ -1153,6 +1173,14 @@ class Filter(ContainerProcess):
         return operand.filter(*self._data)
 
 class Dropper(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Dropper`
+
+    Removes items based on a given probability of such removal happening.
+
+    Args:
+        probability (float): The probability of an item being removed.
+        chaos (Chaos): The chaotic generation targeted by the probability.
+    """
     def __init__(self, probability: float | Fraction = 1/16, chaos: 'Chaos' = None):
         super().__init__((probability, chaos))
 
@@ -1243,6 +1271,10 @@ if TYPE_CHECKING:
     from operand_container import Clip
 
 class ClipProcess(Process):
+    """`Data -> Process -> ClipProcess`
+
+    Processes applicable exclusively to `Clip` operands.
+    """
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -1395,6 +1427,35 @@ class Plot(ClipProcess):
 
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.plot(*self._data)
+
+class PartProcess(Process):
+    """`Data -> Process -> PartProcess`
+
+    Processes applicable exclusively to `Part` operands.
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Part):
+            return self.process(operand)
+        return super().__rrshift__(operand)
+
+    def process(self, operand: o.T) -> o.T:
+        return operand
+
+class SongProcess(Process):
+    """`Data -> Process -> SongProcess`
+
+    Processes applicable exclusively to `Song` operands.
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Song):
+            return self.process(operand)
+        return super().__rrshift__(operand)
+
+    def process(self, operand: o.T) -> o.T:
+        return operand
+
 
 
 
