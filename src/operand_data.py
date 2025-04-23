@@ -842,7 +842,7 @@ class Process(Data):
         return playlist
 
     
-class SideEffects(Process):
+class SideEffect(Process):
     """`Data -> SideEffects`
 
     This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
@@ -856,7 +856,7 @@ class SideEffects(Process):
         super().__init__()
         self._data = operand    # needs to keep the original reference (no copy)
 
-class LeftShift(SideEffects):
+class LeftShift(SideEffect):
     """`Data -> SideEffects -> LeftShift`
 
     Applies the `<<` operation to self data without changing the original chained data or the chain itself.
@@ -872,7 +872,7 @@ class LeftShift(SideEffects):
             return operand
         return super().__rrshift__(operand)
 
-class IAdd(SideEffects):    # i stands for "inplace"
+class IAdd(SideEffect):    # i stands for "inplace"
     """`Data -> SideEffects -> IAdd`
 
     Applies the `+=` operation to self data without changing the original chained data or the chain itself.
@@ -888,7 +888,7 @@ class IAdd(SideEffects):    # i stands for "inplace"
             return operand
         return super().__rrshift__(operand)
 
-class ISub(SideEffects):
+class ISub(SideEffect):
     """`Data -> SideEffects -> ISub`
 
     Applies the `-=` operation to self data without changing the original chained data or the chain itself.
@@ -904,7 +904,7 @@ class ISub(SideEffects):
             return operand
         return super().__rrshift__(operand)
 
-class IMul(SideEffects):
+class IMul(SideEffect):
     """`Data -> SideEffects -> IMul`
 
     Applies the `*=` operation to self data without changing the original chained data or the chain itself.
@@ -920,7 +920,7 @@ class IMul(SideEffects):
             return operand
         return super().__rrshift__(operand)
 
-class IDiv(SideEffects):
+class IDiv(SideEffect):
     """`Data -> SideEffects -> IDiv`
 
     Applies the `/=` operation to self data without changing the original chained data or the chain itself.
