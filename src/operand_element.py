@@ -1980,7 +1980,7 @@ class Note3(Retrigger):
         Note Duration set to the following Values:
 
         +----------+------------+-------------------+
-        | Notation | Base Note  | Triplet Value     |
+        | Notation | Base Note  | Triplet None      |
         +----------+------------+-------------------+
         | 1T       | 1          | 1    * 2/3 = 2/3  |
         | 1/2T     | 1/2        | 1/2  * 2/3 = 1/3  |
