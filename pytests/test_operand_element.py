@@ -343,8 +343,8 @@ def test_chord_mod():
 def test_retrigger_mod():
 
     # Perform the operation
-    retrigger = Retrigger("G") << Divisions(32)
-    retrigger_int = retrigger % Divisions() % int()
+    retrigger = Retrigger("G") << Number(32)
+    retrigger_int = retrigger % Number() % int()
 
     assert retrigger_int == 32
 

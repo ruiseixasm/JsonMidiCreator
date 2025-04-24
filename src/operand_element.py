@@ -1214,6 +1214,25 @@ class Note(Element):
 
 
 class Cluster(Note):
+    """`Element -> Note -> Cluster`
+
+    A `Cluster` element aggregates multiple notes based on the list len and content. \
+        That content is added to the present single `Note` configuration.
+
+    Parameters
+    ----------
+    list([ou.Degree(0), ou.Degree(2), ou.Degree(4)]) : A list with parameters to be added with `+=` to the self reference `Note`.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._sets: list = [
             ou.Degree(0), ou.Degree(2), ou.Degree(4)
@@ -1315,6 +1334,24 @@ class Cluster(Note):
 
 
 class KeyScale(Note):
+    """`Element -> Note -> KeyScale`
+
+    A `KeyScale` element allows the triggering of all notes concerning a specific `Scale`.
+
+    Parameters
+    ----------
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
@@ -1435,7 +1472,7 @@ class KeyScale(Note):
                     case og.Scale():        self._scale = operand._data
                     case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
-            case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
+            case og.Scale() | list() | ou.Mode() | None:    # It's the element scale that is set
                 self._scale << operand
             case ou.KeySignature():
                 super().__lshift__(operand)
@@ -1452,6 +1489,25 @@ class KeyScale(Note):
         return self
     
 class Polychord(KeyScale):
+    """`Element -> Note -> KeyScale -> Polychord`
+
+    A `Polychord` element allows the triggering of notes concerning specific degrees of a `Scale`.
+
+    Parameters
+    ----------
+    list([1, 3, 5]) : Sets the specific key degrees to be pressed as `Note`.
+    Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._degrees: list[int | float] = [1, 3, 5]
         super().__init__( *parameters )
@@ -1516,6 +1572,31 @@ class Polychord(KeyScale):
         return self
 
 class Chord(KeyScale):
+    """`Element -> Note -> KeyScale -> Chord`
+
+    A `Chord` element allows the triggering of notes belonging to a specific `Scale`.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._size: int             = 3
         self._inversion: int        = 0
@@ -1748,8 +1829,26 @@ class Chord(KeyScale):
         self._sus4          = ou.Sus4(od.DataSource( self._sus4 ), data) // bool()
 
 class Retrigger(Note):
+    """`Element -> Note -> Retrigger`
+
+    A `Retrigger` element allows the repeated triggering of a `Note`.
+
+    Parameters
+    ----------
+    Number(16) : The number above the notation beam with 3 as being a triplet.
+    Swing(0.5) : The ratio of time the `Note` is pressed.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
-        self._division: int     = 16
+        self._number: int       = 16
         self._swing: Fraction   = ra.Swing(0.5)._rational
         super().__init__()
         self._duration_notevalue  *= 2 # Equivalent to twice single note duration
@@ -1757,8 +1856,8 @@ class Retrigger(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def division(self, division: int = 16) -> Self:
-        self._division = division
+    def number(self, number: int = 16) -> Self:
+        self._number = number
         return self
 
     def swing(self, swing: float = 0.5) -> Self:
@@ -1773,18 +1872,17 @@ class Retrigger(Note):
 
         Examples
         --------
-        >>> retrigger = Retrigger("G") << Division(32)
-        >>> retrigger % Division() % int() >> Print()
+        >>> retrigger = Retrigger("G") << Number(32)
+        >>> retrigger % Number() % int() >> Print()
         32
         """
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Divisions():    return operand._data << od.DataSource(self._division)
+                    case ou.Number():       return operand._data << od.DataSource(self._number)
                     case ra.Swing():        return operand._data << od.DataSource(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Divisions():    return ou.Divisions() << od.DataSource(self._division)
-            case int():             return self._division
+            case ou.Number():       return ou.Number() << od.DataSource(self._number)
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
@@ -1797,8 +1895,8 @@ class Retrigger(Note):
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
-        single_note_duration: ra.Duration = ra.Duration( self._duration_notevalue/(self._division) ) # Already 2x single note duration
-        for _ in range(self._division):
+        single_note_duration: ra.Duration = ra.Duration( self._duration_notevalue/(self._number) ) # Already 2x single note duration
+        for _ in range(self._number):
             swing_ratio = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
@@ -1828,7 +1926,7 @@ class Retrigger(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["division"] = self.serialize( self._division )
+        serialization["parameters"]["number"]   = self.serialize( self._number )
         serialization["parameters"]["swing"]    = self.serialize( self._swing )
         return serialization
 
@@ -1836,10 +1934,10 @@ class Retrigger(Note):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "division" in serialization["parameters"]):
+            "number" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._division  = self.deserialize( serialization["parameters"]["division"] )
+            self._number    = self.deserialize( serialization["parameters"]["number"] )
             self._swing     = self.deserialize( serialization["parameters"]["swing"] )
         return self
 
@@ -1848,19 +1946,16 @@ class Retrigger(Note):
         match operand:
             case Retrigger():
                 super().__lshift__(operand)
-                self._division  = operand._division
+                self._number  = operand._number
                 self._swing     = operand._swing
             case od.DataSource():
                 match operand._data:
-                    case ou.Divisions():             self._division = operand._data // int()
+                    case ou.Number():               self._number = operand._data // int()
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
-            case int():
+            case ou.Number():
                 if operand > 0:
-                    self._division = operand
-            case ou.Divisions():
-                if operand > 0:
-                    self._division = operand // int()
+                    self._number = operand // int()
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -1869,7 +1964,7 @@ class Retrigger(Note):
                 else:
                     self._swing = operand._rational
             case ra.Duration():
-                self._duration_notevalue = operand._rational * 2  # Equivalent to two sized Notes
+                self._duration_notevalue    = operand._rational * 2  # Equivalent to two sized Notes
             case Fraction():
                 self._duration_notevalue    = operand * 2
             case float():
@@ -1891,7 +1986,7 @@ class Note3(Retrigger):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._division = 3
+        self._number = 3
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1900,9 +1995,10 @@ class Note3(Retrigger):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Divisions() | int():
+            case ou.Number():
                 return self # disables the setting of Division, always 3
-            case _:                 super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Tuplet(Element):
@@ -1953,8 +2049,7 @@ class Tuplet(Element):
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
-            case ou.Divisions():     return ou.Divisions() << len(self._elements)
-            case int():             return len(self._elements)
+            case ou.Number():       return ou.Number() << len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration_notevalue / 2 )
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)

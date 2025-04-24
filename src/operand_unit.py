@@ -1724,19 +1724,6 @@ class Size(Unit):
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
 
-class Divisions(Unit):
-    """`Unit -> Divisions`
-
-    A Divisions() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
-    
-    Parameters
-    ----------
-    first : integer_like
-        The amount of notes grouped together with the default of 3 (Triplet)
-    """
-    def __init__(self, *parameters):
-        super().__init__(3, *parameters)
-
 class ScaleOperation(Unit):
     pass
 
