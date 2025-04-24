@@ -1784,15 +1784,15 @@ class Clip(Composition):  # Just a container of Elements
     def oscillate(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                   parameter: type = None) -> Self:
         """
-        Applies for each item element the value at the given position given by the osculation function at
+        Applies for each item element the value at the given position given by the oscillator function at
         that same position.
 
         Args:
-            amplitude: Amplitude of the wave.
-            wavelength: The length of the wave in note value.
-            offset: Sets the horizontal axis of the wave.
-            phase: Sets the starting degree of the wave.
-            parameter: The parameter used as the one being automated by the wave.
+            amplitude (int): Amplitude of the wave.
+            wavelength (float): The length of the wave in note value.
+            offset (int): Sets the horizontal axis of the wave.
+            phase (int): Sets the starting degree of the wave.
+            parameter (type): The parameter used as the one being automated by the wave.
 
         Returns:
             Clip: A clip with each element having the wave value set on it.
@@ -1841,8 +1841,8 @@ class Clip(Composition):  # Just a container of Elements
 
     def flip(self) -> Self:
         """
-        Flip is similar to reverse but instead of the elements position it reverses the
-        Note and similar Pitch, like vertically mirrored.
+        Flip is similar to reverse but instead of reversing the elements position it reverses the
+        Note's respective Pitch, like vertically mirrored.
 
         Args:
             None
@@ -1878,11 +1878,11 @@ class Clip(Composition):  # Just a container of Elements
 
     def snap(self, up: bool = False) -> Self:
         """
-        For Note and similar, it snaps the given Pitch to the one of the key signature.
+        For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
 
         Args:
-            up (bool): By default it snaps to the closest bellow pitch, but if set
-            as True, it will snap to the closest above pitch instead
+            up (bool): By default it snaps to the closest bellow pitch, but if set as True,
+            it will snap to the closest above pitch instead.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -1894,10 +1894,10 @@ class Clip(Composition):  # Just a container of Elements
 
     def extend(self, length: ra.Length = ra.Length(2.0)) -> Self:
         """
-        Extends (drags) the given clip along a given length.
+        Extends (stretches) the given clip along a given length.
 
         Args:
-            length (ra.Length): The length along with the clip will be extended (dragged)
+            length (Length): The length along which the clip will be extended (stretched).
 
         Returns:
             Clip: The same self object with the items processed.
@@ -1912,7 +1912,7 @@ class Clip(Composition):  # Just a container of Elements
         Trims the given clip at a given length.
 
         Args:
-            length (ra.Length): The length along with the clip will be trimmed
+            length (Length): The length of the clip that will be trimmed.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -1935,8 +1935,8 @@ class Clip(Composition):  # Just a container of Elements
         Cuts (removes) the section of the clip from the start to the finish positions.
 
         Args:
-            start (ra.Position): Starting position of the section to be cut
-            finish (ra.Position): Finish position of the section to be cut
+            start (Position): Starting position of the section to be cut.
+            finish (Position): Finish position of the section to be cut.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -1961,8 +1961,8 @@ class Clip(Composition):  # Just a container of Elements
         Selects the section of the clip that will be preserved.
 
         Args:
-            start (ra.Position): Starting position of the section to be selected
-            finish (ra.Position): Finish position of the section to be selected
+            start (Position): Starting position of the section to be selected
+            finish (Position): Finish position of the section to be selected
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2153,10 +2153,10 @@ class Clip(Composition):  # Just a container of Elements
 
     def tie(self, tied: bool = True) -> Self:
         """
-        Sets the Note or similar elements as tied or not tied.
+        Sets the `Note` or derived elements as tied or not tied.
 
         Args:
-            tied (bool): True for tied and False for not tied
+            tied (bool): True for tied and False for not tied.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2168,10 +2168,10 @@ class Clip(Composition):  # Just a container of Elements
     
     def slur(self, gate: float = 1.05) -> Self:
         """
-        Changes the element duration in order to crate a small overlap.
+        Changes the note `Gate` in order to crate a small overlap.
 
         Args:
-            gate (float): Can be given a different value from 1.05, de default
+            gate (float): Can be given a different gate from 1.05, de default.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2186,7 +2186,7 @@ class Clip(Composition):  # Just a container of Elements
     
     def smooth(self) -> Self:
         """
-        Changes the Note or similar octave to become the closest pitch to the previous one.
+        Adjusts the `Note` octave to have the closest pitch to the previous one.
 
         Args:
             None

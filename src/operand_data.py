@@ -1463,10 +1463,29 @@ class Automate(ClipProcess):
         return operand.automate(*self._data)
 
 class Interpolate(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Interpolate`
+
+    Interpolates the multiple values of a given `Automation` element by `Channel`.
+
+    Args:
+        None.
+    """
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.interpolate()
 
 class Oscillate(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Oscillate`
+
+    Applies for each item element the value at the given position given by the oscillator function at
+    that same position.
+
+    Args:
+        amplitude (int): Amplitude of the wave.
+        wavelength (float): The length of the wave in note value.
+        offset (int): Sets the horizontal axis of the wave.
+        phase (int): Sets the starting degree of the wave.
+        parameter (type): The parameter used as the one being automated by the wave.
+    """
     def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                  parameter: type = None):
         super().__init__((amplitude, wavelength, offset, phase, parameter))
@@ -1475,6 +1494,13 @@ class Oscillate(ClipProcess):
         return operand.oscillate(*self._data)
 
 class Tie(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Tie`
+
+    Sets the `Note` or derived elements as tied or not tied.
+
+    Args:
+        tied (bool): True for tied and False for not tied.
+    """
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
@@ -1482,6 +1508,13 @@ class Tie(ClipProcess):
         return operand.tie(self._data)
 
 class Slur(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Slur`
+
+    Changes the note `Gate` in order to crate a small overlap.
+
+    Args:
+        gate (float): Can be given a different gate from 1.05, de default.
+    """
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
@@ -1489,14 +1522,37 @@ class Slur(ClipProcess):
         return operand.slur(self._data)
 
 class Smooth(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Smooth`
+
+    Adjusts the `Note` octave to have the closest pitch to the previous one.
+
+    Args:
+        None
+    """
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.smooth()
 
 class Flip(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Flip`
+
+    Flip is similar to reverse but instead of reversing the elements position it reverses the
+    Note's respective Pitch, like vertically mirrored.
+
+    Args:
+        None
+    """
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.flip()
 
 class Snap(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Snap`
+
+    For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
+
+    Args:
+        up (bool): By default it snaps to the closest bellow pitch, but if set as True,
+        it will snap to the closest above pitch instead.
+    """
     def __init__(self, up: bool = False):
         super().__init__(up)
 
@@ -1507,6 +1563,13 @@ if TYPE_CHECKING:
     from operand_rational import Length
 
 class Extend(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Extend`
+
+    Extends (stretches) the given clip along a given length.
+
+    Args:
+        length (Length): The length along which the clip will be extended (stretched).
+    """
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
 
@@ -1514,6 +1577,13 @@ class Extend(ClipProcess):
         return operand.extend(self._data)
 
 class Trim(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Trim`
+
+    Trims the given clip at a given length.
+
+    Args:
+        length (Length): The length of the clip that will be trimmed.
+    """
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
 
@@ -1521,6 +1591,14 @@ class Trim(ClipProcess):
         return operand.trim(self._data)
 
 class Cut(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Cut`
+
+    Cuts (removes) the section of the clip from the start to the finish positions.
+
+    Args:
+        start (Position): Starting position of the section to be cut.
+        finish (Position): Finish position of the section to be cut.
+    """
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
