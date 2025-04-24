@@ -1973,10 +1973,10 @@ class Retrigger(Note):
                 super().__lshift__(operand)
         return self
 
-class Note3(Retrigger):
-    """`Element -> Note -> Retrigger -> Note3`
+class Triplet(Retrigger):
+    """`Element -> Note -> Retrigger -> Triplet`
 
-    A `Note3` is the repetition of a given Note three times on a row Triplets have each \
+    A `Triplet` is the repetition of a given Note three times on a row Triplets have each \
         Note Duration set to the following Values:
 
         +----------+------------+-------------------+
@@ -1992,7 +1992,7 @@ class Note3(Retrigger):
 
     Parameters
     ----------
-    Number(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Note3`.
+    Number(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Triplet`.
     Swing(0.5) : The ratio of time the `Note` is pressed.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -2184,37 +2184,6 @@ class Tuplet(Element):
         self.set_elements_duration()
         return self
 
-class Triplet(Tuplet):
-    """`Element -> Tuplet -> Triplet`
-
-    A `Triplet` is a `Tuplet but with 3 and only 3 elements played in sequence, it's similar to `Note3` \
-        with the difference that it isn't restricted to notes.
-
-    Parameters
-    ----------
-    list([Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]) : List with all Tuplet elements.
-    Swing(0.5) : The ratio of time the `Note` is pressed.
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
-    Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case list():
-                if len(operand) == 3:
-                    super().__lshift__(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
 
 class Automation(Element):
     def __init__(self, *parameters):

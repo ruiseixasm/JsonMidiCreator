@@ -37,7 +37,7 @@ multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) * ((first_note + Rest()) * 3 >> 
 first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> Save("json/testing/_Save_Play_p.3_first_note.json") >> Export("json/testing/_Export_Play_p.3_sequence.json")
 
-Note3() << (NoteValue() << Duration(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+Triplet() << (NoteValue() << Duration(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (NoteValue() << Dotted(1/64))
@@ -91,10 +91,10 @@ composition: Part = Part(single_clock)
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
 
-triplets_one = (Note3("E") << NoteValue(1/16)) * 8
+triplets_one = (Triplet("E") << NoteValue(1/16)) * 8
 triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.8_first_note.json") >> Export("json/testing/_Export_Play_p.8_sequence.json")
 
-triplets_two = (Note3("G") << NoteValue(1/16)) * 8
+triplets_two = (Triplet("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!

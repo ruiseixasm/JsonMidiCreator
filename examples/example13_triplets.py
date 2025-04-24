@@ -21,9 +21,9 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-triplets = Triplet(1/2) >> Print()
+tuplet = Tuplet(1/2) >> Print()
 two_notes = Note("D", 1/2) * 2 << Gate(0.5)
-triplets + two_notes >> Play(True)
+tuplet + two_notes >> Play(True)
 Rest(1) >> Play()
-triplets << [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
-triplets + two_notes >> Play(True)
+tuplet << [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
+tuplet + two_notes >> Play(True)

@@ -76,7 +76,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
 start_time = time.time()
-Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
+Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
     >> Save("json/testing/_Save_Play_p.3.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.3.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -204,7 +204,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.8_sequence.json")
 start_time = time.time()
-triplets_one: Clip = (Note3("E") << NoteValue(1/16)) * 8
+triplets_one: Clip = (Triplet("E") << NoteValue(1/16)) * 8
 triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.8_first_note_compare.json") >> Export("json/testing/_Export_Play_p.8_sequence_compare.json")
 results_list.append({
@@ -217,7 +217,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.9_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.9_sequence.json")
 start_time = time.time()
-triplets_two: Clip = (Note3("G") << NoteValue(1/16)) * 8
+triplets_two: Clip = (Triplet("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

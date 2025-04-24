@@ -30,10 +30,10 @@ composition: Part = Part(single_clock)
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + Semitone(5) >> Play()
 
-triplets_one = (Note3("E") << NoteValue(1/16)) * 8
+triplets_one = (Triplet("E") << NoteValue(1/16)) * 8
 triplets_one + composition >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)
 
-triplets_two = (Note3("G") << NoteValue(1/16)) * 8
+triplets_two = (Triplet("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!

@@ -462,7 +462,7 @@ def test_clock_element():
 
 def test_note3_element():
 
-    triplet_note = Note3("C")
+    triplet_note = Triplet("C")
     assert triplet_note % NoteValue() == Duration(1/4)
     assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/2)
     assert triplet_note % Position() == 0.0
@@ -475,9 +475,9 @@ def test_note3_element():
     assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/8)
     assert triplet_note % Position() == 0.0
 
-    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
-    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.DataSource( NoteValue() ) == Duration(1/8)
-    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
+    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
+    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.DataSource( NoteValue() ) == Duration(1/8)
+    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
 
 # test_note3_element()
 

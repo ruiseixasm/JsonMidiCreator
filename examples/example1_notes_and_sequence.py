@@ -40,7 +40,7 @@ multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) * ((first_note + Rest()) * 3 >> 
 first_note << "F" >> Play()
 first_note << Load("json/_Save_1.1_first_note.json") >> Play()
 
-Note3() << (NoteValue() << Duration(1/16)) >> Play() >> Save("json/_Save_1.3_note_triad.json")
+Triplet() << (NoteValue() << Duration(1/16)) >> Play() >> Save("json/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (NoteValue() << Dotted(1/64))

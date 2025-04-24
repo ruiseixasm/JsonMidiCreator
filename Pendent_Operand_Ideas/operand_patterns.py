@@ -90,7 +90,7 @@ class Drums(Patterns):
         """Half-Time Groove – Slower-feeling pattern with snare on beat 3, often used in hip-hop, trap, and metal breakdowns."""
         pattern: oc.Clip = oe.Note(kick, 1/16) * 1
         pattern += oe.Note(snare, 1/16) * 1 + ra.Beats(2)
-        pattern += oe.Note3(hi_hats, 1/8) * 4   # Note3 triplets means that for 1/8 it takes 1/4 total length
+        pattern += oe.Triplet(hi_hats, 1/8) * 4   # Triplet triplets means that for 1/8 it takes 1/4 total length
         return pattern
 
 
@@ -126,7 +126,7 @@ class Drums(Patterns):
         """Funk Shuffle – A swung groove with syncopated hi-hat and ghost snare notes, adding a "rolling" feel."""
         pattern: oc.Clip = oe.Note(kick, 1/2) * 2 + ra.Beats(1) << ra.Duration(1/16)
         pattern += oe.Note(snare, 1/2) * 2 + ra.Beats(1) << ra.Duration(1/16)
-        pattern += oe.Note3(hi_hats, 1/8) * 4 + ra.Beats(1/2)   # Note3 triplets means that for 1/8 it takes 1/4 total length
+        pattern += oe.Triplet(hi_hats, 1/8) * 4 + ra.Beats(1/2)   # Triplet triplets means that for 1/8 it takes 1/4 total length
         return pattern
 
 
