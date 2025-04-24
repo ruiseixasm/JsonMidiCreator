@@ -1881,8 +1881,8 @@ class Clip(Composition):  # Just a container of Elements
         For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
 
         Args:
-            up (bool): By default it snaps to the closest bellow pitch, but if set as True,
-            it will snap to the closest above pitch instead.
+            up (bool): By default it snaps to the closest bellow pitch, but if set as True, \
+                it will snap to the closest above pitch instead.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -1961,8 +1961,8 @@ class Clip(Composition):  # Just a container of Elements
         Selects the section of the clip that will be preserved.
 
         Args:
-            start (Position): Starting position of the section to be selected
-            finish (Position): Finish position of the section to be selected
+            start (Position): Starting position of the section to be selected.
+            finish (Position): Finish position of the section to be selected.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2552,13 +2552,13 @@ class Clip(Composition):  # Just a container of Elements
         Plots the Notes or the Automation as alternative existent in the Clip.
 
         Args:
-            block: Suspends the program until the chart is closed.
-            pause: Sets a time in seconds before the chart is closed automatically.
-            iterations: Sets the amount of iterations automatically generated on the
-            chart opening, this is dependent on a n_button being given.
-            n_button: A function that takes a Clip to be used to generate a new iteration.
-            c_button: A function intended to play the plotted clip among other compositions.
-            e_button: A function to be executed by itself without any output required.
+            block (bool): Suspends the program until the chart is closed.
+            pause (float): Sets a time in seconds before the chart is closed automatically.
+            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+                this is dependent on a n_button being given.
+            n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+            c_button (Callable): A function intended to play the plotted clip among other compositions.
+            e_button (Callable): A function to be executed by itself without any output required.
 
         Returns:
             Clip: Returns the presently plotted clip.
@@ -3535,28 +3535,3 @@ class Song(Composition):
         return self
 
 
-    def stack(self, ignore_empty_measures: bool = True) -> Self:
-        """
-        For stackable parts, moves each one to start at the finish position
-        of the previous one. If it's the first `Part` then it's position becomes 0.
-
-        Args:
-            None
-
-        Returns:
-            Song: The same self object with the items processed.
-        """
-        for index, single_part in enumerate(self._items):
-            if index > 0:   # Not following Parts
-                previous_part: Part = self._items[index - 1]
-                element_position: ra.Position = previous_part._last_element_position()
-                if element_position is not None:
-                    element_position = element_position.roundMeasures() + ou.Measure(1)
-                else:
-                    element_position = ra.Position(0)
-                single_part << element_position
-            else:           # THE FIRST PART!
-                single_part << ra.Position(0)   # everything starts at the beginning (0)!
-        
-        return self._sort_position()    # May be needed due to upper songs
-    

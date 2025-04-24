@@ -1550,8 +1550,8 @@ class Snap(ClipProcess):
     For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
 
     Args:
-        up (bool): By default it snaps to the closest bellow pitch, but if set as True,
-        it will snap to the closest above pitch instead.
+        up (bool): By default it snaps to the closest bellow pitch, but if set as True, \
+            it will snap to the closest above pitch instead.
     """
     def __init__(self, up: bool = False):
         super().__init__(up)
@@ -1608,6 +1608,14 @@ class Cut(ClipProcess):
         return operand.cut(*self._data)
 
 class Select(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Select`
+
+    Selects the section of the clip that will be preserved.
+
+    Args:
+        start (Position): Starting position of the section to be selected.
+        finish (Position): Finish position of the section to be selected.
+    """
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
@@ -1617,14 +1625,41 @@ class Select(ClipProcess):
         return operand.select(*self._data)
 
 class Monofy(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Monofy`
+
+    Cuts out any part of an element Duration that overlaps with the next element.
+
+    Args:
+        None
+    """
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.monofy()
 
 class Fill(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Fill`
+
+    Adds up Rests to empty spaces (lengths) in a staff for each Measure.
+
+    Args:
+        None
+    """
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.fill()
 
 class Plot(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Plot`
+
+    Plots the Notes or the Automation as alternative existent in the Clip.
+
+    Args:
+        block (bool): Suspends the program until the chart is closed.
+        pause (float): Sets a time in seconds before the chart is closed automatically.
+        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+            this is dependent on a n_button being given.
+        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+        c_button (Callable): A function intended to play the plotted clip among other compositions.
+        e_button (Callable): A function to be executed by itself without any output required.
+    """
     def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Clip'], 'Clip']] = None,
                  c_button: Optional[Callable[['Clip'], 'Composition']] = None,
@@ -1633,6 +1668,7 @@ class Plot(ClipProcess):
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.plot(*self._data)
+
 
 class PartProcess(Process):
     """`Data -> Process -> PartProcess`
@@ -1661,7 +1697,6 @@ class SongProcess(Process):
 
     def _process(self, operand: o.T) -> o.T:
         return operand
-
 
 
 
