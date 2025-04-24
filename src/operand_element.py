@@ -1868,7 +1868,7 @@ class Retrigger(Note):
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
         those Parameters are the ones of the Element, like Position and Duration,
-        plus the ones of a Note and the Division as 16 by default.
+        plus the ones of a Note and the Number as 16 by default.
 
         Examples
         --------
@@ -1996,7 +1996,7 @@ class Note3(Retrigger):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Number():
-                return self # disables the setting of Division, always 3
+                return self # disables the setting of Number, always 3
             case _:
                 super().__lshift__(operand)
         return self
@@ -2034,12 +2034,12 @@ class Tuplet(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a Tuplet,
         those Parameters are the ones of the Element, like Position and Duration,
-        and the Division and a List of Elements.
+        and the Number and a List of Elements.
 
         Examples
         --------
         >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
-        >>> tuplet % Division() % int() >> Print()
+        >>> tuplet % Number() % int() >> Print()
         4
         """
         match operand:
