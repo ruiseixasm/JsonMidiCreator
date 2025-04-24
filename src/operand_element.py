@@ -488,6 +488,18 @@ class Element(o.Operand):
 
 
 class Group(Element):
+    """`Element -> Group`
+
+    A `Group` element aggregates any other type of `Element` of any amount.
+
+    Parameters
+    ----------
+    list([ControlChange(ou.Number("Pan"), 0), Note()]) : A list with all the elements grouped by `Group`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._elements: list[Element] = [
             # From top to down, from left to right
@@ -575,6 +587,20 @@ class Group(Element):
 
 
 class Clock(Element):
+    """`Element -> Clock`
+
+    A `Clock` element can be used to send midi clock messages in a specific way compared to the `defaults` one.
+
+    Parameters
+    ----------
+    list([]), Devices, ClockedDevices : The `Devices` to which the clock messages are sent.
+    PPQN(24) : Pulses Per Quarter Note.
+    ClockStopModes(0), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._devices: list[str]    = []
@@ -800,9 +826,36 @@ class Clock(Element):
         return self
 
 class Rest(Element):
+    """`Element -> Rest`
+
+    A `Rest` element is essentially used to occupy space on a `Staff` for a process of `Clip` stacking or linking.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     pass
 
 class Note(Element):
+    """`Element -> Note`
+
+    A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
