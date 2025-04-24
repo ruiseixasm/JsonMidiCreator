@@ -1976,11 +1976,11 @@ class Retrigger(Note):
 class Note3(Retrigger):
     """`Element -> Note -> Retrigger -> Note3`
 
-    A Note3() is the repetition of a given Note three times on a row Triplets have each \
+    A `Note3` is the repetition of a given Note three times on a row Triplets have each \
         Note Duration set to the following Values:
 
         +----------+------------+-------------------+
-        | Notation | Base Note  | Triplet None      |
+        | Notation | Base Note  | Triplet Note      |
         +----------+------------+-------------------+
         | 1T       | 1          | 1    * 2/3 = 2/3  |
         | 1/2T     | 1/2        | 1/2  * 2/3 = 1/3  |
@@ -2022,6 +2022,24 @@ class Note3(Retrigger):
         return self
 
 class Tuplet(Element):
+    """`Element -> Tuplet`
+
+    A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Number` of a `Retrigger`.
+
+    Parameters
+    ----------
+    list([Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]) : List with all Tuplet elements.
+    Swing(0.5) : The ratio of time the `Note` is pressed.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._swing: Fraction           = Fraction(0.5)
         self._elements: list[Element]   = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
