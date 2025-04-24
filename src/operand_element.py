@@ -50,7 +50,7 @@ class Element(o.Operand):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         import operand_container as oc
@@ -498,7 +498,7 @@ class Group(Element):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._elements: list[Element] = [
@@ -599,7 +599,7 @@ class Clock(Element):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -835,7 +835,7 @@ class Rest(Element):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     pass
 
@@ -854,7 +854,7 @@ class Note(Element):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._velocity: int         = og.defaults._velocity
@@ -1231,7 +1231,7 @@ class Cluster(Note):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._sets: list = [
@@ -1350,7 +1350,7 @@ class KeyScale(Note):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1506,7 +1506,7 @@ class Polychord(KeyScale):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._degrees: list[int | float] = [1, 3, 5]
@@ -1595,7 +1595,7 @@ class Chord(KeyScale):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._size: int             = 3
@@ -1845,7 +1845,7 @@ class Retrigger(Note):
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
-    Enabled(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._number: int       = 16
@@ -1974,15 +1974,34 @@ class Retrigger(Note):
         return self
 
 class Note3(Retrigger):
-    """
-    A Note3() is the repetition of a given Note three times on a row
-    Triplets have each Note Duration set to the following Values:
-        | 1T    = (1    - 1/4)   = 3/4
-        | 1/2T  = (1/2  - 1/8)   = 3/8
-        | 1/4T  = (1/4  - 1/16)  = 3/16
-        | 1/8T  = (1/8  - 1/32)  = 3/32
-        | 1/16T = (1/16 - 1/64)  = 3/64
-        | 1/32T = (1/32 - 1/128) = 3/128
+    """`Element -> Note -> Retrigger -> Note3`
+
+    A Note3() is the repetition of a given Note three times on a row Triplets have each \
+        Note Duration set to the following Values:
+        +--------+-------------------+--------+
+        | Tuplet | Base Note         | Result |
+        +--------+-------------------+--------+
+        | 1T     | 1 - 1/4           | 3/4    |
+        | 1/2T   | 1/2 - 1/8         | 3/8    |
+        | 1/4T   | 1/4 - 1/16        | 3/16   |
+        | 1/8T   | 1/8 - 1/32        | 3/32   |
+        | 1/16T  | 1/16 - 1/64       | 3/64   |
+        | 1/32T  | 1/32 - 1/128      | 3/128  |
+        +--------+-------------------+--------+
+
+    Parameters
+    ----------
+    Number(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Note3`.
+    Swing(0.5) : The ratio of time the `Note` is pressed.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         super().__init__()
