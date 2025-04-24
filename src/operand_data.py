@@ -1173,7 +1173,7 @@ class Filter(ContainerProcess):
         return operand.filter(*self._data)
 
 class Drop(ContainerProcess):
-    """`Data -> Process -> ContainerProcess -> Dropper`
+    """`Data -> Process -> ContainerProcess -> Drop`
 
     Removes items based on a given probability of such removal happening.
 
@@ -1224,6 +1224,14 @@ if TYPE_CHECKING:
     from operand_rational import Probability
 
 class Shuffle(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Shuffle`
+
+    Reaffects the given parameter type in a chaotic manner.
+
+    Args:
+        chaos (Chaos): An Chaos object to be used as sorter.
+        parameter (type): The type of parameter being swapped around the items.
+    """
     from operand_rational import Position
 
     def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
@@ -1233,6 +1241,15 @@ class Shuffle(ContainerProcess):
         return operand.shuffle(*self._data)
 
 class Swap(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Swap`
+
+    Reaffects the given parameter type in a chaotic manner accordingly to a probability.
+
+    Args:
+        probability (Probability): A given probability of swapping.
+        chaos (Chaos): An Chaos object to be used as sorter.
+        parameter (type): The type of parameter being swapped around the items.
+    """
     from operand_rational import Position
 
     def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
@@ -1242,13 +1259,29 @@ class Swap(ContainerProcess):
         return operand.swap(*self._data)
 
 class Reverse(ContainerProcess):
-    def __init__(self, non_empty_measures_only: bool = True):
-        super().__init__(non_empty_measures_only)
+    """`Data -> Process -> ContainerProcess -> Reverse`
+
+    Reverses the self list of items.
+
+    Args:
+        None
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
 
     def process(self, operand: 'Container') -> 'Container':
         return operand.reverse(self._data)
 
 class Recur(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Recur`
+
+    Calls the function on the successive items in a Xn+1 = Xn fashion (recursive),
+    where n is the previous element and n+1 the next one.
+
+    Args:
+        recursion (Callable): recursive function.
+        parameter (type): The type of parameter being processed by the recursive function.
+    """
     from operand_rational import Duration
 
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
@@ -1258,6 +1291,16 @@ class Recur(ContainerProcess):
         return operand.recur(*self._data)
 
 class Rotate(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Rotate`
+
+    Rotates a given parameter by a given offset, by other words,
+    does a displacement for each Element in the Container list of
+    a chosen parameter by the offset amount.
+
+    Args:
+        a (int): The offset amount of the list index, displacement.
+        b (type): The type of parameter being displaced, rotated.
+    """
     from operand_rational import Position
 
     def __init__(self, offset: int = 1, parameter: type = Position):
@@ -1267,13 +1310,26 @@ class Rotate(ContainerProcess):
         return operand.rotate(*self._data)
 
 class Erase(ContainerProcess):
-    """
-    Erase() clears all the Container items and the same ones on the root container.
+    """`Data -> Process -> ContainerProcess -> Erase`
+
+    Erases all the given items in the present container and propagates the deletion
+    of the same items for the containers above.
+
+    Args:
+        *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
     """
     def process(self, operand: 'Container') -> 'Container':
         return operand.erase(*self._data)
 
 class Upper(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Upper`
+
+    Returns self or the upper container if existent up to the last one if no argument is given, or,
+    up to the one above the level given.
+
+    Args:
+        level: The level at which the upper container is returned.
+    """
     def __init__(self, level: int = None):
         super().__init__(level)
 
@@ -1300,6 +1356,13 @@ class ClipProcess(Process):
         return operand
 
 class Fit(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Fit`
+
+    Fits the entire clip in a given length.
+
+    Args:
+        length (Length): A length in which the clip must fit.
+    """
     from operand_rational import Length
 
     def __init__(self, length: 'Length' = None):
@@ -1309,20 +1372,44 @@ class Fit(ClipProcess):
         return operand.fit(self._data)
 
 class Link(ClipProcess):
-    def __init__(self, non_empty_measures_only: bool = True):
-        super().__init__(non_empty_measures_only)
+    """`Data -> Process -> ClipProcess -> Link`
+
+    Adjusts the duration/length of each `Element` to connect to the start of the next element.
+    For the last element in the clip, this is extended up to the end of the `Measure`.
+
+    Args:
+        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
 
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.link(self._data)
 
 class Stack(ClipProcess):
-    def __init__(self, non_empty_measures_only: bool = True):
-        super().__init__(non_empty_measures_only)
+    """`Data -> Process -> ClipProcess -> Stack`
+
+    Moves each Element to start at the finish position of the previous one.
+    If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
+
+    Args:
+        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
 
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.stack(self._data)
 
 class Decompose(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Decompose`
+
+    Transform each element in its component elements if it's a composed element,
+    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
+
+    Args:
+        None
+    """
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.decompose()
 
@@ -1331,10 +1418,25 @@ if TYPE_CHECKING:
     from operand_element import Element
     
 class Arpeggiate(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Arpeggiate`
+
+    Distributes each element accordingly to the configured arpeggio by the parameters given.
+
+    Args:
+        parameters: Parameters that will be passed to the `Arpeggio` operand.
+    """
     def process(self, operand: 'Clip') -> 'Clip':
         return operand.arpeggiate(self._data)
 
 class Stepper(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Stepper`
+
+    Sets the steps in a Drum Machine for a given `Note`.
+
+    Args:
+        pattern (str): A string where the 1s in it set where the triggered steps are.
+        note (Any): A note or any respective parameter that sets each note.
+    """
     def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
         super().__init__((pattern, note))
 
@@ -1342,6 +1444,17 @@ class Stepper(ClipProcess):
         return operand.stepper(*self._data)
 
 class Automate(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Automate`
+
+    Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
+
+    Args:
+        values (list[int]): The automation values at the triggered steps.
+        pattern (str): A string where the 1s in it are where the triggered midi messages are.
+        automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
+        the last one being the default.
+        interpolate (bool): Does an interpolation per `Step` between the multiple triggered steps.
+    """
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
         super().__init__((values, pattern, automation, interpolate))

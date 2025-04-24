@@ -1605,10 +1605,10 @@ class Clip(Composition):  # Just a container of Elements
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", note: Any = None) -> Self:
         """
-        Sets the steps in a Drum Machine for a given note.
+        Sets the steps in a Drum Machine for a given `Note`.
 
         Args:
-            pattern (str): A string where the 1s in it are where the triggered steps are.
+            pattern (str): A string where the 1s in it set where the triggered steps are.
             note (Any): A note or any respective parameter that sets each note.
 
         Returns:
@@ -1639,14 +1639,14 @@ class Clip(Composition):  # Just a container of Elements
     def automate(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True) -> Self:
         """
-        Distributes the values given by the Steps pattern in a very like the stepper Drum Machine fashion.
+        Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
 
         Args:
             values (list[int]): The automation values at the triggered steps.
             pattern (str): A string where the 1s in it are where the triggered midi messages are.
             automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
             the last one being the default.
-            interpolate (bool): Does an interpolation between the multiple triggered steps.
+            interpolate (bool): Does an interpolation per `Step` between the multiple triggered steps.
 
         Returns:
             Clip: A clip with the triggers placed at the respective steps.
@@ -1817,7 +1817,7 @@ class Clip(Composition):  # Just a container of Elements
 
         return self
     
-    def reverse(self, non_empty_measures_only: bool = True) -> Self:
+    def reverse(self, ignore_empty_measures: bool = True) -> Self:
         """
         Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
 
@@ -1827,7 +1827,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        if non_empty_measures_only:
+        if ignore_empty_measures:
             first_measure_position_beats: Fraction = self.start().roundMeasures()._rational
         else:
             first_measure_position_beats: Fraction = Fraction(0)
@@ -2040,7 +2040,7 @@ class Clip(Composition):  # Just a container of Elements
         Fits the entire clip in a given length.
 
         Args:
-            length (ra.Length): A length in which the clip must fit
+            length (Length): A length in which the clip must fit.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2055,13 +2055,13 @@ class Clip(Composition):  # Just a container of Elements
         self *= ra.Duration(length_ratio)   # Adjust durations
         return self
 
-    def link(self, non_empty_measures_only: bool = True) -> Self:
+    def link(self, ignore_empty_measures: bool = True) -> Self:
         """
-        Adjusts the duration/length of each element to connect to the start of the next.
+        Adjusts the duration/length of each element to connect to the start of the next element.
         For the last element in the clip, this is extended up to the end of the measure.
 
         Args:
-            None
+            ignore_empty_measures (bool): Ignores first empty Measures if `True`.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2077,7 +2077,7 @@ class Clip(Composition):  # Just a container of Elements
             first_element: oe.Element = self._first_element()
             last_element: oe.Element = self._last_element()
             starting_position_beats: Fraction = Fraction(0)
-            if non_empty_measures_only:
+            if ignore_empty_measures:
                 starting_position_beats = (first_element // ra.Position()).roundMeasures()._rational
             if first_element._position_beats != starting_position_beats:  # Not at the starting position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
@@ -2094,13 +2094,13 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_position()
 
 
-    def stack(self, non_empty_measures_only: bool = True) -> Self:
+    def stack(self, ignore_empty_measures: bool = True) -> Self:
         """
-        For stackable elements, moves each one to start at the finish position
-        of the previous one. If it's the first element then it's position becomes 0.
+        Moves each Element to start at the finish position of the previous one.
+        If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
 
         Args:
-            None
+            ignore_empty_measures (bool): Ignores first empty Measures if `True`.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -2110,7 +2110,7 @@ class Clip(Composition):  # Just a container of Elements
                 duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(self._items[index - 1]._duration_notevalue))._rational
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
-                if non_empty_measures_only:
+                if ignore_empty_measures:
                     root_position: ra.Position = (single_element // ra.Position()).roundMeasures()
                     single_element._position_beats = root_position._rational
                 else:
@@ -2120,8 +2120,8 @@ class Clip(Composition):  # Just a container of Elements
     
     def decompose(self) -> Self:
         """
-        Transform each element in its own sub elements if it's a composed element,
-        like a chord is composed of multiple notes, so, it becomes those multiple notes.
+        Transform each element in its component elements if it's a composed element,
+        like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
 
         Args:
             None
@@ -2142,7 +2142,7 @@ class Clip(Composition):  # Just a container of Elements
         Distributes each element accordingly to the configured arpeggio by the parameters given.
 
         Args:
-            parameters: Parameters that will be passed to the `Arpeggio`.
+            parameters: Parameters that will be passed to the `Arpeggio` operand.
 
         Returns:
             Clip: Clip with its elements distributed in an arpeggiated manner.
@@ -3535,7 +3535,7 @@ class Song(Composition):
         return self
 
 
-    def stack(self, non_empty_measures_only: bool = True) -> Self:
+    def stack(self, ignore_empty_measures: bool = True) -> Self:
         """
         For stackable parts, moves each one to start at the finish position
         of the previous one. If it's the first `Part` then it's position becomes 0.
