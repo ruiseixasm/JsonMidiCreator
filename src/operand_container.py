@@ -466,7 +466,7 @@ class Container(o.Operand):
                     return many_operands
 
             # Returns an altered Container with less info (truncated info)
-            case od.Getter() | od.Process():
+            case od.Process():
                 return self >> operand
             
             case tuple():

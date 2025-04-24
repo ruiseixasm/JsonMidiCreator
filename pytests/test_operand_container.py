@@ -822,16 +822,16 @@ def test_clip_operations():
     assert clip_duration == duration
 
     straight_length: Length = straight_clip % Length()
-    straight_length % Name() >> Print()
-    assert straight_length % Name() == "Length"
+    type(straight_length) >> Print()
+    assert type(straight_length) == Length
     
     straight_serialization: dict = straight_length.getSerialization()
     straight_serialization % Data("float") >> Print()   # 3.75 Beats
     assert straight_serialization % Data("float") == 3.75
 
     reversed_length: Length = reversed_clip % Length()
-    reversed_length % Name() >> Print()
-    assert reversed_length % Name() == "Length"
+    type(reversed_length) >> Print()
+    assert type(reversed_length) == Length
     
     reversed_serialization: dict = reversed_length.getSerialization()
     reversed_serialization % Data("float") >> Print()   # 3.75 Beats

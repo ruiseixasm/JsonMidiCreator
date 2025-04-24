@@ -85,12 +85,12 @@ melodic_line % M2 >> Smooth()
 melodic_line % M3 % Greater(B1) >> Smooth()
 melodic_line % M4 >> Smooth()
 
-melodic_line % M1 % Len() >> Print()
-melodic_line % M2 % Len() >> Print()
-melodic_line % M3 % Len() >> Print()
-melodic_line % M4 % Len() >> Print()
-melodic_line % M5 % Len() >> Print()
-melodic_line % Len() >> Print()
+melodic_line % M1 % int() >> Print()
+melodic_line % M2 % int() >> Print()
+melodic_line % M3 % int() >> Print()
+melodic_line % M4 % int() >> Print()
+melodic_line % M5 % int() >> Print()
+melodic_line % int() >> Print()
 melodic_line >> R >> P
 
 

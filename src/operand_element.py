@@ -150,8 +150,6 @@ class Element(o.Operand):
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case Element():         return self.copy()
-            case od.Start():        return self.start()
-            case od.End():          return self.finish()
             case int():
                 return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )

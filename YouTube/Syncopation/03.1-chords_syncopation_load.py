@@ -28,7 +28,7 @@ defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configur
 
 
 syncopation_2: Clip = Load("YouTube/Syncopation/save_chords_syncopation.json") // Operand()
-syncopation_2 % Name() >> Print()
+type(syncopation_2) >> Print()
 syncopation_2 >> Play()
 
 

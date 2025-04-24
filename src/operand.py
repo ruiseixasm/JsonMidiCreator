@@ -251,10 +251,6 @@ class Operand:
                 if len(operand) > 0:
                     return get_pair_key_data(operand, serialization)
                 return serialization
-            case od.Len():
-                return od.Len( self.len() )
-            case od.Name():
-                return od.Name( self.name() )
             case ra.Index():
                 return ra.Index(self._index)
             case _:
