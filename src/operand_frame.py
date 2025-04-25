@@ -749,14 +749,12 @@ class InputType(InputFilter):
             if isinstance(input, operand_class):
                 return super().__ixor__(input)
         return super().__ixor__(ol.Null())
-    
-class Condition2(InputFilter):
-    pass
 
-class Equal(InputFilter):
-    """`Frame -> Left -> InputFilter -> Equal`
 
-    An `Equal` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
+class BasicComparison(InputFilter):
+    """`Frame -> Left -> InputFilter -> BasicComparison`
+
+    A `BasicComparison` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -767,6 +765,38 @@ class Equal(InputFilter):
         super().__init__(parameters)
         self._multi_data['previous'] = []
 
+    # def __ixor__(self, input: o.T) -> o.T:
+    #     previous_inputs: list = self._multi_data['previous']
+    #     previous_inputs.insert(0, input)
+    #     for condition in self._multi_data['operand']:
+    #         if isinstance(condition, od.Previous):
+    #             previous_i: int = condition._data
+    #             if isinstance(previous_i, int) and previous_i < len(previous_inputs):
+    #                 condition = previous_inputs[previous_i]
+    #             else:
+    #                 continue
+    #         if input == condition:    # global "or" condition, only one needs to be verified as True
+    #             self_operand = self._next_operand
+    #             if isinstance(self_operand, Frame):
+    #                 self_operand = self_operand.__ixor__(input)
+    #             return self_operand
+    #     return ol.Null()
+    
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+
+class Equal(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Equal`
+
+    An `Equal` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as equal (`==`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         previous_inputs: list = self._multi_data['previous']
         previous_inputs.insert(0, input)
@@ -784,13 +814,8 @@ class Equal(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
-class NotEqual(InputFilter):
-    """`Frame -> Left -> InputFilter -> NotEqual`
+class NotEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> NotEqual`
 
     A `NotEqual` checks if the input is NOT equal to at least one set condition before being passed to the next `Frame`.
 
@@ -799,10 +824,6 @@ class NotEqual(InputFilter):
     Any(None) : One or more conditions where at least one needs to be met as NOT equal (`not ==`). \
     It's is also possible to set a `Previous` condition in each case the input has to be NOT equal to the previous nth one.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['previous'] = []
-
     def __ixor__(self, input: o.T) -> o.T:
         previous_inputs: list = self._multi_data['previous']
         previous_inputs.insert(0, input)
@@ -820,13 +841,8 @@ class NotEqual(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
-class Greater(InputFilter):
-    """`Frame -> Left -> InputFilter -> Greater`
+class Greater(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Greater`
 
     A `Greater` checks if the input is greater than at least one set condition before being passed to the next `Frame`.
 
@@ -835,10 +851,6 @@ class Greater(InputFilter):
     Any(None) : One or more conditions where at least one needs to be met as greater (`>`). \
     It's is also possible to set a `Previous` condition in each case the input has to be greater to the previous nth one.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['previous'] = []
-
     def __ixor__(self, input: o.T) -> o.T:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
@@ -855,16 +867,7 @@ class Greater(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
-class Less(InputFilter):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['previous'] = []
-
+class Less(BasicComparison):
     def __ixor__(self, input: o.T) -> o.T:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
@@ -881,16 +884,7 @@ class Less(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
-class GreaterEqual(InputFilter):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['previous'] = []
-
+class GreaterEqual(BasicComparison):
     def __ixor__(self, input: o.T) -> o.T:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
@@ -907,16 +901,7 @@ class GreaterEqual(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
-class LessEqual(InputFilter):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['previous'] = []
-
+class LessEqual(BasicComparison):
     def __ixor__(self, input: o.T) -> o.T:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
@@ -933,11 +918,6 @@ class LessEqual(InputFilter):
                 return self_operand
         return ol.Null()
 
-    def reset(self, *parameters) -> 'LessEqual':
-        super().reset()
-        self._multi_data['previous'] = []
-        return self << parameters
-    
 class Get(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
