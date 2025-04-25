@@ -786,7 +786,7 @@ class BasicComparison(InputFilter):
     def _compare(input: Any, condition: Any) -> bool:
         return True
 
-    def reset(self, *parameters) -> 'Frame':
+    def reset(self, *parameters) -> Self:
         super().reset()
         self._multi_data['previous'] = []
         return self << parameters
@@ -850,7 +850,21 @@ class Less(BasicComparison):
 class GreaterOrEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> GreaterOrEqual`
 
-    A `GreaterOrEqual` checks if the input is less or equal than at least one set condition before being passed to the next `Frame`.
+    A `GreaterOrEqual` checks if the input is greater or equal than at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as greater or equal (`>=`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be greater or equal to the previous nth one.
+    """
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input >= condition
+
+class LessOrEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> LessOrEqual`
+
+    A `LessOrEqual` checks if the input is less or equal than at least one set condition before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -859,12 +873,8 @@ class GreaterOrEqual(BasicComparison):
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
-        return input >= condition
-
-class LessOrEqual(BasicComparison):
-    @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
+
 
 class Get(Left):
     def __init__(self, *parameters):
