@@ -765,23 +765,27 @@ class BasicComparison(InputFilter):
         super().__init__(parameters)
         self._multi_data['previous'] = []
 
-    # def __ixor__(self, input: o.T) -> o.T:
-    #     previous_inputs: list = self._multi_data['previous']
-    #     previous_inputs.insert(0, input)
-    #     for condition in self._multi_data['operand']:
-    #         if isinstance(condition, od.Previous):
-    #             previous_i: int = condition._data
-    #             if isinstance(previous_i, int) and previous_i < len(previous_inputs):
-    #                 condition = previous_inputs[previous_i]
-    #             else:
-    #                 continue
-    #         if input == condition:    # global "or" condition, only one needs to be verified as True
-    #             self_operand = self._next_operand
-    #             if isinstance(self_operand, Frame):
-    #                 self_operand = self_operand.__ixor__(input)
-    #             return self_operand
-    #     return ol.Null()
-    
+    def __ixor__(self, input: o.T) -> o.T:
+        previous_inputs: list = self._multi_data['previous']
+        previous_inputs.insert(0, input)
+        for condition in self._multi_data['operand']:
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition._data
+                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
+                    condition = previous_inputs[previous_i]
+                else:
+                    continue
+            if self._compare(input, condition): # Where the comparison is made
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand = self_operand.__ixor__(input)
+                return self_operand
+        return ol.Null()
+
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return True
+
     def reset(self, *parameters) -> 'Frame':
         super().reset()
         self._multi_data['previous'] = []
@@ -797,22 +801,9 @@ class Equal(BasicComparison):
     Any(None) : One or more conditions where at least one needs to be met as equal (`==`). \
     It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        previous_inputs: list = self._multi_data['previous']
-        previous_inputs.insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
-                    condition = previous_inputs[previous_i]
-                else:
-                    continue
-            if input == condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input == condition
 
 class NotEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> NotEqual`
@@ -824,22 +815,9 @@ class NotEqual(BasicComparison):
     Any(None) : One or more conditions where at least one needs to be met as NOT equal (`not ==`). \
     It's is also possible to set a `Previous` condition in each case the input has to be NOT equal to the previous nth one.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        previous_inputs: list = self._multi_data['previous']
-        previous_inputs.insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
-                    condition = previous_inputs[previous_i]
-                else:
-                    continue
-            if not input == condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return not input == condition
 
 class Greater(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> Greater`
@@ -851,72 +829,24 @@ class Greater(BasicComparison):
     Any(None) : One or more conditions where at least one needs to be met as greater (`>`). \
     It's is also possible to set a `Previous` condition in each case the input has to be greater to the previous nth one.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
-                else:
-                    continue
-            if input > condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input > condition
 
 class Less(BasicComparison):
-    def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
-                else:
-                    continue
-            if input < condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input < condition
 
 class GreaterEqual(BasicComparison):
-    def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
-                else:
-                    continue
-            if input >= condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input >= condition
 
 class LessEqual(BasicComparison):
-    def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
-        for condition in self._multi_data['operand']:
-            if isinstance(condition, od.Previous):
-                previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
-                else:
-                    continue
-            if input <= condition:    # global "or" condition, only one needs to be verified as True
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return input <= condition
 
 class Get(Left):
     def __init__(self, *parameters):
