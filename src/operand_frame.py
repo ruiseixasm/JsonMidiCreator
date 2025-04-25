@@ -754,12 +754,12 @@ class InputType(InputFilter):
 class BasicComparison(InputFilter):
     """`Frame -> Left -> InputFilter -> BasicComparison`
 
-    A `BasicComparison` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
+    A `BasicComparison` checks if the input a basic comparison condition before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as equal (`==`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
+    Any(None) : One or more conditions where at least one needs to be met. \
+    It's is also possible to set a `Previous` condition in each case the input has to compare as `True` to the previous nth one.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -834,16 +834,34 @@ class Greater(BasicComparison):
         return input > condition
 
 class Less(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Less`
+
+    A `Less` checks if the input is less than at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as less (`<`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be less to the previous nth one.
+    """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input < condition
 
-class GreaterEqual(BasicComparison):
+class GreaterOrEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> GreaterOrEqual`
+
+    A `GreaterOrEqual` checks if the input is less or equal than at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as less or equal (`<=`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be less or equal to the previous nth one.
+    """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input >= condition
 
-class LessEqual(BasicComparison):
+class LessOrEqual(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
