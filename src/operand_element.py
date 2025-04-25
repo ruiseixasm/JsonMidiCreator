@@ -851,7 +851,7 @@ class Note(Element):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1228,7 +1228,7 @@ class Cluster(Note):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1347,7 +1347,7 @@ class KeyScale(Note):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1503,7 +1503,7 @@ class Polychord(KeyScale):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1592,7 +1592,7 @@ class Chord(KeyScale):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1842,7 +1842,7 @@ class Retrigger(Note):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1999,7 +1999,7 @@ class Triplet(Retrigger):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -2035,7 +2035,7 @@ class Tuplet(Element):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -2186,6 +2186,17 @@ class Tuplet(Element):
 
 
 class Automation(Element):
+    """`Element -> Automation`
+
+    An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._duration_notevalue = self._staff_reference._quantization   # Equivalent to one Step
@@ -2219,6 +2230,19 @@ class Automation(Element):
 
 
 class ControlChange(Automation):
+    """`Element -> Automation -> ControlChange`
+
+    A `ControlChange` is an element that represents the CC midi messages of a Device.
+
+    Parameters
+    ----------
+    Controller(defaults) : An `Operand` that represents parameters like the `Number` of the controller being changed.
+    Value(Controller(defaults)), int : The CC value to be set on the Device controller.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._controller: og.Controller = og.defaults % og.Controller()
         self._value: int                = ou.Number.getDefault(self._controller._number_msb)
