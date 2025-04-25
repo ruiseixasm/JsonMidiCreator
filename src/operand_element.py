@@ -2502,13 +2502,13 @@ class ControlChange(Automation):
 class BankSelect(ControlChange):
     """`Element -> Automation -> ControlChange -> BankSelect`
 
-    A `BankSelect` is a specific CC message that that is used to select a Bank of presents.
+    A `BankSelect` is a specific CC message that is used to select a Bank of presents.
 
     Parameters
     ----------
     Controller(ou.MSB(0), ou.LSB(32), ou.NRPN(False)) : The default and immutable `Controller` parameters \
         associated to Bank Select, namely, 0 and 32 for MSB and LSB respectively.
-    Value(Controller(defaults)), int : Selects the presets Bank in the Device.
+    Value(0), int : Selects the presets Bank in the Device.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
@@ -2572,7 +2572,20 @@ class BankSelect(ControlChange):
 # ** if value = 0 then the number of channels used is determined by the receiver;
 #   all other values set a specific number of channels, beginning with the current basic channel.
 
-class NoneValue(ControlChange):
+class ValueZero(ControlChange):
+    """`Element -> Automation -> ControlChange -> ValueZero`
+
+    A `ValueZero` is a specific CC message that has a `Value` of 0.
+
+    Parameters
+    ----------
+    Controller(defaults) : An `Operand` that represents parameters like the `Number` of the controller being changed.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._value = 0                     # None
@@ -2582,7 +2595,7 @@ class NoneValue(ControlChange):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._value = 0                     # None
         return self
@@ -2593,7 +2606,20 @@ class NoneValue(ControlChange):
     def __isub__(self, operand: any) -> Self:
         return self
 
-class ResetAllControllers(NoneValue):
+class ResetAllControllers(ValueZero):
+    """`Element -> Automation -> ControlChange -> ValueZero -> ResetAllControllers`
+
+    A `ResetAllControllers` is a specific CC message that results in a Device resting all its controller to their defaults.
+
+    Parameters
+    ----------
+    Controller(ou.Number(121)) : The default and immutable `Controller` parameters that triggers a controllers reset.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(121)  # 0x79
@@ -2603,12 +2629,25 @@ class ResetAllControllers(NoneValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(121)  # 0x79
         return self
 
 class LocalControl(ControlChange):
+    """`Element -> Automation -> ControlChange -> LocalControl`
+
+    A `LocalControl` is a specific CC message that sets the Device Local control On or Off with 1 or 0 respectively.
+
+    Parameters
+    ----------
+    Controller(ou.Number(122)) : The default and immutable `Controller` associated with the Device Local control.
+    Value(0) : By default the value is 0, Local control Off.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(122)  # 0x7A
@@ -2618,12 +2657,25 @@ class LocalControl(ControlChange):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(122)  # 0x7A
         return self
 
-class AllNotesOff(NoneValue):
+class AllNotesOff(ValueZero):
+    """`Element -> Automation -> ControlChange -> ValueZero -> AllNotesOff`
+
+    A `AllNotesOff` is a specific CC message that results in all notes being turned Off in the Device.
+
+    Parameters
+    ----------
+    Controller(ou.Number(123)) : The default and immutable `Controller` parameters that turns notes Off.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(123)  # Control Change Number (CC): 123   (Data Byte 1)
@@ -2633,12 +2685,25 @@ class AllNotesOff(NoneValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(123)
         return self
 
-class OmniModeOff(NoneValue):
+class OmniModeOff(ValueZero):
+    """`Element -> Automation -> ControlChange -> ValueZero -> OmniModeOff`
+
+    A `OmniModeOff` is a specific CC message that results in turning Off the Device Omni Mode.
+
+    Parameters
+    ----------
+    Controller(ou.Number(124)) : The default and immutable `Controller` parameters that turns Omni Mode Off.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(124)  # 0x7C
@@ -2648,12 +2713,25 @@ class OmniModeOff(NoneValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(124)  # 0x7C
         return self
 
-class OmniModeOn(NoneValue):
+class OmniModeOn(ValueZero):
+    """`Element -> Automation -> ControlChange -> ValueZero -> OmniModeOn`
+
+    A `OmniModeOn` is a specific CC message that results in turning On the Device Omni Mode.
+
+    Parameters
+    ----------
+    Controller(ou.Number(125)) : The default and immutable `Controller` parameters that turns Omni Mode On.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(125)  # 0x7D
@@ -2663,12 +2741,26 @@ class OmniModeOn(NoneValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(125)  # 0x7D
         return self
 
-class MonoModeOn(ControlChange):
+class MonoMode(ControlChange):
+    """`Element -> Automation -> ControlChange -> MonoMode`
+
+    A `MonoMode` is a specific CC message that results in setting the Device Mono Mode.
+
+    Parameters
+    ----------
+    Controller(ou.Number(126)) : The default and immutable `Controller` parameters that set the Mono Mode.
+    Value(0) : By default the value is 0 , in which case the number of channels used is determined by the receiver; \
+        all other values set a specific number of channels, beginning with the current basic channel.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(126)  # 0x7E
@@ -2678,12 +2770,25 @@ class MonoModeOn(ControlChange):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(126)  # 0x7E
         return self
 
-class MonoModeOff(NoneValue):
+class PolyModeOn(ValueZero):
+    """`Element -> Automation -> ControlChange -> ValueZero -> PolyModeOn`
+
+    A `PolyModeOn` is a specific CC message that results in turning On the Device Poly Mode.
+
+    Parameters
+    ----------
+    Controller(ou.Number(127)) : The default and immutable `Controller` parameters that turns Poly Mode On.
+    Value(0) : The default `Value` of 0 is immutable.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._controller << ou.Number(127)  # 0x7F
@@ -2693,7 +2798,7 @@ class MonoModeOff(NoneValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
         self._controller << ou.Number(127)  # 0x7F
         return self
