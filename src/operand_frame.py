@@ -311,7 +311,7 @@ class SendTo(Left):
 
     Parameters
     ----------
-    Any(None) : The `Operand` to be used as pass through.
+    Any(None) : The `Operand` to send to, like a `Print` for instance.
     """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
@@ -319,6 +319,14 @@ class SendTo(Left):
         return super().__ixor__(input)
 
 class Choice(Left):
+    """`Frame -> Left -> Choice`
+
+    A `Choice` is a group of items that can be chosen from based on the input as the chooser.
+
+    Parameters
+    ----------
+    Any(None) : Multiple items to be chosen.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
@@ -337,6 +345,15 @@ class Choice(Left):
         return super().__ixor__(ol.Null())
 
 class Pick(Left):
+    """`Frame -> Left -> Pick`
+
+    A `Pick` is a group of items that can be picketed from based on the input as the picker.
+    The difference with `Choice` is that each picked item becomes unavailable until all items are picked.
+
+    Parameters
+    ----------
+    Any(None) : Multiple items to be picketed.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['pick'] = list(self._multi_data['operand'])
@@ -357,7 +374,16 @@ class Pick(Left):
             return super().__ixor__(self._multi_data['pick'].pop(choice))
         return super().__ixor__(ol.Null())
 
-class Until(Left):
+class CountDown(Left):
+    """`Frame -> Left -> CountDown`
+
+    A `CountDown` is a group of count down numbers that work as selectors when they reach 0.
+    In `CountDown(5, 1, 5)**Choice(O3, O4, O5)` the value `O4` will be chosen in the next call.
+
+    Parameters
+    ----------
+    Any(None) : Integers to be used as starting count downs.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._count_down: list = []
@@ -365,7 +391,7 @@ class Until(Left):
             if not isinstance(single_parameter, int):
                 single_parameter = -1
             self._count_down.append(single_parameter)
-        self._multi_data['operand'] = tuple(self._count_down)  # tuples are read only
+        self._multi_data['operand'] = tuple(self._count_down)  # tuple will be used as data reset
 
     def __ixor__(self, input: o.T) -> o.T:
         pick_choices: any = ol.Null()
@@ -418,7 +444,7 @@ class Frequency(Left):
                 )
             else:
                 until_list.append(-1)
-        super().__init__(Until(*until_list))
+        super().__init__(CountDown(*until_list))
 
     def __ixor__(self, input: o.T) -> o.T:
         return self._multi_data['operand'].__iand__(input)
