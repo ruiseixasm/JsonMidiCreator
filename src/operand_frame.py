@@ -754,7 +754,7 @@ class InputType(InputFilter):
 class BasicComparison(InputFilter):
     """`Frame -> Left -> InputFilter -> BasicComparison`
 
-    A `BasicComparison` checks if the input a basic comparison condition before being passed to the next `Frame`.
+    A `BasicComparison` checks if the input meets a basic comparison condition before being passed to the next `Frame`.
 
     Parameters
     ----------
