@@ -420,7 +420,17 @@ class CountDown(Left):
                 self._count_down[index] -= max(0, closest_place - 1)
         return super().__ixor__(pick_choices)
 
-class Frequency(Left):
+class Frequency(CountDown):
+    """`Frame -> Left -> CountDown -> Frequency`
+
+    A `Frequency` sets a count down based on the intended frequency for each placed item.
+    In `Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter)` `quarter` notes will be chosen \
+        four times as much as `eight` ones.
+
+    Parameters
+    ----------
+    Any(None) : Integers to be used as choosing frequency.
+    """
     def __init__(self, *parameters):
         frequency_list: list = []
         common_pi: int = 1
@@ -444,10 +454,7 @@ class Frequency(Left):
                 )
             else:
                 until_list.append(-1)
-        super().__init__(CountDown(*until_list))
-
-    def __ixor__(self, input: o.T) -> o.T:
-        return self._multi_data['operand'].__iand__(input)
+        super().__init__(*until_list)   # Saves a CountDown as self._multi_data['operand']
 
 class Formula(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any] = None):
