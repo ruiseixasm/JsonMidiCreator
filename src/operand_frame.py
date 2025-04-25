@@ -956,22 +956,62 @@ class Push(Inject):
 
 
 class BasicOperation(Left):
-    def __init__(self, operand: any = 1):
-        super().__init__(operand)
+    """`Frame -> Left -> BasicOperation`
+
+    A `BasicOperation` does a basic operation like `+` or `/` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    None : This `Frame` has no parameters.
+    """
+    def __init__(self, parameter: any = 1):
+        super().__init__(parameter)
 
 class Add(BasicOperation):
+    """`Frame -> Left -> BasicOperation -> Add`
+
+    An `Add` does a basic `+` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `+` on input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input + self._multi_data['operand'])
 
 class Subtract(BasicOperation):
+    """`Frame -> Left -> BasicOperation -> Subtract`
+
+    A `Subtract` does a basic `-` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `-` on input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input - self._multi_data['operand'])
 
 class Multiply(BasicOperation):
+    """`Frame -> Left -> BasicOperation -> Multiply`
+
+    A `Multiply` does a basic `*` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `*` on input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input * self._multi_data['operand'])
 
 class Divide(BasicOperation):
+    """`Frame -> Left -> BasicOperation -> Divide`
+
+    A `Divide` does a basic `/` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `/` on input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input / self._multi_data['operand'])
 
