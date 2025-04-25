@@ -1718,7 +1718,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with added automated elements placed at intermediary steps.
         """
-        automation_clip: Clip = self.filter(of.OperandType(oe.Automation))
+        automation_clip: Clip = self.filter(of.InputType(oe.Automation))
         plotlist: list[dict] = automation_clip.getPlotlist()
         channels: list[int] = plotlist[0]["channels"]["automation"]
 

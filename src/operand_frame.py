@@ -732,7 +732,7 @@ class Nth(InputFilter):
         else:
             return ol.Null()
 
-class OperandType(InputFilter):
+class InputType(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
