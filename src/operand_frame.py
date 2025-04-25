@@ -712,7 +712,7 @@ class Every(InputFilter):
 class Nth(InputFilter):
     """`Frame -> Left -> InputFilter -> Nth`
 
-    An `Nth` only lets the nth inputs to be passed to the next `Frame`.
+    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
     In `Nth(1, 6)**Duration(1)` sets the 1st and 6th `Clip` elements to 1 as note value.
 
     Parameters
@@ -739,7 +739,7 @@ class InputType(InputFilter):
 
     Parameters
     ----------
-    type(None) : A single or multiple types can be set as accepted types.
+    type(None) : A single or multiple types can be set as accepted ones.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -749,19 +749,32 @@ class InputType(InputFilter):
             if isinstance(input, operand_class):
                 return super().__ixor__(input)
         return super().__ixor__(ol.Null())
+    
+class Condition2(InputFilter):
+    pass
 
 class Equal(InputFilter):
+    """`Frame -> Left -> InputFilter -> Equal`
+
+    An `Equal` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as equal (`==`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
 
     def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
+        previous_inputs: list = self._multi_data['previous']
+        previous_inputs.insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
                 previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
+                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
+                    condition = previous_inputs[previous_i]
                 else:
                     continue
             if input == condition:    # global "or" condition, only one needs to be verified as True
@@ -777,17 +790,27 @@ class Equal(InputFilter):
         return self << parameters
     
 class NotEqual(InputFilter):
+    """`Frame -> Left -> InputFilter -> NotEqual`
+
+    A `NotEqual` checks if the input is NOT equal to at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as NOT equal (`not ==`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be NOT equal to the previous nth one.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
 
     def __ixor__(self, input: o.T) -> o.T:
-        self._multi_data['previous'].insert(0, input)
+        previous_inputs: list = self._multi_data['previous']
+        previous_inputs.insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
                 previous_i: int = condition._data
-                if previous_i < len(self._multi_data['previous']):
-                    condition = self._multi_data['previous'][previous_i]
+                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
+                    condition = previous_inputs[previous_i]
                 else:
                     continue
             if not input == condition:    # global "or" condition, only one needs to be verified as True
@@ -803,6 +826,15 @@ class NotEqual(InputFilter):
         return self << parameters
     
 class Greater(InputFilter):
+    """`Frame -> Left -> InputFilter -> Greater`
+
+    A `Greater` checks if the input is greater than at least one set condition before being passed to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where at least one needs to be met as greater (`>`). \
+    It's is also possible to set a `Previous` condition in each case the input has to be greater to the previous nth one.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
