@@ -523,6 +523,15 @@ class Iterate(Left):
         return self_operand
 
 class Drag(Left):
+    """`Frame -> Left -> Drag`
+
+    A `Drag` works similarly the a drag in Excel, where the first inputted `Operand`'s extracted item is the one bring dragged.
+    In `Nth(6, 7, 8)**Drag(Degree())` the `Degree()` of the first `Operand` is propagated to the next ones.
+
+    Parameters
+    ----------
+    Any(None) : The item to be get to be dragged along.
+    """
     def __init__(self, *parameters):
         self._first_parameter = None
         super().__init__(parameters)
