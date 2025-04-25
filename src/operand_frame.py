@@ -1010,8 +1010,3 @@ class GetR(Right):
             extracted_data._set = self_operand._set # Set status has to be kept
         return extracted_data
 
-# 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
-
-class OperandEditor(Frame):
-    def __init__(self):
-        super().__init__()
