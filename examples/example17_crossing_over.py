@@ -44,9 +44,9 @@ clip = Note() * 12   # blank clip to work on
 
 performers = od.Performers(
         Stack(),
-        PushTo(Play()),
-        Input(Rest())**PushTo(Play()), # Plays a single Rest at the end,
-        Loop()**Get(Position())**PushOut(Print())  # To see what's data is being changed
+        PassThrough(Play()),
+        Input(Rest())**PassThrough(Play()), # Plays a single Rest at the end,
+        Loop()**Get(Position())**SendTo(Print())  # To see what's data is being changed
     )
 crossing_over = Crossover(clip, sequences, performers)
 

@@ -218,47 +218,16 @@ class Frame(o.Operand):
         self.deep_clear(self._multi_data)
         return self << parameters
     
-# 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA) Operand isn't the Subject
-
-class FrameFilter(Frame):
-    def __init__(self):
-        super().__init__()
-
-    def __ixor__(self, input: o.T) -> o.T:
-        super().__init__()
-        for operand in input:
-            if self == operand:
-                return self._next_operand.__and__(input)
-        return ol.Null()
-        
-    def __eq__(self, other: o.Operand) -> bool:
-        return self.__class__ == other.__class__
-
-class Canvas(FrameFilter):
-    def __init__(self):
-        super().__init__()
-
-    def __ixor__(self, input: o.T) -> o.T:
-        return self % o.Operand()
-
-class Blank(FrameFilter):
-    def __init__(self):
-        super().__init__()
-
-    def __ixor__(self, input: o.T) -> o.T:
-        return ol.Null()
-
-class Inner(FrameFilter):
-    def __init__(self):
-        super().__init__()
-    
-class Outer(FrameFilter):
-    def __init__(self):
-        super().__init__()
-
-# 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
 class Left(Frame):  # LEFT TO RIGHT
+    """`Frame -> Left`
+
+    The `Left` frames are processed from left to right in the framing chain made with the `**` operator.
+
+    Parameters
+    ----------
+    Any(None) : Data used in the framing process.
+    """
     def __init__(self, operand: any = None):
         super().__init__()
         self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
@@ -295,6 +264,15 @@ class Left(Frame):  # LEFT TO RIGHT
 
 
 class Input(Left):
+    """`Frame -> Left -> Input`
+
+    By default a `Frame` uses the data being passed trough it as input, \
+        with this `Frame` it's possible to inject a different `Operand` as input.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
         import operand_chaos as ch
@@ -311,13 +289,33 @@ class Input(Left):
         return super().__ixor__(self._multi_data['operand'])
 
 
-class PushTo(Left):
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input >> self._multi_data['operand'])
+class PassThrough(Left):
+    """`Frame -> Left -> PassThrough`
 
-class PushOut(Left):
+    Allows to pass the input trough an `Operand` with `>>` before sending it to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as pass through.
+    """
     def __ixor__(self, input: o.T) -> o.T:
-        input >> self._multi_data['operand']
+        if isinstance(self._multi_data['operand'], o.Operand):
+            return super().__ixor__(input >> self._multi_data['operand'])
+        return super().__ixor__(input)
+
+class SendTo(Left):
+    """`Frame -> Left -> SendTo`
+
+    Allows to send the input to an `Operand` with `>>` before sending it to the next `Frame`.
+    The difference with `PassThrough` is that the original input is still the one sent to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as pass through.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        if isinstance(self._multi_data['operand'], o.Operand):
+            input >> self._multi_data['operand']
         return super().__ixor__(input)
 
 class Choice(Left):
@@ -881,7 +879,6 @@ class Divide(Left):
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input / self._multi_data['operand'])
 
-# 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
 class Right(Frame):
     def __init__(self, operand: any = None):
