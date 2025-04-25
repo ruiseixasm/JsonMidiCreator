@@ -41,7 +41,7 @@ class Frame(o.Operand):
 
     Parameters
     ----------
-    Any(None) : Frame doesn't have any self parameters.
+    None : Frame doesn't have any self parameters.
     """
     def __init__(self, *parameters):
         import operand_container as oc
@@ -587,68 +587,42 @@ class Foreach(Loop):
             return super().__ixor__(input)
         return ol.Null()
 
-class Transition(Left):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-        self._multi_data['step'] = 1
-        self._multi_data['last_subject'] = ol.Null()
 
-    # NEEDS TO BE REVIEWED AND TESTED
-    def __ixor__(self, input: o.T) -> o.T:
-        import operand_container as oc
-        import operand_chaos as ch
-        if len(self._multi_data['operand']) > 0:
-            input = self._multi_data['operand'][self._index]
-            if not self._multi_data['last_subject'] == input:
+class InputFilter(Left):
+    """`Frame -> Left -> InputFilter`
 
-                match input:
-                    case oc.Container():
-                        input._index += 1
-                        container_len: int = input.len()
-                        if container_len > 0:
-                            input = input[input._index % container_len]
-                        else:
-                            input = ol.Null()
-                    case ch.Chaos():
-                        input *= 1
+    An `InputFilter` only passes the input to the next `Frame` if its criteria is met.
 
-                self._index += self._multi_data['step']
-                self._index %= len(self._multi_data['operand'])
-                self._multi_data['last_subject'] = input
-        else:
-            input = ol.Null()
-        return super().__ixor__(input)
-
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self._multi_data['last_subject'] = ol.Null()
-        return self << parameters
-    
-class Repeat(Left):
-    def __init__(self, times: int = 1):
-        super().__init__(times)
-
-    def __ixor__(self, input: o.T) -> o.T:
-        import operand_container as oc
-        new_container: oc.Container = oc.Container()
-        for _ in range(self._multi_data['operand']):
-            datasource_data = super().__ixor__(input)
-            if isinstance(datasource_data, o.Operand):
-                datasource_data = datasource_data.copy()
-            new_container += datasource_data
-        return new_container
-
-class Selector(Left):
+    Parameters
+    ----------
+    None : `InputFilter` doesn't have parameters to be set.
+    """
     pass
 
-class All(Selector):
+class All(InputFilter):
+    """`Frame -> Left -> InputFilter -> All`
+
+    An `All` lets any input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input)
 
-class First(Selector):
+class First(InputFilter):
+    """`Frame -> Left -> InputFilter -> First`
+
+    A `First` only lets the first `Element` in a `Clip` to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `First` doesn't have parameters to be set.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
@@ -659,7 +633,15 @@ class First(Selector):
                 return self._next_operand
         return ol.Null()
 
-class Last(Selector):
+class Last(InputFilter):
+    """`Frame -> Left -> InputFilter -> Last`
+
+    A `Last` only lets the last `Element` in a `Clip` to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Last` doesn't have parameters to be set.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
@@ -670,7 +652,15 @@ class Last(Selector):
                 return self._next_operand
         return ol.Null()
 
-class Odd(Selector):
+class Odd(InputFilter):
+    """`Frame -> Left -> InputFilter -> Odd`
+
+    An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Odd` doesn't have parameters to be set.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Odd)
         if self._index % 2 == 1:    # Selected to pass
@@ -680,7 +670,15 @@ class Odd(Selector):
         else:
             return ol.Null()
 
-class Even(Selector):
+class Even(InputFilter):
+    """`Frame -> Left -> InputFilter -> Even`
+
+    An `Even` only lets even nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Even` doesn't have parameters to be set.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Even)
         if self._index % 2 == 0:
@@ -690,10 +688,17 @@ class Even(Selector):
         else:
             return ol.Null()
 
-class Every(Selector):
-    def __init__(self, nths: int = 4):
+class Every(InputFilter):
+    """`Frame -> Left -> InputFilter -> Every`
+
+    An `Every` only lets every other nth inputs to be passed to the next `Frame`.
+
+    Args:
+        nth (int): The nth input, as in every other 2nd or 4th.
+    """
+    def __init__(self, nth: int = 4):
         super().__init__()
-        self._multi_data['nths'] = nths
+        self._multi_data['nths'] = nth
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Every)
@@ -704,7 +709,16 @@ class Every(Selector):
         else:
             return ol.Null()
 
-class Nth(Selector):
+class Nth(InputFilter):
+    """`Frame -> Left -> InputFilter -> Nth`
+
+    An `Nth` only lets the nth inputs to be passed to the next `Frame`.
+    In `Nth(1, 6)**Duration(1)` sets the 1st and 6th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of nths to pass to the next `Frame`.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._multi_data['parameters'] = parameters
@@ -718,7 +732,7 @@ class Nth(Selector):
         else:
             return ol.Null()
 
-class OperandType(Selector):
+class OperandType(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
@@ -728,7 +742,7 @@ class OperandType(Selector):
                 return super().__ixor__(input)
         return super().__ixor__(ol.Null())
 
-class Equal(Selector):
+class Equal(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
@@ -754,7 +768,7 @@ class Equal(Selector):
         self._multi_data['previous'] = []
         return self << parameters
     
-class NotEqual(Selector):
+class NotEqual(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
@@ -780,7 +794,7 @@ class NotEqual(Selector):
         self._multi_data['previous'] = []
         return self << parameters
     
-class Greater(Selector):
+class Greater(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
@@ -806,7 +820,7 @@ class Greater(Selector):
         self._multi_data['previous'] = []
         return self << parameters
     
-class Less(Selector):
+class Less(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
@@ -832,7 +846,7 @@ class Less(Selector):
         self._multi_data['previous'] = []
         return self << parameters
     
-class GreaterEqual(Selector):
+class GreaterEqual(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
@@ -858,7 +872,7 @@ class GreaterEqual(Selector):
         self._multi_data['previous'] = []
         return self << parameters
     
-class LessEqual(Selector):
+class LessEqual(InputFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._multi_data['previous'] = []
