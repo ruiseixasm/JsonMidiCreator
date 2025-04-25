@@ -955,31 +955,23 @@ class Push(Inject):
         return super().__ixor__(input)
 
 
-class Add(Left):
+class BasicOperation(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
+class Add(BasicOperation):
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input + self._multi_data['operand'])
 
-class Subtract(Left):
-    def __init__(self, operand: any = 1):
-        super().__init__(operand)
-
+class Subtract(BasicOperation):
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input - self._multi_data['operand'])
 
-class Multiply(Left):
-    def __init__(self, operand: any = 1):
-        super().__init__(operand)
-
+class Multiply(BasicOperation):
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input * self._multi_data['operand'])
 
-class Divide(Left):
-    def __init__(self, operand: any = 1):
-        super().__init__(operand)
-
+class Divide(BasicOperation):
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input / self._multi_data['operand'])
 
