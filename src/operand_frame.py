@@ -733,6 +733,14 @@ class Nth(InputFilter):
             return ol.Null()
 
 class InputType(InputFilter):
+    """`Frame -> Left -> InputFilter -> InputType`
+
+    An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    type(None) : A single or multiple types can be set as accepted types.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
