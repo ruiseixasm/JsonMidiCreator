@@ -877,6 +877,14 @@ class LessOrEqual(BasicComparison):
 
 
 class Get(Left):
+    """`Frame -> Left -> Get`
+
+    A `Get` does an `input % item` and passes it to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : An item to get from the input.
+    """
     def __init__(self, *parameters):
         super().__init__(parameters)
 
@@ -889,27 +897,61 @@ class Get(Left):
         return super().__ixor__(input)
 
 class DeepCopy(Left):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__(operand)
+    """`Frame -> Left -> DeepCopy`
+
+    A `DeepCopy` makes a deep copy of the input and passes it to the next `Frame`.
+
+    Parameters
+    ----------
+    None : This `Frame` has no parameters.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
         input_duplication = self.deep_copy(input)
         return super().__ixor__(input_duplication)
 
 class Inject(Left):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__(operand)
+    """`Frame -> Left -> Inject`
+
+    An `Inject` sets the input with extra parameters before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    None : This `Frame` has no parameters.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
 class Set(Inject):
+    """`Frame -> Left -> Inject -> Set`
+
+    A `Set` does a `<<` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : A series of parameters to be injected into the input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            input << self._multi_data['operand']
+            for single_parameter in self._multi_data['operand']:
+                input << single_parameter
         return super().__ixor__(input)
         
 class Push(Inject):
+    """`Frame -> Left -> Inject -> Push`
+
+    A `Push` does a `>>` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : A series of parameters to be push into the input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            self._multi_data['operand'] >> input
+            for single_parameter in self._multi_data['operand']:
+                single_parameter >> input
         return super().__ixor__(input)
 
 
