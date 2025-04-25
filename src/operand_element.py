@@ -2805,6 +2805,18 @@ class PolyModeOn(ValueZero):
 
 
 class PitchBend(Automation):
+    """`Element -> Automation -> PitchBend`
+
+    A `PitchBend` is an element that controls the Device Pitch Bend wheel.
+
+    Parameters
+    ----------
+    Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._bend: int = 0
         super().__init__(*parameters)
