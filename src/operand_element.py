@@ -48,7 +48,7 @@ class Element(o.Operand):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -496,7 +496,7 @@ class Group(Element):
     ----------
     list([ControlChange(ou.Number("Pan"), 0), Note()]) : A list with all the elements grouped by `Group`.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -597,7 +597,7 @@ class Clock(Element):
     PPQN(24) : Pulses Per Quarter Note.
     ClockStopModes(0), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -833,7 +833,7 @@ class Rest(Element):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -852,7 +852,7 @@ class Note(Element):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -1229,7 +1229,7 @@ class Cluster(Note):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -1348,7 +1348,7 @@ class KeyScale(Note):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -1504,7 +1504,7 @@ class Polychord(KeyScale):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -1593,7 +1593,7 @@ class Chord(KeyScale):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -1843,7 +1843,7 @@ class Retrigger(Note):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -2000,7 +2000,7 @@ class Triplet(Retrigger):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -2036,7 +2036,7 @@ class Tuplet(Element):
     Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(defaults), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(defaults), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -2193,7 +2193,7 @@ class Automation(Element):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(Quantization(defaults)), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -2239,7 +2239,7 @@ class ControlChange(Automation):
     Controller(defaults) : An `Operand` that represents parameters like the `Number` of the controller being changed.
     Value(Controller(defaults)), int : The CC value to be set on the Device controller.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(defaults)), float, Fraction : The first value of the multiple iterations where Element can be reset to.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -2500,6 +2500,20 @@ class ControlChange(Automation):
                 return super().__isub__(operand)
 
 class BankSelect(ControlChange):
+    """`Element -> Automation -> ControlChange -> BankSelect`
+
+    A `BankSelect` is a specific CC message that that is used to select a Bank of presents.
+
+    Parameters
+    ----------
+    Controller(ou.MSB(0), ou.LSB(32), ou.NRPN(False)) : The default and immutable `Controller` parameters \
+        associated to Bank Select, namely, 0 and 32 for MSB and LSB respectively.
+    Value(Controller(defaults)), int : Selects the presets Bank in the Device.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         super().__init__()
         # 0 -  Bank Select (MSB)
@@ -2543,20 +2557,20 @@ class BankSelect(ControlChange):
         return self
 
 
-    # Channel mode messages determine how an instrument will process MIDI voice messages.
+# Channel mode messages determine how an instrument will process MIDI voice messages.
 
-    # 1st Data Byte      Description                Meaning of 2nd Data Byte
-    # -------------   ----------------------        ------------------------
-    #     79        Reset all  controllers            None; set to 0
-    #     7A        Local control                     0 = off; 127  = on
-    #     7B        All notes off                     None; set to 0
-    #     7C        Omni mode off                     None; set to 0
-    #     7D        Omni mode on                      None; set to 0
-    #     7E        Mono mode on (Poly mode off)      **
-    #     7F        Poly mode on (Mono mode off)      None; set to 0
+# 1st Data Byte      Description                Meaning of 2nd Data Byte
+# -------------   ----------------------        ------------------------
+#     79        Reset all  controllers            None; set to 0
+#     7A        Local control                     0 = off; 127  = on
+#     7B        All notes off                     None; set to 0
+#     7C        Omni mode off                     None; set to 0
+#     7D        Omni mode on                      None; set to 0
+#     7E        Mono mode on (Poly mode off)      **
+#     7F        Poly mode on (Mono mode off)      None; set to 0
 
-    # ** if value = 0 then the number of channels used is determined by the receiver;
-    #   all other values set a specific number of channels, beginning with the current basic channel.
+# ** if value = 0 then the number of channels used is determined by the receiver;
+#   all other values set a specific number of channels, beginning with the current basic channel.
 
 class NoneValue(ControlChange):
     def __init__(self, *parameters):
