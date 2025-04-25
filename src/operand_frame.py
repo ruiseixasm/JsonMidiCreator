@@ -296,7 +296,7 @@ class PassThrough(Left):
 
     Parameters
     ----------
-    Any(None) : The `Operand` to be used as pass through.
+    Operand(None) : The `Operand` to be used as pass through.
     """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
@@ -311,7 +311,7 @@ class SendTo(Left):
 
     Parameters
     ----------
-    Any(None) : The `Operand` to send to, like a `Print` for instance.
+    Operand(None) : The `Operand` to send to, like a `Print` for instance.
     """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
@@ -382,7 +382,7 @@ class CountDown(Left):
 
     Parameters
     ----------
-    Any(None) : Integers to be used as starting count downs.
+    int(None) : Integers to be used as starting count downs.
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -424,12 +424,12 @@ class Frequency(CountDown):
     """`Frame -> Left -> CountDown -> Frequency`
 
     A `Frequency` sets a count down based on the intended frequency for each placed item.
-    In `Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter)` `quarter` notes will be chosen \
+    In `Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter)` the `quarter` notes will be chosen \
         four times as much as `eight` ones.
 
     Parameters
     ----------
-    Any(None) : Integers to be used as choosing frequency.
+    int(None) : Integers to be used as choosing frequency.
     """
     def __init__(self, *parameters):
         frequency_list: list = []
@@ -457,6 +457,14 @@ class Frequency(CountDown):
         super().__init__(*until_list)   # Saves a CountDown as self._multi_data['operand']
 
 class Formula(Left):
+    """`Frame -> Left -> Formula`
+
+    A `Formula` processes the input data with the given function and passes its result to the next `Frame`.
+
+    Parameters
+    ----------
+    Callable(None) : A function to be used to process the input like `Formula(lambda n: (n * 5 + 4) % 3)`.
+    """
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any] = None):
         super().__init__(operation)
 
@@ -466,27 +474,24 @@ class Formula(Left):
 class Iterate(Left):
     """`Frame -> Left -> Iterate`
 
-    Iterate() returns a series of values by the set input amount, where this
+    An `Iterate` returns a series of values much alike the Python `range` method, where this
     input defines the type of values too. Intended to be used with Clips.
-    The first values is always zero or equivalent, so you may combine
-    the present operand with Add().
 
-    Parameters
-    ----------
-    *args : integer_like, float_like, Fraction_like, operand_like
-        The default value is 1, but you may set a float like 2.5.
+    Args:
+        start (int): Starting iteration value.
+        step (int): Increment amount for each iteration.
     
     Examples
     --------
     Gets the Staff Steps per Measure:
     >>> notes = Note() * 4
-    >>> notes << Iterate()**Add(1)**Degree()
+    >>> notes << Iterate(2)**Degree()
     >>> notes[0] % Pitch() % int() >> Print()
-    1
+    2
     >>> notes[3] % Pitch() % int() >> Print()
-    4
+    5
     """
-    def __init__(self, start: any = 0, step: any = 1):
+    def __init__(self, start: int = 0, step: int = 1):
         iterator: dict = {
             "start":    start,
             "current":  start,
