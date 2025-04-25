@@ -888,10 +888,13 @@ class Get(Left):
             return super().__ixor__(parameter)
         return super().__ixor__(input)
 
-class Duplicate(Left):
+class DeepCopy(Left):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
+    def __ixor__(self, input: o.T) -> o.T:
+        input_duplication = self.deep_copy(input)
+        return super().__ixor__(input_duplication)
 
 class Inject(Left):
     def __init__(self, operand: o.Operand = None):
@@ -900,37 +903,38 @@ class Inject(Left):
 class Set(Inject):
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            return super().__ixor__(input << self._multi_data['operand'])
+            input << self._multi_data['operand']
         return super().__ixor__(input)
         
 class Push(Inject):
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            return super().__ixor__(self._multi_data['operand'] >> input)
+            self._multi_data['operand'] >> input
         return super().__ixor__(input)
 
-class Add(Inject):
+
+class Add(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input + self._multi_data['operand'])
 
-class Subtract(Inject):
+class Subtract(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input - self._multi_data['operand'])
 
-class Multiply(Inject):
+class Multiply(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input * self._multi_data['operand'])
 
-class Divide(Inject):
+class Divide(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
