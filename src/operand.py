@@ -335,6 +335,7 @@ class Operand:
         return self
        
     def __lshift__(self, operand: any) -> Self:
+        import operand_generic as og
         # Don't do the line bellow, already done on sub class call
         # operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
@@ -343,6 +344,8 @@ class Operand:
             self._set = False   # by default a new copy of data unsets the Operand
             # COPY THE SELF OPERANDS RECURSIVELY
             self._next_operand = self.deep_copy(operand._next_operand)
+        elif operand is og.defaults:
+            self << operand % self
         return self
     
     def __ilshift__(self, operand: any) -> Self:
