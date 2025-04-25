@@ -766,10 +766,10 @@ class BasicComparison(InputFilter):
         self._multi_data['previous'] = []
 
     def __ixor__(self, input: o.T) -> o.T:
-        previous_inputs: list = self._multi_data['previous']
-        previous_inputs.insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
+                previous_inputs: list = self._multi_data['previous']
+                previous_inputs.insert(0, input)
                 previous_i: int = condition._data
                 if isinstance(previous_i, int) and previous_i < len(previous_inputs):
                     condition = previous_inputs[previous_i]
