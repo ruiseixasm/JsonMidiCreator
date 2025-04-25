@@ -2812,7 +2812,7 @@ class PitchBend(Automation):
     Parameters
     ----------
     Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -2972,6 +2972,18 @@ class PitchBend(Automation):
 
 
 class Aftertouch(Automation):
+    """`Element -> Automation -> Aftertouch`
+
+    An `Aftertouch` is an element that controls the pressure on all keys being played.
+
+    Parameters
+    ----------
+    Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._pressure: int = 0
         super().__init__(*parameters)
@@ -3111,6 +3123,20 @@ class Aftertouch(Automation):
                 return super().__isub__(operand)
 
 class PolyAftertouch(Aftertouch):
+    """`Element -> Automation -> PolyAftertouch`
+
+    A `PolyAftertouch` is an element that controls the pressure on a particular key `Pitch` being played.
+
+    Parameters
+    ----------
+    Pitch(defaults) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._pitch: og.Pitch  = og.Pitch()
         super().__init__(*parameters)
@@ -3148,11 +3174,14 @@ class PolyAftertouch(Aftertouch):
                 match operand._data:
                     case og.Pitch():    return self._pitch
                     case _:             return super().__mod__(operand)
-            case og.Pitch():  return self._pitch.copy()
-            case int() | float():
-                    return self._pitch % operand
-            case ou.Octave():   return self._pitch % ou.Octave()
-            case _:             return super().__mod__(operand)
+            case og.Pitch():
+                return self._pitch.copy()
+            case ou.PitchParameter() | str():
+                return self._pitch % operand
+            case ou.Octave():
+                return self._pitch % ou.Octave()
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other ^= self    # Processes the Frame operand if any exists
@@ -3218,32 +3247,26 @@ class PolyAftertouch(Aftertouch):
                 self._pitch << operand._pitch
             case od.DataSource():
                 match operand._data:
-                    case og.Pitch():          self._pitch = operand._data
+                    case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+            case og.Pitch() | ou.PitchParameter() | str() | None:
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'PolyAftertouch':
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                self._pitch += operand  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> 'PolyAftertouch':
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                self._pitch -= operand  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__isub__(operand)
-
 class ProgramChange(Element):
+    """`Element -> ProgramChange`
+
+    A `ProgramChange` is an element that selects the Device program or preset.
+
+    Parameters
+    ----------
+    Program(1), int: Program number from 1 to 128.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._program: int  = 1
         self._bank: int     = 0
@@ -3402,6 +3425,17 @@ class ProgramChange(Element):
 
 
 class Panic(Element):
+    """`Element -> Panic`
+
+    A `Panic` is an element used to do a full state reset on the midi Device on all channels.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16..
+    Channel(defaults) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
 
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
