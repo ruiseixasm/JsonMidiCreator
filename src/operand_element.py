@@ -3437,6 +3437,8 @@ class Panic(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+        if not self._enabled:
+            return []
 
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
