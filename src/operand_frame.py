@@ -888,23 +888,22 @@ class Get(Left):
             return super().__ixor__(parameter)
         return super().__ixor__(input)
 
-
-class Inject(Left):
-    pass
-
-class Set(Inject):
+class Duplicate(Left):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
+
+class Inject(Left):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__(operand)
+
+class Set(Inject):
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             return super().__ixor__(input << self._multi_data['operand'])
         return super().__ixor__(input)
         
 class Push(Inject):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__(operand)
-
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             return super().__ixor__(self._multi_data['operand'] >> input)
