@@ -525,12 +525,12 @@ class Iterate(Left):
 class Drag(Left):
     """`Frame -> Left -> Drag`
 
-    A `Drag` works similarly the a drag in Excel, where the first inputted `Operand`'s extracted item is the one bring dragged.
+    A `Drag` works similarly the a drag in Excel\xa9, where the first inputted `Operand`'s extracted item is the one bring dragged.
     In `Nth(6, 7, 8)**Drag(Degree())` the `Degree()` of the first `Operand` is propagated to the next ones.
 
     Parameters
     ----------
-    Any(None) : The item to be get to be dragged along.
+    Any(None) : The item to be get and to drag along.
     """
     def __init__(self, *parameters):
         self._first_parameter = None
@@ -546,6 +546,14 @@ class Drag(Left):
         return super().__ixor__(input)
 
 class Loop(Left):
+    """`Frame -> Left -> Loop`
+
+    A `Loop` cycles through a set of items and returns to the first one whenever reaches the end of it.
+
+    Parameters
+    ----------
+    Any(None) : The set of items to loop through.
+    """
     def __init__(self, *parameters):
 
         processed_params = []
@@ -565,6 +573,14 @@ class Loop(Left):
         return ol.Null()
 
 class Foreach(Loop):
+    """`Frame -> Left -> Loop -> Foreach`
+
+    A `Foreach` is a Loop that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
+
+    Parameters
+    ----------
+    Any(None) : The set of items to loop through only once.
+    """
     def __ixor__(self, input: o.T) -> o.T:
         operand_len: int = len(self._multi_data['operand'])
         if self._index < operand_len:   # Does only a single loop!
