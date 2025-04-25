@@ -887,8 +887,12 @@ class Get(Left):
                 parameter %= single_parameter
             return super().__ixor__(parameter)
         return super().__ixor__(input)
-        
-class Set(Left):
+
+
+class Inject(Left):
+    pass
+
+class Set(Inject):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
@@ -897,7 +901,7 @@ class Set(Left):
             return super().__ixor__(input << self._multi_data['operand'])
         return super().__ixor__(input)
         
-class Push(Left):
+class Push(Inject):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
@@ -906,28 +910,28 @@ class Push(Left):
             return super().__ixor__(self._multi_data['operand'] >> input)
         return super().__ixor__(input)
 
-class Add(Left):
+class Add(Inject):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input + self._multi_data['operand'])
 
-class Subtract(Left):
+class Subtract(Inject):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input - self._multi_data['operand'])
 
-class Multiply(Left):
+class Multiply(Inject):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input * self._multi_data['operand'])
 
-class Divide(Left):
+class Divide(Inject):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
