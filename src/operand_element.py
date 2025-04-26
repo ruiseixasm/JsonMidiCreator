@@ -2237,7 +2237,7 @@ class ControlChange(Automation):
     Parameters
     ----------
     Controller(defaults) : An `Operand` that represents parameters like the `Number` of the controller being changed.
-    Value(Controller(defaults)), int : The CC value to be set on the Device controller.
+    Value(defaults), int : The CC value to be set on the Device controller.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(defaults)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(defaults) : The Midi channel where the midi message will be sent to.
