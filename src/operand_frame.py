@@ -48,12 +48,11 @@ class Frame(o.Operand):
         super().__init__()
         # These parameters replace the homologous Operand's ones
         self._next_operand: any = o.Operand()
+        self._parameters = parameters
         self._multi_data: dict  = {}
         self._inside_container: oc.Container = None
         self._root_frame: bool = True
         self._index_iterator: Type = None
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):
@@ -136,7 +135,7 @@ class Frame(o.Operand):
     
     def __eq__(self, other: 'Frame') -> bool:
         if type(self) == type(other):
-            return self._multi_data == other._multi_data
+            return self._parameters == other._parameters and self._multi_data == other._multi_data
         if isinstance(other, od.Conditional):
             return other == self
             # self_operand_list: list = []
