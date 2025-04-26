@@ -37,7 +37,7 @@ class Frame(o.Operand):
     """`Frame`
 
     Frame is used in conjugation with a `Composition` container to apply, frame, specific parameters.
-    Frames are chained with other Frames with the `**` operator.
+    Frames are chained with other Frames with the `**` operator. A `Frame` is a read-only class!
 
     Parameters
     ----------
