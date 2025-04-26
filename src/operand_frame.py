@@ -340,7 +340,8 @@ class Choice(Left):
     Any(None) : Multiple items to be chosen.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._multi_data['operand'] = parameters
 
     def __ixor__(self, input: o.T) -> o.T:
         if len(self._multi_data['operand']) > 0:
