@@ -1200,8 +1200,20 @@ class Scale(Generic):
         return []   # Has no scale at all
 
 
-
 class Staff(Generic):
+    """`Generic -> Staff`
+
+    A `Staff` is one of the most important `Operands` it works as the root for tempo and time values configurations for \
+        `Composition` operands like `Clip` and `Song`.
+
+    Parameters
+    ----------
+    Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
+    TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
+    Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
+    KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
+    Scale(None) : Sets the `Scale` of the `Staff`, by default it has no scale and thus it uses the `KeySignature` instead.
+    """
     def __init__(self, *parameters):
         super().__init__()
         # Set Global Staff Defaults at the end of this file bottom bellow
@@ -1210,7 +1222,7 @@ class Staff(Generic):
         self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
-        self._scale: Scale                          = Scale([])
+        self._scale: Scale                          = Scale(None)
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1583,6 +1595,17 @@ class Staff(Generic):
 
 
 class Arpeggio(Generic):
+    """`Generic -> Arpeggio`
+
+    An `Arpeggio` lets a group of simultaneously played notes to be played in sequence accordingly to the Arpeggio configuration.
+
+    Parameters
+    ----------
+    Order(1), int : The notes changing order, with 1 being the "Up" order.
+    Duration(1/16), float : The duration after which the next note is played following the set `Order`.
+    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    """
     def __init__(self, *parameters):
         self._order: int = 1    # "Up" by default
         self._duration_notevalue: Fraction = ra.Duration(1/16)._rational
