@@ -227,11 +227,8 @@ class Left(Frame):  # LEFT TO RIGHT
     Parameters
     ----------
     Any(None) : Data used in the framing process.
+    None : `Left` has not parameters to set.
     """
-    # def __init__(self, operand: any = None):    # OLD VERSION
-    #     super().__init__()
-    #     self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
-
     def __ixor__(self, input: any) -> any:
                 
         self_operand = self._next_operand
@@ -273,9 +270,9 @@ class Input(Left):
     ----------
     Any(None) : The `Operand` to be used as input.
     """
-    def __init__(self, operand: any = None):    # OLD VERSION
+    def __init__(self, operand: any = None):
         super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+        self._multi_data['operand'] = operand
 
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
@@ -302,9 +299,9 @@ class PassThrough(Left):
     ----------
     Operand(None) : The `Operand` to be used as pass through.
     """
-    def __init__(self, operand: any = None):    # OLD VERSION
+    def __init__(self, operand: any = None):
         super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+        self._multi_data['operand'] = operand
 
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
@@ -321,9 +318,9 @@ class SendTo(Left):
     ----------
     Operand(None) : The `Operand` to send to, like a `Print` for instance.
     """
-    def __init__(self, operand: any = None):    # OLD VERSION
+    def __init__(self, operand: any = None):
         super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+        self._multi_data['operand'] = operand
 
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
@@ -398,7 +395,7 @@ class CountDown(Left):
     int(None) : Integers to be used as starting count downs.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
         self._count_down: list = []
         for single_parameter in self._multi_data['operand']:
             if not isinstance(single_parameter, int):
