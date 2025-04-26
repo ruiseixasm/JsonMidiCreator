@@ -340,7 +340,7 @@ class Pick(Left):
     Any(None) : Multiple items to be picketed.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__(*parameters)
         self._named_parameters['pick'] = list(self._parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
@@ -370,7 +370,7 @@ class CountDown(Left):
     int(None) : Integers to be used as starting count downs.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__(*parameters)
         self._count_down: list = []
         for single_parameter in self._parameters:
             if not isinstance(single_parameter, int):
@@ -520,7 +520,7 @@ class Drag(Left):
     Any(None) : The item to be get and to drag along.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__(*parameters)
         self._first_parameter = None
 
     def __ixor__(self, input: o.T) -> o.T:
