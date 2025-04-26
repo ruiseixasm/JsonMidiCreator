@@ -731,7 +731,7 @@ class InputType(InputFilter):
         super().__init__(parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
-        for operand_class in self._named_parameters['operand']:
+        for operand_class in self._parameters:
             if isinstance(input, operand_class):
                 return super().__ixor__(input)
         return super().__ixor__(ol.Null())
