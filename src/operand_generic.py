@@ -46,6 +46,14 @@ class Generic(o.Operand):
 
 
 class TimeSignature(Generic):
+    """`Generic -> TimeSignature`
+
+    A time signature indicates the number of `Beats` in each `Measure` and the note value that receives one `Beat`.
+
+    Args:
+        top (int): The top value of a time signature, like, the 2 in a 2/4 time signature.
+        bottom (int): The bottom value of a time signature, like, the 4 in a 2/4 time signature.
+    """
     def __init__(self, top: int = 4, bottom: int = 4):
         self._top: int      = 4 if top is None else int(max(1,  top  ))
         # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
@@ -129,6 +137,18 @@ class TimeSignature(Generic):
         return self
 
 class Pitch(Generic):
+    """`Generic -> Pitch`
+
+    A `Pitch` comes down the the absolute key in a full midi keyboard of 128 keys. To do so, processes and keeps many related \
+    parameters like `Octave` and `Degree`.
+
+    Parameters
+    ----------
+    Tonic(Staff(defaults)), None : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Octave(4) : The position on the staff in `Measures`.
+    Degree(1), int : The Midi channel where the midi message will be sent to.
+    Natural(False) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
     def __init__(self, *parameters):
         self._staff_reference: Staff            = defaults._staff
         self._tonic_key: int                    = self._staff_reference % ou.Key() % int()
