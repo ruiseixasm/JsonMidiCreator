@@ -144,10 +144,11 @@ class Pitch(Generic):
 
     Parameters
     ----------
-    Tonic(Staff(defaults)), None : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Octave(4) : The position on the staff in `Measures`.
-    Degree(1), int : The Midi channel where the midi message will be sent to.
-    Natural(False) : Sets if the Element is enabled or not, resulting in messages or not.
+    Tonic(Staff(defaults)), None : The tonic key on which the `Degree` is based on.
+    Octave(4) : The octave on the keyboard with the middle C setting on the 4th octave.
+    Degree(1), int : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
+    Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
+    Natural(False) : `Natural` disables the effects of `Sharp` and `Flat` and any accidental.
     """
     def __init__(self, *parameters):
         self._staff_reference: Staff            = defaults._staff
@@ -739,6 +740,17 @@ class Pitch(Generic):
 
 
 class Controller(Generic):
+    """`Generic -> Controller`
+
+    A `Controller` defines all the parameters concerning a device control that receives a value for its modulation.
+
+    Parameters
+    ----------
+    Number("Pan"), MSB, int : The Controller number or MSB number (Most Significant Byte).
+    LSB(0) : The Controller number or MSB number (Least Significant Byte).
+    NRPN(False) : Sets the controller as an NRPN one.
+    High(False), int : Allows the processing of high resolution values up to 16383 (128*128 - 1) instead the usual 127 (128 - 1).
+    """
     def __init__(self, *parameters):
         self._number_msb: int   = ou.Number("Pan")._unit
         self._lsb: int          = 0 # lsb for 14 bits messages
@@ -901,13 +913,14 @@ class Controller(Generic):
 
 
 class Scale(Generic):
-    """
-    A Scale() represents a given scale rooted in the key of C.
-    
+    """`Generic -> Scale`
+
+    A `Scale` is a series of notes ordered by pitch and separated by intervals of whole and half steps.
+
     Parameters
     ----------
-    first : integer_like and string_like
-        It can have the name of a scale as input, like, "Major" or "Melodic"
+    list([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]), str : Sets the scale type where default scale is the Major scale.
+    Mode(1), int : Sets the `Mode` of the scale where a value different of 1 changes the tonic of the scale.
     """
     def __init__(self, *parameters):
         self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
