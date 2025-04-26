@@ -584,7 +584,7 @@ class InputFilter(Left):
     None : `InputFilter` doesn't have parameters to be set.
     """
     def __init__(self, *parameters):    # OLD VERSION
-        super().__init__(parameters)
+        super().__init__(*parameters)
         if parameters:
             self._named_parameters['operand'] = parameters[0]
 
@@ -728,9 +728,6 @@ class InputType(InputFilter):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-
     def __ixor__(self, input: o.T) -> o.T:
         for operand_class in self._parameters:
             if isinstance(input, operand_class):
