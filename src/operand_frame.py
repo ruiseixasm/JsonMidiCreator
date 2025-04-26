@@ -228,9 +228,9 @@ class Left(Frame):  # LEFT TO RIGHT
     ----------
     Any(None) : Data used in the framing process.
     """
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+    # def __init__(self, operand: any = None):    # OLD VERSION
+    #     super().__init__()
+    #     self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
 
     def __ixor__(self, input: any) -> any:
                 
@@ -273,6 +273,10 @@ class Input(Left):
     ----------
     Any(None) : The `Operand` to be used as input.
     """
+    def __init__(self, operand: any = None):    # OLD VERSION
+        super().__init__()
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
         import operand_chaos as ch
@@ -298,6 +302,10 @@ class PassThrough(Left):
     ----------
     Operand(None) : The `Operand` to be used as pass through.
     """
+    def __init__(self, operand: any = None):    # OLD VERSION
+        super().__init__()
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
             return super().__ixor__(input >> self._multi_data['operand'])
@@ -313,6 +321,10 @@ class SendTo(Left):
     ----------
     Operand(None) : The `Operand` to send to, like a `Print` for instance.
     """
+    def __init__(self, operand: any = None):    # OLD VERSION
+        super().__init__()
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(self._multi_data['operand'], o.Operand):
             input >> self._multi_data['operand']
@@ -492,6 +504,7 @@ class Iterate(Left):
     5
     """
     def __init__(self, start: int = 0, step: int = 1):
+        super().__init__()
         iterator: dict = {
             "start":    start,
             "current":  start,
@@ -504,7 +517,7 @@ class Iterate(Left):
         elif type(iterator['current']) is not type(iterator['step']) \
             and isinstance(iterator['step'], o.Operand):
                 iterator['current'] = iterator['step'].copy() << iterator['current']
-        super().__init__(iterator)
+        self._multi_data['operand'] = iterator
 
     def __ixor__(self, input: o.T) -> o.T:
         import operand_chaos as ch
@@ -555,14 +568,14 @@ class Loop(Left):
     Any(None) : The set of items to loop through.
     """
     def __init__(self, *parameters):
-
+        super().__init__()
         processed_params = []
         for param in parameters:
             if isinstance(param, (range, list, tuple)):
                 processed_params.extend(param)
             else:
                 processed_params.append(param)
-        super().__init__(tuple(processed_params))
+        self._multi_data['operand'] = tuple(processed_params)
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Loop)
@@ -597,7 +610,10 @@ class InputFilter(Left):
     ----------
     None : `InputFilter` doesn't have parameters to be set.
     """
-    pass
+    def __init__(self, operand: any = None):    # OLD VERSION
+        super().__init__()
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+
 
 class All(InputFilter):
     """`Frame -> Left -> InputFilter -> All`
@@ -608,9 +624,6 @@ class All(InputFilter):
     ----------
     None : `All` doesn't have parameters to be set.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(input)
 
@@ -886,7 +899,8 @@ class Get(Left):
     Any(None) : An item to get from the input.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._multi_data['operand'] = parameters
 
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
@@ -905,9 +919,6 @@ class DeepCopy(Left):
     ----------
     None : This `Frame` has no parameters.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-
     def __ixor__(self, input: o.T) -> o.T:
         input_duplication = self.deep_copy(input)
         return super().__ixor__(input_duplication)
@@ -921,8 +932,7 @@ class Inject(Left):
     ----------
     None : This `Frame` has no parameters.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+    pass
 
 class Set(Inject):
     """`Frame -> Left -> Inject -> Set`
@@ -965,7 +975,8 @@ class BasicOperation(Left):
     None : This `Frame` has no parameters.
     """
     def __init__(self, parameter: any = 1):
-        super().__init__(parameter)
+        super().__init__()
+        self._multi_data['operand'] = parameter
 
 class Add(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Add`
@@ -1025,9 +1036,6 @@ class Right(Frame):  # RIGHT TO LEFT
     ----------
     Any(None) : Data used in the framing process.
     """
-    def __init__(self, *parameters):
-        super().__init__(parameters)
-
     def __ixor__(self, input: o.T) -> o.T:
         right_input = self._next_operand
         if isinstance(right_input, Frame):
