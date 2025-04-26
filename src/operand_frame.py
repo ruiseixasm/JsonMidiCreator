@@ -257,7 +257,7 @@ class Left(Frame):  # LEFT TO RIGHT
             if isinstance(self_operand, o.Operand):
                 self_operand._set = True
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
-            self_operand = self_operand.copy() << input   # Has to use a copy of the frame operand
+            self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
             
         return self_operand
@@ -1016,48 +1016,69 @@ class Divide(BasicOperation):
         return super().__ixor__(input / self._multi_data['operand'])
 
 
-class Right(Frame):
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+class Right(Frame):  # RIGHT TO LEFT
+    """`Frame -> Right`
 
-class WrapR(Right):
-    def __init__(self, wrapper: o.Operand = None):
-        super().__init__(wrapper)
+    The `Right` frames are processed from right to left in the framing chain made with the `**` operator.
+
+    Parameters
+    ----------
+    Any(None) : Data used in the framing process.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand = self_operand.__ixor__(input)
-        match self_operand:
+        right_input = self._next_operand
+        if isinstance(right_input, Frame):
+            # ByPasses a Right frame
+            right_input = right_input.__ixor__(input)
+        if isinstance(right_input, o.Operand) and not right_input._set:
+            right_input = right_input.copy(input) # Has to use a copy of the frame operand
+            right_input._set = True
+        return right_input
+
+class WrapR(Right):
+    """`Frame -> Right -> WrapR`
+
+    A `WrapR` .
+
+    Parameters
+    ----------
+    Any(None) : Data used in the framing process.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        right_input = self._next_operand
+        if isinstance(right_input, Frame):
+            right_input = right_input.__ixor__(input)
+        match right_input:
             case o.Operand():
                 match self._multi_data['operand']:
-                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
+                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << right_input
                     case None:          wrapped_operand = ol.Null()
                     case _:             wrapped_operand = self._multi_data['operand']
             case _:
                 match self._multi_data['operand']:
-                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
+                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << right_input
                     case None:          wrapped_operand = ol.Null()
                     case _:             wrapped_operand = self._multi_data['operand']
         if isinstance(wrapped_operand, o.Operand):
-            if isinstance(self_operand, o.Operand):
-                wrapped_operand._set = self_operand._set
+            if isinstance(right_input, o.Operand):
+                wrapped_operand._set = right_input._set
             else:
                 wrapped_operand._set = True
         return wrapped_operand
 
 class GetR(Right):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__(operand)
-
     def __ixor__(self, input: o.T) -> o.T:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand = self_operand.__ixor__(input)
-        extracted_data = self_operand
-        if isinstance(self_operand, o.Operand):
-            extracted_data = self_operand % self._multi_data['operand']
-            extracted_data._set = self_operand._set # Set status has to be kept
+        right_input = self._next_operand
+        if isinstance(right_input, Frame):
+            # ByPasses a Right frame
+            right_input = right_input.__ixor__(input)
+        extracted_data = right_input
+        if isinstance(right_input, o.Operand):
+            extracted_data = right_input % self._multi_data['operand']
+            if isinstance(extracted_data, o.Operand):
+                extracted_data._set = right_input._set # Set status has to be kept
         return extracted_data
 
