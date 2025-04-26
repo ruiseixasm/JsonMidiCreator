@@ -165,26 +165,8 @@ class Frame(o.Operand):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        if isinstance(operand, Frame):
-            self._multi_data = self.deep_copy(operand._multi_data)
-            self._initiated = operand._initiated
-            self._index = operand._index
-            self._set = False   # by default a new copy of data unsets the Operand
-            # COPY THE SELF OPERANDS RECURSIVELY
-            if type(operand._next_operand) is not o.Operand:
-                self._next_operand = self.deep_copy(operand._next_operand)
+        # Frame class IS a Read-only class
         return self
-
-    # def __rrshift__(self, operand: o.T) -> o.T:
-    #     return operand ^ self   # operand is the subject
-
-    def __imul__(self, operand) -> Self:
-        match operand:
-            case int():
-                for _ in range(operand):
-                    ol.Null() << self
-        return self
-
 
     def __xor__(self, input: Any) -> Any:
         return self.__ixor__(input)
@@ -214,9 +196,8 @@ class Frame(o.Operand):
         return self << parameters
     
     def clear(self, *parameters) -> 'Frame':
-        super().clear()
-        self.deep_clear(self._multi_data)
-        return self << parameters
+        # Frame class IS a Read-only class
+        return self
     
 
 class Left(Frame):  # LEFT TO RIGHT
