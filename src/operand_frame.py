@@ -1041,41 +1041,31 @@ class Right(Frame):  # RIGHT TO LEFT
 class WrapR(Right):
     """`Frame -> Right -> WrapR`
 
-    A `WrapR` .
+    A `WrapR` wraps the right side input with an `Operand` set as parameter before returning it.
 
     Parameters
     ----------
-    Any(None) : Data used in the framing process.
+    Operand(None) : `Operand` to wrap the right side input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        right_input = self._next_operand
-        if isinstance(right_input, Frame):
-            right_input = right_input.__ixor__(input)
-        match right_input:
-            case o.Operand():
-                match self._multi_data['operand']:
-                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << right_input
-                    case None:          wrapped_operand = ol.Null()
-                    case _:             wrapped_operand = self._multi_data['operand']
-            case _:
-                match self._multi_data['operand']:
-                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << right_input
-                    case None:          wrapped_operand = ol.Null()
-                    case _:             wrapped_operand = self._multi_data['operand']
-        if isinstance(wrapped_operand, o.Operand):
-            if isinstance(right_input, o.Operand):
-                wrapped_operand._set = right_input._set
-            else:
-                wrapped_operand._set = True
-        return wrapped_operand
+        right_input = super().__ixor__(input)
+        wrapped_right_input = self._multi_data['operand']
+        if isinstance(wrapped_right_input, o.Operand):
+            wrapped_right_input = wrapped_right_input.copy(right_input)
+            wrapped_right_input._set = True
+        return wrapped_right_input
 
 class GetR(Right):
+    """`Frame -> Right -> GetR`
+
+    A `GetR` extracts the right side input parameter with `%` before returning it.
+
+    Parameters
+    ----------
+    Any(None) : Item to extract from the right side input.
+    """
     def __ixor__(self, input: o.T) -> o.T:
-        right_input = self._next_operand
-        if isinstance(right_input, Frame):
-            # ByPasses a Right frame
-            right_input = right_input.__ixor__(input)
-        extracted_data = right_input
+        right_input = super().__ixor__(input)
         if isinstance(right_input, o.Operand):
             extracted_data = right_input % self._multi_data['operand']
             if isinstance(extracted_data, o.Operand):
