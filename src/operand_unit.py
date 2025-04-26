@@ -2293,7 +2293,7 @@ class Number(Midi):
         return self
 
     @staticmethod
-    def getDefault(number: int | str) -> int:
+    def getDefaultValue(number: int | str) -> int:
         if isinstance(number, str):
             number = Number.nameToNumber(number)
         for controller in Number._controllers:

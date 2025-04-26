@@ -1816,6 +1816,26 @@ class Arpeggio(Generic):
 
 
 class Defaults(Generic):
+    """`Generic -> Defaults`
+
+    The `Defaults` operand is declared as the variable "defaults" and is available right away, \
+        this variable concentrates the total variables that set the defaults of each newly created `Operand`.
+    The "defaults" parameters can be changes at any time but they only set the newly created operands and these \
+        changes have no impact on already created operands.
+
+    Parameters
+    ----------
+    Staff() : 
+    Duration(1/4) : 
+    Octave(4) : 
+    Velocity(100) : 
+    Controller("Pan")
+
+
+    Duration(1/16), float : The duration after which the next note is played following the set `Order`.
+    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    """
     def __init__(self, *parameters):
         import operand_element as oe
         super().__init__()
@@ -1823,7 +1843,8 @@ class Defaults(Generic):
         self._duration: Fraction                    = Fraction(1/4)
         self._octave: int                           = 4
         self._velocity: int                         = 100
-        self._controller: Controller                = Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
+        self._controller: Controller                = Controller("Pan")
+        self._value: int                            = ou.Number.getDefaultValue("Pan")
         self._channel: int                          = 1
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
@@ -1849,6 +1870,7 @@ class Defaults(Generic):
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
                     case Controller():          return self._controller
+                    case ou.Value():            return ou.Value(self._value)
                     case ou.Channel():          return ou.Channel(self._channel)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
@@ -1865,6 +1887,7 @@ class Defaults(Generic):
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
             case Controller():          return self._controller.copy()
+            case ou.Value():            return ou.Value(self._value)
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return ou.Channel(self._channel)
@@ -1901,6 +1924,7 @@ class Defaults(Generic):
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
         serialization["parameters"]["controller"]       = self.serialize( self._controller )
+        serialization["parameters"]["value"]            = self.serialize( self._value )
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
         serialization["parameters"]["devices"]          = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
@@ -1914,8 +1938,8 @@ class Defaults(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and
-            "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
+            "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
@@ -1923,6 +1947,7 @@ class Defaults(Generic):
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
             self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
             self._controller        = self.deserialize( serialization["parameters"]["controller"] )
+            self._value             = self.deserialize( serialization["parameters"]["value"] )
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
             self._devices           = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
@@ -1941,6 +1966,7 @@ class Defaults(Generic):
                 self._octave            = operand._octave
                 self._velocity          = operand._velocity
                 self._controller        << operand._controller
+                self._value             = operand._value
                 self._channel           = operand._channel
                 self._devices           = operand._devices.copy()
                 self._clocked_devices   = operand._clocked_devices.copy()
@@ -1953,6 +1979,7 @@ class Defaults(Generic):
                     case ou.Octave():           self._octave = operand._data._unit
                     case ou.Velocity():         self._velocity = operand._data._unit
                     case Controller():          self._controller = operand._data
+                    case ou.Value():            self._value = operand._data._unit
                     case ou.Channel():          self._channel = operand._data._unit
                     case oc.ClockedDevices():   self._clocked_devices = operand._data // list()
                     case oc.Devices():          self._devices = operand._data // list()
@@ -1967,8 +1994,9 @@ class Defaults(Generic):
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit
-            case Controller() | ou.Number() | ou.Value():
+            case Controller() | ou.Number():
                                         self._controller << operand
+            case ou.Value():            self._value = operand._unit
             case ou.Channel():          self._channel = operand._unit
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()

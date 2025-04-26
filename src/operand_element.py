@@ -2245,7 +2245,7 @@ class ControlChange(Automation):
     """
     def __init__(self, *parameters):
         self._controller: og.Controller = og.defaults % og.Controller()
-        self._value: int                = ou.Number.getDefault(self._controller._number_msb)
+        self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
         super().__init__(*parameters)
 
     def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
