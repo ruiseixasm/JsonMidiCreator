@@ -1818,26 +1818,25 @@ class Arpeggio(Generic):
 class Defaults(Generic):
     """`Generic -> Defaults`
 
-    The `Defaults` operand is declared as the variable "defaults" and is available right away, \
-        this variable concentrates the total variables that set the defaults of each newly created `Operand`.
-    The "defaults" parameters can be changes at any time but they only set the newly created operands and these \
+    The `Defaults` operand is declared as the variable `defaults` and is available right away, \
+        this variable concentrates the total variables that set the `defaults` of each newly created `Operand`.
+    The `defaults` variable parameters can be changes at any time but they only set the newly created operands and these \
         changes have no impact on already created operands.
 
     Parameters
     ----------
-    Staff() : 
-    Duration(1/4) : 
-    Octave(4) : 
-    Velocity(100) : 
-    Controller("Pan")
-
-
-    Duration(1/16), float : The duration after which the next note is played following the set `Order`.
-    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
-    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    Staff(), int, float, Fraction, str : It keeps its own global `Staff` that will be used by `Element` and `Clip` at their creation.
+    Duration(1/4) : The default note `Element` duration is 1/4 note.
+    Octave(4) : The default `Octave` is the 4th relative to the middle C.
+    Velocity(100) : Sets the default velocity of a `Note` as 100.
+    Controller("Pan") : The default controller being controlled by CC midi messages is the "Pan", CC number 10.
+    Channel(1) : The default `Channel is the midi channel 1.
+    Devices(["Microsoft", "FLUID", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
+    ClockedDevices([]) : By default no devices are set to receive clocking messages.
+    PPQN(24) : The default for clocking midi messages is 24 Pulses Per Quarter Note.
+    ClockStopModes(0) : The default clock stop mode is the one that sends a song position signal back to 0.
     """
     def __init__(self, *parameters):
-        import operand_element as oe
         super().__init__()
         self._staff: Staff                          = Staff()
         self._duration: Fraction                    = Fraction(1/4)
