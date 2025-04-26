@@ -612,7 +612,7 @@ class InputFilter(Left):
     """
     def __init__(self, operand: any = None):    # OLD VERSION
         super().__init__()
-        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
+        self._multi_data['operand'] = operand
 
 
 class All(InputFilter):
