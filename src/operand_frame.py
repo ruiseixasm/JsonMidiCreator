@@ -583,9 +583,10 @@ class InputFilter(Left):
     ----------
     None : `InputFilter` doesn't have parameters to be set.
     """
-    def __init__(self, operand: any = None):    # OLD VERSION
-        super().__init__(operand)
-        self._named_parameters['operand'] = operand
+    def __init__(self, *parameters):    # OLD VERSION
+        super().__init__(parameters)
+        if parameters:
+            self._named_parameters['operand'] = parameters[0]
 
 
 class All(InputFilter):
