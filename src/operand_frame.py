@@ -1019,11 +1019,11 @@ class WrapR(Right):
     Operand(None) : `Operand` to wrap the right side input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        right_input = super().__ixor__(input)
-        wrapped_right_input = self._named_parameters['operand']
-        if isinstance(wrapped_right_input, o.Operand):
-            wrapped_right_input = wrapped_right_input.copy(right_input)
-            wrapped_right_input._set = True
+        wrapped_right_input = super().__ixor__(input)
+        for single_wrapper in self._parameters:
+            if isinstance(single_wrapper, o.Operand):
+                wrapped_right_input = single_wrapper.copy(wrapped_right_input)
+                wrapped_right_input._set = True
         return wrapped_right_input
 
 class GetR(Right):
@@ -1036,10 +1036,11 @@ class GetR(Right):
     Any(None) : Item to extract from the right side input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        right_input = super().__ixor__(input)
-        if isinstance(right_input, o.Operand):
-            extracted_data = right_input % self._named_parameters['operand']
+        extracted_data = super().__ixor__(input)
+        for single_parameter in self._parameters:
             if isinstance(extracted_data, o.Operand):
-                extracted_data._set = right_input._set # Set status has to be kept
+                extracted_data %= single_parameter
+        if isinstance(extracted_data, o.Operand):
+            extracted_data._set = extracted_data._set # Set status has to be kept
         return extracted_data
 
