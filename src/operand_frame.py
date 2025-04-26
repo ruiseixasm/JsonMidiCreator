@@ -47,9 +47,9 @@ class Frame(o.Operand):
         import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
-        self._next_operand: any = o.Operand()
-        self._parameters = parameters
-        self._multi_data: dict  = {}
+        self._next_operand: any         = o.Operand()
+        self._parameters: tuple         = parameters
+        self._named_parameters: dict    = {}
         self._inside_container: oc.Container = None
         self._root_frame: bool = True
         self._index_iterator: Type = None
@@ -135,7 +135,7 @@ class Frame(o.Operand):
     
     def __eq__(self, other: 'Frame') -> bool:
         if type(self) == type(other):
-            return self._parameters == other._parameters and self._multi_data == other._multi_data
+            return self._parameters == other._parameters and self._named_parameters == other._named_parameters
         if isinstance(other, od.Conditional):
             return other == self
             # self_operand_list: list = []
@@ -150,7 +150,7 @@ class Frame(o.Operand):
     def getSerialization(self) -> dict:
         # serialization = {'class': "some", "parameters": {}}
         serialization = super().getSerialization()
-        serialization["parameters"]["multi_data"] = self.serialize(self._multi_data)
+        serialization["parameters"]["multi_data"] = self.serialize(self._named_parameters)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -160,7 +160,7 @@ class Frame(o.Operand):
             "multi_data" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._multi_data = self.deserialize(serialization["parameters"]["multi_data"])
+            self._named_parameters = self.deserialize(serialization["parameters"]["multi_data"])
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -191,7 +191,7 @@ class Frame(o.Operand):
     
     def reset(self, *parameters) -> 'Frame':
         super().reset()
-        self.deep_reset(self._multi_data)
+        self.deep_reset(self._named_parameters)
         return self << parameters
     
     def clear(self, *parameters) -> 'Frame':
@@ -208,10 +208,6 @@ class Left(Frame):  # LEFT TO RIGHT
     ----------
     Any(None) : Data used in the framing process.
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._multi_data['operand'] = parameters
-
     def __ixor__(self, input: any) -> any:
                 
         self_operand = self._next_operand
@@ -253,24 +249,24 @@ class Input(Left):
     ----------
     Any(None) : The `Operand` to be used as input.
     """
-    def __init__(self, operand: any = None):
+    def __init__(self, input: any = None):
         super().__init__()
-        self._multi_data['operand'] = operand
+        self._named_parameters['input'] = input
 
     def __ixor__(self, input: o.T) -> o.T:
         import operand_container as oc
         import operand_chaos as ch
         self._increment_index(Input)
-        if isinstance(self._multi_data['operand'], oc.Container):
-            if self._multi_data['operand'].len() > 0:
-                item = self._multi_data['operand'][(self._index - 1) % self._multi_data['operand'].len()]
+        if isinstance(self._named_parameters['input'], oc.Container):
+            if self._named_parameters['input'].len() > 0:
+                item = self._named_parameters['input'][(self._index - 1) % self._named_parameters['input'].len()]
                 return super().__ixor__(item)
             return super().__ixor__(ol.Null())
-        if isinstance(self._multi_data['operand'], ch.Chaos):
-            actual_chaos: ch.Chaos = self._multi_data['operand'] * 0    # Makes a copy without iterating
-            self._multi_data['operand'] *= 1    # In order to not result in a copy of Chaos
+        if isinstance(self._named_parameters['input'], ch.Chaos):
+            actual_chaos: ch.Chaos = self._named_parameters['input'] * 0    # Makes a copy without iterating
+            self._named_parameters['input'] *= 1    # In order to not result in a copy of Chaos
             return super().__ixor__(actual_chaos)
-        return super().__ixor__(self._multi_data['operand'])
+        return super().__ixor__(self._named_parameters['input'])
 
 
 class PassThrough(Left):
@@ -282,13 +278,13 @@ class PassThrough(Left):
     ----------
     Operand(None) : The `Operand` to be used as pass through.
     """
-    def __init__(self, operand: any = None):
+    def __init__(self, operand: o.Operand = ol.Null()):
         super().__init__()
-        self._multi_data['operand'] = operand
+        self._named_parameters['operand'] = operand
 
     def __ixor__(self, input: o.T) -> o.T:
-        if isinstance(self._multi_data['operand'], o.Operand):
-            return super().__ixor__(input >> self._multi_data['operand'])
+        if isinstance(self._named_parameters['operand'], o.Operand):
+            return super().__ixor__(input >> self._named_parameters['operand'])
         return super().__ixor__(input)
 
 class SendTo(Left):
@@ -301,13 +297,13 @@ class SendTo(Left):
     ----------
     Operand(None) : The `Operand` to send to, like a `Print` for instance.
     """
-    def __init__(self, operand: any = None):
+    def __init__(self, operand: o.Operand = ol.Null()):
         super().__init__()
-        self._multi_data['operand'] = operand
+        self._named_parameters['operand'] = operand
 
     def __ixor__(self, input: o.T) -> o.T:
-        if isinstance(self._multi_data['operand'], o.Operand):
-            input >> self._multi_data['operand']
+        if isinstance(self._named_parameters['operand'], o.Operand):
+            input >> self._named_parameters['operand']
         return super().__ixor__(input)
 
 class Choice(Left):
@@ -319,12 +315,8 @@ class Choice(Left):
     ----------
     Any(None) : Multiple items to be chosen.
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._multi_data['operand'] = parameters
-
     def __ixor__(self, input: o.T) -> o.T:
-        if len(self._multi_data['operand']) > 0:
+        if len(self._parameters) > 0:
             choice: int = 0
             match input:
                 case int() | float() | Fraction():
@@ -333,8 +325,8 @@ class Choice(Left):
                     choice_candidate = input % int()
                     if isinstance(choice_candidate, int):
                         choice = choice_candidate
-            choice %= len(self._multi_data['operand'])
-            return super().__ixor__(self._multi_data['operand'][choice])
+            choice %= len(self._parameters)
+            return super().__ixor__(self._parameters[choice])
         return super().__ixor__(ol.Null())
 
 class Pick(Left):
@@ -349,12 +341,12 @@ class Pick(Left):
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._multi_data['pick'] = list(self._multi_data['operand'])
+        self._named_parameters['pick'] = list(self._parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
-        if len(self._multi_data['operand']) > 0:
-            if len(self._multi_data['pick']) == 0:
-                self._multi_data['pick'] = list(self._multi_data['operand'])
+        if len(self._parameters) > 0:
+            if len(self._named_parameters['pick']) == 0:
+                self._named_parameters['pick'] = list(self._parameters)
             choice: int = 0
             match input:
                 case int() | float() | Fraction():
@@ -363,8 +355,8 @@ class Pick(Left):
                     choice_candidate = input % int()
                     if isinstance(choice_candidate, int):
                         choice = choice_candidate
-            choice %= len(self._multi_data['pick'])
-            return super().__ixor__(self._multi_data['pick'].pop(choice))
+            choice %= len(self._named_parameters['pick'])
+            return super().__ixor__(self._named_parameters['pick'].pop(choice))
         return super().__ixor__(ol.Null())
 
 class CountDown(Left):
@@ -378,17 +370,17 @@ class CountDown(Left):
     int(None) : Integers to be used as starting count downs.
     """
     def __init__(self, *parameters):
-        super().__init__()
+        super().__init__(parameters)
         self._count_down: list = []
-        for single_parameter in self._multi_data['operand']:
+        for single_parameter in self._parameters:
             if not isinstance(single_parameter, int):
                 single_parameter = -1
             self._count_down.append(single_parameter)
-        self._multi_data['operand'] = tuple(self._count_down)  # tuple will be used as data reset
+        self._named_parameters['count_down'] = tuple(self._count_down)  # tuple will be used as data reset
 
     def __ixor__(self, input: o.T) -> o.T:
         pick_choices: any = ol.Null()
-        if len(self._multi_data['operand']) > 0:
+        if len(self._named_parameters['count_down']) > 0:
             picker: int = 0
             match input:
                 case int() | float() | Fraction():
@@ -397,19 +389,19 @@ class CountDown(Left):
                     picker_candidate = input % int()
                     if isinstance(picker_candidate, int):
                         picker = picker_candidate
-            picker %= len(self._multi_data['operand'])
+            picker %= len(self._named_parameters['count_down'])
             if self._count_down[picker] > 0:
                 self._count_down[picker] -= 1
             closest_picker: int = picker
             closest_place: int  = self._count_down[picker]
-            for index, value in enumerate(self._multi_data['operand']):
+            for index, value in enumerate(self._named_parameters['count_down']):
                 if self._count_down[index] < closest_place and value >= 0:
                     closest_picker = index
                     closest_place = self._count_down[index]
             pick_choices = closest_picker
-            self._count_down[pick_choices] += self._multi_data['operand'][pick_choices] # adds position debt
+            self._count_down[pick_choices] += self._named_parameters['count_down'][pick_choices] # adds position debt
             # Trim base, move closer (avoids astronomical distances)
-            for index, _ in enumerate(self._multi_data['operand']):
+            for index, _ in enumerate(self._named_parameters['count_down']):
                 self._count_down[index] -= max(0, closest_place - 1)
         return super().__ixor__(pick_choices)
 
@@ -460,10 +452,10 @@ class Formula(Left):
     """
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any] = None):
         super().__init__()
-        self._multi_data['operand'] = operation
+        self._named_parameters['operand'] = operation
 
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(self._multi_data['operand'](input))
+        return super().__ixor__(self._named_parameters['operand'](input))
     
 class Iterate(Left):
     """`Frame -> Left -> Iterate`
@@ -499,22 +491,22 @@ class Iterate(Left):
         elif type(iterator['current']) is not type(iterator['step']) \
             and isinstance(iterator['step'], o.Operand):
                 iterator['current'] = iterator['step'].copy() << iterator['current']
-        self._multi_data['operand'] = iterator
+        self._named_parameters['operand'] = iterator
 
     def __ixor__(self, input: o.T) -> o.T:
         import operand_chaos as ch
         self._increment_index(Iterate)
         if isinstance(input, ch.Chaos):
-            if self._multi_data['operand']['current'] == self._multi_data['operand']['start']:
-                input *= self._multi_data['operand']['start']
+            if self._named_parameters['operand']['current'] == self._named_parameters['operand']['start']:
+                input *= self._named_parameters['operand']['start']
             self_operand = super().__ixor__( input )
-            input *= self._multi_data['operand']['step']
+            input *= self._named_parameters['operand']['step']
         else:
             self_operand = super().__ixor__(
-                self.deep_copy(self._multi_data['operand']['current'])
+                self.deep_copy(self._named_parameters['operand']['current'])
             )
         # iterates whenever called
-        self._multi_data['operand']['current'] += self._multi_data['operand']['step']
+        self._named_parameters['operand']['current'] += self._named_parameters['operand']['step']
         return self_operand
 
 class Drag(Left):
@@ -535,7 +527,7 @@ class Drag(Left):
         if isinstance(input, o.Operand):
             if self._first_parameter is None:
                 self._first_parameter = input
-                for single_parameter in self._multi_data['operand']:
+                for single_parameter in self._named_parameters['operand']:
                     self._first_parameter %= single_parameter
             return super().__ixor__(self._first_parameter)
         return super().__ixor__(input)
@@ -557,13 +549,13 @@ class Loop(Left):
                 processed_params.extend(param)
             else:
                 processed_params.append(param)
-        self._multi_data['operand'] = tuple(processed_params)
+        self._named_parameters['operand'] = tuple(processed_params)
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Loop)
-        operand_len: int = len(self._multi_data['operand'])
+        operand_len: int = len(self._named_parameters['operand'])
         if operand_len > 0:    # In case it its own parameters to iterate trough
-            input = self._multi_data['operand'][(self._index - 1) % operand_len]
+            input = self._named_parameters['operand'][(self._index - 1) % operand_len]
             return super().__ixor__(input)
         return ol.Null()
 
@@ -577,7 +569,7 @@ class Foreach(Loop):
     Any(None) : The set of items to loop through only once.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        operand_len: int = len(self._multi_data['operand'])
+        operand_len: int = len(self._named_parameters['operand'])
         if self._index < operand_len:   # Does only a single loop!
             return super().__ixor__(input)
         return ol.Null()
@@ -594,7 +586,7 @@ class InputFilter(Left):
     """
     def __init__(self, operand: any = None):    # OLD VERSION
         super().__init__()
-        self._multi_data['operand'] = operand
+        self._named_parameters['operand'] = operand
 
 
 class All(InputFilter):
@@ -693,11 +685,11 @@ class Every(InputFilter):
     """
     def __init__(self, nth: int = 4):
         super().__init__()
-        self._multi_data['nths'] = nth
+        self._named_parameters['nths'] = nth
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Every)
-        if self._multi_data['nths'] > 0 and self._index % self._multi_data['nths'] == 0:
+        if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
             return self._next_operand
@@ -716,11 +708,11 @@ class Nth(InputFilter):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._multi_data['parameters'] = parameters
+        self._named_parameters['parameters'] = parameters
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Nth)
-        if self._index in self._multi_data['parameters']:
+        if self._index in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
             return self._next_operand
@@ -740,7 +732,7 @@ class InputType(InputFilter):
         super().__init__(parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
-        for operand_class in self._multi_data['operand']:
+        for operand_class in self._named_parameters['operand']:
             if isinstance(input, operand_class):
                 return super().__ixor__(input)
         return super().__ixor__(ol.Null())
@@ -758,12 +750,12 @@ class BasicComparison(InputFilter):
     """
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._multi_data['previous'] = []
+        self._named_parameters['previous'] = []
 
     def __ixor__(self, input: o.T) -> o.T:
-        for condition in self._multi_data['operand']:
+        for condition in self._named_parameters['operand']:
             if isinstance(condition, od.Previous):
-                previous_inputs: list = self._multi_data['previous']
+                previous_inputs: list = self._named_parameters['previous']
                 previous_inputs.insert(0, input)
                 previous_i: int = condition._data
                 if isinstance(previous_i, int) and previous_i < len(previous_inputs):
@@ -783,7 +775,7 @@ class BasicComparison(InputFilter):
 
     def reset(self, *parameters) -> Self:
         super().reset()
-        self._multi_data['previous'] = []
+        self._named_parameters['previous'] = []
         return self << parameters
 
 class Equal(BasicComparison):
@@ -882,12 +874,12 @@ class Get(Left):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._multi_data['operand'] = parameters
+        self._named_parameters['operand'] = parameters
 
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             parameter = input
-            for single_parameter in self._multi_data['operand']:
+            for single_parameter in self._named_parameters['operand']:
                 parameter %= single_parameter
             return super().__ixor__(parameter)
         return super().__ixor__(input)
@@ -927,7 +919,7 @@ class Set(Inject):
     """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            for single_parameter in self._multi_data['operand']:
+            for single_parameter in self._named_parameters['operand']:
                 input << single_parameter
         return super().__ixor__(input)
         
@@ -942,7 +934,7 @@ class Push(Inject):
     """
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
-            for single_parameter in self._multi_data['operand']:
+            for single_parameter in self._named_parameters['operand']:
                 single_parameter >> input
         return super().__ixor__(input)
 
@@ -958,7 +950,7 @@ class BasicOperation(Left):
     """
     def __init__(self, parameter: any = 1):
         super().__init__()
-        self._multi_data['operand'] = parameter
+        self._named_parameters['operand'] = parameter
 
 class Add(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Add`
@@ -970,7 +962,7 @@ class Add(BasicOperation):
     int(1) : A parameter to do an `+` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input + self._multi_data['operand'])
+        return super().__ixor__(input + self._named_parameters['operand'])
 
 class Subtract(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Subtract`
@@ -982,7 +974,7 @@ class Subtract(BasicOperation):
     int(1) : A parameter to do an `-` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input - self._multi_data['operand'])
+        return super().__ixor__(input - self._named_parameters['operand'])
 
 class Multiply(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Multiply`
@@ -994,7 +986,7 @@ class Multiply(BasicOperation):
     int(1) : A parameter to do an `*` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input * self._multi_data['operand'])
+        return super().__ixor__(input * self._named_parameters['operand'])
 
 class Divide(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Divide`
@@ -1006,7 +998,7 @@ class Divide(BasicOperation):
     int(1) : A parameter to do an `/` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input / self._multi_data['operand'])
+        return super().__ixor__(input / self._named_parameters['operand'])
 
 
 class Right(Frame):  # RIGHT TO LEFT
@@ -1039,7 +1031,7 @@ class WrapR(Right):
     """
     def __ixor__(self, input: o.T) -> o.T:
         right_input = super().__ixor__(input)
-        wrapped_right_input = self._multi_data['operand']
+        wrapped_right_input = self._named_parameters['operand']
         if isinstance(wrapped_right_input, o.Operand):
             wrapped_right_input = wrapped_right_input.copy(right_input)
             wrapped_right_input._set = True
@@ -1057,7 +1049,7 @@ class GetR(Right):
     def __ixor__(self, input: o.T) -> o.T:
         right_input = super().__ixor__(input)
         if isinstance(right_input, o.Operand):
-            extracted_data = right_input % self._multi_data['operand']
+            extracted_data = right_input % self._named_parameters['operand']
             if isinstance(extracted_data, o.Operand):
                 extracted_data._set = right_input._set # Set status has to be kept
         return extracted_data
