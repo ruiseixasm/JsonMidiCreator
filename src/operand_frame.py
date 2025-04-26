@@ -227,8 +227,11 @@ class Left(Frame):  # LEFT TO RIGHT
     Parameters
     ----------
     Any(None) : Data used in the framing process.
-    None : `Left` has not parameters to set.
     """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._multi_data['operand'] = parameters
+
     def __ixor__(self, input: any) -> any:
                 
         self_operand = self._next_operand
@@ -476,7 +479,8 @@ class Formula(Left):
     Callable(None) : A function to be used to process the input like `Formula(lambda n: (n * 5 + 4) % 3)`.
     """
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any] = None):
-        super().__init__(operation)
+        super().__init__()
+        self._multi_data['operand'] = operation
 
     def __ixor__(self, input: o.T) -> o.T:
         return super().__ixor__(self._multi_data['operand'](input))
