@@ -29,11 +29,11 @@ import operand_frame as of
 class Label(o.Operand):
     """`Label`
 
-    Label is an `Operand` that contains no parameters and it's intended to be processed based in its name, as label.
+    Label is an `Operand` that contains no parameters and it's intended to be processed just based in its name, as label.
 
     Parameters
     ----------
-    Any(None) : Generic doesn't have any self parameters.
+    None : Labels don't have any parameters.
     """
     # By default a Label has no copies as it caries no data
     def copy(self, *parameters) -> Self:
@@ -70,8 +70,25 @@ class Label(o.Operand):
         return self
     
 class Null(Label):
+    """`Label -> Null`
+
+    A `Null` label is an `Operand` that is processed as no data and as no effect when operated with other `Operands`.
+    It is returned by a `Frame` as a no `Operand` return.
+
+    Parameters
+    ----------
+    None : `Null` has no parameters.
+    """
     pass
     
 class Dummy(Label):
+    """`Label -> Dummy`
+
+    A `Dummy` label is an `Operand` used just to mimic operations with other `Operands`.
+
+    Parameters
+    ----------
+    None : `Dummy` has no parameters.
+    """
     pass
 
