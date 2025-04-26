@@ -491,22 +491,22 @@ class Iterate(Left):
         elif type(iterator['current']) is not type(iterator['step']) \
             and isinstance(iterator['step'], o.Operand):
                 iterator['current'] = iterator['step'].copy() << iterator['current']
-        self._named_parameters['operand'] = iterator
+        self._named_parameters['iterator'] = iterator
 
     def __ixor__(self, input: o.T) -> o.T:
         import operand_chaos as ch
         self._increment_index(Iterate)
         if isinstance(input, ch.Chaos):
-            if self._named_parameters['operand']['current'] == self._named_parameters['operand']['start']:
-                input *= self._named_parameters['operand']['start']
+            if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
+                input *= self._named_parameters['iterator']['start']
             self_operand = super().__ixor__( input )
-            input *= self._named_parameters['operand']['step']
+            input *= self._named_parameters['iterator']['step']
         else:
             self_operand = super().__ixor__(
-                self.deep_copy(self._named_parameters['operand']['current'])
+                self.deep_copy(self._named_parameters['iterator']['current'])
             )
         # iterates whenever called
-        self._named_parameters['operand']['current'] += self._named_parameters['operand']['step']
+        self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
         return self_operand
 
 class Drag(Left):
@@ -520,14 +520,14 @@ class Drag(Left):
     Any(None) : The item to be get and to drag along.
     """
     def __init__(self, *parameters):
-        self._first_parameter = None
         super().__init__(parameters)
+        self._first_parameter = None
 
     def __ixor__(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             if self._first_parameter is None:
                 self._first_parameter = input
-                for single_parameter in self._named_parameters['operand']:
+                for single_parameter in self._parameters:
                     self._first_parameter %= single_parameter
             return super().__ixor__(self._first_parameter)
         return super().__ixor__(input)
@@ -542,20 +542,19 @@ class Loop(Left):
     Any(None) : The set of items to loop through.
     """
     def __init__(self, *parameters):
-        super().__init__()
-        processed_params = []
+        validated_parameters: list = []
         for param in parameters:
             if isinstance(param, (range, list, tuple)):
-                processed_params.extend(param)
+                validated_parameters.extend(param)
             else:
-                processed_params.append(param)
-        self._named_parameters['operand'] = tuple(processed_params)
+                validated_parameters.append(param)
+        super().__init__(*validated_parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
         self._increment_index(Loop)
-        operand_len: int = len(self._named_parameters['operand'])
+        operand_len: int = len(self._parameters)
         if operand_len > 0:    # In case it its own parameters to iterate trough
-            input = self._named_parameters['operand'][(self._index - 1) % operand_len]
+            input = self._parameters[(self._index - 1) % operand_len]
             return super().__ixor__(input)
         return ol.Null()
 
@@ -569,7 +568,7 @@ class Foreach(Loop):
     Any(None) : The set of items to loop through only once.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        operand_len: int = len(self._named_parameters['operand'])
+        operand_len: int = len(self._parameters)
         if self._index < operand_len:   # Does only a single loop!
             return super().__ixor__(input)
         return ol.Null()
