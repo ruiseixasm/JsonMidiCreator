@@ -746,11 +746,11 @@ class BasicComparison(InputFilter):
     It's is also possible to set a `Previous` condition in each case the input has to compare as `True` to the previous nth one.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__(*parameters)
         self._named_parameters['previous'] = []
 
     def __ixor__(self, input: o.T) -> o.T:
-        for condition in self._named_parameters['operand']:
+        for condition in self._parameters:
             if isinstance(condition, od.Previous):
                 previous_inputs: list = self._named_parameters['previous']
                 previous_inputs.insert(0, input)
