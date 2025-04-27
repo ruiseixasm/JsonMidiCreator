@@ -322,12 +322,13 @@ class Diploid(Mutation):
     pass
 
 class Exchange(Diploid):
-    """`Mutation -> Diploid -> Shuffling`
+    """`Mutation -> Diploid -> Exchange`
 
-    A `Shuffling` mutation means that two clips are used in the mutational process.
+    An `Exchange` mutation means that two `Element` parameters are exchanged between both clips.
 
     Parameters
     ----------
+    None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
     Chaos(SinX()) : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
@@ -473,8 +474,20 @@ class Exchange(Diploid):
 
 
 class Swapping(Exchange):
+    """`Mutation -> Diploid -> Exchange -> Swapping`
+
+    An `Swapping` is an `Exchange` of two `Element` parameters between both clips with by given probability.
+
+    Parameters
+    ----------
+    Probability(1/16) : The probability of a given `Element` parameter being Swap.
+    None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def __init__(self, *parameters):
-        self._probability: Fraction = ra.Probability(1/4**2)._rational
+        self._probability: Fraction = ra.Probability(1/16)._rational
         super().__init__()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
