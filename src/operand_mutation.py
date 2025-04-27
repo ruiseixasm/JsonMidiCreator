@@ -46,7 +46,7 @@ class Mutation(o.Operand):
     Parameters
     ----------
     Chaos(SinX()) : The chaotic source generator of the Mutation.
-    int(1), float : Defines the amount of a single for each chaotic iteration.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
     def __init__(self, *parameters):
@@ -168,7 +168,7 @@ class Haploid(Mutation):
     Parameters
     ----------
     Chaos(SinX()) : The chaotic source generator of the Mutation.
-    int(1), float : Defines the amount of a single for each chaotic iteration.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
     pass
@@ -176,14 +176,14 @@ class Haploid(Mutation):
 class Choosing(Haploid):
     """`Mutation -> Haploid -> Choosing`
 
-    An `Haploid` mutation means that only a single `Clip` is used in the mutational process.
+    A `Choosing` mutation uses a `Choice` frame as its source of new mutational content.
 
     Parameters
     ----------
     Choice() : A `Frame` that set the possible choices to choose from. Note that a `Pick` is also a `Choice`.
     type(Operand) : By default the `Operand` type lets the choice be taken directly without any wrapping.
     Chaos(SinX()) : The chaotic source generator of the Mutation.
-    int(1), float : Defines the amount of a single for each chaotic iteration.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -242,7 +242,18 @@ class Choosing(Haploid):
         self._choice_frame: of.Frame = of.Input(self._chaos)**self._choice**self._parameter()
         return self
 
-class Dropping(Haploid):
+class Deletion(Haploid):
+    """`Mutation -> Haploid -> Deletion`
+
+    A `Deletion` mutation represents the removal of elements from the `Clip`.
+
+    Parameters
+    ----------
+    Probability(1/16) : The probability of a given `Element` be deleted from the `Clip`.
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    """
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/16)._rational
         super().__init__(*parameters)
@@ -283,7 +294,7 @@ class Dropping(Haploid):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Dropping():
+            case Deletion():
                 super().__lshift__(operand)
                 self._probability = operand._probability
             case od.DataSource():
