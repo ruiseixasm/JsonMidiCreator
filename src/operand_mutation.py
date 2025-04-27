@@ -347,7 +347,7 @@ class Exchange(Diploid):
             return True
         return False
 
-    def swap(self, clip: oc.Clip, source_clip_index: int, target_clip_index: int) -> Self:
+    def exchange(self, clip: oc.Clip, source_clip_index: int, target_clip_index: int) -> Self:
 
         parameter_instance = self._parameter()
         source_clip_len: int = self._clip.len()
@@ -381,7 +381,7 @@ class Exchange(Diploid):
                 target_clip_index: int = target_picks[target_index]
                 del target_picks[target_index]
 
-                self.swap(target_clip, source_clip_index, target_clip_index)
+                self.exchange(target_clip, source_clip_index, target_clip_index)
 
         return clip
 
@@ -491,9 +491,9 @@ class Swapping(Exchange):
                 for target_j in range(target_clip_len):
                     
                     if self._chaos @ self._step % int() \
-                        % self._probability.denominator < self._probability.numerator:   # Make the swap
+                        % self._probability.denominator < self._probability.numerator:   # Make the exchange
 
-                        self.swap(target_clip, source_i, target_j)
+                        self.exchange(target_clip, source_i, target_j)
 
         return clip
 
@@ -576,7 +576,7 @@ class Crossover(Exchange):
             for element_i in range(target_clip_len):
                 self._chaos *= self._step   # Updates the self chaos
                 if self._chaos % int() % self._probability.denominator < self._probability.numerator:   # Even
-                    self.swap(target_clip, element_i, element_i)   # Same locus
+                    self.exchange(target_clip, element_i, element_i)   # Same locus
 
         return clip
 
