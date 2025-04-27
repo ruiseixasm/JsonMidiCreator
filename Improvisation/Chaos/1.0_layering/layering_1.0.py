@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 defaults += Device("Blofeld")
-Blofeld.program_change(4, "A") >> P
+D_Blofeld.program_change(4, "A") >> P
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 defaults << ClockedDevices("Blofeld")
@@ -52,5 +52,5 @@ layer += 1
 part >> Pv
 
 defaults << ClockedDevices()
-Blofeld.program_change(1, "A") + AllNotesOff() >> P
+D_Blofeld.program_change(1, "A") + AllNotesOff() >> P
 

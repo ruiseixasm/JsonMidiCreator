@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 defaults % Devices() % list() >> Print()
-defaults += Digitakt.device
+defaults += D_Digitakt.device
 defaults % Devices() % list() >> Print()
 
 
@@ -29,14 +29,14 @@ defaults << Tempo(120)
 
 print("1st LOOP")
 
-level_cc = ControlChange(Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
+level_cc = ControlChange(D_Digitakt.kick, D_Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
 level_cc * 4 >> P
 
 
 print("2nd LOOP")
 
 variables_level_cc = ControlChange(
-        Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]
+        D_Digitakt.kick, D_Digitakt.midi_cc["TRACK"]["Level"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 variables_level_cc * 4 >> P
 
@@ -44,13 +44,13 @@ variables_level_cc * 4 >> P
 print("3rd LOOP")
 
 variables_level_nrpn = ControlChange(
-        Digitakt.kick, Digitakt.midi_nrpn["TRACK"]["Level"]
+        D_Digitakt.kick, D_Digitakt.midi_nrpn["TRACK"]["Level"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 variables_level_nrpn * 4 >> P
 
 
 
 
-defaults -= Digitakt.device
+defaults -= D_Digitakt.device
 defaults % Devices() % list() >> Print()
 

@@ -36,7 +36,7 @@ import operand_chaos as ch
 
 
 
-class Blofeld:
+class D_Blofeld:
 
     device          = od.Device("Blofeld")
 
@@ -45,7 +45,7 @@ class Blofeld:
 
     def program_change(sound: int, bank: str | int = "A") -> oe.ProgramChange:
         if isinstance(bank, str):
-            bank = ou.Bank(Blofeld.banks[bank.strip().upper()])
+            bank = ou.Bank(D_Blofeld.banks[bank.strip().upper()])
         return oe.ProgramChange(sound, ou.Bank(bank))
 
     # A total of 8 banks
@@ -64,7 +64,7 @@ class Blofeld:
     def control_change(parameter: str = "Cutoff", group: str = "FILTER 1") -> oe.ControlChange:
         parameter = parameter.strip()
         group = group.strip().upper()
-        return oe.ControlChange(Blofeld.midi_cc[group][parameter])
+        return oe.ControlChange(D_Blofeld.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
@@ -252,7 +252,7 @@ class Blofeld:
             }
 
 
-class Digitakt:
+class D_Digitakt:
 
     device          = od.Device("Digitakt")
 
@@ -270,7 +270,7 @@ class Digitakt:
 
     def program_change(pattern: int, bank: str | int = "A") -> oe.ProgramChange:
         if isinstance(bank, str):
-            bank = Digitakt.bank_pattern[bank.strip().upper()][0]
+            bank = D_Digitakt.bank_pattern[bank.strip().upper()][0]
         return oe.ProgramChange(bank + pattern)   # based 1 data
 
     bank_pattern: dict[str, list[int]] = {
@@ -289,8 +289,8 @@ class Digitakt:
         parameter = parameter.strip()
         group = group.strip().upper()
         if nrpn:
-            return og.Controller(Digitakt.midi_nrpn[group][parameter])
-        return og.Controller(Digitakt.midi_cc[group][parameter])
+            return og.Controller(D_Digitakt.midi_nrpn[group][parameter])
+        return og.Controller(D_Digitakt.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[str,
@@ -950,14 +950,14 @@ class Digitakt:
             }
 
 
-class UnoSynth:
+class D_UnoSynth:
 
     device          = od.Device("UNO")
 
     def control_change(parameter: str = "Cutoff", group: str = "FILTER") -> oe.ControlChange:
         parameter = parameter.strip()
         group = group.strip().upper()
-        return oe.ControlChange(UnoSynth.midi_cc[group][parameter])
+        return oe.ControlChange(D_UnoSynth.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]

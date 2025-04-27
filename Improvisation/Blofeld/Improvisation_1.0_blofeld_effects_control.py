@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 defaults % Devices() % list() >> Print()
-defaults << Blofeld.device
+defaults << D_Blofeld.device
 defaults % Devices() % list() >> Print()
 
 
@@ -24,11 +24,11 @@ defaults << Tempo(120)
 
 
 variables_decay_cc = ControlChange(
-        Channel(1), Blofeld.midi_cc["ENVELOPE FILTER"]["Decay"]
+        Channel(1), D_Blofeld.midi_cc["ENVELOPE FILTER"]["Decay"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 
 variables_decay_cc * 4 + Chord(4/1) >> P
 
 
-defaults -= Blofeld.device
+defaults -= D_Blofeld.device
 defaults % Devices() % list() >> Print()

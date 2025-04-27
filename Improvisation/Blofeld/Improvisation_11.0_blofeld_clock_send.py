@@ -15,8 +15,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults += Blofeld.device
-defaults << ClockedDevices(Blofeld.device) << Tempo(90)
+defaults += D_Blofeld.device
+defaults << ClockedDevices(D_Blofeld.device) << Tempo(90)
 
 
 long_chord = Chord(1/1) * 1
