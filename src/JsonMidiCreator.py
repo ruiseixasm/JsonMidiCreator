@@ -30,6 +30,7 @@ from operand_chaos import *
 from operand_mutation import *
 from operand_selection import *
 from devices import *
+from presets import *
 
 
 # Determine the operating system
