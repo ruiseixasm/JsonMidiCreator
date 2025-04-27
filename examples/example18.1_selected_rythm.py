@@ -31,7 +31,7 @@ rhythmic_notes = Note() * 8 * 8 << Loop(whole, dotted_half, half, dotted_quarter
 mutated_clip = Note() * 8 << of.Loop(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
-duration_mutation = Shuffling(Duration) * 22
+duration_mutation = Exchange(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
 minimum_notes = Least(8)

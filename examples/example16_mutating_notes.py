@@ -33,7 +33,7 @@ motif_2 = oe.Note() * 6 << of.Loop(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
 
 motif_2 * 2 >> Play()
 
-mutation = Shuffling()
+mutation = Exchange()
 for _ in range(5):
     R() >> P
     motif_2.process(mutation) / 2 >> S >> P

@@ -249,7 +249,7 @@ class Deletion(Haploid):
 
     Parameters
     ----------
-    Probability(1/16) : The probability of a given `Element` be deleted from the `Clip`.
+    Probability(1/16) : The probability of a given `Element` being deleted from the `Clip`.
     Chaos(SinX()) : The chaotic source generator of the Mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
@@ -309,9 +309,29 @@ class Deletion(Haploid):
 
 
 class Diploid(Mutation):
+    """`Mutation -> Diploid`
+
+    A `Diploid` mutation means that two clips are used in the mutational process.
+
+    Parameters
+    ----------
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     pass
 
-class Shuffling(Diploid):
+class Exchange(Diploid):
+    """`Mutation -> Diploid -> Shuffling`
+
+    A `Shuffling` mutation means that two clips are used in the mutational process.
+
+    Parameters
+    ----------
+    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip             = None
@@ -398,7 +418,7 @@ class Shuffling(Diploid):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Shuffling():
+            case Exchange():
                 super().__lshift__(operand)
                 self._clip          = self.deep_copy( operand._clip )
             case od.DataSource():
@@ -419,14 +439,14 @@ class Shuffling(Diploid):
 
     def __itruediv__(self, operand: any) -> Self:
         match operand:
-            case Shuffling():
+            case Exchange():
                 self.mutate(operand._clip.copy())
             case oc.Clip():
                 self.mutate(operand.copy())
         return self
 
     def empty_copy(self, *parameters) -> Self:
-        empty_copy: Shuffling = self.__class__()
+        empty_copy: Exchange = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
             empty_copy._next_operand = self.deep_copy(self._next_operand)
@@ -438,7 +458,7 @@ class Shuffling(Diploid):
         return empty_copy
 
     def shallow_copy(self, *parameters) -> Self:
-        shallow_copy: Shuffling      = self.empty_copy()
+        shallow_copy: Exchange      = self.empty_copy()
         if isinstance(self._clip, oc.Clip):
             shallow_copy._clip = self._clip.shallow_copy()
         for single_parameter in parameters:
@@ -452,7 +472,7 @@ class Shuffling(Diploid):
         return self
 
 
-class Swapping(Shuffling):
+class Swapping(Exchange):
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/4**2)._rational
         super().__init__()
@@ -518,7 +538,7 @@ class Swapping(Shuffling):
         return self
     
 
-class Translocation(Shuffling):
+class Translocation(Exchange):
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
@@ -542,7 +562,7 @@ class Translocation(Shuffling):
         return clip
 
 
-class Crossover(Shuffling):
+class Crossover(Exchange):
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/2)._rational
         super().__init__(*parameters)
