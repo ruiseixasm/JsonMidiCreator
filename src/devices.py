@@ -35,21 +35,8 @@ import operand_container as oc
 import operand_chaos as ch
 
 
-class Variables(o.Operand):
-    """`Variables`
 
-    This type of `Operand` is intended to work as an user stock of content, like Device configurations,
-    predefined operands with reusable parameters that are this way readily available without the need
-    of making them from scratch again and again. By other words, a presets bank of operands.
-
-    Parameters
-    ----------
-    None : It has no parameters.
-    """
-    pass
-
-
-class Blofeld(Variables):
+class Blofeld:
 
     device          = od.Device("Blofeld")
 
@@ -265,7 +252,7 @@ class Blofeld(Variables):
             }
 
 
-class Digitakt(Variables):
+class Digitakt:
 
     device          = od.Device("Digitakt")
 
@@ -963,7 +950,7 @@ class Digitakt(Variables):
             }
 
 
-class UnoSynth(Variables):
+class UnoSynth:
 
     device          = od.Device("UNO")
 
