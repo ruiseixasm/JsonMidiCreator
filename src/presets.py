@@ -36,6 +36,14 @@ import operand_chaos as ch
 
 
 
+class P_Patterns:
+    
+    def four_on_the_floor(*parameters, measures: int = 4) -> oc.Clip:
+        pattern: oc.Clip = oc.Clip(og.TimeSignature(4, 4), oe.Note(1/16), parameters)
+        pattern *= measures       
+        return pattern
+
+
 class P_Mutation:
     pass
 
