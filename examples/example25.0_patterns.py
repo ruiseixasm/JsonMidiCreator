@@ -13,14 +13,26 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+
+import time
+
 import sys
 import os
 src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
+start_time = time.time()
 from JsonMidiCreator import *
+finish_time = time.time()
+print(f"Loading time (ms): {(finish_time - start_time) * 1000}")
 
-P_Patterns.four_on_the_floor(Channel(10)) >> Play(True)
+c.profiling_timer.call_timer_a()
+pattern = P_Patterns.four_on_the_floor(Channel(10))
+c.profiling_timer.call_timer_b()
 
+pattern >> Play(True)
+
+print()
+print(c.profiling_timer)
 
