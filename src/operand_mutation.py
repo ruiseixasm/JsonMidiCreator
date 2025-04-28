@@ -45,7 +45,7 @@ class Mutation(o.Operand):
 
     Parameters
     ----------
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
@@ -167,7 +167,7 @@ class Haploid(Mutation):
 
     Parameters
     ----------
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
@@ -182,7 +182,7 @@ class Choosing(Haploid):
     ----------
     Choice() : A `Frame` that set the possible choices to choose from. Note that a `Pick` is also a `Choice`.
     type(Operand) : By default the `Operand` type lets the choice be taken directly without any wrapping.
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     """
     def __init__(self, *parameters):
@@ -250,7 +250,7 @@ class Deletion(Haploid):
     Parameters
     ----------
     Probability(1/16) : The probability of a given `Element` being deleted from the `Clip`.
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     """
@@ -315,7 +315,7 @@ class Diploid(Mutation):
 
     Parameters
     ----------
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
@@ -329,7 +329,7 @@ class Exchange(Diploid):
     Parameters
     ----------
     None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
@@ -482,7 +482,7 @@ class Swapping(Exchange):
     ----------
     Probability(1/16) : The probability of a given `Element` parameter being Swap.
     None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
-    Chaos(SinX()) : The chaotic source generator of the Mutation.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
     int(1), float : Defines the amount of chaotic iterations for each mutation.
     type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
     """
@@ -552,6 +552,17 @@ class Swapping(Exchange):
     
 
 class Translocation(Exchange):
+    """`Mutation -> Diploid -> Exchange -> Translocation`
+
+    A `Translocation` is an `Exchange` of two `Clip` segments between each other.
+
+    Parameters
+    ----------
+    None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
@@ -576,6 +587,17 @@ class Translocation(Exchange):
 
 
 class Crossover(Exchange):
+    """`Mutation -> Diploid -> Exchange -> Crossover`
+
+    A `Crossover` is an `Exchange` of homologous elements between two clips, meaning, at the same index position (locus).
+
+    Parameters
+    ----------
+    None, Clip : The `Clip` with which the `Element` parameters will be exchanged.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/2)._rational
         super().__init__(*parameters)
@@ -632,8 +654,21 @@ class Crossover(Exchange):
             case ra.Probability():      self._probability = operand._rational
             case _:                     super().__lshift__(operand)
         return self
-    
+
+
 class Operation(Mutation):
+    """`Mutation -> Operation`
+
+    An `Operation` can take more than two clips in the parameters exchanging process despite being a basic operation one.
+    These multiple clips are previously shuffled before being operated.
+
+    Parameters
+    ----------
+    list([]) : Multiple clips to be used as a broader population of parameters.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._clips: list[oc.Clip] = []
@@ -716,16 +751,38 @@ class Operation(Mutation):
         return self
 
 class Multiplication(Operation):
+    """`Mutation -> Operation -> Multiplication`
+
+    A `Multiplication` can take more than two clips in the parameters and do a sequential multiplication on each of them.
+
+    Parameters
+    ----------
+    list([]) : Multiple clips to be used as a broader population of parameters.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
             multiplied_clips: oc.Clip = oc.Clip()
             for single_clip in shuffled_clips:
-                multiplied_clips *= clip * single_clip
+                multiplied_clips *= clip * single_clip  # Operation here
             clip <<= multiplied_clips // list()
         return clip
 
 class Division(Operation):
+    """`Mutation -> Operation -> Division`
+
+    A `Division` can take more than two clips in the parameters and do a sequential division on each of them.
+
+    Parameters
+    ----------
+    list([]) : Multiple clips to be used as a broader population of parameters.
+    SinX(), Chaos : The chaotic source generator of the Mutation.
+    int(1), float : Defines the amount of chaotic iterations for each mutation.
+    type(Position) : Sets the type of Parameter to be mutated in a given `Clip`.
+    """
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
