@@ -116,7 +116,15 @@ class IsNot(Selection):
         return self
 
 class Iterations(Selection):
+    """`Selection -> Iterations`
 
+    Lets the `Clip` passthrough for each `>>` on the present `Selection` that
+    represents one of the set iterations.
+
+    Parameters
+    ----------
+    (int(1), int(3), int(5)) : Multiple integers representing the selectable iterations.
+    """
     def __init__(self, *parameters):
         self._iterations: tuple = tuple([1, 3, 5])
         super().__init__(*parameters)
@@ -175,7 +183,14 @@ class Iterations(Selection):
 from typing import Dict, Iterable
 
 class Mono(Selection):
+    """`Selection -> Mono`
 
+    Lets any `Clip` passthrough that doesn't have a single `Note` overlapping any other.
+
+    Parameters
+    ----------
+    None : It has no parameters.
+    """
     @staticmethod
     def is_overlapping(event: Dict[str, ra.Position], events: Iterable[ Dict[str, ra.Position] ]) -> bool:
         for single_event in events:
@@ -201,6 +216,16 @@ class Mono(Selection):
     
 
 class Condition(Selection):
+    """`Selection -> Condition`
+
+    A `Condition` as the name implies confronts the `Clip` parameters to a series
+    of And or Or conditionals where all need to be met.
+
+    Parameters
+    ----------
+    And() : All these conditions must be met.
+    Or() : At least one of these conditions need to be met.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._and: od.And               = od.And()
