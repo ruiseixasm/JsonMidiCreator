@@ -219,7 +219,7 @@ class Condition(Selection):
     """`Selection -> Condition`
 
     A `Condition` as the name implies confronts the `Clip` parameters to a series
-    of And or Or conditionals where all need to be met.
+    of `And` or `Or` conditionals where all need to be met.
 
     Parameters
     ----------
