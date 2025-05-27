@@ -304,6 +304,15 @@ class Condition(Selection):
         return self
 
 class Amount(Condition):
+    """`Selection -> Condition -> Amount`
+
+    Amount is a `Condition` that selects a `Clip` if a total number of conditions met
+    are equal to the given amount.
+
+    Parameters
+    ----------
+    int(4) : The amount of conditions that must be met.
+    """
     def __init__(self, *parameters):
         self._amount: int = 4
         super().__init__()
@@ -366,6 +375,15 @@ class Amount(Condition):
         return self
 
 class Above(Amount):
+    """`Selection -> Condition -> Amount -> Above`
+
+    Above is a `Condition` that selects a `Clip` if a total number of conditions met
+    is above a given amount.
+
+    Parameters
+    ----------
+    int(4) : The amount of conditions above which need to be met.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
@@ -377,9 +395,27 @@ class Above(Amount):
         return super().__eq__(other)
 
 class Same(Amount):
+    """`Selection -> Condition -> Amount -> Same`
+
+    Same is a `Condition` that selects a `Clip` if a total number of conditions met
+    are equal to the given amount.
+
+    Parameters
+    ----------
+    int(4) : The amount of conditions that must be met.
+    """
     pass
 
 class Bellow(Amount):
+    """`Selection -> Condition -> Amount -> Bellow`
+
+    Bellow is a `Condition` that selects a `Clip` if a total number of conditions met
+    is bellow a given amount.
+
+    Parameters
+    ----------
+    int(4) : The amount of conditions bellow which need to be met.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
@@ -392,6 +428,14 @@ class Bellow(Amount):
 
 
 class Comparison(Selection):
+    """`Selection -> Comparison`
+
+    Compares a given type of parameter with the other `Comparison` type of parameter.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to be compared with other `Comparison`.
+    """
     def __init__(self, *parameters):
         self._parameter: type = ra.Length
         super().__init__(*parameters)
@@ -447,7 +491,15 @@ class Comparison(Selection):
         return self
     
 class Matching(Comparison):
+    """`Selection -> Comparison -> Matching`
 
+    Compares a given type of parameter in a `Clip` along all its `Element`s and
+    selects the `Clip` if all are the same.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to be the same along the entire `Clip` content.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
