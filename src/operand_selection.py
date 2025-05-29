@@ -645,6 +645,14 @@ class UpDown(Sequence):
 
 
 class Threshold(Selection):
+    """`Selection -> Threshold`
+
+    This selects a `Clip` that meets a transition in a form of a threshold.
+
+    Parameters
+    ----------
+    None : It has no parameters.
+    """
     def __init__(self, *parameters):
         self._threshold: int = 5
         super().__init__(*parameters)
@@ -691,7 +699,14 @@ class Threshold(Selection):
         return self
 
 class Before(Threshold):
+    """`Selection -> Threshold -> Before`
 
+    This selects a non empty `Clip` up to the an amount of `>>` operations on it given by the threshold.
+
+    Parameters
+    ----------
+    int(5) : The value before which any non empty `Clip` is selected.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
@@ -705,7 +720,14 @@ class Before(Threshold):
         return super().__eq__(other)
 
 class After(Threshold):
+    """`Selection -> Threshold -> After`
 
+    This selects a non empty `Clip` after an amount of `>>` operations on it given by the threshold.
+
+    Parameters
+    ----------
+    int(5) : The value after which any non empty `Clip` is selected.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
@@ -719,6 +741,14 @@ class After(Threshold):
         return super().__eq__(other)
     
 class Most(Threshold):
+    """`Selection -> Threshold -> Most`
+
+    This selects a non empty `Clip` that at most has a number of elements given by the threshold.
+
+    Parameters
+    ----------
+    int(16) : The maximum number of elements in the `Clip` to be selected.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._threshold = 16
@@ -736,6 +766,14 @@ class Most(Threshold):
         return super().__eq__(other)
     
 class Least(Threshold):
+    """`Selection -> Threshold -> Least`
+
+    This selects a non empty `Clip` that at least has a number of elements given by the threshold.
+
+    Parameters
+    ----------
+    int(4) : The minimum number of elements in the `Clip` to be selected.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._threshold = 4
