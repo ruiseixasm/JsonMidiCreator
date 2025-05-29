@@ -511,30 +511,53 @@ class Matching(Comparison):
         return super().__eq__(other)
 
 class Ascending(Comparison):
+    """`Selection -> Comparison -> Ascending`
 
+    Selects a `Clip` which successive type is greater or equal than the previous one.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to be greater or equal than the previous one.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
             parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
-                if other[element_index] % parameter_instantiation > other[element_index + 1] % parameter_instantiation:
+                if other[element_index] % parameter_instantiation >= other[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
     
 class Descending(Comparison):
+    """`Selection -> Comparison -> Descending`
 
+    Selects a `Clip` which successive type is less or equal than the previous one.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to be less or equal than the previous one.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
             parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
-                if other[element_index] % parameter_instantiation < other[element_index + 1] % parameter_instantiation:
+                if other[element_index] % parameter_instantiation <= other[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
 
 class Sequence(Comparison):
+    """`Selection -> Comparison -> Sequence`
+
+    Selects a `Clip` which successive type has a variation (difference) equal to the given sequence.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to match the variation sequence.
+    list([]) : The variation values to be compared with each previous value.
+    """
     def __init__(self, *parameters):
         self._pattern: list = []
         super().__init__(*parameters)
@@ -592,7 +615,15 @@ class Sequence(Comparison):
         return self
 
 class UpDown(Sequence):
+    """`Selection -> Comparison -> Sequence -> UpDown`
 
+    Selects a `Clip` which successive type goes Up, Down, Same accordingly to a given sequence.
+
+    Parameters
+    ----------
+    type(ra.Length) : The type of parameter to go Up, Down, Same accordingly to a given sequence.
+    list([]) : The variation values to be compared with each previous value.
+    """
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, oc.Clip):
