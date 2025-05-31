@@ -460,9 +460,7 @@ class Beat(TimeUnit):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0 Beats.
+    int(0) : The beat as an integer even when a float is given.
     
     Examples
     --------
@@ -538,9 +536,7 @@ class Step(TimeUnit):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0 Steps.
+    int(0) : The step as an integer even when a float is given, aka, quantized step.
     
     Examples
     --------
@@ -620,8 +616,7 @@ class Sharps(Accidentals):  # Sharps (###)
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A number from 0 to 7 or a string like "###" with the default as 1 ("#").
+    int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
     """
     # CHAINABLE OPERATIONS
 
@@ -646,8 +641,7 @@ class Flats(Accidentals):   # Flats (bbb)
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A number from 0 to 7 or a string like "bbb" with the default as 1 ("b").
+    int(1) : Sets the amount of flats from 0 to 7 where 3 means "bbb".
     """
     # CHAINABLE OPERATIONS
 
@@ -671,11 +665,12 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
 
     A KeySignature() consists in an integer from -7 to 7 describing the amount
     of Sharps for positive values and the amount of Flats for negative values.
+    It also sets the type as Major or minor key signature.
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A number from -7 to 7 or a string like "bbb" with the default as 0 ("").
+    int(0) : By default it has no Sharps or Flats, it's the C Major scale.
+    bool(True) : By default it considers the Major scale.
     """
     def __init__(self, *parameters):
         self._major: bool = True
@@ -911,12 +906,10 @@ class Tone(PitchParameter):
     """`Unit -> PitchParameter -> Tone`
 
     A Tone() represents a Key change in a given KeySignature or Scale, AKA whole-step.
-    The default is 0.
     
     Parameters
     ----------
-    first : integer_like
-        An Integer representing the amount of whole-steps, from 0 to higher.
+    int(0) : An Integer representing the amount of whole-steps, from 0 to higher.
     """
     pass
 
@@ -924,12 +917,10 @@ class Semitone(PitchParameter):
     """`Unit -> PitchParameter -> Semitone`
 
     A Semitone() represents a pitch in a Chromatic scale, AKA half-step.
-    The default is 0.
     
     Parameters
     ----------
-    first : integer_like
-        An Integer representing the amount of Chromatic steps, from 0 to 127.
+    int(0) : An Integer representing the amount of Chromatic steps, from 0 to 127.
     """
     pass
 
@@ -941,8 +932,7 @@ class Key(PitchParameter):
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A number from 0 to 11 with 0 as default or the equivalent string key "C"
+    int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def key_signature(self, key_signature: 'KeySignature' = None) -> Self:
         self._key_signature = key_signature
@@ -1073,8 +1063,7 @@ class Tonic(Key):
     
     Parameters
     ----------
-    first : integer_like
-        An Integer representing the key offset relative to the key of C.
+    int(0) : An Integer representing the key offset relative to the key of C.
     """
     pass
 
@@ -1093,12 +1082,10 @@ class Octave(PitchParameter):
     """`Unit -> PitchParameter -> Octave`
 
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
-    The default value is 1 octave.
     
     Parameters
     ----------
-    first : integer_like
-        An Integer representing the full midi keyboard octave varying from -1 to 9
+    int(1) : An Integer representing the full midi keyboard octave varying from -1 to 9
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters) # By default it's 1 to be used in basic operations like + and -
@@ -1106,13 +1093,11 @@ class Octave(PitchParameter):
 class Degree(PitchParameter):
     """`Unit -> PitchParameter -> Degree`
 
-    A Degree() represents its relation with a Tonic key on a scale
-    and respective Progressions.
+    A Degree() represents its relation with a Tonic key on a scale and respective Progressions.
     
     Parameters
     ----------
-    first : integer_like
-        Accepts a numeral (5) or the string (V) with 1 as the default
+    int(1) : Accepts a numeral (5) or the string (V) with 1 as the default
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
@@ -1188,8 +1173,7 @@ class Sharp(PitchParameter):  # Sharp (#)
     
     Parameters
     ----------
-    first : integer_like
-        Accepts a boolean or a numeral (0 or 1) to set Sharp as true or false
+    int(1) : Accepts a boolean or a numeral (0 or 1) to set Sharp as true or false
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
@@ -1218,8 +1202,7 @@ class Flat(PitchParameter):   # Flat (b)
     
     Parameters
     ----------
-    first : integer_like
-        Accepts a boolean or a numeral (0 or 1) to set Flat as true or false
+    int(1) : Accepts a boolean or a numeral (0 or 1) to set Flat as true or false
     """
     def __init__(self, *parameters):
         super().__init__(1)
@@ -1244,6 +1227,22 @@ class Flat(PitchParameter):   # Flat (b)
 
 class Order(Unit):
     """`Unit -> Order`
+
+    Sets which order to be used in the Arpeggiator.
+    
+        +-------+---------+
+        | Value | Order   |
+        +-------+---------+
+        | 0     | None    |
+        | 1     | Up      |
+        | 2     | Down    |
+        | 3     | UpDown  |
+        | 4     | Chaotic |
+        +----------+------+
+
+    Parameters
+    ----------
+    int(0), str : Sets the Arpeggiator order.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -1271,8 +1270,8 @@ class Order(Unit):
         "None":         0,
         "Up":           1,
         "Down":         2,
-        "UpDown":      3,
-        "DownUp":      4,
+        "UpDown":       3,
+        "DownUp":       4,
         "Chaotic":      5
     }
 
@@ -1310,8 +1309,8 @@ class DrumKit(Unit):
     
     Parameters
     ----------
-    first : integer_like or string_like
-        Accepts a numeral (35 to 82) or a String like "Drum"
+    int(35) : Accepts a numeral (35 to 82) or a String like "Drum".
+    Channel(10), float : Sets the `Channel` associated with the kit.
     """
     def __init__(self, *parameters):
         self._channel: int = 10
