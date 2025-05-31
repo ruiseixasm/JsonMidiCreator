@@ -375,19 +375,15 @@ class TimeUnit(Unit):
 class Measure(TimeUnit):
     """`Unit -> TimeUnit -> Measure`
 
-    A Measure() represents the basic unit of a Staff division by witch Clips are multiplied,
-    and is set as an integer without decimal places.
-    Its return from Length and Position objects represents their rounded value accordingly.
+    A Measure() represents the basic unit of a Staff division.
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0 Measures.
+    int(0) : Measure is similar to `Measures` but as integer only.
     
     Examples
     --------
-    Creating a Measure with a single value:
+    Creating a Measure with a single value (it will be rounded to 1):
     >>> measure = Measure(1.5)
     
     Creating a Measure with multiple values (the last will determine the amount of Measures):
