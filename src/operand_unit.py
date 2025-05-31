@@ -227,9 +227,13 @@ class Unit(o.Operand):
         return self
 
 class Total(Unit):
+    """`Unit -> Total`
+    """
     pass
 
 class TimeUnit(Unit):
+    """`Unit -> TimeUnit`
+    """
     def __init__(self, *parameters):
         import operand_generic as og
         # By default Time values have no Staff reference,
@@ -604,6 +608,8 @@ class Step(TimeUnit):
         return self
 
 class Accidentals(Unit):
+    """`Unit -> Accidentals`
+    """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -897,6 +903,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
 
 
 class PitchParameter(Unit):
+    """`Unit -> PitchParameter`
+    """
     pass
 
 class Tone(PitchParameter):
@@ -1071,9 +1079,13 @@ class Tonic(Key):
     pass
 
 class Root(Key):
+    """`Unit -> Key -> Root`
+    """
     pass
 
 class Home(Key):
+    """`Unit -> Key -> Home`
+    """
     pass
 
 
@@ -1231,7 +1243,8 @@ class Flat(PitchParameter):   # Flat (b)
         return self
 
 class Order(Unit):
-
+    """`Unit -> Order`
+    """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
@@ -1430,6 +1443,8 @@ class Tied(Unit):
 
 
 class Boolean(Unit):
+    """`Unit -> Boolean`
+    """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -1608,9 +1623,13 @@ class Sus4(Boolean):        # Fourth instead of the third
         return self
 
 class NRPN(Boolean):
+    """`Unit -> Boolean -> NRPN`
+    """
     pass
 
 class HighResolution(Boolean):
+    """`Unit -> Boolean -> HighResolution`
+    """
     pass
 
 
@@ -1721,6 +1740,8 @@ class Size(Unit):
         return __class__._types_str[number % len(__class__._types_str)]
 
 class ScaleOperation(Unit):
+    """`Unit -> ScaleOperation`
+    """
     pass
 
 class Transposition(ScaleOperation):
@@ -1803,7 +1824,6 @@ class Inversion(ScaleOperation):
 
 class Midi(Unit):
     """`Unit -> Midi`
-
     """
     pass
 
@@ -1965,6 +1985,8 @@ class MidiTrack(Midi):
 
 
 class TrackNumber(Midi):
+    """`Unit -> Midi -> TrackNumber`
+    """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default is Track number 1
 
@@ -2255,6 +2277,8 @@ class Value(Midi):
     pass
 
 class Bank(Value):   # Value of 0 means no Bank selected because Banks are 1 based
+    """`Unit -> Midi -> Value -> Bank`
+    """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)        # By default is 1 the Bank "A"
 
@@ -2365,10 +2389,14 @@ class Number(Midi):
         {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    }
     ]
 
-class MSB(Number):
+class MSB(Midi):
+    """`Unit -> Midi -> MSB`
+    """
     pass
 
 
 class LSB(Midi):
+    """`Unit -> Midi -> LSB`
+    """
     pass
 
