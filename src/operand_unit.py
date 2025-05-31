@@ -1448,7 +1448,7 @@ class Tied(Boolean):
     
     Parameters
     ----------
-    int(1) : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
     """
     pass
 
@@ -1475,8 +1475,7 @@ class Major(Quality):
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Major the Key Signature
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Major the Key Signature
     """
     pass
 
@@ -1487,8 +1486,7 @@ class Minor(Quality):
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as minor the Key Signature
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as minor the Key Signature
     """
     pass
 
@@ -1499,8 +1497,7 @@ class Natural(Boolean):     # Natural (n)
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Natural the Pitch
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Natural the Pitch
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1521,8 +1518,7 @@ class Dominant(Boolean):    # Flats the seventh
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Dominant the Chord
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Dominant the Chord
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1544,8 +1540,7 @@ class Diminished(Boolean):  # Flats the third and the fifth
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Diminished the Chord
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Diminished the Chord
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1565,8 +1560,7 @@ class Augmented(Boolean):   # Sharps the fifth
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Augmented the Chord
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Augmented the Chord
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1586,8 +1580,7 @@ class Sus2(Boolean):        # Second instead of the third
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Sus2 the Chord
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Sus2 the Chord
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1607,8 +1600,7 @@ class Sus4(Boolean):        # Fourth instead of the third
     
     Parameters
     ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set as Sus4 the Chord
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Sus4 the Chord
     """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> Self:
@@ -1640,8 +1632,7 @@ class Mode(Unit):
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A Mode Number varies from 1 to 7 with 1 being normally the default
+    int(1) : A Mode Number varies from 1 to 7 with 1 being the default
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default the mode is 1 (1st)
@@ -1695,8 +1686,7 @@ class Size(Unit):
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A Size Number varies from "1st" to "13th" with "3rd" being the triad default
+    int(3) : A Size Number varies from "1st" to "13th" with "3rd" being the triad default
     """
     def __init__(self, *parameters):
         super().__init__(3, *parameters)         # Default Size is 3
@@ -1750,8 +1740,7 @@ class Transposition(ScaleOperation):
     
     Parameters
     ----------
-    first : integer_like
-        Transposition along the given Scale with 1 ("1st") as the default mode
+    int(5) : Transposition along the given Scale with 1 ("1st") as the default mode
     """
     def __init__(self, tones: int = 5):
         super().__init__(tones)
@@ -1763,8 +1752,7 @@ class Modulation(ScaleOperation):    # Modal Modulation
     
     Parameters
     ----------
-    first : integer_like
-        Modulation of a given Scale with 1 ("1st") as the default mode
+    int(1) : Modulation of a given Scale with 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
         unit = Mode(mode)._unit
@@ -1777,8 +1765,7 @@ class Modulate(ScaleOperation):    # Modal Modulation
     
     Parameters
     ----------
-    first : integer_like
-        Modulate a given Scale to 1 ("1st") as the default mode
+    int(1) : Modulate a given Scale to 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
         unit = Mode(mode)._unit
@@ -1801,8 +1788,7 @@ class Progression(ScaleOperation):
     
     Parameters
     ----------
-    first : integer_like
-        Accepts a numeral equivalent to the the Roman numerals,
+    int(0) : Accepts a numeral equivalent to the the Roman numerals,
         1 instead of I, 4 instead of IV and 5 instead of V
     """
     def __init__(self, unit: int = None):
@@ -1815,8 +1801,7 @@ class Inversion(ScaleOperation):
     
     Parameters
     ----------
-    first : integer_like
-        Inversion sets the degree of chords inversion starting by 0 meaning no inversion
+    int(0) : Inversion sets the degree of chords inversion starting by 0 meaning no inversion
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
@@ -1833,14 +1818,13 @@ class PPQN(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        The typical and the default value is 24, but it can be set( multiples of 24
+    int(24) : The typical and the default value is 24, but it can be set( multiples of 24
     """
     def __init__(self, *parameters):
         super().__init__(24, *parameters)
 
 class ClockStopModes(Midi):
-
+    """`Unit -> Midi -> ClockStopModes`"""
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
@@ -1892,10 +1876,8 @@ class MidiTrack(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        For a given track concerning a composition, there default is 1.
-    second : string_like
-        The name of the Track, there default is "Track 1".
+    int(1) : For a given track concerning a composition, there default is 1.
+    str("Track 1") : The name of the Track, there default is "Track 1".
     """
     def __init__(self, *parameters):
         import operand_generic as og
@@ -1997,8 +1979,7 @@ class Channel(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        For a given device, there are 16 channels ranging from 1 to 16
+    int(1) : For a given device, there are 16 channels ranging from 1 to 16
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default is channel 1
@@ -2010,8 +1991,7 @@ class Velocity(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        A key velocity varies from 0 to 127
+    int(100) : A key velocity varies from 0 to 127
     """
     def __init__(self, *parameters):
         super().__init__(100, *parameters)         # By default is velocity 100
@@ -2035,8 +2015,7 @@ class Bend(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
+    int(0) : Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
         this bending is 2 semi-tones bellow or above respectively
     """
     pass
@@ -2048,8 +2027,7 @@ class Program(Midi):
     
     Parameters
     ----------
-    first : integer_like or string_like
-        A Program Number varies from 1 to 128 or it's known name like "Piano"
+    int(1) : A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)    # By default is 1 the Piano
@@ -2269,8 +2247,7 @@ class Value(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        The Value shall be set from 0 to 127 or 0 to 16,383
+    int(0) : The Value shall be set from 0 to 127 or 0 to 16,383
         accordingly to the range of CC Midi values for 7 and 14 bits respectively
     """
     pass
@@ -2288,8 +2265,7 @@ class Number(Midi):
     
     Parameters
     ----------
-    first : integer_like and string_like
-        Allows the direct set with a number or in alternative with a name relative to the Controller
+    int(0) : Allows the direct set with a number or in alternative with a name relative to the Controller
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
