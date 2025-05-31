@@ -1427,23 +1427,8 @@ class DrumKit(Unit):
         return "Unknown Drum Kit!"
 
 
-class Tied(Unit):
-    """`Unit -> Tied`
-
-    Sets the respective Notes or descendent Elements as Tied.
-    
-    Parameters
-    ----------
-    first : bool_like, integer_like
-        Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
-    """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
-
 class Boolean(Unit):
-    """`Unit -> Boolean`
-    """
+    """`Unit -> Boolean`"""
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -1456,16 +1441,31 @@ class Boolean(Unit):
     #             return self._unit != 0 or operand._unit != 0
     #     return False
 
+class Tied(Boolean):
+    """`Unit -> Boolean -> Tied`
+
+    Sets the respective Notes or derived elements as Tied.
+    
+    Parameters
+    ----------
+    int(1) : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
+    """
+    pass
+
 class Default(Boolean):
+    """`Unit -> Boolean -> Default`"""
     pass
 
 class Enable(Boolean):
+    """`Unit -> Boolean -> Enable`"""
     pass
 
 class Disable(Boolean):
+    """`Unit -> Boolean -> Disable`"""
     pass
 
 class Quality(Boolean):
+    """`Unit -> Boolean -> Quality`"""
     pass
 
 class Major(Quality):
