@@ -379,9 +379,7 @@ class BeatsPerMeasure(TimeSignatureParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 4 BeatsPerMeasure.
+    Fraction(4) : The last passed argument is the one being considered.
     
     Examples
     --------
@@ -403,9 +401,7 @@ class BeatNoteValue(TimeSignatureParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 1/4 BeatNoteValue.
+    Fraction(1/4) : The last passed argument is the one being considered. If no parameters are provided,
     
     Examples
     --------
@@ -427,9 +423,7 @@ class NotesPerMeasure(TimeSignatureParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 1/4 NotesPerMeasure.
+    Fraction(1) : The value of the `Note` for a `Measure`.
     
     Examples
     --------
@@ -454,9 +448,7 @@ class StepsPerMeasure(StaffParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 16 StepsPerMeasure.
+    Fraction(16) : The amount of `Steps` in a `Measure`.
     
     Examples
     --------
@@ -485,9 +477,7 @@ class StepsPerNote(StaffParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 16 StepsPerNote.
+    Fraction(16) : The amount of `Steps` per each `Note`.
     
     Examples
     --------
@@ -513,9 +503,7 @@ class Tempo(StaffParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 120 BPM of Tempo.
+    Fraction(120) : The playing tempo with the default as 120 BPM (Beats Per Minute).
     
     Examples
     --------
@@ -573,9 +561,7 @@ class Quantization(StaffParameter):
 
     Parameters
     ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 1/16 NoteValue of Quantization.
+    Fraction(1/16) : The Note value of each `Step`.
     
     Examples
     --------
@@ -893,9 +879,7 @@ class Length(Measurement):
 
     Parameters
     ----------
-    *args : Convertible, TimeUnit, integer, float, Fraction
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0 of Length.
+    Fraction(0) : Represents the duration along the `Staff` in `Measures`.
     
     Examples
     --------
@@ -919,9 +903,7 @@ class Position(Measurement):
 
     Parameters
     ----------
-    *args : Convertible, TimeUnit, integer, float, Fraction
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0.
+    Fraction(0) : The position on the `Staff` measured in `Measures`.
     
     Examples
     --------
@@ -961,8 +943,7 @@ class TimeValue(Convertible):  # Works as Absolute Beats
     
     Parameters
     ----------
-    first : float_like
-        The default value is 0.
+    Fraction(0) : The default value is 0.
     """
     pass
 
@@ -974,8 +955,7 @@ class Measures(TimeValue):
     
     Parameters
     ----------
-    first : float_like
-        Proportional value to a `Measure` on the staff
+    Fraction(0) : Proportional value to a `Measure` on the `Staff`.
     """
     # CHAINABLE OPERATIONS
 
@@ -1034,8 +1014,7 @@ class Beats(TimeValue):
     
     Parameters
     ----------
-    first : float_like
-        Proportional value to a `Beat` on the staff
+    Fraction(0) : Proportional value to a `Beat` on the `Staff`.
     """
     # CHAINABLE OPERATIONS
 
@@ -1094,8 +1073,7 @@ class Steps(TimeValue):
     
     Parameters
     ----------
-    first : float_like
-        Steps as 1, 2, 4, 8...
+    Fraction(0) : Steps as 1, 2, 4, 8...
     """
     # CHAINABLE OPERATIONS
 
@@ -1154,8 +1132,7 @@ class Duration(Convertible):
     
     Parameters
     ----------
-    first : float_like, string_like
-        Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+    Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
     # CHAINABLE OPERATIONS
 
@@ -1242,8 +1219,7 @@ class Dotted(Duration):
     
     Parameters
     ----------
-    first : float_like
-        Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+    Fraction(0) : Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
 
     def __mod__(self, operand: o.T) -> o.T:
