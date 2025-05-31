@@ -323,6 +323,7 @@ class Lambda(HiPrecision):
     pass
 
 class Negative(Rational):
+    """`Rational -> Negative`"""
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -358,13 +359,16 @@ class Negative(Rational):
         return self
 
 class Probability(Rational):
+    """`Rational -> Probability`"""
     pass
 
 
 class StaffParameter(Rational):
+    """`Rational -> StaffParameter`"""
     pass
 
 class TimeSignatureParameter(StaffParameter):
+    """`Rational -> StaffParameter -> TimeSignatureParameter`"""
     pass
 
 class BeatsPerMeasure(TimeSignatureParameter):
@@ -610,6 +614,7 @@ class Quantization(StaffParameter):
 
 
 class Minutes(Rational):
+    """`Rational -> Minutes`"""
     pass
 
 class Convertible(Rational):
@@ -1310,17 +1315,14 @@ class Dotted(Duration):
         return self
 
 class Swing(Rational):
+    """`Rational -> Swing`"""
     pass
 
 class Gate(Rational):
-    pass
-
-class Amplitude(Rational):
+    """`Rational -> Gate`"""
     pass
 
 class Cycle(Rational):
-    pass
-
-class Offset(Rational):
+    """`Rational -> Cycle`"""
     pass
 
