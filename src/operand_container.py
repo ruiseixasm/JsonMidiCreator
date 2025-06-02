@@ -2555,7 +2555,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
 
-
         Args:
             block (bool): Suspends the program until the chart is closed.
             pause (float): Sets a time in seconds before the chart is closed automatically.
