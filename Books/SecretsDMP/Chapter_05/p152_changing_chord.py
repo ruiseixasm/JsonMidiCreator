@@ -41,5 +41,5 @@ from operand_unit import Inversion
 
 polychord: Clip = Polychord("minor", [1, 3, 5], Inversion(1)) * 1
 
-polychord >> Play() >> Plot()
+polychord >> Plot()
 
