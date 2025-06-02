@@ -1415,6 +1415,21 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other)
             
+    def _apply_inversion(self, notes: list[Note]) -> list[Note]:
+        # Where the inversions are done
+        inversion = min(self._inversion, len(notes) - 1)
+        if inversion > 0:
+            first_note = notes[inversion]
+            not_first_note = True
+            while not_first_note:   # Try to implement while inversion > 0 here
+                not_first_note = False
+                for single_note in notes:
+                    if single_note._pitch < first_note._pitch:   # Critical operation
+                        single_note << single_note % ou.Octave() + 1
+                        if single_note % od.DataSource( int() ) < 128:
+                            not_first_note = True # to result in another while loop
+        return notes
+            
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
@@ -1432,20 +1447,9 @@ class KeyScale(Note):
                 new_note._pitch += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
 
-        # Where the inversions are done
-        inversion = min(self._inversion, len(scale_notes) - 1)
-        if inversion > 0:
-            first_note = scale_notes[inversion]
-            not_first_note = True
-            while not_first_note:   # Try to implement while inversion > 0 here
-                not_first_note = False
-                for single_note in scale_notes:
-                    if single_note._pitch < first_note._pitch:   # Critical operation
-                        single_note << single_note % ou.Octave() + 1
-                        if single_note % od.DataSource( int() ) < 128:
-                            not_first_note = True # to result in another while loop
-        return self._arpeggio.arpeggiate(scale_notes)
+        return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
+
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
@@ -1562,20 +1566,9 @@ class Polychord(KeyScale):
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             polychord_notes.append( Note(self).set_clip_reference(self._clip_reference) << ou.Degree(single_degree) )
+            
+        return self._arpeggio.arpeggiate( self._apply_inversion(polychord_notes) )
 
-        # Where the inversions are done
-        inversion = min(self._inversion, len(polychord_notes) - 1)
-        if inversion > 0:
-            first_note = polychord_notes[inversion]
-            not_first_note = True
-            while not_first_note:   # Try to implement while inversion > 0 here
-                not_first_note = False
-                for single_note in polychord_notes:
-                    if single_note._pitch < first_note._pitch:   # Critical operation
-                        single_note << single_note % ou.Octave() + 1
-                        if single_note % od.DataSource( int() ) < 128:
-                            not_first_note = True # to result in another while loop
-        return self._arpeggio.arpeggiate(polychord_notes)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1751,20 +1744,9 @@ class Chord(KeyScale):
                 new_note._pitch += key_degree # Jumps by degrees (scale tones)
                 chord_notes.append( new_note )
 
-        # Where the inversions are done
-        inversion = min(self._inversion, len(chord_notes) - 1)
-        if inversion > 0:
-            first_note = chord_notes[inversion]
-            not_first_note = True
-            while not_first_note:   # Try to implement while inversion > 0 here
-                not_first_note = False
-                for single_note in chord_notes:
-                    if single_note._pitch < first_note._pitch:   # Critical operation
-                        single_note << single_note % ou.Octave() + 1
-                        if single_note % od.DataSource( int() ) < 128:
-                            not_first_note = True # to result in another while loop
-        return self._arpeggio.arpeggiate(chord_notes)
+        return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
     
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["size"]         = self.serialize( self._size )
