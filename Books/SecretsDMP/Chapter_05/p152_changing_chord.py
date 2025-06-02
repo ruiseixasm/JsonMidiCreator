@@ -36,8 +36,10 @@ else:  # Assume Linux/Unix
 
 from operand_element import Polychord
 from operand_data import Play, Plot
+from operand_container import Clip
+from operand_unit import Inversion
 
-polychord = Polychord("minor", [1, 3, 5])
+polychord: Clip = Polychord("minor", [1, 3, 5], Inversion(1)) * 1
 
 polychord >> Play() >> Plot()
 
