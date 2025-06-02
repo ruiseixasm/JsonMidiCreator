@@ -19,6 +19,21 @@ src_path = os.path.join(os.path.dirname(__file__), '../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
+# Determine the operating system
+import platform
+from operand_generic import defaults
+from operand_container import Devices
+current_os = platform.system()
+if current_os == "Windows":
+    defaults << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
+elif current_os == "Darwin":  # macOS
+    defaults << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
+else:  # Assume Linux/Unix
+    defaults << Devices(["VMPK", "FLUID"])          # FLUID Synth
+
+
+
+
 from operand_element import Polychord
 from operand_data import Play, Plot
 
