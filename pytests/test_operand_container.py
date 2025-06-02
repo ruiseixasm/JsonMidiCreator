@@ -707,6 +707,15 @@ def test_clip_filter():
     single_note: Clip = eight_notes >> Beat(2)
     assert single_note.len() == 2
 
+    original_note: Clip = Note() * 1
+    assert original_note.len() == 1
+    derived_note: Clip = original_note >> Nth(1)
+    assert derived_note.len() == 1
+    derived_note /= 2
+    assert derived_note.len() == 2
+    # Needs to be replicated upwards!
+    # assert original_note.len() == 2
+
 # test_clip_filter()
 
 
