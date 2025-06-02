@@ -1356,12 +1356,17 @@ class KeyScale(Note):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale       = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
+        self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def scale(self, scale: list[int] | str = None) -> Self:
         self._scale = og.Scale(scale)
+        return self
+
+    def inversion(self, inversion: int = 1) -> Self:
+        self._inversion = inversion
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1386,10 +1391,12 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand._data:
                     case og.Scale():        return self._scale
+                    case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
                     case og.Arpeggio():     return self._arpeggio
                     case list():            return self._scale % list()
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._scale.copy()
+            case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
             case ou.Mode():         return self._scale % operand
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
@@ -1402,8 +1409,9 @@ class KeyScale(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._scale == other._scale \
-                    and self._arpeggio == other._arpeggio
+                    and self._scale     == other._scale \
+                    and self._inversion == other._inversion \
+                    and self._arpeggio  == other._arpeggio
             case _:
                 return super().__eq__(other)
             
@@ -1445,19 +1453,21 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["self_scale"] = self.serialize( self._scale )
-        serialization["parameters"]["arpeggio"] = self.serialize( self._arpeggio )
+        serialization["parameters"]["self_scale"]   = self.serialize( self._scale )
+        serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
+        serialization["parameters"]["arpeggio"]     = self.serialize( self._arpeggio )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "self_scale" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
+            "self_scale" in serialization["parameters"] and "inversion" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale = self.deserialize( serialization["parameters"]["self_scale"] )
-            self._arpeggio = self.deserialize( serialization["parameters"]["arpeggio"] )
+            self._scale     = self.deserialize( serialization["parameters"]["self_scale"] )
+            self._inversion = self.deserialize( serialization["parameters"]["inversion"] )
+            self._arpeggio  = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -1466,14 +1476,18 @@ class KeyScale(Note):
             case KeyScale():
                 super().__lshift__(operand)
                 self._scale     << operand._scale
+                self._inversion = operand._inversion
                 self._arpeggio  << operand._arpeggio
             case od.DataSource():
                 match operand._data:
                     case og.Scale():        self._scale = operand._data
+                    case ou.Inversion():    self._inversion = operand._data._unit
                     case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
             case og.Scale() | list() | ou.Mode() | None:    # It's the element scale that is set
                 self._scale << operand
+            case ou.Inversion():
+                self._inversion = operand._unit
             case ou.KeySignature():
                 super().__lshift__(operand)
                 self._scale << operand % list()
@@ -1496,6 +1510,7 @@ class Polychord(KeyScale):
     Parameters
     ----------
     list([1, 3, 5]) : Sets the specific key degrees to be pressed as `Note`.
+    Inversion(0) : The number of inversion of the `Chord`.
     Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
     Velocity(100), int : Sets the velocity of the note being pressed.
@@ -1599,7 +1614,6 @@ class Chord(KeyScale):
     """
     def __init__(self, *parameters):
         self._size: int             = 3
-        self._inversion: int        = 0
         self._dominant: bool        = False
         self._diminished: bool      = False
         self._augmented: bool       = False
@@ -1609,10 +1623,6 @@ class Chord(KeyScale):
 
     def size(self, size: int = 3) -> Self:
         self._size = size
-        return self
-
-    def inversion(self, inversion: int = 1) -> Self:
-        self._inversion = inversion
         return self
 
     def dominant(self, dominant: bool = True) -> Self:
@@ -1651,7 +1661,6 @@ class Chord(KeyScale):
             case od.DataSource():
                 match operand._data:
                     case ou.Size():         return ou.Size() << od.DataSource(self._size)
-                    case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
                     case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
                     case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
                     case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
@@ -1659,7 +1668,6 @@ class Chord(KeyScale):
                     case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
                     case _:                 return super().__mod__(operand)
             case ou.Size():         return ou.Size() << od.DataSource(self._size)
-            case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
             case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
             case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
             case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
@@ -1674,7 +1682,6 @@ class Chord(KeyScale):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._size          == other._size \
-                    and self._inversion     == other._inversion \
                     and self._dominant      == other._dominant \
                     and self._diminished    == other._diminished \
                     and self._augmented     == other._augmented \
@@ -1735,7 +1742,6 @@ class Chord(KeyScale):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["size"]         = self.serialize( self._size )
-        serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
         serialization["parameters"]["dominant"]     = self.serialize( self._dominant )
         serialization["parameters"]["diminished"]   = self.serialize( self._diminished )
         serialization["parameters"]["augmented"]    = self.serialize( self._augmented )
@@ -1747,13 +1753,11 @@ class Chord(KeyScale):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and 
-            "dominant" in serialization["parameters"] and "diminished" in serialization["parameters"] and 
+            "size" in serialization["parameters"] and "dominant" in serialization["parameters"] and "diminished" in serialization["parameters"] and 
             "augmented" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._size          = self.deserialize( serialization["parameters"]["size"] )
-            self._inversion     = self.deserialize( serialization["parameters"]["inversion"] )
             self._dominant      = self.deserialize( serialization["parameters"]["dominant"] )
             self._diminished    = self.deserialize( serialization["parameters"]["diminished"] )
             self._augmented     = self.deserialize( serialization["parameters"]["augmented"] )
@@ -1767,7 +1771,6 @@ class Chord(KeyScale):
             case Chord():
                 super().__lshift__(operand)
                 self._size          = operand._size
-                self._inversion     = operand._inversion
                 self._dominant      = operand._dominant
                 self._diminished    = operand._diminished
                 self._augmented     = operand._augmented
@@ -1776,7 +1779,6 @@ class Chord(KeyScale):
             case od.DataSource():
                 match operand._data:
                     case ou.Size():                 self._size = operand._data._unit
-                    case ou.Inversion():            self._inversion = operand._data._unit
                     case ou.Dominant():             self._dominant = operand._data // bool()
                     case ou.Diminished():           self._diminished = operand._data // bool()
                     case ou.Augmented():            self._augmented = operand._data // bool()
@@ -1784,7 +1786,6 @@ class Chord(KeyScale):
                     case ou.Sus4():                 self._sus4 = operand._data // bool()
                     case _:                         super().__lshift__(operand)
             case ou.Size():                 self._size = operand._unit
-            case ou.Inversion():            self._inversion = operand._unit
             case str():
                 operand = operand.strip()
                 # Set Chord root note
