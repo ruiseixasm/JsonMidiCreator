@@ -1654,7 +1654,8 @@ class Arpeggio(Generic):
 
         return shuffled_list
 
-    from operand_element import Note
+    if TYPE_CHECKING:
+        from operand_element import Note
 
     def _generate_sequence(self, notes: list['Note']) -> list['Note']:
         """Generates the sequence of the arpeggio order."""
