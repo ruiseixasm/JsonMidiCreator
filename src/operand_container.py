@@ -1892,31 +1892,35 @@ class Clip(Composition):  # Just a container of Elements
                 single_note._pitch.snap(up)
         return self
 
-    def extend(self, length: ra.Length = ra.Length(2.0)) -> Self:
+    def extend(self, length: ra.Length = None) -> Self:
         """
         Extends (stretches) the given clip along a given length.
 
         Args:
-            length (Length): The length along which the clip will be extended (stretched).
+            length(2.0) : The length along which the clip will be extended (stretched).
 
         Returns:
             Clip: The same self object with the items processed.
         """
+        if length is None:
+            length = ra.Length(2.0)
         original_self: Clip = self.shallow_copy()
         while self / original_self <= length:
             self /= original_self
         return self
 
-    def trim(self, length: ra.Length = ra.Length(1.0)) -> Self:
+    def trim(self, length: ra.Length = None) -> Self:
         """
         Trims the given clip at a given length.
 
         Args:
-            length (Length): The length of the clip that will be trimmed.
+            length(1.0) : The length of the clip that will be trimmed.
 
         Returns:
             Clip: The same self object with the items processed.
         """
+        if length is None:
+            length = ra.Length(1.0)
         if isinstance(length, ra.Length):
             self._items = [
                 element for element in self._items
