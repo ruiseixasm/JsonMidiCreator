@@ -1431,6 +1431,19 @@ class KeyScale(Note):
                 new_note: Note = Note(self).set_clip_reference(self._clip_reference)
                 new_note._pitch += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
+
+        # Where the inversions are done
+        inversion = min(self._inversion, len(scale_notes) - 1)
+        if inversion > 0:
+            first_note = scale_notes[inversion]
+            not_first_note = True
+            while not_first_note:   # Try to implement while inversion > 0 here
+                not_first_note = False
+                for single_note in scale_notes:
+                    if single_note._pitch < first_note._pitch:   # Critical operation
+                        single_note << single_note % ou.Octave() + 1
+                        if single_note % od.DataSource( int() ) < 128:
+                            not_first_note = True # to result in another while loop
         return self._arpeggio.arpeggiate(scale_notes)
     
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: dict[str, set[int]] = None) -> list[dict]:
