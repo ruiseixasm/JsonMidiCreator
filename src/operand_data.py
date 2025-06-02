@@ -1649,7 +1649,7 @@ class Fill(ClipProcess):
 class Plot(ClipProcess):
     """`Data -> Process -> ClipProcess -> Plot`
 
-    Plots the Notes or the Automation as alternative existent in the Clip.
+    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
 
     Args:
         block (bool): Suspends the program until the chart is closed.
