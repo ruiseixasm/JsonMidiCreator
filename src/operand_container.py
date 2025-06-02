@@ -780,7 +780,7 @@ class Container(o.Operand):
                 self ^ operand
         return self
 
-    def transform(self, operand_type: type = oe.Note) -> Self:
+    def transform(self, operand_type: type = 'oe.Note') -> Self:
         """
         Transforms each item by wrapping it with the new operand type given.
 
@@ -890,10 +890,10 @@ class Clip(Composition):  # Just a container of Elements
             self << single_operand
 
 
-    def __getitem__(self, index: int) -> oe.Element:
+    def __getitem__(self, index: int) -> 'oe.Element':
         return super().__getitem__(index)
     
-    def __next__(self) -> oe.Element:
+    def __next__(self) -> 'oe.Element':
         return super().__next__()
 
 
@@ -938,7 +938,7 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-    def _first_element(self) -> oe.Element:
+    def _first_element(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the Staff.
 
@@ -950,7 +950,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         return super().first()
 
-    def _last_element(self) -> oe.Element:
+    def _last_element(self) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the Staff.
 
@@ -962,7 +962,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         return super().last()
 
-    def _last_element_position(self) -> ra.Position:
+    def _last_element_position(self) -> 'ra.Position':
         """
         Gets the last Element position.
 
@@ -978,7 +978,7 @@ class Clip(Composition):  # Just a container of Elements
             return last_element % ra.Position()
         return None
 
-    def start(self) -> ra.Position:
+    def start(self) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
         This is the same as the minimum Position of all `Element` positions.
@@ -1001,7 +1001,7 @@ class Clip(Composition):  # Just a container of Elements
             start_position = self._staff.convertToPosition(0)
         return start_position
 
-    def finish(self) -> ra.Position:
+    def finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
         as the maximum of all of them.
@@ -1030,7 +1030,7 @@ class Clip(Composition):  # Just a container of Elements
         return finish_position
 
 
-    def length(self) -> ra.Length:
+    def length(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -1046,7 +1046,7 @@ class Clip(Composition):  # Just a container of Elements
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
-    def duration(self) -> ra.Duration:
+    def duration(self) -> 'ra.Duration':
         """
         Returns the length wrapped as Duration.
 
