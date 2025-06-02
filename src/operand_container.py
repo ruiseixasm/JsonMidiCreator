@@ -2860,7 +2860,7 @@ class Part(Composition):
         return self._staff_reference.convertToLength()
 
 
-    def _last_element(self) -> oe.Element:
+    def _last_element(self) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Part`.
 
@@ -3283,7 +3283,7 @@ class Song(Composition):
             return last_clips_list[-1]
         return None
 
-    def _last_element(self) -> oe.Element:
+    def _last_element(self) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Part`.
 
