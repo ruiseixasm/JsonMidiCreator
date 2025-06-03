@@ -3015,10 +3015,25 @@ class Part(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
+        part_position: ra.Position = self // ra.Position()
         for single_clip in self:
-            if isinstance(single_clip, (Clip, od.Playlist)):
-                part_position: ra.Position = self // ra.Position()
-                plot_list.extend(single_clip.getPlotlist(part_position))
+            if isinstance(single_clip, Clip):
+                element_staff: og.Staff = single_clip._staff
+                clip_plotlist: list[dict] = single_clip.getPlotlist(part_position)
+                for element_plotlist in clip_plotlist:
+                    if "note" in element_plotlist:
+                        clip_position_on: ra.Beats = element_staff.convertToBeats(element_plotlist["note"]["position_on"])
+                        part_position_on: ra.Beats = self._staff.convertToBeats(clip_position_on)
+                        element_plotlist["note"]["position_on"] = part_position_on._rational
+                        clip_position_off: ra.Beats = element_staff.convertToBeats(element_plotlist["note"]["position_off"])
+                        part_position_off: ra.Beats = self._staff.convertToBeats(clip_position_off)
+                        element_plotlist["note"]["position_off"] = part_position_off._rational
+                    elif "automation" in element_plotlist:
+                        clip_position: ra.Beats = element_staff.convertToBeats(element_plotlist["automation"]["position"])
+                        part_position: ra.Beats = self._staff.convertToBeats(clip_position)
+                        element_plotlist["automation"]["position"] = part_position._rational
+
+                plot_list.extend( clip_plotlist )
 
         return plot_list
 
@@ -3034,9 +3049,9 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
+        part_position: ra.Position = self // ra.Position()
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
-                part_position: ra.Position = self // ra.Position()
                 play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
 
