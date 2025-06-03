@@ -662,9 +662,10 @@ class Container(o.Operand):
 
                         if isinstance(parameter_instance, od.DataSource):
 
-                            temp_element: oe.Element = self[element_i]
-                            self[element_i] = self[element_j]
-                            self[element_j] = temp_element
+                            self._swap(self[element_i], self[element_j])
+                            # temp_element: oe.Element = self[element_i]
+                            # self[element_i] = self[element_j]
+                            # self[element_j] = temp_element
 
                         else:
 
