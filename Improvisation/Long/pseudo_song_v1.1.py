@@ -46,11 +46,13 @@ four_notes /= Rest(1/2)
 two_notes = four_notes >> Nth(2, 3)
 two_notes += Semitone(2)
 
-single_part = Part(four_notes)
+single_part = Part(four_notes * 4)
+final_song = Song(single_part) + Part(single_part, Position(10))
 
 
 # four_notes * 4 >> Plot()
-single_part >> Plot()
+# single_part >> Plot()
+final_song >> Plot()
 
 
 
