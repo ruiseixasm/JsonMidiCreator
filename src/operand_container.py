@@ -3458,21 +3458,8 @@ class Song(Composition):
         """
         plot_list: list = []
         for single_part in self:
-            part_staff: og.Staff = single_part._staff
             part_plotlist: list[dict] = single_part.getPlotlist()
-            for element_plotlist in part_plotlist:
-                if "note" in element_plotlist:
-                    part_position_on: ra.Beats = ra.Beats(element_plotlist["note"]["position_on"])._set_staff_reference( part_staff )
-                    song_position_on: ra.Beats = self._staff.convertToBeats(part_position_on)
-                    element_plotlist["note"]["position_on"] = song_position_on._rational
-                    part_position_off: ra.Beats = ra.Beats(element_plotlist["note"]["position_off"])._set_staff_reference( part_staff )
-                    song_position_off: ra.Beats = self._staff.convertToBeats(part_position_off)
-                    element_plotlist["note"]["position_off"] = song_position_off._rational
-                elif "automation" in element_plotlist:
-                    part_position: ra.Beats = ra.Beats(element_plotlist["automation"]["position"])._set_staff_reference( part_staff )
-                    song_position: ra.Beats = self._staff.convertToBeats(part_position)
-                    element_plotlist["automation"]["position"] = song_position._rational
-
+            # Part uses the Song staff as Elements use the Clip staff, so, no need for conversions
             plot_list.extend( part_plotlist )
 
         return plot_list
