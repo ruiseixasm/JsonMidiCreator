@@ -35,12 +35,13 @@ else:  # Assume Linux/Unix
 from JsonMidiCreator import *
 
 
-total_measures: int = (defaults % Staff()).convert_time_to_measures(seconds=20)
+total_measures: int = (defaults % Staff()).convert_time_to_measures(seconds=40)
 print(total_measures)
 
 triad = Chord() * 4
 triad << 0.9 << Foreach(1, 5, 4, 7)**Degree()
-triad << Parameters(Length(6))
+# triad << Parameters(Length(6))
+triad += Rest(2.0)
 triad % Length() % Fraction() >> Print()
 triad *= int( total_measures / (triad % Length() % int()) )
 
