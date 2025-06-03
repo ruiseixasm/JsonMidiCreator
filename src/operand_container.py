@@ -603,7 +603,11 @@ class Container(o.Operand):
             Container: The same self object with the items processed.
         """
         compare = parameter()
-        self._items.sort(key=lambda x: x % compare)
+        sorted_items: list = self._items.copy().sort(
+            key=lambda x: x % compare
+        )
+        self << od.DataSource( sorted_items )
+        # self._items.sort(key=lambda x: x % compare)
         if reverse:
             self._items.reverse()
         return self
