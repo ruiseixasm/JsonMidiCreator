@@ -41,9 +41,11 @@ print(total_measures)
 triad = Chord() * 4
 triad << 0.9 << Foreach(1, 5, 4, 7)**Degree()
 # triad << Parameters(Length(6))
-triad += Rest(2.0)
+triad *= Rest(2.0)
 triad % Length() % Fraction() >> Print()
-triad *= int( total_measures / (triad % Length() % int()) )
+Rest(2.0) % Length() % Beats() % Fraction() >> Print()
+triad *= 3
+# triad *= int( total_measures / (triad % Length() % int()) )
 
 
 
