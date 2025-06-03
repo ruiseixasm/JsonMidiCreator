@@ -678,9 +678,10 @@ class Container(o.Operand):
         """
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
-            tail_operand = self._items[self_len - 1 - operand_i]
-            self._items[self_len - 1 - operand_i] = self._items[operand_i]
-            self._items[operand_i] = tail_operand
+            self._swap(self._items[operand_i], self._items[self_len - 1 - operand_i])
+            # tail_operand = self._items[self_len - 1 - operand_i]
+            # self._items[self_len - 1 - operand_i] = self._items[operand_i]
+            # self._items[operand_i] = tail_operand
         return self._sort_position()
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
