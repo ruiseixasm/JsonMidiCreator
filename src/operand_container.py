@@ -963,10 +963,20 @@ class Composition(Container):
 
 
         # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
+        plot_channels: list[dict] = [ channel_dict["channels"] for channel_dict in plotlist if "channels" in channel_dict ]
 
-        note_channels: list[int] = plotlist[0]["channels"]["note"]
-        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
+        note_channels: list[int] = []
+        automation_channels: list[int] = []
 
+        for element_channel in plot_channels:
+            for note_channel in element_channel["note"]:
+                if note_channel not in note_channels:
+                    note_channels.append(note_channel)
+            for automation_channel in element_channel["automation"]:
+                if automation_channel not in automation_channels:
+                    automation_channels.append(automation_channel)
+
+                    
         # Plot Notes
         if note_channels or not automation_channels:
 
