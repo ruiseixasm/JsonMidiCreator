@@ -322,8 +322,12 @@ class Container(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case list():
-                        for item in operand._data:
-                            self._append([ item ])
+                        # Remove previous Elements from the Container stack
+                        self._delete(self._items, True) # deletes by id, safer
+                        # Finally adds the decomposed elements to the Container stack
+                        self._append( operand._data )
+                        # for item in operand._data:
+                        #     self._append([ item ])
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
