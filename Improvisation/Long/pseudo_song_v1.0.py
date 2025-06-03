@@ -44,8 +44,9 @@ triad << 0.9 << Foreach(1, 5, 4, 7)**Degree()
 triad *= Rest(2.0)
 triad % Length() % Fraction() >> Print()
 Rest(2.0) % Length() % Beats() % Fraction() >> Print()
-triad *= 3
-# triad *= int( total_measures / (triad % Length() % int()) )
+# Must be with "/=" because it's a stacking on the end and not on the start
+# triad /= 3
+triad /= int( total_measures / (triad % Length() % int()) )
 
 
 
