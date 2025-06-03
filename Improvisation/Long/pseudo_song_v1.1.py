@@ -49,5 +49,5 @@ two_notes += Semitone(2)
 single_part = Part(four_notes)
 
 
-four_notes >> Plot()
+four_notes * 4 >> Plot()
 # single_part >> Plot()
