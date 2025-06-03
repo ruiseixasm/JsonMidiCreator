@@ -965,7 +965,8 @@ class Note(Element):
                     "position_off": position_beats + self._position_beats + self % ra.Length() // Fraction(),
                     "pitch": int( self % og.Pitch() % float() ),
                     "velocity": self._velocity,
-                    "channel": self._channel
+                    "channel": self._channel,
+                    "staff": self._staff_reference
                 }
             }
         )
@@ -2236,7 +2237,8 @@ class Automation(Element):
                 "automation": {
                     "position": position_beats + self._position_beats,
                     "value": self._get_msb_value(),
-                    "channel": self._channel
+                    "channel": self._channel,
+                    "staff": self._staff_reference
                 }
             }
         )
