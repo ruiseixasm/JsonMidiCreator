@@ -452,8 +452,8 @@ def test_add_clip():
 
 def test_sub_clip():
 
-    single_note: Element = Note()
     four_notes: Clip = Note() * 4
+    single_note: Element = four_notes[0]
     notes_to_remove: Clip = four_notes >> Nth(1, 3)
     remaining_notes: Clip = four_notes >> Nth(2, 4)
 
@@ -719,6 +719,15 @@ def test_clip_filter():
     assert original_note.len() == 2
 
 
+    # Stacks to make Elements (Notes) different
+    derived_note >> Stack()
+    second_note: Note = derived_note[1]
+    derived_note -= second_note
+    # Shall remove just one Element and become size 1, remove by id and not by data
+    assert derived_note.len() == 1
+    # Needs to be replicated upwards!
+    assert original_note.len() == 1
+
     original_note: Clip = Note() * 1
     assert original_note.len() == 1
     derived_note: Clip = original_note >> Nth(1)
@@ -951,7 +960,7 @@ def test_part_operations():
     assert part_2.len() == 2
 
     assert (part_1 + clip_2).len() == 3
-    assert (part_1 - part_1[1].copy()).len() == 1
+    assert (part_1 - part_1[1]).len() == 1
     assert (part_1 + part_2).len() == 4
 
     # Becomes a Part of two Clips due to * operator

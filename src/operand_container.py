@@ -121,10 +121,16 @@ class Container(o.Operand):
     def _delete(self, items: list) -> Self:
         if self is not self._upper_container:
             self._upper_container._delete(items)
+        # Uses "==" instead of id
         self._items = [
             single_item for single_item in self._items
             if single_item not in items
         ]
+        # # removes by id instead
+        # self._items = [
+        #     single_item for single_item in self._items
+        #     if not any(single_item is item for item in items)
+        # ]
         return self
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
