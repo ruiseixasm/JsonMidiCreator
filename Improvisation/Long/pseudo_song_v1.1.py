@@ -52,8 +52,8 @@ final_song = Song(single_part) + new_part
 
 
 # four_notes * 4 >> Plot()
-single_part >> Plot()
-# final_song >> Plot()
+# single_part >> Plot()
+final_song >> Plot()
 # final_song >> Play(True)
 
 

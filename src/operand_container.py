@@ -887,6 +887,11 @@ class Composition(Container):
     list([]) : A list of Items accordingly to the accepted type by the sub class.
     int : Returns the len of the list.
     """
+    def __init__(self, *operands):
+        super().__init__()
+        # Song sets the Staff, this is just a reference
+        self._staff: og.Staff = og.defaults._staff
+
 
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         return self
@@ -2770,10 +2775,10 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
+        self._staff = og.defaults._staff
         self._items: list[Clip | od.Playlist] = []
 
         # Song sets the Staff, this is just a reference
-        self._staff: og.Staff = og.defaults._staff
         self._song_reference: Song      = None
 
         for single_operand in operands:
@@ -3257,8 +3262,8 @@ class Song(Composition):
     Length : Returns the length of all combined parts.
     """
     def __init__(self, *operands):
-        self._staff: og.Staff = og.defaults._staff.copy()
         super().__init__()
+        self._staff = og.defaults._staff.copy()
         self._items: list[Part] = []
         for single_operand in operands:
             self << single_operand
