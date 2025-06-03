@@ -901,6 +901,455 @@ class Composition(Container):
 
 
 
+    _channel_colors = [
+        "#4CAF50",  # Green (starting point)
+        "#2196F3",  # Blue
+        "#FF5722",  # Orange
+        "#9C27B0",  # Purple
+        "#FFEB3B",  # Bright Yellow
+        "#FF9800",  # Amber
+        "#E91E63",  # Pink
+        "#00BCD4",  # Cyan
+        "#8BC34A",  # Light Green
+        "#FFC107",  # Gold
+        "#3F51B5",  # Indigo
+        "#FF5252",  # Light Red
+        "#673AB7",  # Deep Purple
+        "#CDDC39",  # Lime
+        "#03A9F4",  # Light Blue
+        "#FF4081",  # Hot Pink
+    ]
+
+    def _plot_elements(self, plotlist: list[dict]):
+
+        self._ax.clear()
+
+        self._ax.set_title(f"Iteration {self._iteration} of {
+            len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
+        }")
+
+
+        # Horizontal X-Axis, Time related (COMMON)
+
+        clip_tempo: float = float(plotlist[0]["tempo"])
+        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) at {round(clip_tempo, 1)} bpm")
+        self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+
+        beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
+        quantization: Fraction = self._staff % ra.Quantization() % Fraction()
+        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
+        steps_per_measure: Fraction = beats_per_measure / quantization_beats
+
+        # By default it's 1 Measure long
+        last_position: Fraction = beats_per_measure
+        last_position_measures: Fraction = last_position / beats_per_measure
+        last_position_measure: int = int(last_position / beats_per_measure)
+        if last_position_measure != last_position_measures:
+            last_position_measure += 1
+
+
+        # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
+
+        note_channels: list[int] = plotlist[0]["channels"]["note"]
+        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
+
+        # Plot Notes
+        if note_channels or not automation_channels:
+
+            self._ax.set_ylabel("Chromatic Keys")
+            self._ax.format_coord = \
+                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Pitch = {int(y + 0.5)}"
+
+            note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
+
+            # Updates X-Axis data
+            last_position = max(note["position_off"] for note in note_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position / beats_per_measure)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
+
+            # Get pitch range
+            min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
+            max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+
+            # Shade black keys
+            for pitch in range(min_pitch, max_pitch + 1):
+                if o.is_black_key(pitch):
+                    self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+
+            # Plot notes
+            for channel in note_channels:
+                channel_color = Clip._channel_colors[channel - 1]
+                channel_plotlist = [
+                    channel_note for channel_note in note_plotlist
+                    if channel_note["channel"] == channel
+                ]
+
+                for note in channel_plotlist:
+                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                            height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+        
+
+            chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+            # Set MIDI note ticks with Middle C in bold
+            self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+            y_labels = [
+                chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
+                for p in range(min_pitch, max_pitch + 1)
+            ]  # Bold Middle C
+            self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+
+            self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+        
+        # Plot Automations
+        else:
+
+            self._ax.set_ylabel("Automation Values (MSB)")
+            self._ax.format_coord = \
+                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Value = {int(y + 0.5)}"
+
+            automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
+
+            # Updates X-Axis data
+            last_position = max(automation["position"] for automation in automation_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position / beats_per_measure)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
+
+            # Axis limits
+            self._ax.set_ylim(-1, 128)
+            # Ticks
+            self._ax.set_yticks(range(0, 129, 8))
+
+            # Dashed horizontal lines at multiples of 16 (except 64)
+            for i in range(0, 129, 16):
+                if i != 64:
+                    self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
+            # Dashed line at y = 127
+            self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
+            # Solid line at y = 64
+            self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+
+            # Plot automations
+            for channel in automation_channels:
+                channel_color = Clip._channel_colors[channel - 1]
+                channel_plotlist = [
+                    channel_automation for channel_automation in automation_plotlist
+                    if channel_automation["channel"] == channel
+                ]
+
+                if channel_plotlist:
+
+                    channel_plotlist.sort(key=lambda a: a['position'])
+
+                    # Plotting point lists
+                    x: list[float]  = []
+                    y: list[int]    = []
+                    for automation in channel_plotlist:
+                        x.append( float(automation["position"]) )
+                        y.append( automation["value"] )
+
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                    # Actual data points
+                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
+                                  markeredgecolor='black', markeredgewidth=1, markersize=8)
+
+                    # Add the tailed line up to the end of the chart
+                    x = [
+                        float(channel_plotlist[-1]["position"]),
+                        float(last_position_measure * beats_per_measure)
+                    ]
+                    y = [
+                        channel_plotlist[-1]["value"],
+                        channel_plotlist[-1]["value"]
+                    ]
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                    # Actual data points
+                    self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
+
+
+        # Draw vertical grid lines based on beats and measures
+        one_extra_subdivision: float = quantization_beats
+        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), 1)
+        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
+    
+        for measure_pos in measure_positions:
+            self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+        for beat_pos in beat_positions:
+            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+        for grid_pos in step_positions:
+            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+
+        # Set x-axis labels in 'Measure.Beat' format
+        beat_labels = [
+            f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
+            for pos in beat_positions
+        ]
+        
+        self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
+        self._ax.set_xticklabels(beat_labels, rotation=45)
+        self._fig.canvas.draw_idle()
+
+        return None
+
+
+    def _run_play(self, even = None) -> Self:
+        import threading
+        last_clip: Clip = self._clip_iterations[self._iteration]
+        threading.Thread(target=od.Play.play, args=(last_clip,)).start()
+        # last_clip >> od.Play()
+        return self
+
+    def _run_first(self, even = None) -> Self:
+        if self._iteration > 0:
+            self._iteration = 0
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._next_button)
+            if self._iteration == 0:
+                self._disable_button(self._previous_button)
+        return self
+
+    def _run_previous(self, even = None) -> Self:
+        if self._iteration > 0:
+            self._iteration -= 1
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._next_button)
+            if self._iteration == 0:
+                self._disable_button(self._previous_button)
+        return self
+
+    def _run_next(self, even = None) -> Self:
+        if self._iteration < len(self._plot_lists) - 1:
+            self._iteration += 1
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._previous_button)
+            if self._iteration == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
+        return self
+
+    def _run_last(self, even = None) -> Self:
+        if self._iteration < len(self._plot_lists) - 1:
+            self._iteration = len(self._plot_lists) - 1
+            plotlist: list[dict] = self._plot_lists[self._iteration]
+            self._plot_elements(plotlist)
+            self._enable_button(self._previous_button)
+            if self._iteration == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
+        return self
+
+    def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
+        self._plot_lists[iteration] = plotlist
+        if iteration == self._iteration:
+            self._plot_elements(plotlist)
+        return self
+
+    def _run_new(self, even = None) -> Self:
+        if callable(self._n_function):
+            iteration: int = self._iteration
+            last_clip: Clip = self._clip_iterations[-1]
+            new_clip: Clip = self._n_function(last_clip.copy())
+            if isinstance(new_clip, Clip):
+                self._iteration = len(self._clip_iterations)
+                plotlist: list[dict] = new_clip.getPlotlist()
+                self._clip_iterations.append(new_clip)
+                self._plot_lists.append(plotlist)
+                self._plot_elements(plotlist)
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(iteration, last_clip.getPlotlist())
+            self._enable_button(self._previous_button)
+            self._disable_button(self._next_button)
+        return self
+
+    def _run_composition(self, even = None) -> Self:
+        import threading
+        if callable(self._c_function):
+            last_clip: Clip = self._clip_iterations[self._iteration]
+            composition: Composition = self._c_function(last_clip)
+            if isinstance(composition, Composition):
+                threading.Thread(target=od.Play.play, args=(composition,)).start()
+                # composition >> od.Play()
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(self._iteration, last_clip.getPlotlist())
+        return self
+
+    def _run_execute(self, even = None) -> Self:
+        if callable(self._e_function):
+            last_clip: Clip = self._clip_iterations[self._iteration]
+            self._e_function(last_clip)
+            # Updates the last_clip data and plot just in case
+            self._update_iteration(self._iteration, last_clip.getPlotlist())
+        return self
+
+    @staticmethod
+    def _disable_button(button: Button) -> Button:
+        # Set disabled style
+        button.label.set_color('lightgray')         # Light text
+        button.ax.set_facecolor('none')             # No fill color
+        button.hovercolor = 'none'
+        for spine in button.ax.spines.values():
+            spine.set_color('lightgray')
+        return button
+
+    @staticmethod
+    def _enable_button(button: Button) -> Button:
+        # Set enabled style
+        button.ax.set_facecolor('white')
+        button.hovercolor = 'gray'
+        button.label.set_color('black')
+        for spine in button.ax.spines.values():
+            spine.set_color('black')
+        return button
+
+    def _on_move(self, event: MouseEvent) -> Self:
+        if event.inaxes == self._ax:
+            print(f"x = {event.xdata}, y = {event.ydata}")
+        return self
+
+    def _on_key(self, event: MouseEvent) -> Self:
+        match event.key:
+            case 'p':
+                self._run_play(event)
+            case 'c':
+                self._run_composition(event)
+            case 'e':
+                self._run_execute(event)
+            case 'n':
+                self._run_new(event)
+            case ',':
+                self._run_previous(event)
+            case '.':
+                self._run_next(event)
+            case 'm':
+                self._run_first(event)
+            case '/' | "-" | ";":
+                self._run_last(event)
+        return self
+
+
+    def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
+            n_button: Optional[Callable[['Clip'], 'Clip']] = None,
+            c_button: Optional[Callable[['Clip'], 'Composition']] = None,
+            e_button: Optional[Callable[['Clip'], Any]] = None) -> Self:
+        """
+        Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+
+        Args:
+            block (bool): Suspends the program until the chart is closed.
+            pause (float): Sets a time in seconds before the chart is closed automatically.
+            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+                this is dependent on a n_button being given.
+            n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+            c_button (Callable): A function intended to play the plotted clip among other compositions.
+            e_button (Callable): A function to be executed by itself without any output required.
+
+        Returns:
+            Clip: Returns the presently plotted clip.
+        """
+        self._clip_iterations: list[Clip] = [ self.copy() ]
+        self._plot_lists: list[list] = [ self.getPlotlist() ]
+        self._iteration: int = 0
+        self._n_function = n_button
+        self._c_function = c_button
+        self._e_function = e_button
+
+        if callable(self._n_function) \
+                and isinstance(iterations, int) and iterations > 0:
+            for _ in range(iterations):
+                last_clip: Clip = self._clip_iterations[-1]
+                new_clip: Clip = self._n_function(last_clip.copy())
+                plotlist: list[dict] = new_clip.getPlotlist()
+                self._clip_iterations.append(new_clip)
+                self._plot_lists.append(plotlist)
+
+        # Enable interactive mode (doesn't block the execution)
+        plt.ion()
+
+        self._fig, self._ax = plt.subplots(figsize=(12, 6))
+        # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
+        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
+
+        self._plot_elements(self._plot_lists[0])
+
+        plt.tight_layout()
+
+        # Play Button Widget
+        ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
+        play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
+        play_button.on_clicked(self._run_play)
+
+        # Previous Button Widget
+        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
+        self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
+        self._previous_button.on_clicked(self._run_previous)
+
+        # Next Button Widget
+        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+        self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
+        self._next_button.on_clicked(self._run_next)
+
+        # New Button Widget
+        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
+        new_button.on_clicked(self._run_new)
+
+        # Composition Button Widget
+        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
+        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
+        composition_button.on_clicked(self._run_composition)
+
+        # Execution Button Widget
+        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        execute_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        execute_button.on_clicked(self._run_execute)
+
+        # Previous Button Widget
+        self._disable_button(self._previous_button)
+        if len(self._clip_iterations) == 1:
+            # Next Button Widget
+            self._disable_button(self._next_button)
+
+        if not callable(self._n_function):
+            # New Button Widget
+            self._disable_button(new_button)
+
+        if not callable(self._c_function):
+            # Composition Button Widget
+            self._disable_button(composition_button)
+
+        if not callable(self._e_function):
+            # Composition Button Widget
+            self._disable_button(execute_button)
+
+
+        if block and pause == 0:
+            plt.show(block=True)
+        elif pause > 0:
+            plt.draw()
+            plt.pause(pause)
+        else:
+            plt.show(block=False)
+
+
+        # plt.show(block=False)
+        # # Keep script alive while plots are open
+        # while plt.get_fignums():  # Check if any figure is open
+        #     plt.pause(0.1)  # Pause to allow GUI event processing
+
+        return self._clip_iterations[self._iteration]
+
+
+
+
+
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
 
 
@@ -2264,452 +2713,6 @@ class Clip(Composition):  # Just a container of Elements
                         actual_note._pitch -= ou.Octave(1)
                 last_note = actual_note
         return self
-
-
-    _channel_colors = [
-        "#4CAF50",  # Green (starting point)
-        "#2196F3",  # Blue
-        "#FF5722",  # Orange
-        "#9C27B0",  # Purple
-        "#FFEB3B",  # Bright Yellow
-        "#FF9800",  # Amber
-        "#E91E63",  # Pink
-        "#00BCD4",  # Cyan
-        "#8BC34A",  # Light Green
-        "#FFC107",  # Gold
-        "#3F51B5",  # Indigo
-        "#FF5252",  # Light Red
-        "#673AB7",  # Deep Purple
-        "#CDDC39",  # Lime
-        "#03A9F4",  # Light Blue
-        "#FF4081",  # Hot Pink
-    ]
-
-    def _plot_elements(self, plotlist: list[dict]):
-
-        self._ax.clear()
-
-        self._ax.set_title(f"Iteration {self._iteration} of {
-            len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
-        }")
-
-
-        # Horizontal X-Axis, Time related (COMMON)
-
-        clip_tempo: float = float(plotlist[0]["tempo"])
-        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) at {round(clip_tempo, 1)} bpm")
-        self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
-
-        beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
-        quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
-        steps_per_measure: Fraction = beats_per_measure / quantization_beats
-
-        # By default it's 1 Measure long
-        last_position: Fraction = beats_per_measure
-        last_position_measures: Fraction = last_position / beats_per_measure
-        last_position_measure: int = int(last_position / beats_per_measure)
-        if last_position_measure != last_position_measures:
-            last_position_measure += 1
-
-
-        # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
-
-        note_channels: list[int] = plotlist[0]["channels"]["note"]
-        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
-
-        # Plot Notes
-        if note_channels or not automation_channels:
-
-            self._ax.set_ylabel("Chromatic Keys")
-            self._ax.format_coord = \
-                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Pitch = {int(y + 0.5)}"
-
-            note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
-
-            # Updates X-Axis data
-            last_position = max(note["position_off"] for note in note_plotlist)
-            last_position_measures = last_position / beats_per_measure
-            last_position_measure = int(last_position / beats_per_measure)
-            if last_position_measure != last_position_measures:
-                last_position_measure += 1
-
-            # Get pitch range
-            min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
-            max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
-
-            # Shade black keys
-            for pitch in range(min_pitch, max_pitch + 1):
-                if o.is_black_key(pitch):
-                    self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
-
-            # Plot notes
-            for channel in note_channels:
-                channel_color = Clip._channel_colors[channel - 1]
-                channel_plotlist = [
-                    channel_note for channel_note in note_plotlist
-                    if channel_note["channel"] == channel
-                ]
-
-                for note in channel_plotlist:
-                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                            height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
-        
-
-            chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
-            # Set MIDI note ticks with Middle C in bold
-            self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-            y_labels = [
-                chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
-                for p in range(min_pitch, max_pitch + 1)
-            ]  # Bold Middle C
-            self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
-
-            self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
-
-        
-        # Plot Automations
-        else:
-
-            self._ax.set_ylabel("Automation Values (MSB)")
-            self._ax.format_coord = \
-                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Value = {int(y + 0.5)}"
-
-            automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
-
-            # Updates X-Axis data
-            last_position = max(automation["position"] for automation in automation_plotlist)
-            last_position_measures = last_position / beats_per_measure
-            last_position_measure = int(last_position / beats_per_measure)
-            if last_position_measure != last_position_measures:
-                last_position_measure += 1
-
-            # Axis limits
-            self._ax.set_ylim(-1, 128)
-            # Ticks
-            self._ax.set_yticks(range(0, 129, 8))
-
-            # Dashed horizontal lines at multiples of 16 (except 64)
-            for i in range(0, 129, 16):
-                if i != 64:
-                    self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
-            # Dashed line at y = 127
-            self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
-            # Solid line at y = 64
-            self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
-
-            # Plot automations
-            for channel in automation_channels:
-                channel_color = Clip._channel_colors[channel - 1]
-                channel_plotlist = [
-                    channel_automation for channel_automation in automation_plotlist
-                    if channel_automation["channel"] == channel
-                ]
-
-                if channel_plotlist:
-
-                    channel_plotlist.sort(key=lambda a: a['position'])
-
-                    # Plotting point lists
-                    x: list[float]  = []
-                    y: list[int]    = []
-                    for automation in channel_plotlist:
-                        x.append( float(automation["position"]) )
-                        y.append( automation["value"] )
-
-                    # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                    # Actual data points
-                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
-                                  markeredgecolor='black', markeredgewidth=1, markersize=8)
-
-                    # Add the tailed line up to the end of the chart
-                    x = [
-                        float(channel_plotlist[-1]["position"]),
-                        float(last_position_measure * beats_per_measure)
-                    ]
-                    y = [
-                        channel_plotlist[-1]["value"],
-                        channel_plotlist[-1]["value"]
-                    ]
-                    # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                    # Actual data points
-                    self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
-
-
-        # Draw vertical grid lines based on beats and measures
-        one_extra_subdivision: float = quantization_beats
-        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(quantization_beats))
-        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), 1)
-        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
-    
-        for measure_pos in measure_positions:
-            self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
-        for beat_pos in beat_positions:
-            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
-        for grid_pos in step_positions:
-            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
-
-        # Set x-axis labels in 'Measure.Beat' format
-        beat_labels = [
-            f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
-            for pos in beat_positions
-        ]
-        
-        self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
-        self._ax.set_xticklabels(beat_labels, rotation=45)
-        self._fig.canvas.draw_idle()
-
-        return None
-
-
-    def _run_play(self, even = None) -> Self:
-        import threading
-        last_clip: Clip = self._clip_iterations[self._iteration]
-        threading.Thread(target=od.Play.play, args=(last_clip,)).start()
-        # last_clip >> od.Play()
-        return self
-
-    def _run_first(self, even = None) -> Self:
-        if self._iteration > 0:
-            self._iteration = 0
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist)
-            self._enable_button(self._next_button)
-            if self._iteration == 0:
-                self._disable_button(self._previous_button)
-        return self
-
-    def _run_previous(self, even = None) -> Self:
-        if self._iteration > 0:
-            self._iteration -= 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist)
-            self._enable_button(self._next_button)
-            if self._iteration == 0:
-                self._disable_button(self._previous_button)
-        return self
-
-    def _run_next(self, even = None) -> Self:
-        if self._iteration < len(self._plot_lists) - 1:
-            self._iteration += 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist)
-            self._enable_button(self._previous_button)
-            if self._iteration == len(self._plot_lists) - 1:
-                self._disable_button(self._next_button)
-        return self
-
-    def _run_last(self, even = None) -> Self:
-        if self._iteration < len(self._plot_lists) - 1:
-            self._iteration = len(self._plot_lists) - 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist)
-            self._enable_button(self._previous_button)
-            if self._iteration == len(self._plot_lists) - 1:
-                self._disable_button(self._next_button)
-        return self
-
-    def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
-        self._plot_lists[iteration] = plotlist
-        if iteration == self._iteration:
-            self._plot_elements(plotlist)
-        return self
-
-    def _run_new(self, even = None) -> Self:
-        if callable(self._n_function):
-            iteration: int = self._iteration
-            last_clip: Clip = self._clip_iterations[-1]
-            new_clip: Clip = self._n_function(last_clip.copy())
-            if isinstance(new_clip, Clip):
-                self._iteration = len(self._clip_iterations)
-                plotlist: list[dict] = new_clip.getPlotlist()
-                self._clip_iterations.append(new_clip)
-                self._plot_lists.append(plotlist)
-                self._plot_elements(plotlist)
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(iteration, last_clip.getPlotlist())
-            self._enable_button(self._previous_button)
-            self._disable_button(self._next_button)
-        return self
-
-    def _run_composition(self, even = None) -> Self:
-        import threading
-        if callable(self._c_function):
-            last_clip: Clip = self._clip_iterations[self._iteration]
-            composition: Composition = self._c_function(last_clip)
-            if isinstance(composition, Composition):
-                threading.Thread(target=od.Play.play, args=(composition,)).start()
-                # composition >> od.Play()
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(self._iteration, last_clip.getPlotlist())
-        return self
-
-    def _run_execute(self, even = None) -> Self:
-        if callable(self._e_function):
-            last_clip: Clip = self._clip_iterations[self._iteration]
-            self._e_function(last_clip)
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(self._iteration, last_clip.getPlotlist())
-        return self
-
-    @staticmethod
-    def _disable_button(button: Button) -> Button:
-        # Set disabled style
-        button.label.set_color('lightgray')         # Light text
-        button.ax.set_facecolor('none')             # No fill color
-        button.hovercolor = 'none'
-        for spine in button.ax.spines.values():
-            spine.set_color('lightgray')
-        return button
-
-    @staticmethod
-    def _enable_button(button: Button) -> Button:
-        # Set enabled style
-        button.ax.set_facecolor('white')
-        button.hovercolor = 'gray'
-        button.label.set_color('black')
-        for spine in button.ax.spines.values():
-            spine.set_color('black')
-        return button
-
-    def _on_move(self, event: MouseEvent) -> Self:
-        if event.inaxes == self._ax:
-            print(f"x = {event.xdata}, y = {event.ydata}")
-        return self
-
-    def _on_key(self, event: MouseEvent) -> Self:
-        match event.key:
-            case 'p':
-                self._run_play(event)
-            case 'c':
-                self._run_composition(event)
-            case 'e':
-                self._run_execute(event)
-            case 'n':
-                self._run_new(event)
-            case ',':
-                self._run_previous(event)
-            case '.':
-                self._run_next(event)
-            case 'm':
-                self._run_first(event)
-            case '/' | "-" | ";":
-                self._run_last(event)
-        return self
-
-
-    def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-            n_button: Optional[Callable[['Clip'], 'Clip']] = None,
-            c_button: Optional[Callable[['Clip'], Composition]] = None,
-            e_button: Optional[Callable[['Clip'], Any]] = None):
-        """
-        Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
-
-        Args:
-            block (bool): Suspends the program until the chart is closed.
-            pause (float): Sets a time in seconds before the chart is closed automatically.
-            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-                this is dependent on a n_button being given.
-            n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
-            c_button (Callable): A function intended to play the plotted clip among other compositions.
-            e_button (Callable): A function to be executed by itself without any output required.
-
-        Returns:
-            Clip: Returns the presently plotted clip.
-        """
-        self._clip_iterations: list[Clip] = [ self.copy() ]
-        self._plot_lists: list[list] = [ self.getPlotlist() ]
-        self._iteration: int = 0
-        self._n_function = n_button
-        self._c_function = c_button
-        self._e_function = e_button
-
-        if callable(self._n_function) \
-                and isinstance(iterations, int) and iterations > 0:
-            for _ in range(iterations):
-                last_clip: Clip = self._clip_iterations[-1]
-                new_clip: Clip = self._n_function(last_clip.copy())
-                plotlist: list[dict] = new_clip.getPlotlist()
-                self._clip_iterations.append(new_clip)
-                self._plot_lists.append(plotlist)
-
-        # Enable interactive mode (doesn't block the execution)
-        plt.ion()
-
-        self._fig, self._ax = plt.subplots(figsize=(12, 6))
-        # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
-        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
-
-        self._plot_elements(self._plot_lists[0])
-
-        plt.tight_layout()
-
-        # Play Button Widget
-        ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
-        play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
-        play_button.on_clicked(self._run_play)
-
-        # Previous Button Widget
-        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
-        self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
-        self._previous_button.on_clicked(self._run_previous)
-
-        # Next Button Widget
-        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
-        self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
-        self._next_button.on_clicked(self._run_next)
-
-        # New Button Widget
-        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
-        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
-        new_button.on_clicked(self._run_new)
-
-        # Composition Button Widget
-        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
-        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
-        composition_button.on_clicked(self._run_composition)
-
-        # Execution Button Widget
-        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
-        execute_button = Button(ax_button, 'E', color='white', hovercolor='grey')
-        execute_button.on_clicked(self._run_execute)
-
-        # Previous Button Widget
-        self._disable_button(self._previous_button)
-        if len(self._clip_iterations) == 1:
-            # Next Button Widget
-            self._disable_button(self._next_button)
-
-        if not callable(self._n_function):
-            # New Button Widget
-            self._disable_button(new_button)
-
-        if not callable(self._c_function):
-            # Composition Button Widget
-            self._disable_button(composition_button)
-
-        if not callable(self._e_function):
-            # Composition Button Widget
-            self._disable_button(execute_button)
-
-
-        if block and pause == 0:
-            plt.show(block=True)
-        elif pause > 0:
-            plt.draw()
-            plt.pause(pause)
-        else:
-            plt.show(block=False)
-
-
-        # plt.show(block=False)
-        # # Keep script alive while plots are open
-        # while plt.get_fignums():  # Check if any figure is open
-        #     plt.pause(0.1)  # Pause to allow GUI event processing
-
-        return self._clip_iterations[self._iteration]
 
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:

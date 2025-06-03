@@ -1341,6 +1341,44 @@ if TYPE_CHECKING:
     from operand_container import Composition
     from operand_container import Clip
 
+class CompositionProcess(Process):
+    """`Data -> Process -> CompositionProcess`
+
+    Processes applicable to any `Composition`.
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Composition):
+            return self._process(operand)
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+
+class Plot(CompositionProcess):
+    """`Data -> Process -> CompositionProcess -> Plot`
+
+    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+
+    Args:
+        block (bool): Suspends the program until the chart is closed.
+        pause (float): Sets a time in seconds before the chart is closed automatically.
+        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+            this is dependent on a n_button being given.
+        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+        c_button (Callable): A function intended to play the plotted clip among other compositions.
+        e_button (Callable): A function to be executed by itself without any output required.
+    """
+    def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
+                 n_button: Optional[Callable[['Clip'], 'Clip']] = None,
+                 c_button: Optional[Callable[['Clip'], 'Composition']] = None,
+                 e_button: Optional[Callable[['Clip'], Any]] = None):
+        super().__init__((block, pause, iterations, n_button, c_button, e_button))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.plot(*self._data)
+
+
 class ClipProcess(Process):
     """`Data -> Process -> ClipProcess`
 
@@ -1645,29 +1683,6 @@ class Fill(ClipProcess):
     """
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.fill()
-
-class Plot(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Plot`
-
-    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
-
-    Args:
-        block (bool): Suspends the program until the chart is closed.
-        pause (float): Sets a time in seconds before the chart is closed automatically.
-        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-            this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
-        c_button (Callable): A function intended to play the plotted clip among other compositions.
-        e_button (Callable): A function to be executed by itself without any output required.
-    """
-    def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable[['Clip'], 'Clip']] = None,
-                 c_button: Optional[Callable[['Clip'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Clip'], Any]] = None):
-        super().__init__((block, pause, iterations, n_button, c_button, e_button))
-
-    def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.plot(*self._data)
 
 
 class PartProcess(Process):
