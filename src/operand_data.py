@@ -1370,13 +1370,13 @@ class Plot(CompositionProcess):
         e_button (Callable): A function to be executed by itself without any output required.
     """
     def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable[['Clip'], 'Clip']] = None,
-                 c_button: Optional[Callable[['Clip'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Clip'], Any]] = None):
+                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 e_button: Optional[Callable[['Composition'], Any]] = None):
         super().__init__((block, pause, iterations, n_button, c_button, e_button))
 
-    def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.plot(*self._data)
+    def _process(self, composition: 'Composition') -> 'Composition':
+        return composition.plot(*self._data)
 
 
 class ClipProcess(Process):

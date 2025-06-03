@@ -1236,9 +1236,9 @@ class Composition(Container):
 
 
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
-            n_button: Optional[Callable[['Clip'], 'Clip']] = None,
-            c_button: Optional[Callable[['Clip'], 'Composition']] = None,
-            e_button: Optional[Callable[['Clip'], Any]] = None) -> Self:
+            n_button: Optional[Callable[['Composition'], 'Composition']] = None,
+            c_button: Optional[Callable[['Composition'], 'Composition']] = None,
+            e_button: Optional[Callable[['Composition'], Any]] = None) -> Self:
         """
         Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
 
