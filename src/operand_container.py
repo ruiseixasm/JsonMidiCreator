@@ -720,7 +720,10 @@ class Container(o.Operand):
                 data_index: int = offset % len(self._items)
                 parameters.append(self._items[data_index])   # No need to copy
                 offset += 1
-            self._items = parameters
+            # Remove previous Elements from the Container stack
+            self._delete(self._items, True) # deletes by id, safer
+            # Finally adds the decomposed elements to the Container stack
+            self._append(parameters)
         else:
             for operand in self:
                 if isinstance(operand, o.Operand):
@@ -747,7 +750,13 @@ class Container(o.Operand):
             shallow_copy: Container = self.shallow_copy()
             shallow_copy._items = [item for item in self._items if item == condition]
             return shallow_copy
-        self._items = [item for item in self._items if item == condition]
+        # Remove previous Elements from the Container stack
+        self._delete(self._items, True) # deletes by id, safer
+        # Finally adds the decomposed elements to the Container stack
+        self._append([
+            item for item in self._items if item == condition
+        ])
+        # self._items = [item for item in self._items if item == condition]
         return self
 
     def drop(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
