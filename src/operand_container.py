@@ -313,20 +313,26 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
-                self._items = self.deep_copy( operand._items )
+                # Remove previous Elements from the Container stack
+                self._delete(self._items, True) # deletes by id, safer
+                # Finally adds the decomposed elements to the Container stack
+                self._append( self.deep_copy( operand._items ) )
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case list():
                         for item in operand._data:
-                            self._items.append( item )
+                            self._append([ item ])
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._items = [
+                # Remove previous Elements from the Container stack
+                self._delete(self._items, True) # deletes by id, safer
+                # Finally adds the decomposed elements to the Container stack
+                self._append([
                     self.deep_copy(item) for item in operand
-                ]
+                ])
             case tuple():
                 for single_operand in operand:
                     self << single_operand
