@@ -837,7 +837,32 @@ class Rest(Element):
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: dict[str, set[int]] = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        if self_duration_min == 0:
+            return []
+
+        if channels is not None:
+            channels["rest"].add(self._channel)
+
+        self_plotlist: list[dict] = []
+    
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "rest": {
+                    "position_on": self._position_beats,
+                    "position_off": self._position_beats + self % ra.Length() // Fraction(),
+                    "channel": self._channel
+                }
+            }
+        )
+
+        return self_plotlist
+
 
 class Note(Element):
     """`Element -> Note`
