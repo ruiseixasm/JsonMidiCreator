@@ -3018,18 +3018,18 @@ class Part(Composition):
         part_position: ra.Position = self // ra.Position()
         for single_clip in self:
             if isinstance(single_clip, Clip):
-                element_staff: og.Staff = single_clip._staff
+                clip_staff: og.Staff = single_clip._staff
                 clip_plotlist: list[dict] = single_clip.getPlotlist(part_position)
                 for element_plotlist in clip_plotlist:
                     if "note" in element_plotlist:
-                        clip_position_on: ra.Beats = element_staff.convertToBeats(element_plotlist["note"]["position_on"])
+                        clip_position_on: ra.Beats = ra.Beats(element_plotlist["note"]["position_on"])._set_staff_reference( clip_staff )
                         part_position_on: ra.Beats = self._staff.convertToBeats(clip_position_on)
                         element_plotlist["note"]["position_on"] = part_position_on._rational
-                        clip_position_off: ra.Beats = element_staff.convertToBeats(element_plotlist["note"]["position_off"])
+                        clip_position_off: ra.Beats = ra.Beats(element_plotlist["note"]["position_off"])._set_staff_reference( clip_staff )
                         part_position_off: ra.Beats = self._staff.convertToBeats(clip_position_off)
                         element_plotlist["note"]["position_off"] = part_position_off._rational
                     elif "automation" in element_plotlist:
-                        clip_position: ra.Beats = element_staff.convertToBeats(element_plotlist["automation"]["position"])
+                        clip_position: ra.Beats = ra.Beats(element_plotlist["automation"]["position"])._set_staff_reference( clip_staff )
                         part_position: ra.Beats = self._staff.convertToBeats(clip_position)
                         element_plotlist["automation"]["position"] = part_position._rational
 
@@ -3458,7 +3458,23 @@ class Song(Composition):
         """
         plot_list: list = []
         for single_part in self:
-            plot_list.extend(single_part.getPlotlist())
+            part_staff: og.Staff = single_part._staff
+            part_plotlist: list[dict] = single_part.getPlotlist()
+            for element_plotlist in part_plotlist:
+                if "note" in element_plotlist:
+                    part_position_on: ra.Beats = ra.Beats(element_plotlist["note"]["position_on"])._set_staff_reference( part_staff )
+                    song_position_on: ra.Beats = self._staff.convertToBeats(part_position_on)
+                    element_plotlist["note"]["position_on"] = song_position_on._rational
+                    part_position_off: ra.Beats = ra.Beats(element_plotlist["note"]["position_off"])._set_staff_reference( part_staff )
+                    song_position_off: ra.Beats = self._staff.convertToBeats(part_position_off)
+                    element_plotlist["note"]["position_off"] = song_position_off._rational
+                elif "automation" in element_plotlist:
+                    part_position: ra.Beats = ra.Beats(element_plotlist["automation"]["position"])._set_staff_reference( part_staff )
+                    song_position: ra.Beats = self._staff.convertToBeats(part_position)
+                    element_plotlist["automation"]["position"] = song_position._rational
+
+            plot_list.extend( part_plotlist )
+
         return plot_list
 
 
