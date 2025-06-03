@@ -925,7 +925,7 @@ class Composition(Container):
         self._ax.clear()
 
         self._ax.set_title(f"Iteration {self._iteration} of {
-            len(self._clip_iterations) - 1 if len(self._clip_iterations) > 1 else 0
+            len(self._iterations) - 1 if len(self._iterations) > 1 else 0
         }")
 
 
@@ -1101,9 +1101,9 @@ class Composition(Container):
 
     def _run_play(self, even = None) -> Self:
         import threading
-        last_clip: Clip = self._clip_iterations[self._iteration]
-        threading.Thread(target=od.Play.play, args=(last_clip,)).start()
-        # last_clip >> od.Play()
+        last_iteration: Clip = self._iterations[self._iteration]
+        threading.Thread(target=od.Play.play, args=(last_iteration,)).start()
+        # last_iteration >> od.Play()
         return self
 
     def _run_first(self, even = None) -> Self:
@@ -1155,16 +1155,16 @@ class Composition(Container):
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
             iteration: int = self._iteration
-            last_clip: Clip = self._clip_iterations[-1]
-            new_clip: Clip = self._n_function(last_clip.copy())
+            last_iteration: Clip = self._iterations[-1]
+            new_clip: Clip = self._n_function(last_iteration.copy())
             if isinstance(new_clip, Clip):
-                self._iteration = len(self._clip_iterations)
+                self._iteration = len(self._iterations)
                 plotlist: list[dict] = new_clip.getPlotlist()
-                self._clip_iterations.append(new_clip)
+                self._iterations.append(new_clip)
                 self._plot_lists.append(plotlist)
                 self._plot_elements(plotlist)
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(iteration, last_clip.getPlotlist())
+            # Updates the last_iteration data and plot just in case
+            self._update_iteration(iteration, last_iteration.getPlotlist())
             self._enable_button(self._previous_button)
             self._disable_button(self._next_button)
         return self
@@ -1172,21 +1172,21 @@ class Composition(Container):
     def _run_composition(self, even = None) -> Self:
         import threading
         if callable(self._c_function):
-            last_clip: Clip = self._clip_iterations[self._iteration]
-            composition: Composition = self._c_function(last_clip)
+            last_iteration: Clip = self._iterations[self._iteration]
+            composition: Composition = self._c_function(last_iteration)
             if isinstance(composition, Composition):
                 threading.Thread(target=od.Play.play, args=(composition,)).start()
                 # composition >> od.Play()
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(self._iteration, last_clip.getPlotlist())
+            # Updates the last_iteration data and plot just in case
+            self._update_iteration(self._iteration, last_iteration.getPlotlist())
         return self
 
     def _run_execute(self, even = None) -> Self:
         if callable(self._e_function):
-            last_clip: Clip = self._clip_iterations[self._iteration]
-            self._e_function(last_clip)
-            # Updates the last_clip data and plot just in case
-            self._update_iteration(self._iteration, last_clip.getPlotlist())
+            last_iteration: Clip = self._iterations[self._iteration]
+            self._e_function(last_iteration)
+            # Updates the last_iteration data and plot just in case
+            self._update_iteration(self._iteration, last_iteration.getPlotlist())
         return self
 
     @staticmethod
@@ -1254,7 +1254,7 @@ class Composition(Container):
         Returns:
             Clip: Returns the presently plotted clip.
         """
-        self._clip_iterations: list[Clip] = [ self.copy() ]
+        self._iterations: list[Composition] = [ self.copy() ]
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._iteration: int = 0
         self._n_function = n_button
@@ -1264,10 +1264,10 @@ class Composition(Container):
         if callable(self._n_function) \
                 and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
-                last_clip: Clip = self._clip_iterations[-1]
-                new_clip: Clip = self._n_function(last_clip.copy())
+                last_iteration: Composition = self._iterations[-1]
+                new_clip: Composition = self._n_function(last_iteration.copy())
                 plotlist: list[dict] = new_clip.getPlotlist()
-                self._clip_iterations.append(new_clip)
+                self._iterations.append(new_clip)
                 self._plot_lists.append(plotlist)
 
         # Enable interactive mode (doesn't block the execution)
@@ -1313,7 +1313,7 @@ class Composition(Container):
 
         # Previous Button Widget
         self._disable_button(self._previous_button)
-        if len(self._clip_iterations) == 1:
+        if len(self._iterations) == 1:
             # Next Button Widget
             self._disable_button(self._next_button)
 
@@ -1344,7 +1344,7 @@ class Composition(Container):
         # while plt.get_fignums():  # Check if any figure is open
         #     plt.pause(0.1)  # Pause to allow GUI event processing
 
-        return self._clip_iterations[self._iteration]
+        return self._iterations[self._iteration]
 
 
 
@@ -3329,17 +3329,17 @@ class Song(Composition):
         return self._staff.convertToLength()
 
     def _last_position_and_element(self) -> tuple:
-        last_clips_list: list[tuple[ra.Position, Clip]] = []
+        last_iterations_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
-            last_clip: oe.Element = single_part._last_element()
-            if last_clip is not None:
-                last_clips_list.append(
-                    ( single_part % ra.Position() + last_clip % ra.Position(), last_clip )
+            last_iteration: oe.Element = single_part._last_element()
+            if last_iteration is not None:
+                last_iterations_list.append(
+                    ( single_part % ra.Position() + last_iteration % ra.Position(), last_iteration )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
-        last_clips_list.sort(key=lambda pair: pair[0])
-        if len(last_clips_list) > 0:
-            return last_clips_list[-1]
+        last_iterations_list.sort(key=lambda pair: pair[0])
+        if len(last_iterations_list) > 0:
+            return last_iterations_list[-1]
         return None
 
     def _last_element(self) -> 'oe.Element':
