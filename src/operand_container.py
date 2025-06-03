@@ -876,6 +876,7 @@ class ClockedDevices(Devices):
     pass
 
 
+
 class Composition(Container):
     """`Container -> Composition`
 
@@ -899,6 +900,19 @@ class Composition(Container):
     def _test_staff_reference(self) -> bool:
         return True
 
+
+
+    def getPlotlist(self, position: ra.Position = None) -> list[dict]:
+        """
+        Returns the plotlist for a given Position.
+
+        Args:
+            position: The reference Position where the `Composition` starts at.
+
+        Returns:
+            list[dict]: A list with multiple Plot configuration dictionaries.
+        """
+        return []
 
 
     _channel_colors = [
@@ -1240,19 +1254,19 @@ class Composition(Container):
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
             e_button: Optional[Callable[['Composition'], Any]] = None) -> Self:
         """
-        Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+        Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
         Args:
             block (bool): Suspends the program until the chart is closed.
             pause (float): Sets a time in seconds before the chart is closed automatically.
             iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
                 this is dependent on a n_button being given.
-            n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+            n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
             c_button (Callable): A function intended to play the plotted clip among other compositions.
             e_button (Callable): A function to be executed by itself without any output required.
 
         Returns:
-            Clip: Returns the presently plotted clip.
+            Composition: Returns the presently plotted clip.
         """
         self._iterations: list[Composition] = [ self.copy() ]
         self._plot_lists: list[list] = [ self.getPlotlist() ]
@@ -1265,9 +1279,9 @@ class Composition(Container):
                 and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
                 last_iteration: Composition = self._iterations[-1]
-                new_clip: Composition = self._n_function(last_iteration.copy())
-                plotlist: list[dict] = new_clip.getPlotlist()
-                self._iterations.append(new_clip)
+                new_iteration: Composition = self._n_function(last_iteration.copy())
+                plotlist: list[dict] = new_iteration.getPlotlist()
+                self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
 
         # Enable interactive mode (doesn't block the execution)
@@ -1599,7 +1613,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns the plotlist for a given Position.
 
         Args:
-            position: The reference Position where the Clip starts at.
+            position: The reference Position where the `Clip` starts at.
 
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
@@ -2749,7 +2763,7 @@ class Part(Composition):
         self._items: list[Clip | od.Playlist] = []
 
         # Song sets the Staff, this is just a reference
-        self._staff_reference: og.Staff = og.defaults._staff
+        self._staff: og.Staff = og.defaults._staff
         self._song_reference: Song      = None
 
         for single_operand in operands:
@@ -2758,14 +2772,14 @@ class Part(Composition):
 
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._staff_reference = staff_reference
+            self._staff = staff_reference
         return self
 
     def _get_staff_reference(self) -> 'og.Staff':
-        return self._staff_reference
+        return self._staff
 
     def _reset_staff_reference(self) -> Self:
-        self._staff_reference = og.defaults._staff
+        self._staff = og.defaults._staff
         return self
 
     def _set_song_reference(self, song_reference: 'Song' = None) -> Self:
@@ -2867,7 +2881,7 @@ class Part(Composition):
 
         start_position: ra.Position = None
         for clip in clips_list:
-            clip_start: ra.Position = self._staff_reference.convertToPosition(clip.start())
+            clip_start: ra.Position = self._staff.convertToPosition(clip.start())
             if clip_start:
                 if start_position is not None:
                     if clip_start < start_position:
@@ -2893,7 +2907,7 @@ class Part(Composition):
 
         finish_position: ra.Position = None
         for clip in clips_list:
-            clip_finish: ra.Position = self._staff_reference.convertToPosition(clip.finish())
+            clip_finish: ra.Position = self._staff.convertToPosition(clip.finish())
             if clip_finish:
                 if finish_position is not None:
                     if clip_finish > finish_position:
@@ -2916,7 +2930,7 @@ class Part(Composition):
         finish = self.finish()
         if start is not None and finish is not None:
             return (finish - start).convertToLength()
-        return self._staff_reference.convertToLength()
+        return self._staff.convertToLength()
 
 
     def _last_element(self) -> 'oe.Element':
@@ -2968,17 +2982,36 @@ class Part(Composition):
             case od.DataSource():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
             case ra.Position():
-                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+                return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
                 return self.length()
             case _:
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self) -> list:
+    def getPlotlist(self) -> list[dict]:
+        """
+        Returns the plotlist for a given Position.
+
+        Args:
+            position: The reference Position where the `Part` starts at.
+
+        Returns:
+            list[dict]: A list with multiple Plot configuration dictionaries.
+        """
+        plot_list: list = []
+        for single_clip in self:
+            if isinstance(single_clip, (Clip, od.Playlist)):
+                part_position: ra.Position = self // ra.Position()
+                plot_list.extend(single_clip.getPlotlist(part_position))
+
+        return plot_list
+
+
+    def getPlaylist(self) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -2995,7 +3028,7 @@ class Part(Composition):
                 play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
 
-    def getMidilist(self) -> list:
+    def getMidilist(self) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
@@ -3053,19 +3086,19 @@ class Part(Composition):
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
                     # Has to use the method in order to propagate setting
-                    self._set_staff_reference(operand._staff_reference)
-                if self._staff_reference is operand._staff_reference:
+                    self._set_staff_reference(operand._staff)
+                if self._staff is operand._staff:
                     self._position_beats = operand._position_beats
                 else:
                     self << operand % ra.Position()
                 
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():     self._position_beats = self._staff_reference.convertToBeats(operand._data)._rational
+                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case _:                 super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue():
-                self._position_beats = self._staff_reference.convertToBeats(operand)._rational
+                self._position_beats = self._staff.convertToBeats(operand)._rational
             case Clip() | oe.Element():
                 self += operand
             case od.Serialization():
@@ -3257,7 +3290,7 @@ class Song(Composition):
 
     def _test_staff_reference(self) -> bool:
         for single_part in self._items:
-            if single_part._staff_reference is not self._staff:
+            if single_part._staff is not self._staff:
                 return False
         return True
 
