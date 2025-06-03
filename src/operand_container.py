@@ -1420,10 +1420,10 @@ class Clip(Composition):  # Just a container of Elements
                     self._length_beats += (operand % ra.Length())._rational
                     add_position: ra.Position = left_end_position - right_start_position
                 operand_elements = [
-                    (single_data + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
-                    for single_data in operand._items if isinstance(single_data, oe.Element)
+                    (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_element in operand._items if isinstance(single_element, oe.Element)
                 ]
-                self._items.extend( single_element for single_element in operand_elements )
+                self._append(operand_elements)  # Propagates upwards in the stack
                 
             case oe.Element():
                 self *= Clip(operand)
@@ -1447,10 +1447,15 @@ class Clip(Composition):  # Just a container of Elements
                         self += self_copy   # implicit copy of self_copy
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
-                    self._items.extend(
+                    new_elements: list[oe.Element] = [
                         single_element._set_staff_reference(self._staff).set_clip_reference(self)
                         for single_element in self_copy if isinstance(single_element, oe.Element)
-                    )
+                    ]
+                    self._append(new_elements)  # Propagates upwards in the stack
+                    # self._items.extend(
+                    #     single_element._set_staff_reference(self._staff).set_clip_reference(self)
+                    #     for single_element in self_copy if isinstance(single_element, oe.Element)
+                    # )
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
             case ou.TimeUnit():
@@ -1497,11 +1502,12 @@ class Clip(Composition):  # Just a container of Elements
                 length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(length_shift)
+                # Elements to be added and propagated upwards on the stack
                 operand_elements = [
-                    (single_data + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
-                    for single_data in operand._items if isinstance(single_data, oe.Element)
+                    (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
+                    for single_element in operand._items if isinstance(single_element, oe.Element)
                 ]
-                self._items.extend( single_element for single_element in operand_elements )
+                self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
                 self /= Clip(operand)
@@ -1518,10 +1524,15 @@ class Clip(Composition):  # Just a container of Elements
                         self += self_copy   # implicit copy of self_copy
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
-                    self._items.extend(
+                    new_elements: list[oe.Element] = [
                         single_element._set_staff_reference(self._staff).set_clip_reference(self)
                         for single_element in self_copy if isinstance(single_element, oe.Element)
-                    )
+                    ]
+                    self._append(new_elements)  # Propagates upwards in the stack
+                    # self._items.extend(
+                    #     single_element._set_staff_reference(self._staff).set_clip_reference(self)
+                    #     for single_element in self_copy if isinstance(single_element, oe.Element)
+                    # )
                     if self._length_beats >= 0:
                         finish_position_beats: Fraction = self.finish()._rational
                         if finish_position_beats > self._length_beats:
