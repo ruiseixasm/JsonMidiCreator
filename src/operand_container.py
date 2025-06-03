@@ -415,7 +415,7 @@ class Container(o.Operand):
             case int(): # repeat n times the last argument if any
                 if len(self._items) > 0:
                     while operand > 0 and len(self._items) > 0:
-                        self._items.pop()
+                        self._delete([ self._items.pop() ], True)
                         operand -= 1
             case of.Frame():
                 operand._set_inside_container(self)
@@ -450,10 +450,10 @@ class Container(o.Operand):
                     self._append(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._items = []
+                    self._delete(self._items, True)
             case os.Selection():
                 if operand != self:
-                    self._items = []
+                    self._delete(self._items, True)
             case ch.Chaos():
                 return self.shuffle(operand.copy())
             case tuple():
@@ -548,7 +548,7 @@ class Container(o.Operand):
         return self >> input
 
     def clear(self, *parameters) -> Self:
-        self._items = []
+        self._delete(self._items, True)
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
@@ -563,7 +563,7 @@ class Container(o.Operand):
             Clip: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self._items)
+        self._delete(self._items, True)
         for single_parameter in parameters:
             self << single_parameter
         return self
