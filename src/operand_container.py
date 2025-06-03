@@ -118,19 +118,21 @@ class Container(o.Operand):
         self._items = self._items[:append_at] + items + self._items[append_at:]
         return self
 
-    def _delete(self, items: list) -> Self:
+    def _delete(self, items: list, by_id: bool = False) -> Self:
         if self is not self._upper_container:
             self._upper_container._delete(items)
-        # Uses "==" instead of id
-        self._items = [
-            single_item for single_item in self._items
-            if single_item not in items
-        ]
-        # # removes by id instead
-        # self._items = [
-        #     single_item for single_item in self._items
-        #     if not any(single_item is item for item in items)
-        # ]
+        if by_id:
+            # removes by id instead
+            self._items = [
+                single_item for single_item in self._items
+                if not any(single_item is item for item in items)
+            ]
+        else:
+            # Uses "==" instead of id
+            self._items = [
+                single_item for single_item in self._items
+                if single_item not in items
+            ]
         return self
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
@@ -2160,8 +2162,11 @@ class Clip(Composition):  # Just a container of Elements
             component_elements: list[oe.Element] = single_element.get_component_elements()
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
-        self._items = decomposed_elements
-        return self
+        # Remove previous Elements from the Container stack
+        self._delete(self._items, True) # deletes by id, safer
+        # Finally adds the decomposed elements to the Container stack
+        self._append(decomposed_elements)
+        return self._sort_position()
 
     def arpeggiate(self, parameters: any = None) -> Self:
         """
