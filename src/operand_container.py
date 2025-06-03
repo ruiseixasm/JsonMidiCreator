@@ -431,11 +431,16 @@ class Container(o.Operand):
                         self.deep_copy( data ) for data in self._items
                     ]
                     while operand > 2:
-                        self._items.extend(
+                        new_items: list = [
                             self.deep_copy( data ) for data in items_copy
-                        )
+                        ]
+                        self._append(new_items)  # Propagates upwards in the stack
+                        # self._items.extend(
+                        #     self.deep_copy( data ) for data in items_copy
+                        # )
                         operand -= 1
-                    self._items.extend( items_copy )
+                    self._append(items_copy)  # Propagates upwards in the stack
+                    # self._items.extend( items_copy )
                 elif operand == 0:
                     self._items = []
             case os.Selection():
