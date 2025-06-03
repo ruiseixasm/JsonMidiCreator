@@ -2996,9 +2996,6 @@ class Part(Composition):
         """
         Returns the plotlist for a given Position.
 
-        Args:
-            position: The reference Position where the `Part` starts at.
-
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
@@ -3422,7 +3419,20 @@ class Song(Composition):
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self) -> list:
+    def getPlotlist(self) -> list[dict]:
+        """
+        Returns the plotlist for a given Position.
+
+        Returns:
+            list[dict]: A list with multiple Plot configuration dictionaries.
+        """
+        plot_list: list = []
+        for single_part in self:
+            plot_list.extend(single_part.getPlotlist())
+        return plot_list
+
+
+    def getPlaylist(self) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -3437,7 +3447,7 @@ class Song(Composition):
             play_list.extend(single_part.getPlaylist())
         return play_list
 
-    def getMidilist(self) -> list:
+    def getMidilist(self) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
