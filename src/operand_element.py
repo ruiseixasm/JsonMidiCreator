@@ -944,8 +944,7 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        if self_duration_min == 0:
+        if self._duration_notevalue == 0:
             return []
 
         if channels is not None:
@@ -955,12 +954,15 @@ class Note(Element):
 
         self_plotlist: list[dict] = []
     
+        if position_beats is None:
+            position_beats = Fraction(0)
+
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
             {
                 "note": {
-                    "position_on": self._position_beats,
-                    "position_off": self._position_beats + self % ra.Length() // Fraction(),
+                    "position_on": position_beats + self._position_beats,
+                    "position_off": position_beats + self._position_beats + self % ra.Length() // Fraction(),
                     "pitch": int( self % og.Pitch() % float() ),
                     "velocity": self._velocity,
                     "channel": self._channel
@@ -973,7 +975,7 @@ class Note(Element):
 
             # Checks if it's a following tied note first
             if self._tied > 0:
-                self_position: Fraction = self._position_beats
+                self_position: Fraction = position_beats + self._position_beats
                 self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
                 if self._tied > 1:
                     position_off: Fraction = self_position + self_length
@@ -2225,11 +2227,14 @@ class Automation(Element):
 
         self_plotlist: list[dict] = []
         
+        if position_beats is None:
+            position_beats = Fraction(0)
+
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
             {
                 "automation": {
-                    "position": self._position_beats,
+                    "position": position_beats + self._position_beats,
                     "value": self._get_msb_value(),
                     "channel": self._channel
                 }

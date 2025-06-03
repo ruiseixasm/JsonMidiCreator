@@ -1633,7 +1633,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        position_beats: Fraction = self._get_position_beats(position)
+        position_beats: Fraction = self._get_position_beats(position)   # Does the staff conversion
 
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
