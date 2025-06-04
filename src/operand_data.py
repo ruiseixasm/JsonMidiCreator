@@ -1135,6 +1135,8 @@ class ContainerProcess(Process):
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Container`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:
@@ -1350,6 +1352,8 @@ class CompositionProcess(Process):
         import operand_container as oc
         if isinstance(operand, oc.Composition):
             return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Composition`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:
@@ -1388,6 +1392,8 @@ class ClipProcess(Process):
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Clip`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:
@@ -1694,6 +1700,8 @@ class PartProcess(Process):
         import operand_container as oc
         if isinstance(operand, oc.Part):
             return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Part`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:
@@ -1708,6 +1716,8 @@ class SongProcess(Process):
         import operand_container as oc
         if isinstance(operand, oc.Song):
             return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Song`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:
