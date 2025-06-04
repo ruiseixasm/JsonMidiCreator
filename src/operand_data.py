@@ -855,9 +855,10 @@ class SideEffect(Process):
     ----------
     Any(None) : Typically an `Operand` intended to be affected inside the chained `>>` sequence.
     """
-    def __init__(self, operand: o.Operand = None):
+    def __init__(self, operand: o.Operand = None, process: bool = True):
         super().__init__()
         self._data = operand    # needs to keep the original reference (no copy)
+        self._process: bool = process
 
 class LeftShift(SideEffect):
     """`Data -> Process -> SideEffect -> LeftShift`
@@ -871,7 +872,25 @@ class LeftShift(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data.__lshift__(operand)
+            if self._process:
+                self._data.__lshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class RightShift(SideEffect):
+    """`Data -> Process -> SideEffect -> RightShift`
+
+    Applies the `>>` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            if self._process:
+                self._data.__rshift__(operand)
             return operand
         return super().__rrshift__(operand)
 
@@ -887,7 +906,8 @@ class IAdd(SideEffect):    # i stands for "inplace"
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data.__iadd__(operand)
+            if self._process:
+                self._data.__iadd__(operand)
             return operand
         return super().__rrshift__(operand)
 
@@ -903,7 +923,8 @@ class ISub(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data.__isub__(operand)
+            if self._process:
+                self._data.__isub__(operand)
             return operand
         return super().__rrshift__(operand)
 
@@ -919,7 +940,8 @@ class IMul(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data.__imul__(operand)
+            if self._process:
+                self._data.__imul__(operand)
             return operand
         return super().__rrshift__(operand)
 
@@ -935,7 +957,8 @@ class IDiv(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
-            self._data.__itruediv__(operand)
+            if self._process:
+                self._data.__itruediv__(operand)
             return operand
         return super().__rrshift__(operand)
 
