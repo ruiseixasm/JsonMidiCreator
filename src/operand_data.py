@@ -844,6 +844,31 @@ class Process(Data):
 
         return playlist
 
+
+class RightShift(Process):
+    """`Data -> Process -> RightShift`
+
+    Applies the `>>` operation if process is `True`.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
+    bool(True) : By default, the the give `Operand` is targeted with `>>`.
+    """
+    def __init__(self, operand: o.Operand = None, process: bool = True):
+        super().__init__()
+        self._data = operand    # needs to keep the original reference (no copy)
+        self._process: bool = process
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            if self._process:
+                return self._data.__rshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
     
 class SideEffect(Process):
     """`Data -> Process -> SideEffect`
