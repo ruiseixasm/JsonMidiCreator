@@ -32,7 +32,7 @@ device_list >> Print()
 defaults << Device(device_list)
 defaults << TimeSignature(3, 4) << Tempo(90)
 
-chords = Chord() * 4 << Foreach("I", "IV", "V", "I")**Degree()
+chords = Chord() * 4 << Cycle("I", "IV", "V", "I")**Degree()
 # chords >> Play()
 
 chord_notes_i = Chord(Degree("I")) % Clip()
@@ -68,8 +68,8 @@ chords_melody * 4 >> Play()
 
 # ADD SOME RHYTHM
 
-chords_melody >> Measure(0) << Foreach(dotted_quarter, eight) >> Stack()
-chords_melody >> Measure(2) << Foreach(dotted_quarter, eight) >> Stack()
+chords_melody >> Measure(0) << Cycle(dotted_quarter, eight) >> Stack()
+chords_melody >> Measure(2) << Cycle(dotted_quarter, eight) >> Stack()
 
 chords_melody * 4 >> Play()
 

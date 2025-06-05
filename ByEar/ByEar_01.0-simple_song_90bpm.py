@@ -35,7 +35,7 @@ defaults << Tempo(90)
 note_duration = Duration(1/16)
 three_notes = Note() * 3 << Loop(Dotted(note_duration), note_duration, note_duration) >> Stack()
 three_notes += Octave(1)
-three_notes << Foreach("G", "G", "A")
+three_notes << Cycle("G", "G", "A")
 # three_notes << CPar(Length(2.0))
 
 three_notes * 64 << Duration(1/16) >> Play()

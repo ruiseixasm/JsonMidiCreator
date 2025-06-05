@@ -558,10 +558,10 @@ class Loop(Left):
             return super().__ixor__(input)
         return ol.Null()
 
-class Foreach(Loop):
-    """`Frame -> Left -> Loop -> Foreach`
+class Cycle(Loop):
+    """`Frame -> Left -> Loop -> Cycle`
 
-    A `Foreach` is a Loop that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
+    A `Cycle` is a Loop that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
 
     Parameters
     ----------
