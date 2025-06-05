@@ -3445,6 +3445,8 @@ class Song(Composition):
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
+            # By definition Songs are always at Position 0
+            case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
             case ra.Length():
                 return self.length()
             case _:
