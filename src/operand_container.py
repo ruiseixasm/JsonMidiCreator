@@ -3241,6 +3241,12 @@ class Part(Composition):
                 clip_operand: Clip = Clip(operand)
                 clip_operand += add_measure
                 self._append([ clip_operand ])
+            case int():
+                if operand > 1:
+                    for _ in range(operand - 1):
+                        self *= self
+                elif operand == 0:
+                    self._delete(self._items, True)
             case tuple():
                 for single_operand in operand:
                     self *= single_operand

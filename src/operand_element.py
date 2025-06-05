@@ -1736,20 +1736,20 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                new_note: Note = Note(self).set_clip_reference(self._clip_reference)
+                new_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
             # modulated_scale: og.Scale = og.defaults % og.Scale(self._mode) # already modulated
-            for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
-                key_degree: int = note_i * 2
+            for note_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+                key_degree: int = note_i * 2 + 1    # 1, 3, 5, 7, 9, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                new_note: Note = Note(self).set_clip_reference(self._clip_reference)
-                new_note._pitch += key_degree # Jumps by degrees (scale tones)
+                new_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
+                new_note += ou.Degree(key_degree - 1)    # Jumps by degrees (scale tones) (int is a degree)
                 chord_notes.append( new_note )
 
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )

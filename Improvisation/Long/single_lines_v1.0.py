@@ -35,10 +35,41 @@ else:  # Assume Linux/Unix
 from JsonMidiCreator import *
 
 
-# Chord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot(False)
-# Polychord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot(False)
+# Chord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
+# Polychord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
 
-Chord() * 1 - Degree(1) >> Plot(False)
-Polychord() * 1 - Degree(1) >> Plot(False)
-Polychord([-1, 2, 4]) * 1 >> Plot()
+# Chord() * 1 - Degree(1) >> Plot(False)
+# Polychord() * 1 - Degree(1) >> Plot(False)
+# Polychord([-1, 2, 4]) * 1 >> Plot()
+
+
+# Simple progression:
+chord_progression: Frame = Foreach("i", "IV", "iii", "V")**Degree()
+
+defaults << Scale("Major")
+
+major_triad: Clip = Chord(1/4) * 4
+major_triad << chord_progression
+
+defaults << Scale("minor")
+
+# By being a "minor" scale it will get
+# different root notes from C "Major" but equal intervals
+minor_triad: Clip = Chord(1/4) * 4
+minor_triad << chord_progression
+minor_triad -= Octave() # Key A is the Tonic, meaning, an high key
+# minor_triad >> Plot()
+
+# THIS WILL MAKE THE MINOR_TRIAD ADOPT THE MAJOR STAFF !!!!!
+# major_triad * minor_triad * 4 >> Plot()
+# HAS TO BE WRAPPED IN A PART FIRST !!!
+Part(major_triad) * minor_triad * 4 >> Plot()
+# triads_part: Part = Part(major_triad) * minor_triad
+# triads_part * triads_part >> Plot()
+
+minor_a: Clip = Note() * 1
+minor_c = minor_a + Degree(2)
+
+# minor_a + minor_c >> Plot()
+
 
