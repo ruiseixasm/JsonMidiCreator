@@ -35,6 +35,10 @@ else:  # Assume Linux/Unix
 from JsonMidiCreator import *
 
 
-Chord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot(False)
-Polychord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot()
+# Chord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot(False)
+# Polychord(1/4) * 4 * 2 << Loop("i", "IV", "iii", "V")**Degree() >> Plot(False)
+
+Chord() * 1 - Degree(1) >> Plot(False)
+Polychord() * 1 - Degree(1) >> Plot(False)
+Polychord([-1, 2, 4]) * 1 >> Plot()
 
