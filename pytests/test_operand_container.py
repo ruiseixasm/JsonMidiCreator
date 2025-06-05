@@ -326,13 +326,14 @@ def test_rrshift_clip():
     assert two_notes == Position(0)
 
     print("------")
-    measure_length: Length = Length(1)
     moved_two_notes = two_notes.copy()
-    measure_length >> moved_two_notes
-    moved_two_notes % Position() % Fraction() >> Print()    # 1
-    assert moved_two_notes == Position(1)
-    moved_two_notes[0] % Position() % Fraction() >> Print() # 0
-    assert moved_two_notes[0] == Position(0)
+    moved_two_notes += Measures(1)
+    moved_two_notes % Position() % Fraction() >> Print()    # 0
+    assert moved_two_notes == Position(0)
+    moved_two_notes[0] % Position() % Fraction() >> Print() # 1
+    assert moved_two_notes[0] == Position(1)
+    moved_two_notes[1] % Position() % Fraction() >> Print() # 1 + 1/4 = 5/4
+    assert moved_two_notes[1] == Position(5/4)
 
     print("------")
     two_notes_original = two_notes.copy()

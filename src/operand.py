@@ -254,7 +254,7 @@ class Operand:
             case ra.Index():
                 return ra.Index(self._index)
             case _:
-                return self.deep_copy(operand)
+                return ol.Null()    # Has no equivalent parameter
 
     def __floordiv__(self, operand: T) -> T:
         import operand_data as od

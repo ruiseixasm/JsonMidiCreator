@@ -1599,6 +1599,8 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
+            # By definition Clips are always at Position 0
+            case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
