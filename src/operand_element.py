@@ -1568,7 +1568,9 @@ class Polychord(KeyScale):
     def get_component_elements(self) -> list[Element]:
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
-            polychord_notes.append( Note(self).set_clip_reference(self._clip_reference) << ou.Degree(single_degree) )
+            chord_note: Note = Note(self).set_clip_reference(self._clip_reference)
+            chord_note += ou.Degree(single_degree - 1)  # -1 because Degrees are 1 based
+            polychord_notes.append( chord_note )
             
         return self._arpeggio.arpeggiate( self._apply_inversion(polychord_notes) )
 

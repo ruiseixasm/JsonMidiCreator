@@ -1133,24 +1133,14 @@ class Degree(PitchParameter):
 
     def __iadd__(self, number: any) -> 'Degree':
         super().__iadd__(number)
+        # BASE 1 MOVEMENTS SHALL NOT RESULT IN -1 OR 0 DEGREES
         if self._unit == 0 or self._unit == -1:
             self._unit = 1      # Always jumps to 1
         return self
     
     def __isub__(self, number: any) -> 'Degree':
         super().__isub__(number)
-        if self._unit == 0 or self._unit == -1:
-            self._unit = 1      # Always jumps to 1
-        return self
-    
-    def __imul__(self, number: any) -> 'Degree':
-        super().__imul__(number)
-        if self._unit == 0 or self._unit == -1:
-            self._unit = 1      # Always jumps to 1
-        return self
-    
-    def __itruediv__(self, number: any) -> 'Degree':
-        super().__itruediv__(number)
+        # BASE 1 MOVEMENTS SHALL NOT RESULT IN -1 OR 0 DEGREES
         if self._unit == 0 or self._unit == -1:
             self._unit = 1      # Always jumps to 1
         return self
