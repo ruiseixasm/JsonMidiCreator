@@ -3243,8 +3243,9 @@ class Part(Composition):
                 self._append([ clip_operand ])
             case int():
                 if operand > 1:
+                    single_self_copy: Part = self.copy()
                     for _ in range(operand - 1):
-                        self *= self
+                        self *= single_self_copy
                 elif operand == 0:
                     self._delete(self._items, True)
             case tuple():
