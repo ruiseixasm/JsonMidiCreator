@@ -55,21 +55,18 @@ defaults << Scale("minor")
 
 # By being a "minor" scale it will get
 # different root notes from C "Major" but equal intervals
-minor_triad: Clip = Chord(1/4) * 4
+minor_triad: Clip = Chord(1/4, Channel(2)) * 4
 minor_triad << chord_progression
 minor_triad -= Octave() # Key A is the Tonic, meaning, an high key
 # minor_triad >> Plot()
 
 # THIS WILL MAKE THE MINOR_TRIAD ADOPT THE MAJOR STAFF !!!!!
-# major_triad * minor_triad * 4 >> Plot()
+# major_triad * minor_triad * 8 >> Plot()
 # HAS TO BE WRAPPED IN A PART FIRST !!!
-Part(major_triad) * minor_triad * 4 >> Plot()
-# triads_part: Part = Part(major_triad) * minor_triad
-# triads_part * triads_part >> Plot()
-
-minor_a: Clip = Note() * 1
-minor_c = minor_a + Degree(2)
-
-# minor_a + minor_c >> Plot()
-
+final_part: Part = Part(major_triad) * minor_triad * 8
+# BOTH OF THESE ARE EQUIVALENT
+final_part += Equal(Measure(3))**Octave(1)  # Option 1
+# final_part[3] += Octave(1)                  # Option 2
+final_part % int() >> Print()
+final_part >> Plot()
 
