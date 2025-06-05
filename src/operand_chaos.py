@@ -185,7 +185,7 @@ class Modulus(Chaos):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._cycle: Fraction   = ra.Cycle(12)._rational
+        self._cycle: Fraction   = ra.Period(12)._rational
         self._steps: Fraction   = ra.Steps(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -194,10 +194,10 @@ class Modulus(Chaos):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Cycle():            return operand._data << self._cycle
+                    case ra.Period():            return operand._data << self._cycle
                     case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
-            case ra.Cycle():            return ra.Cycle(self._cycle)
+            case ra.Period():            return ra.Period(self._cycle)
             case ra.Steps():            return ra.Steps(self._cycle)
             case _:                     return super().__mod__(operand)
 
@@ -235,10 +235,10 @@ class Modulus(Chaos):
                 self._steps     = operand._steps
             case od.DataSource():
                 match operand._data:
-                    case ra.Cycle():            self._cycle = operand._data._rational
+                    case ra.Period():            self._cycle = operand._data._rational
                     case ra.Steps():            self._steps = operand._data._rational
                     case _:                     super().__lshift__(operand)
-            case ra.Cycle():       self._cycle = operand._rational
+            case ra.Period():       self._cycle = operand._rational
             case ra.Steps():       self._steps = operand._rational
             case _:
                 super().__lshift__(operand)
@@ -276,7 +276,7 @@ class Flipper(Modulus):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._cycle             = ra.Cycle(2)._rational
+        self._cycle             = ra.Period(2)._rational
         self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter

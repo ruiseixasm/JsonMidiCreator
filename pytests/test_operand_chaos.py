@@ -53,7 +53,7 @@ def test_sinx_mod():
 
 def test_modulus():
 
-    modulus = Modulus(Cycle(4))
+    modulus = Modulus(Period(4))
 
     assert modulus * 0 % int() == 0
     assert modulus * 1 % int() == 1

@@ -1298,7 +1298,7 @@ class Gate(Rational):
     """`Rational -> Gate`"""
     pass
 
-class Cycle(Rational):
-    """`Rational -> Cycle`"""
+class Period(Rational):
+    """`Rational -> Period`"""
     pass
 
