@@ -22,9 +22,9 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 defaults << KeySignature("#")
-scale_tones = Note("G", 1/1) * 4 + Loop(0, 2, 0, -1)
+scale_tones = Note("G", 1/1) * 4 + Foreach(0, 2, 0, -1)
 scale_tones >> Play()
 
 defaults << KeySignature("bb")
-stable_unstable = Note("B", 1/1) * 4 + Loop((3 - 1), (1 - 1), -1, (1 - 1))
+stable_unstable = Note("B", 1/1) * 4 + Foreach((3 - 1), (1 - 1), -1, (1 - 1))
 stable_unstable >> Play()

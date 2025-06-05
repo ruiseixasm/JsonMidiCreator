@@ -33,7 +33,7 @@ defaults << Device(device_list)
 defaults << Tempo(90)
 
 note_duration = Duration(1/16)
-three_notes = Note() * 3 << Loop(Dotted(note_duration), note_duration, note_duration) >> Stack()
+three_notes = Note() * 3 << Foreach(Dotted(note_duration), note_duration, note_duration) >> Stack()
 three_notes += Octave(1)
 three_notes << Cycle("G", "G", "A")
 # three_notes << CPar(Length(2.0))

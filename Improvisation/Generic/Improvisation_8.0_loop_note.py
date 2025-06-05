@@ -24,7 +24,7 @@ start_program = D_Blofeld.program_change(4, "A") >> P
 defaults << ClockedDevices("Blofeld")
 
 two_notes = Note() / 2 << Iterate(step=2)**Beats()
-possibilities = Loop(1, 2, 3, 4, 5, 6, 7)**Degree()
+possibilities = Foreach(1, 2, 3, 4, 5, 6, 7)**Degree()
 
 
 for degree in range(1, 8):  # 7 degrees in total

@@ -25,7 +25,7 @@ rest_play = (R(), P)
 defaults << Tempo(110)
 
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 8 << Iterate(2)**Steps()
-snare = Note(DrumKit("Snare"), 1/16) * 2 << Loop(1, 3)**Beat()
+snare = Note(DrumKit("Snare"), 1/16) * 2 << Foreach(1, 3)**Beat()
 drum = Note(DrumKit("Drum"), 1/16) * 4 << Iterate()**Beat()
 
 hi_hat /= Filter(Even())

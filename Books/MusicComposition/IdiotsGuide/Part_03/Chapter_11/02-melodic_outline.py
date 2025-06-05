@@ -24,16 +24,16 @@ from JsonMidiCreator import *
 
 defaults << 60.0 << ""
 Key() % str() >> Print()
-chords = Chord(1/1) * 3 << Loop(("C", Inversion(1)), ("Am", Inversion(2), O3), "F")
+chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), O3), "F")
 chords >> R >> P
 
 defaults << 120
-original_melody = Note() * 14 << Loop(
+original_melody = Note() * 14 << Foreach(
     quarter, quarter, dotted_quarter, eight,
     eight, eight, eight, eight, half,
     quarter, quarter, dotted_quarter, eight,
     whole) >> S # Foreach requires Stacking!
-original_melody << Loop(
+original_melody << Foreach(
     (E, 5), F, E, D,
     C, D, E, D, E,
     D, E, D, C,
@@ -48,7 +48,7 @@ structural_tones >> R >> P
 
 chords = Chord(1/1) * 6
 chords % Nth(2, 3, 4, 5) << 1/2
-chords >> S << Loop(C, "Am", "Em", "Dm", G, C)
+chords >> S << Foreach(C, "Am", "Em", "Dm", G, C)
 chords >> R >> P
 structural_tones + chords >> L >> R >> P
 original_melody + chords >> L >> R >> P

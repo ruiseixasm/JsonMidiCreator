@@ -25,10 +25,10 @@ rest_play = (R(), P)
 defaults << "bbb" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-motif = Note() * 5 << eight >> LJ << Loop(9, 6, 8, 9, 9)**Degree() >> Tie()
+motif = Note() * 5 << eight >> LJ << Foreach(9, 6, 8, 9, 9)**Degree() >> Tie()
 # motif >> rest_play
-measure_2 = Note() * 3 << Equal(B1)**half >> S << Loop(10, 9, 8)**Degree()
-measure_4 = Note() * 2 << half << Loop(8, 7)**Degree()
+measure_2 = Note() * 3 << Equal(B1)**half >> S << Foreach(10, 9, 8)**Degree()
+measure_4 = Note() * 2 << half << Foreach(8, 7)**Degree()
 motif % NoteValue() >> Print(0)
 measure_2 % NoteValue() >> Print(0)
 measure_4 % NoteValue() >> Print(0)
@@ -38,7 +38,7 @@ clarinet = \
     ProgramChange("Clarinet") + \
     (R << whole) + \
     motif + \
-    (Note() * 3 << Nth(1)**half << Loop(9, 11, 10)**Degree()) + \
+    (Note() * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \
     >> S >> Tie() << Channel(1) << MidiTrack(1, "Clarinet") << Velocity(60)
 clarinet % M1 % NoteValue() >> Print(0)
@@ -46,9 +46,9 @@ clarinet % M1 % NoteValue() >> Print(0)
 trumpet = \
     ProgramChange("Trumpet") + \
     motif + \
-    (Note() * 2 << half << Loop(5, 7)**Degree()) + \
+    (Note() * 2 << half << Foreach(5, 7)**Degree()) + \
     motif + \
-    (Note() * 2 << half << Loop(7, 6)**Degree()) \
+    (Note() * 2 << half << Foreach(7, 6)**Degree()) \
     >> S << Channel(2) << MidiTrack(2, "Trumpet") << Velocity(30)
 # trumpet >> rest_play
 clarinet + trumpet >> L >> Rest(1/1) >> MidiExport("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> P

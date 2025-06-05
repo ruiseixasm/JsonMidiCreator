@@ -27,10 +27,10 @@ defaults << Tempo(110)
 
 # Linear Drum pattern programming
 linear_drum_pattern = Note(1/16) * 32 << \
-    Loop(0, 1, 2, 0, 1, 2, 2, 1, 0, 2, 0, 0, 2, 0, 1, 1, 2, 1, 0, 2, 1, 0, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0)**\
+    Foreach(0, 1, 2, 0, 1, 2, 2, 1, 0, 2, 0, 0, 2, 0, 1, 1, 2, 1, 0, 2, 1, 0, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0)**\
         Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
 linear_drum_pattern << Equal(DrumKit("Hi-Hat"))**Velocity(60)
-linear_drum_pattern << Equal(DrumKit("Snare"))**Loop(60, 110, 65, 70, 60, 65, 105, 70, 70, 110, 75)**Velocity()
+linear_drum_pattern << Equal(DrumKit("Snare"))**Foreach(60, 110, 65, 70, 60, 65, 105, 70, 70, 110, 75)**Velocity()
 linear_drum_pattern * 8 >> P
 
 print("Delay for 0.5 seconds")
@@ -40,6 +40,6 @@ time.sleep(0.5)
 chaotic_drum_pattern = Note(1/16) * 32 << \
     Input(SinX() * 25)**Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
 chaotic_drum_pattern << Equal(DrumKit("Hi-Hat"))**Velocity(60)
-chaotic_drum_pattern << Equal(DrumKit("Snare"))**Loop(60, 110, 65, 70, 60, 65, 105)**Velocity()
+chaotic_drum_pattern << Equal(DrumKit("Snare"))**Foreach(60, 110, 65, 70, 60, 65, 105)**Velocity()
 chaotic_drum_pattern * 8 >> P
 

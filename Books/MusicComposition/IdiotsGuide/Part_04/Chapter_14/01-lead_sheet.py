@@ -29,7 +29,7 @@ four_eights: Clip = Note(eight) * 4 + 3 # Increases 3 degrees from I to IV, from
 four_eights -= Iterate()    # Decreases degrees from IV to I
 # four_eights >> Play()
 
-first_half_1: Clip = Note() + 2 * Note(eight) >> Stack() << Loop(3, 2, 3)
+first_half_1: Clip = Note() + 2 * Note(eight) >> Stack() << Foreach(3, 2, 3)
 # first_half_1 >> Play()
 
 first_half_2: Clip = first_half_1 * 1 << Nth(1)**2

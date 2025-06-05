@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 rest_play = (R(), P)
 defaults << Tempo(90)
 
-basic_loop: Clip = Note(1/16) * 4 << Loop(2, 4, 6, 4) << Octave(3) << Velocity(65)
+basic_loop: Clip = Note(1/16) * 4 << Foreach(2, 4, 6, 4) << Octave(3) << Velocity(65)
 out_sync_loop: Clip = Note(1/16) * Rest()
 
 # Multiply by elements instead of Measures (by float instead of by int)

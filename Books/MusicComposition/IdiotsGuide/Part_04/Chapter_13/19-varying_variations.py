@@ -25,16 +25,16 @@ rest_play = (R(), P)
 defaults << KeySignature(1, Minor())   # Sets the default Key Note configuration
 
 # Original Motif to work on its pitches
-motif: Clip = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
-motif << Loop(1, 3, 4, 5, 4, 1)**Degree()
+motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
+motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
 motif_mirror: Clip = motif.copy() << Get(Degree())**Multiply(-1)
 motif_reverse: Clip = motif_mirror.copy().reverse()
 motif_modulated: Clip = motif_mirror.copy() + Octave() << "D"
 # motif_modulated >> Play()
 
-new_motif: Clip = Note() * 6 << Loop(half, sixteenth, dotted_eight, sixteenth, sixteenth, eight) >> Stack()
+new_motif: Clip = Note() * 6 << Foreach(half, sixteenth, dotted_eight, sixteenth, sixteenth, eight) >> Stack()
 new_motif % Length() >> Print() # Needs to be implemented
-new_motif << Loop(1, -4, -5, -4, -3, 1)**Degree()
+new_motif << Foreach(1, -4, -5, -4, -3, 1)**Degree()
 # new_motif >> Play()
 new_motif_modulated_a: Clip = new_motif.copy() << "A"
 new_motif_reverse: Clip = new_motif_modulated_a.copy().reverse()

@@ -30,9 +30,9 @@ print(tresillo.len())
 tresillo >>= NotEqual(Nth(2))
 print(tresillo.len())
 tresillo *= 2
-snare: Clip = Note(DrumKit("Snare"), 1/16) * 2 << Loop(S5, S13) << Velocity(80)
+snare: Clip = Note(DrumKit("Snare"), 1/16) * 2 << Foreach(S5, S13) << Velocity(80)
 snare *= 4
-embellishment: Clip = Note(DrumKit("Drum"), 1/16) * 3 << Loop(S6, S14, S16) << Velocity(65)
+embellishment: Clip = Note(DrumKit("Drum"), 1/16) * 3 << Foreach(S6, S14, S16) << Velocity(65)
 embellishment += Measures(3)
 
 (tresillo + snare + embellishment) * 8 >> P

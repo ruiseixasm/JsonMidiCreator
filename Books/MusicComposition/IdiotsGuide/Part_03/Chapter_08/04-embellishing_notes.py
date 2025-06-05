@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("bbb")
 
-slow_paced: Clip = Note("E", 1/2) * 7 >> Link() << Loop(6, 5, 1, 3, 6, 5, 2)**Degree()
+slow_paced: Clip = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
 slow_paced >> Rest() >> Play()
 
 embellishing: Clip = \
@@ -38,7 +38,7 @@ embellishing: Clip = \
 slow_paced + embellishing >> Link() >> Rest() >> Play()
 
 variation: Clip = Note("E") * 10
-variation << Loop(
+variation << Foreach(
         Measures(0, Steps(2)),
         Measures(0, Steps(4)),
         Measures(0, Steps(10)),
@@ -48,7 +48,7 @@ variation << Loop(
         Measures(1, Steps(12)),
         Measures(2, Steps(10)),
         Measures(2, Steps(12)),
-    )**Position() << Loop(
+    )**Position() << Foreach(
         7, 6, 6, 5, 2, 4, 3, 6, 5
     )**Degree()
 slow_paced + variation >> Link() >> Rest() >> Play()

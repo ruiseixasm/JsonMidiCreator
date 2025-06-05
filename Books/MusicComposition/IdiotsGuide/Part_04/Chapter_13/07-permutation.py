@@ -25,8 +25,8 @@ rest_play = (R(), P)
 defaults << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-motif = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> S
-motif << Loop(-3, 1, 2, 3, 2, -3)**Degree()
+motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 permutation_pitch = motif >> (motif * 1 << Input(Bouncer() * 100)**Get(int())**Multiply(40)**Formula(lambda n: n % 7 + 1)**Degree()) - 4
 permutation_pitch >> rest_play

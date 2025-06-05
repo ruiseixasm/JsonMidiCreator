@@ -532,10 +532,10 @@ class Drag(Left):
             return super().__ixor__(self._first_parameter)
         return super().__ixor__(input)
 
-class Loop(Left):
-    """`Frame -> Left -> Loop`
+class Foreach(Left):
+    """`Frame -> Left -> Foreach`
 
-    A `Loop` cycles through a set of items and returns to the first one whenever reaches the end of it.
+    A `Foreach` cycles through a set of items and returns to the first one whenever reaches the end of it.
 
     Parameters
     ----------
@@ -551,17 +551,17 @@ class Loop(Left):
         super().__init__(*validated_parameters)
 
     def __ixor__(self, input: o.T) -> o.T:
-        self._increment_index(Loop)
+        self._increment_index(Foreach)
         operand_len: int = len(self._parameters)
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._parameters[(self._index - 1) % operand_len]
             return super().__ixor__(input)
         return ol.Null()
 
-class Cycle(Loop):
-    """`Frame -> Left -> Loop -> Cycle`
+class Cycle(Foreach):
+    """`Frame -> Left -> Foreach -> Cycle`
 
-    A `Cycle` is a Loop that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
+    A `Cycle` is a Foreach that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
 
     Parameters
     ----------
