@@ -35,15 +35,25 @@ else:  # Assume Linux/Unix
 from JsonMidiCreator import *
 
 
-# Chord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
-# Polychord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
 
-# Chord() * 1 - Degree(1) >> Plot(False)
-# Polychord() * 1 - Degree(1) >> Plot(False)
-# Polychord([-1, 2, 4]) * 1 >> Plot()
+# Polychords
+"""
+
+Chord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
+Polychord(1/4) * 4 * 2 << Foreach("i", "IV", "iii", "V")**Degree() >> Plot(False)
+
+Chord() * 1 - Degree(1) >> Plot(False)
+Polychord() * 1 - Degree(1) >> Plot(False)
+Polychord([-1, 2, 4]) * 1 >> Plot()
+
+"""
+
+
 
 
 # Simple progression:
+"""
+
 chord_progression: Frame = Foreach("i", "IV", "iii", "V")**Degree()
 
 defaults << Scale("Major")
@@ -69,4 +79,46 @@ final_part += Equal(Measure(3))**Octave(1)  # Option 1
 # final_part[3] += Octave(1)                  # Option 2
 final_part % int() >> Print()
 final_part >> Plot()
+
+"""
+
+
+
+# entire_part: Part = Part()
+
+# # Setting the Key Signature for the global Staff
+# for sharps in range(8):
+#     defaults << KeySignature(sharps)
+#     chord_progression: Clip = Chord(1/4) * 3 << Last()**(1/2)
+#     chord_progression << Foreach(1, 4, 5)**Degree()
+#     entire_part *= chord_progression * 4
+
+# entire_part >> Plot()
+
+# entire_part = Part()
+
+# for sharps in range(0, -8, -1):
+#     defaults << KeySignature(sharps)
+#     chord_progression: Clip = Chord(1/4) * 3 << Last()**(1/2)
+#     chord_progression << Foreach(1, 4, 5)**Degree()
+#     entire_part *= chord_progression * 4
+
+# entire_part >> Plot()
+
+two_notes: Clip = Note(Tied()) * 2
+two_notes >> Plot(False)
+
+two_chords: Clip = Chord(Tied()) * 2
+two_chords >> Plot()
+
+
+# entire_part: Part = Part()
+
+# # Setting the Key Signature for the global Staff
+# defaults << KeySignature(1)
+# chord_progression: Clip = Chord(Channel(2), Tied()) * 4
+# chord_progression << Foreach(1, 4, 5)**Degree()
+# chord_progression * 4 >> Plot()
+
+
 
