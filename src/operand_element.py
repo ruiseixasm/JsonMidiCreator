@@ -35,6 +35,9 @@ import operand_chaos as ch
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
 
+def get_channel_pitch(channel: int, pitch: int) -> int:
+    return channel << 8 | pitch
+
 if TYPE_CHECKING:
     from operand_container import Clip
     from operand_container import Part
