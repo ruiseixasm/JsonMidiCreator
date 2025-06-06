@@ -1180,7 +1180,7 @@ class Note(Element):
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
-                    case ou.Tied():         self._tied      = operand._data._unit
+                    case ou.Tied():         self._tied      = operand._data // bool()
                     case og.Pitch():        self._pitch     = operand._data
                     case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
@@ -1188,9 +1188,7 @@ class Note(Element):
             case int():             self._velocity = operand
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
-                self._tied = operand._unit
-                if operand._unit > 0:
-                    operand._unit += 1  # Distinguishes between first tied note from the next one
+                self._tied = operand % bool()
             case og.Pitch():
                 self._pitch << operand
                 self._pitch._set_staff_reference(self._staff_reference)
