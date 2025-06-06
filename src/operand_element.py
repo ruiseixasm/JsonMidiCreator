@@ -1016,6 +1016,7 @@ class Note(Element):
         if self_duration_min == 0:
             return []
 
+        # Accidentals need to know the present measure in order to return the right pitch
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 

@@ -242,11 +242,13 @@ class Pitch(Generic):
 
         return key_int
 
+    # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_float(self, measure: int = 0) -> float:
         key_int: int = self.get_key_int()
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
+            # Adds the Natural accidental
             self._staff_reference._add_accidental(measure, key_int, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._staff_reference._key_signature._unit
@@ -255,6 +257,7 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif self._sharp != 0:
+            # Adds the Sharp/Flat accidental
             self._staff_reference._add_accidental(measure, key_int, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
@@ -1242,24 +1245,26 @@ class Staff(Generic):
         self._accidentals = { 0: {} }
         return self
 
-    def _add_accidental(self, measure: int, channel_pitch: int, accidental: bool | int) -> Self:
+    # Used for Pitch class, to preserve the accidental decoration along the entire Measure when set
+    def _add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
         if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
                 # It's a new measure, includes cleaning every Measure before
                 self._accidentals = {
                     measure: {}
                 }
-            if accidental is True:
-                self._accidentals[measure].pop(channel_pitch, None)
-            elif accidental is not False:
-                self._accidentals[measure][channel_pitch] = accidental
+            if accidental is True:      # Natural means removal
+                self._accidentals[measure].pop(pitch, None)
+            elif accidental is not False:   # Adds the Sharp/Flat accidental
+                self._accidentals[measure][pitch] = accidental
         return self
 
-    def _get_accidental(self, measure: int, channel_pitch: int) -> bool | int:
-        if measure in self._accidentals and channel_pitch in self._accidentals[measure]:
-            return self._accidentals[measure][channel_pitch]
+    def _get_accidental(self, measure: int, pitch: int) -> bool | int:
+        if measure in self._accidentals and pitch in self._accidentals[measure]:
+            return self._accidentals[measure][pitch]
         return False
 
+    # For Playlist Notes list
     def _reset_tied_note(self) -> Self:
         self._tied_notes = {}
         return self
@@ -1284,22 +1289,23 @@ class Staff(Generic):
             return self._tied_notes[channel_pitch]
         return None
 
-    def _stack_note(self, note_on: float | Fraction, channel_byte: int, channel_pitch: int) -> bool:
+    # Checks for stacked notes
+    def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
         if self is not defaults._staff: # defaults's staff remains clean
             if note_on not in self._stacked_notes:
                 self._stacked_notes[note_on] = {
                     channel_byte: {
-                        channel_pitch: set( [channel_pitch] )
+                        pitch: set( [pitch] )
                     }
                 }
             elif channel_byte not in self._stacked_notes[note_on]:
                 self._stacked_notes[note_on][channel_byte] = {
-                    channel_pitch: set( [channel_pitch] )
+                    pitch: set( [pitch] )
                 }
-            elif channel_pitch not in self._stacked_notes[note_on][channel_byte]:
-                self._stacked_notes[note_on][channel_byte][channel_pitch] = set( [channel_pitch] )
-            elif channel_pitch not in self._stacked_notes[note_on][channel_byte][channel_pitch]:
-                self._stacked_notes[note_on][channel_byte][channel_pitch].add( channel_pitch )
+            elif pitch not in self._stacked_notes[note_on][channel_byte]:
+                self._stacked_notes[note_on][channel_byte][pitch] = set( [pitch] )
+            elif pitch not in self._stacked_notes[note_on][channel_byte][pitch]:
+                self._stacked_notes[note_on][channel_byte][pitch].add( pitch )
             else:   # It's an Overlapping note
                 return False
         return True
