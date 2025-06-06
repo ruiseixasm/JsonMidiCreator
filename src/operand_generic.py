@@ -1235,6 +1235,8 @@ class Staff(Generic):
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
         # pitch, position, length
         self._tied_notes: dict[int, dict[str, any]] = {}
+        # channel_pitch, position_off, note_off
+        self._tied_notes_2: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
                                   dict[int,             # status byte
                                        set[int]             # set of pitches
@@ -1288,6 +1290,29 @@ class Staff(Generic):
         if channel_pitch in self._tied_notes:
             return self._tied_notes[channel_pitch]
         return None
+
+
+    # For Playlist Notes list
+    def _reset_tied_notes(self) -> Self:
+        self._tied_notes_2 = {}
+        return self
+
+    def _tie_note(self, channel_pitch: int,
+                  position_on: Fraction, position_off: Fraction, note_off: dict, update: Callable[[dict, Fraction], None]) -> bool:
+        
+        if channel_pitch in self._tied_notes_2:
+            if self._tied_notes_2[channel_pitch]["position_off"] == position_on:
+                # The Note is already in the sequence to be tied (extended)
+                self._tied_notes_2[channel_pitch]["position_off"] = position_off
+                update(self._tied_notes_2[channel_pitch]["note_off"], position_off)
+                return True # It was Tied
+        # Any previous note becomes history
+        self._tied_notes_2[channel_pitch] = {
+            "position_off": position_off,
+            "note_off": note_off
+        }
+        return False
+
 
     # Checks for stacked notes
     def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:

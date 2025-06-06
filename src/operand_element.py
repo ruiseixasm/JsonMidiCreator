@@ -1051,6 +1051,8 @@ class Note(Element):
             }
         )
 
+        # Already with a Playlist at this point
+
         # This only applies for Clip owned Notes!
         if self._clip_reference is not None:
 
@@ -1061,23 +1063,20 @@ class Note(Element):
 
             # Checks if it's a tied note first
             if self._tied > 0:
-                self_position: Fraction = self._position_beats
-                self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
-                if self._tied > 1:
-                    last_tied_note = self._staff_reference._get_tied_note(pitch_int)
-                    if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
-                        # Extend last note
-                        position_off_ms: float = o.minutes_to_time_ms(
-                            self.get_beats_minutes(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
-                        )
-                        last_tied_note["note_list"][1]["time_ms"] = position_off_ms
-                        self._staff_reference._set_tied_note_length(pitch_int, last_tied_note["length"] + self_length)
-                        return []   # Discard self_playlist, adjusts just the duration of the previous note
-                else:
-                    # This note becomes the last tied note
-                    self._staff_reference._add_tied_note(pitch_int, 
-                        self_position, self_length, self_playlist_time_ms
-                    )
+
+                def extend_note(note_off: dict, position_off: Fraction):
+                    note_off["time_ms"] = o.minutes_to_time_ms(position_off)
+
+
+                tied_note: bool = self._staff_reference._tie_note(
+                    get_channel_pitch(self._channel, pitch_int),
+                    self_position_min, self_position_min + self_duration_min * self._gate,
+                    self_playlist[1], extend_note
+                )
+
+                if tied_note:
+                    return []   # Discards note
+
 
             # Record present Note on the Staff stacked notes
             if not self._staff_reference._stack_note(

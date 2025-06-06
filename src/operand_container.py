@@ -1615,6 +1615,7 @@ class Clip(Composition):  # Just a container of Elements
         # staff references for each element
         self._staff._reset_accidentals()
         self._staff._reset_tied_note()
+        self._staff._reset_tied_notes()
         self._staff._reset_stacked_notes()
 
         position_beats: Fraction = Fraction(0)
