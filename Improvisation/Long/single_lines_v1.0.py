@@ -105,20 +105,20 @@ final_part >> Plot()
 
 # entire_part >> Plot()
 
-two_notes: Clip = Note(Tied()) * 2
-two_notes >> Plot()
+# two_notes: Clip = Note(Tied()) * 2
+# two_notes >> Plot()
 
 # two_chords: Clip = Chord(Tied()) * 2
 # two_chords >> Plot()
 
 
-# entire_part: Part = Part()
+entire_part: Part = Part()
 
-# # Setting the Key Signature for the global Staff
-# defaults << KeySignature(1)
-# chord_progression: Clip = Chord(Channel(2), Tied()) * 4
-# chord_progression << Foreach(1, 4, 5)**Degree()
-# chord_progression * 4 >> Plot()
+# Setting the Key Signature for the global Staff
+defaults << KeySignature(1)
+chord_progression: Clip = Chord(Channel(2), Tied()) * 4
+chord_progression << Foreach(1, 4, 5)**Degree()
+chord_progression * 4 >> Plot()
 
 
 

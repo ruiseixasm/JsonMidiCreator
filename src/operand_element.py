@@ -863,7 +863,7 @@ class Note(Element):
     def __init__(self, *parameters):
         self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
-        self._tied: int             = 0
+        self._tied: int             = False
         self._pitch: og.Pitch       = og.Pitch()
         super().__init__(*parameters)
 
@@ -887,7 +887,7 @@ class Note(Element):
         self._gate = ra.Gate(gate)._rational
         return self
 
-    def tied(self, tied: int = 1) -> Self:
+    def tied(self, tied: bool = True) -> Self:
         self._tied = tied
         return self
 
@@ -977,23 +977,24 @@ class Note(Element):
         if self._clip_reference is not None:
 
             # Checks if it's a following tied note first
-            if self._tied > 0:
+            if self._tied:
+
                 self_position: Fraction = position_beats + self._position_beats
                 self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
-                if self._tied > 1:
-                    position_off: Fraction = self_position + self_length
-                    last_tied_note = self._staff_reference._get_tied_note(pitch_int)
-                    if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
-                        # Extend last note
-                        position_off = last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate
-                        last_tied_note["note_list"][0]['note']["position_off"] = position_off
-                        self._staff_reference._set_tied_note_length(pitch_int, last_tied_note["position"] + last_tied_note["length"] + self_length)
-                        return []   # Discard self_plotlist, adjusts just the duration of the previous note
-                else:   # Must be the first tied note
-                    # This note becomes the last tied note, position_off inplace of length has no problem
-                    self._staff_reference._add_tied_note(pitch_int, 
-                        self_position, self_length, self_plotlist
-                    )
+
+                def extend_note(note_off: dict, position_off: Fraction):
+                    note_off["position_off"] = position_off
+
+
+                tied_note: bool = self._staff_reference._tie_note(
+                    get_channel_pitch(self._channel, pitch_int),
+                    self_position, self_position + self_length,
+                    self_plotlist[0]["note"], extend_note
+                )
+
+                if tied_note:
+                    return []   # Discards note
+
 
             # Record present Note on the Staff stacked notes
             if not self._staff_reference._stack_note(
@@ -1113,6 +1114,9 @@ class Note(Element):
 
             # Checks if it's a tied note first
             if self._tied:
+
+
+
                 self_position: Fraction = self._position_beats
                 self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
                 self_pitch: int = pitch_int
@@ -1127,6 +1131,7 @@ class Note(Element):
                     self._staff_reference._add_tied_note(self_pitch, 
                         self_position, self_length, self_midilist
                     )
+
 
             # Record present Note on the Staff stacked notes
             if not self._staff_reference._stack_note(
