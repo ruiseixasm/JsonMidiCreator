@@ -1242,7 +1242,7 @@ class Staff(Generic):
         self._accidentals = { 0: {} }
         return self
 
-    def _add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
+    def _add_accidental(self, measure: int, channel_pitch: int, accidental: bool | int) -> Self:
         if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
                 # It's a new measure, includes cleaning every Measure before
@@ -1250,56 +1250,56 @@ class Staff(Generic):
                     measure: {}
                 }
             if accidental is True:
-                self._accidentals[measure].pop(pitch, None)
+                self._accidentals[measure].pop(channel_pitch, None)
             elif accidental is not False:
-                self._accidentals[measure][pitch] = accidental
+                self._accidentals[measure][channel_pitch] = accidental
         return self
 
-    def _get_accidental(self, measure: int, pitch: int) -> bool | int:
-        if measure in self._accidentals and pitch in self._accidentals[measure]:
-            return self._accidentals[measure][pitch]
+    def _get_accidental(self, measure: int, channel_pitch: int) -> bool | int:
+        if measure in self._accidentals and channel_pitch in self._accidentals[measure]:
+            return self._accidentals[measure][channel_pitch]
         return False
 
     def _reset_tied_note(self) -> Self:
         self._tied_notes = {}
         return self
 
-    def _add_tied_note(self, pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
+    def _add_tied_note(self, channel_pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
         if self is not defaults._staff: # defaults's staff remains clean
             tied_note = {
                 "position":     position,
                 "length":       length,
                 "note_list":    note_list
             }
-            self._tied_notes[pitch] = tied_note
+            self._tied_notes[channel_pitch] = tied_note
         return self
 
-    def _set_tied_note_length(self, pitch: int, length: Fraction) -> Self:
-        if pitch in self._tied_notes:
-            self._tied_notes[pitch]["length"] = length
+    def _set_tied_note_length(self, channel_pitch: int, length: Fraction) -> Self:
+        if channel_pitch in self._tied_notes:
+            self._tied_notes[channel_pitch]["length"] = length
         return self
     
-    def _get_tied_note(self, pitch: int):
-        if pitch in self._tied_notes:
-            return self._tied_notes[pitch]
+    def _get_tied_note(self, channel_pitch: int):
+        if channel_pitch in self._tied_notes:
+            return self._tied_notes[channel_pitch]
         return None
 
-    def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
+    def _stack_note(self, note_on: float | Fraction, channel_byte: int, channel_pitch: int) -> bool:
         if self is not defaults._staff: # defaults's staff remains clean
             if note_on not in self._stacked_notes:
                 self._stacked_notes[note_on] = {
                     channel_byte: {
-                        pitch: set( [pitch] )
+                        channel_pitch: set( [channel_pitch] )
                     }
                 }
             elif channel_byte not in self._stacked_notes[note_on]:
                 self._stacked_notes[note_on][channel_byte] = {
-                    pitch: set( [pitch] )
+                    channel_pitch: set( [channel_pitch] )
                 }
-            elif pitch not in self._stacked_notes[note_on][channel_byte]:
-                self._stacked_notes[note_on][channel_byte][pitch] = set( [pitch] )
-            elif pitch not in self._stacked_notes[note_on][channel_byte][pitch]:
-                self._stacked_notes[note_on][channel_byte][pitch].add( pitch )
+            elif channel_pitch not in self._stacked_notes[note_on][channel_byte]:
+                self._stacked_notes[note_on][channel_byte][channel_pitch] = set( [channel_pitch] )
+            elif channel_pitch not in self._stacked_notes[note_on][channel_byte][channel_pitch]:
+                self._stacked_notes[note_on][channel_byte][channel_pitch].add( channel_pitch )
             else:   # It's an Overlapping note
                 return False
         return True
