@@ -1004,6 +1004,7 @@ class Note(Element):
 
         return self_plotlist
 
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
@@ -1086,6 +1087,7 @@ class Note(Element):
 
         return self_playlist
 
+
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
@@ -1135,6 +1137,7 @@ class Note(Element):
 
         return self_midilist
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["velocity"] = self.serialize( self._velocity )
@@ -1156,7 +1159,8 @@ class Note(Element):
             self._tied      = self.deserialize( serialization["parameters"]["tied"] )
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
         return self
-      
+
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1180,7 +1184,7 @@ class Note(Element):
             case ou.Tied():
                 self._tied = operand._unit
                 if operand._unit > 0:
-                    operand._unit += 1
+                    operand._unit += 1  # Distinguishes between first tied note from the next one
             case og.Pitch():
                 self._pitch << operand
                 self._pitch._set_staff_reference(self._staff_reference)

@@ -106,10 +106,10 @@ final_part >> Plot()
 # entire_part >> Plot()
 
 two_notes: Clip = Note(Tied()) * 2
-two_notes >> Plot(False)
+two_notes >> Plot()
 
-two_chords: Clip = Chord(Tied()) * 2
-two_chords >> Plot()
+# two_chords: Clip = Chord(Tied()) * 2
+# two_chords >> Plot()
 
 
 # entire_part: Part = Part()
