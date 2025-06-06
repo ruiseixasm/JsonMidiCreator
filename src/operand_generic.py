@@ -1233,10 +1233,8 @@ class Staff(Generic):
         # Volatile variable not intended to be user defined
         # Measures, pitch, accidental
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
-        # pitch, position, length
-        self._tied_notes: dict[int, dict[str, any]] = {}
         # channel_pitch, position_off, note_off
-        self._tied_notes_2: dict[int, dict[str, any]] = {}
+        self._tied_notes: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
                                   dict[int,             # status byte
                                        set[int]             # set of pitches
@@ -1266,48 +1264,29 @@ class Staff(Generic):
             return self._accidentals[measure][pitch]
         return False
 
-    # For Playlist Notes list
-    def _reset_tied_note(self) -> Self:
-        self._tied_notes = {}
-        return self
-
-    def _add_tied_note(self, channel_pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
-        if self is not defaults._staff: # defaults's staff remains clean
-            tied_note = {
-                "position":     position,
-                "length":       length,
-                "note_list":    note_list
-            }
-            self._tied_notes[channel_pitch] = tied_note
-        return self
-
-    def _set_tied_note_length(self, channel_pitch: int, length: Fraction) -> Self:
-        if channel_pitch in self._tied_notes:
-            self._tied_notes[channel_pitch]["length"] = length
-        return self
-    
-    def _get_tied_note(self, channel_pitch: int):
-        if channel_pitch in self._tied_notes:
-            return self._tied_notes[channel_pitch]
-        return None
-
 
     # For Playlist Notes list
     def _reset_tied_notes(self) -> Self:
-        self._tied_notes_2 = {}
+        self._tied_notes = {}
         return self
 
     def _tie_note(self, channel_pitch: int,
-                  position_on: Fraction, position_off: Fraction, note_off: dict, update: Callable[[dict, Fraction], None]) -> bool:
+                  position_on: Fraction, position_off: Fraction, note_off: dict,
+                  extend_note: Callable[[dict, Fraction, Fraction], None]) -> bool:
         
-        if channel_pitch in self._tied_notes_2:
-            if self._tied_notes_2[channel_pitch]["position_off"] == position_on:
+        if channel_pitch in self._tied_notes:
+            if self._tied_notes[channel_pitch]["position_off"] == position_on:
                 # The Note is already in the sequence to be tied (extended)
-                self._tied_notes_2[channel_pitch]["position_off"] = position_off
-                update(self._tied_notes_2[channel_pitch]["note_off"], position_off)
+                self._tied_notes[channel_pitch]["position_off"] = position_off
+                extend_note(
+                    self._tied_notes[channel_pitch]["note_off"],
+                    self._tied_notes[channel_pitch]["position_on"],
+                    position_off
+                )
                 return True # It was Tied
         # Any previous note becomes history
-        self._tied_notes_2[channel_pitch] = {
+        self._tied_notes[channel_pitch] = {
+            "position_on": position_on,
             "position_off": position_off,
             "note_off": note_off
         }

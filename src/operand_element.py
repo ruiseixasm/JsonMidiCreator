@@ -982,7 +982,7 @@ class Note(Element):
                 self_position: Fraction = position_beats + self._position_beats
                 self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
 
-                def extend_note(note_off: dict, position_off: Fraction):
+                def extend_note(note_off: dict, position_on: Fraction, position_off: Fraction):
                     note_off["position_off"] = position_off
 
 
@@ -1063,9 +1063,9 @@ class Note(Element):
                 self_playlist_time_ms = o.playlist_time_ms( self_playlist )
 
             # Checks if it's a tied note first
-            if self._tied > 0:
+            if self._tied:
 
-                def extend_note(note_off: dict, position_off: Fraction):
+                def extend_note(note_off: dict, position_on: Fraction, position_off: Fraction):
                     note_off["time_ms"] = o.minutes_to_time_ms(position_off)
 
 
@@ -1096,7 +1096,8 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        self_duration: float = float(self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate)
+        self_duration_beats: Fraction = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate
+        self_duration: float = float(self_duration_beats)
         if self_duration == 0:
             return []
 
@@ -1115,22 +1116,19 @@ class Note(Element):
             # Checks if it's a tied note first
             if self._tied:
 
+                def extend_note(note: dict, position_on: Fraction, position_off: Fraction):
+                    note["duration"] = float(position_off - position_on)
 
+                self_position: Fraction = (Fraction(0) if position_beats is None else position_beats) + self._position_beats
 
-                self_position: Fraction = self._position_beats
-                self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
-                self_pitch: int = pitch_int
-                last_tied_note = self._staff_reference._get_tied_note(self_pitch)
-                if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
-                    # Extend last note
-                    last_tied_note["note_list"][0]["duration"] = float(last_tied_note["length"] + self_length * self._gate)
-                    self._staff_reference._set_tied_note_length(self_pitch, last_tied_note["length"] + self_length)
-                    return []   # Discard self_midilist
-                else:
-                    # This note becomes the last tied note
-                    self._staff_reference._add_tied_note(self_pitch, 
-                        self_position, self_length, self_midilist
-                    )
+                tied_note: bool = self._staff_reference._tie_note(
+                    get_channel_pitch(self._channel, pitch_int),
+                    self_position, self_position + self_duration_beats,
+                    self_midilist[0], extend_note
+                )
+
+                if tied_note:
+                    return []   # Discards note
 
 
             # Record present Note on the Staff stacked notes

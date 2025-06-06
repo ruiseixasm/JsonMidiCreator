@@ -1614,7 +1614,6 @@ class Clip(Composition):  # Just a container of Elements
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
         self._staff._reset_accidentals()
-        self._staff._reset_tied_note()
         self._staff._reset_tied_notes()
         self._staff._reset_stacked_notes()
 
