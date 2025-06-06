@@ -1228,7 +1228,9 @@ class Staff(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
+        # Measures, pitch, accidental
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
+        # pitch, position, length
         self._tied_notes: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
                                   dict[int,             # status byte
