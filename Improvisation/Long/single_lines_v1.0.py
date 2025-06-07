@@ -120,6 +120,7 @@ chord_progression: Clip = Chord(Channel(2), Tied()) * 4
 chord_progression << Foreach(1, 4, 5)**Degree()
 chord_progression >> Rotate(-1) >> Decompose() >> Plot(False)
 chord_progression % int() >> Print()
+chord_progression >> Tie()  # Removes notes
 chord_progression << LessOrEqual(Duration(1))**Duration(7/8)
 
 entire_part += chord_progression

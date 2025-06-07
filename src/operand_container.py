@@ -2687,6 +2687,7 @@ class Clip(Composition):  # Just a container of Elements
         arpeggio.arpeggiate_source(self._items, self.start(), self.length())
         return self
 
+
     def tie(self) -> Self:
         """
         Extends the `Note` elements as tied when applicable.
@@ -2699,11 +2700,34 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        for item in self._items:
-            if item is oe.Note:
-                item << ou.Tied()
+        all_notes: list[oe.Note] = [
+            single_note for single_note in self._items if type(single_note) is oe.Note
+        ]
+        removed_notes: list[oe.Note] = []
+        extended_notes: dict[int, oe.Note] = {}
+        for note in all_notes:
+            channel_pitch: int = note._channel << 8 | int(note._pitch % float())
+            if channel_pitch in extended_notes:
+                extended_note: oe.Note = extended_notes[channel_pitch]
+                extended_note_position: Fraction = extended_note._position_beats
+                extended_note_length: Fraction = extended_note // ra.Length() // Fraction()   # In Beats
+                extended_note_position_off: Fraction = extended_note_position + extended_note_length
+                
+                if note._position_beats == extended_note_position_off:
+                    note_length: Fraction = note // ra.Length() // Fraction()   # In Beats
+                    extended_length: Fraction = extended_note_length + note_length
+                    # Extends the original note duration and marks note for removal
+                    extended_note << self._staff.convertToLength(ra.Beats(extended_length))
+                    removed_notes.append(note)
+                else:
+                    # Becomes the new original note
+                    extended_notes[channel_pitch] = note
+            else:
+                extended_notes[channel_pitch] = note
+        self._delete(removed_notes)
         return self
     
+
     def slur(self, gate: float = 1.05) -> Self:
         """
         Changes the note `Gate` in order to crate a small overlap.
