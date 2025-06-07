@@ -2805,6 +2805,7 @@ class Part(Composition):
         super().__init__()
         self._staff = og.defaults._staff
         self._items: list[Clip | od.Playlist] = []
+        self._name: str = "Part"
 
         # Song sets the Staff, this is just a reference
         self._song_reference: Song      = None
@@ -3026,11 +3027,23 @@ class Part(Composition):
                 match operand._data:
                     case ra.Position():
                         return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                    case str():
+                        return self._name
                     case _:                 return super().__mod__(operand)
             case ra.Position():
                 return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
                 return self.length()
+            case str():
+                return self._name
+            case od.Names():
+                all_names: list[str] = []
+                for single_item in self._items:
+                    if isinstance(single_item, Clip):
+                        all_names.append(single_item._midi_track._name)
+                    else:
+                        all_names.append(single_item._track_name)
+                return od.Names(*tuple(all_names))
             case _:
                 return super().__mod__(operand)
 
@@ -3113,6 +3126,7 @@ class Part(Composition):
         serialization = super().getSerialization()
 
         serialization["parameters"]["position"] = self.serialize(self._position_beats)
+        serialization["parameters"]["name"]     = self.serialize(self._name)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3128,10 +3142,11 @@ class Part(Composition):
             Part: The self Part object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats = self.deserialize(serialization["parameters"]["position"])
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+            self._name              = self.deserialize(serialization["parameters"]["name"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3146,10 +3161,12 @@ class Part(Composition):
                     self._position_beats = operand._position_beats
                 else:
                     self << operand % ra.Position()
+                self._name = operand._name
                 
             case od.DataSource():
                 match operand._data:
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
+                    case str():             self._name = operand._data
                     case _:                 super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue():
@@ -3171,7 +3188,8 @@ class Part(Composition):
                 # Makes sure isn't a Song owned Part first
                 if self._song_reference is None:
                     self._set_staff_reference(operand)
-
+            case str():
+                self._name = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -3320,6 +3338,11 @@ class Song(Composition):
 
 
     def __getitem__(self, key: int) -> Part:
+        if isinstance(key, str):
+            for single_part in self._items:
+                if single_part._name == key:
+                    return single_part
+            return ol.Null()
         return self._items[key]
 
     def __next__(self) -> Part:
@@ -3482,6 +3505,11 @@ class Song(Composition):
             case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
             case ra.Length():
                 return self.length()
+            case od.Names():
+                all_names: list[str] = []
+                for single_part in self._items:
+                    all_names.append(single_part._name)
+                return od.Names(*tuple(all_names))
             case _:
                 return super().__mod__(operand)
 
