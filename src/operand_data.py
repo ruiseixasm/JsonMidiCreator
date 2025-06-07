@@ -316,6 +316,20 @@ class SongParameter(Data):   # Just a data wrapper
         super().__init__()
         self._data = operand
 
+
+class Names(Data):
+    """`Data -> Names`
+
+    Used to return all names of the `Composition` contents.
+
+    Parameters
+    ----------
+    str(None) : Group of names used in the `Composition` container.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)    # Saves as a tuple
+
+
 class DataMany(Data):
     """`Data -> DataMany`
 

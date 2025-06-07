@@ -19,19 +19,6 @@ src_path = os.path.join(os.path.dirname(__file__), '../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-# Determine the operating system
-import platform
-from operand_generic import defaults
-from operand_container import Devices
-current_os = platform.system()
-if current_os == "Windows":
-    defaults << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
-elif current_os == "Darwin":  # macOS
-    defaults << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
-else:  # Assume Linux/Unix
-    defaults << Devices(["VMPK", "FLUID"])          # FLUID Synth
-
-
 from JsonMidiCreator import *
 
 
@@ -120,8 +107,9 @@ chord_progression: Clip = Chord(Channel(2), Tied()) * 4
 chord_progression << Foreach(1, 4, 5)**Degree()
 chord_progression >> Rotate(-1) >> Decompose() >> Plot(False)
 chord_progression % int() >> Print()
+chord_progression += Rest(Measure(3))   # To occupy the 4th Measure
 chord_progression >> Tie()  # Removes notes
 chord_progression << LessOrEqual(Duration(1))**Duration(7/8)
 
 entire_part += chord_progression
-entire_part >> Plot()
+entire_part * 4 >> Plot()
