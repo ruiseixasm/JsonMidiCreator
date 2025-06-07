@@ -1585,19 +1585,20 @@ class Oscillate(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.oscillate(*self._data)
 
+
 class Tie(ClipProcess):
     """`Data -> Process -> ClipProcess -> Tie`
 
-    Sets the `Note` or derived elements as tied or not tied.
+    Extends the `Note` elements as tied when applicable.
+    Works only on Notes, and NOT on its derived elements, as `Chord`,
+    do `Decompose` if needed to transform a `Chord` into Notes.
 
     Args:
-        tied (bool): True for tied and False for not tied.
+        None.
     """
-    def __init__(self, tied: bool = True):
-        super().__init__(tied)
-
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.tie(self._data)
+        return operand.tie()
+
 
 class Slur(ClipProcess):
     """`Data -> Process -> ClipProcess -> Slur`

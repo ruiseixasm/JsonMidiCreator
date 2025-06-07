@@ -2687,19 +2687,21 @@ class Clip(Composition):  # Just a container of Elements
         arpeggio.arpeggiate_source(self._items, self.start(), self.length())
         return self
 
-    def tie(self, tied: bool = True) -> Self:
+    def tie(self) -> Self:
         """
-        Sets the `Note` or derived elements as tied or not tied.
+        Extends the `Note` elements as tied when applicable.
+        Works only on Notes, and NOT on its derived elements, as `Chord`,
+        do `Decompose` if needed to transform a `Chord` into Notes.
 
         Args:
-            tied (bool): True for tied and False for not tied.
+            None
 
         Returns:
             Clip: The same self object with the items processed.
         """
         for item in self._items:
-            if isinstance(item, oe.Note):
-                item << ou.Tied(tied)
+            if item is oe.Note:
+                item << ou.Tied()
         return self
     
     def slur(self, gate: float = 1.05) -> Self:
