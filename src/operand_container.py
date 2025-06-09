@@ -3696,6 +3696,29 @@ class Song(Composition):
                 return self
         return super().__rshift__(operand)
 
+
+    # FROM PART TO BE ADAPTED
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case Part():
+                return self._delete(operand._items)
+            case Clip() | od.Playlist():
+                return self._delete(operand)
+            case ra.Position() | ra.TimeValue():
+                self << self % ra.Position() - operand
+            case list():
+                return self._delete(operand)
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item -= operand
+        return self
+
+
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Song():
@@ -3725,6 +3748,7 @@ class Song(Composition):
                 for item in self._items:
                     item += operand
         return self
+
 
     def __imul__(self, operand: any) -> Self:
         match operand:
@@ -3773,4 +3797,55 @@ class Song(Composition):
                     item *= operand
         return self
 
+
+    # FROM PART TO BE ADAPTED
+    def __itruediv__(self, operand: any) -> Self:
+        match operand:
+            case Part():
+                operand_copy: Part = operand.copy()
+                # It's NOT just the position of the element that matters, it's also their tailed Duration
+                finish_position: ra.Position = self.finish()
+                if finish_position is not None:
+                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
+                    add_measure: ou.Measure = rounded_length.convertToMeasure()
+                    # Clips have no Position, so, it's implicit position is always 0
+                    for clip_or_playlist in operand_copy._items:
+                        clip_or_playlist += add_measure
+                        self._append([ clip_or_playlist ])
+            case Clip() | od.Playlist():
+                # It's NOT just the position of the element that matters, it's also their tailed Duration
+                finish_position: ra.Position = self.finish()
+                if finish_position is not None:
+                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
+                    add_measure: ou.Measure = rounded_length.convertToMeasure()
+                    # Clips have no Position, so, it's implicit position is always 0
+                    self._append([ operand + add_measure ])
+            case oe.Element():
+                operand_copy: Part = operand.copy()
+                # It's NOT just the position of the element that matters, it's also their tailed Duration
+                finish_position: ra.Position = self.finish()
+                if finish_position is not None:
+                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
+                    add_measure: ou.Measure = rounded_length.convertToMeasure()
+                    # Clips have no Position, so, it's implicit position is always 0
+                    clip_operand: Clip = Clip(operand)
+                    clip_operand += add_measure
+                    self._append([ clip_operand ])
+            case int():
+                if operand > 1:
+                    single_self_copy: Part = self.copy()
+                    for _ in range(operand - 1):
+                        self /= single_self_copy
+                elif operand == 0:
+                    self._delete(self._items, True)
+                    
+            case tuple():
+                for single_operand in operand:
+                    self /= single_operand
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item /= operand
+        return self
 
