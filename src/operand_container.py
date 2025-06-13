@@ -1517,6 +1517,7 @@ class Clip(Composition):  # Just a container of Elements
             start_position = self._staff.convertToPosition(0)
         return start_position
 
+
     def finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
@@ -2934,6 +2935,7 @@ class Part(Composition):
                     start_position = clip_start
         return start_position
 
+
     def finish(self) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
@@ -2951,14 +2953,16 @@ class Part(Composition):
 
         finish_position: ra.Position = None
         for clip in clips_list:
-            clip_finish: ra.Position = self._staff.convertToPosition(clip.finish())
-            if clip_finish:
+            clip_finish: ra.Position = clip.finish()
+            if clip_finish is not None:
+                clip_finish = self._staff.convertToPosition(clip_finish)
                 if finish_position is not None:
                     if clip_finish > finish_position:
                         finish_position = clip_finish
                 else:
                     finish_position = clip_finish
         return finish_position
+
 
     def length(self) -> ra.Length:
         """
@@ -3444,6 +3448,7 @@ class Song(Composition):
                     start_position = part_start
         return start_position
 
+
     def finish(self) -> ra.Position:
         """
         Gets the finishing position of all its Parts.
@@ -3458,16 +3463,17 @@ class Song(Composition):
         """
         finish_position: ra.Position = None
 
-        for part in self._items:
+        for single_part in self._items:
             # Already includes the Song Staff conversion
-            part_finish: ra.Position = part.finish()
-            if part_finish:
+            part_finish: ra.Position = single_part.finish()
+            if part_finish is not None:
                 if finish_position is not None:
                     if part_finish > finish_position:
                         finish_position = part_finish
                 else:
                     finish_position = part_finish
         return finish_position
+
 
     def length(self) -> ra.Length:
         """
