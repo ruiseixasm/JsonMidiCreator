@@ -3761,11 +3761,10 @@ class Song(Composition):
                 offset_position: ra.Position = ra.Position(0)
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
-                if last_position:
+                if last_position is not None:
                     offset_position = last_position.roundMeasures() + ou.Measure(1)
                 for single_part in operand._items:
                     self += single_part + offset_position   # Implicit copy of single_part
-                self._sort_position()
             case Part():
                 part_song: Song = Song(operand)
                 self *= part_song
