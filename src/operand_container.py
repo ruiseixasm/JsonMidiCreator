@@ -3736,10 +3736,13 @@ class Song(Composition):
     # FROM PART TO BE ADAPTED
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case Part():
+            case Song():
                 return self._delete(operand._items)
+            case Part():
+                return self._delete([ operand ])
             case Clip() | od.Playlist():
-                return self._delete(operand)
+                clip_part: Part = Part(operand)
+                self -= clip_part
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
             case list():
