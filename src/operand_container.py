@@ -3261,7 +3261,7 @@ class Part(Composition):
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
                 if last_position:
-                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                    add_measure = last_position.roundMeasures() + ou.Measure(1)
                 # Clips have no Position, so, it's implicit position is always 0
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
@@ -3271,7 +3271,7 @@ class Part(Composition):
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
                 if last_position:
-                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                    add_measure = last_position.roundMeasures() + ou.Measure(1)
                 # Clips have no Position, so, it's implicit position is always 0
                 self._append([ operand + add_measure ])
             case oe.Element():
@@ -3280,7 +3280,7 @@ class Part(Composition):
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
                 if last_position:
-                    add_measure = ou.Measure(1) + last_position.roundMeasures()
+                    add_measure = last_position.roundMeasures() + ou.Measure(1)
                 # Clips have no Position, so, it's implicit position is always 0
                 clip_operand: Clip = Clip(operand)
                 clip_operand += add_measure
@@ -3701,21 +3701,20 @@ class Song(Composition):
         match operand:
             case Song():
                 for single_part in operand._items:
-                    self._append([ single_part.copy()._set_staff_reference(self._staff) ])
+                    self._append([ single_part.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
                 self._sort_position()
             case Part():
-                self._append([ operand.copy()._set_staff_reference(self._staff) ])._sort_position()
+                self._append([ operand.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand)._set_staff_reference(self._staff)
-                self._append([ clip_part ])._sort_position()
+                clip_part: Part = Part(operand)
+                self += clip_part
             case oe.Element():
                 element_clip: Clip = Clip(operand) << self._staff
-                clip_part: Part = Part(element_clip)._set_staff_reference(self._staff)
-                self._append([ clip_part ])._sort_position()
+                self += element_clip
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._set_staff_reference(self._staff) ])
+                        self._append([ item.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
@@ -3753,35 +3752,33 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                if operand.len() > 0:
-                    operand_first_position: ra.Position = operand[0] % ra.Position()
-                    self_last_position: ra.Position = self._last_element_position()
-                    if self_last_position:
-                        position_offset: ra.Position = \
-                            self_last_position.roundMeasures() + ou.Measure(1) - operand_first_position
-                        # Beats are the common unit of measurement across multiple Time Signatures !!
-                        for single_part in operand._items:
-                            new_part: Part = single_part.copy()._set_staff_reference(self._staff)
-                            new_part += position_offset
-                            self._append([ new_part ])
-                    else:
-                        for single_part in operand._items:
-                            new_part: Part = single_part.copy()._set_staff_reference(self._staff)
-                            new_part -= operand_first_position
-                            self._append([ new_part ])
+                operand_copy: Song = operand.copy()
+                add_measure: ou.Measure = ou.Measure(0)
+                # It's the position of the element that matters and not their tailed Duration
+                last_position: ra.Position = self._last_element_position()
+                if last_position:
+                    add_measure = last_position.roundMeasures() + ou.Measure(1)
+                # Clips have no Position, so, it's implicit position is always 0
+                for single_part in operand_copy._items:
+                    single_part += add_measure
+                    self += single_part
                 self._sort_position()
             case Part():
-                if operand.len() > 0:
-                    self_last_position: ra.Position = self._last_element_position()
-                    next_position: ra.Position = self_last_position.roundMeasures() + ou.Measure(1)
-                    new_part: Part = operand.copy()._set_staff_reference(self._staff) << next_position
-                    self._append([ new_part ])._sort_position()
+                part_song: Song = Song(operand)
+                self *= part_song
             case Clip() | od.Playlist():
                 clip_part: Part = Part(operand)
                 self *= clip_part
             case oe.Element():
                 element_part: Part = Part( Clip(operand) << self._staff )
                 self *= element_part
+            case int():
+                if operand > 1:
+                    single_self_copy: Song = self.copy()
+                    for _ in range(operand - 1):
+                        self *= single_self_copy
+                elif operand == 0:
+                    self._delete(self._items, True)
                 
             case tuple():
                 for single_operand in operand:
@@ -3819,11 +3816,11 @@ class Song(Composition):
                     part_copy: Part = operand + add_measure
                     self += part_copy
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand)
-                self += clip_part
+                clip_part: Part = Part(operand)._set_staff_reference(self._staff)._set_song_reference(self)
+                self /= clip_part
             case oe.Element():
                 element_clip: Clip = Clip(operand)._set_staff_reference(self._staff)
-                self += element_clip
+                self /= element_clip
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
