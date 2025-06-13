@@ -113,3 +113,5 @@ chord_progression << LessOrEqual(Duration(1))**Duration(7/8)
 
 entire_part += chord_progression
 entire_part * 4 >> Plot()
+
+print(chord_progression % int())
