@@ -3709,7 +3709,7 @@ class Song(Composition):
                 clip_part: Part = Part(operand)
                 self += clip_part
             case oe.Element():
-                element_clip: Clip = Clip(operand) << self._staff
+                element_clip: Clip = Clip(operand)
                 self += element_clip
             case list():
                 for item in operand:
@@ -3752,16 +3752,13 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                operand_copy: Song = operand.copy()
-                add_measure: ou.Measure = ou.Measure(0)
+                offset_position: ra.Position = ra.Position(0)
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
                 if last_position:
-                    add_measure = last_position.roundMeasures() + ou.Measure(1)
-                # Clips have no Position, so, it's implicit position is always 0
-                for single_part in operand_copy._items:
-                    single_part += add_measure
-                    self += single_part
+                    offset_position = last_position.roundMeasures() + ou.Measure(1)
+                for single_part in operand._items:
+                    self += single_part + offset_position   # Implicit copy of single_part
                 self._sort_position()
             case Part():
                 part_song: Song = Song(operand)
@@ -3770,8 +3767,8 @@ class Song(Composition):
                 clip_part: Part = Part(operand)
                 self *= clip_part
             case oe.Element():
-                element_part: Part = Part( Clip(operand) << self._staff )
-                self *= element_part
+                element_clip: Clip = Clip(operand)
+                self *= element_clip
             case int():
                 if operand > 1:
                     single_self_copy: Song = self.copy()
@@ -3799,27 +3796,22 @@ class Song(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-                if operand.len() > 0:
-                    # It's NOT just the position of the element that matters, it's also their tailed Duration
-                    finish_position: ra.Position = self.finish()
-                    if finish_position is not None:
-                        rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                        add_measure: ou.Measure = rounded_length.convertToMeasure()
-                        self += operand + add_measure
-                self._sort_position()
-            case Part():
+                offset_position: ra.Position = ra.Position(0)
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
                 finish_position: ra.Position = self.finish()
                 if finish_position is not None:
                     rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                    add_measure: ou.Measure = rounded_length.convertToMeasure()
-                    part_copy: Part = operand + add_measure
-                    self += part_copy
+                    offset_position = rounded_length.convertToPosition()
+                for single_part in operand._items:
+                    self += single_part + offset_position   # Implicit copy of single_part
+            case Part():
+                part_song: Song = Song(operand)
+                self /= part_song
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand)._set_staff_reference(self._staff)._set_song_reference(self)
+                clip_part: Part = Part(operand)
                 self /= clip_part
             case oe.Element():
-                element_clip: Clip = Clip(operand)._set_staff_reference(self._staff)
+                element_clip: Clip = Clip(operand)
                 self /= element_clip
             case int():
                 if operand > 1:
