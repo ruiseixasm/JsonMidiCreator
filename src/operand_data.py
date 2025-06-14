@@ -264,19 +264,6 @@ class Or(Conditional):
         return True
 
 
-class PartParameter(Data):   # Just a data wrapper
-    """`Data -> PartParameter`
-
-    It's just a wrapper of parameter data exclusive for the `Part` operand.
-
-    Parameters
-    ----------
-    Any(None) : Any parameter concerning `Part` operands.
-    """
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._data = operand
-
 class PlaylistParameter(Data):   # Just a data wrapper
     """`Data -> PlaylistParameter`
 
