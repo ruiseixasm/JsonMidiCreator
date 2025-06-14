@@ -264,19 +264,6 @@ class Or(Conditional):
         return True
 
 
-class PlaylistParameter(Data):   # Just a data wrapper
-    """`Data -> PlaylistParameter`
-
-    It's just a wrapper of parameter data exclusive for the `Playlist` operand.
-
-    Parameters
-    ----------
-    Any(None) : Any parameter concerning `Playlist` operands.
-    """
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._data = operand
-
 class SongParameter(Data):   # Just a data wrapper
     """`Data -> SongParameter`
 
@@ -635,9 +622,6 @@ class Playlist(Data):
 
         else:
 
-            if isinstance(operand, PlaylistParameter):
-                operand = operand._data
-
             match operand:
                 case Playlist():
                     self._data          = self.shallow_playlist_list_copy(operand._data)
@@ -705,8 +689,7 @@ class Playlist(Data):
                     self._data.extend(
                         operand.getPlaylist()
                     )
-            case PlaylistParameter():
-                self += operand._data
+                    
             case Use():
                 for single_parameter in operand._data:
                     self += single_parameter
@@ -723,8 +706,7 @@ class Playlist(Data):
                 for self_dict in self._data:
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] - offset_position_ms, 3)
-            case PlaylistParameter():
-                self -= operand._data
+                        
             case Use():
                 for single_parameter in operand._data:
                     self -= single_parameter
