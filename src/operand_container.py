@@ -1793,21 +1793,6 @@ class Clip(Composition):  # Just a container of Elements
             case om.Mutation():
                 operand.copy().mutate(self)
             
-            case od.Use():
-                for single_data in operand._data:
-                    single_parameter: Any = self._tail_lshift(single_data)    # Processes the tailed self operands or the Frame operand if any exists
-                    match single_parameter:
-                        case ra.Length() | ra.Duration():
-                            self._length_beats = self._staff.convertToBeats(single_parameter)._rational
-                        case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
-                            self._midi_track << single_parameter
-                        case None:
-                            self._length_beats = Fraction(-1)
-                        case Clip():
-                            self._staff << single_parameter._staff
-                        case _:
-                            self._staff << single_parameter
-
             case tuple():
                 for single_operand in operand:
                     self << single_operand

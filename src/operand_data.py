@@ -290,21 +290,6 @@ class DataMany(Data):
         super().__init__(parameters)
 
 
-class Use(DataMany):
-    """`Data -> DataMany -> Use`
-
-    Works like an wrapper of multiple parameters. It's like a named tuple.
-    Mainly used with `Clip` and `Part` operands to pass parameters directly to it.
-
-    Parameters
-    ----------
-    Any(None) : Group of parameters to be passed altogether at once.
-    """
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__()
-        self._data = parameters
-
-
 class Performers(DataMany):
     def reset(self, *parameters) -> 'Performers':
         super().reset(*parameters)
@@ -601,40 +586,34 @@ class Playlist(Data):
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
         import operand_element as oe
-        
-        if isinstance(operand, Use):
-            for single_parameter in operand._data:
-                self << single_parameter
-
-        else:
-
-            match operand:
-                case Playlist():
-                    self._data          = self.shallow_playlist_list_copy(operand._data)
-                    self._track_name    = operand._track_name
-                case DataSource():
-                    match operand._data:
-                        case TrackName():
-                            self._track_name = operand._data._data
-                        case list():
-                            self._data = operand._data
-                        # Don't do this
-                        # case _:
-                        #     super().__lshift__(operand)
-                case oc.Container() | oe.Element() | Playlist():
-                    self._data = operand.getPlaylist()
-                case TrackName():
-                    self._track_name = operand._data
-                case str():
-                    self._track_name = operand
-                case list():
-                    self._data = self.shallow_playlist_list_copy(operand)
-                case tuple():
-                    for single_operand in operand:
-                        self << single_operand
-                # Don't do this
-                # case _:
-                #     super().__lshift__(operand)
+    
+        match operand:
+            case Playlist():
+                self._data          = self.shallow_playlist_list_copy(operand._data)
+                self._track_name    = operand._track_name
+            case DataSource():
+                match operand._data:
+                    case TrackName():
+                        self._track_name = operand._data._data
+                    case list():
+                        self._data = operand._data
+                    # Don't do this
+                    # case _:
+                    #     super().__lshift__(operand)
+            case oc.Container() | oe.Element() | Playlist():
+                self._data = operand.getPlaylist()
+            case TrackName():
+                self._track_name = operand._data
+            case str():
+                self._track_name = operand
+            case list():
+                self._data = self.shallow_playlist_list_copy(operand)
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            # Don't do this
+            # case _:
+            #     super().__lshift__(operand)
         return self
     
     # Pass trough method that always results in a Container (Self)
@@ -676,10 +655,6 @@ class Playlist(Data):
                         operand.getPlaylist()
                     )
                     
-            case Use():
-                for single_parameter in operand._data:
-                    self += single_parameter
-
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -693,10 +668,6 @@ class Playlist(Data):
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] - offset_position_ms, 3)
                         
-            case Use():
-                for single_parameter in operand._data:
-                    self -= single_parameter
-
         return self
 
     # Only the "time_ms" data matters to be copied because the rest wont change (faster)
