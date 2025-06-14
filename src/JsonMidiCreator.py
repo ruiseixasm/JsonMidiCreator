@@ -51,8 +51,6 @@ N = Nt = Note
 R = Rst = Rest
 Ch = Channel
 DS = Src = DataSource
-CParameter = ClipPar = ClipParameter
-PPar = PParameter = PartPar = PartParameter
 Bars = Meas = Measures
 Bar = Mea = Measure
 Bts = Beats
