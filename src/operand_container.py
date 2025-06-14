@@ -986,8 +986,13 @@ class Composition(Container):
         if note_channels or not automation_channels:
 
             self._ax.set_ylabel("Chromatic Keys")
-            self._ax.format_coord = \
-                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Pitch = {int(y + 0.5)}"
+            # Where the corner Coordinates are defined
+            self._ax.format_coord = lambda x, y: (
+                f"Time = {round(x / clip_tempo * 60 // 60)}' "
+                f"{round(x / clip_tempo * 60 % 60)}'' "
+                f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
+                f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
+            )
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
@@ -1036,8 +1041,12 @@ class Composition(Container):
         else:
 
             self._ax.set_ylabel("Automation Values (MSB)")
-            self._ax.format_coord = \
-                lambda x, y: f"Seconds = {round(x / clip_tempo * 60, 3)}, Beat = {int(x)}, Value = {int(y + 0.5)}"
+            self._ax.format_coord = lambda x, y: (
+                f"Time = {round(x / clip_tempo * 60 // 60)}' "
+                f"{round(x / clip_tempo * 60 % 60)}'' "
+                f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
+                f"Beat = {int(x)}, Value = {int(y + 0.5)}"
+            )
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
