@@ -342,8 +342,9 @@ class DataMany(Data):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-class Parameters(DataMany):
-    """`Data -> DataMany -> Parameters`
+
+class Use(DataMany):
+    """`Data -> DataMany -> Use`
 
     Works like an wrapper of multiple parameters. It's like a named tuple.
     Mainly used with `Clip` and `Part` operands to pass parameters directly to it.
@@ -355,6 +356,7 @@ class Parameters(DataMany):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__()
         self._data = parameters
+
 
 class Performers(DataMany):
     def reset(self, *parameters) -> 'Performers':
@@ -653,7 +655,7 @@ class Playlist(Data):
         import operand_container as oc
         import operand_element as oe
         
-        if isinstance(operand, Parameters):
+        if isinstance(operand, Use):
             for single_parameter in operand._data:
                 self << single_parameter
 
@@ -731,7 +733,7 @@ class Playlist(Data):
                     )
             case PlaylistParameter():
                 self += operand._data
-            case Parameters():
+            case Use():
                 for single_parameter in operand._data:
                     self += single_parameter
 
@@ -749,7 +751,7 @@ class Playlist(Data):
                         self_dict["time_ms"] = round(self_dict["time_ms"] - offset_position_ms, 3)
             case PlaylistParameter():
                 self -= operand._data
-            case Parameters():
+            case Use():
                 for single_parameter in operand._data:
                     self -= single_parameter
 

@@ -1793,9 +1793,9 @@ class Clip(Composition):  # Just a container of Elements
             case om.Mutation():
                 operand.copy().mutate(self)
             
-            case od.ClipParameter() | od.Parameters():
+            case od.ClipParameter() | od.Use():
 
-                if isinstance(operand, od.Parameters):
+                if isinstance(operand, od.Use):
                     for single_parameter in operand._data:
                         self << od.ClipParameter(single_parameter)
                 else:
@@ -1878,7 +1878,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff += operand
-            case od.Parameters():
+            case od.Use():
                 for single_parameter in operand._data:
                     self += od.ClipParameter(single_parameter)
 
@@ -1903,7 +1903,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff -= operand
-            case od.Parameters():
+            case od.Use():
                 for single_parameter in operand._data:
                     self -= od.ClipParameter(single_parameter)
 
@@ -1982,7 +1982,7 @@ class Clip(Composition):  # Just a container of Elements
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 self *= self_repeating
-            case od.Parameters():
+            case od.Use():
                 for single_parameter in operand._data:
                     self *= od.ClipParameter(single_parameter)
 
@@ -2065,7 +2065,7 @@ class Clip(Composition):  # Just a container of Elements
                     self_repeating = int( operand_value / length_value )
                 self /= self_repeating
 
-            case od.Parameters():
+            case od.Use():
                 for single_parameter in operand._data:
                     self /= od.ClipParameter(single_parameter)
 
@@ -3667,9 +3667,9 @@ class Song(Composition):
                 ]
                 self._sort_position()
 
-            case od.SongParameter() | od.Parameters():
+            case od.SongParameter() | od.Use():
 
-                if isinstance(operand, od.Parameters):
+                if isinstance(operand, od.Use):
                     for single_parameter in operand._data:
                         self << od.SongParameter(single_parameter)
                 else:
