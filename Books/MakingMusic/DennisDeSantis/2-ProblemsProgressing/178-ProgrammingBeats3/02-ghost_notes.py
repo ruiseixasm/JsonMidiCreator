@@ -31,7 +31,7 @@ drum = Note(DrumKit("Drum"), 1/16) * 3 << Iterate()**Beats()
 drum += Nth(2)**Steps(3)
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 2 + Step(1) << Velocity(30)
-ghost_notes << CParameter(Length(0.5))
+ghost_notes << Use(Length(0.5))
 ghost_notes *= 2
 
 backbeats = hi_hat + snare + drum + ghost_notes

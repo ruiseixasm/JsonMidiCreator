@@ -55,8 +55,8 @@ full_clip *= 4
 complete_part = Part(full_clip)
 
 cymbal_ptn = Note(cymbal, 1/1) * 1
-cymbal_first = cymbal_ptn + CPar(Position(1.0))
-cymbal_second = cymbal_ptn + CPar(Position(3.0))
+cymbal_first = cymbal_ptn + Position(1.0)
+cymbal_second = cymbal_ptn + Position(3.0)
 
 complete_part << cymbal_first
 complete_part << cymbal_second

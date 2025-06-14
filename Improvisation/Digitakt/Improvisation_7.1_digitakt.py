@@ -44,8 +44,8 @@ closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 complete_part = Part(kick_clip, snare_clip, closed_hat_clip) * 4
 
 cymbal_ptn = Note(cymbal, 1/2) * 1
-cymbal_first = cymbal_ptn + CPar(Position(1.0))
-cymbal_second = cymbal_ptn + CPar(Position(3.0))
+cymbal_first = cymbal_ptn + Position(1.0)
+cymbal_second = cymbal_ptn + Position(3.0)
 cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal")
 
 complete_part << cymbal_clip

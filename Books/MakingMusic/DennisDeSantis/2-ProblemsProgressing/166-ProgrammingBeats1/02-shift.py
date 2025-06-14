@@ -31,7 +31,7 @@ drum = Note(DrumKit("Drum"), 1/16) * 4 << Foreach(0, 6, 8, 15)**Step()
 # (hi_hat + snare + drum) * 8 >> P
 
 hi_hat += 1/10 * Steps(1)   # shifts by 10%
-hi_hat << CParameter(Length(1.0))
+hi_hat << Use(Length(1.0))
 
 # First clip sets the common parameters (hi-hat)
 (hi_hat + snare + drum) * 8 >> P

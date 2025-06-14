@@ -1878,9 +1878,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff += operand
-            case od.Use():
-                for single_parameter in operand._data:
-                    self += od.ClipParameter(single_parameter)
 
             case tuple():
                 for single_operand in operand:
@@ -1903,9 +1900,6 @@ class Clip(Composition):  # Just a container of Elements
             
             case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff -= operand
-            case od.Use():
-                for single_parameter in operand._data:
-                    self -= od.ClipParameter(single_parameter)
 
             case tuple():
                 for single_operand in operand:
@@ -1982,9 +1976,6 @@ class Clip(Composition):  # Just a container of Elements
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 self *= self_repeating
-            case od.Use():
-                for single_parameter in operand._data:
-                    self *= od.ClipParameter(single_parameter)
 
             case om.Mutation():
                 return operand.copy().mutate(self)
@@ -2055,6 +2046,9 @@ class Clip(Composition):  # Just a container of Elements
                             self._length_beats = finish_position_beats
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
+
+            case ra.Length():
+                self._length_beats /= operand % Fraction()
             
             case ou.TimeUnit():
                 self_repeating: int = 0
@@ -2064,10 +2058,6 @@ class Clip(Composition):  # Just a container of Elements
                     operand_value: int = operand._unit
                     self_repeating = int( operand_value / length_value )
                 self /= self_repeating
-
-            case od.Use():
-                for single_parameter in operand._data:
-                    self /= od.ClipParameter(single_parameter)
 
             case tuple():
                 for single_operand in operand:

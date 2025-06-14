@@ -24,7 +24,7 @@ defaults << Minor()
 first_notes = Note(1/8) * 3 << Duration(1/16)
 
 # Sets the right C minor Key Signature
-first_notes << CParameter(Key("C")) << None # Resets the Tonic key from A to C
+first_notes << Use(Key("C")) << None # Resets the Tonic key from A to C
 first_notes % KeySignature() % int() >> Print()
 first_notes % KeySignature() % str() >> Print()
 

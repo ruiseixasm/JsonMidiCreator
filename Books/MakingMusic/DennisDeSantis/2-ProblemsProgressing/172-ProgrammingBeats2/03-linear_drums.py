@@ -36,7 +36,7 @@ time.sleep(0.5)
 
 # 2+2+2 pattern programming
 pattern = Note(1/16) * 3 << Iterate(2)**Step() << Foreach(DrumKit("Drum"), DrumKit("Hi-Hat"), DrumKit("Snare"))
-pattern << CParameter(Length(Steps(2+2+2)))
+pattern << Use(Length(Steps(2+2+2)))
 pattern *= 3
 pattern >> Trim()
 
