@@ -264,19 +264,6 @@ class Or(Conditional):
         return True
 
 
-class ClipParameter(Data):   # Just a data wrapper
-    """`Data -> ClipParameter`
-
-    It's just a wrapper of parameter data exclusive for the `Clip` operand.
-
-    Parameters
-    ----------
-    Any(None) : Any parameter concerning `Clip` operands.
-    """
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._data = operand
-
 class PartParameter(Data):   # Just a data wrapper
     """`Data -> PartParameter`
 

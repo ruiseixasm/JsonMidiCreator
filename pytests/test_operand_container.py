@@ -975,7 +975,7 @@ def test_clip_length():
 
     two_notes = Note() * 2
     assert two_notes % Length() == Beats(2)
-    two_notes << ClipParameter(Length(1.0))
+    two_notes << Length(1.0)
     assert two_notes % Length() == Beats(4)
 
     assert two_notes * 2 % Length() == Beats(4 * 2)
