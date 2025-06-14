@@ -1769,6 +1769,9 @@ class Clip(Composition):  # Just a container of Elements
                     case om.Mutation():     operand._data.mutate(self)
                     case _:                 super().__lshift__(operand)
 
+            case ra.Length():
+                self._length_beats = self._staff.convertToBeats(operand)._rational
+
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
