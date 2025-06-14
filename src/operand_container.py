@@ -951,7 +951,11 @@ class Composition(Container):
         # Horizontal X-Axis, Time related (COMMON)
 
         clip_tempo: float = float(plotlist[0]["tempo"])
-        self._ax.set_xlabel(f"Time (Measures.Beats.Steps) at {round(clip_tempo, 1)} bpm")
+        self._ax.set_xlabel(f"Time (Measures) at {round(clip_tempo, 1)} bpm")
+        # # 1. Disable autoscaling and force limits
+        # self._ax.set_autoscalex_on(False)
+        # current_min, current_max = self._ax.get_xlim()
+        # self._ax.set_xlim(current_min, current_max * 1.03)
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
@@ -1022,7 +1026,7 @@ class Composition(Container):
 
                 for note in channel_plotlist:
                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                            height=0.5, color=channel_color, edgecolor='black', linewidth=3, alpha = (note["velocity"] / 127))
+                            height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
         
 
             chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
@@ -1120,18 +1124,17 @@ class Composition(Container):
         for measure_pos in measure_positions:
             self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
         for beat_pos in beat_positions:
-            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5)  # Measure lines
+            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5, linewidth=0.5)  # Measure lines
         for grid_pos in step_positions:
-            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.5)  # Beat subdivisions
+            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.25, linewidth=0.5)  # Beat subdivisions
 
         # Set x-axis labels in 'Measure.Beat' format
         beat_labels = [
-            f"{int(pos // float(beats_per_measure))}.{int(pos % float(beats_per_measure))}.{int(pos / quantization_beats % float(steps_per_measure))}"
-            for pos in beat_positions
+            f"{int(pos // float(beats_per_measure))}" for pos in measure_positions
         ]
         
-        self._ax.set_xticks(beat_positions)  # Only show measure & beat labels
-        self._ax.set_xticklabels(beat_labels, rotation=45)
+        self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
+        self._ax.set_xticklabels(beat_labels, rotation=0)
         self._fig.canvas.draw_idle()
 
         return None
@@ -1317,7 +1320,9 @@ class Composition(Container):
 
         self._plot_elements(self._plot_lists[0])
 
+        # Where the padding is set
         plt.tight_layout()
+        plt.subplots_adjust(right=0.975)  # 2.5% right padding
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
