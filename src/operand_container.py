@@ -3437,15 +3437,16 @@ class Song(Composition):
         """
         start_position: ra.Position = None
 
-        for part in self._items:
+        for single_part in self._items:
             # Already includes the Song Staff conversion
-            part_start: ra.Position = part.start()
-            if part_start:
+            part_start: ra.Position = single_part.start()
+            if part_start is not None:
+                absolute_start: ra.Position = single_part % ra.Position() + part_start
                 if start_position is not None:
-                    if part_start < start_position:
-                        start_position = part_start
+                    if absolute_start < start_position:
+                        start_position = absolute_start
                 else:
-                    start_position = part_start
+                    start_position = absolute_start
         return start_position
 
 
@@ -3467,11 +3468,12 @@ class Song(Composition):
             # Already includes the Song Staff conversion
             part_finish: ra.Position = single_part.finish()
             if part_finish is not None:
+                absolute_finish: ra.Position = single_part % ra.Position() + part_finish
                 if finish_position is not None:
-                    if part_finish > finish_position:
-                        finish_position = part_finish
+                    if absolute_finish > finish_position:
+                        finish_position = absolute_finish
                 else:
-                    finish_position = part_finish
+                    finish_position = absolute_finish
         return finish_position
 
 
@@ -3485,11 +3487,11 @@ class Song(Composition):
         Returns:
             Length: The total `Length` from start to finish.
         """
-        start = self.start()
-        finish = self.finish()
+        start: ra.Position = self.start()
+        finish: ra.Position = self.finish()
         if start is not None and finish is not None:
             return (finish - start).convertToLength()
-        return self._staff.convertToLength()
+        return self._staff.convertToLength(0)
 
     def _last_position_and_element(self) -> tuple:
         last_iterations_list: list[tuple[ra.Position, Clip]] = []
@@ -3548,8 +3550,7 @@ class Song(Composition):
                 return self._staff % operand
             # By definition Songs are always at Position 0
             case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
-            case ra.Length():
-                return self.length()
+            case ra.Length():       return self.length()
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
