@@ -542,7 +542,7 @@ def test_mul_clip():
     six_notes = 6 * Note()
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes % Length() == 1.5  # Measures
-    six_notes << Use(Length(1.0))
+    six_notes << Length(six_notes, 1.0)
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes % Length() == 1.0  # Measures
 
