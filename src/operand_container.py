@@ -3173,7 +3173,7 @@ class Part(Composition):
                     case str():             self._name = operand._data
                     case _:                 super().__lshift__(operand)
 
-            case ra.Position() | ra.TimeValue():
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
             case Clip() | oe.Element():
                 self += operand
