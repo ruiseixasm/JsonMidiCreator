@@ -1793,25 +1793,35 @@ class Clip(Composition):  # Just a container of Elements
             case om.Mutation():
                 operand.copy().mutate(self)
             
-            case od.ClipParameter() | od.Use():
-
-                if isinstance(operand, od.Use):
-                    for single_parameter in operand._data:
-                        self << od.ClipParameter(single_parameter)
-                else:
-
-                    operand._data = self._tail_lshift(operand)._data    # Processes the tailed self operands or the Frame operand if any exists
-                    match operand._data:
+            case od.Use():
+                for single_data in operand._data:
+                    single_parameter: Any = self._tail_lshift(single_data)    # Processes the tailed self operands or the Frame operand if any exists
+                    match single_parameter:
                         case ra.Length() | ra.Duration():
-                            self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                            self._length_beats = self._staff.convertToBeats(single_parameter)._rational
                         case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
-                            self._midi_track << operand._data
+                            self._midi_track << single_parameter
                         case None:
                             self._length_beats = Fraction(-1)
                         case Clip():
-                            self._staff << operand._data._staff
+                            self._staff << single_parameter._staff
                         case _:
-                            self._staff << operand._data
+                            self._staff << single_parameter
+
+            case od.ClipParameter():
+
+                operand._data = self._tail_lshift(operand)._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Length() | ra.Duration():
+                        self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                    case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
+                        self._midi_track << operand._data
+                    case None:
+                        self._length_beats = Fraction(-1)
+                    case Clip():
+                        self._staff << operand._data._staff
+                    case _:
+                        self._staff << operand._data
 
             case tuple():
                 for single_operand in operand:
