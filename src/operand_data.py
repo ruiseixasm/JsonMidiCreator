@@ -264,20 +264,6 @@ class Or(Conditional):
         return True
 
 
-class SongParameter(Data):   # Just a data wrapper
-    """`Data -> SongParameter`
-
-    It's just a wrapper of parameter data exclusive for the `Song` operand.
-
-    Parameters
-    ----------
-    Any(None) : Any parameter concerning `Song` operands.
-    """
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._data = operand
-
-
 class Names(Data):
     """`Data -> Names`
 

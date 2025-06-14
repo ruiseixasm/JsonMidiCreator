@@ -3652,26 +3652,6 @@ class Song(Composition):
                 ]
                 self._sort_position()
 
-            case od.SongParameter() | od.Use():
-
-                if isinstance(operand, od.Use):
-                    for single_parameter in operand._data:
-                        self << od.SongParameter(single_parameter)
-                else:
-
-                    operand._data = self._tail_lshift(operand)._data    # Processes the tailed self operands or the Frame operand if any exists
-                    match operand._data:
-                        case ra.Length() | ra.Duration():
-                            self._length_beats = self._staff.convertToBeats(operand._data)._rational
-                        case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
-                            self._midi_track << operand._data
-                        case None:
-                            self._length_beats = Fraction(-1)
-                        case Clip():
-                            self._staff << operand._data._staff
-                        case _:
-                            self._staff << operand._data
-
             case tuple():
                 for single_operand in operand:
                     self << single_operand
