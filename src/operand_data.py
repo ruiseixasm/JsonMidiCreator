@@ -1336,6 +1336,21 @@ class CompositionProcess(Process):
     def _process(self, operand: o.T) -> o.T:
         return operand
 
+class Loop(CompositionProcess):
+    """`Data -> Process -> CompositionProcess -> Loop`
+
+    Creates a loop from the Composition from the given `Position` with a given `Length`.
+
+    Args:
+        position (Position): The given `Position` where the loop starts at.
+        length (Length): The `Length` of the loop.
+    """
+    def __init__(self, position = 0, length = 4):
+        super().__init__((position, length))
+
+    def _process(self, composition: 'Composition') -> 'Composition':
+        return composition.plot(*self._data)
+
 class Plot(CompositionProcess):
     """`Data -> Process -> CompositionProcess -> Plot`
 

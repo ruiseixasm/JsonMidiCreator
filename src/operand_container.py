@@ -906,6 +906,9 @@ class Composition(Container):
         return True
 
 
+    def loop(self, position = 0, length = 4) -> Self:
+        return self.empty_copy()
+
 
     def getPlotlist(self, position: ra.Position = None) -> list[dict]:
         """
@@ -2501,6 +2504,27 @@ class Clip(Composition):  # Just a container of Elements
             for index, element in enumerate(shallow_copy._items):
                 element -= start
         return shallow_copy
+
+
+    def loop(self, position = 0, length = 4) -> Self:
+
+        clip_loop: Clip = self.empty_copy()
+        punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
+        punch_out: ra.Position = self._staff.convertToPosition(4)   # Exclusive
+
+        if isinstance(position, (int, float, Fraction, ra.Position)):
+            punch_in = self._staff.convertToPosition(position)
+        if isinstance(length, (int, float, Fraction, ra.Length)):
+            punch_out = punch_in + self._staff.convertToBeats(length)
+
+        clip_loop._items = [
+            inside_element.copy() for inside_element in self._items
+            if punch_in <= inside_element % ra.Position() < punch_out
+        ]
+        clip_loop -= punch_in   # Moves to the start of the Clip being looped/trimmed
+
+        return clip_loop
+
 
     def monofy(self) -> Self:
         """
