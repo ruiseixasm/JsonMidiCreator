@@ -950,12 +950,17 @@ class Composition(Container):
 
             case od.DataSource():
                 match operand._data:
-                    case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                    case ra.Length():
+                        self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                        if self._length_beats < 0:
+                            self._length_beats = None
                     case None:              self._length_beats = None
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
                 self._length_beats = self._staff.convertToBeats(operand)._rational
+                if self._length_beats < 0:
+                    self._length_beats = None
             case None:
                 self._length_beats = None
 
@@ -1854,6 +1859,8 @@ class Clip(Composition):  # Just a container of Elements
 
             case ra.Length():
                 self._length_beats = self._staff.convertToBeats(operand)._rational
+                if self._length_beats < 0:
+                    self._length_beats = None
             case None:
                 self._length_beats = None
 
