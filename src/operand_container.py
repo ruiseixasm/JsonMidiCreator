@@ -950,13 +950,12 @@ class Composition(Container):
 
             case od.DataSource():
                 match operand._data:
-                    case None:              self._length_beats = None
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                    case None:              self._length_beats = None
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
                 self._length_beats = self._staff.convertToBeats(operand)._rational
-
             case None:
                 self._length_beats = None
 
@@ -1850,12 +1849,13 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case om.Mutation():     operand._data.mutate(self)
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
                 self._length_beats = self._staff.convertToBeats(operand)._rational
+            case None:
+                self._length_beats = None
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
