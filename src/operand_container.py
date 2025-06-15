@@ -890,8 +890,8 @@ class Composition(Container):
     def __init__(self, *operands):
         super().__init__()
         # Song sets the Staff, this is just a reference
-        self._staff: og.Staff = og.defaults._staff
-        self._length_beats: Fraction    = Fraction(-1)  # in Beats where -1 means isn't set
+        self._staff: og.Staff           = og.defaults._staff
+        self._length_beats: Fraction    = None
 
 
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
@@ -919,7 +919,7 @@ class Composition(Container):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["length"]       = self.serialize(self._length_beats)
+        serialization["parameters"]["length"] = self.serialize(self._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -938,7 +938,7 @@ class Composition(Container):
             "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._length_beats      = self.deserialize(serialization["parameters"]["length"])
+            self._length_beats = self.deserialize(serialization["parameters"]["length"])
         return self
 
 
@@ -950,11 +950,15 @@ class Composition(Container):
 
             case od.DataSource():
                 match operand._data:
+                    case None:              self._length_beats = None
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
                 self._length_beats = self._staff.convertToBeats(operand)._rational
+
+            case None:
+                self._length_beats = None
 
             case _:
                 super().__lshift__(operand)
@@ -1588,7 +1592,7 @@ class Clip(Composition):  # Just a container of Elements
             Position: The minimum Position of all Elements.
         """
         start_position: ra.Position = None
-        if self._length_beats < 0:
+        if self._length_beats is None:
             if self.len() > 0:
                 start_beats: Fraction = Fraction(0)
                 first_element: oe.Element = self._first_element()
@@ -1613,7 +1617,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         finish_position: ra.Position = None
 
-        if self._length_beats < 0:
+        if self._length_beats is None:
             if self.len() > 0:
                 finish_beats: Fraction = Fraction(0)
                 for item in self._items:
@@ -1676,7 +1680,9 @@ class Clip(Composition):  # Just a container of Elements
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
                     case ra.Measurement():
-                        return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
+                        if self._length_beats is not None:
+                            return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
+                        return None
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
@@ -1977,10 +1983,10 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 right_start_position: ra.Position = operand.start()
-                if self._length_beats < 0:
+                if self._length_beats is None:
                     # It's the position of the element that matters and not their tailed Duration
-                    last_position: oe.Position = self._last_element_position()
-                    if last_position:
+                    last_position: ra.Position = self._last_element_position()
+                    if last_position is not None:
                         add_position: ra.Position = last_position.roundMeasures() + ou.Measure(1)
                     else:
                         add_position: ra.Position = ra.Position(0)
@@ -1999,7 +2005,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    if self._length_beats >= 0:
+                    if self._length_beats is not None:
                         add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                         self._length_beats *= operand
                     else:
@@ -2059,7 +2065,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                if self._length_beats < 0:
+                if self._length_beats is None:
                     left_end_position: ra.Position = self.finish()
                 else:
                     left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))    # Doesn't round, immediate stacking
@@ -2099,7 +2105,7 @@ class Clip(Composition):  # Just a container of Elements
                     #     single_element._set_staff_reference(self._staff).set_clip_reference(self)
                     #     for single_element in self_copy if isinstance(single_element, oe.Element)
                     # )
-                    if self._length_beats >= 0:
+                    if self._length_beats is not None:
                         finish_position_beats: Fraction = self.finish()._rational
                         if finish_position_beats > self._length_beats:
                             self._length_beats = finish_position_beats
@@ -2512,7 +2518,7 @@ class Clip(Composition):  # Just a container of Elements
                 if element % ra.Position() + element % ra.Length() > length:
                     new_length: ra.Length = length - element % ra.Position()
                     element << new_length
-            if self._length_beats >= 0:
+            if self._length_beats is not None:
                 self._length_beats = min(self._length_beats, self._staff.convertToBeats(length)._rational)
         return self
     
