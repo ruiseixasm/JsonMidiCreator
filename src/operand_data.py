@@ -1320,6 +1320,8 @@ if TYPE_CHECKING:
     from operand_container import Composition
     from operand_container import Clip
 
+TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
+
 class CompositionProcess(Process):
     """`Data -> Process -> CompositionProcess`
 
@@ -1333,7 +1335,7 @@ class CompositionProcess(Process):
             print(f"Warning: Operand is NOT a `Composition`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _process(self, operand: TypeComposition) -> TypeComposition:
         return operand
 
 class Loop(CompositionProcess):
@@ -1348,8 +1350,8 @@ class Loop(CompositionProcess):
     def __init__(self, position = 0, length = 4):
         super().__init__((position, length))
 
-    def _process(self, composition: 'Composition') -> 'Composition':
-        return composition.plot(*self._data)
+    def _process(self, composition: TypeComposition) -> TypeComposition:
+        return composition.loop(*self._data)
 
 class Plot(CompositionProcess):
     """`Data -> Process -> CompositionProcess -> Plot`
@@ -1371,7 +1373,7 @@ class Plot(CompositionProcess):
                  e_button: Optional[Callable[['Composition'], Any]] = None):
         super().__init__((block, pause, iterations, n_button, c_button, e_button))
 
-    def _process(self, composition: 'Composition') -> 'Composition':
+    def _process(self, composition: TypeComposition) -> TypeComposition:
         return composition.plot(*self._data)
 
 
