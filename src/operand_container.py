@@ -907,6 +907,16 @@ class Composition(Container):
 
 
     def loop(self, position = 0, length = 4) -> Self:
+        """
+        Creates a loop from the Composition from the given `Position` with a given `Length`.
+
+        Args:
+            position (Position): The given `Position` where the loop starts at.
+            length (Length): The `Length` of the loop.
+
+        Returns:
+            Composition: A copy of the self object with the items processed.
+        """
         return self.empty_copy()
 
 
@@ -2507,10 +2517,19 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def loop(self, position = 0, length = 4) -> Self:
+        """
+        Creates a loop from the Composition from the given `Position` with a given `Length`.
 
+        Args:
+            position (Position): The given `Position` where the loop starts at.
+            length (Length): The `Length` of the loop.
+
+        Returns:
+            Clip: A copy of the self object with the items processed.
+        """
         clip_loop: Clip = self.empty_copy()
         punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
-        punch_out: ra.Position = self._staff.convertToPosition(4)   # Exclusive
+        punch_out: ra.Position = punch_in + self._staff.convertToPosition(4)   # Exclusive
 
         if isinstance(position, (int, float, Fraction, ra.Position)):
             punch_in = self._staff.convertToPosition(position)
@@ -3369,6 +3388,36 @@ class Part(Composition):
         return self
 
 
+    def loop(self, position = 0, length = 4) -> Self:
+        """
+        Creates a loop from the Composition from the given `Position` with a given `Length`.
+
+        Args:
+            position (Position): The given `Position` where the loop starts at.
+            length (Length): The `Length` of the loop.
+
+        Returns:
+            Part: A copy of the self object with the items processed.
+        """
+        part_loop: Part = self.empty_copy()
+        punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
+        punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
+
+        if isinstance(position, (int, float, Fraction, ra.Position)):
+            punch_in = self._staff.convertToPosition(position)
+        if isinstance(length, (int, float, Fraction, ra.Length)):
+            punch_length = self._staff.convertToLength(length)
+
+        clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
+
+        part_loop._items = [
+            clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
+        ]
+        part_loop._position_beats -= punch_in._rational
+
+        return part_loop
+
+
 class Song(Composition):
     """`Container -> Composition -> Song`
 
@@ -3830,4 +3879,23 @@ class Song(Composition):
                 for item in self._items:
                     item /= operand
         return self
+
+
+    def loop(self, position = 0, length = 4) -> Self:
+        """
+        Creates a loop from the Composition from the given `Position` with a given `Length`.
+
+        Args:
+            position (Position): The given `Position` where the loop starts at.
+            length (Length): The `Length` of the loop.
+
+        Returns:
+            Song: A copy of the self object with the items processed.
+        """
+        song_loop: Part = self.empty_copy()
+        song_loop._items = [
+            part_loop.loop(position, length) for part_loop in self._items
+        ]
+
+        return song_loop
 
