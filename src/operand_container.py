@@ -2719,18 +2719,20 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def tie(self) -> Self:
+    def tie(self, decompose: bool = True) -> Self:
         """
         Extends the `Note` elements as tied when applicable.
         Works only on Notes, and NOT on its derived elements, as `Chord`,
         do `Decompose` if needed to transform a `Chord` into Notes.
 
         Args:
-            None
+            decompose (bool): If `True`, decomposes elements derived from `Note` first.
 
         Returns:
             Clip: The same self object with the items processed.
         """
+        if decompose:
+            self.decompose()
         all_notes: list[oe.Note] = [
             single_note for single_note in self._items if type(single_note) is oe.Note
         ]

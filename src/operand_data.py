@@ -1540,10 +1540,13 @@ class Tie(ClipProcess):
     do `Decompose` if needed to transform a `Chord` into Notes.
 
     Args:
-        None.
+        decompose (bool): If `True`, decomposes elements derived from `Note` first.
     """
+    def __init__(self, decompose: bool = True):
+        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.tie()
+        return operand.tie(*self._data)
 
 
 class Slur(ClipProcess):
