@@ -1428,7 +1428,7 @@ class KeyScale(Note):
             
     def _apply_inversion(self, notes: list[Note]) -> list[Note]:
         # Where the inversions are done
-        inversion = min(self._inversion, len(notes) - 1)
+        inversion = self._inversion % len(notes)
         if inversion > 0:
             first_note = notes[inversion]
             not_first_note = True
@@ -1439,6 +1439,10 @@ class KeyScale(Note):
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
+            # Final Octave adjustment
+            octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
+            for single_note in notes:
+                single_note += octave_offset
         return notes
             
     def get_component_elements(self) -> list[Element]:
