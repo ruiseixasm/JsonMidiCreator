@@ -1428,7 +1428,7 @@ class KeyScale(Note):
             
     def _apply_inversion(self, notes: list[Note]) -> list[Note]:
         # Where the inversions are done
-        inversion = self._inversion % len(notes)
+        inversion: int = self._inversion % len(notes)
         if inversion > 0:
             first_note = notes[inversion]
             not_first_note = True
