@@ -848,23 +848,26 @@ def test_clip_operations():
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     duration: float = 0.9375    # 15/16 Note
 
+    # Starts at Position 0.0, so length == net_length
     clip_duration: Duration = Duration( straight_clip % Length() )
     print(clip_duration % float())
     assert clip_duration == duration
 
-    straight_length: Length = straight_clip % Length()
-    type(straight_length) >> Print()
-    assert type(straight_length) == Length
+    # Starts at Position 0.0, so length == net_length
+    straight_net_length: Length = straight_clip % Length()
+    type(straight_net_length) >> Print()
+    assert type(straight_net_length) == Length
     
-    straight_serialization: dict = straight_length.getSerialization()
+    straight_serialization: dict = straight_net_length.getSerialization()
     straight_serialization % Data("float") >> Print()   # 3.75 Beats
     assert straight_serialization % Data("float") == 3.75
 
-    reversed_length: Length = reversed_clip % Length()
-    type(reversed_length) >> Print()
-    assert type(reversed_length) == Length
+    # Starts at Position 0.0, so length == net_length
+    reversed_net_length: Length = reversed_clip % Length()
+    type(reversed_net_length) >> Print()
+    assert type(reversed_net_length) == Length
     
-    reversed_serialization: dict = reversed_length.getSerialization()
+    reversed_serialization: dict = reversed_net_length.getSerialization()
     reversed_serialization % Data("float") >> Print()   # 3.75 Beats
     assert reversed_serialization % Data("float") == 3.75
 
@@ -879,11 +882,14 @@ def test_clip_operations():
     three_notes = Note(1/4) + Note(1/2) + Note(1/2) >> Stack()
     three_notes += Measure(1)
 
-    assert three_notes % Length() == 1.25
+    # NOT at Position 0.0, so length != net_length
+    three_notes_net_length: Length = Length( three_notes.finish() - three_notes.start() )
+    assert three_notes_net_length == 1.25
     assert three_notes[0] % Position() == 1.0
 
     three_notes.reverse()
-    assert three_notes % Length() == 1.25
+    reversed_notes_net_length: Length = Length( three_notes.finish() - three_notes.start() )
+    assert reversed_notes_net_length == 1.25
     print(three_notes[0] % Position() % float())
     assert three_notes[0] % Position() == 1.75
 
