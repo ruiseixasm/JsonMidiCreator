@@ -1645,29 +1645,12 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Length: Equal to Clip finish() - start() or Length if set.
         """
-        
-        if self._length_beats is not None:
-            return self._staff.convertToLength( ra.Beats(self._length_beats) )
-        else:
-            start = self.start()
-            finish = self.finish()
-            if start is not None and finish is not None:
-                return (finish - start).convertToLength()
+        start = self.start()
+        finish = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
     
-
-    def duration(self) -> 'ra.Duration':
-        """
-        Returns the length wrapped as Duration.
-
-        Args:
-            None
-
-        Returns:
-            Duration: Equal to length() but returning Duration.
-        """
-        return self.length().convertToDuration()
-
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -1697,13 +1680,16 @@ class Clip(Composition):  # Just a container of Elements
                 return self._midi_track % operand
             # By definition Clips are always at Position 0
             case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
-            case ra.Length():       return self.length()
-            case ra.Duration():     return self.duration()
+            case ra.Length():
+                if self._length_beats is not None:
+                    return self._staff.convertToLength( ra.Beats(self._length_beats) )
+                return self.length()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
             case _:
                 return super().__mod__(operand)
+
 
     def _get_position_beats(self, position: ra.Position = None) -> Fraction:
 

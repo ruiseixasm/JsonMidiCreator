@@ -848,7 +848,7 @@ def test_clip_operations():
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     duration: float = 0.9375    # 15/16 Note
 
-    clip_duration: Duration = straight_clip % Duration()
+    clip_duration: Duration = Duration( straight_clip % Length() )
     print(clip_duration % float())
     assert clip_duration == duration
 
