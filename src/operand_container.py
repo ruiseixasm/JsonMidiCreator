@@ -968,6 +968,9 @@ class Composition(Container):
             # By definition Clips are always at Position 0
             case ra.Position():
                 return ra.Position(0)._set_staff_reference(self._staff)
+                # if self._length_beats is not None:
+                #     return ra.Position(0)._set_staff_reference(self._staff)
+                # return self.start()
             case ra.Length():
                 if self._length_beats is not None:
                     return self._staff.convertToLength( ra.Beats(self._length_beats) )
