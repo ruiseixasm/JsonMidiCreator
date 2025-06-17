@@ -950,7 +950,7 @@ class Composition(Container):
         """
         return None
     
-    
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
@@ -1736,23 +1736,13 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Measurement():
-                        if self._length_beats is not None:
-                            return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
-                        return None
                     case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
             # By definition Clips are always at Position 0
             case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
-            case ra.Length():
-                if self._length_beats is not None:
-                    return self._staff.convertToLength( ra.Beats(self._length_beats) )
-                return self.length()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
@@ -3189,8 +3179,6 @@ class Part(Composition):
                     case _:                 return super().__mod__(operand)
             case ra.Position():
                 return self._staff.convertToPosition(ra.Beats(self._position_beats))
-            case ra.Length():
-                return self.length()
             case str():
                 return self._name
             case od.Names():
@@ -3734,7 +3722,6 @@ class Song(Composition):
                 return self._staff % operand
             # By definition Songs are always at Position 0
             case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
-            case ra.Length():       return self.length()
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
