@@ -937,8 +937,20 @@ class Composition(Container):
         return None
 
 
-    # Considers the self Length
     def length(self) -> 'ra.Length':
+        """
+        Reruns the length that goes from the start to finish of all elements.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to Clip finish() - start().
+        """
+        return None
+    
+    
+    def net_length(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -1709,8 +1721,23 @@ class Clip(Composition):  # Just a container of Elements
         return finish_position
 
 
-    # Considers the self Length
     def length(self) -> 'ra.Length':
+        """
+        Reruns the length that goes from the start to finish of all elements.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to Clip finish() - start().
+        """
+        start = self.start()
+        finish = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
+        return self._staff.convertToLength(0)
+    
+    def net_length(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -3112,6 +3139,22 @@ class Part(Composition):
 
 
     def length(self) -> ra.Length:
+        """
+        Returns the `Length` of the entire `Part` from start to finish.
+
+        Args:
+            None
+
+        Returns:
+            Length: The total `Length` from start to finish.
+        """
+        start = self.start()
+        finish = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
+        return self._staff.convertToLength()
+
+    def net_length(self) -> ra.Length:
         """
         Returns the `Length` of the entire `Part` from start to finish.
 
