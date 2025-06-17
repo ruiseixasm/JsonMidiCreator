@@ -3404,20 +3404,26 @@ class Part(Composition):
             case Part():
                 operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
-                # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self._last_element_position()
-                if last_position:
-                    add_measure = last_position.roundMeasures() + ou.Measure(1)
+                if self._length_beats is None:
+                    # It's the position of the element that matters and not their tailed Duration
+                    last_position: ra.Position = self._last_element_position()
+                    if last_position:
+                        add_measure = last_position.roundMeasures() + ou.Measure(1)
+                else:
+                    add_measure = ou.Measure( self // ra.Length() )
                 # Clips have no Position, so, it's implicit position is always 0
                 for clip_or_playlist in operand_copy._items:
                     clip_or_playlist += add_measure
                     self._append([ clip_or_playlist ])
             case Clip() | od.Playlist():
                 add_measure: ou.Measure = ou.Measure(0)
-                # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self._last_element_position()
-                if last_position:
-                    add_measure = last_position.roundMeasures() + ou.Measure(1)
+                if self._length_beats is None:
+                    # It's the position of the element that matters and not their tailed Duration
+                    last_position: ra.Position = self._last_element_position()
+                    if last_position:
+                        add_measure = last_position.roundMeasures() + ou.Measure(1)
+                else:
+                    add_measure = ou.Measure( self // ra.Length() )
                 # Clips have no Position, so, it's implicit position is always 0
                 self._append([ operand + add_measure ])
             case oe.Element():
