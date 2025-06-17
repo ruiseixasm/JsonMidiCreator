@@ -3675,6 +3675,22 @@ class Song(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
+    def net_length(self) -> ra.Length:
+        """
+        Returns the `Length` of the entire `Song` from start to finish.
+
+        Args:
+            None
+
+        Returns:
+            Length: The total `Length` from start to finish.
+        """
+        start: ra.Position = self.start()
+        finish: ra.Position = self.finish()
+        if start is not None and finish is not None:
+            return (finish - start).convertToLength()
+        return None
+
     def _last_position_and_element(self) -> tuple:
         last_iterations_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
