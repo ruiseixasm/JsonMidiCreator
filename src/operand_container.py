@@ -950,6 +950,31 @@ class Composition(Container):
         """
         return None
     
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        return self._staff
+                    case ra.Measurement():
+                        if self._length_beats is not None:
+                            return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
+                        return None
+                    case _:                 return super().__mod__(operand)
+            case og.Staff():
+                return self._staff.copy()
+            case ou.TrackNumber() | od.TrackName() | Devices() | str():
+                return self._midi_track % operand
+            case ra.Length():
+                if self._length_beats is not None:
+                    return self._staff.convertToLength( ra.Beats(self._length_beats) )
+                return self.length()
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
+                | float() | Fraction():
+                return self._staff % operand
+            case _:
+                return super().__mod__(operand)
+
 
     def getSerialization(self) -> dict:
         """
