@@ -2072,10 +2072,8 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                if self._length_beats is None:
-                    left_end_position: ra.Position = self.finish()
-                else:
-                    left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))    # Doesn't round, immediate stacking
+                left_end_position: ra.Position = self.finish()
+                if self._length_beats is not None:
                     self._length_beats += (operand % ra.Length())._rational
                 right_start_position: ra.Position = operand.start()
                 length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
