@@ -907,6 +907,50 @@ class Composition(Container):
         return True
 
 
+    # Ignores the self Length
+    def start(self) -> 'ra.Position':
+        """
+        Gets the starting position of all its Elements.
+        This is the same as the minimum Position of all `Element` positions.
+
+        Args:
+            None
+
+        Returns:
+            Position: The minimum Position of all Elements.
+        """
+        return None
+
+
+    # Ignores the self Length
+    def finish(self) -> 'ra.Position':
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
+        return None
+
+
+    # Considers the self Length
+    def length(self) -> 'ra.Length':
+        """
+        Reruns the length that goes from the start to finish of all elements.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to Clip finish() - start().
+        """
+        return None
+    
+
     def getSerialization(self) -> dict:
         """
         Returns the serialization in a form of a dictionary of `Clip` parameters.
@@ -1643,7 +1687,7 @@ class Clip(Composition):  # Just a container of Elements
             None
 
         Returns:
-            Length: Equal to Clip finish() - start() or Length if set.
+            Length: Equal to Clip finish() - start().
         """
         start = self.start()
         finish = self.finish()
