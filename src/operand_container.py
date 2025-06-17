@@ -965,6 +965,9 @@ class Composition(Container):
                 return self._staff.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
+            # By definition Clips are always at Position 0
+            case ra.Position():
+                return ra.Position(0)._set_staff_reference(self._staff)
             case ra.Length():
                 if self._length_beats is not None:
                     return self._staff.convertToLength( ra.Beats(self._length_beats) )
@@ -1741,8 +1744,6 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
-            # By definition Clips are always at Position 0
-            case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
