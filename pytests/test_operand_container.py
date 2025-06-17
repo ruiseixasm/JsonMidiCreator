@@ -544,7 +544,7 @@ def test_mul_clip():
     assert six_notes % Length() == 1.5  # Measures
     six_notes << Length(six_notes, 1.0)
     print(f"Length: {six_notes % Length() % float()}")
-    assert six_notes % Length() == 1.0  # Measures
+    assert six_notes // Length() == 1.0  # Measures
 
     single_note = Note() * 1
     two_notes = single_note * single_note
@@ -976,12 +976,12 @@ def test_clip_length():
     two_notes = Note() * 2
     assert two_notes % Length() == Beats(2)
     two_notes << Length(1.0)
-    assert two_notes % Length() == Beats(4)
+    assert two_notes // Length() == Beats(4)
 
-    assert two_notes * 2 % Length() == Beats(4 * 2)
-    assert two_notes * two_notes % Length() == Beats(4 * 2)
-    assert two_notes * 3 % Length() == Beats(4 * 3)
-    assert two_notes * two_notes * two_notes % Length() == Beats(4 * 3)
+    assert two_notes * 2 // Length() == Beats(4) * 2
+    assert two_notes * two_notes // Length() == Beats(4) * 2
+    assert two_notes * 3 // Length() == Beats(4) * 3
+    assert two_notes * two_notes * two_notes // Length() == Beats(4) * 3
 
 # test_clip_length()
 

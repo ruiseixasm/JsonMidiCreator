@@ -956,7 +956,7 @@ class Composition(Container):
             case od.DataSource():
                 match operand._data:
                     case og.Staff():        return self._staff
-                    case ra.Measurement():
+                    case ra.Length():
                         if self._length_beats is not None:
                             return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
                         return None
@@ -972,8 +972,8 @@ class Composition(Container):
                 #     return ra.Position(0)._set_staff_reference(self._staff)
                 # return self.start()
             case ra.Length():
-                if self._length_beats is not None:
-                    return self._staff.convertToLength( ra.Beats(self._length_beats) )
+                # if self._length_beats is not None:
+                #     return self._staff.convertToLength( ra.Beats(self._length_beats) )
                 return self.length()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
@@ -2050,9 +2050,9 @@ class Clip(Composition):  # Just a container of Elements
                     else:
                         add_position: ra.Position = ra.Position(0)
                 else:
-                    left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
-                    self._length_beats += (operand % ra.Length())._rational
-                    add_position: ra.Position = left_end_position - right_start_position
+                    last_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
+                    self._length_beats += (operand // ra.Length())._rational
+                    add_position: ra.Position = last_position - right_start_position
                 operand_elements = [
                     (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand._items if isinstance(single_element, oe.Element)
