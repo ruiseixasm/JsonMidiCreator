@@ -1584,6 +1584,8 @@ class Clip(Composition):  # Just a container of Elements
             return last_element % ra.Position()
         return None
 
+
+    # Ignores the self Length
     def start(self) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
@@ -1596,18 +1598,16 @@ class Clip(Composition):  # Just a container of Elements
             Position: The minimum Position of all Elements.
         """
         start_position: ra.Position = None
-        if self._length_beats is None:
-            if self.len() > 0:
-                start_beats: Fraction = Fraction(0)
-                first_element: oe.Element = self._first_element()
-                if first_element:
-                    start_beats = first_element._position_beats
-                start_position = self._staff.convertToPosition(ra.Beats(start_beats))
-        else:
-            start_position = self._staff.convertToPosition(0)
+        if self.len() > 0:
+            start_beats: Fraction = Fraction(0)
+            first_element: oe.Element = self._first_element()
+            if first_element:
+                start_beats = first_element._position_beats
+            start_position = self._staff.convertToPosition(ra.Beats(start_beats))
         return start_position
 
 
+    # Ignores the self Length
     def finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
@@ -1621,22 +1621,20 @@ class Clip(Composition):  # Just a container of Elements
         """
         finish_position: ra.Position = None
 
-        if self._length_beats is None:
-            if self.len() > 0:
-                finish_beats: Fraction = Fraction(0)
-                for item in self._items:
-                    if isinstance(item, oe.Element):
-                        single_element: oe.Element = item
-                        element_finish: Fraction = single_element._position_beats \
-                            + (single_element % ra.Length())._rational
-                        if element_finish > finish_beats:
-                            finish_beats = element_finish
-                finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
-        else:
-            finish_position = self._staff.convertToPosition(ra.Beats(self._length_beats))
+        if self.len() > 0:
+            finish_beats: Fraction = Fraction(0)
+            for item in self._items:
+                if isinstance(item, oe.Element):
+                    single_element: oe.Element = item
+                    element_finish: Fraction = single_element._position_beats \
+                        + (single_element % ra.Length())._rational
+                    if element_finish > finish_beats:
+                        finish_beats = element_finish
+            finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
         return finish_position
 
 
+    # Considers the self Length
     def length(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
@@ -1645,13 +1643,18 @@ class Clip(Composition):  # Just a container of Elements
             None
 
         Returns:
-            Length: Equal to Clip finish() - start().
+            Length: Equal to Clip finish() - start() or Length if set.
         """
-        start = self.start()
-        finish = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
+        
+        if self._length_beats is not None:
+            return self._staff.convertToLength( ra.Beats(self._length_beats) )
+        else:
+            start = self.start()
+            finish = self.finish()
+            if start is not None and finish is not None:
+                return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
+    
 
     def duration(self) -> 'ra.Duration':
         """
