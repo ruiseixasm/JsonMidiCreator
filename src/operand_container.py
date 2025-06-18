@@ -1637,6 +1637,15 @@ class Clip(Composition):  # Just a container of Elements
                 single_element.set_clip_reference(self)
         return self
 
+    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
+        if isinstance(staff_reference, og.Staff):
+            self._staff << staff_reference  # Does a copy
+        for single_element in self:
+            if isinstance(single_element, oe.Element):
+                single_element._convert_staff_reference(self._staff)
+                single_element.set_clip_reference(self)
+        return self
+
     def _test_staff_reference(self) -> bool:
         for single_element in self:
             if isinstance(single_element, oe.Element) and not (
@@ -2056,7 +2065,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 
-                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
+                right_clip: Clip = operand.copy()._convert_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_clip.start().roundMeasures()

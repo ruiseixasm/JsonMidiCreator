@@ -83,6 +83,13 @@ class Element(o.Operand):
         self._staff_reference = og.defaults._staff
         return self
 
+    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
+        self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
+        self._duration_notevalue = ra.Duration(staff_reference, self // ra.Duration())._rational
+        self._set_staff_reference(staff_reference)
+        return self
+
+
     def set_clip_reference(self, clip_reference: 'Clip' = None) -> Self:
         import operand_container as oc
         if isinstance(clip_reference, oc.Clip):
