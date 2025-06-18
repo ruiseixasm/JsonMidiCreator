@@ -939,26 +939,38 @@ class Composition(Container):
 
     def length(self) -> 'ra.Length':
         """
-        Reruns the length that goes from the start to finish of all elements.
+        Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
 
         Args:
             None
 
         Returns:
-            Length: Equal to Clip finish() - start().
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         return ra.Length(self, 0)
     
     
-    def net_duration(self) -> 'ra.Duration':
+    def duration(self) -> 'ra.Duration':
         """
-        Reruns the length that goes from the start to finish of all elements.
+        Returns the `Duration` that goes from 0 to the `finish` of all elements.
 
         Args:
             None
 
         Returns:
-            Duration: Equal to Clip finish() - start().
+            Duration: Equal to `Clip.finish()` converted to `Duration`.
+        """
+        return ra.Duration(self, 0)
+    
+    def net_duration(self) -> 'ra.Duration':
+        """
+        Returns the `Duration` that goes from `start` to the `finish` of all elements.
+
+        Args:
+            None
+
+        Returns:
+            Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
         return ra.Duration(self, 0)
     
