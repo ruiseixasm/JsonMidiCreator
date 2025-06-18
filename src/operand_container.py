@@ -2055,29 +2055,20 @@ class Clip(Composition):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
-                right_start_position: ra.Position = operand.start()
-                if self._length_beats is None:
-                    # It's the position of the element that matters and not their tailed Duration
-                    last_position: ra.Position = self._last_element_position()
-                    if last_position is not None:
-                        add_position: ra.Position = last_position.roundMeasures() + ou.Measure(1)
-                    else:
-                        add_position: ra.Position = ra.Position(0)
-                else:
-                    last_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
-                    self._length_beats += (operand // ra.Length())._rational
-                    add_position: ra.Position = last_position - right_start_position
                 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = operand.start().roundMeasures()
                 position_offset: ra.Position = right_position - left_length
 
                 operand_elements = [
-                    (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
+                    (single_element - position_offset)._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand._items if isinstance(single_element, oe.Element)
                 ]
                 self._append(operand_elements)  # Propagates upwards in the stack
                 
+                if self._length_beats is not None:
+                    self._length_beats += self._staff.convertToBeats(operand % ra.Length())._rational
+
             case oe.Element():
                 self *= Clip(operand)
 
