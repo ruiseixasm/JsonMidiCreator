@@ -2056,15 +2056,16 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 
+                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
+
                 left_length: ra.Length = self % ra.Length()
-                right_position: ra.Position = operand.start().roundMeasures()
+                right_position: ra.Position = right_clip.start().roundMeasures()
                 position_offset: ra.Position = right_position - left_length
 
-                operand_elements = [
-                    (single_element - position_offset)._set_staff_reference(self._staff).set_clip_reference(self)
-                    for single_element in operand._items if isinstance(single_element, oe.Element)
-                ]
-                self._append(operand_elements)  # Propagates upwards in the stack
+                for single_element in right_clip:
+                    single_element -= position_offset
+
+                self._append(right_clip._items)  # Propagates upwards in the stack
                 
                 if self._length_beats is not None:
                     self._length_beats += self._staff.convertToBeats(operand % ra.Length())._rational
