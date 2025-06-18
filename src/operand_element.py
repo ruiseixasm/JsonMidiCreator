@@ -388,7 +388,7 @@ class Element(o.Operand):
                 return self_clip
             # For efficient reasons
             case ra.Position():
-                self._position_beats += operand._rational
+                self._position_beats += self._staff_reference.convertToBeats(operand)._rational
             case _:
                 if isinstance(operand, ou.TimeUnit):    # avoids erroneous behavior
                     operand = self._staff_reference.convertToBeats(operand)
@@ -402,7 +402,7 @@ class Element(o.Operand):
         match operand:
             # For efficient reasons
             case ra.Position():
-                self._position_beats -= operand._rational
+                self._position_beats -= self._staff_reference.convertToBeats(operand)._rational
             case _:
                 if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
                     operand = self._staff_reference.convertToBeats(operand)

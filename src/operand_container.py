@@ -1735,9 +1735,8 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def length(self) -> 'ra.Length':
-        last_element: oe.Element = self.last()
-        if last_element is not None:
-            last_position: ra.Position = last_element // ra.Position()
+        last_position: ra.Position = self._last_element_position()
+        if last_position is not None:
             return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
         return super().length()
     
@@ -2068,6 +2067,11 @@ class Clip(Composition):  # Just a container of Elements
                     last_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                     self._length_beats += (operand // ra.Length())._rational
                     add_position: ra.Position = last_position - right_start_position
+                
+                left_length: ra.Length = self % ra.Length()
+                right_position: ra.Position = operand.start().roundMeasures()
+                position_offset: ra.Position = right_position - left_length
+
                 operand_elements = [
                     (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand._items if isinstance(single_element, oe.Element)
