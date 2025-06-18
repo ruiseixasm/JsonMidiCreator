@@ -919,7 +919,7 @@ class Composition(Container):
         Returns:
             Position: The minimum Position of all Elements.
         """
-        return ra.Position(self, 0)
+        return None
 
 
     # Ignores the self Length
@@ -934,7 +934,7 @@ class Composition(Container):
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        return ra.Position(self, 0)
+        return None
 
 
     def length(self) -> 'ra.Length':
@@ -947,7 +947,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        return ra.Length(self, 0)
+        return ra.Length(self)
     
     
     def duration(self) -> 'ra.Duration':
@@ -960,7 +960,10 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        return ra.Duration(self.finish())
+        self_finish: ra.Position = self.finish()
+        if self_finish is not None:
+            return ra.Duration(self.finish())
+        return ra.Duration(self)
     
     def net_duration(self) -> 'ra.Duration':
         """
@@ -972,7 +975,11 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        return ra.Duration(self.finish() - self.start())
+        self_start: ra.Position = self.start()
+        self_finish: ra.Position = self.finish()
+        if self_start is not None and self_finish is not None:
+            return ra.Duration(self.finish() - self.start())
+        return ra.Duration(self)
     
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1693,14 +1700,13 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        start_position: ra.Position = None
         if self.len() > 0:
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._first_element()
             if first_element:
                 start_beats = first_element._position_beats
-            start_position = self._staff.convertToPosition(ra.Beats(start_beats))
-        return start_position
+            return self._staff.convertToPosition(ra.Beats(start_beats))
+        return None
 
 
     # Ignores the self Length
@@ -1715,8 +1721,6 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        finish_position: ra.Position = None
-
         if self.len() > 0:
             finish_beats: Fraction = Fraction(0)
             for item in self._items:
@@ -1726,25 +1730,16 @@ class Clip(Composition):  # Just a container of Elements
                         + (single_element % ra.Length())._rational
                     if element_finish > finish_beats:
                         finish_beats = element_finish
-            finish_position = self._staff.convertToPosition(ra.Beats(finish_beats))
-        return finish_position
+            return self._staff.convertToPosition(ra.Beats(finish_beats))
+        return None
 
 
     def length(self) -> 'ra.Length':
-        """
-        Reruns the length that goes from the start to finish of all elements.
-
-        Args:
-            None
-
-        Returns:
-            Length: Equal to Clip finish() - start().
-        """
-        start = self.start()
-        finish = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return self._staff.convertToLength(0)
+        last_element: oe.Element = self.last()
+        if last_element is not None:
+            last_position: ra.Position = last_element // ra.Position()
+            return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
+        return super().length()
     
 
     def __mod__(self, operand: o.T) -> o.T:

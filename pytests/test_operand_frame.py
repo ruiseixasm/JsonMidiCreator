@@ -162,7 +162,7 @@ def test_conditional_note():
     assert four_notes[1] % Octave() == 4
 
     four_notes << 1/1 >> Stack()   # Each note is now one measure long (1 note = 1 measure)
-    assert four_notes % Length() == Measures(4)
+    assert four_notes % Duration() == Measures(4)
 
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4

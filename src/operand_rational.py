@@ -773,32 +773,29 @@ class Measurement(Convertible):
             case Fraction():            return self._get_staff().convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
-    # Measurement/Length round type: (...]
+    # Position round type: [...)
     def roundMeasures(self) -> Self:
-        measures: Fraction = self.convertToMeasures()._rational
-        if measures.denominator != 1:
-            measures = Fraction(int(measures) + 1)  # moves forward one unit
-        else:
-            measures = Fraction( int(measures) )
-        return self._get_staff().convertToLength( Measures(measures) )
+        self_copy: Measurement = self.copy()
+        measures: Fraction = self_copy.convertToMeasures()._rational
+        measures = Fraction( int(measures) )
+        self_copy._rational = self_copy._get_staff().convertToBeats( Measures(measures) )._rational
+        return self_copy
 
-    # Measurement/Length round type: (...]
+    # Position round type: [...)
     def roundBeats(self) -> Self:
-        beats: Fraction = self.convertToBeats()._rational
-        if beats.denominator != 1:
-            beats = Fraction(int(beats) + 1)  # moves forward one unit
-        else:
-            beats = Fraction( int(beats) )
-        return self._get_staff().convertToLength( Beats(beats) )
+        self_copy: Measurement = self.copy()
+        beats: Fraction = self_copy.convertToBeats()._rational
+        beats = Fraction( int(beats) )
+        self_copy._rational = beats
+        return self_copy
     
-    # Measurement/Length round type: (...]
+    # Position round type: [...)
     def roundSteps(self) -> Self:
-        steps: Fraction = self.convertToSteps()._rational
-        if steps.denominator != 1:
-            steps = Fraction(int(steps) + 1)  # moves forward one unit
-        else:
-            steps = Fraction( int(steps) )
-        return self._get_staff().convertToLength( Steps(steps) )
+        self_copy: Measurement = self.copy()
+        steps: Fraction = self_copy.convertToSteps()._rational
+        steps = Fraction( int(steps) )
+        self_copy._rational = self_copy._get_staff().convertToBeats( Steps(steps) )._rational
+        return self_copy
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
@@ -898,6 +895,27 @@ class Length(Measurement):
     def length(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
 
+    # Measurement/Length round type: (...]
+    def roundMeasures(self) -> Self:
+        rounded_length: Length = super().roundMeasures()
+        if rounded_length == self:
+            return rounded_length
+        return rounded_length + Measures(1)
+
+    # Measurement/Length round type: (...]
+    def roundBeats(self) -> Self:
+        rounded_length: Length = super().roundBeats()
+        if rounded_length == self:
+            return rounded_length
+        return rounded_length + Beats(1)
+    
+    # Measurement/Length round type: (...]
+    def roundSteps(self) -> Self:
+        rounded_length: Length = super().roundSteps()
+        if rounded_length == self:
+            return rounded_length
+        return rounded_length + Steps(1)
+
 
 class Position(Measurement):
     """`Rational -> Convertible -> Measurement -> Position`
@@ -921,24 +939,6 @@ class Position(Measurement):
     """
     def position(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
-
-    # Position round type: [...)
-    def roundMeasures(self) -> Self:
-        measures: Fraction = self.convertToMeasures()._rational
-        measures = Fraction( int(measures) )
-        return self._get_staff().convertToPosition( Measures(measures) )
-
-    # Position round type: [...)
-    def roundBeats(self) -> Self:
-        beats: Fraction = self.convertToBeats()._rational
-        beats = Fraction( int(beats) )
-        return self._get_staff().convertToPosition( Beats(beats) )
-    
-    # Position round type: [...)
-    def roundSteps(self) -> Self:
-        steps: Fraction = self.convertToSteps()._rational
-        steps = Fraction( int(steps) )
-        return self._get_staff().convertToPosition( Steps(steps) )
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats

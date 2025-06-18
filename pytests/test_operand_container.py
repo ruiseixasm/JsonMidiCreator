@@ -441,12 +441,12 @@ def test_add_clip():
     two_notes += Octave()
     assert two_notes[0] % Octave() == 4
 
-    assert two_notes % Length() == Beats(2)
-    # assert two_notes >> Length() == Beats(2)
-    assert (two_notes + two_notes) % Length() == Beats(2)
+    assert two_notes % Duration() == Beats(2)
+    # assert two_notes >> Duration() == Beats(2)
+    assert (two_notes + two_notes) % Duration() == Beats(2)
     four_measures: Clip = two_notes * 4
-    assert four_measures % Length() == Beats(3 * 4 + 2)
-    assert (four_measures + four_measures) % Length() == Beats(3 * 4 + 2)
+    assert four_measures % Duration() == Beats(3 * 4 + 2)
+    assert (four_measures + four_measures) % Duration() == Beats(3 * 4 + 2)
 
 # test_add_clip()
 
@@ -505,11 +505,11 @@ def test_mul_clip():
 
     assert eight_notes_1 != eight_notes_2
 
-    assert two_notes % Length() == Beats(2)
-    assert two_notes * 2 % Length() == Beats(6)
-    assert two_notes / 2 % Length() == Beats(4)
-    assert two_notes * Beat(6) % Length() == Beats(2)
-    assert two_notes / Beat(6) % Length() == Beats(6)
+    assert two_notes % Duration() == Beats(2)
+    assert two_notes * 2 % Duration() == Beats(6)
+    assert two_notes / 2 % Duration() == Beats(4)
+    assert two_notes * Beat(6) % Duration() == Beats(2)
+    assert two_notes / Beat(6) % Duration() == Beats(6)
 
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Length() == 1.5 # Measures
@@ -586,48 +586,51 @@ def test_mul_clip():
 def test_clip_composition():
 
     measure_bell: Clip = Nt(DrumKit(34)) * 1 * 4
+    print(f"Duration: {measure_bell % Duration() % float()}")
+    assert measure_bell % Duration() == Measures(3.25)
     print(f"Length: {measure_bell % Length() % float()}")
-    assert measure_bell % Length() == Measures(3.25)
-    print(f"Length: {measure_bell % Length() % float()}")
-    assert measure_bell % Length() == Measure(4)
+    assert measure_bell % Length() == Measures(4)
+    assert measure_bell % Length() == Measure(4)    # Measure rounds the Length!!
     print(f"Position: {measure_bell % Position() % float()}")
     assert measure_bell % Position() == 0.0
 
     print("------")
     beat_tick: Clip = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
-    print(f"Measures: {beat_tick % Length() % Measures() % float()}")
-    # assert beat_tick % Finish() == Measures(4.0)
-    assert beat_tick % Length() == Measures(3.75)
-    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
-    assert beat_tick % Length() == Measure(4)
+    print(f"Net Measures: {beat_tick.net_duration() % Measures() % float()}")
+    print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
+    assert beat_tick.net_duration() == Measures(3.75)
+    assert beat_tick % Duration() == Measures(4.0)
+    print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
+    assert beat_tick % Duration() == Measure(4)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0    # Position basic operations work on elements
 
     print("------")
     metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Length() % Measure() % int()}")
-    assert metronome % Length() == Measure(4)
-    print(f"Measures: {metronome % Length() % Measures() % float()}")
-    assert metronome % Length() == Measures(4.0)
+    print(f"Measure: {metronome % Duration() % Measure() % int()}")
+    assert metronome % Duration() == Measure(4)
+    print(f"Measures: {metronome % Duration() % Measures() % float()}")
+    assert metronome % Duration() == Measures(4.0)
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
     print("---------------------")
     # correct version working with frame All()
     beat_tick = (Nt(DrumKit(35)) * 3 + All()**Beat(1)) * 4
-    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
-    assert beat_tick % Length() == Measure(4)
-    print(f"Measures: {beat_tick % Length() % Measures() % float()}")
-    assert beat_tick % Length() == Measures(3.75)
+    print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
+    assert beat_tick % Duration() == Measure(4)
+    print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
+    assert beat_tick.net_duration() == Measures(3.75)
+    assert beat_tick % Duration() == Measures(4.0)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0
 
     print("------")
     metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Length() % Measure() % int()}")
-    assert metronome % Length() == Measure(4)
-    print(f"Measures: {metronome % Length() % Measures() % float()}")
-    assert metronome % Length() == Measures(4.0)
+    print(f"Measure: {metronome % Duration() % Measure() % int()}")
+    assert metronome % Duration() == Measure(4)
+    print(f"Measures: {metronome % Duration() % Measures() % float()}")
+    assert metronome % Duration() == Measures(4.0)
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
@@ -650,17 +653,17 @@ def test_element_stacking():
 def test_lshift_clip():
 
     base_line: Clip = Nt(dotted_eight) * Measures(4)
-    print(f"Length: {base_line % Length() % float()}")
-    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    print(f"Duration: {base_line % Duration() % float()}")
+    assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
     base_line += Step(1)
-    print(f"Length: {base_line % Length() % float()}")
-    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    print(f"Duration: {base_line % Duration() % float()}")
+    assert base_line % Duration() == Measures(3/16 * 21) + Step(1) # 4.0 measures
     base_line -= Step(1)
-    print(f"Length: {base_line % Length() % float()}")
-    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    print(f"Duration: {base_line % Duration() % float()}")
+    assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
     base_line << 1/16
-    print(f"Length: {base_line % Length() % float()}")
-    assert base_line % Length() == 3/16 * 21 - 1/8 # 3.8125 measures
+    print(f"Duration: {base_line % Duration() % float()}")
+    assert base_line % Duration() == Measures(3/16 * 21 - 1/8) # 3.8125 measures
 
     two_measures: Clip = Note() * 8
     two_measures << All()**Beat(0)
@@ -744,10 +747,10 @@ def test_clip_filter():
 def test_clip_fitting():
 
     six_notes: Clip = Note() * 6
-    assert six_notes % Length() == Beats(6)
+    assert six_notes % Duration() == Beats(6)
 
     six_notes.fit(Measures(2))
-    assert six_notes % Length() == Beats(8)
+    assert six_notes % Duration() == Beats(8)
 
 # test_clip_fitting()
 
@@ -802,23 +805,31 @@ def test_position_shift():
     print(f"Length: {chords % Length() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     assert chords % Length() == 1.0 # All Elements became at the same position, 1.0 length each one
+    print(f"Length: {fifth_measure_chords % Length() % float()}")
+    print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
-    assert fifth_measure_chords % Length() == 1.0   # All Elements became at the same position, 1.0 length each one
+    assert fifth_measure_chords % Length() == 5.0   # All Elements became at the same position, 1.0 length each one
+    assert fifth_measure_chords % Duration() == 5.0   # All Elements became at the same position, 1.0 length each one
 
     # __add__ is clip position agnostic!
     aggregated_chords: Clip = chords + fifth_measure_chords
     print(f"Length: {aggregated_chords % Length() % float()}")
     print(f"Length ADD: {(Steps(3) + Measures(4) + Measures(1)) % Length() % float()}")
-    assert aggregated_chords % Length() == Steps(3) + Measures(4) + Measures(1)
+    print(f"Duration: {aggregated_chords % Duration() % float()}")
+    assert aggregated_chords % Duration() == 5.0
 
+# test_position_shift()
+
+
+def test_clip_duration():
 
     four_notes_1: Clip = Note() * 4 << NoteValue(1/8)
     four_notes_2: Clip = Note() * 4
 
     Beats(2) >> four_notes_1 # SETS common Position!!
     assert four_notes_1 % Position() == Beats(0)    # Clip has no Position on its own
-    Beats(-2) >> four_notes_1
-    assert four_notes_1 % Position() == Beats(0)
+    Beats(-2) >> four_notes_1 # SETS common Position!!
+    assert four_notes_1 % Position() == Beats(0)    # Always is 0!
 
     print(four_notes_2[0] % Beats() % int())
     assert four_notes_2[0] % Beats() == 0
@@ -832,11 +843,15 @@ def test_position_shift():
     print(four_notes_2[0] % Beats() % int())
     assert four_notes_2[0] % Beats() == 0
 
-    print(f"Length: {four_notes_1 % Length() % float()}")
-    assert Measures(1) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator
-    assert four_notes_1 % Length() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
+    print(f"Duration_0: {four_notes_1 % Duration() % float()}")
+    assert four_notes_1 % int() == 4    # Total of 4 notes
+    assert Measures(1) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
+    print(f"Duration_1: {four_notes_1 % Duration() % float()}")
+    assert four_notes_1 % int() == 4    # Total of 4 notes
+    assert four_notes_1.net_duration() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
+    assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
-# test_position_shift()
+# test_clip_duration()
 
 
 def test_clip_operations():
@@ -849,12 +864,12 @@ def test_clip_operations():
     duration: float = 0.9375    # 15/16 Note
 
     # Starts at Position 0.0, so length == net_duration
-    clip_duration: Duration = Duration( straight_clip % Length() )
+    clip_duration: Duration = straight_clip % Duration()
     print(clip_duration % float())
     assert clip_duration == duration
 
     # Starts at Position 0.0, so length == net_duration
-    straight_net_length: Length = straight_clip % Length()
+    straight_net_length: Length = Length( straight_clip % Duration() )
     type(straight_net_length) >> Print()
     assert type(straight_net_length) == Length
     
@@ -863,7 +878,7 @@ def test_clip_operations():
     assert straight_serialization % Data("float") == 3.75
 
     # Starts at Position 0.0, so length == net_duration
-    reversed_net_length: Length = reversed_clip % Length()
+    reversed_net_length: Length = Length( reversed_clip % Duration() )
     type(reversed_net_length) >> Print()
     assert type(reversed_net_length) == Length
     

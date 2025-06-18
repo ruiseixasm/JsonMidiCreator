@@ -174,12 +174,12 @@ def test_note_length():
 def test_note_mul():
 
     single_note: Note = Note()
-    assert single_note * 2 % Length() == Beats(2)   # Results in a Clip of 2 Notes
+    assert single_note * 2 % Duration() == Beats(2)   # Results in a Clip of 2 Notes
     assert type(single_note * 2) == Clip
-    assert single_note * 2.0 % Length() == Beats(2) # Multiplies the Duration instead, still a single Note, NOT a Clip!
+    assert single_note * 2.0 % Duration() == Beats(2) # Multiplies the Duration instead, still a single Note, NOT a Clip!
     assert type(single_note * 2.0) == Note
-    assert single_note * Beat(6) % Length() == Beats(6)
-    assert single_note * Beats(6) % Length() == Beats(6)
+    assert single_note * Beat(6) % Duration() == Beats(6)
+    assert single_note * Beats(6) % Duration() == Beats(6)
 
     many_notes = Note() * Foreach(4, 3, 2, 1)
     assert type(many_notes) == Clip
