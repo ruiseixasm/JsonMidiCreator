@@ -960,7 +960,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        return ra.Duration(self, 0)
+        return ra.Duration(self.finish())
     
     def net_duration(self) -> 'ra.Duration':
         """
@@ -972,7 +972,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        return ra.Duration(self, 0)
+        return ra.Duration(self.finish() - self.start())
     
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -999,6 +999,8 @@ class Composition(Container):
                 # if self._length_beats is not None:
                 #     return self._staff.convertToLength( ra.Beats(self._length_beats) )
                 return self.length()
+            case ra.Duration():
+                return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
@@ -1734,22 +1736,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def length(self) -> 'ra.Length':
-        """
-        Reruns the length that goes from the start to finish of all elements.
-
-        Args:
-            None
-
-        Returns:
-            Length: Equal to Clip finish() - start().
-        """
-        start = self.start()
-        finish = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return self._staff.convertToLength(0)
-    
-    def net_duration(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -3166,22 +3152,6 @@ class Part(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength()
 
-    def net_duration(self) -> ra.Length:
-        """
-        Returns the `Length` of the entire `Part` from start to finish.
-
-        Args:
-            None
-
-        Returns:
-            Length: The total `Length` from start to finish.
-        """
-        start = self.start()
-        finish = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return self._staff.convertToLength()
-
 
     def _last_element(self) -> 'oe.Element':
         """
@@ -3730,21 +3700,6 @@ class Song(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
-    def net_duration(self) -> ra.Length:
-        """
-        Returns the `Length` of the entire `Song` from start to finish.
-
-        Args:
-            None
-
-        Returns:
-            Length: The total `Length` from start to finish.
-        """
-        start: ra.Position = self.start()
-        finish: ra.Position = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return None
 
     def _last_position_and_element(self) -> tuple:
         last_iterations_list: list[tuple[ra.Position, Clip]] = []
