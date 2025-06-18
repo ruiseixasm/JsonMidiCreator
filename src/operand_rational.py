@@ -732,9 +732,9 @@ class Convertible(Rational):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
-                super().__lshift__(operand)
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
+                super().__lshift__(operand)
             case oe.Element() | oc.Composition():
                 self._set_staff_reference(operand._get_staff_reference())
             case og.Staff() | None:
@@ -808,9 +808,7 @@ class Measurement(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
-                super().__lshift__(operand)
-            case TimeValue() | Duration():
+            case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToBeats(operand)._rational
@@ -836,7 +834,7 @@ class Measurement(Convertible):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+            case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
@@ -845,7 +843,7 @@ class Measurement(Convertible):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+            case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
@@ -855,7 +853,7 @@ class Measurement(Convertible):
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+            case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
                 operand_measures: Measures = operand % Measures()
                 self << self_measures * operand_measures
@@ -867,7 +865,7 @@ class Measurement(Convertible):
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
+            case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
                 operand_measures: Measures = operand % Measures()
                 if operand_measures != Measures(0):
@@ -969,8 +967,6 @@ class Measures(TimeValue):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case self.__class__():
-                super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
@@ -1030,8 +1026,6 @@ class Beats(TimeValue):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case self.__class__():
-                super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
@@ -1091,8 +1085,6 @@ class Steps(TimeValue):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case self.__class__():
-                super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
