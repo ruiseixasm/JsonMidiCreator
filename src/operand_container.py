@@ -919,7 +919,7 @@ class Composition(Container):
         Returns:
             Position: The minimum Position of all Elements.
         """
-        return None
+        return ra.Position(self, 0)
 
 
     # Ignores the self Length
@@ -934,7 +934,7 @@ class Composition(Container):
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        return None
+        return ra.Position(self, 0)
 
 
     def length(self) -> 'ra.Length':
@@ -947,10 +947,10 @@ class Composition(Container):
         Returns:
             Length: Equal to Clip finish() - start().
         """
-        return None
+        return ra.Length(self, 0)
     
     
-    def net_length(self) -> 'ra.Length':
+    def net_duration(self) -> 'ra.Duration':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -958,9 +958,9 @@ class Composition(Container):
             None
 
         Returns:
-            Length: Equal to Clip finish() - start().
+            Duration: Equal to Clip finish() - start().
         """
-        return None
+        return ra.Duration(self, 0)
     
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1737,7 +1737,7 @@ class Clip(Composition):  # Just a container of Elements
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
     
-    def net_length(self) -> 'ra.Length':
+    def net_duration(self) -> 'ra.Length':
         """
         Reruns the length that goes from the start to finish of all elements.
 
@@ -3154,7 +3154,7 @@ class Part(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength()
 
-    def net_length(self) -> ra.Length:
+    def net_duration(self) -> ra.Length:
         """
         Returns the `Length` of the entire `Part` from start to finish.
 
@@ -3718,7 +3718,7 @@ class Song(Composition):
             return (finish - start).convertToLength()
         return self._staff.convertToLength(0)
 
-    def net_length(self) -> ra.Length:
+    def net_duration(self) -> ra.Length:
         """
         Returns the `Length` of the entire `Song` from start to finish.
 

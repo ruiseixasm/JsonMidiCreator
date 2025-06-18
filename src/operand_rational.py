@@ -637,7 +637,7 @@ class Convertible(Rational):
                 return other
             return og.defaults._staff
         return self._staff_reference
-
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -733,7 +733,8 @@ class Convertible(Rational):
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._staff_reference = operand._staff_reference
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
             case oe.Element() | oc.Composition():
                 self._set_staff_reference(operand._get_staff_reference())
             case og.Staff() | None:
@@ -810,12 +811,18 @@ class Measurement(Convertible):
             case Measurement():
                 super().__lshift__(operand)
             case TimeValue() | Duration():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToBeats(operand)._rational
             case ou.Measure():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 measure_beats: Beats = self._get_staff(operand).convertToBeats(self) \
                     - self._get_staff(operand).convertToBeats(self._get_staff(operand).convertToMeasure(self))
                 self._rational = (self._get_staff(operand).convertToBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self_measure: ou.Measure = self._get_staff(operand).convertToMeasure(self)
                 self._rational = (
                     self._get_staff(operand).convertToBeats(self_measure) + self._get_staff(operand).convertToBeats(operand)
@@ -965,6 +972,8 @@ class Measures(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToMeasures(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1024,6 +1033,8 @@ class Beats(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToBeats(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1083,6 +1094,8 @@ class Steps(TimeValue):
             case self.__class__():
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToSteps(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1140,10 +1153,16 @@ class Duration(Convertible):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Dotted():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = operand._rational * 2 / 3
             case Duration():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = operand._rational
             case Convertible() | ou.TimeUnit():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = self._get_staff(operand).convertToDuration(operand)._rational
             case str():
                 time_division: str = operand.strip().upper()
@@ -1258,8 +1277,12 @@ class Dotted(Duration):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Dotted():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = operand._rational
             case Duration():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
                 self._rational = operand._rational * 3 / 2
             case od.DataSource() | Duration() | od.Serialization():
                 super().__lshift__(operand)

@@ -848,12 +848,12 @@ def test_clip_operations():
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     duration: float = 0.9375    # 15/16 Note
 
-    # Starts at Position 0.0, so length == net_length
+    # Starts at Position 0.0, so length == net_duration
     clip_duration: Duration = Duration( straight_clip % Length() )
     print(clip_duration % float())
     assert clip_duration == duration
 
-    # Starts at Position 0.0, so length == net_length
+    # Starts at Position 0.0, so length == net_duration
     straight_net_length: Length = straight_clip % Length()
     type(straight_net_length) >> Print()
     assert type(straight_net_length) == Length
@@ -862,7 +862,7 @@ def test_clip_operations():
     straight_serialization % Data("float") >> Print()   # 3.75 Beats
     assert straight_serialization % Data("float") == 3.75
 
-    # Starts at Position 0.0, so length == net_length
+    # Starts at Position 0.0, so length == net_duration
     reversed_net_length: Length = reversed_clip % Length()
     type(reversed_net_length) >> Print()
     assert type(reversed_net_length) == Length
@@ -882,7 +882,7 @@ def test_clip_operations():
     three_notes = Note(1/4) + Note(1/2) + Note(1/2) >> Stack()
     three_notes += Measure(1)
 
-    # NOT at Position 0.0, so length != net_length
+    # NOT at Position 0.0, so length != net_duration
     three_notes_net_length: Length = Length( three_notes.finish() - three_notes.start() )
     assert three_notes_net_length == 1.25
     assert three_notes[0] % Position() == 1.0
