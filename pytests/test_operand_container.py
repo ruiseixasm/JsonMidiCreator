@@ -509,10 +509,11 @@ def test_mul_clip():
     assert two_notes * 2 % Duration() == Beats(6)
     assert two_notes / 2 % Duration() == Beats(4)
     assert two_notes * Beat(6) % Duration() == Beats(2)
+    print(f"Duration_/: {two_notes / Beat(6) % Duration() % Beats() % float()}")
     assert two_notes / Beat(6) % Duration() == Beats(6)
 
     assert (two_notes * two_notes).len() == 4
-    assert two_notes * two_notes % Length() == 1.5 # Measures
+    assert two_notes * two_notes % Duration() == Measures(1.5) # Measures
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
@@ -541,7 +542,7 @@ def test_mul_clip():
     print("------")
     six_notes = 6 * Note()
     print(f"Length: {six_notes % Length() % float()}")
-    assert six_notes % Length() == 1.5  # Measures
+    assert six_notes % Duration() == Measures(1.5)  # Measures
     six_notes << Length(six_notes, 1.0)
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes // Length() == 1.0  # Measures

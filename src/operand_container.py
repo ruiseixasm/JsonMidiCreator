@@ -2189,11 +2189,11 @@ class Clip(Composition):  # Just a container of Elements
             
             case ou.TimeUnit():
                 self_repeating: int = 0
-                self_length: ra.Length = self % ra.Length()
-                length_value: Fraction = self_length % operand % Fraction()
-                if length_value > 0:
+                self_duration: ra.Length = self % ra.Duration()
+                duration_value: Fraction = self_duration % operand % Fraction()
+                if duration_value > 0:
                     operand_value: int = operand._unit
-                    self_repeating = int( operand_value / length_value )
+                    self_repeating = int( operand_value / duration_value )
                 self /= self_repeating
 
             case tuple():
