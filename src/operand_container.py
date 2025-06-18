@@ -1644,6 +1644,8 @@ class Clip(Composition):  # Just a container of Elements
             if isinstance(single_element, oe.Element):
                 single_element._convert_staff_reference(self._staff)
                 single_element.set_clip_reference(self)
+        if self._length_beats is not None:
+            self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
         return self
 
     def _test_staff_reference(self) -> bool:
@@ -2077,7 +2079,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(right_clip._items)  # Propagates upwards in the stack
                 
                 if self._length_beats is not None:
-                    self._length_beats += self._staff.convertToBeats(operand % ra.Length())._rational
+                    self._length_beats += (right_clip % ra.Length())._rational
 
             case oe.Element():
                 self *= Clip(operand)
