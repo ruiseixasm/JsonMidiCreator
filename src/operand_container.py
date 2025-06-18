@@ -987,8 +987,6 @@ class Composition(Container):
                     case _:                 return super().__mod__(operand)
             case og.Staff():
                 return self._staff.copy()
-            case ou.TrackNumber() | od.TrackName() | Devices() | str():
-                return self._midi_track % operand
             # By definition Clips are always at Position 0
             case ra.Position():
                 return ra.Position(self, 0)
