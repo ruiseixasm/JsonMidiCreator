@@ -835,6 +835,7 @@ class Clock(Element):
             case _:                     super().__lshift__(operand)
         return self
 
+
 class Rest(Element):
     """`Element -> Rest`
 
@@ -847,7 +848,32 @@ class Rest(Element):
     Channel(defaults) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, channels: dict[str, set[int]] = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        if self._duration_notevalue == 0:
+            return []
+
+        if channels is not None:
+            channels["rest"].add(self._channel)
+
+        self_plotlist: list[dict] = []
+    
+        if position_beats is None:
+            position_beats = Fraction(0)
+
+        self_plotlist.append(
+            {
+                "rest": {
+                    "position_on": position_beats + self._position_beats,
+                    "position_off": position_beats + self._position_beats + self % ra.Length() // Fraction(),
+                    "channel": self._channel
+                }
+            }
+        )
+
+        return self_plotlist
 
 
 class Note(Element):
@@ -967,7 +993,6 @@ class Note(Element):
         if position_beats is None:
             position_beats = Fraction(0)
 
-        # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
             {
                 "note": {
