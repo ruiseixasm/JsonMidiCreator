@@ -3561,7 +3561,6 @@ class Part(Composition):
             clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
             if isinstance(clip_loop, Clip)  # No looping for Playlists
         ]
-        part_loop._position_beats -= punch_in._rational
 
         return part_loop
 
