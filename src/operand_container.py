@@ -2997,6 +2997,15 @@ class Part(Composition):
         self._staff = og.defaults._staff
         return self
 
+    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
+        if isinstance(staff_reference, og.Staff):
+            self._staff << staff_reference  # Does a copy
+        self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
+        if self._length_beats is not None:
+            self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+        return self
+
+
     def _set_song_reference(self, song_reference: 'Song' = None) -> Self:
         if isinstance(song_reference, Song):
             self._song_reference = song_reference
@@ -3395,19 +3404,21 @@ class Part(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Part():
-                operand_copy: Part = operand.copy()
-                add_measure: ou.Measure = ou.Measure(0)
-                if self._length_beats is None:
-                    # It's the position of the element that matters and not their tailed Duration
-                    last_position: ra.Position = self._last_element_position()
-                    if last_position:
-                        add_measure = last_position.roundMeasures() + ou.Measure(1)
-                else:
-                    add_measure = ou.Measure( self // ra.Length() )
-                # Clips have no Position, so, it's implicit position is always 0
-                for clip_or_playlist in operand_copy._items:
-                    clip_or_playlist += add_measure
-                    self._append([ clip_or_playlist ])
+
+                right_part: Part = operand.copy()._convert_staff_reference(self._staff)
+
+                left_length: ra.Length = self % ra.Length()
+                right_position: ra.Position = right_part // ra.Position()
+                position_offset: ra.Position = right_position - left_length
+
+                for single_clip in right_part:
+                    single_clip -= position_offset
+
+                self._append(right_part._items)  # Propagates upwards in the stack
+                
+                if self._length_beats is not None:
+                    self._length_beats += (right_part % ra.Length())._rational
+
             case Clip() | od.Playlist():
                 add_measure: ou.Measure = ou.Measure(0)
                 if self._length_beats is None:
