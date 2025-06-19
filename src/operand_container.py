@@ -1250,8 +1250,12 @@ class Composition(Container):
                     ]
 
                     for note in channel_plotlist:
-                        self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
+                        if note["plot_as_rest"]:
+                            self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    height=0.20, color=channel_color, hatch='////', edgecolor='black', linewidth=1, linestyle='dashed', alpha = 1)
+                        else:
+                            self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
             
 
                 chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
