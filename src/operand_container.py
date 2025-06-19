@@ -3969,18 +3969,25 @@ class Song(Composition):
         return self
 
 
-    # FROM PART TO BE ADAPTED
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-                offset_position: ra.Position = ra.Position(0)
-                # It's NOT just the position of the element that matters, it's also their tailed Duration
-                finish_position: ra.Position = self.finish()
-                if finish_position is not None:
-                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                    offset_position = rounded_length.convertToPosition()
-                for single_part in operand._items:
-                    self += single_part + offset_position   # Implicit copy of single_part
+
+                right_song: Song = operand.copy()._convert_staff_reference(self._staff)
+
+                left_duration: ra.Duration = self % ra.Duration()
+                position_offset: ra.Position = ra.Position(left_duration).roundMeasures()
+                position_offset += ra.Measures(1)   # Similar to Length roundMeasures
+
+                for single_part in right_song:
+                    single_part += position_offset
+                    single_part._set_staff_reference(self._staff)
+
+                self._append(right_song._items)  # Propagates upwards in the stack
+                
+                if self._length_beats is not None:
+                    self._length_beats += (right_song % ra.Duration() % ra.Length())._rational
+
             case Part():
                 part_song: Song = Song(operand)
                 self /= part_song
