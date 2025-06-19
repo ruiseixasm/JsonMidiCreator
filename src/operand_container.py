@@ -3733,6 +3733,7 @@ class Song(Composition):
         """
         last_position_element: tuple = self._last_position_and_element()
         if last_position_element is not None:
+            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
             return last_position_element[0]
         return None
 
