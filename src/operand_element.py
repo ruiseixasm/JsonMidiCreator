@@ -856,7 +856,7 @@ class Rest(Element):
             return []
 
         if channels is not None:
-            channels["rest"].add(self._channel)
+            channels["note"].add(self._channel)
 
         self_plotlist: list[dict] = []
     
@@ -865,10 +865,13 @@ class Rest(Element):
 
         self_plotlist.append(
             {
-                "rest": {
+                "note": {
                     "position_on": position_beats + self._position_beats,
                     "position_off": position_beats + self._position_beats + self % ra.Length() // Fraction(),
-                    "channel": self._channel
+                    "pitch": 60,        # Middle C
+                    "velocity": 127,    # Maximum contrast, no transparency
+                    "channel": self._channel,
+                    "plot_as_rest": True
                 }
             }
         )
@@ -1000,7 +1003,8 @@ class Note(Element):
                     "position_off": position_beats + self._position_beats + self % ra.Length() // Fraction(),
                     "pitch": int( self % og.Pitch() % float() ),
                     "velocity": self._velocity,
-                    "channel": self._channel
+                    "channel": self._channel,
+                    "plot_as_rest": False
                 }
             }
         )
