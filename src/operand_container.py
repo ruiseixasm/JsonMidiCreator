@@ -3674,23 +3674,6 @@ class Song(Composition):
         return finish_position
 
 
-    def length(self) -> ra.Length:
-        """
-        Returns the `Length` of the entire `Song` from start to finish.
-
-        Args:
-            None
-
-        Returns:
-            Length: The total `Length` from start to finish.
-        """
-        start: ra.Position = self.start()
-        finish: ra.Position = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return self._staff.convertToLength(0)
-
-
     def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
@@ -3748,8 +3731,6 @@ class Song(Composition):
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
-            # By definition Songs are always at Position 0
-            case ra.Position():     return ra.Position(0)._set_staff_reference(self._staff)
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
@@ -3941,13 +3922,21 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                offset_position: ra.Position = ra.Position(0)
-                # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self._last_element_position()
-                if last_position is not None:
-                    offset_position = last_position.roundMeasures() + ou.Measure(1)
-                for single_part in operand._items:
-                    self += single_part + offset_position   # Implicit copy of single_part
+
+                right_song: Song = operand.copy()._convert_staff_reference(self._staff)
+
+                left_length: ra.Length = self % ra.Length()
+                position_offset: ra.Position = ra.Position(left_length)
+
+                for single_part in right_song:
+                    single_part += position_offset
+                    single_part._set_staff_reference(self._staff)
+
+                self._append(right_song._items)  # Propagates upwards in the stack
+                
+                if self._length_beats is not None:
+                    self._length_beats += (right_song % ra.Length())._rational
+
             case Part():
                 part_song: Song = Song(operand)
                 self *= part_song

@@ -296,11 +296,19 @@ def test_rshift_container():
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     assert part_song._test_staff_reference()
 
+    print(f"Has Part Length: {part_song // Length() is not None}")
+    print(f"Length['part_song']: {part_song % Length() % float()}")
     part_song >> clip_part
     assert part_song.len() == 2
+    
+    print(f"Length[0]: {part_song[0] % Length() % float()}")
+    print(f"Length[1]: {part_song[1] % Length() % float()}")
+    print(f"Length: {part_song % Length() % float()}")
     # It's a Song and NOT a Part, thus, it's the Part position that is being returned
+    print(f"Position[0]: {part_song[0] % Position() % float()}")
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     # The second clip_part occupies two Measures, so, the next Part Measure sets at Position 2 (3rd one)
+    print(f"Position[1]: {part_song[1] % Position() % float()}")
     assert part_song[1] % Position() == Measures(2) + Beats(0)
     assert part_song._test_staff_reference()
 
@@ -1032,8 +1040,8 @@ def test_part_position():
     assert full_song[0] % Position() % Minutes() == full_song[1] % Position() % Minutes()
     print(f"Song Start: {full_song.start() % Fraction()}")
     print(f"Song Finish: {full_song.finish() % Fraction()}")
-    print(f"Song Length: {full_song % Length() % Fraction()}")
-    assert full_song % Length() == 3/8      # Not 1/4 because different tempos, thus, it's 3/2 * 1/4 = 3/8
+    print(f"Song Net Duration: {full_song.net_duration() % Fraction()}")
+    assert full_song.net_duration() == 3/8      # Not 1/4 because different tempos, thus, it's 3/2 * 1/4 = 3/8
     print(f"Song[0] Duration: {full_song[0] % Duration() % Fraction()}")
     assert full_song[0] % Duration() == 3/16  # Part now has the Song staff, 90 bpm instead of 120 bpm, 3/4, meaning, 1/4 * 3/4 = 3/16
     assert full_song.net_duration() == full_song[1].net_duration()
