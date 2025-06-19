@@ -1180,45 +1180,47 @@ class Composition(Container):
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
-            # Updates X-Axis data
-            last_position = max(note["position_off"] for note in note_plotlist)
-            last_position_measures = last_position / beats_per_measure
-            last_position_measure = int(last_position / beats_per_measure)
-            if last_position_measure != last_position_measures:
-                last_position_measure += 1
+            if note_plotlist:
 
-            # Get pitch range
-            min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
-            max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+                # Updates X-Axis data
+                last_position = max(note["position_off"] for note in note_plotlist)
+                last_position_measures = last_position / beats_per_measure
+                last_position_measure = int(last_position / beats_per_measure)
+                if last_position_measure != last_position_measures:
+                    last_position_measure += 1
 
-            # Shade black keys
-            for pitch in range(min_pitch, max_pitch + 1):
-                if o.is_black_key(pitch):
-                    self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                # Get pitch range
+                min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
+                max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
 
-            # Plot notes
-            for channel in note_channels:
-                channel_color = Clip._channel_colors[channel - 1]
-                channel_plotlist = [
-                    channel_note for channel_note in note_plotlist
-                    if channel_note["channel"] == channel
-                ]
+                # Shade black keys
+                for pitch in range(min_pitch, max_pitch + 1):
+                    if o.is_black_key(pitch):
+                        self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
-                for note in channel_plotlist:
-                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                            height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
-        
+                # Plot notes
+                for channel in note_channels:
+                    channel_color = Clip._channel_colors[channel - 1]
+                    channel_plotlist = [
+                        channel_note for channel_note in note_plotlist
+                        if channel_note["channel"] == channel
+                    ]
 
-            chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
-            # Set MIDI note ticks with Middle C in bold
-            self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-            y_labels = [
-                chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
-                for p in range(min_pitch, max_pitch + 1)
-            ]  # Bold Middle C
-            self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+                    for note in channel_plotlist:
+                        self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
+            
 
-            self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+                chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                # Set MIDI note ticks with Middle C in bold
+                self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                y_labels = [
+                    chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
+                    for p in range(min_pitch, max_pitch + 1)
+                ]  # Bold Middle C
+                self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+
+                self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         
         # Plot Automations
@@ -1234,65 +1236,67 @@ class Composition(Container):
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
 
-            # Updates X-Axis data
-            last_position = max(automation["position"] for automation in automation_plotlist)
-            last_position_measures = last_position / beats_per_measure
-            last_position_measure = int(last_position / beats_per_measure)
-            if last_position_measure != last_position_measures:
-                last_position_measure += 1
+            if automation_plotlist:
 
-            # Axis limits
-            self._ax.set_ylim(-1, 128)
-            # Ticks
-            self._ax.set_yticks(range(0, 129, 8))
+                # Updates X-Axis data
+                last_position = max(automation["position"] for automation in automation_plotlist)
+                last_position_measures = last_position / beats_per_measure
+                last_position_measure = int(last_position / beats_per_measure)
+                if last_position_measure != last_position_measures:
+                    last_position_measure += 1
 
-            # Dashed horizontal lines at multiples of 16 (except 64)
-            for i in range(0, 129, 16):
-                if i != 64:
-                    self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
-            # Dashed line at y = 127
-            self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
-            # Solid line at y = 64
-            self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+                # Axis limits
+                self._ax.set_ylim(-1, 128)
+                # Ticks
+                self._ax.set_yticks(range(0, 129, 8))
 
-            # Plot automations
-            for channel in automation_channels:
-                channel_color = Clip._channel_colors[channel - 1]
-                channel_plotlist = [
-                    channel_automation for channel_automation in automation_plotlist
-                    if channel_automation["channel"] == channel
-                ]
+                # Dashed horizontal lines at multiples of 16 (except 64)
+                for i in range(0, 129, 16):
+                    if i != 64:
+                        self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
+                # Dashed line at y = 127
+                self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
+                # Solid line at y = 64
+                self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
 
-                if channel_plotlist:
-
-                    channel_plotlist.sort(key=lambda a: a['position'])
-
-                    # Plotting point lists
-                    x: list[float]  = []
-                    y: list[int]    = []
-                    for automation in channel_plotlist:
-                        x.append( float(automation["position"]) )
-                        y.append( automation["value"] )
-
-                    # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                    # Actual data points
-                    self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
-                                  markeredgecolor='black', markeredgewidth=1, markersize=8)
-
-                    # Add the tailed line up to the end of the chart
-                    x = [
-                        float(channel_plotlist[-1]["position"]),
-                        float(last_position_measure * beats_per_measure)
+                # Plot automations
+                for channel in automation_channels:
+                    channel_color = Clip._channel_colors[channel - 1]
+                    channel_plotlist = [
+                        channel_automation for channel_automation in automation_plotlist
+                        if channel_automation["channel"] == channel
                     ]
-                    y = [
-                        channel_plotlist[-1]["value"],
-                        channel_plotlist[-1]["value"]
-                    ]
-                    # Stepped line connecting the points
-                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                    # Actual data points
-                    self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
+
+                    if channel_plotlist:
+
+                        channel_plotlist.sort(key=lambda a: a['position'])
+
+                        # Plotting point lists
+                        x: list[float]  = []
+                        y: list[int]    = []
+                        for automation in channel_plotlist:
+                            x.append( float(automation["position"]) )
+                            y.append( automation["value"] )
+
+                        # Stepped line connecting the points
+                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                        # Actual data points
+                        self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
+                                    markeredgecolor='black', markeredgewidth=1, markersize=8)
+
+                        # Add the tailed line up to the end of the chart
+                        x = [
+                            float(channel_plotlist[-1]["position"]),
+                            float(last_position_measure * beats_per_measure)
+                        ]
+                        y = [
+                            channel_plotlist[-1]["value"],
+                            channel_plotlist[-1]["value"]
+                        ]
+                        # Stepped line connecting the points
+                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                        # Actual data points
+                        self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
 
         # Draw vertical grid lines based on beats and measures
@@ -3553,18 +3557,17 @@ class Part(Composition):
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_length = self._staff.convertToLength(length)
 
-        clip_punch_in: ra.Position = ra.Position(self)  # Position 0
-        if self._position_beats < punch_in._rational:
-            clip_punch_in = punch_in - ra.Beats(self._position_beats)
-            part_loop._position_beats = Fraction(0) # Positions all parts at the start
-        else:
-            part_loop._position_beats -= punch_in._rational
+        clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
         part_loop._items = [
             clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
             if isinstance(clip_loop, Clip)  # No looping for Playlists
         ]
 
+        if self._position_beats < punch_in._rational:
+            part_loop._position_beats = Fraction(0) # Positions all parts at the start
+        else:
+            part_loop._position_beats -= punch_in._rational
         part_loop._length_beats = punch_length._rational
 
         return part_loop
