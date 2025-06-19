@@ -2673,12 +2673,12 @@ class Clip(Composition):  # Just a container of Elements
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_out = punch_in + self._staff.convertToBeats(length)
         
-        clip_loop._length_beats = ra.Length(punch_out - punch_in)._rational
-
         clip_loop._items = [
             inside_element.copy() for inside_element in self._items
-            if punch_in <= inside_element % ra.Position() < punch_out
+            if punch_in <= inside_element // ra.Position() < punch_out
         ]
+
+        clip_loop._length_beats = ra.Length(punch_out - punch_in)._rational
         clip_loop -= punch_in   # Moves to the start of the Clip being looped/trimmed
 
         return clip_loop
@@ -3553,15 +3553,19 @@ class Part(Composition):
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_length = self._staff.convertToLength(length)
 
-        clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
-
-        part_loop._length_beats = punch_length._rational
+        clip_punch_in: ra.Position = ra.Position(self)  # Position 0
+        if self._position_beats < punch_in._rational:
+            clip_punch_in = punch_in - ra.Beats(self._position_beats)
+            part_loop._position_beats = Fraction(0) # Positions all parts at the start
+        else:
+            part_loop._position_beats -= punch_in._rational
 
         part_loop._items = [
             clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
             if isinstance(clip_loop, Clip)  # No looping for Playlists
         ]
-        part_loop._position_beats = Fraction(0) # Positions all parts at the start
+
+        part_loop._length_beats = punch_length._rational
 
         return part_loop
 
@@ -4046,11 +4050,11 @@ class Song(Composition):
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_length = self._staff.convertToLength(length)
 
-        song_loop._length_beats = punch_length._rational
-
         song_loop._items = [
             part_loop.loop(position, punch_length) for part_loop in self._items
         ]
+
+        song_loop._length_beats = punch_length._rational
 
         return song_loop
 
