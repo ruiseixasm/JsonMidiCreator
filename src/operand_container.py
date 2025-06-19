@@ -3692,17 +3692,18 @@ class Song(Composition):
 
 
     def _last_position_and_element(self) -> tuple:
-        last_iterations_list: list[tuple[ra.Position, Clip]] = []
+        last_elements_list: list[tuple[ra.Position, Clip]] = []
         for single_part in self._items:
-            last_iteration: oe.Element = single_part._last_element()
-            if last_iteration is not None:
-                last_iterations_list.append(
-                    ( single_part % ra.Position() + last_iteration % ra.Position(), last_iteration )
+            part_last_element: oe.Element = single_part._last_element()
+            if part_last_element is not None:
+                # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
+                last_elements_list.append(
+                    ( single_part % ra.Position() + part_last_element % ra.Position(), part_last_element )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
-        last_iterations_list.sort(key=lambda pair: pair[0])
-        if len(last_iterations_list) > 0:
-            return last_iterations_list[-1]
+        last_elements_list.sort(key=lambda pair: pair[0])
+        if len(last_elements_list) > 0:
+            return last_elements_list[-1]
         return None
 
     def _last_element(self) -> 'oe.Element':
