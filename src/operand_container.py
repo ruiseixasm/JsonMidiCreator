@@ -2672,6 +2672,8 @@ class Clip(Composition):  # Just a container of Elements
             punch_in = self._staff.convertToPosition(position)
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_out = punch_in + self._staff.convertToBeats(length)
+        
+        clip_loop._length_beats = ra.Length(punch_out - punch_in)._rational
 
         clip_loop._items = [
             inside_element.copy() for inside_element in self._items
@@ -3553,6 +3555,8 @@ class Part(Composition):
 
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
+        part_loop._length_beats = punch_length._rational
+
         part_loop._items = [
             clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
             if isinstance(clip_loop, Clip)  # No looping for Playlists
@@ -4036,9 +4040,16 @@ class Song(Composition):
         Returns:
             Song: A copy of the self object with the items processed.
         """
-        song_loop: Part = self.empty_copy()
+        song_loop: Song = self.empty_copy()
+
+        punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
+        if isinstance(length, (int, float, Fraction, ra.Length)):
+            punch_length = self._staff.convertToLength(length)
+
+        song_loop._length_beats = punch_length._rational
+
         song_loop._items = [
-            part_loop.loop(position, length) for part_loop in self._items
+            part_loop.loop(position, punch_length) for part_loop in self._items
         ]
 
         return song_loop
