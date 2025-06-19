@@ -1686,13 +1686,13 @@ class Clip(Composition):  # Just a container of Elements
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
+            for single_element in self:
+                if isinstance(single_element, oe.Element):
+                    single_element._convert_staff_reference(self._staff)
+                    single_element.set_clip_reference(self)
+            if self._length_beats is not None:
+                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
             self._staff << staff_reference  # Does a copy
-        for single_element in self:
-            if isinstance(single_element, oe.Element):
-                single_element._convert_staff_reference(self._staff)
-                single_element.set_clip_reference(self)
-        if self._length_beats is not None:
-            self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
         return self
 
     def _test_staff_reference(self) -> bool:
@@ -2999,10 +2999,10 @@ class Part(Composition):
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference  # Does a copy
-        self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
-        if self._length_beats is not None:
-            self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+            self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
+            if self._length_beats is not None:
+                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+            self._staff = staff_reference  # Does an assignment
         return self
 
 
@@ -3602,6 +3602,15 @@ class Song(Composition):
         self._staff = og.defaults._staff.copy()
         for single_part in self._items:
             single_part._set_staff_reference(self._staff)
+        return self
+
+    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
+        if isinstance(staff_reference, og.Staff):
+            for single_part in self:
+                single_part._convert_staff_reference(self._staff)
+            if self._length_beats is not None:
+                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+            self._staff << staff_reference  # Does a copy
         return self
 
     def _test_staff_reference(self) -> bool:
