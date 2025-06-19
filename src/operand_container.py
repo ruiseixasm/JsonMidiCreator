@@ -1251,8 +1251,9 @@ class Composition(Container):
 
                     for note in channel_plotlist:
                         if note["plot_as_rest"]:
+                            # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                             self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.20, color=channel_color, hatch='////', edgecolor='black', linewidth=1, linestyle='dashed', alpha = 1)
+                                    height=0.20, color=channel_color, hatch='*', edgecolor='gray', linewidth=1, linestyle='dashed', alpha = 1)
                         else:
                             self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                     height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
