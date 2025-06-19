@@ -1021,9 +1021,9 @@ def test_part_position():
     assert part_120 % Position() == part_60 % Position()
     assert (part_120 % Position()).getMinutes() == (part_60 % Position()).getMinutes()
     assert part_120 % Position() % Minutes() == part_60 % Position() % Minutes()
-    print(f"Part Length: {part_120 % Length() % Fraction()}")
-    assert part_120 % Length() == 1/4
-    assert part_120 % Length() == part_60 % Length() * 1/2
+    print(f"Part Duration: {part_120 % Duration() % Fraction()}")
+    assert part_120 % Duration() == 1/4
+    assert part_120 % Duration() == part_60 % Duration() * 1/2
 
     full_song = Song(part_120, part_60) << Tempo(90)    # song with different Tempo, 90 vs 60, 3/2
     assert full_song.len() == 2
@@ -1034,14 +1034,14 @@ def test_part_position():
     print(f"Song Finish: {full_song.finish() % Fraction()}")
     print(f"Song Length: {full_song % Length() % Fraction()}")
     assert full_song % Length() == 3/8      # Not 1/4 because different tempos, thus, it's 3/2 * 1/4 = 3/8
-    print(f"Song[0] Length: {full_song[0] % Length() % Fraction()}")
-    assert full_song[0] % Length() == 3/16  # Part now has the Song staff, 90 bpm instead of 120 bpm, 3/4, meaning, 1/4 * 3/4 = 3/16
-    assert full_song % Length() == full_song[1] % Length()
-    assert full_song[0] % Length() == full_song[1] % Length() * 1/2
-    assert full_song.length().getMinutes() == full_song[1].length().getMinutes()
-    assert full_song % Length() % Minutes() == full_song[1] % Length() % Minutes()
-    assert full_song.length().getMinutes() == full_song[0].length().getMinutes() * 2
-    assert full_song % Length() % Minutes() == full_song[0] % Length() % Minutes() * 2
+    print(f"Song[0] Duration: {full_song[0] % Duration() % Fraction()}")
+    assert full_song[0] % Duration() == 3/16  # Part now has the Song staff, 90 bpm instead of 120 bpm, 3/4, meaning, 1/4 * 3/4 = 3/16
+    assert full_song.net_duration() == full_song[1].net_duration()
+    assert full_song[0] % Duration() == full_song[1] % Duration() * 1/2
+    assert full_song.net_duration().getMinutes() == full_song[1].net_duration().getMinutes()
+    assert full_song.net_duration() % Minutes() == full_song[1].net_duration() % Minutes()
+    assert full_song.net_duration().getMinutes() == full_song[0].net_duration().getMinutes() * 2
+    assert full_song.net_duration() % Minutes() == full_song[0].net_duration() % Minutes() * 2
 
 
     position_playlist = (full_song[0] % Position()).getPlaylist()

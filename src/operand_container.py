@@ -907,6 +907,46 @@ class Composition(Container):
         return True
 
 
+    def _first_element(self) -> 'oe.Element':
+        """
+        Gets the first Element accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Element: The first Element of all Elements.
+        """
+        return super().first()
+
+    def _last_element(self) -> 'oe.Element':
+        """
+        Gets the last Element accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last Element of all Elements.
+        """
+        return super().last()
+
+    def _last_element_position(self) -> 'ra.Position':
+        """
+        Gets the last Element position.
+
+        Args:
+            None
+
+        Returns:
+            Position: The Position fo the last Element.
+        """
+        last_element: oe.Element = self._last_element()
+        if last_element is not None:
+            return last_element % ra.Position()
+        return None
+
+
     # Ignores the self Length
     def start(self) -> 'ra.Position':
         """
@@ -947,6 +987,9 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
+        last_position: ra.Position = self._last_element_position()
+        if last_position is not None:
+            return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
         return ra.Length(self)
     
     
@@ -1662,47 +1705,6 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-    def _first_element(self) -> 'oe.Element':
-        """
-        Gets the first Element accordingly to it's Position on the Staff.
-
-        Args:
-            None
-
-        Returns:
-            Element: The first Element of all Elements.
-        """
-        return super().first()
-
-    def _last_element(self) -> 'oe.Element':
-        """
-        Gets the last Element accordingly to it's Position on the Staff.
-
-        Args:
-            None
-
-        Returns:
-            Element: The last Element of all Elements.
-        """
-        return super().last()
-
-    def _last_element_position(self) -> 'ra.Position':
-        """
-        Gets the last Element position.
-
-        Args:
-            None
-
-        Returns:
-            Position: The Position fo the last Element.
-        """
-        last_element: oe.Element = self._last_element()
-
-        if last_element:
-            return last_element % ra.Position()
-        return None
-
-
     # Ignores the self Length
     def start(self) -> 'ra.Position':
         """
@@ -1748,13 +1750,6 @@ class Clip(Composition):  # Just a container of Elements
             return self._staff.convertToPosition(ra.Beats(finish_beats))
         return None
 
-
-    def length(self) -> 'ra.Length':
-        last_position: ra.Position = self._last_element_position()
-        if last_position is not None:
-            return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
-        return super().length()
-    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -3139,23 +3134,6 @@ class Part(Composition):
         return finish_position
 
 
-    def length(self) -> ra.Length:
-        """
-        Returns the `Length` of the entire `Part` from start to finish.
-
-        Args:
-            None
-
-        Returns:
-            Length: The total `Length` from start to finish.
-        """
-        start = self.start()
-        finish = self.finish()
-        if start is not None and finish is not None:
-            return (finish - start).convertToLength()
-        return self._staff.convertToLength()
-
-
     def _last_element(self) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Part`.
@@ -3182,22 +3160,6 @@ class Part(Composition):
                     else:
                         part_last = clip_last
         return part_last
-
-    def _last_element_position(self) -> ra.Position:
-        """
-        Returns the `Position` of tha last `Element`.
-
-        Args:
-            None
-
-        Returns:
-            Position: The `Position` of the last `Element` of all elements in each `Clip`.
-        """
-        last_element: oe.Element = self._last_element()
-
-        if last_element:
-            return last_element % ra.Position()
-        return None
 
 
     def __mod__(self, operand: o.T) -> o.T:
