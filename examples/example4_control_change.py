@@ -28,7 +28,8 @@ defaults << Tempo(60)
 chord: Element = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
 control_change: Clip = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
-control_change >> oscillate >> Save("json/_Save_4.2_control_change.json")
+control_change >>= oscillate
+control_change >> Save("json/_Save_4.2_control_change.json")
     
 chord + control_change >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
@@ -42,6 +43,6 @@ oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
 #   1 Step = peak = 8191 / 2 = +4095
 #   2 Step = 0
 pitch_bend: Clip = PitchBend() * (2*16 + 1) << Iterate()**Steps()
-pitch_bend >> oscillate
+pitch_bend >>= oscillate
 
 chord + pitch_bend >> Play(1) >> Save("json/_Save_4.2_pitch_bend.json") >> Export("json/_Export_4.2_pitch_bend.json")

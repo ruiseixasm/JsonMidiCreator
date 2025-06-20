@@ -274,7 +274,8 @@ defaults << Tempo(60)
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
 controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
-controller >> oscillate >> Save("json/testing/_Save_4.2_control_change.json")
+controller >>= oscillate
+controller >> Save("json/testing/_Save_4.2_control_change.json")
 
 chord + controller >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_4.1_control_change.json") \
     >> Save("json/testing/_Save_Play_p.10.2_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10.2_sequence_compare.json")
@@ -291,7 +292,7 @@ start_time = time.time()
 
 oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
 pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps()
-pitch_bend >> oscillate
+pitch_bend >>= oscillate
 
 chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")

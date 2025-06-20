@@ -653,7 +653,7 @@ def test_element_stacking():
 
     two_notes << 1/8    # Stacking is NOT included!
     assert two_notes[-1] == Beats(1)
-    two_notes >> Stack()
+    two_notes >>= Stack()
     assert two_notes[-1] == Beats(1/2)
     
 # test_element_stacking()
@@ -720,8 +720,6 @@ def test_clip_filter():
     single_note: Clip = eight_notes >> Beat(2)
     assert single_note.len() == 2
 
-
-
     original_note: Clip = Note() * 1
     assert original_note.len() == 1
     derived_note: Clip = original_note >> Nth(1)
@@ -731,9 +729,8 @@ def test_clip_filter():
     # Needs to be replicated upwards!
     assert original_note.len() == 2
 
-
     # Stacks to make Elements (Notes) different
-    derived_note >> Stack()
+    derived_note >>= Stack()
     second_note: Note = derived_note[1]
     derived_note -= second_note
     # Shall remove just one Element and become size 1, remove by id and not by data
@@ -750,7 +747,7 @@ def test_clip_filter():
     # Needs to be replicated upwards!
     assert original_note.len() == 2
 
-# test_clip_filter()
+test_clip_filter()
 
 
 def test_clip_fitting():

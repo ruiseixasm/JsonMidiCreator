@@ -1109,6 +1109,11 @@ class ContainerProcess(Process):
     Processes applicable exclusively to `Container` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return self._process(operand)
@@ -1148,6 +1153,11 @@ class Filter(ContainerProcess):
     def __init__(self, condition: Any = None, shallow_copy: bool = True):
         super().__init__((condition, shallow_copy))
 
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand)   # Special case, NO copy
+        return super().__rrshift__(operand)
+    
     def _process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._data)
 
@@ -1328,6 +1338,11 @@ class CompositionProcess(Process):
     Processes applicable to any `Composition`.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Composition):
             return self._process(operand)
@@ -1383,6 +1398,11 @@ class ClipProcess(Process):
     Processes applicable exclusively to `Clip` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return self._process(operand)

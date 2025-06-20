@@ -423,6 +423,9 @@ class Operand:
 
     def __irshift__(self, operand: T) -> T:
         # Simply delegate to the __rshift__ method
+        import operand_data as od
+        if isinstance(operand, od.Process):
+            return operand.__irrshift__(self)
         return self.__rshift__(operand)
     
 
