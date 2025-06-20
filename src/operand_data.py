@@ -774,8 +774,23 @@ class Process(Data):
         return playlist
 
 
-class RightShift(Process):
-    """`Data -> Process -> RightShift`
+class ReadOnly(Process):
+    """`Data -> Process -> ReadOnly`
+
+    A ReadOnly process is one that results in no change of the subject `Operand`.
+
+    Parameters
+    ----------
+    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+
+    Returns:
+        Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
+    """
+    pass
+
+
+class RightShift(ReadOnly):
+    """`Data -> Process -> ReadOnly -> RightShift`
 
     Applies the `>>` operation if process is `True`.
 
@@ -799,8 +814,8 @@ class RightShift(Process):
         return super().__rrshift__(operand)
 
     
-class SideEffect(Process):
-    """`Data -> Process -> SideEffect`
+class SideEffect(ReadOnly):
+    """`Data -> Process -> ReadOnly -> SideEffect`
 
     This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
     data in the respective self data without changing the respective chained data sequence.
@@ -815,7 +830,7 @@ class SideEffect(Process):
         self._process: bool = process
 
 class LeftShift(SideEffect):
-    """`Data -> Process -> SideEffect -> LeftShift`
+    """`Data -> Process -> ReadOnly -> SideEffect -> LeftShift`
 
     Applies the `<<` operation to self data without changing the original chained data or the chain itself.
 
@@ -832,7 +847,7 @@ class LeftShift(SideEffect):
         return super().__rrshift__(operand)
 
 class RightShift(SideEffect):
-    """`Data -> Process -> SideEffect -> RightShift`
+    """`Data -> Process -> ReadOnly -> SideEffect -> RightShift`
 
     Applies the `>>` operation to self data without changing the original chained data or the chain itself.
 
@@ -849,7 +864,7 @@ class RightShift(SideEffect):
         return super().__rrshift__(operand)
 
 class IAdd(SideEffect):    # i stands for "inplace"
-    """`Data -> Process -> SideEffect -> IAdd`
+    """`Data -> Process -> ReadOnly -> SideEffect -> IAdd`
 
     Applies the `+=` operation to self data without changing the original chained data or the chain itself.
 
@@ -866,7 +881,7 @@ class IAdd(SideEffect):    # i stands for "inplace"
         return super().__rrshift__(operand)
 
 class ISub(SideEffect):
-    """`Data -> Process -> SideEffect -> ISub`
+    """`Data -> Process -> ReadOnly -> SideEffect -> ISub`
 
     Applies the `-=` operation to self data without changing the original chained data or the chain itself.
 
@@ -883,7 +898,7 @@ class ISub(SideEffect):
         return super().__rrshift__(operand)
 
 class IMul(SideEffect):
-    """`Data -> Process -> SideEffect -> IMul`
+    """`Data -> Process -> ReadOnly -> SideEffect -> IMul`
 
     Applies the `*=` operation to self data without changing the original chained data or the chain itself.
 
@@ -900,7 +915,7 @@ class IMul(SideEffect):
         return super().__rrshift__(operand)
 
 class IDiv(SideEffect):
-    """`Data -> Process -> SideEffect -> IDiv`
+    """`Data -> Process -> ReadOnly -> SideEffect -> IDiv`
 
     Applies the `/=` operation to self data without changing the original chained data or the chain itself.
 
@@ -917,8 +932,8 @@ class IDiv(SideEffect):
         return super().__rrshift__(operand)
 
 
-class Save(Process):
-    """`Data -> Process -> Save`
+class Save(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Save`
 
     Saves all parameters' `Serialization` of a given `Operand` into a file.
 
@@ -935,8 +950,8 @@ class Save(Process):
             return operand
         return super().__rrshift__(operand)
 
-class Export(Process):
-    """`Data -> Process -> Export`
+class Export(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Export`
 
     Exports a file playable by the `JsonMidiPlayer` program.
 
@@ -956,8 +971,8 @@ class Export(Process):
             case _:
                 return super().__rrshift__(operand)
 
-class MidiExport(Process):
-    """`Data -> Process -> MidiExport`
+class MidiExport(ReadOnly):
+    """`Data -> Process -> ReadOnly -> MidiExport`
 
     Exports a file playable by a Midi player.
 
@@ -974,8 +989,8 @@ class MidiExport(Process):
             return operand
         return super().__rrshift__(operand)
 
-class Play(Process):
-    """`Data -> Process -> Play`
+class Play(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Play`
 
     Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
 
@@ -1010,8 +1025,8 @@ class Play(Process):
         return Play().__rrshift__(operand)
 
 
-class Print(Process):
-    """`Data -> Process -> Print`
+class Print(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Print`
 
     Prints the Operand's parameters in a JSON alike layout if it's an `Operand` being given,
     otherwise prints directly like the common `print` function.
@@ -1038,8 +1053,8 @@ class Print(Process):
             case _: print(operand)
         return operand
 
-class Copy(Process):
-    """`Data -> Process -> Copy`
+class Copy(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Copy`
 
     Creates and returns a copy of the left side `>>` operand.
 
