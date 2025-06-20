@@ -2668,7 +2668,6 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A copy of the self object with the items processed.
         """
-        clip_loop: Clip = self.empty_copy()
         punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
         punch_out: ra.Position = punch_in + self._staff.convertToPosition(4)   # Exclusive
 
@@ -2677,15 +2676,18 @@ class Clip(Composition):  # Just a container of Elements
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_out = punch_in + self._staff.convertToBeats(length)
         
-        clip_loop._items = [
-            inside_element.copy() for inside_element in self._items
+        included_elements: list[oe.Element] = [
+            inside_element for inside_element in self._items
             if punch_in <= inside_element // ra.Position() < punch_out
         ]
 
-        clip_loop._length_beats = ra.Length(punch_out - punch_in)._rational
-        clip_loop -= punch_in   # Moves to the start of the Clip being looped/trimmed
+        self._delete(self._items, True)
+        self._append(included_elements)
 
-        return clip_loop
+        self._length_beats = ra.Length(punch_out - punch_in)._rational
+        self -= punch_in   # Moves to the start of the Clip being looped/trimmed
+
+        return self
 
 
     def monofy(self) -> Self:
