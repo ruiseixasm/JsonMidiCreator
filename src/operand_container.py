@@ -4036,17 +4036,15 @@ class Song(Composition):
         Returns:
             Song: A copy of the self object with the items processed.
         """
-        song_loop: Song = self.empty_copy()
-
         punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_length = self._staff.convertToLength(length)
 
-        song_loop._items = [
-            part_loop.loop(position, punch_length) for part_loop in self._items
-        ]
+        # No part is removed, only elements are removed
+        for part_loop in self._items:
+            part_loop.loop(position, punch_length)
 
-        song_loop._length_beats = punch_length._rational
+        self._length_beats = punch_length._rational
 
-        return song_loop
+        return self._sort_position()
 
