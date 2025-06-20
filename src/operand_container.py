@@ -2017,12 +2017,10 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-
                 for single_element in operand:
                     self += single_element
 
             case oe.Element():
-
                 new_element: oe.Element = operand.copy()._convert_staff_reference(self._staff).set_clip_reference(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
@@ -3387,18 +3385,15 @@ class Part(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-
                 for single_clip in operand:
                     self += single_clip
 
             case Clip() | od.Playlist():
-
                 self._append([ operand.copy() ])
 
             case oe.Element():
-
                 element_clip: Clip = Clip(operand)
-                self._append([ element_clip ])
+                self += element_clip
 
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
@@ -3918,10 +3913,7 @@ class Song(Composition):
                 self._append([ operand.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
 
             case Clip() | od.Playlist():
-                clip_part: Part = Part()
-                clip_part._items = [ operand ]  # A copy of operand will be made
-                # DON'T DO THIS (Infinite Recursion here)
-                # clip_part: Part = Part(operand)
+                clip_part: Part = Part(operand)
                 self += clip_part
 
             case oe.Element():
