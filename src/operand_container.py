@@ -1527,7 +1527,7 @@ class Composition(Container):
         Returns:
             Composition: Returns the presently plotted clip.
         """
-        self._iterations: list[Composition] = [ self.copy() ]
+        self._iterations: list[Composition] = [ self.copy() ]   # Works with a copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._iteration: int = 0
         self._n_function = n_button

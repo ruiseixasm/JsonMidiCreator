@@ -989,6 +989,34 @@ class MidiExport(ReadOnly):
             return operand
         return super().__rrshift__(operand)
 
+
+class Plot(ReadOnly):
+    """`Data -> Process -> ReadOnly -> Plot`
+
+    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+
+    Args:
+        block (bool): Suspends the program until the chart is closed.
+        pause (float): Sets a time in seconds before the chart is closed automatically.
+        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+            this is dependent on a n_button being given.
+        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+        c_button (Callable): A function intended to play the plotted clip among other compositions.
+        e_button (Callable): A function to be executed by itself without any output required.
+    """
+    def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
+                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 e_button: Optional[Callable[['Composition'], Any]] = None):
+        super().__init__((block, pause, iterations, n_button, c_button, e_button))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Composition):
+            return operand.plot(*self._data)
+        return operand
+
+
 class Play(ReadOnly):
     """`Data -> Process -> ReadOnly -> Play`
 
@@ -1380,29 +1408,6 @@ class Loop(CompositionProcess):
 
     def _process(self, composition: TypeComposition) -> TypeComposition:
         return composition.loop(*self._data)
-
-class Plot(CompositionProcess):
-    """`Data -> Process -> CompositionProcess -> Plot`
-
-    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
-
-    Args:
-        block (bool): Suspends the program until the chart is closed.
-        pause (float): Sets a time in seconds before the chart is closed automatically.
-        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-            this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
-        c_button (Callable): A function intended to play the plotted clip among other compositions.
-        e_button (Callable): A function to be executed by itself without any output required.
-    """
-    def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Composition'], Any]] = None):
-        super().__init__((block, pause, iterations, n_button, c_button, e_button))
-
-    def _process(self, composition: TypeComposition) -> TypeComposition:
-        return composition.plot(*self._data)
 
 
 class ClipProcess(CompositionProcess):
