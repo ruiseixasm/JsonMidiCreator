@@ -3911,21 +3911,27 @@ class Song(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Song():
-                for single_part in operand._items:
-                    self._append([ single_part.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
-                self._sort_position()
+                for single_part in operand:
+                    self += single_part
+
             case Part():
-                self._append([ operand.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
+                self._append([ operand.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
+
             case Clip() | od.Playlist():
-                clip_part: Part = Part(operand)
+                clip_part: Part = Part()
+                clip_part._items = [ operand ]  # A copy of operand will be made
+                # DON'T DO THIS (Infinite Recursion here)
+                # clip_part: Part = Part(operand)
                 self += clip_part
+
             case oe.Element():
                 element_clip: Clip = Clip(operand)
                 self += element_clip
+
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
+                        self._append([ item.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
