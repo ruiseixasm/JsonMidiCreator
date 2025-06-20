@@ -3387,12 +3387,19 @@ class Part(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-                self._append(self.deep_copy(operand._items))
+
+                for single_clip in operand:
+                    self += single_clip
+
             case Clip() | od.Playlist():
+
                 self._append([ operand.copy() ])
+
             case oe.Element():
+
                 element_clip: Clip = Clip(operand)
                 self._append([ element_clip ])
+
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
             case list():
