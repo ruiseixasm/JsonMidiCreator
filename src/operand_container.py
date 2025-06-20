@@ -2017,23 +2017,21 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand_elements = [
-                    single_element.copy()._set_staff_reference(self._staff).set_clip_reference(self)
-                    for single_element in operand._items
-                ]
-                if self.len() > 0:
-                    self_last_element: oe.Element = self[-1]
-                    return self._append(operand_elements, self_last_element)._sort_position()  # Shall be sorted!
-                return self._append(operand_elements)._sort_position() # Shall be sorted!
+
+                for single_element in operand:
+                    self += single_element
+
             case oe.Element():
-                new_element: oe.Element = operand.copy()._set_staff_reference(self._staff).set_clip_reference(self)
+
+                new_element: oe.Element = operand.copy()._convert_staff_reference(self._staff).set_clip_reference(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
                     return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
                 return self._append([ new_element ])._sort_position()  # Shall be sorted!
+            
             case list():
                 operand_elements = [
-                    single_element.copy()._set_staff_reference(self._staff).set_clip_reference(self)
+                    single_element.copy()._convert_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand if isinstance(single_element, oe.Element)
                 ]
                 if self.len() > 0:
@@ -3338,8 +3336,10 @@ class Part(Composition):
 
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
+
             case Clip() | oe.Element():
                 self += operand
+
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -3863,6 +3863,7 @@ class Song(Composition):
 
             case Part() | Clip() | oe.Element():
                 self += operand
+
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
