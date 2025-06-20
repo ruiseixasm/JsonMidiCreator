@@ -1972,10 +1972,7 @@ class Clip(Composition):  # Just a container of Elements
                 self.loadSerialization( operand.getSerialization() )
 
             case oe.Element():
-                if self.len() > 0:  # Avoids infinite recursion
-                    self /= operand # Stacks elements directly
-                else:
-                    self += operand
+                self += operand
 
             case list():
                 self._items = [
