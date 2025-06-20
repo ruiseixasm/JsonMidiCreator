@@ -445,11 +445,9 @@ class Element(o.Operand):
                         new_clip *= self
                 return new_clip
             case ra.TimeValue() | ou.TimeUnit():
-                self_repeating: int = 0
-                if self._duration_notevalue > 0:
-                    operand_duration: Fraction = self._staff_reference.convertToDuration(operand)._rational
-                    self_repeating: int = operand_duration // self._duration_notevalue
-                return self.__imul__(self_repeating)
+                new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                new_clip *= operand
+                return new_clip
         self_operand: any = self % operand
         self_operand *= operand
         return self << self_operand
