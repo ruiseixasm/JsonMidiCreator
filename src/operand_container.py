@@ -3491,6 +3491,7 @@ class Part(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Part():
+
                 operand_copy: Part = operand.copy()
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
                 finish_position: ra.Position = self.finish()
@@ -3501,6 +3502,7 @@ class Part(Composition):
                     for clip_or_playlist in operand_copy._items:
                         clip_or_playlist += add_measure
                         self._append([ clip_or_playlist ])
+
             case Clip() | od.Playlist():
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
                 finish_position: ra.Position = self.finish()
@@ -4010,9 +4012,8 @@ class Song(Composition):
 
                 right_song: Song = operand.copy()._convert_staff_reference(self._staff)
 
-                left_duration: ra.Duration = self % ra.Duration()
-                position_offset: ra.Position = ra.Position(left_duration).roundMeasures()
-                position_offset += ra.Measures(1)   # Similar to Length roundMeasures
+                left_length: ra.Duration = self % ra.Duration() % ra.Length()
+                position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
                 for single_part in right_song:
                     single_part += position_offset
