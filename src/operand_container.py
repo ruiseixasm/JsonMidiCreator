@@ -3538,13 +3538,10 @@ class Part(Composition):
 
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
-        included_clips: list[Clip] = [
-            clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
-            if isinstance(clip_loop, Clip)  # No looping for Playlists
-        ]
-
-        self._delete(self._items, True)
-        self._append(included_clips)
+        # No Clip is removed, only elements are removed
+        for clip_loop in self._items:
+            if isinstance(clip_loop, Clip):
+                clip_loop.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
             self._position_beats = Fraction(0) # Positions all parts at the start
@@ -4040,7 +4037,7 @@ class Song(Composition):
         if isinstance(length, (int, float, Fraction, ra.Length)):
             punch_length = self._staff.convertToLength(length)
 
-        # No part is removed, only elements are removed
+        # No Part is removed, only elements are removed
         for part_loop in self._items:
             part_loop.loop(position, punch_length)
 
