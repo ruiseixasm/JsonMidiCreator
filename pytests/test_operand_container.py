@@ -747,7 +747,7 @@ def test_clip_filter():
     # Needs to be replicated upwards!
     assert original_note.len() == 2
 
-test_clip_filter()
+# test_clip_filter()
 
 
 def test_clip_fitting():
