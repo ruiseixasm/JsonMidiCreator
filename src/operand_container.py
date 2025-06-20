@@ -3460,7 +3460,6 @@ class Part(Composition):
                 # Clips have no Position, so, it's implicit position is always 0
                 self._append([ operand + add_measure ])
             case oe.Element():
-                operand_copy: Part = operand.copy()
                 add_measure: ou.Measure = ou.Measure(0)
                 # It's the position of the element that matters and not their tailed Duration
                 last_position: ra.Position = self._last_element_position()
@@ -3492,16 +3491,20 @@ class Part(Composition):
         match operand:
             case Part():
 
-                operand_copy: Part = operand.copy()
-                # It's NOT just the position of the element that matters, it's also their tailed Duration
-                finish_position: ra.Position = self.finish()
-                if finish_position is not None:
-                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                    add_measure: ou.Measure = rounded_length.convertToMeasure()
-                    # Clips have no Position, so, it's implicit position is always 0
-                    for clip_or_playlist in operand_copy._items:
-                        clip_or_playlist += add_measure
-                        self._append([ clip_or_playlist ])
+                # This conversion doesn't touch on the Clips
+                right_part: Part = operand.copy()._convert_staff_reference(self._staff)
+
+                left_length: ra.Length = self % ra.Duration() % ra.Length()
+                position_offset: ra.Position = ra.Position(left_length.roundMeasures())
+
+                # right part Position is lost, so, there is the need of reposition the Clips based on the self Part
+                for single_clip in right_part:
+                    single_clip += position_offset
+
+                self._append(right_part._items)  # Propagates upwards in the stack
+                
+                if self._length_beats is not None:
+                    self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
             case Clip() | od.Playlist():
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
@@ -3512,7 +3515,6 @@ class Part(Composition):
                     # Clips have no Position, so, it's implicit position is always 0
                     self._append([ operand + add_measure ])
             case oe.Element():
-                operand_copy: Part = operand.copy()
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
                 finish_position: ra.Position = self.finish()
                 if finish_position is not None:
@@ -4012,7 +4014,7 @@ class Song(Composition):
 
                 right_song: Song = operand.copy()._convert_staff_reference(self._staff)
 
-                left_length: ra.Duration = self % ra.Duration() % ra.Length()
+                left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
                 for single_part in right_song:
