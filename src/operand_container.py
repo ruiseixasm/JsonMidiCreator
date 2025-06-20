@@ -2687,7 +2687,7 @@ class Clip(Composition):  # Just a container of Elements
         self._length_beats = ra.Length(punch_out - punch_in)._rational
         self -= punch_in   # Moves to the start of the Clip being looped/trimmed
 
-        return self
+        return self._sort_position()
 
 
     def monofy(self) -> Self:
@@ -3528,7 +3528,6 @@ class Part(Composition):
         Returns:
             Part: A copy of the self object with the items processed.
         """
-        part_loop: Part = self.empty_copy()
         punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
         punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
 
@@ -3539,18 +3538,21 @@ class Part(Composition):
 
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
-        part_loop._items = [
+        included_clips: list[Clip] = [
             clip_loop.loop(clip_punch_in, punch_length) for clip_loop in self._items
             if isinstance(clip_loop, Clip)  # No looping for Playlists
         ]
 
-        if self._position_beats < punch_in._rational:
-            part_loop._position_beats = Fraction(0) # Positions all parts at the start
-        else:
-            part_loop._position_beats -= punch_in._rational
-        part_loop._length_beats = punch_length._rational
+        self._delete(self._items, True)
+        self._append(included_clips)
 
-        return part_loop
+        if self._position_beats < punch_in._rational:
+            self._position_beats = Fraction(0) # Positions all parts at the start
+        else:
+            self._position_beats -= punch_in._rational
+        self._length_beats = punch_length._rational
+
+        return self._sort_position()
 
 
 class Song(Composition):
