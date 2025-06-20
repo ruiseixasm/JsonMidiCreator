@@ -1715,6 +1715,11 @@ class PartProcess(Process):
     Processes applicable exclusively to `Part` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Part):
             return self._process(operand)
@@ -1731,6 +1736,11 @@ class SongProcess(Process):
     Processes applicable exclusively to `Song` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Song):
             return self._process(operand)
