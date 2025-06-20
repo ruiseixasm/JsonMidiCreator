@@ -353,36 +353,35 @@ class Container(o.Operand):
         import operand_mutation as om
         match operand:
             case Container():
-                self += operand
-                return self
+                return self + operand   # Implicit copy of self
             case om.Mutation():
-                return operand.mutate(self)
+                return operand.mutate(self.copy())
             case od.Playlist():
                 operand.__rrshift__(self)
                 return self
             case od.Process():
                 return operand.__rrshift__(self)
             case ch.Chaos():
-                return self.shuffle(operand)
+                return self.copy().shuffle(operand)
         return super().__rshift__(operand)
 
-    # # Pass trough method that always results in a Container (Self)
-    # def __irshift__(self, operand) -> Self:
-    #     import operand_mutation as om
-    #     match operand:
-    #         case Container():
-    #             self += operand
-    #             return self
-    #         case om.Mutation():
-    #             return operand.mutate(self)
-    #         case od.Playlist():
-    #             operand.__rrshift__(self)
-    #             return self
-    #         case od.Process():
-    #             return operand.__rrshift__(self)
-    #         case ch.Chaos():
-    #             return self.shuffle(operand)
-    #     return self.__rshift__(operand)
+    # Pass trough method that always results in a Container (Self)
+    def __irshift__(self, operand) -> Self:
+        import operand_mutation as om
+        match operand:
+            case Container():
+                self += operand
+                return self
+            case om.Mutation():
+                return operand.mutate(self)
+            case od.Playlist():
+                operand.__irrshift__(self)
+                return self
+            case od.Process():
+                return operand.__irrshift__(self)
+            case ch.Chaos():
+                return self.shuffle(operand)
+        return super().__rshift__(operand)
 
 
     # Pass trough operation as last resort
