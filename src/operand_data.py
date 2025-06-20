@@ -1338,9 +1338,7 @@ class CompositionProcess(Process):
     Processes applicable to any `Composition`.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand.copy())
-        return super().__rrshift__(operand)
+        return self.__irrshift__(self.deep_copy(operand))
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1398,9 +1396,7 @@ class ClipProcess(Process):
     Processes applicable exclusively to `Clip` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand.copy())
-        return super().__rrshift__(operand)
+        return self.__irrshift__(self.deep_copy(operand))
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1715,9 +1711,7 @@ class PartProcess(Process):
     Processes applicable exclusively to `Part` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand.copy())
-        return super().__rrshift__(operand)
+        return self.__irrshift__(self.deep_copy(operand))
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1736,9 +1730,7 @@ class SongProcess(Process):
     Processes applicable exclusively to `Song` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand.copy())
-        return super().__rrshift__(operand)
+        return self.__irrshift__(self.deep_copy(operand))
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
