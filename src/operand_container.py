@@ -2133,7 +2133,7 @@ class Clip(Composition):  # Just a container of Elements
                     # )
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
-            case ou.TimeUnit():
+            case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
                 self_length: ra.Length = self % ra.Length()
@@ -2213,12 +2213,12 @@ class Clip(Composition):  # Just a container of Elements
             case ra.Length():
                 self._length_beats /= operand % Fraction()
             
-            case ou.TimeUnit():
+            case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 self_duration: ra.Length = self % ra.Duration()
                 duration_value: Fraction = self_duration % operand % Fraction()
                 if duration_value > 0:
-                    operand_value: int = operand._unit
+                    operand_value: Fraction = operand % Fraction()
                     self_repeating = int( operand_value / duration_value )
                 self /= self_repeating
 
