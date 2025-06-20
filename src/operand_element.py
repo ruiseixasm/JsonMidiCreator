@@ -458,10 +458,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                extended_clip: Clip = self + operand
-                next_position: ra.Position = ra.Position( od.DataSource( extended_clip[0] % ra.Length() ) )
-                extended_clip[1] << next_position   # Two elements Clip
-                return extended_clip
+                return self + operand
             case oc.Clip():
                 self_clip: oc.Clip = operand.copy()
                 self._set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
@@ -473,9 +470,10 @@ class Element(o.Operand):
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
                 if operand > 0:
-                    for _ in range(operand):
-                        new_clip /= self
-                return new_clip
+                    new_clip._items.append( self )
+                    for _ in range(operand - 1):
+                        new_clip._items.append( self.copy() )
+                return new_clip._set_staff_reference()
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
