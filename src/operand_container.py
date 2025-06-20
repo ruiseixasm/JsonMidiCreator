@@ -2000,22 +2000,11 @@ class Clip(Composition):  # Just a container of Elements
 
     # Pass trough method that always results in a Clip (Self)
     def __rshift__(self, operand) -> Self:
-        import operand_mutation as om
         match operand:
             case Clip() | oe.Element():
                 # Quantized Stacking by Measures
                 self *= operand
                 return self
-            case om.Mutation():
-                return operand.mutate(self)
-            case od.Playlist():
-                operand.__rrshift__(self)
-                return self
-            case od.Process():
-                return operand.__rrshift__(self)
-            case om.Mutation():
-                return operand.mutate(self)
-
         return super().__rshift__(operand)
 
 
