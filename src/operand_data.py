@@ -1390,14 +1390,11 @@ class Plot(CompositionProcess):
         return composition.plot(*self._data)
 
 
-class ClipProcess(Process):
-    """`Data -> Process -> ClipProcess`
+class ClipProcess(CompositionProcess):
+    """`Data -> Process -> CompositionProcess -> ClipProcess`
 
     Processes applicable exclusively to `Clip` operands.
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self.__irrshift__(self.deep_copy(operand))
-
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -1705,14 +1702,11 @@ class Fill(ClipProcess):
         return operand.fill()
 
 
-class PartProcess(Process):
-    """`Data -> Process -> PartProcess`
+class PartProcess(CompositionProcess):
+    """`Data -> Process -> CompositionProcess -> PartProcess`
 
     Processes applicable exclusively to `Part` operands.
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self.__irrshift__(self.deep_copy(operand))
-
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Part):
@@ -1724,14 +1718,11 @@ class PartProcess(Process):
     def _process(self, operand: o.T) -> o.T:
         return operand
 
-class SongProcess(Process):
-    """`Data -> Process -> SongProcess`
+class SongProcess(CompositionProcess):
+    """`Data -> Process -> CompositionProcess -> SongProcess`
 
     Processes applicable exclusively to `Song` operands.
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self.__irrshift__(self.deep_copy(operand))
-
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Song):
