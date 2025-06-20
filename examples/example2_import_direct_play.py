@@ -30,8 +30,8 @@ first_import + Measures(0) >> first_import + Measures(2) >> first_import + Measu
 
 # Process Loaded files as Elements
 note = Note(Load("json/testing/_Save_1.1_first_note.json"))
-note * 4 >> Save ("json/_Save_2.1_multiple_notes.json") >> Print() >> Play(True)
+note / 4 >> Save ("json/_Save_2.1_multiple_notes.json") >> Print() >> Play(True)
 
 # Process Loaded files as Serialization
 load = Note(Load("json/testing/_Save_1.1_first_note.json").copy())
-load * 4 >> Save ("json/_Save_2.2_sequence_notes.json") >> Print() >> Play(True)
+load / 4 >> Save ("json/_Save_2.2_sequence_notes.json") >> Print() >> Play(True)

@@ -46,7 +46,7 @@ def test_frame_mod():
 def test_foreach_mod():
 
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
-    notes = Note() * 7  # default degree 1 relative to the note C
+    notes = Note() / 7  # default degree 1 relative to the note C
 
     notes += frame  # Original sequences aren't modified by + operator
     clip = Clip() \
@@ -72,7 +72,7 @@ def test_foreach_mod():
     assert notes[6] == clip[6]
     assert notes == clip
 
-    four_notes = Note() * 4
+    four_notes = Note() / 4
     assert four_notes[0] == Beats(0)
     assert four_notes[1] == Beats(1)
     assert four_notes[2] == Beats(2)
@@ -125,7 +125,7 @@ def test_foreach_mod():
 
 def test_each():
 
-    many_notes = Note() * 9
+    many_notes = Note() / 9
 
     for single_note in many_notes:
         assert single_note % Duration() == 1/4
@@ -150,7 +150,7 @@ def test_conditional_note():
     note += Equal(Step(0))**Octave(1)
     assert note % Octave() == 4
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
@@ -178,7 +178,7 @@ def test_conditional_note():
 
 def test_even_odd():
 
-    two_notes = 2 * Note()
+    two_notes = 2 / Note()
 
     two_notes << Even()**Velocity(40)
     print(two_notes[1] % Velocity() % int())
@@ -187,7 +187,7 @@ def test_even_odd():
     print(two_notes[0] % Velocity() % int())
     assert two_notes[0] % Velocity() == 90
 
-    four_notes = 4 * Note()
+    four_notes = 4 / Note()
 
     assert four_notes.len() == 4
     four_notes >>= Even()
@@ -200,8 +200,8 @@ def test_even_odd():
 
 def test_input_clip():
 
-    clip = Note() * 4
-    clip_G = Note("G") * 4
+    clip = Note() / 4
+    clip_G = Note("G") / 4
 
     for note in clip:
         assert note == "C"

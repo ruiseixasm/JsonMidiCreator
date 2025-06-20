@@ -37,7 +37,7 @@ results_list        = []
 defaults << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock(Length(6)) * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
@@ -95,7 +95,7 @@ start_time = time.time()
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (NoteValue() << Dotted(1/64))
 # Creation and configuration of a Track of notes
-first_sequence = (base_note * 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
@@ -152,7 +152,7 @@ start_time = time.time()
 
 # Process Loaded files as Elements
 note = Note(Load("json/testing/_Save_1.1_first_note.json"))
-note * 4 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+note / 4 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 2.2",
@@ -167,7 +167,7 @@ start_time = time.time()
 
 # Process Loaded files as Serialization
 load = Note(Load("json/testing/_Save_1.1_first_note.json").copy())
-load * 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+load / 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 2.3",
@@ -180,7 +180,7 @@ results_list.append({
 
 # Global Staff setting up
 defaults << Tempo(120)
-single_clock: Clip = Clock(Length(1)) * 1 << MidiTrack(0, "Clock Track")
+single_clock: Clip = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
@@ -208,7 +208,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.8_sequence.json")
 start_time = time.time()
-triplets_one: Clip = (Triplet("E") << NoteValue(1/16)) * 8
+triplets_one: Clip = (Triplet("E") << NoteValue(1/16)) / 8
 triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.8_first_note_compare.json") >> Export("json/testing/_Export_Play_p.8_sequence_compare.json")
 results_list.append({
@@ -221,7 +221,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.9_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.9_sequence.json")
 start_time = time.time()
-triplets_two: Clip = (Triplet("G") << NoteValue(1/16)) * 8
+triplets_two: Clip = (Triplet("G") << NoteValue(1/16)) / 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -273,7 +273,7 @@ defaults << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
-controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
+controller = ControlChange("Pan") / (2*16 + 1) << Iterate()**Steps()
 controller >>= oscillate
 controller >> Save("json/testing/_Save_4.2_control_change.json")
 
@@ -291,7 +291,7 @@ original_export     = Import("json/testing/_Export_Play_p.10.3_sequence.json")
 start_time = time.time()
 
 oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
-pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps()
+pitch_bend = PitchBend() / (2*16 + 1) << Iterate()**Steps()
 pitch_bend >>= oscillate
 
 chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
@@ -312,7 +312,7 @@ defaults << Tempo(120)
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
+(Chord() / 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -325,7 +325,7 @@ original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
 defaults << Scale("minor")
-(Chord("A") << Octave(3) << Scale([])) * 7 + Iterate()**Degree() \
+(Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
@@ -369,7 +369,7 @@ defaults << Tempo(120)
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
 start_time = time.time()
-(Chord(1/4) * 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() \
+(Chord(1/4) / 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -381,7 +381,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.15_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15_sequence.json")
 start_time = time.time()
-(Chord(1/4) * 7 << Size("7th") << Scale([])) << Iterate()**Even()**Add()**Degree() \
+(Chord(1/4) / 7 << Size("7th") << Scale([])) << Iterate()**Even()**Add()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -393,7 +393,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.15.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15.2_sequence.json")
 start_time = time.time()
-all_chords = (Chord(1/4) * 7 << Size("7th"))
+all_chords = (Chord(1/4) / 7 << Size("7th"))
 first_chords = all_chords >> Beat(0)
 first_chords << Degree(5) << Mode(5)
 all_chords >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
@@ -428,7 +428,7 @@ defaults << Tempo(120)
 original_save       = Load("json/testing/_Save_Play_p.16_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.16_sequence.json")
 start_time = time.time()
-(Chord() << NoteValue(1)) * 3 + Iterate()**Inversion() << Duration(1) \
+(Chord() << NoteValue(1)) / 3 + Iterate()**Inversion() << Duration(1) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -440,7 +440,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.17_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.17_sequence.json")
 start_time = time.time()
-((Chord() << NoteValue(1)) * 4 << Size("7th")) + Iterate()**Inversion() << Duration(1) << Gate(1) >> Export("json/testing/_Export_7.1_chord_inversion.json") \
+((Chord() << NoteValue(1)) / 4 << Size("7th")) + Iterate()**Inversion() << Duration(1) << Gate(1) >> Export("json/testing/_Export_7.1_chord_inversion.json") \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -452,7 +452,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.18_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.18_sequence.json")
 start_time = time.time()
-((Chord("Major") << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
+((Chord("Major") << NoteValue(1)) / 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -471,7 +471,7 @@ defaults << Tempo(120)
 original_save       = Load("json/testing/_Save_Play_p.19_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.19_sequence.json")
 start_time = time.time()
-chord_play = (Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
+chord_play = (Chord("Major") << NoteValue(1/8)) / 13 + Iterate()**Semitone() << Duration(1/8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) << Even()**Velocity(50)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -503,22 +503,22 @@ start_time = time.time()
 defaults << Tempo(240)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
+play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 
     + Iterate(None, Scale("Major") % Transposition(5 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
+play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 
     + Iterate(None, Scale("Major") % Transposition(4 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) * 8 
+play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) / 8 
     + Iterate(None, Scale("minor") % Transposition(5 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) * 8 
+play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) / 8 
     + Iterate(None, Scale("minor") % Transposition(4 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 

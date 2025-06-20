@@ -24,16 +24,16 @@ from JsonMidiCreator import *
 
 # Global Staff setting up
 defaults << Tempo(120)
-single_clock = Clock(Length(1)) * 1 << MidiTrack(0, "Clock Track")
+single_clock = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + Semitone(5) >> Play()
 
-triplets_one = (Triplet("E") << NoteValue(1/16)) * 8
+triplets_one = (Triplet("E") << NoteValue(1/16)) / 8
 triplets_one + composition >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)
 
-triplets_two = (Triplet("G") << NoteValue(1/16)) * 8
+triplets_two = (Triplet("G") << NoteValue(1/16)) / 8
 triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!

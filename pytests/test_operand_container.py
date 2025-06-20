@@ -32,7 +32,7 @@ import sys
 
 def test_staff_parameters():
 
-    four_notes = Note() * 4
+    four_notes = Note() / 4
     assert four_notes % Tempo() == 120.0
     four_notes << Tempo(145)
     assert four_notes % Tempo() == 145.0
@@ -129,7 +129,7 @@ def _test_staff_reference():
     clip_add: Clip = Note() + Note()
     assert clip_add._test_staff_reference()
 
-    clip_mul: Clip = Note() * 1
+    clip_mul: Clip = Note() / 1
     assert clip_mul._test_staff_reference()
 
     assert (clip_add + Note())._test_staff_reference()
@@ -142,7 +142,7 @@ def _test_staff_reference():
 
 def test_time_signature():
 
-    four_notes: Note = Note() * 4
+    four_notes: Note = Note() / 4
     print(four_notes[2] % Position() % float())
     assert four_notes[2] % Position() == 0.5    # Measures
     four_notes << TimeSignature(2, 4)
@@ -172,7 +172,7 @@ def test_measurements_composition():
 def test_or_clip():
 
     # A Clip with a Measure of only 2 Beats
-    four_notes: Clip = Note(1/8) * 4 << TimeSignature(2, 4)
+    four_notes: Clip = Note(1/8) / 4 << TimeSignature(2, 4)
 
     assert four_notes.len() == 4
     four_notes >>= Equal(Step(2), Step(4))
@@ -328,7 +328,7 @@ def test_rshift_container():
 
 def test_rrshift_clip():
 
-    two_notes: Clip = Note() * 2
+    two_notes: Clip = Note() / 2
     assert two_notes.len() == 2
     # Checks each note position
     two_notes % Position() % Fraction() >> Print()      # 0
@@ -362,7 +362,7 @@ def test_rrshift_clip():
     assert four_notes[3] == Position(1 + 1/4)
 
     print("------")
-    note_clip = Note() * 1
+    note_clip = Note() / 1
     note: Note = Note()
     assert note_clip % Position() == 0.0 # Measures
     assert note_clip.len() == 1
@@ -382,7 +382,7 @@ def test_milliseconds_duration():
 
     duration = NoteValue(1/16 * (3*4 + 2))
     duration >> Print()
-    rest_clip = Note(duration) * 1
+    rest_clip = Note(duration) / 1
     clip_playlist = playlist_time_ms( rest_clip.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
@@ -398,7 +398,7 @@ def test_milliseconds_duration():
     assert clip_start["time_ms"] == 0.0
     assert clip_stop["time_ms"] == 1750.0
 
-    rest_default_clip = Note() * 1
+    rest_default_clip = Note() / 1
     clip_playlist = playlist_time_ms( rest_default_clip.getPlaylist() )
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
     clip_start = clip_playlist[0]
@@ -409,7 +409,7 @@ def test_milliseconds_duration():
 
 def test_playlists():
 
-    two_notes = Note() * 2
+    two_notes = Note() / 2
     playlist = playlist_time_ms( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
@@ -433,13 +433,13 @@ def test_playlists():
 
 def test_add_clip():
 
-    two_notes: Clip = Note() * 2
-    four_notes: Clip = Note() * 4
+    two_notes: Clip = Note() / 2
+    four_notes: Clip = Note() / 4
 
     assert two_notes + two_notes >> Stack() == four_notes
     assert two_notes != four_notes
 
-    three_notes: Clip = Note() * 3
+    three_notes: Clip = Note() / 3
     three_notes_2 = two_notes + Note() >> Stack()   # two_notes is NOT changed and thus remains of size 2
     assert three_notes == three_notes_2
     assert two_notes != three_notes_2               # two_notes remains unchanged, size 2!
@@ -462,7 +462,7 @@ def test_add_clip():
 
 def test_sub_clip():
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
     notes_to_remove: Clip = four_notes >> Nth(1, 3)
     remaining_notes: Clip = four_notes >> Nth(2, 4)
@@ -477,8 +477,8 @@ def test_sub_clip():
 
 def test_mul_clip():
 
-    two_notes: Clip = Note() * 2
-    four_notes: Clip = Note() * 4
+    two_notes: Clip = Note() / 2
+    four_notes: Clip = Note() / 4
 
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
@@ -524,7 +524,7 @@ def test_mul_clip():
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Duration() == Measures(1.5) # Measures
 
-    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
+    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
     assert hi_hat._test_staff_reference()
     hi_hat >>= Nth(2, 4)
@@ -549,14 +549,14 @@ def test_mul_clip():
     assert unchanged_hi_hat == hi_hat
     
     print("------")
-    six_notes = 6 * Note()
+    six_notes = 6 / Note()
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes % Duration() == Measures(1.5)  # Measures
     six_notes << Length(six_notes, 1.0)
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes // Length() == 1.0  # Measures
 
-    single_note = Note() * 1
+    single_note = Note() / 1
     two_notes = single_note * single_note
     assert two_notes[0] % Position() == 0.0
     assert two_notes[1] % Position() == 1.0
@@ -595,7 +595,7 @@ def test_mul_clip():
 
 def test_clip_composition():
 
-    measure_bell: Clip = Nt(DrumKit(34)) * 1 * 4
+    measure_bell: Clip = Nt(DrumKit(34)) / 1 * 4
     print(f"Duration: {measure_bell % Duration() % float()}")
     assert measure_bell % Duration() == Measures(3.25)
     print(f"Length: {measure_bell % Length() % float()}")
@@ -605,7 +605,7 @@ def test_clip_composition():
     assert measure_bell % Position() == 0.0
 
     print("------")
-    beat_tick: Clip = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
+    beat_tick: Clip = (Nt(DrumKit(35)) / 3 + Beat(1)) * 4   # Position basic operations work on elements
     print(f"Net Measures: {beat_tick.net_duration() % Measures() % float()}")
     print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
     assert beat_tick.net_duration() == Measures(3.75)
@@ -626,7 +626,7 @@ def test_clip_composition():
 
     print("---------------------")
     # correct version working with frame All()
-    beat_tick = (Nt(DrumKit(35)) * 3 + All()**Beat(1)) * 4
+    beat_tick = (Nt(DrumKit(35)) / 3 + All()**Beat(1)) * 4
     print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
     assert beat_tick % Duration() == Measure(4)
     print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
@@ -649,7 +649,7 @@ def test_clip_composition():
 
 def test_element_stacking():
 
-    two_notes: Clip = Note() * 2
+    two_notes: Clip = Note() / 2
     assert two_notes[-1] == Beats(1)
 
     two_notes << 1/8    # Stacking is NOT included!
@@ -662,7 +662,7 @@ def test_element_stacking():
 
 def test_lshift_clip():
 
-    base_line: Clip = Nt(dotted_eight) * Measures(4)
+    base_line: Clip = Nt(dotted_eight) / Measures(4)
     print(f"Duration: {base_line % Duration() % float()}")
     assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
     base_line += Step(1)
@@ -675,7 +675,7 @@ def test_lshift_clip():
     print(f"Duration: {base_line % Duration() % float()}")
     assert base_line % Duration() == Measures(3/16 * 21 - 1/8) # 3.8125 measures
 
-    two_measures: Clip = Note() * 8
+    two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
     one_measure: Clip = two_measures >> Less(Measures(1))
@@ -688,7 +688,7 @@ def test_lshift_clip():
     assert two_measures[0] % Pitch() == 60.0
 
 
-    eight_notes = Note() * 8
+    eight_notes = Note() / 8
 
     filtered_notes = eight_notes >> Measure(1)
 
@@ -711,17 +711,17 @@ def test_lshift_clip():
 
 def test_clip_filter():
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     assert four_notes.len() == 4
     single_note: Clip = four_notes >> Beat(2)
     assert single_note.len() == 1
 
-    eight_notes: Clip = Note() * 8
+    eight_notes: Clip = Note() / 8
     assert eight_notes.len() == 8
     single_note: Clip = eight_notes >> Beat(2)
     assert single_note.len() == 2
 
-    original_note: Clip = Note() * 1
+    original_note: Clip = Note() / 1
     assert original_note.len() == 1
     derived_note: Clip = original_note >> Nth(1)
     assert derived_note.len() == 1
@@ -739,7 +739,7 @@ def test_clip_filter():
     # Needs to be replicated upwards!
     assert original_note.len() == 1
 
-    original_note: Clip = Note() * 1
+    original_note: Clip = Note() / 1
     assert original_note.len() == 1
     derived_note: Clip = original_note >> Nth(1)
     assert derived_note.len() == 1
@@ -753,7 +753,7 @@ def test_clip_filter():
 
 def test_clip_fitting():
 
-    six_notes: Clip = Note() * 6
+    six_notes: Clip = Note() / 6
     assert six_notes % Duration() == Beats(6)
 
     six_notes.fit(Measures(2))
@@ -764,7 +764,7 @@ def test_clip_fitting():
 
 def test_clip_map():
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     four_notes += All()**Beat(1)
     assert four_notes[0] % Beat() == 1
     assert four_notes[0] % Beats() == 1
@@ -778,7 +778,7 @@ def test_clip_map():
 
 def test_clip_selectors():
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     four_notes += All()**Beat(1)
     assert four_notes[0] % Beats() == 1
     assert four_notes[2] % Beats() == 3    # Middle uses nth, so, 2 means the 3rd element
@@ -796,7 +796,7 @@ def test_clip_selectors():
 
 def test_position_shift():
 
-    chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)
+    chords: Clip = Chord() / 4 << Foreach(1, 5, 6, 4)
 
     assert chords % Position() == 0.0
     print(f"Position first [0]: {chords[0] % Position() % float()}")
@@ -830,8 +830,8 @@ def test_position_shift():
 
 def test_clip_duration():
 
-    four_notes_1: Clip = Note() * 4 << NoteValue(1/8)
-    four_notes_2: Clip = Note() * 4
+    four_notes_1: Clip = Note() / 4 << NoteValue(1/8)
+    four_notes_2: Clip = Note() / 4
 
     Beats(2) >> four_notes_1 # SETS common Position!!
     assert four_notes_1 % Position() == Beats(0)    # Clip has no Position on its own
@@ -863,8 +863,8 @@ def test_clip_duration():
 
 def test_clip_operations():
 
-    straight_clip: Clip = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
-    reversed_clip: Clip = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+    straight_clip: Clip = Note() / 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
+    reversed_clip: Clip = Note() / 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
@@ -922,7 +922,7 @@ def test_clip_operations():
 
 def test_flip_operation():
 
-    four_notes: Clip = Note() * 4
+    four_notes: Clip = Note() / 4
     four_notes << Iterate(60, 2)**Semitone()
 
     actual_pitch: float = 60.0
@@ -944,7 +944,7 @@ def test_flip_operation():
 
 def test_clip_content():
 
-    clip_elements: Clip = Note() * 4
+    clip_elements: Clip = Note() / 4
 
     for item in clip_elements:
         assert isinstance(item, Element)
@@ -962,12 +962,12 @@ def test_clip_content():
 
 def test_tied_notes():
 
-    notes = Note() * 2
+    notes = Note() / 2
     playlist = playlist_time_ms( notes.getPlaylist() )
     note_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 4
         
-    tied_notes = Note() * 2 << Tied()
+    tied_notes = Note() / 2 << Tied()
     playlist = playlist_time_ms( tied_notes.getPlaylist() )
     tied_notes_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
     assert len(playlist) == 2
@@ -1002,7 +1002,7 @@ def test_part_operations():
 
 def test_clip_length():
 
-    two_notes = Note() * 2
+    two_notes = Note() / 2
     assert two_notes % Duration() == Beats(2)
     two_notes << Length(1.0)    # Imposed Length
     assert two_notes % Length() == Beats(4)
@@ -1017,8 +1017,8 @@ def test_clip_length():
 
 def test_part_position():
 
-    note_clip_120 = Note() * 1
-    note_clip_60 = note_clip_120 * 1 << Tempo(60)
+    note_clip_120 = Note() / 1
+    note_clip_60 = note_clip_120 / 1 << Tempo(60)
 
     part_120 = Part(note_clip_120) << Measures(2)
     part_60 = Part(note_clip_60)
