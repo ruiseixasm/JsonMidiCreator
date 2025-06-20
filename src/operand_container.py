@@ -2003,9 +2003,17 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip() | oe.Element():
                 # Quantized Stacking by Measures
+                return self * operand   # Implicit copy of self
+        return super().__rshift__(operand)
+
+    # Pass trough method that always results in a Clip (Self)
+    def __irshift__(self, operand) -> Self:
+        match operand:
+            case Clip() | oe.Element():
+                # Quantized Stacking by Measures
                 self *= operand
                 return self
-        return super().__rshift__(operand)
+        return super().__irshift__(operand)
 
 
     # Avoids the costly copy of Track self doing +=

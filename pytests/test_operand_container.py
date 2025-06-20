@@ -250,7 +250,7 @@ def test_rshift_container():
     note_clip = Clip(Note())
     assert note_clip[0] % Position() == 0.0
 
-    note_clip >> Note("E")  # Because note_clip is a Clip, element Note will be promoted to Clip too
+    note_clip >>= Note("E")  # Because note_clip is a Clip, element Note will be promoted to Clip too
     assert note_clip[0] != "E"
     assert note_clip[1] == "E"
     assert note_clip[1] % Position() == Measures(1)
