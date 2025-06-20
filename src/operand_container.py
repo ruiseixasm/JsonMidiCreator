@@ -3375,9 +3375,16 @@ class Part(Composition):
     def __rshift__(self, operand) -> Self:
         match operand:
             case Part() | Clip() | oe.Element() | od.Playlist():
+                return self * operand   # Implicit copt of self
+        return super().__rshift__(operand)
+
+    # Pass trough method that always results in a Part (Self)
+    def __irshift__(self, operand) -> Self:
+        match operand:
+            case Part() | Clip() | oe.Element() | od.Playlist():
                 self *= operand
                 return self
-        return super().__rshift__(operand)
+        return super().__irshift__(operand)
 
 
     def __iadd__(self, operand: any) -> Self:

@@ -265,7 +265,8 @@ def test_rshift_container():
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
 
-    clip_part >> note_clip  # Moves to the next Measure
+    # Only ">>=" sets the clip_part
+    clip_part >>= note_clip  # Moves to the next Measure
     assert clip_part.len() == 2
 
     # Occupies two Measures
@@ -993,6 +994,7 @@ def test_part_operations():
 
     # Becomes a Part of two Clips due to * operator
     assert (part_1 >> clip_2).len() == 3
+    part_1 >>= clip_2   # Only ">>=" sets the part_1
     assert (part_1 >> part_2).len() == 5
 
 # test_part_operations()
