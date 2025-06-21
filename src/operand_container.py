@@ -2859,7 +2859,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Clip with its elements distributed in an arpeggiated manner.
         """
         arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self._items, self.start(), self.length())
+        arpeggio.arpeggiate_source(self._items, self.start(), ra.Length( self.net_duration() ))
         return self
 
 
