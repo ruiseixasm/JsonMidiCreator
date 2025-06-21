@@ -1186,7 +1186,6 @@ class Composition(Container):
         # Horizontal X-Axis, Time related (COMMON)
 
         clip_tempo: float = float(plotlist[0]["tempo"])
-        self._ax.set_xlabel(f"Time (Measures) at {round(clip_tempo, 1)} bpm")
         # # 1. Disable autoscaling and force limits
         # self._ax.set_autoscalex_on(False)
         # current_min, current_max = self._ax.get_xlim()
@@ -1227,8 +1226,8 @@ class Composition(Container):
             self._ax.set_ylabel("Chromatic Keys")
             # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
-                f"Time = {round(x / clip_tempo * 60 // 60)}' "
-                f"{round(x / clip_tempo * 60 % 60)}'' "
+                f"Time = {round(x / clip_tempo * 60 // 60)}'"
+                f"{round(x / clip_tempo * 60 % 60)}''"
                 f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
                 f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
             )
@@ -1288,8 +1287,8 @@ class Composition(Container):
 
             self._ax.set_ylabel("Automation Values (MSB)")
             self._ax.format_coord = lambda x, y: (
-                f"Time = {round(x / clip_tempo * 60 // 60)}' "
-                f"{round(x / clip_tempo * 60 % 60)}'' "
+                f"Time = {round(x / clip_tempo * 60 // 60)}'"
+                f"{round(x / clip_tempo * 60 % 60)}''"
                 f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
                 f"Beat = {int(x)}, Value = {int(y + 0.5)}"
             )
@@ -1377,6 +1376,13 @@ class Composition(Container):
             f"{int(pos // float(beats_per_measure))}" for pos in measure_positions
         ]
         
+        self._ax.set_xlabel(
+            f"Measures played at {round(clip_tempo, 1)}bpm for "
+            f"{round(last_position / clip_tempo * 60 // 60)}'"
+            f"{round(last_position / clip_tempo * 60 % 60)}''"
+            f"{round(last_position / clip_tempo * 60_000 % 1000)}ms"
+        )
+
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
         self._ax.set_xticklabels(beat_labels, rotation=0)
         self._fig.canvas.draw_idle()
