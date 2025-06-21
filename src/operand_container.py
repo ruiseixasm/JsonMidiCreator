@@ -769,14 +769,24 @@ class Container(o.Operand):
         """
         if shallow_copy:
             shallow_copy: Container = self.shallow_copy()
-            shallow_copy._items = [item for item in self._items if item == condition]
+            if isinstance(condition, Container):
+                shallow_copy._items = [
+                    item for item in self._items if any(item == cond_item for cond_item in condition)
+                ]
+            else:
+                shallow_copy._items = [item for item in self._items if item == condition]
             return shallow_copy
         # Remove previous Elements from the Container stack
         self._delete(self._items, True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
-        self._append([
-            item for item in self._items if item == condition
-        ])
+        if isinstance(condition, Container):
+            self._append([
+                item for item in self._items if any(item == cond_item for cond_item in condition)
+            ])
+        else:
+            self._append([
+                item for item in self._items if item == condition
+            ])
         # self._items = [item for item in self._items if item == condition]
         return self
 
