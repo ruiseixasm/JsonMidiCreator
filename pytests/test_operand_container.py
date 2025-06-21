@@ -299,7 +299,7 @@ def test_rshift_container():
 
     print(f"Has Part Length: {part_song // Length() is not None}")
     print(f"Length['part_song']: {part_song % Length() % float()}")
-    part_song >>= clip_part
+    part_song *= clip_part
     assert part_song.len() == 2
     
     print(f"Length[0]: {part_song[0] % Length() % float()}")
