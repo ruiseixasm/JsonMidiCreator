@@ -1807,6 +1807,8 @@ class Clip(Composition):  # Just a container of Elements
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
                 | float() | Fraction():
                 return self._staff % operand
+            case Part():            return Part(self._staff, self)
+            case Song():            return Song(self._staff, self)
             case _:
                 return super().__mod__(operand)
 
@@ -3192,6 +3194,8 @@ class Part(Composition):
                     else:
                         all_names.append(single_item._track_name)
                 return od.Names(*tuple(all_names))
+            case Song():
+                return Song(self._staff, self)
             case _:
                 return super().__mod__(operand)
 
