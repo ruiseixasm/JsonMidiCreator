@@ -3929,7 +3929,6 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-
                 right_song: Song = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
@@ -3945,14 +3944,14 @@ class Song(Composition):
                     self._length_beats += (right_song % ra.Length())._rational
 
             case Part():
-                part_song: Song = Song(operand)
-                self *= part_song
+                self *= Song(operand)
+
             case Clip():
-                clip_part: Part = Part(operand)
-                self *= clip_part
+                self *= Part(operand)
+
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                self *= element_clip
+                self *= Clip(operand)
+
             case int():
                 if operand > 1:
                     single_self_copy: Song = self.copy()
@@ -3979,7 +3978,6 @@ class Song(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-
                 right_song: Song = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
@@ -3995,14 +3993,14 @@ class Song(Composition):
                     self._length_beats += (right_song % ra.Duration() % ra.Length())._rational
 
             case Part():
-                part_song: Song = Song(operand)
-                self /= part_song
+                self /= Song(operand)
+
             case Clip():
-                clip_part: Part = Part(operand)
-                self /= clip_part
+                self /= Part(operand)
+
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                self /= element_clip
+                self /= Clip(operand)
+
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
