@@ -566,7 +566,7 @@ def test_mul_clip():
     assert type(timed_clip[0]) == type(Rest())
     assert type(timed_clip[1]) == type(Note())
     
-    timed_clip *= 3
+    timed_clip /= 3
 
     assert type(timed_clip[0]) == type(Rest())
     assert type(timed_clip[1]) == type(Note())
@@ -575,7 +575,7 @@ def test_mul_clip():
     assert type(timed_clip[4]) == type(Rest())
     assert type(timed_clip[5]) == type(Note())
 
-    timed_rest_clip = timed_rest * timed_clip   # 7/8 + 0/1 + 7/8
+    timed_rest_clip = timed_rest / timed_clip   # 7/8 + 0/1 + 7/8
                                                 # Rest
                                                 #       Rest
                                                 #             Note

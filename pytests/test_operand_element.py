@@ -189,7 +189,7 @@ def test_note_mul():
     clip = Rest() / 1
 
     assert clip[0] == Position(0)
-    rest_clip = rest * clip
+    rest_clip = rest / clip
     assert rest_clip.len() == 2
     rest_clip[0] % Position() % float() >> Print()
     assert rest_clip[0] == Position(0)
@@ -202,7 +202,7 @@ def test_note_mul():
     assert type(rest_note_clip[0]) == type(Note())
     assert type(rest_note_clip[1]) == type(Rest())
 
-    mul_clip = rest * rest_note_clip
+    mul_clip = rest / rest_note_clip
 
     assert mul_clip.len() == 1 + 2*3
     assert type(mul_clip[0]) == type(Rest())

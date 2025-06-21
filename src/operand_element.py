@@ -430,13 +430,8 @@ class Element(o.Operand):
                 new_clip *= operand
                 return new_clip
             case oc.Clip():
-                self_clip: oc.Clip = operand.copy()
-                self._set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
-                if self_clip.len() > 0:
-                    self_clip += ( self % ra.Length() ).convertToPosition()
-                    self_clip._insert([ self ], self_clip[0])
-                else:
-                    self_clip._insert([ self ])
+                self_clip: oc.Clip = oc.Clip(operand._staff, self)
+                self_clip *= operand
                 return self_clip
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
@@ -456,15 +451,13 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element():
-                return oc.Clip(self._staff_reference, self, operand)
+            case Element() | oc.Clip():
+                self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                self_clip /= operand
+                return self_clip
             case oc.Clip():
-                self_clip: oc.Clip = operand.copy()
-                self._set_staff_reference(self_clip._staff).set_clip_reference(self_clip)
-                if self_clip.len() > 0:
-                    self_clip._insert([ self ], self_clip[0])
-                else:
-                    self_clip._insert([ self ])
+                self_clip: oc.Clip = oc.Clip(operand._staff, self)
+                self_clip /= operand
                 return self_clip
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
