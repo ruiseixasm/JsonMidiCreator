@@ -169,12 +169,8 @@ class Element(o.Operand):
                 return duration_steps._rational
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
-            case oc.Clip():
-                notes: oc.Clip = oc.Clip(self._staff_reference)
-                cluster_notes: list[Note] = self.get_component_elements()
-                for single_note in cluster_notes:
-                    notes += single_note
-                return notes
+            case Element():         return operand.__class__(self)
+            case oc.Clip():         return oc.Clip(self._staff_reference, self)
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list['Element']:
