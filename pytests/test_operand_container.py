@@ -250,7 +250,7 @@ def test_rshift_container():
     note_clip = Clip(Note())
     assert note_clip[0] % Position() == 0.0
 
-    note_clip >>= Note("E")  # Because note_clip is a Clip, element Note will be promoted to Clip too
+    note_clip *= Note("E")
     assert note_clip[0] != "E"
     assert note_clip[1] == "E"
     assert note_clip[1] % Position() == Measures(1)
@@ -265,8 +265,7 @@ def test_rshift_container():
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
 
-    # Only ">>=" sets the clip_part
-    clip_part >>= note_clip  # Moves to the next Measure
+    clip_part *= note_clip  # Moves to the next Measure
     assert clip_part.len() == 2
 
     # Occupies two Measures
@@ -313,7 +312,7 @@ def test_rshift_container():
     assert part_song[1] % Position() == Measures(2) + Beats(0)
     assert part_song._test_staff_reference()
 
-    part_song >>= part_song  # >>= changes the first element in the >> chain (sequence)
+    part_song *= part_song
     assert part_song.len() == 4
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     # clip_part occupies two Measures, so, the next Part Measure Position is the 2 (3rd one)
@@ -994,7 +993,7 @@ def test_part_operations():
 
     # Becomes a Part of two Clips due to * operator
     assert (part_1 >> clip_2).len() == 3
-    part_1 >>= clip_2   # Only ">>=" sets the part_1
+    part_1 *= clip_2
     assert (part_1 >> part_2).len() == 5
 
 # test_part_operations()
