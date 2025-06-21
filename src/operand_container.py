@@ -1226,9 +1226,9 @@ class Composition(Container):
             self._ax.set_ylabel("Chromatic Keys")
             # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
-                f"Time = {round(x / clip_tempo * 60 // 60)}'"
-                f"{round(x / clip_tempo * 60 % 60)}''"
-                f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
+                f"Time = {int(x / clip_tempo * 60 // 60)}'"
+                f"{int(x / clip_tempo * 60 % 60)}''"
+                f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
                 f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
             )
 
@@ -1287,9 +1287,9 @@ class Composition(Container):
 
             self._ax.set_ylabel("Automation Values (MSB)")
             self._ax.format_coord = lambda x, y: (
-                f"Time = {round(x / clip_tempo * 60 // 60)}'"
-                f"{round(x / clip_tempo * 60 % 60)}''"
-                f"{round(x / clip_tempo * 60_000 % 1000)}ms, "
+                f"Time = {int(x / clip_tempo * 60 // 60)}'"
+                f"{int(x / clip_tempo * 60 % 60)}''"
+                f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
                 f"Beat = {int(x)}, Value = {int(y + 0.5)}"
             )
 
@@ -1378,9 +1378,9 @@ class Composition(Container):
         
         self._ax.set_xlabel(
             f"Measures played at {round(clip_tempo, 1)}bpm for "
-            f"{round(last_position / clip_tempo * 60 // 60)}'"
-            f"{round(last_position / clip_tempo * 60 % 60)}''"
-            f"{round(last_position / clip_tempo * 60_000 % 1000)}ms"
+            f"{int(last_position / clip_tempo * 60 // 60)}'"
+            f"{int(last_position / clip_tempo * 60 % 60)}''"
+            f"{int(last_position / clip_tempo * 60_000 % 1000)}ms"
         )
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
