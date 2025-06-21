@@ -44,7 +44,7 @@ original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
 first_note = Note(Steps(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) * ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
 results_list.append({
@@ -102,9 +102,9 @@ second_sequence = first_sequence >> Copy()
 second_sequence /= Position(2)
 second_sequence /= NoteValue(2)
 some_rest = Rest(4/1)
-second_sequence = Rest(4/1, Channel(10)) * second_sequence
+second_sequence = Rest(4/1, Channel(10)) / second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
-first_sequence = Rest(2/1, Channel(10)) * first_sequence
+first_sequence = Rest(2/1, Channel(10)) / first_sequence
 
 # Creations, aggregation of both Sequences in a Track element and respective Play
 all_elements = Part(first_sequence) + second_sequence
