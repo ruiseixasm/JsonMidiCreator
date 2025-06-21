@@ -2021,7 +2021,7 @@ class Clip(Composition):  # Just a container of Elements
                     self += single_element
 
             case oe.Element():
-                new_element: oe.Element = operand.copy()._convert_staff_reference(self._staff).set_clip_reference(self)
+                new_element: oe.Element = operand.copy()._set_staff_reference(self._staff).set_clip_reference(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
                     return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
@@ -2029,7 +2029,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case list():
                 operand_elements = [
-                    single_element.copy()._convert_staff_reference(self._staff).set_clip_reference(self)
+                    single_element.copy()._set_staff_reference(self._staff).set_clip_reference(self)
                     for single_element in operand if isinstance(single_element, oe.Element)
                 ]
                 if self.len() > 0:
@@ -2079,7 +2079,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 
-                right_clip: Clip = operand.copy()._convert_staff_reference(self._staff)
+                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_clip.start().roundMeasures()
@@ -3428,7 +3428,7 @@ class Part(Composition):
         match operand:
             case Part():
 
-                right_part: Part = operand.copy()._convert_staff_reference(self._staff)
+                right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_part // ra.Position()
@@ -3486,7 +3486,7 @@ class Part(Composition):
             case Part():
 
                 # This conversion doesn't touch on the Clips
-                right_part: Part = operand.copy()._convert_staff_reference(self._staff)
+                right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
@@ -3904,7 +3904,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ operand.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
+                self._append([ operand.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
 
             case Clip():
                 clip_part: Part = Part(operand)
@@ -3917,7 +3917,7 @@ class Song(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])
+                        self._append([ item.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
@@ -3959,7 +3959,7 @@ class Song(Composition):
         match operand:
             case Song():
 
-                right_song: Song = operand.copy()._convert_staff_reference(self._staff)
+                right_song: Song = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
@@ -4009,7 +4009,7 @@ class Song(Composition):
         match operand:
             case Song():
 
-                right_song: Song = operand.copy()._convert_staff_reference(self._staff)
+                right_song: Song = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
