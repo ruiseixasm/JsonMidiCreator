@@ -2092,7 +2092,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._length_beats += (right_clip % ra.Length())._rational
 
             case oe.Element():
-                self *= Clip(operand)
+                self *= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
@@ -2171,7 +2171,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
-                self /= Clip(operand)
+                self /= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
@@ -3385,8 +3385,7 @@ class Part(Composition):
                 self._append([ operand.copy() ])
 
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                self += element_clip
+                self += Clip(operand._staff_reference, operand)
 
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
@@ -3443,7 +3442,7 @@ class Part(Composition):
                 self *= Part(operand)
 
             case oe.Element():
-                self *= Clip(operand)
+                self *= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
@@ -3485,7 +3484,7 @@ class Part(Composition):
                 self /= Part(operand)
 
             case oe.Element():
-                self /= Clip(operand)
+                self /= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
@@ -3876,12 +3875,10 @@ class Song(Composition):
                 self._append([ operand.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
 
             case Clip():
-                clip_part: Part = Part(operand)
-                self += clip_part
+                self += Part(operand)
 
             case oe.Element():
-                element_clip: Clip = Clip(operand)
-                self += element_clip
+                self += Clip(operand._staff_reference, operand)
 
             case list():
                 for item in operand:
@@ -3948,7 +3945,7 @@ class Song(Composition):
                 self *= Part(operand)
 
             case oe.Element():
-                self *= Clip(operand)
+                self *= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
@@ -3997,7 +3994,7 @@ class Song(Composition):
                 self /= Part(operand)
 
             case oe.Element():
-                self /= Clip(operand)
+                self /= Clip(operand._staff_reference, operand)
 
             case int():
                 if operand > 1:
