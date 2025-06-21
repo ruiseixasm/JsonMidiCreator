@@ -3427,7 +3427,6 @@ class Part(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Part():
-
                 right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
@@ -3443,26 +3442,11 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Length())._rational
 
             case Clip():
-                add_measure: ou.Measure = ou.Measure(0)
-                if self._length_beats is None:
-                    # It's the position of the element that matters and not their tailed Duration
-                    last_position: ra.Position = self._last_element_position()
-                    if last_position:
-                        add_measure = last_position.roundMeasures() + ou.Measure(1)
-                else:
-                    add_measure = ou.Measure( self // ra.Length() )
-                # Clips have no Position, so, it's implicit position is always 0
-                self._append([ operand + add_measure ])
+                self *= Part(operand)
+
             case oe.Element():
-                add_measure: ou.Measure = ou.Measure(0)
-                # It's the position of the element that matters and not their tailed Duration
-                last_position: ra.Position = self._last_element_position()
-                if last_position:
-                    add_measure = last_position.roundMeasures() + ou.Measure(1)
-                # Clips have no Position, so, it's implicit position is always 0
-                clip_operand: Clip = Clip(operand)
-                clip_operand += add_measure
-                self._append([ clip_operand ])
+                self *= Clip(operand)
+
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
@@ -3484,7 +3468,6 @@ class Part(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Part():
-
                 # This conversion doesn't touch on the Clips
                 right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
@@ -3501,23 +3484,11 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
             case Clip():
-                # It's NOT just the position of the element that matters, it's also their tailed Duration
-                finish_position: ra.Position = self.finish()
-                if finish_position is not None:
-                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                    add_measure: ou.Measure = rounded_length.convertToMeasure()
-                    # Clips have no Position, so, it's implicit position is always 0
-                    self._append([ operand + add_measure ])
+                self /= Part(operand)
+
             case oe.Element():
-                # It's NOT just the position of the element that matters, it's also their tailed Duration
-                finish_position: ra.Position = self.finish()
-                if finish_position is not None:
-                    rounded_length: ra.Length = finish_position.convertToLength().roundMeasures()
-                    add_measure: ou.Measure = rounded_length.convertToMeasure()
-                    # Clips have no Position, so, it's implicit position is always 0
-                    clip_operand: Clip = Clip(operand)
-                    clip_operand += add_measure
-                    self._append([ clip_operand ])
+                self /= Clip(operand)
+
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
