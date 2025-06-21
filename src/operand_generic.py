@@ -1318,6 +1318,17 @@ class Staff(Generic):
         self._stacked_notes = {}
         return self
 
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        
+        # Needs to be reset because shallow_copy doesn't result in different
+        # staff references for each element
+        self._reset_accidentals()
+        self._reset_tied_notes()
+        self._reset_stacked_notes()
+
+        return self << parameters
+    
 
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
         actual_bps: Fraction = self._tempo / 60 # Beats Per Second

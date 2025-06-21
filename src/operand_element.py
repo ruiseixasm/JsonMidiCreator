@@ -1016,16 +1016,13 @@ class Note(Element):
             # Checks if it's a following tied note first
             if self._tied:
 
-                self_position: Fraction = position_on._rational
-                self_length: Fraction = position_off._rational - self_position  # In Beats
-
                 def extend_note(note_off: dict, position_on_beats: Fraction, position_off_beats: Fraction):
                     note_off["position_off"] = position_off_beats
 
 
                 tied_note: bool = self._staff_reference._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
-                    self_position, self_position + self_length,
+                    position_on._rational, position_off._rational,
                     self_plotlist[0]["note"], extend_note
                 )
 
@@ -1039,7 +1036,7 @@ class Note(Element):
                 self._channel - 1,
                 pitch_int
             ):
-                print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
+                print(f"Warning (PLL): Removed redundant Note on Channel {self._channel} "
                     f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
                 return []
 

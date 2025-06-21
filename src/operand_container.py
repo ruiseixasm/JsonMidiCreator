@@ -1813,12 +1813,6 @@ class Clip(Composition):  # Just a container of Elements
 
     def _get_position_beats(self, position: ra.Position = None) -> Fraction:
 
-        # Needs to be reset because shallow_copy doesn't result in different
-        # staff references for each element
-        self._staff._reset_accidentals()
-        self._staff._reset_tied_notes()
-        self._staff._reset_stacked_notes()
-
         position_beats: Fraction = Fraction(0)
 
         if isinstance(position, ra.Position):
@@ -1837,12 +1831,14 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
+        self._staff.reset()
+
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
             "note":         set(),
             "automation":   set()
         }
-    
+
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
@@ -1873,6 +1869,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
+        self._staff.reset()
         position_beats: Fraction = self._get_position_beats(position)
 
         self_playlist: list[dict] = [
@@ -1899,6 +1896,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
+        self._staff.reset()
         position_beats: Fraction = self._get_position_beats(position)
 
         return [
