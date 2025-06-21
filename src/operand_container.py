@@ -3369,22 +3369,6 @@ class Part(Composition):
         return self
 
 
-    # Pass trough method that always results in a Part (Self)
-    def __rshift__(self, operand) -> Self:
-        match operand:
-            case Part() | Clip() | oe.Element():
-                return self * operand   # Implicit copt of self
-        return super().__rshift__(operand)
-
-    # Pass trough method that always results in a Part (Self)
-    def __irshift__(self, operand) -> Self:
-        match operand:
-            case Part() | Clip() | oe.Element():
-                self *= operand
-                return self
-        return super().__irshift__(operand)
-
-
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
@@ -3857,22 +3841,6 @@ class Song(Composition):
                 for single_part in self._items:
                     single_part << operand
         return self
-
-
-    # Pass trough method that always results in a Song (Self)
-    def __rshift__(self, operand) -> Self:
-        match operand:
-            case Song() | Part() | Clip() | oe.Element():
-                return self * operand   # Implicit copy of self
-        return super().__rshift__(operand)
-
-    # Pass trough method that always results in a Song (Self)
-    def __irshift__(self, operand) -> Self:
-        match operand:
-            case Song() | Part() | Clip() | oe.Element():
-                self *= operand # Stacks by Measure
-                return self
-        return super().__irshift__(operand)
 
 
     def __iadd__(self, operand: any) -> Self:
