@@ -356,9 +356,6 @@ class Container(o.Operand):
                 return self + operand   # Implicit copy of self
             case om.Mutation():
                 return operand.mutate(self.copy())
-            case od.Playlist():
-                operand.__rrshift__(self)
-                return self
             case od.Process():
                 return operand.__rrshift__(self)
             case ch.Chaos():
@@ -374,9 +371,6 @@ class Container(o.Operand):
                 return self
             case om.Mutation():
                 return operand.mutate(self)
-            case od.Playlist():
-                operand.__irrshift__(self)
-                return self
             case od.Process():
                 return operand.__irrshift__(self)
             case ch.Chaos():
@@ -2990,7 +2984,7 @@ class Part(Composition):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._staff = og.defaults._staff
-        self._items: list[Clip | od.Playlist] = []
+        self._items: list[Clip] = []
         self._name: str = "Part"
 
         # Song sets the Staff, this is just a reference
@@ -3034,19 +3028,15 @@ class Part(Composition):
         return self
 
 
-    def __getitem__(self, key: str | int) -> Clip | od.Playlist:
+    def __getitem__(self, key: str | int) -> 'Clip':
         if isinstance(key, str):
             for single_item in self._items:
-                if isinstance(single_item, Clip):
-                    if single_item._midi_track._name == key:
-                        return single_item
-                else:
-                    if single_item._track_name == key:
-                        return single_item
+                if single_item._midi_track._name == key:
+                    return single_item
             return ol.Null()
         return self._items[key]
 
-    def __next__(self) -> Clip | od.Playlist:
+    def __next__(self) -> 'Clip':
         return super().__next__()
     
 
@@ -3255,8 +3245,7 @@ class Part(Composition):
         play_list: list = []
         part_position: ra.Position = self // ra.Position()
         for single_clip in self:
-            if isinstance(single_clip, (Clip, od.Playlist)):
-                play_list.extend(single_clip.getPlaylist(part_position))
+            play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -3342,7 +3331,7 @@ class Part(Composition):
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 self._items = [
-                    self.deep_copy(item) for item in operand if isinstance(item, (Clip, od.Playlist))
+                    self.deep_copy(item) for item in operand if isinstance(item, Clip)
                 ]
                 self._sort_position()
             case Composition():
@@ -3369,14 +3358,14 @@ class Part(Composition):
     # Pass trough method that always results in a Part (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Part() | Clip() | oe.Element() | od.Playlist():
+            case Part() | Clip() | oe.Element():
                 return self * operand   # Implicit copt of self
         return super().__rshift__(operand)
 
     # Pass trough method that always results in a Part (Self)
     def __irshift__(self, operand) -> Self:
         match operand:
-            case Part() | Clip() | oe.Element() | od.Playlist():
+            case Part() | Clip() | oe.Element():
                 self *= operand
                 return self
         return super().__irshift__(operand)
@@ -3388,7 +3377,7 @@ class Part(Composition):
                 for single_clip in operand:
                     self += single_clip
 
-            case Clip() | od.Playlist():
+            case Clip():
                 self._append([ operand.copy() ])
 
             case oe.Element():
@@ -3413,7 +3402,7 @@ class Part(Composition):
         match operand:
             case Part():
                 return self._delete(operand._items)
-            case Clip() | od.Playlist():
+            case Clip():
                 return self._delete(operand)
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
@@ -3447,7 +3436,7 @@ class Part(Composition):
                 if self._length_beats is not None:
                     self._length_beats += (right_part % ra.Length())._rational
 
-            case Clip() | od.Playlist():
+            case Clip():
                 add_measure: ou.Measure = ou.Measure(0)
                 if self._length_beats is None:
                     # It's the position of the element that matters and not their tailed Duration
@@ -3505,7 +3494,7 @@ class Part(Composition):
                 if self._length_beats is not None:
                     self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
-            case Clip() | od.Playlist():
+            case Clip():
                 # It's NOT just the position of the element that matters, it's also their tailed Duration
                 finish_position: ra.Position = self.finish()
                 if finish_position is not None:
@@ -3564,9 +3553,8 @@ class Part(Composition):
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
         # No Clip is removed, only elements are removed
-        for clip_loop in self._items:
-            if isinstance(clip_loop, Clip):
-                clip_loop.loop(clip_punch_in, punch_length)
+        for single_clip in self._items:
+            single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
             self._position_beats = Fraction(0) # Positions all parts at the start
@@ -3599,7 +3587,7 @@ class Song(Composition):
             self << single_operand
 
 
-    def __getitem__(self, key: int) -> Part:
+    def __getitem__(self, key: int) -> 'Part':
         if isinstance(key, str):
             for single_part in self._items:
                 if single_part._name == key:
@@ -3607,7 +3595,7 @@ class Song(Composition):
             return ol.Null()
         return self._items[key]
 
-    def __next__(self) -> Part:
+    def __next__(self) -> 'Part':
         return super().__next__()
     
 
@@ -3890,14 +3878,14 @@ class Song(Composition):
     # Pass trough method that always results in a Song (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
+            case Song() | Part() | Clip() | oe.Element():
                 return self * operand   # Implicit copy of self
         return super().__rshift__(operand)
 
     # Pass trough method that always results in a Song (Self)
     def __irshift__(self, operand) -> Self:
         match operand:
-            case Song() | Part() | Clip() | oe.Element() | od.Playlist():
+            case Song() | Part() | Clip() | oe.Element():
                 self *= operand # Stacks by Measure
                 return self
         return super().__irshift__(operand)
@@ -3912,7 +3900,7 @@ class Song(Composition):
             case Part():
                 self._append([ operand.copy()._convert_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
 
-            case Clip() | od.Playlist():
+            case Clip():
                 clip_part: Part = Part(operand)
                 self += clip_part
 
@@ -3943,7 +3931,7 @@ class Song(Composition):
                 return self._delete(operand._items)
             case Part():
                 return self._delete([ operand ])
-            case Clip() | od.Playlist():
+            case Clip():
                 clip_part: Part = Part(operand)
                 self -= clip_part
             case ra.Position() | ra.TimeValue():
@@ -3982,7 +3970,7 @@ class Song(Composition):
             case Part():
                 part_song: Song = Song(operand)
                 self *= part_song
-            case Clip() | od.Playlist():
+            case Clip():
                 clip_part: Part = Part(operand)
                 self *= clip_part
             case oe.Element():
@@ -4032,7 +4020,7 @@ class Song(Composition):
             case Part():
                 part_song: Song = Song(operand)
                 self /= part_song
-            case Clip() | od.Playlist():
+            case Clip():
                 clip_part: Part = Part(operand)
                 self /= clip_part
             case oe.Element():
