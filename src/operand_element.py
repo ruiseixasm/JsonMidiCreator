@@ -1311,7 +1311,7 @@ class Cluster(Note):
         cluster_notes: list[Note] = []
         for single_set in self._sets:
             new_note: Note = Note(self).set_clip_reference(self._clip_reference)
-            new_note += ou.Semitone(single_set)
+            new_note._pitch += single_set
             cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
