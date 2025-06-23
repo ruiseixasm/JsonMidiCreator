@@ -486,15 +486,15 @@ class Operand:
     def __riadd__(self, operand: T) -> T:
         return operand
 
-    # Makes sure no Non Operand has `+= Operand` applied
+    # Makes sure no Non Operand has `-= Operand` applied
     def __risub__(self, operand: T) -> T:
         return operand
 
-    # Makes sure no Non Operand has `+= Operand` applied
+    # Makes sure no Non Operand has `*= Operand` applied
     def __rimul__(self, operand: T) -> T:
         return operand
 
-    # Makes sure no Non Operand has `+= Operand` applied
+    # Makes sure no Non Operand has `/= Operand` applied
     def __ritruediv__(self, operand: T) -> T:
         return operand
 

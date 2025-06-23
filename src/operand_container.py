@@ -2150,6 +2150,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 left_end_position: ra.Position = self.finish()
+                if left_end_position is None:
+                    left_end_position = ra.Position(self)
                 if self._length_beats is not None:
                     self._length_beats += (operand % ra.Length())._rational
                 right_start_position: ra.Position = operand.start()
