@@ -2758,6 +2758,8 @@ class Clip(Composition):  # Just a container of Elements
         else:
             fitting_finish: ra.Position = self._staff.convertToPosition(ou.Measure(1))
         actual_finish: ra.Position = self.finish()
+        if actual_finish is None:
+            actual_finish = ra.Position(self)
         length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
         self *= ra.Position(length_ratio)   # Adjust positions
         self *= ra.Duration(length_ratio)   # Adjust durations
