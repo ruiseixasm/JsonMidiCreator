@@ -365,9 +365,9 @@ class Operand:
         return self << od.DataSource( operand )
     
     # Makes sure no Non Operand has `<< Operand` applied
-    def __rlshift__(self, operand: any) -> Self:
-        import operand_label as ol
-        return ol.Null()
+    def __rlshift__(self, operand: T) -> T:
+        return operand
+
 
     # Same as | operator
     def __or__(self, operand: any) -> Self:
