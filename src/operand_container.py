@@ -2498,7 +2498,10 @@ class Clip(Composition):  # Just a container of Elements
             first_measure_position_beats: Fraction = self.start().roundMeasures()._rational
         else:
             first_measure_position_beats: Fraction = Fraction(0)
-        clip_length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
+        self_finish: ra.Position = self.finish()
+        if self_finish is None:
+            self_finish = ra.Position(self)
+        clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
         for single_element in self._items:
             element_position_beats: Fraction = single_element._position_beats
             element_length_beats: Fraction = single_element % ra.Length() // Fraction()
