@@ -1797,6 +1797,14 @@ class Clip(Composition):  # Just a container of Elements
             case od.DataSource():
                 match operand._data:
                     case ou.MidiTrack():    return self._midi_track
+                    case ClipGet():
+                        clip_get: ClipGet = operand._data
+                        for single_element in self._items:
+                            element_parameter: any = single_element
+                            for get_operand in clip_get._get:
+                                element_parameter //= get_operand
+                            clip_get._items.append(element_parameter)
+                        return clip_get
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
@@ -1806,6 +1814,14 @@ class Clip(Composition):  # Just a container of Elements
                 return self._staff % operand
             case Part():            return Part(self._staff, self)
             case Song():            return Song(self._staff, self)
+            case ClipGet():
+                clip_get: ClipGet = operand.copy()
+                for single_element in self._items:
+                    element_parameter: any = single_element.copy()
+                    for get_operand in clip_get._get:
+                        element_parameter %= get_operand
+                    clip_get._items.append(element_parameter)
+                return clip_get
             case _:
                 return super().__mod__(operand)
 
@@ -4078,6 +4094,9 @@ class ClipGet(Container):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
+            case ClipGet():
+                super.__lshift__(operand)
+                self._get = operand._get
             case od.DataSource():
                 match operand._data:
                     case tuple():
