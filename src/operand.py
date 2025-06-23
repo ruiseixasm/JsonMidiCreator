@@ -481,6 +481,24 @@ class Operand:
     def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
 
+
+    # Makes sure no Non Operand has `+= Operand` applied
+    def __riadd__(self, operand: T) -> T:
+        return operand
+
+    # Makes sure no Non Operand has `+= Operand` applied
+    def __risub__(self, operand: T) -> T:
+        return operand
+
+    # Makes sure no Non Operand has `+= Operand` applied
+    def __rimul__(self, operand: T) -> T:
+        return operand
+
+    # Makes sure no Non Operand has `+= Operand` applied
+    def __ritruediv__(self, operand: T) -> T:
+        return operand
+
+    
     
     def __pow__(self, operand: 'Operand') -> Self:
         match operand:
