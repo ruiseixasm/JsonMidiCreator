@@ -500,10 +500,6 @@ class Container(o.Operand):
                         nth_item -= 1
                     return many_operands
 
-            # Returns an altered Container with less info (truncated info)
-            case od.Process():
-                return self >> operand
-            
             case tuple():
                 for single_operand in operand:
                     self /= single_operand
@@ -4129,15 +4125,11 @@ class ClipGet(Container):
             case tuple():
                 for single_operand in operand:
                     self += single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for item in self._items:
-                    item += operand
             case _:
-                if self.len() > 0:
-                    self_last_item: any = self[-1]
-                    return self._append([ self.deep_copy(operand) ], self_last_item)
-                return self._append([ self.deep_copy(operand) ])
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item_i in range(self.len()):
+                    self._items[item_i] += operand
         return self
 
 
@@ -4158,7 +4150,10 @@ class ClipGet(Container):
                 for item in self._items:
                     item -= operand
             case _:
-                return self._delete([ operand ])
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item_i in range(self.len()):
+                    self._items[item_i] -= operand
         return self
 
 
@@ -4199,8 +4194,8 @@ class ClipGet(Container):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
-                    item *= operand
+                for item_i in range(self.len()):
+                    self._items[item_i] *= operand
         return self
     
 
@@ -4222,20 +4217,14 @@ class ClipGet(Container):
                         nth_item -= 1
                     return many_operands
 
-            # Returns an altered Container with less info (truncated info)
-            case od.Process():
-                return self >> operand
-            
             case tuple():
                 for single_operand in operand:
                     self /= single_operand
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
-                    item /= operand
+                for item_i in range(self.len()):
+                    self._items[item_i] /= operand
         return self
-
-
 
 
