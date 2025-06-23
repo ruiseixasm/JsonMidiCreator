@@ -472,16 +472,6 @@ class Operand:
         return self
 
 
-    def __radd__(self, operand: any) -> Self:
-        return self.__add__(operand)
-
-    def __rsub__(self, operand: any) -> Self:
-        return self.__mul__(-1).__add__(operand)
-
-    def __rmul__(self, operand: any) -> Self:
-        return self.__mul__(operand)
-
-
     # Makes sure no Non Operand has `+= Operand` applied
     def __riadd__(self, operand: T) -> T:
         return operand
