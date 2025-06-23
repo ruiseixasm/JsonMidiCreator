@@ -2170,27 +2170,22 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    add_position: ra.Position = ra.Position(0)
-                    finish: ra.Position = self.finish()
-                    if finish:
-                        add_position = finish
+                    self_finish: ra.Position = self.finish()
+                    if self_finish is None:
+                        self_finish = ra.Position(self)
                     self_copy: Clip = self.copy()
                     for _ in range(operand - 2):
-                        self_copy += add_position
+                        self_copy += self_finish
                         self += self_copy   # implicit copy of self_copy
                     # Uses the last self_copy for the last iteration
-                    self_copy += add_position
+                    self_copy += self_finish
                     new_elements: list[oe.Element] = [
                         single_element._set_staff_reference(self._staff).set_clip_reference(self)
                         for single_element in self_copy if isinstance(single_element, oe.Element)
                     ]
                     self._append(new_elements)  # Propagates upwards in the stack
-                    # self._items.extend(
-                    #     single_element._set_staff_reference(self._staff).set_clip_reference(self)
-                    #     for single_element in self_copy if isinstance(single_element, oe.Element)
-                    # )
                     if self._length_beats is not None:
-                        finish_position_beats: Fraction = self.finish()._rational
+                        finish_position_beats: Fraction = self_finish._rational
                         if finish_position_beats > self._length_beats:
                             self._length_beats = finish_position_beats
                 elif operand == 0:   # Must be empty
