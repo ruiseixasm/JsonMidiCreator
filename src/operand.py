@@ -256,9 +256,21 @@ class Operand:
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
+    # Makes sure no Non Operand has `% Operand` applied
+    def __rmod__(self, operand: any) -> Self:
+        import operand_label as ol
+        return ol.Null()
+
+
     def __floordiv__(self, operand: T) -> T:
         import operand_data as od
         return self.__mod__( od.DataSource( operand ) )
+
+    # Makes sure no Non Operand has `// Operand` applied
+    def __rfloordiv__(self, operand: any) -> Self:
+        import operand_label as ol
+        return ol.Null()
+
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
@@ -351,6 +363,11 @@ class Operand:
     def __ilshift__(self, operand: any) -> Self:
         import operand_data as od
         return self << od.DataSource( operand )
+    
+    # Makes sure no Non Operand has `<< Operand` applied
+    def __rlshift__(self, operand: any) -> Self:
+        import operand_label as ol
+        return ol.Null()
 
     # Same as | operator
     def __or__(self, operand: any) -> Self:
