@@ -1975,6 +1975,19 @@ class Clip(Composition):  # Just a container of Elements
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case om.Mutation():     operand._data.mutate(self)
+                    
+                    case ClipGet():
+                        clip_get: ClipGet = operand._data
+                        if self.len() == clip_get.len() and len(clip_get._get) > 0:
+                            for element_i in range(self.len()):
+                                element_parameter: any = clip_get._items[element_i]
+                                clip_get_get_len: int = len(clip_get._get)
+                                # -1 because the last get parameter is the one existent in the list, last one type
+                                for get_operand_j in range(clip_get_get_len - 1):
+                                    clip_get._get[clip_get_get_len - 2 - get_operand_j] <<= element_parameter
+                                    element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
+                                self._items[element_i] <<= element_parameter
+
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
@@ -2009,6 +2022,18 @@ class Clip(Composition):  # Just a container of Elements
             case Composition():
                 self._set_staff_reference(operand._get_staff_reference())
 
+            case ClipGet():
+                clip_get: ClipGet = operand
+                if self.len() == clip_get.len() and len(clip_get._get) > 0:
+                    for element_i in range(self.len()):
+                        element_parameter: any = clip_get._items[element_i]
+                        clip_get_get_len: int = len(clip_get._get)
+                        # -1 because the last get parameter is the one existent in the list, last one type
+                        for get_operand_j in range(clip_get_get_len - 1):
+                            clip_get._get[clip_get_get_len - 2 - get_operand_j] << element_parameter
+                            element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
+                        self._items[element_i] << element_parameter
+            
             case _: # Works for Frame too
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
