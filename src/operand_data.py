@@ -1607,6 +1607,7 @@ class Smooth(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.smooth()
 
+
 class Flip(ClipProcess):
     """`Data -> Process -> ClipProcess -> Flip`
 
@@ -1618,6 +1619,18 @@ class Flip(ClipProcess):
     """
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.flip()
+
+class Invert(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Invert`
+
+    `Invert` is similar to 'Flip' but based in a center defined by the first note on which all notes are vertically mirrored.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.invert()
+
 
 class Snap(ClipProcess):
     """`Data -> Process -> ClipProcess -> Snap`

@@ -1975,7 +1975,7 @@ class Clip(Composition):  # Just a container of Elements
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case om.Mutation():     operand._data.mutate(self)
-                    
+
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         if self.len() == clip_get.len() and len(clip_get._get) > 0:
@@ -2547,6 +2547,7 @@ class Clip(Composition):  # Just a container of Elements
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
 
+
     def flip(self) -> Self:
         """
         Flip is similar to reverse but instead of reversing the elements position it reverses the
@@ -2583,6 +2584,32 @@ class Clip(Composition):  # Just a container of Elements
                 element_pitch << new_pitch
                 
         return self
+
+    def invert(self) -> Self:
+        """
+        `invert` is similar to 'flip' but based in a center defined by the first note on which all notes are vertically mirrored.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        center_pitch: float = None
+        
+        for item in self._items:
+            if isinstance(item, oe.Note):
+                center_pitch = item._pitch % float()
+                break
+
+        for item in self._items:
+            if isinstance(item, oe.Note):
+                note_pitch: float = item._pitch % float()
+                if note_pitch != center_pitch:
+                    item._pitch << round(2 * center_pitch - note_pitch, 1)
+                
+        return self
+
 
     def snap(self, up: bool = False) -> Self:
         """
