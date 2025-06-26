@@ -373,7 +373,11 @@ class Operand:
     def __or__(self, operand: any) -> Self:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
-    
+
+
+    def __invert__(self) -> Self:
+        '''Same as ~operand will return a copy of operand'''
+        return self.copy()
 
     def copy(self, *parameters) -> Self:
         self_copy = type(self)() << self
