@@ -29,7 +29,7 @@ seven_keys = Note(1/1) / 7 << Iterate()
 seven_keys >> P
 R() >> P
 
-seven_keys // Staff() << Scale("Dorian")
+seven_keys % Pipe(Staff()) << Scale("Dorian")
 seven_keys >> P
 R() >> P
 

@@ -659,7 +659,7 @@ class Clock(Element):
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
 
         pulses_per_note: int = self._clock_ppqn * 4
-        pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
+        pulses_per_beat: Fraction = self._staff_reference % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
         total_clock_pulses: int = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
         self_playlist: list[dict] = []
@@ -3404,7 +3404,7 @@ class ProgramChange(Element):
         if self._bank > 0:
             # Has to pass self first to set equivalent parameters like position and staff
             self_playlist.extend(
-                BankSelect(self, self // ou.Bank(), self // ou.HighResolution())
+                BankSelect(self, self % od.Pipe( ou.Bank() ), self // ou.HighResolution())
                     .set_clip_reference(self._clip_reference).getPlaylist(devices_header=False)
             )
 
