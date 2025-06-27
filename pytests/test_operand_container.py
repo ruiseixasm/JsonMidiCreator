@@ -296,7 +296,7 @@ def test_rshift_container():
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     assert part_song._test_staff_reference()
 
-    print(f"Has Part Length: {part_song // Length() is not None}")
+    print(f"Has Part Length: {part_song.__mod__(od.DataSource( Length() )) is not None}")
     print(f"Length['part_song']: {part_song % Length() % float()}")
     part_song *= clip_part
     assert part_song.len() == 2
@@ -553,7 +553,7 @@ def test_mul_clip():
     assert six_notes % Duration() == Measures(1.5)  # Measures
     six_notes << Length(six_notes, 1.0)
     print(f"Length: {six_notes % Length() % float()}")
-    assert six_notes // Length() == 1.0  # Measures
+    assert six_notes.__mod__(od.DataSource( Length() )) == 1.0  # Measures
 
     single_note = Note() / 1
     two_notes = single_note * single_note
