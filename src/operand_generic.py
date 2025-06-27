@@ -530,7 +530,7 @@ class Pitch(Generic):
                     case ou.Flat():
                         self._sharp = operand._data._unit * -1
                     case ou.Natural():
-                        self._natural = operand._data // bool()
+                        self._natural = operand._data.__mod__(od.DataSource( bool() ))
                     case ou.Degree():
                         self._degree = operand._data._unit
                     case str():
@@ -592,7 +592,7 @@ class Pitch(Generic):
                 if max(0, self._sharp * -1) != operand._unit:
                     self._sharp = operand._unit % 3 * -1
             case ou.Natural():
-                self._natural = operand // bool()
+                self._natural = operand.__mod__(od.DataSource( bool() ))
             case str():
                 string: str = operand.strip()
                 self._sharp = \

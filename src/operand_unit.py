@@ -797,10 +797,10 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case od.DataSource():
                 match operand._data:
                     case int():     self._unit      = operand._data
-                    case Major():   self._major     = operand._data // bool()
+                    case Major():   self._major     = operand._data.__mod__(od.DataSource( bool() ))
             case int():     self._unit   = operand
-            case Major():   self._major  = operand // bool()
-            case Minor():   self._major  = not (operand // bool())
+            case Major():   self._major  = operand.__mod__(od.DataSource( bool() ))
+            case Minor():   self._major  = not (operand.__mod__(od.DataSource( bool() )))
             case Sharps() | Flats():
                 self._unit = operand._unit
                 if isinstance(operand, Flats):

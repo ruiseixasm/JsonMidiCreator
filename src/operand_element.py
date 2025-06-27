@@ -1210,7 +1210,7 @@ class Note(Element):
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
-                    case ou.Tied():         self._tied      = operand._data // bool()
+                    case ou.Tied():         self._tied      = operand._data.__mod__(od.DataSource( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
                     case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
@@ -1846,11 +1846,11 @@ class Chord(KeyScale):
             case od.DataSource():
                 match operand._data:
                     case ou.Size():                 self._size = operand._data._unit
-                    case ou.Dominant():             self._dominant = operand._data // bool()
-                    case ou.Diminished():           self._diminished = operand._data // bool()
-                    case ou.Augmented():            self._augmented = operand._data // bool()
-                    case ou.Sus2():                 self._sus2 = operand._data // bool()
-                    case ou.Sus4():                 self._sus4 = operand._data // bool()
+                    case ou.Dominant():             self._dominant = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Diminished():           self._diminished = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Augmented():            self._augmented = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Sus2():                 self._sus2 = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Sus4():                 self._sus4 = operand._data.__mod__(od.DataSource( bool() ))
                     case _:                         super().__lshift__(operand)
             case ou.Size():                 self._size = operand._unit
             case str():
@@ -1869,32 +1869,32 @@ class Chord(KeyScale):
             case ou.Dominant():
                 if operand:
                     self.set_all()
-                self._dominant = operand // bool()
+                self._dominant = operand.__mod__(od.DataSource( bool() ))
             case ou.Diminished():
                 if operand:
                     self.set_all()
-                self._diminished = operand // bool()
+                self._diminished = operand.__mod__(od.DataSource( bool() ))
             case ou.Augmented():
                 if operand:
                     self.set_all()
-                self._augmented = operand // bool()
+                self._augmented = operand.__mod__(od.DataSource( bool() ))
             case ou.Sus2():
                 if operand:
                     self.set_all()
-                self._sus2 = operand // bool()
+                self._sus2 = operand.__mod__(od.DataSource( bool() ))
             case ou.Sus4():
                 if operand:
                     self.set_all()
-                self._sus4 = operand // bool()
+                self._sus4 = operand.__mod__(od.DataSource( bool() ))
             case _: super().__lshift__(operand)
         return self
     
     def set_all(self, data: any = False):    # mutual exclusive
-        self._dominant      = ou.Dominant(od.DataSource( self._dominant ), data) // bool()
-        self._diminished    = ou.Diminished(od.DataSource( self._diminished ), data) // bool()
-        self._augmented     = ou.Augmented(od.DataSource( self._augmented ), data) // bool()
-        self._sus2          = ou.Sus2(od.DataSource( self._sus2 ), data) // bool()
-        self._sus4          = ou.Sus4(od.DataSource( self._sus4 ), data) // bool()
+        self._dominant      = ou.Dominant(od.DataSource( self._dominant ), data).__mod__(od.DataSource( bool() ))
+        self._diminished    = ou.Diminished(od.DataSource( self._diminished ), data).__mod__(od.DataSource( bool() ))
+        self._augmented     = ou.Augmented(od.DataSource( self._augmented ), data).__mod__(od.DataSource( bool() ))
+        self._sus2          = ou.Sus2(od.DataSource( self._sus2 ), data).__mod__(od.DataSource( bool() ))
+        self._sus4          = ou.Sus4(od.DataSource( self._sus4 ), data).__mod__(od.DataSource( bool() ))
 
 class Retrigger(Note):
     """`Element -> Note -> Retrigger`
