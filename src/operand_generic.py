@@ -584,7 +584,7 @@ class Pitch(Generic):
                 self._natural = False
                 self._sharp = 0
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
-                self << operand // float()  # Sets the key number regardless KeySignature or Scale!
+                self << operand % od.DataSource( float() )  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
                     self._sharp = operand._unit % 3

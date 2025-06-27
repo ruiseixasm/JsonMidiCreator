@@ -889,7 +889,7 @@ class Length(Measurement):
     >>> note = Note()
     >>> note % Length() % float() >> Print()
     0.25
-    >>> note % Length() // float() >> Print()
+    >>> note % Length() % Beats() % float() >> Print()
     1.0
     """
     def length(self, beats: float = None) -> Self:
@@ -934,7 +934,7 @@ class Position(Measurement):
     >>> note = Note()
     >>> note % Position() % float() >> Print()
     0.25
-    >>> note % Position() // float() >> Print()
+    >>> note % Position() % Beats() % float() >> Print()
     1.0
     """
     def position(self, beats: float = None) -> Self:
