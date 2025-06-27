@@ -2100,7 +2100,6 @@ class Clip(Composition):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
-                
                 right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
@@ -2197,26 +2196,11 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    self_finish: ra.Position = self.finish()
-                    if self_finish is None:
-                        self_finish = ra.Position(self)
-                    self_copy: Clip = self.copy()
-                    for _ in range(operand - 2):
-                        self_copy += self_finish
-                        self += self_copy   # implicit copy of self_copy
-                    # Uses the last self_copy for the last iteration
-                    self_copy += self_finish
-                    new_elements: list[oe.Element] = [
-                        single_element._set_staff_reference(self._staff).set_clip_reference(self)
-                        for single_element in self_copy if isinstance(single_element, oe.Element)
-                    ]
-                    self._append(new_elements)  # Propagates upwards in the stack
-                    if self._length_beats is not None:
-                        finish_position_beats: Fraction = self_finish._rational
-                        if finish_position_beats > self._length_beats:
-                            self._length_beats = finish_position_beats
-                elif operand == 0:   # Must be empty
-                    self._items = []  # Just to keep the self object
+                    single_self_copy: Clip = self.shallow_copy()
+                    for _ in range(operand - 1):
+                        self.__itruediv__(single_self_copy)
+                elif operand == 0:
+                    self._delete(self._items, True)
 
             case ra.Length():
                 self._length_beats.__itruediv__(operand % Fraction())
@@ -2251,9 +2235,9 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    self_copy: Clip = self.shallow_copy()
+                    single_self_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += self_copy
+                        self += single_self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
 
@@ -3590,7 +3574,7 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.copy()
+                    single_self_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__itruediv__(single_self_copy)
                 elif operand == 0:
@@ -3619,11 +3603,11 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
-                    self_copy: Part = self.shallow_copy()
+                    single_self_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += self_copy
-                elif operand == 0:   # Must be empty
-                    self._items = []  # Just to keep the self object
+                        self += single_self_copy
+                elif operand == 0:
+                    self._delete(self._items, True)
 
             case tuple():
                 for single_operand in operand:
@@ -4113,7 +4097,7 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.copy()
+                    single_self_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__itruediv__(single_self_copy)
                 elif operand == 0:
@@ -4145,11 +4129,11 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
-                    self_copy: Song = self.shallow_copy()
+                    single_self_copy: Song = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += self_copy
-                elif operand == 0:   # Must be empty
-                    self._items = []  # Just to keep the self object
+                        self += single_self_copy
+                elif operand == 0:
+                    self._delete(self._items, True)
 
             case tuple():
                 for single_operand in operand:
