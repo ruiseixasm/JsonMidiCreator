@@ -1032,7 +1032,7 @@ class Note(Element):
                 self._channel - 1,
                 pitch_int
             ):
-                print(f"Warning (PLL): Removed redundant Note on Channel {self._channel} "
+                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel} "
                     f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
                 return []
 
@@ -1115,7 +1115,7 @@ class Note(Element):
                 self_playlist_time_ms[0]["midi_message"]["status_byte"],
                 self_playlist_time_ms[0]["midi_message"]["data_byte_1"]
             ):
-                print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
+                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel} "
                     f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
                 return []
 
@@ -1167,7 +1167,7 @@ class Note(Element):
                 self_midilist[0]["channel"],
                 self_midilist[0]["pitch"]
             ):
-                print(f"Warning (ML): Removed redundant Note on Channel {self_midilist[0]['channel'] + 1} "
+                print(f"Warning (ML): Ignored redundant Note on Channel {self_midilist[0]['channel'] + 1} "
                     f"and Pitch {self_midilist[0]['pitch']} with same time start!")
                 return []
 
