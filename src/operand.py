@@ -262,9 +262,9 @@ class Operand:
         return ol.Null()
 
 
-    def __floordiv__(self, operand: T) -> T:
-        import operand_data as od
-        return self.__mod__( od.Pipe( operand ) )
+    # def __floordiv__(self, operand: T) -> T:
+    #     import operand_data as od
+    #     return self.__mod__( od.Pipe( operand ) )
 
     # Makes sure no Non Operand has `// Operand` applied
     def __rfloordiv__(self, operand: any) -> Self:
@@ -374,12 +374,6 @@ class Operand:
     # Makes sure no Non Operand has `<< Operand` applied
     def __rlshift__(self, operand: T) -> T:
         return operand
-
-
-    # Same as | operator
-    def __or__(self, operand: any) -> Self:
-        import operand_data as od
-        return self.__lshift__( od.Pipe( operand ) )
 
 
     def __invert__(self) -> Self:
