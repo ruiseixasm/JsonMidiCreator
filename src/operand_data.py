@@ -1499,6 +1499,19 @@ class Arpeggiate(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.arpeggiate(self._data)
 
+
+class Purge(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Purge`
+
+    With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
+
+    Args:
+        None.
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.purge()
+
+
 class Stepper(ClipProcess):
     """`Data -> Process -> ClipProcess -> Stepper`
 
