@@ -1259,6 +1259,8 @@ class Cluster(Note):
 
     A `Cluster` element aggregates multiple notes based on the list len and content. \
         That content is added to the present single `Note` configuration.
+    The difference between a `Cluster` and a `PitchChord`, is that a `Cluster` hasn't its own scale,
+        and thus always adders to the the Key Signature or `Staff` scale.
 
     Parameters
     ----------
@@ -1563,15 +1565,17 @@ class KeyScale(Note):
             case _:
                 super().__lshift__(operand)
         return self
-    
-class PitchChord(KeyScale):
-    """`Element -> Note -> KeyScale -> Polychord`
 
-    A `Polychord` element allows the triggering of notes concerning specific degrees of a `Scale`.
+
+class PitchChord(KeyScale):
+    """`Element -> Note -> KeyScale -> PitchChord`
+
+    A `PitchChord` element allows the triggering of notes concerning specific degrees of a given `Scale`.
+    Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
     Parameters
     ----------
-    list([1, 3, 5]) : Sets the specific key degrees to be pressed as `Note`.
+    dict({0: [0, 2, 4]}) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
     Inversion(0) : The number of inversion of the `Chord`.
     Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
@@ -1586,16 +1590,16 @@ class PitchChord(KeyScale):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._degrees: list[int | float] = [1, 3, 5]
+        self._pitch_offsets: dict[int, list] = {0: [0, 2, 4]}
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case list():            return self._degrees
+                    case dict():            return self._pitch_offsets
                     case _:                 return super().__mod__(operand)
-            case list():            return self._degrees.copy()
+            case dict():            return self.deep_copy(self._pitch_offsets)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1603,36 +1607,33 @@ class PitchChord(KeyScale):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._degrees == other._degrees
+                    and self._pitch_offsets == other._pitch_offsets
             case _:
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
-        polychord_notes: list[Note] = []
-        for single_degree in self._degrees:
+        chord_notes: list[Note] = []
+        for octave_offset, pitch_offset in enumerate(self._pitch_offsets):
             chord_note: Note = Note(self).set_clip_reference(self._clip_reference)
-            if single_degree > 0:   # Only processes degrees
-                chord_note += ou.Degree(single_degree - 1)  # -1 because Degrees are 1 based
-            else:
-                chord_note += ou.Degree(single_degree)
-            polychord_notes.append( chord_note )
-            
-        return self._arpeggio.arpeggiate( self._apply_inversion(polychord_notes) )
+            chord_note._pitch += pitch_offset
+            chord_note._pitch += ou.Octave(octave_offset)
+            chord_notes.append( chord_note )
+        return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["degrees"] = self.serialize( self._degrees )
+        serialization["parameters"]["pitch_offsets"] = self.serialize( self._pitch_offsets )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "degrees" in serialization["parameters"]):
+            "pitch_offsets" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._degrees  = self.deserialize( serialization["parameters"]["degrees"] )
+            self._pitch_offsets = self.deserialize( serialization["parameters"]["pitch_offsets"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1640,17 +1641,15 @@ class PitchChord(KeyScale):
         match operand:
             case PitchChord():
                 super().__lshift__(operand)
-                self._degrees = self.deep_copy( operand._degrees )
+                self._pitch_offsets = self.deep_copy( operand._pitch_offsets )
             case od.DataSource():
                 match operand._data:
-                    case list():
-                        if all(isinstance(single_degree, (int, float, Fraction)) for single_degree in operand._data):
-                            self._degrees = operand._data
+                    case dict():
+                        self._pitch_offsets = operand._data
                     case _:
                         super().__lshift__(operand)
-            case list():
-                if all(isinstance(single_degree, (int, float, Fraction)) for single_degree in operand):
-                    self._degrees = self.deep_copy( operand )
+            case dict():
+                self._pitch_offsets = self.deep_copy( operand )
             case _:
                 super().__lshift__(operand)
         return self
