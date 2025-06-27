@@ -317,8 +317,6 @@ class Container(o.Operand):
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
                 self._append( self.deep_copy( operand._items ) )
-                # COPY THE SELF OPERANDS RECURSIVELY
-                self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case list():
@@ -511,13 +509,6 @@ class Container(o.Operand):
         return self
 
 
-    def __pow__(self, operand: any) -> Self:
-        for item in self._items:
-            if isinstance(item, o.Operand):
-                item.__pow__(operand)
-        return self
-
-
     def empty_copy(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
@@ -529,9 +520,6 @@ class Container(o.Operand):
             Container: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Container = self.__class__()
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand:
-            empty_copy._next_operand = self.deep_copy(self._next_operand)
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
@@ -1966,8 +1954,6 @@ class Clip(Composition):  # Just a container of Elements
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
                 self._items   = self.deep_copy( operand._items )
-                # COPY THE SELF OPERANDS RECURSIVELY
-                self._next_operand  = self.deep_copy(operand._next_operand)
                 self._set_staff_reference(operand._staff)
 
             case od.DataSource():

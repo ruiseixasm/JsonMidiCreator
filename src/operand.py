@@ -493,16 +493,12 @@ class Operand:
         return operand
 
     
-    
     def __pow__(self, operand: 'Operand') -> Self:
         '''
         This operator ** is similar to << with the difference of making a previous copy of self
         '''
-        # match operand:
-        #     case Operand():     self._next_operand = operand
-        #     case _:             self._next_operand = None
         return  self.copy(operand)
-
+    
 
     def __xor__(self, operand) -> Self:
         return self
