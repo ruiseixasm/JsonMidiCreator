@@ -500,12 +500,12 @@ class Container(o.Operand):
 
             case tuple():
                 for single_operand in operand:
-                    self /= single_operand
+                    self.__itruediv__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item /= operand
+                    item.__itruediv__(operand)
         return self
 
 
@@ -4308,12 +4308,12 @@ class ClipGet(Container):
 
             case tuple():
                 for single_operand in operand:
-                    self /= single_operand
+                    self.__itruediv__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i] /= operand
+                    self._items[item_i].__itruediv__(operand)
         return self
 
 
