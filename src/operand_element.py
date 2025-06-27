@@ -1611,7 +1611,7 @@ class Polychord(KeyScale):
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             chord_note: Note = Note(self).set_clip_reference(self._clip_reference)
-            if single_degree > 0:
+            if single_degree > 0:   # Only processes degrees
                 chord_note += ou.Degree(single_degree - 1)  # -1 because Degrees are 1 based
             else:
                 chord_note += ou.Degree(single_degree)
