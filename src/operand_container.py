@@ -2135,10 +2135,6 @@ class Clip(Composition):  # Just a container of Elements
                         for single_element in self_copy if isinstance(single_element, oe.Element)
                     ]
                     self._append(new_elements)  # Propagates upwards in the stack
-                    # self._items.extend(
-                    #     single_element._set_staff_reference(self._staff).set_clip_reference(self)
-                    #     for single_element in self_copy if isinstance(single_element, oe.Element)
-                    # )
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
             case ra.TimeValue() | ou.TimeUnit():
@@ -2190,7 +2186,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
-                self /= Clip(operand._staff_reference, operand)
+                self.__itruediv__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
@@ -2216,7 +2212,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = []  # Just to keep the self object
 
             case ra.Length():
-                self._length_beats /= operand % Fraction()
+                self._length_beats.__itruediv__(operand % Fraction())
             
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
@@ -2225,16 +2221,16 @@ class Clip(Composition):  # Just a container of Elements
                 if duration_value > 0:
                     operand_value: Fraction = operand % Fraction()
                     self_repeating = int( operand_value / duration_value )
-                self /= self_repeating
+                self.__itruediv__(self_repeating)
 
             case tuple():
                 for single_operand in operand:
-                    self /= single_operand
+                    self.__itruediv__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item /= operand
+                    item.__itruediv__(operand)
         return self._sort_position()  # Shall be sorted!
 
     def empty_copy(self, *parameters) -> Self:
@@ -2647,8 +2643,8 @@ class Clip(Composition):  # Just a container of Elements
         if length is None:
             length = ra.Length(2.0)
         original_self: Clip = self.shallow_copy()
-        while self / original_self <= length:
-            self /= original_self
+        while self.__truediv__(original_self) <= length:
+            self.__itruediv__(original_self)
         return self
 
     def trim(self, length: ra.Length = None) -> Self:
@@ -3549,27 +3545,27 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
             case Clip():
-                self /= Part(operand)
+                self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self /= Clip(operand._staff_reference, operand)
+                self.__itruediv__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
                     for _ in range(operand - 1):
-                        self /= single_self_copy
+                        self.__itruediv__(single_self_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                     
             case tuple():
                 for single_operand in operand:
-                    self /= single_operand
+                    self.__itruediv__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item /= operand
+                    item.__itruediv__(operand)
         return self
 
 
@@ -4040,30 +4036,30 @@ class Song(Composition):
                     self._length_beats += (right_song % ra.Duration() % ra.Length())._rational
 
             case Part():
-                self /= Song(operand)
+                self.__itruediv__(Song(operand))
 
             case Clip():
-                self /= Part(operand)
+                self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self /= Clip(operand._staff_reference, operand)
+                self.__itruediv__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
                     for _ in range(operand - 1):
-                        self /= single_self_copy
+                        self.__itruediv__(single_self_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                     
             case tuple():
                 for single_operand in operand:
-                    self /= single_operand
+                    self.__itruediv__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item /= operand
+                    item.__itruediv__(operand)
         return self
 
 
