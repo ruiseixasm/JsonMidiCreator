@@ -2251,8 +2251,9 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
+                    self_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += operand
+                        self += self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
 
@@ -3618,8 +3619,9 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
+                    self_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += operand
+                        self += self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
 
@@ -4143,8 +4145,9 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
+                    self_copy: Song = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += operand
+                        self += self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
 
