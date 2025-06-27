@@ -2106,10 +2106,11 @@ class Clip(Composition):  # Just a container of Elements
                 right_position: ra.Position = right_clip.start().roundMeasures()
                 position_offset: ra.Position = right_position - left_length
 
+                right_clip -= position_offset   # Does a position offset
                 for single_element in right_clip:
-                    single_element -= position_offset
-
-                self._append(right_clip._items)  # Propagates upwards in the stack
+                    single_element._set_staff_reference(self._staff).set_clip_reference(self)
+                
+                self._append(right_clip._items) # Propagates upwards in the stack
                 
                 if self._length_beats is not None:
                     self._length_beats += (right_clip % ra.Length())._rational
@@ -2119,30 +2120,13 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    if self._length_beats is not None:
-                        add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
-                        self._length_beats *= operand   # Non Operand *= operation
-                    else:
-                        # It's the position of the element that matters and not their tailed Duration
-                        last_element: oe.Element = self._last_element()
-                        if last_element:
-                            left_end_position: ra.Position = last_element % ra.Position()
-                            add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
-                        else:
-                            add_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
-                    self_copy: Clip = self.copy()
-                    for _ in range(operand - 2):
-                        self_copy += add_position
-                        self += self_copy   # implicit copy of self_copy
-                    # Uses the last self_copy for the last iteration
-                    self_copy += add_position
-                    new_elements: list[oe.Element] = [
-                        single_element._set_staff_reference(self._staff).set_clip_reference(self)
-                        for single_element in self_copy if isinstance(single_element, oe.Element)
-                    ]
-                    self._append(new_elements)  # Propagates upwards in the stack
-                elif operand == 0:   # Must be empty
-                    self._items = []  # Just to keep the self object
+                    single_self_copy: Clip = self.shallow_copy()
+                    for _ in range(operand - 1):
+                        self.__imul__(single_self_copy)
+                elif operand == 0:
+                    self._delete(self._items, True)
+                    
+
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
@@ -2187,7 +2171,7 @@ class Clip(Composition):  # Just a container of Elements
                 # Elements to be added and propagated upwards on the stack
                 operand_elements = [
                     (single_element + add_position)._set_staff_reference(self._staff).set_clip_reference(self)
-                    for single_element in operand._items if isinstance(single_element, oe.Element)
+                    for single_element in operand._items
                 ]
                 self._append(operand_elements)  # Propagates upwards in the stack
 
