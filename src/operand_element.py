@@ -1309,10 +1309,11 @@ class Cluster(Note):
     
     def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
-        for single_set in self._offsets:
-            new_note: Note = Note(self).set_clip_reference(self._clip_reference)
-            new_note._pitch += single_set
-            cluster_notes.append( new_note )
+        for octave_offset, pitch_offset in enumerate(self._offsets):
+            single_note: Note = Note(self).set_clip_reference(self._clip_reference)
+            single_note._pitch += pitch_offset
+            single_note._pitch += ou.Octave(octave_offset)
+            cluster_notes.append( single_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, channels: dict[str, set[int]] = None) -> list[dict]:
@@ -1610,11 +1611,25 @@ class PitchChord(KeyScale):
     
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
-        for octave_offset, pitch_offset in enumerate(self._offsets):
-            chord_note: Note = Note(self).set_clip_reference(self._clip_reference)
-            chord_note._pitch += pitch_offset
-            chord_note._pitch += ou.Octave(octave_offset)
-            chord_notes.append( chord_note )
+        
+        # Sets Scale to be used
+        if self._scale.hasScale():
+            for octave_offset, pitch_offset in enumerate(self._offsets):
+                single_note: Note = Note(self).set_clip_reference(self._clip_reference)  # Owned by same clip
+                if isinstance(pitch_offset, int):
+                    transposition: int = self._scale.transposition(pitch_offset)
+                    single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
+                else:
+                    single_note._pitch += pitch_offset
+                single_note._pitch += ou.Octave(octave_offset)
+                chord_notes.append( single_note )
+        else:
+            for octave_offset, pitch_offset in enumerate(self._offsets):
+                single_note: Note = Note(self).set_clip_reference(self._clip_reference)
+                single_note._pitch += pitch_offset
+                single_note._pitch += ou.Octave(octave_offset)
+                chord_notes.append( single_note )
+
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
@@ -1759,7 +1774,6 @@ class Chord(KeyScale):
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
-            # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
             for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
@@ -1774,11 +1788,10 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                new_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
-                new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
-                chord_notes.append( new_note )
+                single_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
+                single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
+                chord_notes.append( single_note )
         else:   # Uses the staff keys straight away
-            # modulated_scale: og.Scale = og.defaults % og.Scale(self._mode) # already modulated
             for note_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_degree: int = note_i * 2 + 1    # 1, 3, 5, 7, 9, ...
                 if key_degree == 3:   # Third
@@ -1786,9 +1799,9 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                new_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
-                new_note += ou.Degree(key_degree - 1)    # Jumps by degrees (scale tones) (int is a degree)
-                chord_notes.append( new_note )
+                single_note: Note = Note(self).set_clip_reference(self._clip_reference)    # Owned by the same Clip
+                single_note += ou.Degree(key_degree - 1)    # Jumps by degrees (scale tones) (int is a degree)
+                chord_notes.append( single_note )
 
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
     
