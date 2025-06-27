@@ -472,12 +472,12 @@ class Container(o.Operand):
                 return self.shuffle(operand.copy())
             case tuple():
                 for single_operand in operand:
-                    self *= single_operand
+                    self.__imul__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item *= operand
+                    item.__imul__(operand)
         return self
     
     def __itruediv__(self, operand: any) -> Self:
@@ -2109,13 +2109,13 @@ class Clip(Composition):  # Just a container of Elements
                     self._length_beats += (right_clip % ra.Length())._rational
 
             case oe.Element():
-                self *= Clip(operand._staff_reference, operand)
+                self.__imul__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
                     if self._length_beats is not None:
                         add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
-                        self._length_beats *= operand
+                        self._length_beats *= operand   # Non Operand *= operation
                     else:
                         # It's the position of the element that matters and not their tailed Duration
                         last_element: oe.Element = self._last_element()
@@ -2148,7 +2148,7 @@ class Clip(Composition):  # Just a container of Elements
                 self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
-                self *= self_repeating
+                self.__imul__(self_repeating)
 
             case om.Mutation():
                 return operand.copy().mutate(self)
@@ -2159,12 +2159,12 @@ class Clip(Composition):  # Just a container of Elements
 
             case tuple():
                 for single_operand in operand:
-                    self *= single_operand
+                    self.__imul__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item *= operand
+                    item.__imul__(operand)
         return self._sort_position()  # Shall be sorted!
 
     def __rmul__(self, operand: any) -> Self:
@@ -2833,8 +2833,8 @@ class Clip(Composition):  # Just a container of Elements
         if actual_finish is None:
             actual_finish = ra.Position(self)
         length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
-        self *= ra.Position(length_ratio)   # Adjust positions
-        self *= ra.Duration(length_ratio)   # Adjust durations
+        self.__imul__(ra.Position(length_ratio))   # Adjust positions
+        self.__imul__(ra.Duration(length_ratio))   # Adjust durations
         return self
 
     def link(self, ignore_empty_measures: bool = True) -> Self:
@@ -3504,27 +3504,27 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Length())._rational
 
             case Clip():
-                self *= Part(operand)
+                self.__imul__(Part(operand))
 
             case oe.Element():
-                self *= Clip(operand._staff_reference, operand)
+                self.__imul__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
                     single_self_copy: Part = self.copy()
                     for _ in range(operand - 1):
-                        self *= single_self_copy
+                        self.__imul__(single_self_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
 
             case tuple():
                 for single_operand in operand:
-                    self *= single_operand
+                    self.__imul__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item *= operand
+                    item.__imul__(operand)
         return self
 
     def __itruediv__(self, operand: any) -> Self:
@@ -3991,25 +3991,25 @@ class Song(Composition):
                     self._length_beats += (right_song % ra.Length())._rational
 
             case Part():
-                self *= Song(operand)
+                self.__imul__(Song(operand))
 
             case Clip():
-                self *= Part(operand)
+                self.__imul__(Part(operand))
 
             case oe.Element():
-                self *= Clip(operand._staff_reference, operand)
+                self.__imul__(Clip(operand._staff_reference, operand))
 
             case int():
                 if operand > 1:
                     single_self_copy: Song = self.copy()
                     for _ in range(operand - 1):
-                        self *= single_self_copy
+                        self.__imul__(single_self_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                 
             case tuple():
                 for single_operand in operand:
-                    self *= single_operand
+                    self.__imul__(single_operand)
 
             case Composition():
                 self._set_staff_reference(operand._get_staff_reference())
@@ -4018,7 +4018,7 @@ class Song(Composition):
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item in self._items:
-                    item *= operand
+                    item.__imul__(operand)
         return self
 
 
@@ -4283,12 +4283,12 @@ class ClipGet(Container):
                 return self.shuffle(operand.copy())
             case tuple():
                 for single_operand in operand:
-                    self *= single_operand
+                    self.__imul__(single_operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i] *= operand
+                    self._items[item_i].__imul__(operand)
         return self
     
 
