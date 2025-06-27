@@ -1189,7 +1189,7 @@ class Composition(Container):
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() // Fraction()
+        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() % od.Pipe( Fraction() )
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
@@ -2549,7 +2549,7 @@ class Clip(Composition):  # Just a container of Elements
         clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
         for single_element in self._items:
             element_position_beats: Fraction = single_element._position_beats
-            element_length_beats: Fraction = single_element % ra.Length() // Fraction()
+            element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
             # Only changes Positions
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
@@ -2961,11 +2961,11 @@ class Clip(Composition):  # Just a container of Elements
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
-                extended_note_length: Fraction = extended_note % od.Pipe( ra.Length() ) // Fraction()   # In Beats
+                extended_note_length: Fraction = extended_note % od.Pipe( ra.Length() ) % od.Pipe( Fraction() )   # In Beats
                 extended_note_position_off: Fraction = extended_note_position + extended_note_length
                 
                 if note._position_beats == extended_note_position_off:
-                    note_length: Fraction = note % od.Pipe( ra.Length() ) // Fraction()   # In Beats
+                    note_length: Fraction = note % od.Pipe( ra.Length() ) % od.Pipe( Fraction() )   # In Beats
                     extended_length: Fraction = extended_note_length + note_length
                     # Extends the original note duration and marks note for removal
                     extended_note << self._staff.convertToLength(ra.Beats(extended_length))

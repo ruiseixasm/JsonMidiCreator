@@ -1945,13 +1945,13 @@ class MidiTrack(Midi):
                     case TrackNumber():         self._unit = operand._data._unit
                     case od.TrackName():        self._name = operand._data._data
                     case str():                 self._name = operand._data
-                    case oc.Devices():          self._devices = operand // list()
+                    case oc.Devices():          self._devices = operand % od.Pipe( list() )
                     case _:                     super().__lshift__(operand)
             case TrackNumber():         self._unit = operand._unit
             case od.TrackName():        self._name = operand._data
             case str():                 self._name = operand
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
+            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case _:                     super().__lshift__(operand)
         return self
 

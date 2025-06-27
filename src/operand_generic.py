@@ -2006,8 +2006,8 @@ class Defaults(Generic):
                     case ou.Velocity():         self._velocity = operand._data._unit
                     case Controller():          self._controller = operand._data
                     case ou.Channel():          self._channel = operand._data._unit
-                    case oc.ClockedDevices():   self._clocked_devices = operand._data // list()
-                    case oc.Devices():          self._devices = operand._data // list()
+                    case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
+                    case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
                     case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
             case od.Serialization():
@@ -2024,7 +2024,7 @@ class Defaults(Generic):
             case ou.Channel():          self._channel = operand._unit
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
+            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
             case oe.Clock():
@@ -2041,7 +2041,7 @@ class Defaults(Generic):
                 if isinstance(operand._data, str):
                     self_devices = self // oc.Devices()
                     self_devices += operand
-                    self._devices = self_devices // list()
+                    self._devices = self_devices % od.Pipe( list() )
                 return self
             case ra.Tempo():
                 self._staff += operand
@@ -2053,7 +2053,7 @@ class Defaults(Generic):
             case od.Device():
                 self_devices = self // oc.Devices()
                 self_devices -= operand
-                self._devices = self_devices // list()
+                self._devices = self_devices % od.Pipe( list() )
                 return self
             case ra.Tempo():
                 self._staff -= operand

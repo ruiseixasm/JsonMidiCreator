@@ -812,14 +812,14 @@ class Clock(Element):
                 self._clock_stop_mode   = operand._clock_stop_mode
             case od.Pipe():
                 match operand._data:
-                    case oc.ClockedDevices():   self._devices = operand._data // list()
-                    case oc.Devices():          self._devices = operand._data // list()
+                    case oc.ClockedDevices():   self._devices = operand._data % od.Pipe( list() )
+                    case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
                     case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case oc.ClockedDevices():   self._devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) // list()
+            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
             case str():                 self._clock_stop_mode = ou.ClockStopModes(operand)._unit

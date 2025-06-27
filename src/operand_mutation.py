@@ -768,7 +768,7 @@ class Multiplication(Operation):
             multiplied_clips: oc.Clip = oc.Clip()
             for single_clip in shuffled_clips:
                 multiplied_clips *= clip * single_clip  # Operation here
-            clip <<= multiplied_clips // list()
+            clip <<= multiplied_clips % od.Pipe( list() )
         return clip
 
 class Division(Operation):
@@ -789,6 +789,6 @@ class Division(Operation):
             divided_clips: oc.Clip = oc.Clip()
             for single_clip in shuffled_clips:
                 divided_clips /= clip / single_clip
-            clip <<= divided_clips // list()
+            clip <<= divided_clips % od.Pipe( list() )
         return clip
 
