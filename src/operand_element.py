@@ -423,24 +423,24 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                new_clip *= operand
+                new_clip.__imul__(operand)
                 return new_clip
             case oc.Clip():
                 self_clip: oc.Clip = oc.Clip(operand._staff, self)
-                self_clip *= operand
+                self_clip.__imul__(operand)
                 return self_clip
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
                 if operand > 0:
                     for _ in range(operand):
-                        new_clip *= self
+                        new_clip.__imul__(self)
                 return new_clip
             case ra.TimeValue() | ou.TimeUnit():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                new_clip *= operand
+                new_clip.__imul__(operand)
                 return new_clip
         self_operand: any = self % operand
-        self_operand *= operand
+        self_operand *= operand # Generic `self_operand`
         return self << self_operand
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
@@ -449,26 +449,26 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
                 self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                self_clip /= operand
+                self_clip.__itruediv__(operand)
                 return self_clip
             case oc.Clip():
                 self_clip: oc.Clip = oc.Clip(operand._staff, self)
-                self_clip /= operand
+                self_clip.__itruediv__(operand)
                 return self_clip
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
                 if operand > 0:
                     for _ in range(operand):
-                        new_clip /= self
+                        new_clip.__itruediv__(self)
                 return new_clip
             case ra.TimeValue() | ou.TimeUnit():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                new_clip /= operand
+                new_clip.__itruediv__(operand)
                 return new_clip
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
-                    self_operand /= operand
+                    self_operand /= operand # Generic `self_operand`
                     return self << self_operand
         return self
 
