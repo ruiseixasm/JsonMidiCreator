@@ -3404,7 +3404,7 @@ class ProgramChange(Element):
         if self._bank > 0:
             # Has to pass self first to set equivalent parameters like position and staff
             self_playlist.extend(
-                BankSelect(self, self % od.Pipe( ou.Bank() ), self // ou.HighResolution())
+                BankSelect(self, self % od.Pipe( ou.Bank() ), self % od.Pipe( ou.HighResolution() ))
                     .set_clip_reference(self._clip_reference).getPlaylist(devices_header=False)
             )
 

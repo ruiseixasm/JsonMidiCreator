@@ -537,7 +537,7 @@ class Pitch(Generic):
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
                             ((operand._data).strip().lower().find("b") != -1) * -1
-                        self._degree    = (self // ou.Degree() << ou.Degree(operand._data))._unit
+                        self._degree    = (self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit
                         self._tonic_key       = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
