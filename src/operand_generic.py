@@ -1896,7 +1896,7 @@ class Defaults(Generic):
                     case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
-                                                return self._staff // operand._data
+                                                return self._staff % od.Pipe( operand._data )
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)

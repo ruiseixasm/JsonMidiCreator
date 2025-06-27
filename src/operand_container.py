@@ -489,7 +489,7 @@ class Container(o.Operand):
             case int(): # split n times the self content if any
                 if operand > 0:
                     many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len() // operand
+                    cut_len: int = self.len() % od.Pipe( operand )
                     nth_item: int = cut_len
                     while nth_item > 0:
                         many_operands._items.append(
@@ -4301,7 +4301,7 @@ class ClipGet(Container):
             case int(): # split n times the self content if any
                 if operand > 0:
                     many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len() // operand
+                    cut_len: int = self.len() % od.Pipe( operand )
                     nth_item: int = cut_len
                     while nth_item > 0:
                         many_operands._items.append(
