@@ -472,6 +472,37 @@ class Element(o.Operand):
                     return self << self_operand
         return self
 
+
+    def __floordiv__(self, operand: any) -> Self:
+        return self.copy().__ifloordiv__(operand)
+    
+    def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:  # Allows Frame skipping to be applied to the elements' parameters!
+            case Element() | oc.Clip():
+                self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                self_clip.__ifloordiv__(operand)
+                return self_clip
+            case oc.Clip():
+                self_clip: oc.Clip = oc.Clip(operand._staff, self)
+                self_clip.__ifloordiv__(operand)
+                return self_clip
+            case int():
+                new_clip: oc.Clip = oc.Clip(self._staff_reference)
+                if operand > 0:
+                    for _ in range(operand):
+                        new_clip.__ifloordiv__(self)
+                return new_clip
+            case _:
+                if operand != 0:
+                    self_operand: any = self % operand
+                    self_operand //= operand # Generic `self_operand`
+                    return self << self_operand
+        return self
+
+
+
     def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple[Fraction]:
 
         if isinstance(position_beats, Fraction):

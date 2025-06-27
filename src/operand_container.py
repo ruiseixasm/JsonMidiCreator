@@ -1123,6 +1123,13 @@ class Composition(Container):
         return self
 
 
+    def __floordiv__(self, operand: any) -> Self:
+        return self.copy().__ifloordiv__(operand)
+    
+    def __ifloordiv__(self, operand: any) -> Self:
+        return self
+    
+
     def loop(self, position = 0, length = 4) -> Self:
         """
         Creates a loop from the Composition from the given `Position` with a given `Length`.
@@ -2232,6 +2239,33 @@ class Clip(Composition):  # Just a container of Elements
                 for item in self._items:
                     item.__itruediv__(operand)
         return self._sort_position()  # Shall be sorted!
+
+    def __ifloordiv__(self, operand: any) -> Self:
+        match operand:
+            case Clip():
+                # Elements to be added and propagated upwards on the stack
+                self += operand
+
+            case oe.Element():
+                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+
+            case int():
+                if operand > 1:
+                    for _ in range(operand - 1):
+                        self += operand
+                elif operand == 0:   # Must be empty
+                    self._items = []  # Just to keep the self object
+
+            case tuple():
+                for single_operand in operand:
+                    self.__ifloordiv__(single_operand)
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item.__ifloordiv__(operand)
+        return self._sort_position()  # Shall be sorted!
+
 
     def empty_copy(self, *parameters) -> Self:
         """
@@ -3571,6 +3605,34 @@ class Part(Composition):
                     item.__itruediv__(operand)
         return self
 
+    def __ifloordiv__(self, operand: any) -> Self:
+        match operand:
+            case Part():
+                self += operand
+
+            case Clip():
+                self.__ifloordiv__(Part(operand))
+
+            case oe.Element():
+                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+
+            case int():
+                if operand > 1:
+                    for _ in range(operand - 1):
+                        self += operand
+                elif operand == 0:   # Must be empty
+                    self._items = []  # Just to keep the self object
+
+            case tuple():
+                for single_operand in operand:
+                    self.__ifloordiv__(single_operand)
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item.__ifloordiv__(operand)
+        return self._sort_position()  # Shall be sorted!
+
 
     def loop(self, position = 0, length = 4) -> Self:
         """
@@ -4064,6 +4126,37 @@ class Song(Composition):
                 for item in self._items:
                     item.__itruediv__(operand)
         return self
+
+    def __ifloordiv__(self, operand: any) -> Self:
+        match operand:
+            case Song():
+                self += operand
+
+            case Part():
+                self.__ifloordiv__(Song(operand))
+
+            case Clip():
+                self.__ifloordiv__(Part(operand))
+
+            case oe.Element():
+                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+
+            case int():
+                if operand > 1:
+                    for _ in range(operand - 1):
+                        self += operand
+                elif operand == 0:   # Must be empty
+                    self._items = []  # Just to keep the self object
+
+            case tuple():
+                for single_operand in operand:
+                    self.__ifloordiv__(single_operand)
+            case _:
+                if isinstance(operand, of.Frame):
+                    operand._set_inside_container(self)
+                for item in self._items:
+                    item.__ifloordiv__(operand)
+        return self._sort_position()  # Shall be sorted!
 
 
     def loop(self, position = 0, length = 4) -> Self:
