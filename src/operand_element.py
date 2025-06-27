@@ -2018,12 +2018,12 @@ class Retrigger(Note):
                 self._swing     = operand._swing
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():               self._number = operand._data // int()
+                    case ou.Number():               self._number = operand._data.__mod__(od.DataSource( int() ))
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case ou.Number():
                 if operand > 0:
-                    self._number = operand // int()
+                    self._number = operand.__mod__(od.DataSource( int() ))
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -3161,12 +3161,12 @@ class Aftertouch(Automation):
                 self._pressure = operand._pressure
             case od.DataSource():
                 match operand._data:
-                    case ou.Pressure():         self._pressure = operand._data // int()
+                    case ou.Pressure():         self._pressure = operand._data.__mod__(od.DataSource( int() ))
                     case _:                     super().__lshift__(operand)
             case int():
                 self._pressure = operand
             case ou.Pressure():
-                self._pressure = operand // int()
+                self._pressure = operand.__mod__(od.DataSource( int() ))
             case _:
                 super().__lshift__(operand)
         return self
