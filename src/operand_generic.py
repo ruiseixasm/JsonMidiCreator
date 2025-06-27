@@ -1711,8 +1711,8 @@ class Arpeggio(Generic):
         if self._order > 0 and len(notes) > 0:
 
             staff_reference: Staff = notes[0]._staff_reference
-            note_start_position: ra.Position = notes[0] // ra.Position()
-            arpeggio_length: ra.Length = notes[0] // ra.Length()
+            note_start_position: ra.Position = notes[0] % od.DataSource( ra.Position() )
+            arpeggio_length: ra.Length = notes[0] % od.DataSource( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = note_length * 2 * self._swing
@@ -1730,7 +1730,7 @@ class Arpeggio(Generic):
                         new_note << odd_length
                     else:
                         new_note << even_length
-                    note_end_position: ra.Position = note_start_position + new_note // ra.Length()
+                    note_end_position: ra.Position = note_start_position + new_note % od.DataSource( ra.Length() )
                     if note_end_position > arpeggio_end_position:
                         length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
                         new_note += length_deficit
@@ -1761,7 +1761,7 @@ class Arpeggio(Generic):
                     notes[note_i] << odd_length
                 else:
                     notes[note_i] << even_length
-                note_start_position += notes[note_i] // ra.Length()
+                note_start_position += notes[note_i] % od.DataSource( ra.Length() )
                 nth_note += 1
 
         return notes

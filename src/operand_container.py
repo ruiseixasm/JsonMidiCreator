@@ -1709,7 +1709,7 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._convert_staff_reference(self._staff)
                     single_element.set_clip_reference(self)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
             self._staff << staff_reference  # Does a copy
         return self
 
@@ -2749,7 +2749,7 @@ class Clip(Composition):  # Just a container of Elements
         
         included_elements: list[oe.Element] = [
             inside_element for inside_element in self._items
-            if punch_in <= inside_element // ra.Position() < punch_out
+            if punch_in <= inside_element % od.DataSource( ra.Position() ) < punch_out
         ]
 
         self._delete(self._items, True)
@@ -2860,7 +2860,7 @@ class Clip(Composition):  # Just a container of Elements
             last_element: oe.Element = self._last_element()
             starting_position_beats: Fraction = Fraction(0)
             if ignore_empty_measures:
-                starting_position_beats = (first_element // ra.Position()).roundMeasures()._rational
+                starting_position_beats = (first_element % od.DataSource( ra.Position() )).roundMeasures()._rational
             if first_element._position_beats != starting_position_beats:  # Not at the starting position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
                 self._items.insert(0, oe.Rest(rest_duration))
@@ -2893,7 +2893,7 @@ class Clip(Composition):  # Just a container of Elements
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
                 if ignore_empty_measures:
-                    root_position: ra.Position = (single_element // ra.Position()).roundMeasures()
+                    root_position: ra.Position = (single_element % od.DataSource( ra.Position() )).roundMeasures()
                     single_element._position_beats = root_position._rational
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
@@ -2961,11 +2961,11 @@ class Clip(Composition):  # Just a container of Elements
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
-                extended_note_length: Fraction = extended_note // ra.Length() // Fraction()   # In Beats
+                extended_note_length: Fraction = extended_note % od.DataSource( ra.Length() ) // Fraction()   # In Beats
                 extended_note_position_off: Fraction = extended_note_position + extended_note_length
                 
                 if note._position_beats == extended_note_position_off:
-                    note_length: Fraction = note // ra.Length() // Fraction()   # In Beats
+                    note_length: Fraction = note % od.DataSource( ra.Length() ) // Fraction()   # In Beats
                     extended_length: Fraction = extended_note_length + note_length
                     # Extends the original note duration and marks note for removal
                     extended_note << self._staff.convertToLength(ra.Beats(extended_length))
@@ -3079,9 +3079,9 @@ class Part(Composition):
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
+            self._position_beats = ra.Position(staff_reference, self % od.DataSource( ra.Position() ))._rational
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
             self._staff = staff_reference  # Does an assignment
         return self
 
@@ -3282,7 +3282,7 @@ class Part(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        part_position: ra.Position = self // ra.Position()
+        part_position: ra.Position = self % od.DataSource( ra.Position() )
         for single_clip in self:
             if isinstance(single_clip, Clip):
                 clip_staff: og.Staff = single_clip._staff
@@ -3316,7 +3316,7 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        part_position: ra.Position = self // ra.Position()
+        part_position: ra.Position = self % od.DataSource( ra.Position() )
         for single_clip in self:
             play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
@@ -3334,7 +3334,7 @@ class Part(Composition):
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                part_position: ra.Position = self // ra.Position()
+                part_position: ra.Position = self % od.DataSource( ra.Position() )
                 midi_list.extend(single_clip.getMidilist(part_position))
         return midi_list
 
@@ -3492,7 +3492,7 @@ class Part(Composition):
                 right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
-                right_position: ra.Position = right_part // ra.Position()
+                right_position: ra.Position = right_part % od.DataSource( ra.Position() )
                 position_offset: ra.Position = right_position - left_length
 
                 for single_clip in right_part:
@@ -3670,7 +3670,7 @@ class Song(Composition):
             for single_part in self:
                 single_part._convert_staff_reference(self._staff)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self // ra.Length())._rational
+                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
             self._staff << staff_reference  # Does a copy
         return self
 

@@ -84,8 +84,8 @@ class Element(o.Operand):
         return self
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        self._position_beats = ra.Position(staff_reference, self // ra.Position())._rational
-        self._duration_notevalue = ra.Duration(staff_reference, self // ra.Duration())._rational
+        self._position_beats = ra.Position(staff_reference, self % od.DataSource( ra.Position() ))._rational
+        self._duration_notevalue = ra.Duration(staff_reference, self % od.DataSource( ra.Duration() ))._rational
         self._set_staff_reference(staff_reference)
         return self
 
@@ -212,7 +212,7 @@ class Element(o.Operand):
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
 
     def finish(self) -> ra.Position:
-        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
+        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self % od.DataSource( ra.Length() )
 
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, channels: dict[str, set[int]] = None) -> list[dict]:
@@ -854,8 +854,8 @@ class Rest(Element):
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self // ra.Position()
-        position_off: ra.Position = position_on + self // ra.Duration()
+        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
+        position_off: ra.Position = position_on + self % od.DataSource( ra.Duration() )
 
         self_plotlist.append(
             {
@@ -955,7 +955,7 @@ class Note(Element):
             case ou.PitchParameter() | str():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch % ( self // ra.Position() % Fraction() ), ou.Channel(self._channel))
+                return ou.DrumKit(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -983,15 +983,15 @@ class Note(Element):
         if channels is not None:
             channels["note"].add(self._channel)
 
-        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
 
         self_plotlist: list[dict] = []
     
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self // ra.Position()
-        position_off: ra.Position = position_on + self // ra.Duration()
+        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
+        position_off: ra.Position = position_on + self % od.DataSource( ra.Duration() )
 
         self_plotlist.append(
             {
@@ -1048,7 +1048,7 @@ class Note(Element):
             return []
 
         # Accidentals need to know the present measure in order to return the right pitch
-        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         self_playlist: list[dict] = []
@@ -1131,7 +1131,7 @@ class Note(Element):
         if self_duration == 0:
             return []
 
-        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -2286,7 +2286,7 @@ class Automation(Element):
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self // ra.Position()
+        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
@@ -3271,7 +3271,7 @@ class PolyAftertouch(Aftertouch):
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
-        pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
