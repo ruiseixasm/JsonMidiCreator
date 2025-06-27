@@ -72,7 +72,7 @@ def test_classes_getters():
 def test_floordiv_sequence():
 
     note: Note = Note()
-    source_pitch: Pitch = note // Pitch()
+    source_pitch: Pitch = note % od.DataSource( Pitch() )
 
     assert id(source_pitch) == id(note._pitch)
         

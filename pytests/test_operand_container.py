@@ -926,8 +926,8 @@ def test_flip_operation():
 
     actual_pitch: float = 60.0
     for single_note in four_notes:
-        single_note // Pitch() % float() >> Print()
-        assert single_note // Pitch() == actual_pitch
+        single_note % od.DataSource( Pitch() ) % float() >> Print()
+        assert single_note % od.DataSource( Pitch() ) == actual_pitch
         actual_pitch += 2.0
     
     four_notes.flip()
@@ -935,8 +935,8 @@ def test_flip_operation():
     print("------")
     for single_note in four_notes:
         actual_pitch -= 2.0
-        single_note // Pitch() % float() >> Print()
-        assert single_note // Pitch() == actual_pitch
+        single_note % od.DataSource( Pitch() ) % float() >> Print()
+        assert single_note % od.DataSource( Pitch() ) == actual_pitch
 
 # test_flip_operation()
 
