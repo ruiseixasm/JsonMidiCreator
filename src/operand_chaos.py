@@ -345,6 +345,7 @@ class Counter(Modulus):
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+                                        # These are math operations, NOT extractions with //
             case int():                 return super().__mod__(int()) // int(self._cycle)
             case float():               return super().__mod__(float()) // float(self._cycle)
             case _:

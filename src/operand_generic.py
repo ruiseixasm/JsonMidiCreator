@@ -2039,7 +2039,7 @@ class Defaults(Generic):
         match operand:
             case od.Device():
                 if isinstance(operand._data, str):
-                    self_devices = self // oc.Devices()
+                    self_devices = self % od.Pipe( oc.Devices() )
                     self_devices += operand
                     self._devices = self_devices % od.Pipe( list() )
                 return self
@@ -2051,7 +2051,7 @@ class Defaults(Generic):
     def __isub__(self, operand: any) -> Self:
         match operand:
             case od.Device():
-                self_devices = self // oc.Devices()
+                self_devices = self % od.Pipe( oc.Devices() )
                 self_devices -= operand
                 self._devices = self_devices % od.Pipe( list() )
                 return self
