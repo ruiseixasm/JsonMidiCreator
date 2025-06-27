@@ -271,6 +271,13 @@ class Operand:
         import operand_label as ol
         return ol.Null()
 
+    # & and | will not do a copy
+    def __and__(self, operand: Any) -> Self:
+        return self.__iadd__(operand)
+
+    def __or__(self, operand: Any) -> Self:
+        return self.__itruediv__(operand)
+
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
