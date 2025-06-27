@@ -1264,7 +1264,7 @@ class Cluster(Note):
 
     Parameters
     ----------
-    list([ou.Degree(0), ou.Degree(2), ou.Degree(4)]) : A list with parameters to be added with `+=` to the self reference `Note`.
+    dict({0: [0, 2, 4]}) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -1277,9 +1277,7 @@ class Cluster(Note):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._sets: list = [
-            ou.Degree(0), ou.Degree(2), ou.Degree(4)
-        ]
+        self._offsets: dict[int, list] = {0: [0, 2, 4]}
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
@@ -1290,10 +1288,10 @@ class Cluster(Note):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case list():            return self._sets
+                    case dict():            return self._offsets
                     case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
-            case list():            return self._sets.copy()
+            case dict():            return self.deep_copy(self._offsets)
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
@@ -1304,14 +1302,14 @@ class Cluster(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._sets == other._sets \
+                    and self._offsets == other._offsets \
                     and self._arpeggio == other._arpeggio
             case _:
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
-        for single_set in self._sets:
+        for single_set in self._offsets:
             new_note: Note = Note(self).set_clip_reference(self._clip_reference)
             new_note._pitch += single_set
             cluster_notes.append( new_note )
@@ -1337,7 +1335,7 @@ class Cluster(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sets"] = self.serialize( self._sets )
+        serialization["parameters"]["offsets"]  = self.serialize( self._offsets )
         serialization["parameters"]["arpeggio"] = self.serialize( self._arpeggio )
         return serialization
 
@@ -1345,10 +1343,10 @@ class Cluster(Note):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sets" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
+            "offsets" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sets  = self.deserialize( serialization["parameters"]["sets"] )
+            self._offsets  = self.deserialize( serialization["parameters"]["offsets"] )
             self._arpeggio = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
 
@@ -1357,18 +1355,18 @@ class Cluster(Note):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._sets = self.deep_copy( operand._sets )
+                self._offsets = self.deep_copy( operand._offsets )
                 self._arpeggio  << operand._arpeggio
             case od.DataSource():
                 match operand._data:
-                    case list():
-                        self._sets = operand._data
+                    case dict():
+                        self._offsets = operand._data
                     case og.Arpeggio():
                         self._arpeggio = operand._data
                     case _:
                         super().__lshift__(operand)
-            case list():
-                self._sets = self.deep_copy( operand )
+            case dict():
+                self._offsets = self.deep_copy( operand )
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
@@ -1590,30 +1588,29 @@ class PitchChord(KeyScale):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitch_offsets: dict[int, list] = {0: [0, 2, 4]}
+        self._offsets: dict[int, list] = {0: [0, 2, 4]}
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case dict():            return self._pitch_offsets
+                    case dict():            return self._offsets
                     case _:                 return super().__mod__(operand)
-            case dict():            return self.deep_copy(self._pitch_offsets)
+            case dict():            return self.deep_copy(self._offsets)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._pitch_offsets == other._pitch_offsets
+                return super().__eq__(other) and self._offsets == other._offsets
             case _:
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
-        for octave_offset, pitch_offset in enumerate(self._pitch_offsets):
+        for octave_offset, pitch_offset in enumerate(self._offsets):
             chord_note: Note = Note(self).set_clip_reference(self._clip_reference)
             chord_note._pitch += pitch_offset
             chord_note._pitch += ou.Octave(octave_offset)
@@ -1623,17 +1620,17 @@ class PitchChord(KeyScale):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pitch_offsets"] = self.serialize( self._pitch_offsets )
+        serialization["parameters"]["offsets"] = self.serialize( self._offsets )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pitch_offsets" in serialization["parameters"]):
+            "offsets" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch_offsets = self.deserialize( serialization["parameters"]["pitch_offsets"] )
+            self._offsets = self.deserialize( serialization["parameters"]["offsets"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1641,15 +1638,15 @@ class PitchChord(KeyScale):
         match operand:
             case PitchChord():
                 super().__lshift__(operand)
-                self._pitch_offsets = self.deep_copy( operand._pitch_offsets )
+                self._offsets = self.deep_copy( operand._offsets )
             case od.DataSource():
                 match operand._data:
                     case dict():
-                        self._pitch_offsets = operand._data
+                        self._offsets = operand._data
                     case _:
                         super().__lshift__(operand)
             case dict():
-                self._pitch_offsets = self.deep_copy( operand )
+                self._offsets = self.deep_copy( operand )
             case _:
                 super().__lshift__(operand)
         return self
