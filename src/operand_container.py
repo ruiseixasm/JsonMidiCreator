@@ -4162,7 +4162,7 @@ class ClipGet(Container):
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case ClipGet():
-                super.__lshift__(operand)
+                super().__lshift__(operand)
                 self._get = operand._get
             case od.DataSource():
                 match operand._data:
