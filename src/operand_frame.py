@@ -109,7 +109,7 @@ class Frame(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Frame():
                         for single_operand in self:

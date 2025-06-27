@@ -86,7 +86,7 @@ class Mutation(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ch.Chaos():        return self._chaos
                     case int():             return int(self._step)
@@ -142,7 +142,7 @@ class Mutation(o.Operand):
                 self._chaos         << operand._chaos
                 self._step          = operand._step
                 self._parameter     = operand._parameter
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ch.Chaos():                self._chaos = operand._data
                     case int() | float():           self._step = operand._data
@@ -200,7 +200,7 @@ class Choosing(Haploid):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case of.Choice():         return self._choice
                     case _:                 return super().__mod__(operand)
@@ -230,7 +230,7 @@ class Choosing(Haploid):
             case Choosing():
                 super().__lshift__(operand)
                 self._choice = operand._choice.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case of.Choice():           self._choice = operand._data
                     case _:                     super().__lshift__(operand)
@@ -269,9 +269,9 @@ class Deletion(Haploid):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
+                    case ra.Probability():  return operand._data << od.Pipe( self._probability )
                     case _:                 return super().__mod__(operand)
             case ra.Probability():  return ra.Probability(self._probability)
             case _:                 return super().__mod__(operand)
@@ -297,7 +297,7 @@ class Deletion(Haploid):
             case Deletion():
                 super().__lshift__(operand)
                 self._probability = operand._probability
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Probability():      self._probability = operand._data._rational
                     case _:                     super().__lshift__(operand)
@@ -394,7 +394,7 @@ class Exchange(Diploid):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case oc.Clip():         return self._clip
                     case _:                 return super().__mod__(operand)
@@ -422,7 +422,7 @@ class Exchange(Diploid):
             case Exchange():
                 super().__lshift__(operand)
                 self._clip          = self.deep_copy( operand._clip )
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case oc.Clip():                 self._clip = operand._data
                     case _:                         super().__lshift__(operand)
@@ -512,9 +512,9 @@ class Swapping(Exchange):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
+                    case ra.Probability():  return operand._data << od.Pipe( self._probability )
                     case _:                 return super().__mod__(operand)
             case ra.Probability():  return ra.Probability(self._probability)
             case _:                 return super().__mod__(operand)
@@ -540,7 +540,7 @@ class Swapping(Exchange):
             case Swapping():
                 super().__lshift__(operand)
                 self._probability = operand._probability
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Probability():      self._probability = operand._data._rational
                     case _:                     super().__lshift__(operand)
@@ -617,9 +617,9 @@ class Crossover(Exchange):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
+                    case ra.Probability():  return operand._data << od.Pipe( self._probability )
                     case _:                 return super().__mod__(operand)
             case ra.Probability():  return ra.Probability(self._probability)
             case _:                 return super().__mod__(operand)
@@ -645,7 +645,7 @@ class Crossover(Exchange):
             case Crossover():
                 super().__lshift__(operand)
                 self._probability = operand._probability
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Probability():      self._probability = operand._data._rational
                     case _:                     super().__lshift__(operand)
@@ -677,7 +677,7 @@ class Operation(Mutation):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():            return self._clips
                     case _:                 return super().__mod__(operand)
@@ -705,7 +705,7 @@ class Operation(Mutation):
             case Operation():
                 super().__lshift__(operand)
                 self._clips = self.deep_copy(operand._clips)
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():            self._clips = operand._data
                     case _:                 super().__lshift__(operand)

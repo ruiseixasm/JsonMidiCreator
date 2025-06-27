@@ -72,7 +72,7 @@ def test_clock_mod():
 def test_clock_div_floor():
 
     clock: Clock = Clock(Length(8))
-    assert clock % od.DataSource( Duration() ) == 8
+    assert clock % od.Pipe( Duration() ) == 8
 
 # test_clock_div_floor()
 
@@ -464,19 +464,19 @@ def test_note3_element():
 
     triplet_note = Triplet("C")
     assert triplet_note % NoteValue() == Duration(1/4)
-    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/2)
+    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/2)
     assert triplet_note % Position() == 0.0
     triplet_note << NoteValue(1/8)
     assert triplet_note % NoteValue() == Duration(1/8)
-    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/4)
+    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/4)
     assert triplet_note % Position() == 0.0
     triplet_note << NoteValue(1/16)
     assert triplet_note % NoteValue() == Duration(1/16)
-    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/8)
+    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/8)
     assert triplet_note % Position() == 0.0
 
     assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
-    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.DataSource( NoteValue() ) == Duration(1/8)
+    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.Pipe( NoteValue() ) == Duration(1/8)
     assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
 
 # test_note3_element()
@@ -534,27 +534,27 @@ def test_note_pitch():
     
     note.clear()    # Becomes like a new note
 
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 60.0  # White Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 60.0  # White Key
     note << Pitch(35.0)
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 35.0  # White Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 35.0  # White Key
     note << Pitch(42.0)
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 42.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 42.0  # Black Key
     note << Pitch(39.0)
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 39.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 39.0  # Black Key
 
     note << DrumKit("Drum")
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 35.0  # White Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 35.0  # White Key
     note << DrumKit("Hi-Hat")
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 42.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 42.0  # Black Key
     note << DrumKit("Clap")
-    print(note % od.DataSource( Pitch() ) % float())
-    assert note % od.DataSource( Pitch() ) % float() == 39.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % float())
+    assert note % od.Pipe( Pitch() ) % float() == 39.0  # Black Key
 
     note << Pitch()
     assert note % Pitch() == 60.0   # Middle C

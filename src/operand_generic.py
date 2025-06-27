@@ -65,9 +65,9 @@ class TimeSignature(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case TimeSignature():       return self
                     case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
                     case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
@@ -118,14 +118,14 @@ class TimeSignature(Generic):
                 super().__lshift__(operand)
                 self._top               = operand._top
                 self._bottom            = operand._bottom
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.BeatsPerMeasure():
-                        self._top           = operand._data % od.DataSource( int() )
+                        self._top           = operand._data % od.Pipe( int() )
                     case ra.BeatNoteValue():
-                        if operand._data % od.DataSource( int() ) > 0:
+                        if operand._data % od.Pipe( int() ) > 0:
                             # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
-                            self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand._data % od.DataSource( int() )  ))))))
+                            self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand._data % od.Pipe( int() )  ))))))
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.BeatsPerMeasure():
@@ -359,15 +359,15 @@ class Pitch(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():        return self % od.DataSource( operand._data )
-                    case ou.Octave():       return operand._data << od.DataSource(self._octave)
-                    case ou.Tonic():        return operand._data << od.DataSource(self._tonic_key)    # Must come before than Key()
-                    case ou.Sharp():        return operand._data << od.DataSource(max(0, self._sharp))
-                    case ou.Flat():         return operand._data << od.DataSource(max(0, self._sharp * -1))
-                    case ou.Natural():      return operand._data << od.DataSource(self._natural)
-                    case ou.Degree():       return operand._data << od.DataSource(self._degree)
+                    case of.Frame():        return self % od.Pipe( operand._data )
+                    case ou.Octave():       return operand._data << od.Pipe(self._octave)
+                    case ou.Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
+                    case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
+                    case ou.Natural():      return operand._data << od.Pipe(self._natural)
+                    case ou.Degree():       return operand._data << od.Pipe(self._degree)
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
                     case _:                 return super().__mod__(operand)
@@ -412,7 +412,7 @@ class Pitch(Generic):
                         return ou.Flat(1)
                 return ou.Flat(0)
             case ou.Natural():
-                return ou.Natural() << od.DataSource(self._natural)
+                return ou.Natural() << od.Pipe(self._natural)
             
             case ou.KeySignature():
                 return self._staff_reference._key_signature.copy()
@@ -441,7 +441,7 @@ class Pitch(Generic):
             case Pitch():
                 return self % float(-1.0) == other % float(-1.0)
             case ou.Octave():
-                return self % od.DataSource( ou.Octave() ) == other
+                return self % od.Pipe( ou.Octave() ) == other
             case int() | float() | str() | ou.Key():
                 return self % other == other
             case od.Conditional():
@@ -456,7 +456,7 @@ class Pitch(Generic):
             case Pitch():
                 return self % float(-1.0) < other % float(-1.0)
             case ou.Octave():
-                return self % od.DataSource( ou.Octave() ) < other
+                return self % od.Pipe( ou.Octave() ) < other
             case int() | float():
                 return self % other < other
             case _:
@@ -469,7 +469,7 @@ class Pitch(Generic):
             case Pitch():
                 return self % float(-1.0) > other % float(-1.0)
             case ou.Octave():
-                return self % od.DataSource( ou.Octave() ) > other
+                return self % od.Pipe( ou.Octave() ) > other
             case int() | float():
                 return self % other > other
             case _:
@@ -513,7 +513,7 @@ class Pitch(Generic):
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._staff_reference       = operand._staff_reference
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Tonic():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
@@ -530,7 +530,7 @@ class Pitch(Generic):
                     case ou.Flat():
                         self._sharp = operand._data._unit * -1
                     case ou.Natural():
-                        self._natural = operand._data.__mod__(od.DataSource( bool() ))
+                        self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Degree():
                         self._degree = operand._data._unit
                     case str():
@@ -584,7 +584,7 @@ class Pitch(Generic):
                 self._natural = False
                 self._sharp = 0
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
-                self << operand % od.DataSource( float() )  # Sets the key number regardless KeySignature or Scale!
+                self << operand % od.Pipe( float() )  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
                     self._sharp = operand._unit % 3
@@ -592,7 +592,7 @@ class Pitch(Generic):
                 if max(0, self._sharp * -1) != operand._unit:
                     self._sharp = operand._unit % 3 * -1
             case ou.Natural():
-                self._natural = operand.__mod__(od.DataSource( bool() ))
+                self._natural = operand.__mod__(od.Pipe( bool() ))
             case str():
                 string: str = operand.strip()
                 self._sharp = \
@@ -802,18 +802,18 @@ class Controller(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Number():           return operand._data << od.DataSource(self._number_msb)
-                    case ou.LSB():              return operand._data << od.DataSource(self._lsb)
-                    case ou.NRPN():             return operand._data << od.DataSource(self._nrpn)
-                    case ou.HighResolution():   return operand._data << od.DataSource(self._high)
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case ou.Number():           return operand._data << od.Pipe(self._number_msb)
+                    case ou.LSB():              return operand._data << od.Pipe(self._lsb)
+                    case ou.NRPN():             return operand._data << od.Pipe(self._nrpn)
+                    case ou.HighResolution():   return operand._data << od.Pipe(self._high)
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case _:                     return super().__mod__(operand)
-            case ou.Number():           return operand.copy() << od.DataSource(self._number_msb)
-            case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
-            case ou.NRPN():             return operand.copy() << od.DataSource(self._nrpn)
-            case ou.HighResolution():   return operand.copy() << od.DataSource(self._high)
+            case ou.Number():           return operand.copy() << od.Pipe(self._number_msb)
+            case ou.LSB():              return operand.copy() << od.Pipe(self._lsb)
+            case ou.NRPN():             return operand.copy() << od.Pipe(self._nrpn)
+            case ou.HighResolution():   return operand.copy() << od.Pipe(self._high)
             case dict():
                 controller_dict: dict[str, int] = {
                     "MSB": self._number_msb,
@@ -867,7 +867,7 @@ class Controller(Generic):
                 self._lsb           = operand._lsb
                 self._nrpn          = operand._nrpn
                 self._high          = operand._high
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Number():           self._number_msb = operand._data._unit
                     case ou.LSB():              self._lsb = operand._data._unit
@@ -945,15 +945,15 @@ class Scale(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
+                    case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
                     case list():                return self._scale_list
                     case str():                 return self.get_scale_name(self._scale_list)
                     case int():                 return self.get_scale_number(self._scale_list)
                     case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
                     case _:                     return super().__mod__(operand)
-            case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
+            case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
             case list():
                 modulated_scale: list[int] = self.modulation(None)
                 if self.hasScale() and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
@@ -1047,12 +1047,12 @@ class Scale(Generic):
                 super().__lshift__(operand)
                 self._scale_list    = operand._scale_list.copy()
                 self._mode          = operand._mode
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Mode():         self._mode = operand._data._unit
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
-                self.loadSerialization(operand % od.DataSource( dict() ))
+                self.loadSerialization(operand % od.Pipe( dict() ))
             case int():
                 self._mode = operand
             case ou.Mode():
@@ -1357,29 +1357,29 @@ class Staff(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Tempo():            return ra.Tempo(self._tempo)
                     case TimeSignature():       return self._time_signature
                     case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ou.KeySignature():     return self._key_signature
                     case Scale():               return self._scale
-                    case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
-                    case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
+                    case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
+                    case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     # Calculated Values
                     case ra.NotesPerMeasure():
-                        return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
+                        return self._time_signature % od.Pipe( ra.NotesPerMeasure() )
                     case ra.StepsPerNote():
-                        return ra.StepsPerNote() << od.DataSource( 1 / self._quantization )
+                        return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case ra.StepsPerMeasure():
                         return ra.StepsPerMeasure() \
-                            << od.DataSource( self % od.DataSource( ra.StepsPerNote() ) % od.DataSource( Fraction() ) \
-                                * (self % od.DataSource( ra.NotesPerMeasure() ) % od.DataSource( Fraction() )))
+                            << od.Pipe( self % od.Pipe( ra.StepsPerNote() ) % od.Pipe( Fraction() ) \
+                                * (self % od.Pipe( ra.NotesPerMeasure() ) % od.Pipe( Fraction() )))
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             # Direct Values
-            case of.Frame():            return self % od.DataSource( operand._data )
+            case of.Frame():            return self % od.Pipe( operand._data )
             case ra.Tempo():            return ra.Tempo(self._tempo)
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return ra.Quantization(self._quantization)
@@ -1576,7 +1576,7 @@ class Staff(Generic):
                 self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
                 self._scale             << operand._scale
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case TimeSignature():       self._time_signature = operand._data
@@ -1584,7 +1584,7 @@ class Staff(Generic):
                     case ou.KeySignature():     self._key_signature = operand._data
                     case Scale():               self._scale = operand._data
                     case ra.TimeSignatureParameter():
-                                                self._time_signature << od.DataSource( operand._data )
+                                                self._time_signature << od.Pipe( operand._data )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
@@ -1649,12 +1649,12 @@ class Arpeggio(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
-                    case ou.Order():            return operand._data << od.DataSource( self._order )
-                    case ra.Duration():         return operand._data << od.DataSource( self._duration_notevalue )
-                    case ra.Swing():            return operand._data << od.DataSource( self._swing )
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case ou.Order():            return operand._data << od.Pipe( self._order )
+                    case ra.Duration():         return operand._data << od.Pipe( self._duration_notevalue )
+                    case ra.Swing():            return operand._data << od.Pipe( self._swing )
                     case ch.Chaos():            return self._chaos
                     case int():                 return self._order
                     case float():               return float( self._duration_notevalue )
@@ -1711,8 +1711,8 @@ class Arpeggio(Generic):
         if self._order > 0 and len(notes) > 0:
 
             staff_reference: Staff = notes[0]._staff_reference
-            note_start_position: ra.Position = notes[0] % od.DataSource( ra.Position() )
-            arpeggio_length: ra.Length = notes[0] % od.DataSource( ra.Length() )
+            note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
+            arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = note_length * 2 * self._swing
@@ -1730,7 +1730,7 @@ class Arpeggio(Generic):
                         new_note << odd_length
                     else:
                         new_note << even_length
-                    note_end_position: ra.Position = note_start_position + new_note % od.DataSource( ra.Length() )
+                    note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
                     if note_end_position > arpeggio_end_position:
                         length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
                         new_note += length_deficit
@@ -1761,7 +1761,7 @@ class Arpeggio(Generic):
                     notes[note_i] << odd_length
                 else:
                     notes[note_i] << even_length
-                note_start_position += notes[note_i] % od.DataSource( ra.Length() )
+                note_start_position += notes[note_i] % od.Pipe( ra.Length() )
                 nth_note += 1
 
         return notes
@@ -1811,7 +1811,7 @@ class Arpeggio(Generic):
                 self._duration_notevalue    = operand._duration_notevalue
                 self._swing                 = operand._swing
                 self._chaos                 << operand._chaos
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Order():                self._order = operand._data._unit
                     case ra.Duration():             self._duration_notevalue = operand._data._rational
@@ -1889,9 +1889,9 @@ class Defaults(Generic):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case Staff():               return self._staff
                     case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -1998,7 +1998,7 @@ class Defaults(Generic):
                 self._clocked_devices   = operand._clocked_devices.copy()
                 self._clock_ppqn        = operand._clock_ppqn
                 self._clock_stop_mode   = operand._clock_stop_mode
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Staff():               self._staff = operand._data
                     case ra.Duration():         self._duration = operand._data._rational

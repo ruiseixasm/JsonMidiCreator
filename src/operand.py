@@ -235,15 +235,15 @@ class Operand:
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 return self.__mod__( operand % Operand() )
             case of.Frame():
                 return self % (operand % Operand())
             case od.Playlist():
                 position = operand % ra.Position()
                 if isinstance(position, ra.Position):
-                    return od.Playlist() << od.DataSource( self.getPlaylist(position) )
-                return od.Playlist() << od.DataSource( self.getPlaylist() )
+                    return od.Playlist() << od.Pipe( self.getPlaylist(position) )
+                return od.Playlist() << od.Pipe( self.getPlaylist() )
             case od.Serialization():
                 return od.Serialization(self)
             case dict():
@@ -264,7 +264,7 @@ class Operand:
 
     def __floordiv__(self, operand: T) -> T:
         import operand_data as od
-        return self.__mod__( od.DataSource( operand ) )
+        return self.__mod__( od.Pipe( operand ) )
 
     # Makes sure no Non Operand has `// Operand` applied
     def __rfloordiv__(self, operand: any) -> Self:
@@ -369,7 +369,7 @@ class Operand:
     
     def __ilshift__(self, operand: any) -> Self:
         import operand_data as od
-        return self << od.DataSource( operand )
+        return self << od.Pipe( operand )
     
     # Makes sure no Non Operand has `<< Operand` applied
     def __rlshift__(self, operand: T) -> T:
@@ -379,7 +379,7 @@ class Operand:
     # Same as | operator
     def __or__(self, operand: any) -> Self:
         import operand_data as od
-        return self.__lshift__( od.DataSource( operand ) )
+        return self.__lshift__( od.Pipe( operand ) )
 
 
     def __invert__(self) -> Self:

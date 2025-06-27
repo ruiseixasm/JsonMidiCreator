@@ -67,15 +67,15 @@ class Rational(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
-                    case of.Frame():        return self % od.DataSource( operand._data )
+                    case of.Frame():        return self % od.Pipe( operand._data )
                     case str():             return str(self._rational)
                     case Rational() | ou.Unit():
-                                            return operand.__class__() << od.DataSource( self._rational )
+                                            return operand.__class__() << od.Pipe( self._rational )
                     case _:                 return super().__mod__(operand)
             case Fraction():        return self._rational
             case float():           return float(self._rational)
@@ -83,7 +83,7 @@ class Rational(o.Operand):
             case of.Frame():        return self % operand
             case str():             return str(self._rational)
             case Rational() | ou.Unit():
-                                    return operand.__class__() << od.DataSource( self._rational )
+                                    return operand.__class__() << od.Pipe( self._rational )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -164,7 +164,7 @@ class Rational(o.Operand):
                     self._rational = self.check_denominator( operand._rational )
                 else:
                     self._rational = operand._rational
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():
                         self._rational = Fraction(operand._data)
@@ -190,7 +190,7 @@ class Rational(o.Operand):
             case ou.Unit():
                 self._rational = Fraction(operand._unit)
             case str():
-                self << od.DataSource( operand )
+                self << od.Pipe( operand )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case tuple():
@@ -335,7 +335,7 @@ class Negative(Rational):
             case of.Frame():        return self % operand
             case str():             return str(self._rational * -1)
             case Rational() | ou.Unit():
-                                    return operand.__class__() << od.DataSource( self._rational )
+                                    return operand.__class__() << od.Pipe( self._rational )
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -749,7 +749,7 @@ class Measurement(Convertible):
     Measurement() represents either a Length or a Position.
     """
     def measurement(self, beats: float = None) -> Self:
-        return self << od.DataSource( beats )
+        return self << od.Pipe( beats )
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -893,7 +893,7 @@ class Length(Measurement):
     1.0
     """
     def length(self, beats: float = None) -> Self:
-        return self << od.DataSource( beats )
+        return self << od.Pipe( beats )
 
     # Measurement/Length round type: (...]
     def roundMeasures(self) -> Self:
@@ -938,7 +938,7 @@ class Position(Measurement):
     1.0
     """
     def position(self, beats: float = None) -> Self:
-        return self << od.DataSource( beats )
+        return self << od.Pipe( beats )
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
@@ -1276,7 +1276,7 @@ class Dotted(Duration):
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
                 self._rational = operand._rational * 3 / 2
-            case od.DataSource() | Duration() | od.Serialization():
+            case od.Pipe() | Duration() | od.Serialization():
                 super().__lshift__(operand)
             # It's just a wrapper for NoteValue 3/2
             case int() | float() | Fraction():

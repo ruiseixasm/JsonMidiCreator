@@ -44,7 +44,7 @@ class Unit(o.Operand):
         super().__init__(*parameters)
 
     def unit(self, number: int = None) -> Self:
-        return self << od.DataSource( number )
+        return self << od.Pipe( number )
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -62,15 +62,15 @@ class Unit(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
                     case int():             return self._unit           # returns a int()
                     case Fraction():        return Fraction(self._unit)
                     case float():           return float(self._unit)
-                    case of.Frame():        return self % od.DataSource( operand._data )
+                    case of.Frame():        return self % od.Pipe( operand._data )
                     case Unit() | ra.Rational():
-                                            return operand.__class__() << od.DataSource( self._unit )
+                                            return operand.__class__() << od.Pipe( self._unit )
                     case _:                 return super().__mod__(operand)
             case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
             case int():             return self._unit
@@ -78,7 +78,7 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case of.Frame():        return self % operand
             case Unit() | ra.Rational():
-                                    return operand.__class__() << od.DataSource( self._unit )
+                                    return operand.__class__() << od.Pipe( self._unit )
             case _:                 return super().__mod__(operand)
 
     def __bool__(self) -> bool:  # For Python 3
@@ -156,12 +156,12 @@ class Unit(o.Operand):
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case float() | Fraction() | bool():   # bool is a subclass of int !!
                                                     self._unit = int(operand._data)
                     case int():                     self._unit = operand._data
-                    case Unit() | ra.Rational():    self._unit = operand._data % od.DataSource( int() )
+                    case Unit() | ra.Rational():    self._unit = operand._data % od.Pipe( int() )
             case float() | Fraction() | bool():   # bool is a subclass of int !!
                 self._unit = int(operand)
             case int():
@@ -720,12 +720,12 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case KeySignature():        return self
                     case list():                return self % list()
-                    case Major():               return Major() << od.DataSource(self._major)
+                    case Major():               return Major() << od.Pipe(self._major)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case KeySignature():        return self.copy()
@@ -744,8 +744,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     key_line += 2    # All Sharps/Flats
                 return Key( float(tonic_key + key_line * 12) )
             
-            case Major():               return Major() << od.DataSource(self._major)
-            case Minor():               return Minor() << od.DataSource(not self._major)
+            case Major():               return Major() << od.Pipe(self._major)
+            case Minor():               return Minor() << od.Pipe(not self._major)
             case Sharps():
                 if self._unit > 0:
                     return Sharps(self._unit)
@@ -794,13 +794,13 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case KeySignature():
                 super().__lshift__(operand)
                 self._major         = operand._major
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():     self._unit      = operand._data
-                    case Major():   self._major     = operand._data.__mod__(od.DataSource( bool() ))
+                    case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
             case int():     self._unit   = operand
-            case Major():   self._major  = operand.__mod__(od.DataSource( bool() ))
-            case Minor():   self._major  = not (operand.__mod__(od.DataSource( bool() )))
+            case Major():   self._major  = operand.__mod__(od.Pipe( bool() ))
+            case Minor():   self._major  = not (operand.__mod__(od.Pipe( bool() )))
             case Sharps() | Flats():
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
@@ -940,25 +940,25 @@ class Key(PitchParameter):
         return self
 
     def sharp(self, unit: int = None) -> Self:
-        return self << od.DataSource( Sharp(unit) )
+        return self << od.Pipe( Sharp(unit) )
 
     def flat(self, unit: int = None) -> Self:
-        return self << od.DataSource( Flat(unit) )
+        return self << od.Pipe( Flat(unit) )
 
     def natural(self, unit: int = None) -> Self:
-        return self << od.DataSource( Natural(unit) )
+        return self << od.Pipe( Natural(unit) )
 
     def degree(self, unit: int = None) -> Self:
-        return self << od.DataSource( Degree(unit) )
+        return self << od.Pipe( Degree(unit) )
 
     def scale(self, scale: list[int] | str = None) -> Self:
         import operand_generic as og
-        return self << od.DataSource( og.Scale(scale) )
+        return self << od.Pipe( og.Scale(scale) )
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():
                         return Key._keys[self._unit % 48]
@@ -1005,14 +1005,14 @@ class Key(PitchParameter):
         import operand_generic as og
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():
                         self._unit = operand._data
                     case float() | Fraction():
                         self._unit = int(operand._data)
                     case Semitone():
-                        self._unit = operand._data % od.DataSource( int() )
+                        self._unit = operand._data % od.Pipe( int() )
                         self << Degree(1)
 
                     case str():
@@ -1120,7 +1120,7 @@ class Degree(PitchParameter):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():
                         self.stringSetDegree(operand._data)
@@ -1237,7 +1237,7 @@ class Order(Unit):
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     return Order.numberToName(self._unit)
                     case _:                         return super().__mod__(operand)
@@ -1249,7 +1249,7 @@ class Order(Unit):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
@@ -1309,7 +1309,7 @@ class DrumKit(Unit):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     return DrumKit.numberToName(self._unit)
                     case Channel():                 return operand._data << self._channel
@@ -1338,7 +1338,7 @@ class DrumKit(Unit):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case Channel():                 self._channel = operand._data._unit
@@ -1638,7 +1638,7 @@ class Mode(Unit):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self.stringToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
@@ -1693,7 +1693,7 @@ class Size(Unit):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self.stringToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
@@ -1818,7 +1818,7 @@ class ClockStopModes(Midi):
     """`Unit -> Midi -> ClockStopModes`"""
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     return ClockStopModes._stop_modes_int[self._unit % 4]
                     case _:                         return super().__mod__(operand)
@@ -1831,7 +1831,7 @@ class ClockStopModes(Midi):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():
                         mode_name: str = operand._data.strip()
@@ -1887,10 +1887,10 @@ class MidiTrack(Midi):
     def __mod__(self, operand: o.T) -> o.T:
         import operand_container as oc
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case TrackNumber():         return operand._data << od.DataSource(self._unit)
-                    case od.TrackName():        return operand._data << od.DataSource(self._name)
+                    case TrackNumber():         return operand._data << od.Pipe(self._unit)
+                    case od.TrackName():        return operand._data << od.Pipe(self._name)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case str():                 return self._name
                     case _:                     return super().__mod__(operand)
@@ -1940,7 +1940,7 @@ class MidiTrack(Midi):
                 super().__lshift__(operand)
                 self._name      = operand._name
                 self._devices   = operand._devices.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case TrackNumber():         self._unit = operand._data._unit
                     case od.TrackName():        self._name = operand._data._data
@@ -2026,7 +2026,7 @@ class Program(Midi):
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit - 1)
                     case _:                         return super().__mod__(operand)
@@ -2038,7 +2038,7 @@ class Program(Midi):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
@@ -2260,7 +2260,7 @@ class Number(Midi):
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():       return super().__mod__(operand)
+            case od.Pipe():       return super().__mod__(operand)
             case str():                 return Number.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
@@ -2270,7 +2270,7 @@ class Number(Midi):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case str():                     self._unit = self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)

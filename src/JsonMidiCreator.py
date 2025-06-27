@@ -50,7 +50,7 @@ else:  # Assume Linux/Unix
 N = Nt = Note
 R = Rst = Rest
 Ch = Channel
-DS = Src = DataSource
+DS = Src = Pipe
 Bars = Meas = Measures
 Bar = Mea = Measure
 Bts = Beats

@@ -72,7 +72,7 @@ def test_classes_getters():
 def test_floordiv_sequence():
 
     note: Note = Note()
-    source_pitch: Pitch = note % od.DataSource( Pitch() )
+    source_pitch: Pitch = note % od.Pipe( Pitch() )
 
     assert id(source_pitch) == id(note._pitch)
         
@@ -164,7 +164,7 @@ def test_operand_copy():
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
-                class_object << DataSource( unit_class_object )     # DataSource injection
+                class_object << Pipe( unit_class_object )     # DataSource injection
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
@@ -184,7 +184,7 @@ def test_operand_copy():
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
-                class_object << DataSource( rational_class_object ) # DataSource injection
+                class_object << Pipe( rational_class_object ) # DataSource injection
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()

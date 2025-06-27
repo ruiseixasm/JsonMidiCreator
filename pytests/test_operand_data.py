@@ -48,7 +48,7 @@ def test_data_source_mod():
 
     # Perform the operation
     single_note = Note()
-    position_source = single_note % DataSource( Position() )
+    position_source = single_note % Pipe( Position() )
 
     assert position_source == ra.Position()
 
@@ -61,8 +61,8 @@ def test_data_source_mod():
 
 def test_data_equality():
 
-    data_source_1 = DataSource(Note("A"))
-    data_source_2 = DataSource() << Note("A")
+    data_source_1 = Pipe(Note("A"))
+    data_source_2 = Pipe() << Note("A")
     assert data_source_1 == data_source_2
 
 
@@ -70,7 +70,7 @@ def test_serialization_mod():
 
     # Perform the operation
     serialization = Serialization() << Retrigger("D")
-    serialization_total_duration = serialization % DataSource( NoteValue() )
+    serialization_total_duration = serialization % Pipe( NoteValue() )
 
     # Retrigger by default it's a Triplet with a real duration of 2* the default duration of 1/4 
     assert serialization_total_duration == ra.NoteValue(1/4 * 2)
@@ -82,7 +82,7 @@ def test_serialization_mod():
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
     assert serialization == retrigger
 
-    serialization_total_duration = serialization % DataSource( NoteValue() )
+    serialization_total_duration = serialization % Pipe( NoteValue() )
 
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
     assert serialization_total_duration == ra.NoteValue(1/4 * 2)

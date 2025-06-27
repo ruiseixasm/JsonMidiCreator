@@ -84,8 +84,8 @@ class Element(o.Operand):
         return self
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        self._position_beats = ra.Position(staff_reference, self % od.DataSource( ra.Position() ))._rational
-        self._duration_notevalue = ra.Duration(staff_reference, self % od.DataSource( ra.Duration() ))._rational
+        self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
+        self._duration_notevalue = ra.Duration(staff_reference, self % od.Pipe( ra.Duration() ))._rational
         self._set_staff_reference(staff_reference)
         return self
 
@@ -131,16 +131,16 @@ class Element(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Duration():
-                        return operand._data._set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+                        return operand._data._set_staff_reference(self._staff_reference) << od.Pipe( self._duration_notevalue )
                     case ra.Position():
-                        return operand._data._set_staff_reference(self._staff_reference) << od.DataSource( self._position_beats )
+                        return operand._data._set_staff_reference(self._staff_reference) << od.Pipe( self._position_beats )
                     case ra.Length():
                         return operand._data._set_staff_reference(self._staff_reference) \
                             << self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
-                    case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
@@ -151,14 +151,14 @@ class Element(o.Operand):
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
             case ra.Duration():
-                return operand.copy()._set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+                return operand.copy()._set_staff_reference(self._staff_reference) << od.Pipe( self._duration_notevalue )
             case ra.Position():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
                 return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             case ra.TimeValue() | ou.TimeUnit():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
-            case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
+            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
             case int():
                 return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
@@ -212,7 +212,7 @@ class Element(o.Operand):
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
 
     def finish(self) -> ra.Position:
-        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self % od.DataSource( ra.Length() )
+        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self % od.Pipe( ra.Length() )
 
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, channels: dict[str, set[int]] = None) -> list[dict]:
@@ -236,7 +236,7 @@ class Element(o.Operand):
         self_numerator: int = self._staff_reference._time_signature._top
         self_denominator: int = self._staff_reference._time_signature._bottom
         self_position: float = float(self._position_beats)
-        self_duration: float = self._staff_reference.convertToBeats(ra.Duration(self._duration_notevalue)) % od.DataSource( float() )
+        self_duration: float = self._staff_reference.convertToBeats(ra.Duration(self._duration_notevalue)) % od.Pipe( float() )
         self_tempo: float = float(self._staff_reference._tempo)
         if isinstance(position_beats, Fraction):
             self_position = float(position_beats + self._position_beats)
@@ -299,7 +299,7 @@ class Element(o.Operand):
                     self << operand % ra.Position()
                     self << operand % ra.Duration()
 
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Position():     self._position_beats  = operand._data._rational
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
@@ -312,7 +312,7 @@ class Element(o.Operand):
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._staff_reference.convertToBeats(operand)._rational
             case ou.TimeUnit():
-                self_position: ra.Position  = ra.Position(od.DataSource( self._position_beats ))._set_staff_reference(self._staff_reference) << operand
+                self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_staff_reference(self._staff_reference) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
                 steps: ra.Steps = ra.Steps(operand)
@@ -348,7 +348,7 @@ class Element(o.Operand):
     def __rshift__(self, operand: o.T) -> Self:
         match operand:
             case od.Serialization():
-                return self << operand % od.DataSource()
+                return self << operand % od.Pipe()
             case od.Playlist():
                 operand.__rrshift__(self)
                 return self
@@ -386,7 +386,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Clip(od.DataSource( [self, operand.copy()] ))._set_staff_reference()._sort_position()
+                return oc.Clip(od.Pipe( [self, operand.copy()] ))._set_staff_reference()._sort_position()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
@@ -511,7 +511,7 @@ class Group(Element):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
@@ -569,7 +569,7 @@ class Group(Element):
             case Group():
                 super().__lshift__(operand)
                 self._elements = self.deep_copy( operand._elements )
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():
                         self._elements = operand._data
@@ -628,7 +628,7 @@ class Clock(Element):
         """
         import operand_container as oc
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case oc.Devices():          return oc.Devices(self._devices)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
@@ -810,7 +810,7 @@ class Clock(Element):
                 self._devices           = operand._devices.copy()
                 self._clock_ppqn        = operand._clock_ppqn
                 self._clock_stop_mode   = operand._clock_stop_mode
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case oc.ClockedDevices():   self._devices = operand._data // list()
                     case oc.Devices():          self._devices = operand._data // list()
@@ -854,8 +854,8 @@ class Rest(Element):
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
-        position_off: ra.Position = position_on + self % od.DataSource( ra.Duration() )
+        position_on: ra.Position = position + self % od.Pipe( ra.Position() )
+        position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
 
         self_plotlist.append(
             {
@@ -939,23 +939,23 @@ class Note(Element):
         F
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
-                    case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
-                    case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
+                    case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
+                    case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
+                    case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
                     case og.Pitch():        return self._pitch
                     case int():             return self._velocity
                     case _:                 return super().__mod__(operand)
-            case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
-            case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
-            case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
+            case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
+            case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
+            case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
             case int():             return self._velocity
             case ou.PitchParameter() | str():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ), ou.Channel(self._channel))
+                return ou.DrumKit(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -983,15 +983,15 @@ class Note(Element):
         if channels is not None:
             channels["note"].add(self._channel)
 
-        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
 
         self_plotlist: list[dict] = []
     
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
-        position_off: ra.Position = position_on + self % od.DataSource( ra.Duration() )
+        position_on: ra.Position = position + self % od.Pipe( ra.Position() )
+        position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
 
         self_plotlist.append(
             {
@@ -1048,7 +1048,7 @@ class Note(Element):
             return []
 
         # Accidentals need to know the present measure in order to return the right pitch
-        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         self_playlist: list[dict] = []
@@ -1131,7 +1131,7 @@ class Note(Element):
         if self_duration == 0:
             return []
 
-        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -1206,11 +1206,11 @@ class Note(Element):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
-                    case ou.Tied():         self._tied      = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
                     case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
@@ -1286,7 +1286,7 @@ class Cluster(Note):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case dict():            return self._offsets
                     case og.Arpeggio():     return self._arpeggio
@@ -1358,7 +1358,7 @@ class Cluster(Note):
                 super().__lshift__(operand)
                 self._offsets = self.deep_copy( operand._offsets )
                 self._arpeggio  << operand._arpeggio
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case dict():
                         self._offsets = operand._data
@@ -1430,15 +1430,15 @@ class KeyScale(Note):
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Scale():        return self._scale
-                    case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
+                    case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
                     case og.Arpeggio():     return self._arpeggio
                     case list():            return self._scale % list()
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._scale.copy()
-            case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
+            case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
             case ou.Mode():         return self._scale % operand
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
@@ -1468,7 +1468,7 @@ class KeyScale(Note):
                 for single_note in notes:
                     if single_note._pitch < first_note._pitch:   # Critical operation
                         single_note << single_note % ou.Octave() + 1
-                        if single_note % od.DataSource( int() ) < 128:
+                        if single_note % od.Pipe( int() ) < 128:
                             not_first_note = True # to result in another while loop
             # Final Octave adjustment
             octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
@@ -1541,7 +1541,7 @@ class KeyScale(Note):
                 self._scale     << operand._scale
                 self._inversion = operand._inversion
                 self._arpeggio  << operand._arpeggio
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Scale():        self._scale = operand._data
                     case ou.Inversion():    self._inversion = operand._data._unit
@@ -1594,7 +1594,7 @@ class PitchChord(KeyScale):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case dict():            return self._offsets
                     case _:                 return super().__mod__(operand)
@@ -1654,7 +1654,7 @@ class PitchChord(KeyScale):
             case PitchChord():
                 super().__lshift__(operand)
                 self._offsets = self.deep_copy( operand._offsets )
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case dict():
                         self._offsets = operand._data
@@ -1738,21 +1738,21 @@ class Chord(KeyScale):
         I
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Size():         return ou.Size() << od.DataSource(self._size)
-                    case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
-                    case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
-                    case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
-                    case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
-                    case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
+                    case ou.Size():         return ou.Size() << od.Pipe(self._size)
+                    case ou.Dominant():     return ou.Dominant() << od.Pipe(self._dominant)
+                    case ou.Diminished():   return ou.Diminished() << od.Pipe(self._diminished)
+                    case ou.Augmented():    return ou.Augmented() << od.Pipe(self._augmented)
+                    case ou.Sus2():         return ou.Sus2() << od.Pipe(self._sus2)
+                    case ou.Sus4():         return ou.Sus4() << od.Pipe(self._sus4)
                     case _:                 return super().__mod__(operand)
-            case ou.Size():         return ou.Size() << od.DataSource(self._size)
-            case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
-            case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
-            case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
-            case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
-            case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
+            case ou.Size():         return ou.Size() << od.Pipe(self._size)
+            case ou.Dominant():     return ou.Dominant() << od.Pipe(self._dominant)
+            case ou.Diminished():   return ou.Diminished() << od.Pipe(self._diminished)
+            case ou.Augmented():    return ou.Augmented() << od.Pipe(self._augmented)
+            case ou.Sus2():         return ou.Sus2() << od.Pipe(self._sus2)
+            case ou.Sus4():         return ou.Sus4() << od.Pipe(self._sus4)
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
@@ -1843,14 +1843,14 @@ class Chord(KeyScale):
                 self._augmented     = operand._augmented
                 self._sus2          = operand._sus2
                 self._sus4          = operand._sus4
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Size():                 self._size = operand._data._unit
-                    case ou.Dominant():             self._dominant = operand._data.__mod__(od.DataSource( bool() ))
-                    case ou.Diminished():           self._diminished = operand._data.__mod__(od.DataSource( bool() ))
-                    case ou.Augmented():            self._augmented = operand._data.__mod__(od.DataSource( bool() ))
-                    case ou.Sus2():                 self._sus2 = operand._data.__mod__(od.DataSource( bool() ))
-                    case ou.Sus4():                 self._sus4 = operand._data.__mod__(od.DataSource( bool() ))
+                    case ou.Dominant():             self._dominant = operand._data.__mod__(od.Pipe( bool() ))
+                    case ou.Diminished():           self._diminished = operand._data.__mod__(od.Pipe( bool() ))
+                    case ou.Augmented():            self._augmented = operand._data.__mod__(od.Pipe( bool() ))
+                    case ou.Sus2():                 self._sus2 = operand._data.__mod__(od.Pipe( bool() ))
+                    case ou.Sus4():                 self._sus4 = operand._data.__mod__(od.Pipe( bool() ))
                     case _:                         super().__lshift__(operand)
             case ou.Size():                 self._size = operand._unit
             case str():
@@ -1858,7 +1858,7 @@ class Chord(KeyScale):
                 # Set Chord root note
                 self._pitch << operand
                 # Set Chord size
-                self._size = ou.Size(od.DataSource( self._size ), operand)._unit
+                self._size = ou.Size(od.Pipe( self._size ), operand)._unit
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
@@ -1869,32 +1869,32 @@ class Chord(KeyScale):
             case ou.Dominant():
                 if operand:
                     self.set_all()
-                self._dominant = operand.__mod__(od.DataSource( bool() ))
+                self._dominant = operand.__mod__(od.Pipe( bool() ))
             case ou.Diminished():
                 if operand:
                     self.set_all()
-                self._diminished = operand.__mod__(od.DataSource( bool() ))
+                self._diminished = operand.__mod__(od.Pipe( bool() ))
             case ou.Augmented():
                 if operand:
                     self.set_all()
-                self._augmented = operand.__mod__(od.DataSource( bool() ))
+                self._augmented = operand.__mod__(od.Pipe( bool() ))
             case ou.Sus2():
                 if operand:
                     self.set_all()
-                self._sus2 = operand.__mod__(od.DataSource( bool() ))
+                self._sus2 = operand.__mod__(od.Pipe( bool() ))
             case ou.Sus4():
                 if operand:
                     self.set_all()
-                self._sus4 = operand.__mod__(od.DataSource( bool() ))
+                self._sus4 = operand.__mod__(od.Pipe( bool() ))
             case _: super().__lshift__(operand)
         return self
     
     def set_all(self, data: any = False):    # mutual exclusive
-        self._dominant      = ou.Dominant(od.DataSource( self._dominant ), data).__mod__(od.DataSource( bool() ))
-        self._diminished    = ou.Diminished(od.DataSource( self._diminished ), data).__mod__(od.DataSource( bool() ))
-        self._augmented     = ou.Augmented(od.DataSource( self._augmented ), data).__mod__(od.DataSource( bool() ))
-        self._sus2          = ou.Sus2(od.DataSource( self._sus2 ), data).__mod__(od.DataSource( bool() ))
-        self._sus4          = ou.Sus4(od.DataSource( self._sus4 ), data).__mod__(od.DataSource( bool() ))
+        self._dominant      = ou.Dominant(od.Pipe( self._dominant ), data).__mod__(od.Pipe( bool() ))
+        self._diminished    = ou.Diminished(od.Pipe( self._diminished ), data).__mod__(od.Pipe( bool() ))
+        self._augmented     = ou.Augmented(od.Pipe( self._augmented ), data).__mod__(od.Pipe( bool() ))
+        self._sus2          = ou.Sus2(od.Pipe( self._sus2 ), data).__mod__(od.Pipe( bool() ))
+        self._sus4          = ou.Sus4(od.Pipe( self._sus4 ), data).__mod__(od.Pipe( bool() ))
 
 class Retrigger(Note):
     """`Element -> Note -> Retrigger`
@@ -1945,15 +1945,15 @@ class Retrigger(Note):
         32
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Number():       return operand._data << od.DataSource(self._number)
-                    case ra.Swing():        return operand._data << od.DataSource(self._swing)
+                    case ou.Number():       return operand._data << od.Pipe(self._number)
+                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Number():       return ou.Number() << od.DataSource(self._number)
-            case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
+            case ou.Number():       return ou.Number() << od.Pipe(self._number)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
-            case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
+            case ra.Duration():     return operand.copy() << od.Pipe( self._duration_notevalue / 2 )
             case float():           return float( self._duration_notevalue / 2 )
             case Fraction():        return self._duration_notevalue / 2
             case list():            return self.get_component_elements()
@@ -2016,14 +2016,14 @@ class Retrigger(Note):
                 super().__lshift__(operand)
                 self._number  = operand._number
                 self._swing     = operand._swing
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Number():               self._number = operand._data.__mod__(od.DataSource( int() ))
+                    case ou.Number():               self._number = operand._data.__mod__(od.Pipe( int() ))
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case ou.Number():
                 if operand > 0:
-                    self._number = operand.__mod__(od.DataSource( int() ))
+                    self._number = operand.__mod__(od.Pipe( int() ))
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -2149,14 +2149,14 @@ class Tuplet(Element):
         4
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
+                    case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             case ou.Number():       return ou.Number() << len(self._elements)
-            case ra.Duration():     return operand << od.DataSource( self._duration_notevalue / 2 )
+            case ra.Duration():     return operand << od.Pipe( self._duration_notevalue / 2 )
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
@@ -2175,7 +2175,7 @@ class Tuplet(Element):
         element_position: ra.Position = self % ra.Position()
         self_iteration: int = 0
         for single_element in self._elements:
-            element_duration = single_element % od.DataSource( ra.Duration() )
+            element_duration = single_element % od.Pipe( ra.Duration() )
             tuplet_elements.append(single_element.copy() << element_position)
             swing_ratio = self._swing
             if self_iteration % 2:
@@ -2228,8 +2228,8 @@ class Tuplet(Element):
             case Tuplet():
                 super().__lshift__(operand)
                 self._swing     = operand._swing
-                self._elements  = self.deep_copy(operand % od.DataSource( list() ))
-            case od.DataSource():
+                self._elements  = self.deep_copy(operand % od.Pipe( list() ))
+            case od.Pipe():
                 match operand._data:
                     case ra.Swing():            self._swing = operand._data._rational
                     case list():                self._elements = operand._data
@@ -2286,7 +2286,7 @@ class Automation(Element):
         if position is None:
             position = ra.Position(self._staff_reference)
 
-        position_on: ra.Position = position + self % od.DataSource( ra.Position() )
+        position_on: ra.Position = position + self % od.Pipe( ra.Position() )
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
@@ -2340,10 +2340,10 @@ class ControlChange(Automation):
         1
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Controller():       return self._controller
-                    case ou.Value():            return operand._data << od.DataSource(self._value)
+                    case ou.Value():            return operand._data << od.Pipe(self._value)
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
             case int():                 return self._value
@@ -2534,7 +2534,7 @@ class ControlChange(Automation):
                 super().__lshift__(operand)
                 self._controller    << operand._controller
                 self._value         = operand._value
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Controller():       self._controller = operand._data
                     case ou.Value():            self._value = operand._data._unit
@@ -2911,12 +2911,12 @@ class PitchBend(Automation):
         4096
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
+                    case ou.Bend():         return ou.Bend() << od.Pipe(self._bend)
                     case _:                 return super().__mod__(operand)
             case int():             return self._bend
-            case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
+            case ou.Bend():         return ou.Bend() << od.Pipe(self._bend)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -3007,7 +3007,7 @@ class PitchBend(Automation):
             case PitchBend():
                 super().__lshift__(operand)
                 self._bend = operand._bend
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Bend():             self._bend = operand._data._unit
                     case _:                     super().__lshift__(operand)
@@ -3078,12 +3078,12 @@ class Aftertouch(Automation):
         64
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
+                    case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
                     case _:                 return super().__mod__(operand)
             case int():             return self._pressure
-            case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
+            case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -3159,14 +3159,14 @@ class Aftertouch(Automation):
             case Aftertouch():
                 super().__lshift__(operand)
                 self._pressure = operand._pressure
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():         self._pressure = operand._data.__mod__(od.DataSource( int() ))
+                    case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
                     case _:                     super().__lshift__(operand)
             case int():
                 self._pressure = operand
             case ou.Pressure():
-                self._pressure = operand.__mod__(od.DataSource( int() ))
+                self._pressure = operand.__mod__(od.Pipe( int() ))
             case _:
                 super().__lshift__(operand)
         return self
@@ -3243,7 +3243,7 @@ class PolyAftertouch(Aftertouch):
         {'class': 'Channel', 'parameters': {'unit': 0}}
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Pitch():    return self._pitch
                     case _:             return super().__mod__(operand)
@@ -3261,7 +3261,7 @@ class PolyAftertouch(Aftertouch):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch == other % od.DataSource( og.Pitch() )
+                    and self._pitch == other % od.Pipe( og.Pitch() )
             case _:
                 return super().__eq__(other)
     
@@ -3271,7 +3271,7 @@ class PolyAftertouch(Aftertouch):
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
-        pitch_int: int = int(self._pitch % ( self % od.DataSource( ra.Position() ) % Fraction() ))
+        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3318,7 +3318,7 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._pitch << operand._pitch
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
@@ -3363,7 +3363,7 @@ class ProgramChange(Element):
         {'class': 'Program', 'parameters': {'unit': 12}}
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Program():          return operand._data << self._program
                     case ou.Bank():             return operand._data << self._bank
@@ -3456,7 +3456,7 @@ class ProgramChange(Element):
                 self._program   = operand._program
                 self._bank      = operand._bank
                 self._high      = operand._high
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.Program():          self._program = operand._data._unit
                     case ou.Bank():             self._bank = operand._data._unit

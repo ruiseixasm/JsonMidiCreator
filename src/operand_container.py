@@ -181,7 +181,7 @@ class Container(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Container():
                         return self
@@ -317,7 +317,7 @@ class Container(o.Operand):
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
                 self._append( self.deep_copy( operand._items ) )
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():
                         # Remove previous Elements from the Container stack
@@ -603,7 +603,7 @@ class Container(o.Operand):
         sorted_items: list = self._items.copy().sort(
             key=lambda x: x % compare
         )
-        self << od.DataSource( sorted_items )
+        self << od.Pipe( sorted_items )
         # self._items.sort(key=lambda x: x % compare)
         if reverse:
             self._items.reverse()
@@ -657,7 +657,7 @@ class Container(o.Operand):
                     if chaos * 1 % int() \
                         % probability._rational.denominator < probability._rational.numerator:   # Make the swap
 
-                        if isinstance(parameter_instance, od.DataSource):
+                        if isinstance(parameter_instance, od.Pipe):
 
                             self._swap(self[element_i], self[element_j])
                             # temp_element: oe.Element = self[element_i]
@@ -721,7 +721,7 @@ class Container(o.Operand):
         """
         parameters: list = []
         parameter_instance = parameter()
-        if isinstance(parameter_instance, od.DataSource):
+        if isinstance(parameter_instance, od.Pipe):
             for _ in len(self._items):
                 data_index: int = offset % len(self._items)
                 parameters.append(self._items[data_index])   # No need to copy
@@ -1034,7 +1034,7 @@ class Composition(Container):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ra.Length():
@@ -1101,7 +1101,7 @@ class Composition(Container):
                 super().__lshift__(operand)
                 self._length_beats = operand._length_beats
 
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Length():
                         self._length_beats = self._staff.convertToBeats(operand._data)._rational
@@ -1709,7 +1709,7 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._convert_staff_reference(self._staff)
                     single_element.set_clip_reference(self)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
+                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
             self._staff << staff_reference  # Does a copy
         return self
 
@@ -1782,7 +1782,7 @@ class Clip(Composition):  # Just a container of Elements
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ou.MidiTrack():    return self._midi_track
                     case ClipGet():
@@ -1956,7 +1956,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items   = self.deep_copy( operand._items )
                 self._set_staff_reference(operand._staff)
 
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
@@ -2749,7 +2749,7 @@ class Clip(Composition):  # Just a container of Elements
         
         included_elements: list[oe.Element] = [
             inside_element for inside_element in self._items
-            if punch_in <= inside_element % od.DataSource( ra.Position() ) < punch_out
+            if punch_in <= inside_element % od.Pipe( ra.Position() ) < punch_out
         ]
 
         self._delete(self._items, True)
@@ -2860,7 +2860,7 @@ class Clip(Composition):  # Just a container of Elements
             last_element: oe.Element = self._last_element()
             starting_position_beats: Fraction = Fraction(0)
             if ignore_empty_measures:
-                starting_position_beats = (first_element % od.DataSource( ra.Position() )).roundMeasures()._rational
+                starting_position_beats = (first_element % od.Pipe( ra.Position() )).roundMeasures()._rational
             if first_element._position_beats != starting_position_beats:  # Not at the starting position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
                 self._items.insert(0, oe.Rest(rest_duration))
@@ -2893,7 +2893,7 @@ class Clip(Composition):  # Just a container of Elements
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
                 if ignore_empty_measures:
-                    root_position: ra.Position = (single_element % od.DataSource( ra.Position() )).roundMeasures()
+                    root_position: ra.Position = (single_element % od.Pipe( ra.Position() )).roundMeasures()
                     single_element._position_beats = root_position._rational
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
@@ -2961,11 +2961,11 @@ class Clip(Composition):  # Just a container of Elements
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
-                extended_note_length: Fraction = extended_note % od.DataSource( ra.Length() ) // Fraction()   # In Beats
+                extended_note_length: Fraction = extended_note % od.Pipe( ra.Length() ) // Fraction()   # In Beats
                 extended_note_position_off: Fraction = extended_note_position + extended_note_length
                 
                 if note._position_beats == extended_note_position_off:
-                    note_length: Fraction = note % od.DataSource( ra.Length() ) // Fraction()   # In Beats
+                    note_length: Fraction = note % od.Pipe( ra.Length() ) // Fraction()   # In Beats
                     extended_length: Fraction = extended_note_length + note_length
                     # Extends the original note duration and marks note for removal
                     extended_note << self._staff.convertToLength(ra.Beats(extended_length))
@@ -3079,9 +3079,9 @@ class Part(Composition):
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
-            self._position_beats = ra.Position(staff_reference, self % od.DataSource( ra.Position() ))._rational
+            self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
+                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
             self._staff = staff_reference  # Does an assignment
         return self
 
@@ -3249,7 +3249,7 @@ class Part(Composition):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Position():
                         return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
@@ -3282,7 +3282,7 @@ class Part(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        part_position: ra.Position = self % od.DataSource( ra.Position() )
+        part_position: ra.Position = self % od.Pipe( ra.Position() )
         for single_clip in self:
             if isinstance(single_clip, Clip):
                 clip_staff: og.Staff = single_clip._staff
@@ -3316,7 +3316,7 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        part_position: ra.Position = self % od.DataSource( ra.Position() )
+        part_position: ra.Position = self % od.Pipe( ra.Position() )
         for single_clip in self:
             play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
@@ -3334,7 +3334,7 @@ class Part(Composition):
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                part_position: ra.Position = self % od.DataSource( ra.Position() )
+                part_position: ra.Position = self % od.Pipe( ra.Position() )
                 midi_list.extend(single_clip.getMidilist(part_position))
         return midi_list
 
@@ -3391,7 +3391,7 @@ class Part(Composition):
                     self << operand % ra.Position()
                 self._name = operand._name
                 
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case str():             self._name = operand._data
@@ -3492,7 +3492,7 @@ class Part(Composition):
                 right_part: Part = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
-                right_position: ra.Position = right_part % od.DataSource( ra.Position() )
+                right_position: ra.Position = right_part % od.Pipe( ra.Position() )
                 position_offset: ra.Position = right_position - left_length
 
                 for single_clip in right_part:
@@ -3670,7 +3670,7 @@ class Song(Composition):
             for single_part in self:
                 single_part._convert_staff_reference(self._staff)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.DataSource( ra.Length() ))._rational
+                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
             self._staff << staff_reference  # Does a copy
         return self
 
@@ -3784,7 +3784,7 @@ class Song(Composition):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
@@ -3888,7 +3888,7 @@ class Song(Composition):
                 super().__lshift__(operand)
                 self._set_staff_reference(operand._get_staff_reference())
 
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case _:                 super().__lshift__(operand)
@@ -4119,7 +4119,7 @@ class ClipGet(Container):
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case tuple():
                         return self._get
@@ -4171,7 +4171,7 @@ class ClipGet(Container):
             case ClipGet():
                 super().__lshift__(operand)
                 self._get = operand._get
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case tuple():
                         self._get = operand

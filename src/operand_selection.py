@@ -66,7 +66,7 @@ class IsNot(Selection):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Selection():       return self._selection
                     case _:                 return super().__mod__(operand)
@@ -104,7 +104,7 @@ class IsNot(Selection):
             case IsNot():
                 super().__lshift__(operand)
                 self._selection     = self.deep_copy(operand._selection)   # Avoids None Type error
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case Selection():           self._selection = operand._data
             case od.Serialization():
@@ -131,7 +131,7 @@ class Iterations(Selection):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case tuple():           return self._iterations
                     case _:                 return super().__mod__(operand)
@@ -169,7 +169,7 @@ class Iterations(Selection):
             case Iterations():
                 super().__lshift__(operand)
                 self._iterations     = self.deep_copy(operand._iterations)
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case tuple():           self._iterations = operand._data
                     case _:                 super().__lshift__(operand)
@@ -242,7 +242,7 @@ class Condition(Selection):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case od.And():          return self._and
                     case od.Or():           return self._or
@@ -283,7 +283,7 @@ class Condition(Selection):
                 super().__lshift__(operand)
                 self._and           << operand._and
                 self._or            << operand._or
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case od.And():              self._and = operand._data
                     case od.Or():               self._or = operand._data
@@ -321,7 +321,7 @@ class Amount(Condition):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():             return self._amount
                     case _:                 return super().__mod__(operand)
@@ -361,7 +361,7 @@ class Amount(Condition):
             case Amount():
                 super().__lshift__(operand)
                 self._amount = operand._amount
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():                 self._amount = operand._data
             case od.Serialization():
@@ -442,7 +442,7 @@ class Comparison(Selection):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
@@ -480,7 +480,7 @@ class Comparison(Selection):
             case Comparison():
                 super().__lshift__(operand)
                 self._parameter = operand._parameter
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case type():                    self._parameter = operand._data
             case od.Serialization():
@@ -564,7 +564,7 @@ class Sequence(Comparison):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():            return self._pattern
                     case _:                 return super().__mod__(operand)
@@ -604,7 +604,7 @@ class Sequence(Comparison):
             case Sequence():
                 super().__lshift__(operand)
                 self._pattern = operand._pattern
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case list():                    self._pattern = operand._data
             case od.Serialization():
@@ -659,7 +659,7 @@ class Threshold(Selection):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():            return self._threshold
                     case _:                 return super().__mod__(operand)
@@ -687,7 +687,7 @@ class Threshold(Selection):
             case Threshold():
                 super().__lshift__(operand)
                 self._threshold = operand._threshold
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case int():                    self._threshold = operand._data
             case od.Serialization():

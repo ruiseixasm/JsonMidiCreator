@@ -54,9 +54,9 @@ class Chaos(o.Operand):
         match operand:
             case self.__class__():
                 return self.copy()
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
                     case int() | float():       return self._xn % (operand._data)
@@ -105,7 +105,7 @@ class Chaos(o.Operand):
                 super().__lshift__(operand)
                 self._xn            << operand._xn
                 self._x0            << operand._x0
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Xn():                   self._xn = operand._data
                     case ra.X0():                   self._x0 = operand._data
@@ -192,7 +192,7 @@ class Modulus(Chaos):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Period():            return operand._data << self._cycle
                     case ra.Steps():            return operand._data << self._steps
@@ -233,7 +233,7 @@ class Modulus(Chaos):
                 super().__lshift__(operand)
                 self._cycle     = operand._cycle
                 self._steps     = operand._steps
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Period():            self._cycle = operand._data._rational
                     case ra.Steps():            self._steps = operand._data._rational
@@ -283,7 +283,7 @@ class Flipper(Modulus):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Split():            return self._split
                     case _:                     return super().__mod__(operand)
@@ -321,7 +321,7 @@ class Flipper(Modulus):
             case Flipper():
                 super().__lshift__(operand)
                 self._split = operand._split
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Split():                self._split = operand._data._rational
                     case _:                         super().__lshift__(operand)
@@ -381,7 +381,7 @@ class Bouncer(Chaos):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Width():            return self._width
                     case ra.Height():           return self._height
@@ -390,7 +390,7 @@ class Bouncer(Chaos):
                     case ra.Xn():               return self._xn
                     case ra.Yn():               return self._yn
                     case int() | float():
-                        self_tuple = self % od.DataSource( tuple() )
+                        self_tuple = self % od.Pipe( tuple() )
                         hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
                         if isinstance(operand, int):
                             return int(hypotenuse)
@@ -407,7 +407,7 @@ class Bouncer(Chaos):
             case ra.Xn():               return self._xn.copy()
             case ra.Yn():               return self._yn.copy()
             case int() | float() | tuple():
-                                        return self % od.DataSource( operand )
+                                        return self % od.Pipe( operand )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
@@ -460,7 +460,7 @@ class Bouncer(Chaos):
                 set_x               = operand._set_xy[0].copy()
                 set_y               = operand._set_xy[1].copy()
                 self._set_xy        = (set_x, set_y)
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Width():                self._width = operand._data
                     case ra.Height():               self._height = operand._data
@@ -530,7 +530,7 @@ class SinX(Chaos):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Lambda():           return self._lambda
                     case _:                     return super().__mod__(operand)
@@ -541,7 +541,7 @@ class SinX(Chaos):
         if other.__class__ == o.Operand:
             return True
         if super().__eq__(other):
-            return  self._lambda == other % od.DataSource( ra.Lambda() )
+            return  self._lambda == other % od.Pipe( ra.Lambda() )
         return False
     
     def getSerialization(self) -> dict:
@@ -565,7 +565,7 @@ class SinX(Chaos):
             case SinX():
                 super().__lshift__(operand)
                 self._lambda            << operand._lambda
-            case od.DataSource():
+            case od.Pipe():
                 match operand._data:
                     case ra.Lambda():               self._lambda = operand._data
                     case _:                         super().__lshift__(operand)

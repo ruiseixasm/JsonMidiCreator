@@ -53,9 +53,9 @@ class Data(o.Operand):
         {'class': 'Bend', 'parameters': {'unit': 8191}}
         """
         match operand:
-            case DataSource():
+            case Pipe():
                 match operand._data:
-                    case of.Frame():                return self % DataSource( operand._data )
+                    case of.Frame():                return self % Pipe( operand._data )
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
@@ -128,20 +128,20 @@ class Data(o.Operand):
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
-            case DataSource():
+            case Pipe():
                 self._data = operand._data
             # Data doesn't load serialization, just processed data!!
             case Serialization():
-                self.loadSerialization(operand % DataSource( dict() ))
+                self.loadSerialization(operand % Pipe( dict() ))
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
             case _: self._data = self.deep_copy(operand)
         return self
 
-class DataSource(Data):
+class Pipe(Data):
     """
-    DataSource() allows the direct extraction (%) or setting (<<)
+    Pipe() allows the direct extraction (%) or setting (<<)
     of the given Operand parameters without the normal processing.
     
     Parameters
@@ -152,7 +152,7 @@ class DataSource(Data):
     Examples
     --------
     >>> single_note = Note()
-    >>> position_source = single_note % DataSource( Position() )
+    >>> position_source = single_note % Pipe( Position() )
     >>> position_copy = single_note % Position()
     >>> print(id(position_source))
     >>> print(id(position_copy))
@@ -172,11 +172,11 @@ class DataSource(Data):
         >>> dotted_note = Dotted(1/4)
         >>> dotted_note % float() >> Print()
         0.25
-        >>> dotted_note % DataSource( float() ) >> Print()
+        >>> dotted_note % Pipe( float() ) >> Print()
         0.375
         """
         match operand:
-            case DataSource():
+            case Pipe():
                 return self._data
             case _:
                 if isinstance(self._data, o.Operand):
@@ -188,7 +188,7 @@ class DataSource(Data):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case DataSource():
+            case Pipe():
                 self._data = self.deep_copy(operand._data)
             case tuple():
                 if isinstance(self._data, o.Operand):
@@ -352,7 +352,7 @@ class Serialization(Data):
         """
         if isinstance(self._data, o.Operand):
             match operand:
-                case DataSource():
+                case Pipe():
                     if type(operand._data) == o.Operand:    # Default DataSource content
                         return self._data
                     return self._data % operand # Already includes the DataSource wrapper
@@ -425,7 +425,7 @@ class Serialization(Data):
             case Serialization():
                 super().__lshift__(operand)
                 self._data = operand._data.copy()   # It's and Operand for sure
-            case DataSource():
+            case Pipe():
                 match operand._data:
                     case o.Operand():
                         self._data = operand._data
@@ -509,9 +509,9 @@ class Playlist(Data):
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
         match operand:
-            case DataSource():
+            case Pipe():
                 match operand._data:
-                    case TrackName():       return operand._data << DataSource(self._track_name)
+                    case TrackName():       return operand._data << Pipe(self._track_name)
                     case list():            return self._data
                     case _:                 return super().__mod__(operand)
             case TrackName():       return TrackName(self._track_name)
@@ -591,7 +591,7 @@ class Playlist(Data):
             case Playlist():
                 self._data          = self.shallow_playlist_list_copy(operand._data)
                 self._track_name    = operand._track_name
-            case DataSource():
+            case Pipe():
                 match operand._data:
                     case TrackName():
                         self._track_name = operand._data._data
@@ -695,7 +695,7 @@ class Import(Playlist):
                 if "clock" in operand_data[0]:
                     # Remove "clock" header
                     operand_data.pop(0)
-                return Playlist(DataSource( operand_data ))
+                return Playlist(Pipe( operand_data ))
             return None
 
     @staticmethod

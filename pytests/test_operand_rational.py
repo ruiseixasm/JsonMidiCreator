@@ -52,7 +52,7 @@ def test_dotted_mod():
     assert dotted % Dotted() % Fraction() == Fraction(1, 4) # 3/8 * 2/3 = 1/4
     print(dotted % Duration() % Fraction())
     assert dotted % Duration() % Fraction() == Fraction(3, 8)
-    assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
+    assert dotted % Pipe( Fraction() ) == Fraction(3, 8)
 
     undotted = Duration(dotted)
     assert dotted // Fraction() == Fraction(3, 8)
@@ -80,20 +80,20 @@ def test_position_default():
     position_measures = Position(1.5)
     position_measures % Fraction() >> Print()   # 3/2
     assert position_measures % Fraction() == 3/2
-    assert position_measures % Beats() % DataSource( Fraction() ) == 6
-    assert position_measures % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_measures % Beats() % Pipe( Fraction() ) == 6
+    assert position_measures % Steps() % Pipe( Fraction() ) == 16 + 16/2
     assert position_measures % Beat() == Beats(2)
     assert position_measures % Step() == Steps(1/2 * 16)
 
     position_beats = Position(Beats(6))
-    assert position_beats % Beats() % DataSource( Fraction() ) == 6
-    assert position_beats % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_beats % Beats() % Pipe( Fraction() ) == 6
+    assert position_beats % Steps() % Pipe( Fraction() ) == 16 + 16/2
     assert position_beats % Beat() == Beats(2)
     assert position_beats % Step() == Steps(1/2 * 16)
 
     position_steps = Position(Steps(16 + 16/2))
-    assert position_steps % Beats() % DataSource( Fraction() ) == 6
-    assert position_steps % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_steps % Beats() % Pipe( Fraction() ) == 6
+    assert position_steps % Steps() % Pipe( Fraction() ) == 16 + 16/2
     assert position_steps % Beat() == Beats(2)
     assert position_steps % Step() == Steps(1/2 * 16)
 
@@ -113,9 +113,9 @@ def test_position_specific():
     steps_per_beat: int = int(steps_per_note / beats_per_note)
     steps_per_measure: int = steps_per_beat * beats_per_measure
 
-    print(position % Beats() % DataSource( Fraction() ))
+    print(position % Beats() % Pipe( Fraction() ))
     assert position % Beats() == 1.5 * beats_per_measure
-    print(position % Steps() % DataSource( Fraction() ))
+    print(position % Steps() % Pipe( Fraction() ))
     print(1.5 * beats_per_measure * steps_per_beat)
     assert position.convertToSteps() == 1.5 * beats_per_measure * steps_per_beat
     print(int(1.5 * beats_per_measure) % beats_per_measure)
