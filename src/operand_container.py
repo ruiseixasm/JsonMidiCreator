@@ -2630,6 +2630,7 @@ class Clip(Composition):  # Just a container of Elements
                 single_note._pitch.snap(up)
         return self
 
+
     def extend(self, length: ra.Length = None) -> Self:
         """
         Extends (stretches) the given clip along a given length.
@@ -2643,9 +2644,11 @@ class Clip(Composition):  # Just a container of Elements
         if length is None:
             length = ra.Length(2.0)
         original_self: Clip = self.shallow_copy()
-        while self.__truediv__(original_self) <= length:
+        original_self_duration: ra.Duration = self % ra.Duration()
+        while self % ra.Duration() + original_self_duration <= length:
             self.__itruediv__(original_self)
         return self
+
 
     def trim(self, length: ra.Length = None) -> Self:
         """
