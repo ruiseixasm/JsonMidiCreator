@@ -1564,7 +1564,7 @@ class KeyScale(Note):
                 super().__lshift__(operand)
         return self
     
-class Polychord(KeyScale):
+class PitchChord(KeyScale):
     """`Element -> Note -> KeyScale -> Polychord`
 
     A `Polychord` element allows the triggering of notes concerning specific degrees of a `Scale`.
@@ -1638,7 +1638,7 @@ class Polychord(KeyScale):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Polychord():
+            case PitchChord():
                 super().__lshift__(operand)
                 self._degrees = self.deep_copy( operand._degrees )
             case od.DataSource():
