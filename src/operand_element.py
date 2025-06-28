@@ -465,8 +465,22 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.TimeValue() | ou.TimeUnit():
-                new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                return new_clip.__itruediv__(operand)
+                if self._clip_reference is not None:
+                    duration_value: Fraction = self_duration % operand % Fraction()
+                    if duration_value > 0:
+                        element_clip: oc.Clip = self._clip_reference
+                        new_elements: list[Element] = []
+                        self_duration: ra.Duration = self % ra.Duration()
+                        operand_value: Fraction = operand % Fraction()
+                        self_repeating = int( operand_value / duration_value )
+                        for next_element_i in range(1, self_repeating):
+                            next_element: Element = self.copy()._set_clip_reference(element_clip)
+                            next_element += ra.Position( self_duration * next_element_i )
+                            new_elements.append(next_element)
+                        element_clip._append(new_elements)
+                else:
+                    new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    return new_clip.__itruediv__(operand)
             
             case _:
                 if operand != 0:
