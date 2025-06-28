@@ -2224,7 +2224,7 @@ class Clip(Composition):  # Just a container of Elements
                         first_element /= segmented_denominator
                         first_element_length: ra.Length = first_element % ra.Length()
                         for next_element_i in range(1, total_segments):
-                            next_element: oe.Element = first_element.copy()
+                            next_element: oe.Element = first_element.copy().set_clip_reference(self)
                             next_element += ra.Position( first_element_length * next_element_i )
                             new_elements.append(next_element)
                     self._append(new_elements)
@@ -2240,7 +2240,7 @@ class Clip(Composition):  # Just a container of Elements
                             first_duration: ra.Duration = ra.Duration(split_position - element_start)
                             second_duration: ra.Duration = ra.Duration(element_finish - split_position)
                             first_element << first_duration
-                            second_element: oe.Element = first_element.copy(second_duration)
+                            second_element: oe.Element = first_element.copy(second_duration).set_clip_reference(self)
                             second_element += ra.Position(first_duration)
                             new_elements.append(second_element)
                 self._append(new_elements)

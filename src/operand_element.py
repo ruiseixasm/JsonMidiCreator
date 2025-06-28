@@ -94,6 +94,7 @@ class Element(o.Operand):
         import operand_container as oc
         if isinstance(clip_reference, oc.Clip):
             self._clip_reference = clip_reference
+            self._set_staff_reference(clip_reference._staff)
         return self
 
     def get_clip_reference(self) -> 'Clip':
@@ -505,7 +506,7 @@ class Element(o.Operand):
                         self /= segmented_denominator
                         self_length: ra.Length = self % ra.Length()
                         for next_element_i in range(1, total_segments):
-                            next_element: Element = self.copy()
+                            next_element: Element = self.copy().set_clip_reference(element_clip)
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
