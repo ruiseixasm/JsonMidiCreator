@@ -436,10 +436,11 @@ class Element(o.Operand):
                     for _ in range(operand):
                         new_clip.__imul__(self)
                 return new_clip
+            
             case ra.TimeValue() | ou.TimeUnit():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                new_clip.__imul__(operand)
-                return new_clip
+                return new_clip.__imul__(operand)
+            
         self_operand: any = self % operand
         self_operand *= operand # Generic `self_operand`
         return self << self_operand
@@ -462,10 +463,11 @@ class Element(o.Operand):
                     for _ in range(operand):
                         new_clip.__itruediv__(self)
                 return new_clip
+            
             case ra.TimeValue() | ou.TimeUnit():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                new_clip.__itruediv__(operand)
-                return new_clip
+                return new_clip.__itruediv__(operand)
+            
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
