@@ -2225,6 +2225,20 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
 
+            case ra.Duration():
+                total_segments: int = operand % int()
+                if total_segments > 1:
+                    new_elements: list[oe.Element] = []
+                    quantized_duration: ra.Duration = ra.Duration(self, total_segments)
+                    for first_element in self._items:
+                        first_element /= quantized_duration
+                        first_element_length: ra.Length = first_element % ra.Length()
+                        for next_element_i in range(1, total_segments):
+                            next_element: oe.Element = first_element.copy()
+                            next_element += ra.Position( first_element_length * next_element_i )
+                            new_elements.append(next_element)
+                    self._append(new_elements)
+            
             case tuple():
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
