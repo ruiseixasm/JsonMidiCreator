@@ -738,7 +738,7 @@ class BasicComparison(InputFilter):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met. \
+    Any(None) : One or more conditions where **all** need to be met. \
     It's is also possible to set a `Previous` condition in each case the input has to compare as `True` to the previous nth one.
     """
     def __init__(self, *parameters):
@@ -755,12 +755,12 @@ class BasicComparison(InputFilter):
                     condition = previous_inputs[previous_i]
                 else:
                     continue
-            if self._compare(input, condition): # Where the comparison is made
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand = self_operand.__ixor__(input)
-                return self_operand
-        return ol.Null()
+            if not self._compare(input, condition): # Where the comparison is made
+                return ol.Null()
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand = self_operand.__ixor__(input)
+        return self_operand
 
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -774,7 +774,7 @@ class BasicComparison(InputFilter):
 class Equal(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> Equal`
 
-    An `Equal` checks if the input is equal to at least one set condition before being passed to the next `Frame`.
+    An `Equal` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -788,7 +788,7 @@ class Equal(BasicComparison):
 class NotEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> NotEqual`
 
-    A `NotEqual` checks if the input is NOT equal to at least one set condition before being passed to the next `Frame`.
+    A `NotEqual` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -806,7 +806,7 @@ class Greater(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as greater (`>`). \
+    Any(None) : One or more conditions where **all** need to be met as greater (`>`). \
     It's is also possible to set a `Previous` condition in each case the input has to be greater to the previous nth one.
     """
     @staticmethod
