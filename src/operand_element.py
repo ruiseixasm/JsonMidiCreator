@@ -438,8 +438,20 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.TimeValue() | ou.TimeUnit():
-                new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                return new_clip.__imul__(operand)
+                if self._clip_reference is not None:
+                    element_clip: oc.Clip = self._clip_reference
+                    new_elements: list[Element] = []
+                    operand_value: Fraction = operand % Fraction()
+                    self_repeating = int( operand_value / ra.Measures(element_clip, 1) )
+                    if self_repeating > 1:
+                        for next_element_i in range(1, self_repeating):
+                            next_element: Element = self.copy()._set_clip_reference(element_clip)
+                            next_element += ra.Position( ra.Measures(element_clip, 1) * next_element_i )
+                            new_elements.append(next_element)
+                        element_clip._append(new_elements)
+                else:
+                    new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    return new_clip.__imul__(operand)
             
         self_operand: any = self % operand
         self_operand *= operand # Generic `self_operand`
@@ -466,11 +478,11 @@ class Element(o.Operand):
             
             case ra.TimeValue() | ou.TimeUnit():
                 if self._clip_reference is not None:
+                    self_duration: ra.Duration = self % ra.Duration()
                     duration_value: Fraction = self_duration % operand % Fraction()
                     if duration_value > 0:
                         element_clip: oc.Clip = self._clip_reference
                         new_elements: list[Element] = []
-                        self_duration: ra.Duration = self % ra.Duration()
                         operand_value: Fraction = operand % Fraction()
                         self_repeating = int( operand_value / duration_value )
                         for next_element_i in range(1, self_repeating):
