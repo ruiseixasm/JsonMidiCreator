@@ -778,7 +778,7 @@ class Equal(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as equal (`==`). \
+    Any(None) : One or more conditions where **all** need to be met as equal (`==`). \
     It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
     """
     @staticmethod
@@ -792,7 +792,7 @@ class NotEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as NOT equal (`not ==`). \
+    Any(None) : One or more conditions where **all** need to be met as NOT equal (`not ==`). \
     It's is also possible to set a `Previous` condition in each case the input has to be NOT equal to the previous nth one.
     """
     @staticmethod
@@ -802,7 +802,7 @@ class NotEqual(BasicComparison):
 class Greater(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> Greater`
 
-    A `Greater` checks if the input is greater than at least one set condition before being passed to the next `Frame`.
+    A `Greater` checks if the input is greater to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -816,11 +816,11 @@ class Greater(BasicComparison):
 class Less(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> Less`
 
-    A `Less` checks if the input is less than at least one set condition before being passed to the next `Frame`.
+    A `Less` checks if the input is less to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as less (`<`). \
+    Any(None) : One or more conditions where **all** need to be met as less (`<`). \
     It's is also possible to set a `Previous` condition in each case the input has to be less to the previous nth one.
     """
     @staticmethod
@@ -830,11 +830,11 @@ class Less(BasicComparison):
 class GreaterOrEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> GreaterOrEqual`
 
-    A `GreaterOrEqual` checks if the input is greater or equal than at least one set condition before being passed to the next `Frame`.
+    A `GreaterOrEqual` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as greater or equal (`>=`). \
+    Any(None) : One or more conditions where **all** need to be met as greater or equal (`>=`). \
     It's is also possible to set a `Previous` condition in each case the input has to be greater or equal to the previous nth one.
     """
     @staticmethod
@@ -844,11 +844,11 @@ class GreaterOrEqual(BasicComparison):
 class LessOrEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> BasicComparison -> LessOrEqual`
 
-    A `LessOrEqual` checks if the input is less or equal than at least one set condition before being passed to the next `Frame`.
+    A `LessOrEqual` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where at least one needs to be met as less or equal (`<=`). \
+    Any(None) : One or more conditions where **all** need to be met as less or equal (`<=`). \
     It's is also possible to set a `Previous` condition in each case the input has to be less or equal to the previous nth one.
     """
     @staticmethod
