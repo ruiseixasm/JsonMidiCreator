@@ -742,7 +742,8 @@ class Container(o.Operand):
                 offset += 1
         return self._sort_position()
 
-    def filter(self, condition: Any, shallow_copy: bool = True) -> Self:
+
+    def filter(self, condition: Any) -> Self:
         """
         Filters out all items that don't meet the condition (equal to).
 
@@ -752,28 +753,15 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        if shallow_copy:
-            shallow_copy: Container = self.shallow_copy()
-            if isinstance(condition, Container):
-                shallow_copy._items = [
-                    item for item in self._items if any(item == cond_item for cond_item in condition)
-                ]
-            else:
-                shallow_copy._items = [item for item in self._items if item == condition]
-            return shallow_copy
-        # Remove previous Elements from the Container stack
-        self._delete(self._items, True) # deletes by id, safer
-        # Finally adds the decomposed elements to the Container stack
+        shallow_copy: Container = self.shallow_copy()
         if isinstance(condition, Container):
-            self._append([
+            shallow_copy._items = [
                 item for item in self._items if any(item == cond_item for cond_item in condition)
-            ])
+            ]
         else:
-            self._append([
-                item for item in self._items if item == condition
-            ])
-        # self._items = [item for item in self._items if item == condition]
-        return self
+            shallow_copy._items = [item for item in self._items if item == condition]
+        return shallow_copy
+
 
     def drop(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
         """
