@@ -1193,8 +1193,8 @@ class Filter(ContainerProcess):
         condition (Any): Sets a condition to be compared with `==` operator.
         shallow_copy (bool): Copies each contained item if `False`.
     """
-    def __init__(self, condition: Any = None):
-        super().__init__(condition)
+    def __init__(self, *conditions):
+        super().__init__(*conditions)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
@@ -1202,7 +1202,7 @@ class Filter(ContainerProcess):
         return super().__rrshift__(operand)
     
     def _process(self, operand: 'Container') -> 'Container':
-        return operand.filter(self._data)
+        return operand.filter(*self._data)
 
 class Drop(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Drop`

@@ -743,23 +743,25 @@ class Container(o.Operand):
         return self._sort_position()
 
 
-    def filter(self, condition: Any) -> Self:
+    def filter(self, *conditions) -> Self:
         """
-        Filters out all items that don't meet the condition (equal to).
+        Filters out all items that don't meet the conditions (equal to).
 
-        Args:
-            parameter (Any): The object to be compared with (==).
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
 
         Returns:
             Container: The same self object with the items processed.
         """
         shallow_copy: Container = self.shallow_copy()
-        if isinstance(condition, Container):
-            shallow_copy._items = [
-                item for item in self._items if any(item == cond_item for cond_item in condition)
-            ]
-        else:
-            shallow_copy._items = [item for item in self._items if item == condition]
+        for single_condition in conditions:
+            if isinstance(single_condition, Container):
+                shallow_copy._items = [
+                    item for item in shallow_copy._items if any(item == cond_item for cond_item in single_condition)
+                ]
+            else:
+                shallow_copy._items = [item for item in shallow_copy._items if item == single_condition]
         return shallow_copy
 
 

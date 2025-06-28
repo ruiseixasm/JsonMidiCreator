@@ -419,7 +419,7 @@ class Operand:
                     od.Process, tuple, list, om.Mutation, os.Selection)
                 ):
             return self.filter(operand)
-        return operand.__rrshift__(self)
+        return operand.__rrshift__(self)    # Reverses papers
 
     # The @ operator in Python is used for matrix multiplication
     # Works as >> with top precedence than >>
