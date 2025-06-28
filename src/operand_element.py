@@ -494,6 +494,22 @@ class Element(o.Operand):
                     for _ in range(operand):
                         new_clip.__ifloordiv__(self)
                 return new_clip
+            
+            case ra.Duration():
+                total_segments: int = operand % int()
+                if total_segments > 1:
+                    segmented_denominator: ra.Duration = ra.Duration(total_segments)
+                    if self._clip_reference is not None:
+                        element_clip: oc.Clip = self._clip_reference
+                        new_elements: list[Element] = []
+                        self /= segmented_denominator
+                        self_length: ra.Length = self % ra.Length()
+                        for next_element_i in range(1, total_segments):
+                            next_element: Element = self.copy()
+                            next_element += ra.Position( self_length * next_element_i )
+                            new_elements.append(next_element)
+                        element_clip._append(new_elements)
+            
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
