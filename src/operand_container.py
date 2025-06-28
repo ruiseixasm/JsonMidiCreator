@@ -2230,17 +2230,20 @@ class Clip(Composition):  # Just a container of Elements
                     self._append(new_elements)
             
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                new_elements: list[oe.Element] = []
                 for first_element in self._items:
                     element_start: ra.Position = first_element.start()
                     split_position: ra.Position = element_start.copy(operand)
                     if split_position > element_start:
                         element_finish: ra.Position = first_element.finish()
                         if split_position < element_finish:
-                            left_duration: ra.Duration = ra.Duration(split_position - element_start)
-                            right_duration: ra.Duration = ra.Duration(element_finish - split_position)
-                            first_element << left_duration
-                            second_element: oe.Element = first_element.copy(right_duration)
-                            second_element += ra.Position(left_duration)
+                            first_duration: ra.Duration = ra.Duration(split_position - element_start)
+                            second_duration: ra.Duration = ra.Duration(element_finish - split_position)
+                            first_element << first_duration
+                            second_element: oe.Element = first_element.copy(second_duration)
+                            second_element += ra.Position(first_duration)
+                            new_elements.append(second_element)
+                self._append(new_elements)
 
             case tuple():
                 for single_operand in operand:
