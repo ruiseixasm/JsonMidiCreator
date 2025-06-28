@@ -510,7 +510,29 @@ class Element(o.Operand):
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
-            
+                    else:
+                        self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                        return self_clip.__ifloordiv__(operand)
+
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                if self._clip_reference is not None:
+                    new_elements: list[Element] = []
+                    self_start: ra.Position = self.start()
+                    split_position: ra.Position = self_start.copy(operand)
+                    if split_position > self_start:
+                        self_finish: ra.Position = self.finish()
+                        if split_position < self_finish:
+                            first_duration: ra.Duration = ra.Duration(split_position - self_start)
+                            second_duration: ra.Duration = ra.Duration(self_finish - split_position)
+                            self << first_duration
+                            second_element: Element = self.copy(second_duration)._set_clip_reference(self)
+                            second_element += ra.Position(first_duration)
+                            new_elements.append(second_element)
+                    self._clip_reference._append(new_elements)
+                else:
+                    self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    return self_clip.__ifloordiv__(operand)
+
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
