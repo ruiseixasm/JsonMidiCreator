@@ -449,6 +449,7 @@ class Element(o.Operand):
                             next_element += ra.Position( ra.Measures(element_clip, 1) * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
+                    return self
                 else:
                     new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
                     return new_clip.__imul__(operand)
@@ -490,6 +491,7 @@ class Element(o.Operand):
                             next_element += ra.Position( self_duration * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
+                    return self
                 else:
                     new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
                     return new_clip.__itruediv__(operand)
@@ -525,10 +527,10 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.Duration():
-                total_segments: int = operand % int()
-                if total_segments > 1:
-                    segmented_denominator: ra.Duration = ra.Duration(total_segments)
-                    if self._clip_reference is not None:
+                if self._clip_reference is not None:
+                    total_segments: int = operand % int()
+                    if total_segments > 1:
+                        segmented_denominator: ra.Duration = ra.Duration(total_segments)
                         element_clip: oc.Clip = self._clip_reference
                         new_elements: list[Element] = []
                         self /= segmented_denominator
@@ -538,9 +540,10 @@ class Element(o.Operand):
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
-                    else:
-                        self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
-                        return self_clip.__ifloordiv__(operand)
+                    return self
+                else:
+                    self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    return self_clip.__ifloordiv__(operand)
 
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 if self._clip_reference is not None:
@@ -557,6 +560,7 @@ class Element(o.Operand):
                             second_element += ra.Position(first_duration)
                             new_elements.append(second_element)
                     self._clip_reference._append(new_elements)
+                    return self
                 else:
                     self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
                     return self_clip.__ifloordiv__(operand)
