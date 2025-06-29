@@ -35,7 +35,7 @@ second_notes = first_notes + Step(1)
 # Rest() >> P
 patter_notes = first_notes + second_notes + Even()**Octave(1)
 
-final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
+final_pattern = patter_notes.mask(Nth(1, 2)) / patter_notes / 2
 
 
 final_pattern * 8 >> P >> MidiExport("Midi/improvisation_4.0.mid")

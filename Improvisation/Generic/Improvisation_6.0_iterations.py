@@ -33,7 +33,7 @@ pattern = UpDown([0, 1, 1, -1], Degree)
 
 for iteration in range(1000):
     eight_notes << chooser**degrees
-    if eight_notes.filter(Nth(1, 2, 3, 4)) == pattern:
+    if eight_notes.mask(Nth(1, 2, 3, 4)) == pattern:
         print(f"Iteration: {iteration}.")
         eight_notes >> P
         R() >> P

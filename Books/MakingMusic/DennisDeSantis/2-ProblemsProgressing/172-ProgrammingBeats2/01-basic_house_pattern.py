@@ -34,7 +34,7 @@ drum = Note(DrumKit("Drum"), 1/16) * 4 << Iterate()**Beat()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-hi_hat /= Filter(Even())
+hi_hat /= Mask(Even())
 
 # Second pattern
 (hi_hat + snare + drum) * 8 >> P

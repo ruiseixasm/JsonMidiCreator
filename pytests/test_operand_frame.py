@@ -192,7 +192,7 @@ def test_even_odd():
     assert four_notes.len() == 4
     four_notes >>= Even()
     assert four_notes.len() == 2
-    four_notes >>= Filter(Odd())
+    four_notes >>= Mask(Odd())
     assert four_notes.len() == 1
 
 # test_even_odd()

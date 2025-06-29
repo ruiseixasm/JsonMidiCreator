@@ -25,7 +25,7 @@ rest_play = (R(), P)
 defaults << Tempo(110)
 
 tresillo: Clip = Note(DrumKit("Drum"), 1/16) * 6 << Iterate(3)**Steps()
-tresillo *= tresillo / Filter(Nth(1, 2)) << Foreach(B2, B3)
+tresillo *= tresillo / Mask(Nth(1, 2)) << Foreach(B2, B3)
 clap: Clip = Note(DrumKit("Clap"), 1/16) * 4 << Iterate(2)**Add(1)**Beats()
 
 strong_contrast: Clip = tresillo + clap

@@ -199,6 +199,8 @@ class Container(o.Operand):
                 ]
             case int():
                 return self.len()
+            case bool():
+                return not self.is_a_mask()
             case _:
                 return super().__mod__(operand)
 
@@ -509,6 +511,11 @@ class Container(o.Operand):
         return self
 
 
+    # def copy(self, *parameters) -> Self:
+    #     if self.is_a_mask():
+    #         return self # Can't copy a mask
+    #     return super().copy(*parameters)
+
     def empty_copy(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
@@ -568,6 +575,9 @@ class Container(o.Operand):
         for single_parameter in parameters:
             self << single_parameter
         return self
+
+    def is_a_mask(self) -> bool:
+        return self._upper_container is not self
     
     def upper(self, level: int = None) -> Self:
         """
@@ -743,9 +753,9 @@ class Container(o.Operand):
         return self._sort_position()
 
 
-    def filter(self, *conditions) -> Self:
+    def mask(self, *conditions) -> Self:
         """
-        Filters out all items that don't meet the conditions (equal to).
+        Masks the items that meet the conditions (equal to). Masks can't be copied!
 
         Conditions
         ----------
@@ -2462,13 +2472,13 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with added automated elements placed at intermediary steps.
         """
-        automation_clip: Clip = self.filter(of.InputType(oe.Automation))
+        automation_clip: Clip = self.mask(of.InputType(oe.Automation))
         plotlist: list[dict] = automation_clip.getPlotlist()
         channels: list[int] = plotlist[0]["channels"]["automation"]
 
         for channel in channels:
 
-            channel_automation: Clip = automation_clip.filter(ou.Channel(channel))
+            channel_automation: Clip = automation_clip.mask(ou.Channel(channel))
 
             if channel_automation.len() > 1:
 
@@ -3068,8 +3078,8 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_left: Clip     = self.filter(of.Less(position))
-        self_right: Clip    = self.filter(of.GreaterOrEqual(position))
+        self_left: Clip     = self.mask(of.Less(position))
+        self_right: Clip    = self.mask(of.GreaterOrEqual(position))
         return self_left, self_right
     
 

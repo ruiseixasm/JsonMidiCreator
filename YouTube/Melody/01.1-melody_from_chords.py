@@ -47,11 +47,11 @@ stacked_notes = decomposed_chords.copy(1/4).stack() # Each single note is now 1/
 # stacked_notes >> Play()
 
 measure_operations = [
-    (Filter(Measure(0)), Operate(Octave(1), "+")),
-    (Filter(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
-    (Filter(Measure(2)), Reverse(), Rotate(-1)),
-    (Filter(Measure(3)), Rotate(-1), Filter(Beat(0)), Operate(Octave(1), "+"), Link()),
-    (Filter(Measure(3)), Filter(Greater(Beat(0))), Erase())
+    (Mask(Measure(0)), Operate(Octave(1), "+")),
+    (Mask(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
+    (Mask(Measure(2)), Reverse(), Rotate(-1)),
+    (Mask(Measure(3)), Rotate(-1), Mask(Beat(0)), Operate(Octave(1), "+"), Link()),
+    (Mask(Measure(3)), Mask(Greater(Beat(0))), Erase())
 ]
 
 chords_melody = stacked_notes.copy()
