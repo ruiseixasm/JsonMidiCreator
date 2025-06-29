@@ -1184,6 +1184,7 @@ class Sort(ContainerProcess):
     def _process(self, operand: 'Container') -> 'Container':
         return operand.sort(*self._data)
 
+
 class Mask(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Mask`
 
@@ -1202,6 +1203,27 @@ class Mask(ContainerProcess):
     
     def _process(self, operand: 'Container') -> 'Container':
         return operand.mask(*self._data)
+
+class Filter(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> Filter`
+
+    A Filter selects the items that meet the conditions (equal to).
+    Filters remain as `Containers` and thus they **can** be copied!
+
+    Args:
+        condition (Any): Sets a condition to be compared with `==` operator.
+    """
+    def __init__(self, *conditions):
+        super().__init__(*conditions)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return self.__irrshift__(operand)   # Special case, NO copy
+        return super().__rrshift__(operand)
+    
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.mask(*self._data)
+
 
 class Drop(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Drop`

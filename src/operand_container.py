@@ -767,7 +767,8 @@ class Container(o.Operand):
         Any : Conditions that need to be matched in an And fashion.
 
         Returns:
-            Container: The same self object with the items processed.
+            Container Mask: A different object with a shallow copy of the original
+            `Container` items now selected as a `Mask`.
         """
         shallow_copy: Container = self.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
@@ -780,6 +781,28 @@ class Container(o.Operand):
             else:
                 shallow_copy._items = [item for item in shallow_copy._items if item == single_condition]
         return shallow_copy
+
+    def filter(self, *conditions) -> Self:
+        """
+        A Filter selects the items that meet the conditions (equal to).
+        Filters remain as `Containers` and thus they **can** be copied!
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        self_copy: Container = self.copy()
+        for single_condition in conditions:
+            if isinstance(single_condition, Container):
+                self_copy._items = [
+                    item for item in self_copy._items if any(item == cond_item for cond_item in single_condition)
+                ]
+            else:
+                self_copy._items = [item for item in self_copy._items if item == single_condition]
+        return self_copy
 
 
     def drop(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
