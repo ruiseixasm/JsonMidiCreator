@@ -136,6 +136,10 @@ class TimeSignature(Generic):
                     self._bottom        = int(math.pow(2, int(max(0, math.log2(1 / (  operand % int()  ))))))
         return self
 
+
+if TYPE_CHECKING:
+    from operand_element import Note
+
 class Pitch(Generic):
     """`Generic -> Pitch`
 
@@ -151,12 +155,15 @@ class Pitch(Generic):
     Natural(False) : `Natural` disables the effects of `Sharp` and `Flat` and any accidental.
     """
     def __init__(self, *parameters):
+        import operand_element as oe
         self._staff_reference: Staff            = defaults._staff
         self._tonic_key: int                    = self._staff_reference % ou.Key() % int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: int                        = 0     # By default not a Sharp or Flat
         self._natural: bool                     = False
+
+        self._note_reference: oe.Note           = None
         super().__init__(*parameters)
 
 
@@ -171,6 +178,27 @@ class Pitch(Generic):
     def _reset_staff_reference(self) -> Self:
         self._staff_reference = defaults._staff
         return self
+
+
+    def _set_note_reference(self, note_reference: 'Note' = None) -> Self:
+        import operand_element as oe
+        if isinstance(note_reference, oe.Note):
+            self._note_reference = note_reference
+        return self
+
+    def _get_note_reference(self) -> 'Note':
+        return self._note_reference
+
+    def _reset_note_reference(self) -> Self:
+        self._note_reference = None
+        return self
+
+    def _get_staff(self) -> 'Staff':
+        if self._note_reference is None:
+            return defaults._staff
+        return self._note_reference._get_staff()
+
+
 
     def get_accidental(self) -> bool | int:
         # parameter decorators like Sharp and Natural

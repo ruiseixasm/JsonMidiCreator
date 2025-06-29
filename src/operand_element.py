@@ -105,7 +105,6 @@ class Element(o.Operand):
         self._clip_reference = None
         return self
 
-
     def _get_staff(self) -> 'og.Staff':
         if self._clip_reference is None:
             return og.defaults._staff
