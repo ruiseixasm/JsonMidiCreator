@@ -361,7 +361,7 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-        if not isinstance(operand, (od.Process, tuple, list, om.Mutation, os.Selection)):
+        if not isinstance(operand, (tuple, os.Selection)):
             return self.mask(operand)
         return super().__irshift__(operand)
 
@@ -379,7 +379,7 @@ class Container(o.Operand):
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
-        if not isinstance(operand, (od.Process, tuple, list, om.Mutation, os.Selection)):
+        if not isinstance(operand, (tuple, os.Selection)):
             return self.mask(operand)
         return super().__irshift__(operand)
 
