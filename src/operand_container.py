@@ -2055,7 +2055,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self._set_staff_reference(operand._get_staff_reference())
+                self._staff << operand._staff
 
             case ClipGet():
                 clip_get: ClipGet = operand
