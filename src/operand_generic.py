@@ -180,7 +180,7 @@ class Pitch(Generic):
         return self
 
 
-    def _set_element_reference(self, element_reference: 'Element' = None) -> Self:
+    def _set_element_reference(self, element_reference: 'Element') -> Self:
         import operand_element as oe
         if isinstance(element_reference, oe.Element):
             self._element_reference = element_reference

@@ -90,7 +90,7 @@ class Element(o.Operand):
         return self
 
 
-    def _set_clip_reference(self, clip_reference: 'Clip' = None) -> Self:
+    def _set_clip_reference(self, clip_reference: 'Clip') -> Self:
         import operand_container as oc
         if isinstance(clip_reference, oc.Clip):
             self._clip_reference = clip_reference
