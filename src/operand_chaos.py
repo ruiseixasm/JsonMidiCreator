@@ -144,8 +144,12 @@ class Chaos(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
     
-    # Pass trough method that always results in a Chaos (Self)
+    # self is the pusher
     def __rshift__(self, operand: any) -> Self:
+        return self.__irshift__(operand)    # Does no Copy !!
+
+    # Pass trough method that always results in a Chaos (Self)
+    def __irshift__(self, operand: any) -> Self:
         return self.__imul__(operand)
     
     def __pow__(self, operand: o.Operand) -> Self:
