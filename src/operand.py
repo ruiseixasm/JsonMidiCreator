@@ -396,29 +396,15 @@ class Operand:
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
-        import operand_data as od
-        import operand_container as oc
-        import operand_element as oe
-        import operand_mutation as om
-        import operand_selection as os
-        if isinstance(operand, list):
-            for single_operand in operand:
-                if isinstance(single_operand, (od.Process, oc.Container, tuple, list)):
-                    self >> single_operand
-            return self
+        return self.copy().__irshift__(operand)
+
+    # self is the pusher
+    def __irshift__(self, operand: any) -> Self:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
-                if isinstance(single_operand, (od.Process, oc.Container, tuple, list)):
-                    last_operand >>= single_operand
-                else:
-                    last_operand >>= od.Mask(single_operand)
+                last_operand >>= single_operand
             return last_operand
-        if isinstance(self, oc.Container) \
-                and not isinstance(operand, (
-                    od.Process, tuple, list, om.Mutation, os.Selection)
-                ):
-            return self.mask(operand)
         return operand.__rrshift__(self)    # Reverses papers
 
     # The @ operator in Python is used for matrix multiplication
@@ -434,13 +420,6 @@ class Operand:
                     self.__rrshift__(single_operand)
         return operand
 
-    def __irshift__(self, operand: T) -> T:
-        # Simply delegate to the __rshift__ method
-        import operand_data as od
-        if isinstance(operand, od.Process):
-            return operand.__irrshift__(self)
-        return self.__rshift__(operand)
-    
 
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)

@@ -351,6 +351,7 @@ class Container(o.Operand):
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
+        import operand_selection as os
         match operand:
             case Container():
                 return self + operand   # Implicit copy of self
@@ -360,11 +361,14 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-        return super().__rshift__(operand)
+        if not isinstance(operand, (od.Process, tuple, list, om.Mutation, os.Selection)):
+            return self.mask(operand)
+        return super().__irshift__(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
         import operand_mutation as om
+        import operand_selection as os
         match operand:
             case Container():
                 self += operand
@@ -375,7 +379,9 @@ class Container(o.Operand):
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
-        return super().__rshift__(operand)
+        if not isinstance(operand, (od.Process, tuple, list, om.Mutation, os.Selection)):
+            return self.mask(operand)
+        return super().__irshift__(operand)
 
 
     # Pass trough operation as last resort
