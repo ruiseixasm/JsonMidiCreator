@@ -1191,7 +1191,6 @@ class Mask(ContainerProcess):
 
     Args:
         condition (Any): Sets a condition to be compared with `==` operator.
-        shallow_copy (bool): Copies each contained item if `False`.
     """
     def __init__(self, *conditions):
         super().__init__(*conditions)
