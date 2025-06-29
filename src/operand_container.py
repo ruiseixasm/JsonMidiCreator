@@ -511,10 +511,10 @@ class Container(o.Operand):
         return self
 
 
-    # def copy(self, *parameters) -> Self:
-    #     if self.is_a_mask():
-    #         return self # Can't copy a mask
-    #     return super().copy(*parameters)
+    def copy(self, *parameters) -> Self:
+        # if self.is_a_mask():
+        #     return self # Can't copy a mask
+        return super().copy(*parameters)
 
     def empty_copy(self, *parameters) -> Self:
         """

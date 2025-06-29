@@ -479,6 +479,8 @@ def test_mul_clip():
     two_notes: Clip = Note() / 2
     four_notes: Clip = Note() / 4
 
+    assert two_notes % bool()
+    assert four_notes % bool()
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
 
