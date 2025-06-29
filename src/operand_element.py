@@ -94,6 +94,7 @@ class Element(o.Operand):
         import operand_container as oc
         if isinstance(clip_reference, oc.Clip):
             self._clip_reference = clip_reference
+            # Still requires Pitch class to reference to Note before being removed
             self._set_staff_reference(clip_reference._staff)
         return self
 

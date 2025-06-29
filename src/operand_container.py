@@ -1771,6 +1771,12 @@ class Clip(Composition):  # Just a container of Elements
                 return False
         return True
 
+    def _test_clip_reference(self) -> bool:
+        for single_element in self:
+            if not self.is_a_mask() and single_element._clip_reference is not self:
+                return False
+        return True
+
 
     # Ignores the self Length
     def start(self) -> 'ra.Position':
@@ -3781,6 +3787,7 @@ class Song(Composition):
             self._staff << staff_reference  # Does a copy
         return self
 
+    # NEEDS TO BE REPLACED WITH> "_test_song_reference"
     def _test_staff_reference(self) -> bool:
         for single_part in self._items:
             if single_part._staff is not self._staff:
