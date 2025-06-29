@@ -295,10 +295,6 @@ class Element(o.Operand):
                 super().__lshift__(operand)
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                # Makes sure isn't a Clip owned Element first
-                if self._clip_reference is None:
-                    # Has to use the staff setting method in order to propagate setting
-                    self._set_staff_reference(operand._staff_reference)
                 if self._clip_reference is operand._clip_reference: # If owned by the same Clip
                     self._position_beats        = operand._position_beats
                     self._duration_notevalue    = operand._duration_notevalue
