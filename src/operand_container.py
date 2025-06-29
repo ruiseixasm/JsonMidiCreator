@@ -3143,7 +3143,7 @@ class Part(Composition):
         self._name: str = "Part"
 
         # Song sets the Staff, this is just a reference
-        self._song_reference: Song      = None
+        self._owner_song: Song      = None
 
         for single_operand in operands:
             self << single_operand
@@ -3170,16 +3170,16 @@ class Part(Composition):
         return self
 
 
-    def _set_song_reference(self, song_reference: 'Song' = None) -> Self:
-        if isinstance(song_reference, Song):
-            self._song_reference = song_reference
+    def _set_owner_song(self, owner_song: 'Song' = None) -> Self:
+        if isinstance(owner_song, Song):
+            self._owner_song = owner_song
         return self
 
-    def _get_song_reference(self) -> 'Song':
-        return self._song_reference
+    def _get_owner_song(self) -> 'Song':
+        return self._owner_song
 
-    def _reset_song_reference(self) -> Self:
-        self._song_reference = None
+    def _reset_owner_song(self) -> Self:
+        self._owner_song = None
         return self
 
 
@@ -3466,7 +3466,7 @@ class Part(Composition):
             case Part():
                 super().__lshift__(operand)
                 # Makes sure isn't a Song owned Part first
-                if self._song_reference is None:
+                if self._owner_song is None:
                     # Has to use the method in order to propagate setting
                     self._set_staff_reference(operand._staff)
                 if self._staff is operand._staff:
@@ -3496,11 +3496,11 @@ class Part(Composition):
                 self._sort_position()
             case Composition():
                 # Makes sure isn't a Song owned Part first
-                if self._song_reference is None:
+                if self._owner_song is None:
                     self._set_staff_reference(operand._get_staff_reference())
             case og.Staff():
                 # Makes sure isn't a Song owned Part first
-                if self._song_reference is None:
+                if self._owner_song is None:
                     self._set_staff_reference(operand)
             case str():
                 self._name = operand
@@ -3766,7 +3766,7 @@ class Song(Composition):
             self._staff << staff_reference  # Does a copy
         for single_part in self._items:
             single_part._set_staff_reference(self._staff)
-            single_part._set_song_reference(self)
+            single_part._set_owner_song(self)
         return self
 
     def _get_staff_reference(self) -> 'og.Staff':
@@ -3787,7 +3787,7 @@ class Song(Composition):
             self._staff << staff_reference  # Does a copy
         return self
 
-    # NEEDS TO BE REPLACED WITH> "_test_song_reference"
+    # NEEDS TO BE REPLACED WITH> "_test_owner_song"
     def _test_staff_reference(self) -> bool:
         for single_part in self._items:
             if single_part._staff is not self._staff:
@@ -4038,7 +4038,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ operand.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])._sort_position()
+                self._append([ operand.copy()._set_staff_reference(self._staff)._set_owner_song(self) ])._sort_position()
 
             case Clip():
                 self += Part(operand)
@@ -4049,7 +4049,7 @@ class Song(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._set_staff_reference(self._staff)._set_song_reference(self) ])
+                        self._append([ item.copy()._set_staff_reference(self._staff)._set_owner_song(self) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
