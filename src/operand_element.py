@@ -457,7 +457,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    new_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                     return new_clip.__imul__(operand)
             
         self_operand: any = self % operand
@@ -469,7 +469,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
-                self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                 self_clip.__itruediv__(operand)
                 return self_clip
             case oc.Clip():
@@ -477,7 +477,7 @@ class Element(o.Operand):
                 self_clip.__itruediv__(operand)
                 return self_clip
             case int():
-                new_clip: oc.Clip = oc.Clip(self._staff_reference)
+                new_clip: oc.Clip = oc.Clip(self._get_staff())
                 if operand > 0:
                     for _ in range(operand):
                         new_clip.__itruediv__(self)
@@ -499,7 +499,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    new_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                     return new_clip.__itruediv__(operand)
             
             case _:
@@ -518,7 +518,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
-                self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                 self_clip.__ifloordiv__(operand)
                 return self_clip
             case oc.Clip():
@@ -526,7 +526,7 @@ class Element(o.Operand):
                 self_clip.__ifloordiv__(operand)
                 return self_clip
             case int():
-                new_clip: oc.Clip = oc.Clip(self._staff_reference)
+                new_clip: oc.Clip = oc.Clip(self._get_staff())
                 if operand > 0:
                     for _ in range(operand):
                         new_clip.__ifloordiv__(self)
@@ -548,7 +548,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                     return self_clip.__ifloordiv__(operand)
 
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
@@ -568,7 +568,7 @@ class Element(o.Operand):
                     self._clip_reference._append(new_elements)
                     return self
                 else:
-                    self_clip: oc.Clip = oc.Clip(self._staff_reference, self)
+                    self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                     return self_clip.__ifloordiv__(operand)
 
             case _:
@@ -583,17 +583,17 @@ class Element(o.Operand):
     def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple[Fraction]:
 
         if isinstance(position_beats, Fraction):
-            self_position_min: Fraction = self._staff_reference.getMinutes(
+            self_position_min: Fraction = self._get_staff().getMinutes(
                 ra.Beats(position_beats + self._position_beats)
             )
         else:
-            self_position_min: Fraction = self._staff_reference.getMinutes( ra.Beats(self._position_beats) )
-        self_duration_min: Fraction = self._staff_reference.getMinutes( ra.Duration(self._duration_notevalue) )
+            self_position_min: Fraction = self._get_staff().getMinutes( ra.Beats(self._position_beats) )
+        self_duration_min: Fraction = self._get_staff().getMinutes( ra.Duration(self._duration_notevalue) )
 
         return self_position_min, self_duration_min
 
     def get_beats_minutes(self, beats: Fraction) -> Fraction:
-        return self._staff_reference.getMinutes( ra.Beats(beats) )
+        return self._get_staff().getMinutes( ra.Beats(beats) )
 
 
 class Group(Element):
