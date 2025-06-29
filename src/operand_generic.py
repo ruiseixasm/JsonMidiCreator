@@ -138,7 +138,7 @@ class TimeSignature(Generic):
 
 
 if TYPE_CHECKING:
-    from operand_element import Note
+    from operand_element import Element
 
 class Pitch(Generic):
     """`Generic -> Pitch`
@@ -163,7 +163,7 @@ class Pitch(Generic):
         self._sharp: int                        = 0     # By default not a Sharp or Flat
         self._natural: bool                     = False
 
-        self._note_reference: oe.Note           = None
+        self._element_reference: oe.Note           = None
         super().__init__(*parameters)
 
 
@@ -180,23 +180,23 @@ class Pitch(Generic):
         return self
 
 
-    def _set_note_reference(self, note_reference: 'Note' = None) -> Self:
+    def _set_element_reference(self, element_reference: 'Element' = None) -> Self:
         import operand_element as oe
-        if isinstance(note_reference, oe.Note):
-            self._note_reference = note_reference
+        if isinstance(element_reference, oe.Element):
+            self._element_reference = element_reference
         return self
 
-    def _get_note_reference(self) -> 'Note':
-        return self._note_reference
+    def _get_element_reference(self) -> 'Element':
+        return self._element_reference
 
-    def _reset_note_reference(self) -> Self:
-        self._note_reference = None
+    def _reset_element_reference(self) -> Self:
+        self._element_reference = None
         return self
 
     def _get_staff(self) -> 'Staff':
-        if self._note_reference is None:
+        if self._element_reference is None:
             return defaults._staff
-        return self._note_reference._get_staff()
+        return self._element_reference._get_staff()
 
 
 

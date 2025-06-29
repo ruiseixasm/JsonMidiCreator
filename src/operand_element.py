@@ -998,7 +998,7 @@ class Note(Element):
         self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: int             = False
-        self._pitch: og.Pitch       = og.Pitch()
+        self._pitch: og.Pitch       = og.Pitch()._set_element_reference(self)
         super().__init__(*parameters)
 
 
@@ -3315,7 +3315,7 @@ class PolyAftertouch(Aftertouch):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitch: og.Pitch  = og.Pitch()
+        self._pitch: og.Pitch  = og.Pitch()._set_element_reference(self)
         super().__init__(*parameters)
 
 
