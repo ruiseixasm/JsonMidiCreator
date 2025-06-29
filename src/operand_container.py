@@ -512,8 +512,8 @@ class Container(o.Operand):
 
 
     def copy(self, *parameters) -> Self:
-        # if self.is_a_mask():
-        #     return self # Can't copy a mask
+        if self.is_a_mask():
+            return self # Can't copy a mask
         return super().copy(*parameters)
 
     def empty_copy(self, *parameters) -> Self:
@@ -531,6 +531,7 @@ class Container(o.Operand):
             empty_copy << single_parameter
         return empty_copy
 
+    # A shallow copy isn't the same as a mask!
     def shallow_copy(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters copied, but the list that
@@ -543,8 +544,6 @@ class Container(o.Operand):
             Container: Returns the copy of self but with a list of the same items of the original one.
         """
         shallow_copy: Container = self.empty_copy()
-        # This copy of a list is a shallow copy, chains upper containers
-        shallow_copy._upper_container = self
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters:
@@ -765,6 +764,8 @@ class Container(o.Operand):
             Container: The same self object with the items processed.
         """
         shallow_copy: Container = self.shallow_copy()
+        # This shallow copy is a mask, so it chains upper containers
+        shallow_copy._upper_container = self
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 shallow_copy._items = [
@@ -2116,17 +2117,20 @@ class Clip(Composition):  # Just a container of Elements
                 right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
 
                 left_length: ra.Length = self % ra.Length()
-                right_position: ra.Position = right_clip.start().roundMeasures()
-                position_offset: ra.Position = right_position - left_length
+                right_position: ra.Position = right_clip.start()
+                if right_position is not None:
 
-                right_clip -= position_offset   # Does a position offset
-                for single_element in right_clip:
-                    single_element._set_staff_reference(self._staff)._set_clip_reference(self)
-                
-                self._append(right_clip._items) # Propagates upwards in the stack
-                
-                if self._length_beats is not None:
-                    self._length_beats += (right_clip % ra.Length())._rational
+                    right_position = right_position.roundMeasures()
+                    position_offset: ra.Position = right_position - left_length
+
+                    right_clip -= position_offset   # Does a position offset
+                    for single_element in right_clip:
+                        single_element._set_staff_reference(self._staff)._set_clip_reference(self)
+                    
+                    self._append(right_clip._items) # Propagates upwards in the stack
+                    
+                    if self._length_beats is not None:
+                        self._length_beats += (right_clip % ra.Length())._rational
 
             case oe.Element():
                 self.__imul__(Clip(operand._staff_reference, operand))
@@ -2178,15 +2182,16 @@ class Clip(Composition):  # Just a container of Elements
                 if self._length_beats is not None:
                     self._length_beats += (operand % ra.Length())._rational
                 right_start_position: ra.Position = operand.start()
-                length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                # Convert Length to Position
-                add_position: ra.Position = ra.Position(length_shift)
-                # Elements to be added and propagated upwards on the stack
-                operand_elements = [
-                    (single_element + add_position)._set_clip_reference(self)
-                    for single_element in operand._items
-                ]
-                self._append(operand_elements)  # Propagates upwards in the stack
+                if right_start_position is not None:
+                    length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                    # Convert Length to Position
+                    add_position: ra.Position = ra.Position(length_shift)
+                    # Elements to be added and propagated upwards on the stack
+                    operand_elements = [
+                        (single_element + add_position)._set_clip_reference(self)
+                        for single_element in operand._items
+                    ]
+                    self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
                 self.__itruediv__(Clip(operand._staff_reference, operand))
