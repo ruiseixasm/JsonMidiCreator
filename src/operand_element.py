@@ -105,6 +105,12 @@ class Element(o.Operand):
         return self
 
 
+    def _get_staff(self) -> 'og.Staff':
+        if self._clip_reference is None:
+            return og.defaults._staff
+        return self._clip_reference._staff
+
+
     def position(self, position_measures: float = None) -> Self:
         self._position_beats = self._staff_reference.convertToPosition(ra.Measures(position_measures))._rational
         return self
