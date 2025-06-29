@@ -767,8 +767,8 @@ class Clock(Element):
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
 
         pulses_per_note: int = self._clock_ppqn * 4
-        pulses_per_beat: Fraction = self._staff_reference % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
-        total_clock_pulses: int = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
+        pulses_per_beat: Fraction = self._get_staff() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+        total_clock_pulses: int = self._get_staff().convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
         self_playlist: list[dict] = []
 
@@ -960,7 +960,7 @@ class Rest(Element):
         self_plotlist: list[dict] = []
     
         if position is None:
-            position = ra.Position(self._staff_reference)
+            position = ra.Position(self._get_staff())
 
         position_on: ra.Position = position + self % od.Pipe( ra.Position() )
         position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
@@ -1008,7 +1008,7 @@ class Note(Element):
 
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
         super()._set_staff_reference(staff_reference)
-        self._pitch._staff_reference = self._staff_reference
+        self._pitch._staff_reference = self._get_staff()
         return self
 
     def _reset_staff_reference(self) -> 'Note':
@@ -1030,7 +1030,7 @@ class Note(Element):
         return self
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._staff_reference)
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._get_staff())
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1096,7 +1096,7 @@ class Note(Element):
         self_plotlist: list[dict] = []
     
         if position is None:
-            position = ra.Position(self._staff_reference)
+            position = ra.Position(self._get_staff())
 
         position_on: ra.Position = position + self % od.Pipe( ra.Position() )
         position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
@@ -1124,7 +1124,7 @@ class Note(Element):
                     note_off["position_off"] = position_off_beats
 
 
-                tied_note: bool = self._staff_reference._tie_note(
+                tied_note: bool = self._get_staff()._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     position_on._rational, position_off._rational,
                     self_plotlist[0]["note"], extend_note
@@ -1135,7 +1135,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._staff_reference._stack_note(
+            if not self._get_staff()._stack_note(
                 self_plotlist[0]['note']["position_on"],
                 self._channel - 1,
                 pitch_int
@@ -1207,7 +1207,7 @@ class Note(Element):
                     note_off["time_ms"] = o.minutes_to_time_ms(position_off)
 
 
-                tied_note: bool = self._staff_reference._tie_note(
+                tied_note: bool = self._get_staff()._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     self_position_min, self_position_min + self_duration_min * self._gate,
                     self_playlist[1], extend_note
@@ -1218,7 +1218,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._staff_reference._stack_note(
+            if not self._get_staff()._stack_note(
                 self_playlist_time_ms[0]["time_ms"],
                 self_playlist_time_ms[0]["midi_message"]["status_byte"],
                 self_playlist_time_ms[0]["midi_message"]["data_byte_1"]
@@ -1234,7 +1234,7 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        self_duration_beats: Fraction = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate
+        self_duration_beats: Fraction = self._get_staff().convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate
         self_duration: float = float(self_duration_beats)
         if self_duration == 0:
             return []
@@ -1259,7 +1259,7 @@ class Note(Element):
 
                 self_position: Fraction = (Fraction(0) if position_beats is None else position_beats) + self._position_beats
 
-                tied_note: bool = self._staff_reference._tie_note(
+                tied_note: bool = self._get_staff()._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     self_position, self_position + self_duration_beats,
                     self_midilist[0], extend_note
@@ -1270,7 +1270,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._staff_reference._stack_note(
+            if not self._get_staff()._stack_note(
                 self_midilist[0]["time"],
                 self_midilist[0]["channel"],
                 self_midilist[0]["pitch"]
@@ -1329,7 +1329,7 @@ class Note(Element):
                 self._tied = operand % bool()
             case og.Pitch():
                 self._pitch << operand
-                self._pitch._set_staff_reference(self._staff_reference)
+                self._pitch._set_staff_reference(self._get_staff())
             case ou.PitchParameter() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
@@ -1388,7 +1388,7 @@ class Cluster(Note):
         self._offsets: dict[int, list] = {0: [0, 2, 4]}
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__()
-        self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1504,7 +1504,7 @@ class KeyScale(Note):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale       = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
         self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
@@ -1594,7 +1594,7 @@ class KeyScale(Note):
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            staff_scale: list = self._staff_reference % list()
+            staff_scale: list = self._get_staff() % list()
             total_degrees: int = sum(1 for key in staff_scale if key != 0)
             for degree_i in range(total_degrees):
                 new_note: Note = Note(self)._set_clip_reference(self._clip_reference)
@@ -2070,7 +2070,7 @@ class Retrigger(Note):
     def get_component_elements(self) -> list[Element]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+        note_position: ra.Position = self._get_staff().convertToPosition(ra.Beats(self._position_beats))
         single_note_duration: ra.Duration = ra.Duration( self._duration_notevalue/(self._number) ) # Already 2x single note duration
         for _ in range(self._number):
             swing_ratio = self._swing
@@ -2375,7 +2375,7 @@ class Automation(Element):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._duration_notevalue = self._staff_reference._quantization   # Equivalent to one Step
+        self._duration_notevalue = self._get_staff()._quantization   # Equivalent to one Step
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2392,7 +2392,7 @@ class Automation(Element):
         self_plotlist: list[dict] = []
         
         if position is None:
-            position = ra.Position(self._staff_reference)
+            position = ra.Position(self._get_staff())
 
         position_on: ra.Position = position + self % od.Pipe( ra.Position() )
 
@@ -3325,7 +3325,7 @@ class PolyAftertouch(Aftertouch):
 
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
         super()._set_staff_reference(staff_reference)
-        self._pitch._staff_reference = self._staff_reference
+        self._pitch._staff_reference = self._get_staff()
         return self
 
     def _reset_staff_reference(self) -> 'PolyAftertouch':
@@ -3335,7 +3335,7 @@ class PolyAftertouch(Aftertouch):
 
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._staff_reference)
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._get_staff())
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
