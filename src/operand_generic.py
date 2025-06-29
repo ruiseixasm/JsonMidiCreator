@@ -163,7 +163,7 @@ class Pitch(Generic):
         self._sharp: int                        = 0     # By default not a Sharp or Flat
         self._natural: bool                     = False
 
-        self._element_reference: oe.Note           = None
+        self._owner_element: oe.Note           = None
         super().__init__(*parameters)
 
 
@@ -180,23 +180,23 @@ class Pitch(Generic):
         return self
 
 
-    def _set_element_reference(self, element_reference: 'Element') -> Self:
+    def _set_owner_element(self, owner_element: 'Element') -> Self:
         import operand_element as oe
-        if isinstance(element_reference, oe.Element):
-            self._element_reference = element_reference
+        if isinstance(owner_element, oe.Element):
+            self._owner_element = owner_element
         return self
 
-    def _get_element_reference(self) -> 'Element':
-        return self._element_reference
+    def _get_owner_element(self) -> 'Element':
+        return self._owner_element
 
-    def _reset_element_reference(self) -> Self:
-        self._element_reference = None
+    def _reset_owner_element(self) -> Self:
+        self._owner_element = None
         return self
 
     def _get_staff(self) -> 'Staff':
-        if self._element_reference is None:
+        if self._owner_element is None:
             return defaults._staff
-        return self._element_reference._get_staff()
+        return self._owner_element._get_staff()
 
 
 

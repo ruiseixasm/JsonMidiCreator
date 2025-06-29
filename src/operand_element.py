@@ -65,7 +65,7 @@ class Element(o.Operand):
 
         # Clip sets the Staff, this is just a reference
         self._staff_reference: og.Staff     = og.defaults._staff
-        self._clip_reference: oc.Clip       = None
+        self._owner_clip: oc.Clip       = None
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -90,25 +90,25 @@ class Element(o.Operand):
         return self
 
 
-    def _set_clip_reference(self, clip_reference: 'Clip') -> Self:
+    def _set_owner_clip(self, owner_clip: 'Clip') -> Self:
         import operand_container as oc
-        if isinstance(clip_reference, oc.Clip):
-            self._clip_reference = clip_reference
+        if isinstance(owner_clip, oc.Clip):
+            self._owner_clip = owner_clip
             # Still requires Pitch class to reference to Note before being removed
-            self._set_staff_reference(clip_reference._staff)
+            self._set_staff_reference(owner_clip._staff)
         return self
 
-    def _get_clip_reference(self) -> 'Clip':
-        return self._clip_reference
+    def _get_owner_clip(self) -> 'Clip':
+        return self._owner_clip
 
-    def _reset_clip_reference(self) -> Self:
-        self._clip_reference = None
+    def _reset_owner_clip(self) -> Self:
+        self._owner_clip = None
         return self
 
     def _get_staff(self) -> 'og.Staff':
-        if self._clip_reference is None:
+        if self._owner_clip is None:
             return og.defaults._staff
-        return self._clip_reference._staff
+        return self._owner_clip._staff
 
 
     def position(self, position_measures: float = None) -> Self:
@@ -295,7 +295,7 @@ class Element(o.Operand):
                 super().__lshift__(operand)
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                if self._clip_reference is operand._clip_reference: # If owned by the same Clip
+                if self._owner_clip is operand._owner_clip: # If owned by the same Clip
                     self._position_beats        = operand._position_beats
                     self._duration_notevalue    = operand._duration_notevalue
                 else:
@@ -335,11 +335,11 @@ class Element(o.Operand):
                 self._enabled               = operand._unit == 0
             case oc.Composition():
                 # Makes sure isn't a Clip owned Element first
-                if self._clip_reference is None:
+                if self._owner_clip is None:
                     self._set_staff_reference(operand._get_staff_reference())
             case og.Staff():
                 # Makes sure isn't a Clip owned Element first
-                if self._clip_reference is None:
+                if self._owner_clip is None:
                     self._set_staff_reference(operand)
 
             case tuple():
@@ -440,14 +440,14 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.TimeValue() | ou.TimeUnit():
-                if self._clip_reference is not None:
-                    element_clip: oc.Clip = self._clip_reference
+                if self._owner_clip is not None:
+                    element_clip: oc.Clip = self._owner_clip
                     new_elements: list[Element] = []
                     operand_value: Fraction = operand % Fraction()
                     self_repeating = int( operand_value / ra.Measures(element_clip, 1) )
                     if self_repeating > 1:
                         for next_element_i in range(1, self_repeating):
-                            next_element: Element = self.copy()._set_clip_reference(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(element_clip)
                             next_element += ra.Position( ra.Measures(element_clip, 1) * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
@@ -480,16 +480,16 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.TimeValue() | ou.TimeUnit():
-                if self._clip_reference is not None:
+                if self._owner_clip is not None:
                     self_duration: ra.Duration = self % ra.Duration()
                     duration_value: Fraction = self_duration % operand % Fraction()
                     if duration_value > 0:
-                        element_clip: oc.Clip = self._clip_reference
+                        element_clip: oc.Clip = self._owner_clip
                         new_elements: list[Element] = []
                         operand_value: Fraction = operand % Fraction()
                         self_repeating = int( operand_value / duration_value )
                         for next_element_i in range(1, self_repeating):
-                            next_element: Element = self.copy()._set_clip_reference(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(element_clip)
                             next_element += ra.Position( self_duration * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
@@ -529,16 +529,16 @@ class Element(o.Operand):
                 return new_clip
             
             case ra.Duration():
-                if self._clip_reference is not None:
+                if self._owner_clip is not None:
                     total_segments: int = operand % int()
                     if total_segments > 1:
                         segmented_denominator: ra.Duration = ra.Duration(total_segments)
-                        element_clip: oc.Clip = self._clip_reference
+                        element_clip: oc.Clip = self._owner_clip
                         new_elements: list[Element] = []
                         self /= segmented_denominator
                         self_length: ra.Length = self % ra.Length()
                         for next_element_i in range(1, total_segments):
-                            next_element: Element = self.copy()._set_clip_reference(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(element_clip)
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
                         element_clip._append(new_elements)
@@ -548,7 +548,7 @@ class Element(o.Operand):
                     return self_clip.__ifloordiv__(operand)
 
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                if self._clip_reference is not None:
+                if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     self_start: ra.Position = self.start()
                     split_position: ra.Position = self_start.copy(operand)
@@ -558,10 +558,10 @@ class Element(o.Operand):
                             first_duration: ra.Duration = ra.Duration(split_position - self_start)
                             second_duration: ra.Duration = ra.Duration(self_finish - split_position)
                             self << first_duration
-                            second_element: Element = self.copy(second_duration)._set_clip_reference(self)
+                            second_element: Element = self.copy(second_duration)._set_owner_clip(self)
                             second_element += ra.Position(first_duration)
                             new_elements.append(second_element)
-                    self._clip_reference._append(new_elements)
+                    self._owner_clip._append(new_elements)
                     return self
                 else:
                     self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
@@ -998,7 +998,7 @@ class Note(Element):
         self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: int             = False
-        self._pitch: og.Pitch       = og.Pitch()._set_element_reference(self)
+        self._pitch: og.Pitch       = og.Pitch()._set_owner_element(self)
         super().__init__(*parameters)
 
 
@@ -1111,7 +1111,7 @@ class Note(Element):
         )
 
         # This only applies for Clip owned Notes!
-        if self._clip_reference is not None:
+        if self._owner_clip is not None:
 
             # Checks if it's a following tied note first
             if self._tied:
@@ -1189,7 +1189,7 @@ class Note(Element):
         # Already with a Playlist at this point
 
         # This only applies for Clip owned Notes!
-        if self._clip_reference is not None:
+        if self._owner_clip is not None:
 
             # Filers out any "devices" parameter, without "time_ms" one
             self_playlist_time_ms: list[dict] = self_playlist 
@@ -1245,7 +1245,7 @@ class Note(Element):
         self_midilist[0]["pitch"]       = pitch_int
 
         # This only applies for Clip owned Notes!
-        if self._clip_reference is not None:
+        if self._owner_clip is not None:
 
             # Checks if it's a tied note first
             if self._tied:
@@ -1414,7 +1414,7 @@ class Cluster(Note):
     def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
         for octave_offset, pitch_offset in enumerate(self._offsets):
-            single_note: Note = Note(self)._set_clip_reference(self._clip_reference)
+            single_note: Note = Note(self)._set_owner_clip(self._owner_clip)
             single_note._pitch += pitch_offset
             single_note._pitch += ou.Octave(octave_offset)
             cluster_notes.append( single_note )
@@ -1586,14 +1586,14 @@ class KeyScale(Note):
         if self._scale.hasScale():
             for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
                 transposition: int = self._scale.transposition(key_note_i)
-                new_note: Note = Note(self)._set_clip_reference(self._clip_reference)
+                new_note: Note = Note(self)._set_owner_clip(self._owner_clip)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
             staff_scale: list = self._get_staff() % list()
             total_degrees: int = sum(1 for key in staff_scale if key != 0)
             for degree_i in range(total_degrees):
-                new_note: Note = Note(self)._set_clip_reference(self._clip_reference)
+                new_note: Note = Note(self)._set_owner_clip(self._owner_clip)
                 new_note._pitch += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
 
@@ -1719,7 +1719,7 @@ class PitchChord(KeyScale):
         # Sets Scale to be used
         if self._scale.hasScale():
             for octave_offset, pitch_offset in enumerate(self._offsets):
-                single_note: Note = Note(self)._set_clip_reference(self._clip_reference)  # Owned by same clip
+                single_note: Note = Note(self)._set_owner_clip(self._owner_clip)  # Owned by same clip
                 if isinstance(pitch_offset, int):
                     transposition: int = self._scale.transposition(pitch_offset)
                     single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
@@ -1729,7 +1729,7 @@ class PitchChord(KeyScale):
                 chord_notes.append( single_note )
         else:
             for octave_offset, pitch_offset in enumerate(self._offsets):
-                single_note: Note = Note(self)._set_clip_reference(self._clip_reference)
+                single_note: Note = Note(self)._set_owner_clip(self._owner_clip)
                 single_note._pitch += pitch_offset
                 single_note._pitch += ou.Octave(octave_offset)
                 chord_notes.append( single_note )
@@ -1892,7 +1892,7 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                single_note: Note = Note(self)._set_clip_reference(self._clip_reference)    # Owned by the same Clip
+                single_note: Note = Note(self)._set_owner_clip(self._owner_clip)    # Owned by the same Clip
                 single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( single_note )
         else:   # Uses the staff keys straight away
@@ -1903,7 +1903,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                single_note: Note = Note(self)._set_clip_reference(self._clip_reference)    # Owned by the same Clip
+                single_note: Note = Note(self)._set_owner_clip(self._owner_clip)    # Owned by the same Clip
                 single_note += ou.Degree(key_degree - 1)    # Jumps by degrees (scale tones) (int is a degree)
                 chord_notes.append( single_note )
 
@@ -2073,7 +2073,7 @@ class Retrigger(Note):
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
             note_duration: ra.Duration = single_note_duration * 2 * swing_ratio
-            retrigger_notes.append( Note(self, note_duration, note_position)._set_clip_reference(self._clip_reference) )
+            retrigger_notes.append( Note(self, note_duration, note_position)._set_owner_clip(self._owner_clip) )
             note_position += note_duration
             self_iteration += 1
         return retrigger_notes
@@ -3315,7 +3315,7 @@ class PolyAftertouch(Aftertouch):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitch: og.Pitch  = og.Pitch()._set_element_reference(self)
+        self._pitch: og.Pitch  = og.Pitch()._set_owner_element(self)
         super().__init__(*parameters)
 
 
@@ -3509,7 +3509,7 @@ class ProgramChange(Element):
             # Has to pass self first to set equivalent parameters like position and staff
             self_playlist.extend(
                 BankSelect(self, self % od.Pipe( ou.Bank() ), self % od.Pipe( ou.HighResolution() ))
-                    ._set_clip_reference(self._clip_reference).getPlaylist(devices_header=False)
+                    ._set_owner_clip(self._owner_clip).getPlaylist(devices_header=False)
             )
 
         self_playlist.append(
@@ -3635,29 +3635,29 @@ class Panic(Element):
             # self needs to be given to each of these elements in order to preserve self parameters like position
 
             self_playlist.extend(AllNotesOff(self, ou.Channel(channel))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))
             self_playlist.extend(PitchBend(self, ou.Channel(channel), 0)
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))
 
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(10), ou.Value(64))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 10 - Pan
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))   # 10 - Pan
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(64), ou.Value(0))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 64 - Pedal (sustain)
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))   # 64 - Pedal (sustain)
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(1), ou.Value(0))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 1 - Modulation
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))   # 1 - Modulation
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(7), ou.Value(100))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 7 - Volume
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))   # 7 - Volume
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(11), ou.Value(127))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))   # 11 - Expression
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))   # 11 - Expression
 
             self_playlist.extend(ResetAllControllers(self, ou.Channel(channel))
-                ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False))
+                ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False))
 
             # Starts by turning off All keys for all pitches, from 0 to 127
             for pitch in range(128):
                 self_playlist.extend(
                     Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16)), ou.Velocity(0))
-                        ._set_clip_reference(self._clip_reference).getPlaylist(midi_track, position_beats, False)
+                        ._set_owner_clip(self._owner_clip).getPlaylist(midi_track, position_beats, False)
                 )
 
 

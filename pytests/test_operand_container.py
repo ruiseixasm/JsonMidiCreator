@@ -124,20 +124,20 @@ def test_clip_mod():
 # test_clip_mod()
 
 
-def _test_clip_reference():
+def _test_owner_clip():
 
     clip_add: Clip = Note() + Note()
-    assert clip_add._test_clip_reference()
+    assert clip_add._test_owner_clip()
 
     clip_mul: Clip = Note() / 1
-    assert clip_mul._test_clip_reference()
+    assert clip_mul._test_owner_clip()
 
-    assert (clip_add + Note())._test_clip_reference()
-    assert (Note() + clip_add)._test_clip_reference()
-    assert (clip_add + clip_mul)._test_clip_reference()
-    assert (clip_add * clip_mul)._test_clip_reference()
+    assert (clip_add + Note())._test_owner_clip()
+    assert (Note() + clip_add)._test_owner_clip()
+    assert (clip_add + clip_mul)._test_owner_clip()
+    assert (clip_add * clip_mul)._test_owner_clip()
 
-# _test_clip_reference()
+# _test_owner_clip()
 
 
 def test_time_signature():
@@ -527,13 +527,13 @@ def test_mul_clip():
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
-    assert hi_hat._test_clip_reference()
+    assert hi_hat._test_owner_clip()
     hi_hat >>= Nth(2, 4)
     assert hi_hat.len() == 2
-    assert hi_hat._test_clip_reference()
+    assert hi_hat._test_owner_clip()
     hi_hat *= 2
     assert hi_hat.len() == 4
-    assert hi_hat._test_clip_reference()
+    assert hi_hat._test_owner_clip()
     hi_hat[0] % Position() % Steps() % float() >> Print()
     assert hi_hat[0] % Position() % Steps() == 2.0
     hi_hat[1] % Position() % Steps() % float() >> Print()
