@@ -413,7 +413,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_staff())
+                    new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
                         for _ in range(operand):
                             new_clip.__imul__(self)
@@ -432,9 +432,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self)
-                    return new_clip.__imul__(operand)
-            
+                    return oc.Clip(self).__imul__(operand)
         self_operand: any = self % operand
         self_operand *= operand # Generic `self_operand`
         return self << self_operand
@@ -459,7 +457,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_staff())
+                    new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
                         for _ in range(operand):
                             new_clip.__itruediv__(self)
@@ -481,9 +479,7 @@ class Element(o.Operand):
                             element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self)
-                    return new_clip.__itruediv__(operand)
-            
+                    return oc.Clip(self).__itruediv__(operand)
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
@@ -497,9 +493,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
-                self_clip: oc.Clip = oc.Clip(self)
-                self_clip.__ifloordiv__(operand)
-                return self_clip
+                return oc.Clip(self).__ifloordiv__(operand)
             # Can be applied to owned elements
             case int(): # This results in a simple repeat of elements
                 if self._owner_clip is not None:
@@ -512,7 +506,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_staff())
+                    new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
                         for _ in range(operand):
                             new_clip.__ifloordiv__(self)
@@ -533,8 +527,7 @@ class Element(o.Operand):
                         element_clip._append(new_elements)
                     return self
                 else:
-                    self_clip: oc.Clip = oc.Clip(self)
-                    return self_clip.__ifloordiv__(operand)
+                    return oc.Clip(self).__ifloordiv__(operand)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
@@ -552,9 +545,7 @@ class Element(o.Operand):
                     self._owner_clip._append(new_elements)
                     return self
                 else:
-                    self_clip: oc.Clip = oc.Clip(self)
-                    return self_clip.__ifloordiv__(operand)
-
+                    return oc.Clip(self).__ifloordiv__(operand)
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
