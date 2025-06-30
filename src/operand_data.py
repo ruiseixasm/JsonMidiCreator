@@ -745,12 +745,10 @@ class Process(Data):
         match operand:
             case oc.Composition() | oe.Element():
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                default_clock: oe.Clock = og.defaults % oe.Clock()
                 clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
-                if isinstance(operand, oc.Composition):
-                    default_clock._set_owner_clip(operand)
-                default_clock << clock_length    # Element converts Length to Duration
-                playlist.extend( default_clock.getPlaylist(devices_header=False) )  # Clock Playlist
+                default_clock: oe.Clock = og.defaults % oe.Clock()
+                default_clock._duration_notevalue = ra.Duration(clock_length)._rational # The same staff will be given next
+                playlist.extend( default_clock.getPlaylist( global_staff = operand._get_staff() ) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case Playlist():
 

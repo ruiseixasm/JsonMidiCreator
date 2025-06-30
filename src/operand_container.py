@@ -943,6 +943,10 @@ class Composition(Container):
         return True
 
 
+    def _get_staff(self) -> 'og.Staff':
+        return self._staff
+
+
     def _first_element(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the Staff.

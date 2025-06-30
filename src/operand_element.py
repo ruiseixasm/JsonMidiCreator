@@ -756,18 +756,17 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True,
+                                                                    global_staff: og.Staff = None) -> list[dict]:
         if not self._enabled:
             return []
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
 
         pulses_per_note: int = self._clock_ppqn * 4
-        pulses_per_beat: Fraction = self._get_staff() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
-        total_clock_pulses: int = self._get_staff().convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
         self_playlist: list[dict] = []
 
-        if not devices_header and midi_track is None:
+        # Set to be used as a Global clock !
+        if isinstance(global_staff, og.Staff):
 
             single_devices: set[str] = set()
             self_clock_devices: list[list[str]] = []
@@ -777,30 +776,39 @@ class Clock(Element):
                     self_clock_devices.append(clocked_device)
                     single_devices.add(clocked_device)
 
-            self_playlist.append(
-                {
-                    "clock": {
-                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                        "total_clock_pulses": total_clock_pulses,
-                        "pulse_duration_min_numerator": 0,
-                        "pulse_duration_min_denominator": 1,
-                        "stop_mode": self._clock_stop_mode,
-                        "devices": self_clock_devices
-                    }
-                }
-            )
+            pulses_per_beat: Fraction = global_staff % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            total_clock_pulses: int = global_staff.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
             if total_clock_pulses > 0:
+                
+                self_duration_min: Fraction = global_staff.getMinutes( ra.NoteValue(self._duration_notevalue) )
                 single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
-                self_playlist[0]["clock"]["pulse_duration_min_numerator"] = single_pulse_duration_min.numerator
-                self_playlist[0]["clock"]["pulse_duration_min_denominator"] = single_pulse_duration_min.denominator
 
+                self_playlist.append(
+                    {
+                        "clock": {
+                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                            "total_clock_pulses": total_clock_pulses,
+                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                            "stop_mode": self._clock_stop_mode,
+                            "devices": self_clock_devices
+                        }
+                    }
+                )
+
+        # NORMAL use case scenario
         else:
 
+            pulses_per_beat: Fraction = self._get_staff() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            total_clock_pulses: int = self._get_staff().convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
+
             if total_clock_pulses > 0:
 
+                self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+
                 # Starts by setting the Devices
-                if devices_header:
+                if devices_header and isinstance(midi_track, ou.MidiTrack):
                     self_playlist.append(
                         {
                             "devices": midi_track._devices if midi_track else og.defaults._devices
