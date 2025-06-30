@@ -156,7 +156,7 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
-        self._tonic_key: int                    = self._staff_reference % ou.Key() % int()
+        self._tonic_key: int                    = defaults._staff % ou.Key() % int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: int                        = 0     # By default not a Sharp or Flat
@@ -224,7 +224,7 @@ class Pitch(Generic):
 
     def get_key_degree(self, key_int: int) -> int:
         tonic_key: int = self._tonic_key % 12
-        staff_scale: list[int] = self._staff_reference % list()
+        staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
 
         degree_0: int = 0
@@ -254,7 +254,7 @@ class Pitch(Generic):
 
     def get_key_int(self) -> int:
 
-        staff_scale: list[int] = self._staff_reference % list()
+        staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
 
         degree_0: int = self._degree - 1    # From base 1 to base 0
@@ -1275,20 +1275,21 @@ class Staff(Generic):
 
     # Used for Pitch class, to preserve the accidental decoration along the entire Measure when set
     def _add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
-        if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
-            if measure not in self._accidentals:
-                # It's a new measure, includes cleaning every Measure before
-                self._accidentals = {
-                    measure: {}
-                }
-            if accidental is True:      # Natural means removal
-                self._accidentals[measure].pop(pitch, None)
-            elif accidental is not False:   # Adds the Sharp/Flat accidental
-                self._accidentals[measure][pitch] = accidental
+        if self is not defaults._staff:
+            if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
+                if measure not in self._accidentals:
+                    # It's a new measure, includes cleaning every Measure before
+                    self._accidentals = {
+                        measure: {}
+                    }
+                if accidental is True:      # Natural means removal
+                    self._accidentals[measure].pop(pitch, None)
+                elif accidental is not False:   # Adds the Sharp/Flat accidental
+                    self._accidentals[measure][pitch] = accidental
         return self
 
     def _get_accidental(self, measure: int, pitch: int) -> bool | int:
-        if measure in self._accidentals and pitch in self._accidentals[measure]:
+        if self is not defaults._staff and measure in self._accidentals and pitch in self._accidentals[measure]:
             return self._accidentals[measure][pitch]
         return False
 
