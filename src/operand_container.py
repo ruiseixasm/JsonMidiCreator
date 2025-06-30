@@ -3310,7 +3310,7 @@ class Part(Composition):
                         all_names.append(single_item._track_name)
                 return od.Names(*tuple(all_names))
             case Song():
-                return Song(self._get_staff(), self)
+                return Song(self)
             case _:
                 return super().__mod__(operand)
 
