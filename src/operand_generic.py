@@ -163,7 +163,6 @@ class Pitch(Generic):
         self._natural: bool                     = False
 
         self._owner_element: oe.Element         = None
-        self._staff_reference: Staff            = defaults._staff
         super().__init__(*parameters)
 
 
@@ -527,7 +526,6 @@ class Pitch(Generic):
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
-                self._staff_reference       = operand._staff_reference
             case od.Pipe():
                 match operand._data:
                     case ou.Tonic():    # Must come before than Key()
