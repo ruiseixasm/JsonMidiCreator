@@ -4068,7 +4068,7 @@ class Song(Composition):
                 self += Part(operand)
 
             case oe.Element():
-                self += Clip(operand._staff_reference, operand)
+                self += Clip(operand._get_staff(), operand)
 
             case list():
                 for item in operand:
