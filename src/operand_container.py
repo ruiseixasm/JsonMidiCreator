@@ -3795,7 +3795,7 @@ class Song(Composition):
         if owner_song is None:
             for single_part in self._items:
                 single_part._set_owner_song(self)
-        elif isinstance(owner_song, Clip):
+        elif isinstance(owner_song, Song):
             self._staff << owner_song._staff    # Does a parameters copy
             for single_part in self._items:
                 single_part._set_owner_song(owner_song)
