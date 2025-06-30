@@ -94,8 +94,6 @@ class Element(o.Operand):
         import operand_container as oc
         if isinstance(owner_clip, oc.Clip):
             self._owner_clip = owner_clip
-            # Still requires Pitch class to reference to Note before being removed
-            self._set_staff_reference(owner_clip._staff)
         return self
 
     def _get_owner_clip(self) -> 'Clip':
