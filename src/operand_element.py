@@ -400,14 +400,10 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element():
+            case Element() | oc.Clip():
                 new_clip: oc.Clip = oc.Clip(self._get_staff(), self)
                 new_clip.__imul__(operand)
                 return new_clip
-            case oc.Clip():
-                self_clip: oc.Clip = oc.Clip(operand._staff, self)
-                self_clip.__imul__(operand)
-                return self_clip
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:
@@ -453,10 +449,6 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
                 self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
-                self_clip.__itruediv__(operand)
-                return self_clip
-            case oc.Clip():
-                self_clip: oc.Clip = oc.Clip(operand._staff, self)
                 self_clip.__itruediv__(operand)
                 return self_clip
             # Can be applied to owned elements
@@ -512,10 +504,6 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element() | oc.Clip():
                 self_clip: oc.Clip = oc.Clip(self._get_staff(), self)
-                self_clip.__ifloordiv__(operand)
-                return self_clip
-            case oc.Clip():
-                self_clip: oc.Clip = oc.Clip(operand._staff, self)
                 self_clip.__ifloordiv__(operand)
                 return self_clip
             # Can be applied to owned elements
