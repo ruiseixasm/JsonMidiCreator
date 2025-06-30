@@ -172,13 +172,6 @@ class Pitch(Generic):
             self._staff_reference = staff_reference
         return self
 
-    def _get_staff_reference(self) -> 'Staff':
-        return self._staff_reference
-
-    def _reset_staff_reference(self) -> Self:
-        self._staff_reference = defaults._staff
-        return self
-
 
     def _set_owner_element(self, owner_element: 'Element') -> Self:
         import operand_element as oe
