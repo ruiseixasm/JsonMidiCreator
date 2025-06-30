@@ -156,14 +156,14 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
-        self._staff_reference: Staff            = defaults._staff
         self._tonic_key: int                    = self._staff_reference % ou.Key() % int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: int                        = 0     # By default not a Sharp or Flat
         self._natural: bool                     = False
 
-        self._owner_element: oe.Note           = None
+        self._owner_element: oe.Element         = None
+        self._staff_reference: Staff            = defaults._staff
         super().__init__(*parameters)
 
 
