@@ -519,12 +519,22 @@ class Element(o.Operand):
                 self_clip.__ifloordiv__(operand)
                 return self_clip
             # Can be applied to owned elements
-            case int():
-                new_clip: oc.Clip = oc.Clip(self._get_staff())
-                if operand > 0:
-                    for _ in range(operand):
-                        new_clip.__ifloordiv__(self)
-                return new_clip
+            case int(): # This results in a simple repeat of elements
+                if self._owner_clip is not None:
+                    if operand > 1:
+                        element_clip: oc.Clip = self._owner_clip
+                        new_elements: list[Element] = []
+                        for next_element_i in range(1, operand):
+                            next_element: Element = self.copy()._set_owner_clip(element_clip)
+                            new_elements.append(next_element)
+                        element_clip._append(new_elements)
+                    return self
+                else:
+                    new_clip: oc.Clip = oc.Clip(self._get_staff())
+                    if operand > 0:
+                        for _ in range(operand):
+                            new_clip.__ifloordiv__(self)
+                    return new_clip
             case ra.Duration():
                 if self._owner_clip is not None:
                     total_segments: int = operand % int()
