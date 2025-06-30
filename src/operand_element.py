@@ -328,15 +328,6 @@ class Element(o.Operand):
                 self._enabled               = operand._unit != 0
             case ou.Disable():
                 self._enabled               = operand._unit == 0
-            case oc.Composition():
-                # Makes sure isn't a Clip owned Element first
-                if self._owner_clip is None:
-                    self._set_staff_reference(operand._get_staff_reference())
-            case og.Staff():
-                # Makes sure isn't a Clip owned Element first
-                if self._owner_clip is None:
-                    self._set_staff_reference(operand)
-
             case tuple():
                 for single_operand in operand:
                     self << single_operand

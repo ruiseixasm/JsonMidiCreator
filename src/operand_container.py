@@ -933,9 +933,6 @@ class Composition(Container):
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         return self
 
-    def _get_staff_reference(self) -> 'og.Staff':
-        return None
-
 
     def _get_staff(self) -> 'og.Staff':
         return self._staff
@@ -1723,9 +1720,6 @@ class Clip(Composition):  # Just a container of Elements
             if isinstance(single_element, oe.Element):
                 single_element._set_owner_clip(self)
         return self
-
-    def _get_staff_reference(self) -> 'og.Staff':
-        return self._staff
 
         
     def _set_owner_clip(self, owner_clip: 'Clip' = None) -> Self:
@@ -3137,9 +3131,6 @@ class Part(Composition):
             self._staff = staff_reference
         return self
 
-    def _get_staff_reference(self) -> 'og.Staff':
-        return self._staff
-
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
@@ -3739,9 +3730,6 @@ class Song(Composition):
         for single_part in self._items:
             single_part._set_owner_song(self)
         return self
-
-    def _get_staff_reference(self) -> 'og.Staff':
-        return self._staff
 
 
     def _set_owner_song(self, owner_song: 'Song' = None) -> Self:

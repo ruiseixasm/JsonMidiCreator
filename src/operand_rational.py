@@ -736,7 +736,7 @@ class Convertible(Rational):
                     self._staff_reference = operand._staff_reference
                 super().__lshift__(operand)
             case oe.Element() | oc.Composition():
-                self._set_staff_reference(operand._get_staff_reference())
+                self._set_staff_reference(operand._get_staff())
             case og.Staff() | None:
                 self._set_staff_reference(operand)
             case _:

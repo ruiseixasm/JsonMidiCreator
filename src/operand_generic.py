@@ -631,9 +631,6 @@ class Pitch(Generic):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-
-            case oe.Element() | oc.Composition():
-                self._set_staff_reference(operand._get_staff_reference())
             case _:
                 super().__lshift__(operand)
 
