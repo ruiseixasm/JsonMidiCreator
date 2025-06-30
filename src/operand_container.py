@@ -2153,7 +2153,7 @@ class Clip(Composition):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
-                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)
+                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)._set_owner_clip(self)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_clip.start()
