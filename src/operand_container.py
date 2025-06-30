@@ -1744,10 +1744,13 @@ class Clip(Composition):  # Just a container of Elements
         Allows the setting of a distinct `Clip` in the contained Elements for a transition process
         with a shallow `Clip`.
         """
-        if isinstance(owner_clip, Clip):
-            self._staff << owner_clip._staff    # Does a parameters copy
+        if owner_clip is None:
             for single_element in self._items:
                 single_element._set_owner_clip(self)
+        elif isinstance(owner_clip, Clip):
+            self._staff << owner_clip._staff    # Does a parameters copy
+            for single_element in self._items:
+                single_element._set_owner_clip(owner_clip)
         return self
 
 
@@ -3170,7 +3173,7 @@ class Part(Composition):
         return self
 
 
-    def _set_owner_song(self, owner_song: 'Song' = None) -> Self:
+    def _set_owner_song(self, owner_song: 'Song') -> Self:
         if isinstance(owner_song, Song):
             self._owner_song = owner_song
         return self
@@ -3181,6 +3184,11 @@ class Part(Composition):
     def _reset_owner_song(self) -> Self:
         self._owner_song = None
         return self
+
+    def _get_staff(self) -> 'og.Staff':
+        if self._owner_song is None:
+            return og.defaults._staff
+        return self._owner_song._staff
 
 
     def __getitem__(self, key: str | int) -> 'Clip':
@@ -3777,6 +3785,22 @@ class Song(Composition):
         for single_part in self._items:
             single_part._set_staff_reference(self._staff)
         return self
+
+
+    def _set_owner_song(self, owner_song: 'Song' = None) -> Self:
+        """
+        Allows the setting of a distinct `Song` in the contained Elements for a transition process
+        with a shallow `Song`.
+        """
+        if owner_song is None:
+            for single_part in self._items:
+                single_part._set_owner_song(self)
+        elif isinstance(owner_song, Clip):
+            self._staff << owner_song._staff    # Does a parameters copy
+            for single_part in self._items:
+                single_part._set_owner_song(owner_song)
+        return self
+
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
