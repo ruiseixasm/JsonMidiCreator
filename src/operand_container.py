@@ -1971,8 +1971,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._midi_track    << operand._midi_track
                 self._staff         << operand._staff
+                self._midi_track    << operand._midi_track
                 self._set_owner_clip()
 
             case od.Pipe():
