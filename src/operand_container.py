@@ -3116,12 +3116,6 @@ class Part(Composition):
             self << single_operand
 
 
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
-        if isinstance(staff_reference, og.Staff):
-            self._staff = staff_reference
-        return self
-
-
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
             self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
@@ -4001,7 +3995,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ operand.copy()._set_staff_reference(self._staff)._set_owner_song(self) ])._sort_position()
+                self._append([ operand.copy()._set_owner_song(self) ])._sort_position()
 
             case Clip():
                 self += Part(operand)
@@ -4012,7 +4006,7 @@ class Song(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._set_staff_reference(self._staff)._set_owner_song(self) ])
+                        self._append([ item.copy()._set_owner_song(self) ])
                 self._sort_position()
             case tuple():
                 for single_operand in operand:
@@ -4053,16 +4047,15 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_staff_reference(self._staff)._set_owner_song(self)
+                right_song: Song = operand.copy()._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
                 for single_part in right_song:
                     single_part += position_offset
-                    single_part._set_staff_reference(self._staff)._set_owner_song(self)
 
-                self._append(right_song._items)  # Propagates upwards in the stack
+                self._append(right_song._items)
                 
                 if self._length_beats is not None:
                     self._length_beats += (right_song % ra.Length())._rational
@@ -4099,14 +4092,14 @@ class Song(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_staff_reference(self._staff)._set_owner_song(self)
+                right_song: Song = operand.copy()._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
                 for single_part in right_song:
                     single_part += position_offset
-                    single_part._set_staff_reference(self._staff)._set_owner_song(self)
+                    single_part._set_owner_song(self)
 
                 self._append(right_song._items)  # Propagates upwards in the stack
                 
