@@ -1970,12 +1970,9 @@ class Clip(Composition):  # Just a container of Elements
         import operand_mutation as om
         match operand:
             case Clip():
-                self._midi_track        << operand._midi_track
-                self._length_beats      = operand._length_beats
-                # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
-                self._items = self.deep_copy( operand._items )
-                self._staff << operand._staff
+                super().__lshift__(operand)
+                self._midi_track    << operand._midi_track
+                self._staff         << operand._staff
                 self._set_owner_clip()
 
             case od.Pipe():
@@ -3427,6 +3424,9 @@ class Part(Composition):
                 if self._owner_song is operand._owner_song:
                     self._position_beats = operand._position_beats
                 else:
+                    if operand._length_beats is not None:
+                        operand_length: ra.Length = operand % od.Pipe( ra.Length() )
+                        self._length_beats = operand_length._rational
                     self << operand % ra.Position()
                 self._name = operand._name
                 
