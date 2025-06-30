@@ -1736,11 +1736,11 @@ class Arpeggio(Generic):
 
         if self._order > 0 and len(notes) > 0:
 
-            staff_reference: Staff = notes[0]._staff_reference
+            note_staff: Staff = notes[0]._get_staff()
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
-            note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            note_length: ra.Length = note_staff.convertToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
