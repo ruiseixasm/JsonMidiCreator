@@ -931,7 +931,7 @@ class Composition(Container):
 
 
     def _get_staff(self) -> 'og.Staff':
-        return self._staff
+        return og.defaults._staff
 
 
     def _first_element(self) -> 'oe.Element':
@@ -1056,14 +1056,11 @@ class Composition(Container):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Staff():        return self._staff
                     case ra.Length():
                         if self._length_beats is not None:
                             return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
                         return None
                     case _:                 return super().__mod__(operand)
-            case og.Staff():
-                return self._staff.copy()
             # By definition Clips are always at Position 0
             case ra.Position():
                 return ra.Position(self, 0)
@@ -1684,11 +1681,14 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
-        self._staff: og.Staff = og.defaults._staff.copy()
+        self._staff: og.Staff           = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        self._items: list[oe.Element] = []
+        self._items: list[oe.Element]   = []
         for single_operand in operands:
             self << single_operand
+
+    def _get_staff(self) -> 'og.Staff':
+        return self._staff
 
 
     def __getitem__(self, index: int) -> 'oe.Element':
@@ -1805,6 +1805,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
@@ -1815,6 +1816,7 @@ class Clip(Composition):  # Just a container of Elements
                             clip_get._items.append(element_parameter)
                         return clip_get
                     case _:                 return super().__mod__(operand)
+            case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
@@ -3691,6 +3693,9 @@ class Song(Composition):
         self._items: list[Part] = []
         for single_operand in operands:
             self << single_operand
+
+    def _get_staff(self) -> 'og.Staff':
+        return self._staff
 
 
     def __getitem__(self, key: int) -> 'Part':
