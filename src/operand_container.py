@@ -2004,8 +2004,7 @@ class Clip(Composition):  # Just a container of Elements
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
                 self._items = self.deep_copy( operand._items )
                 self._staff << operand._staff
-                # TO BE REMOVED !!
-                self._set_staff_reference(operand._staff)
+                self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
@@ -4005,6 +4004,7 @@ class Song(Composition):
             case Song():
                 super().__lshift__(operand)
                 self._staff << operand._staff
+                self._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
