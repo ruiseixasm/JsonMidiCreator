@@ -294,7 +294,7 @@ def test_rshift_container():
     part_song = Song(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
-    assert part_song._test_staff_reference()
+    assert part_song._test_owner_song()
 
     print(f"Has Part Length: {part_song.__mod__(od.Pipe( Length() )) is not None}")
     print(f"Length['part_song']: {part_song % Length() % float()}")
@@ -310,7 +310,7 @@ def test_rshift_container():
     # The second clip_part occupies two Measures, so, the next Part Measure sets at Position 2 (3rd one)
     print(f"Position[1]: {part_song[1] % Position() % float()}")
     assert part_song[1] % Position() == Measures(2) + Beats(0)
-    assert part_song._test_staff_reference()
+    assert part_song._test_owner_song()
 
     part_song *= part_song
     assert part_song.len() == 4
@@ -320,7 +320,7 @@ def test_rshift_container():
     # The two first parts are repeated at the Measure 4 and 6 respectively
     assert part_song[2] % Position() == Measures(4) + Beats(0)
     assert part_song[3] % Position() == Measures(6) + Beats(0)
-    assert part_song._test_staff_reference()
+    assert part_song._test_owner_song()
 
 # test_rshift_container()
 
