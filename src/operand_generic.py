@@ -269,7 +269,7 @@ class Pitch(Generic):
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             # Adds the Natural accidental
-            self._get_staff()._add_accidental(position_measure, key_int, True)
+            self._get_staff()._add_accidental(position_measure, key_int, element_channel, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
@@ -278,12 +278,12 @@ class Pitch(Generic):
                     key_int -= 1
         elif self._sharp != 0:
             # Adds the Sharp/Flat accidental
-            self._get_staff()._add_accidental(position_measure, key_int, self._sharp)
+            self._get_staff()._add_accidental(position_measure, key_int, element_channel, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
         else:
-            staff_accidentals = self._get_staff()._get_accidental(position_measure, key_int)
+            staff_accidentals = self._get_staff()._get_accidental(position_measure, key_int, element_channel)
             if staff_accidentals:    # Staff only set Sharps and Flats
                 if self._major_scale[key_int % 12] == 1:  # White key
                     key_int += staff_accidentals    # applies Pitch self accidentals
@@ -1247,8 +1247,8 @@ class Staff(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # Measures, pitch, accidental
-        self._accidentals: dict[int, dict[int, int]] = { 0: {} }
+        # Measures, pitch, channel, accidental
+        self._accidentals: dict[int, dict[int, dict[int, int]]] = { 0: {} }
         # channel_pitch, position_off, note_off
         self._tied_notes: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
@@ -1262,23 +1262,25 @@ class Staff(Generic):
         return self
 
     # Used for Pitch class, to preserve the accidental decoration along the entire Measure when set
-    def _add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
-        if self is not defaults._staff:
-            if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
+    def _add_accidental(self, measure: int, pitch: int, channel: int, accidental: bool | int) -> Self:
+        if self is not defaults._staff: # defaults's staff remains clean
+            if measure >= 0:
                 if measure not in self._accidentals:
-                    # It's a new measure, includes cleaning every Measure before
-                    self._accidentals = {
-                        measure: {}
-                    }
+                    self._accidentals[measure] = {}
+                if pitch not in self._accidentals[measure]:
+                    self._accidentals[measure][pitch] = {}
+                if channel not in self._accidentals[measure][pitch]:
+                    self._accidentals[measure][pitch][channel] = {}
                 if accidental is True:      # Natural means removal
-                    self._accidentals[measure].pop(pitch, None)
+                    self._accidentals[measure][pitch].pop(channel, None)
                 elif accidental is not False:   # Adds the Sharp/Flat accidental
-                    self._accidentals[measure][pitch] = accidental
+                    self._accidentals[measure][pitch][channel] = accidental
         return self
 
-    def _get_accidental(self, measure: int, pitch: int) -> bool | int:
-        if self is not defaults._staff and measure in self._accidentals and pitch in self._accidentals[measure]:
-            return self._accidentals[measure][pitch]
+    def _get_accidental(self, measure: int, pitch: int, channel: int) -> bool | int:
+        if self is not defaults._staff \
+                and measure in self._accidentals and pitch in self._accidentals[measure] and channel in self._accidentals[measure][pitch]:
+            return self._accidentals[measure][pitch][channel]
         return False
 
 
