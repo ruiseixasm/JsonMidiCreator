@@ -4114,14 +4114,14 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_staff_reference(self._staff)
+                right_song: Song = operand.copy()._set_staff_reference(self._staff)._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
                 for single_part in right_song:
                     single_part += position_offset
-                    single_part._set_staff_reference(self._staff)
+                    single_part._set_staff_reference(self._staff)._set_owner_song(self)
 
                 self._append(right_song._items)  # Propagates upwards in the stack
                 
@@ -4163,14 +4163,14 @@ class Song(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_staff_reference(self._staff)
+                right_song: Song = operand.copy()._set_staff_reference(self._staff)._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
                 for single_part in right_song:
                     single_part += position_offset
-                    single_part._set_staff_reference(self._staff)
+                    single_part._set_staff_reference(self._staff)._set_owner_song(self)
 
                 self._append(right_song._items)  # Propagates upwards in the stack
                 
