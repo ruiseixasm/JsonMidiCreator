@@ -277,21 +277,21 @@ class Pitch(Generic):
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             # Adds the Natural accidental
-            self._staff_reference._add_accidental(measure, key_int, True)
+            self._get_staff()._add_accidental(measure, key_int, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
-                accidentals_int: int = self._staff_reference._key_signature._unit
+                accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
                     key_int += 1
                 else:
                     key_int -= 1
         elif self._sharp != 0:
             # Adds the Sharp/Flat accidental
-            self._staff_reference._add_accidental(measure, key_int, self._sharp)
+            self._get_staff()._add_accidental(measure, key_int, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
         else:
-            staff_accidentals = self._staff_reference._get_accidental(measure, key_int)
+            staff_accidentals = self._get_staff()._get_accidental(measure, key_int)
             if staff_accidentals:    # Staff only set Sharps and Flats
                 if self._major_scale[key_int % 12] == 1:  # White key
                     key_int += staff_accidentals    # applies Pitch self accidentals
@@ -335,7 +335,7 @@ class Pitch(Generic):
         elif self._degree < 0:
             self_degree_0 = self._degree + 1
 
-        staff_scale: list[int] = self._staff_reference % list()
+        staff_scale: list[int] = self._get_staff() % list()
         total_degrees: int = sum(1 for key in staff_scale if key != 0)
 
         self_octave_degree_0: int = self_degree_0 % total_degrees
@@ -407,7 +407,7 @@ class Pitch(Generic):
                     self_degree_0 = self._degree - 1
                 elif self._degree < 0:
                     self_degree_0 = self._degree + 1
-                staff_scale: list[int] = self._staff_reference % list()
+                staff_scale: list[int] = self._get_staff() % list()
                 total_degrees: int = sum(1 for key in staff_scale if key != 0)
 
                 return self_degree_0 % total_degrees + 1
@@ -430,28 +430,28 @@ class Pitch(Generic):
             case ou.Sharp():
                 final_pitch: int = int(self % float())
                 if self._major_scale[final_pitch % 12] == 0:    # Black key
-                    if self._staff_reference._key_signature._unit >= 0:
+                    if self._get_staff()._key_signature._unit >= 0:
                         return ou.Sharp(1)
                 return ou.Sharp(0)
             case ou.Flat():
                 final_pitch: int = int(self % float())
                 if self._major_scale[final_pitch % 12] == 0:    # Black key
-                    if self._staff_reference._key_signature._unit < 0:
+                    if self._get_staff()._key_signature._unit < 0:
                         return ou.Flat(1)
                 return ou.Flat(0)
             case ou.Natural():
                 return ou.Natural() << od.Pipe(self._natural)
             
             case ou.KeySignature():
-                return self._staff_reference._key_signature.copy()
+                return self._get_staff()._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
-                return self._staff_reference._key_signature % operand
+                return self._get_staff()._key_signature % operand
             case ou.Key():
                 self_pitch: int = int( self % float() )
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
-                if not self._staff_reference._scale.hasScale() \
-                    and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, key_note):
+                if not self._get_staff()._scale.hasScale() \
+                    and self._get_staff()._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
@@ -584,11 +584,11 @@ class Pitch(Generic):
 
             case int():
                 if operand > 0:
-                    staff_scale: list[int] = self._staff_reference % list()
+                    staff_scale: list[int] = self._get_staff() % list()
                     total_degrees: int = sum(1 for key in staff_scale if key != 0)
                     self._degree = (operand - 1) % total_degrees + 1
                 elif operand == 0:
-                    self._tonic_key = int( self._staff_reference % float() )
+                    self._tonic_key = int( self._get_staff() % float() )
                 else:
                     self << 0   # Resets the Tonic key
                     self << 1   # Resets the degree to I
@@ -730,8 +730,8 @@ class Pitch(Generic):
 
     def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
-        if self._staff_reference._scale.hasScale():
-            scale = self._staff_reference._scale % list()
+        if self._get_staff()._scale.hasScale():
+            scale = self._get_staff()._scale % list()
         move_semitones: int = 0
         while move_tones > 0:
             move_semitones += 1
@@ -756,7 +756,7 @@ class Pitch(Generic):
          }
 
     def snap(self, up: bool = False) -> Self:
-        scale_list: list[int] = self._staff_reference % list()
+        scale_list: list[int] = self._get_staff() % list()
         self_pitch: float = self % float(-1.0)
         pitch_offset: float = 0.0
         if up:
