@@ -1053,7 +1053,7 @@ class Note(Element):
         if channels is not None:
             channels["note"].add(self._channel)
 
-        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
+        pitch_int: int = int( self._pitch % Fraction() )
 
         self_plotlist: list[dict] = []
     
@@ -1117,8 +1117,7 @@ class Note(Element):
         if self_duration_min == 0:
             return []
 
-        # Accidentals need to know the present measure in order to return the right pitch
-        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
+        pitch_int: int = int( self._pitch % Fraction() )
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         self_playlist: list[dict] = []
@@ -1201,7 +1200,7 @@ class Note(Element):
         if self_duration == 0:
             return []
 
-        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
+        pitch_int: int = int( self._pitch % Fraction() )
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -3326,7 +3325,7 @@ class PolyAftertouch(Aftertouch):
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
-        pitch_int: int = int(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ))
+        pitch_int: int = int( self._pitch % Fraction() )
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []

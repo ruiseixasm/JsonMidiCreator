@@ -257,13 +257,19 @@ class Pitch(Generic):
         return key_int
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
-    def get_key_float(self, measure: int = 0) -> float:
+    def get_key_float(self) -> float:
         key_int: int = self.get_key_int()
+
+        position_measure: int = 0
+        element_channel: int = 0
+        if self._owner_element is not None:
+            position_measure = self._owner_element % ra.Position() % int()
+            element_channel = self._owner_element._channel
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             # Adds the Natural accidental
-            self._get_staff()._add_accidental(measure, key_int, True)
+            self._get_staff()._add_accidental(position_measure, key_int, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
@@ -272,12 +278,12 @@ class Pitch(Generic):
                     key_int -= 1
         elif self._sharp != 0:
             # Adds the Sharp/Flat accidental
-            self._get_staff()._add_accidental(measure, key_int, self._sharp)
+            self._get_staff()._add_accidental(position_measure, key_int, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
         else:
-            staff_accidentals = self._get_staff()._get_accidental(measure, key_int)
+            staff_accidentals = self._get_staff()._get_accidental(position_measure, key_int)
             if staff_accidentals:    # Staff only set Sharps and Flats
                 if self._major_scale[key_int % 12] == 1:  # White key
                     key_int += staff_accidentals    # applies Pitch self accidentals
@@ -399,7 +405,7 @@ class Pitch(Generic):
                 return self_degree_0 % total_degrees + 1
              
             case float() | Fraction():
-                return float( 12 * (self._octave + 1) + self.get_key_float( int(operand) ) )
+                return float( 12 * (self._octave + 1) + self.get_key_float() )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
