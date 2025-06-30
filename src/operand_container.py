@@ -4017,14 +4017,14 @@ class Song(Composition):
 
             super().loadSerialization(serialization)
             self._staff = self.deserialize(serialization["parameters"]["staff"])
-            self._set_staff_reference()
+            self._set_owner_song()
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self._set_staff_reference(operand._get_staff_reference())
+                self._staff << operand._staff
 
             case od.Pipe():
                 match operand._data:
