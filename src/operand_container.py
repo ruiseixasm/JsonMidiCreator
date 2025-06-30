@@ -2131,7 +2131,7 @@ class Clip(Composition):  # Just a container of Elements
                         self._length_beats += (right_clip % ra.Length())._rational
 
             case oe.Element():
-                self.__imul__(Clip(operand._staff_reference, operand))
+                self.__imul__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -2192,7 +2192,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
-                self.__itruediv__(Clip(operand._staff_reference, operand))
+                self.__itruediv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -2231,7 +2231,7 @@ class Clip(Composition):  # Just a container of Elements
                 self += operand
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+                self.__ifloordiv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -3470,7 +3470,7 @@ class Part(Composition):
                 self._append([ operand.copy() ])
 
             case oe.Element():
-                self += Clip(operand._staff_reference, operand)
+                self += Clip(operand._get_staff(), operand)
 
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
@@ -3533,7 +3533,7 @@ class Part(Composition):
                 self.__imul__(Part(operand))
 
             case oe.Element():
-                self.__imul__(Clip(operand._staff_reference, operand))
+                self.__imul__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -3607,7 +3607,7 @@ class Part(Composition):
                 self.__ifloordiv__(Part(operand))
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+                self.__ifloordiv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -4062,7 +4062,7 @@ class Song(Composition):
                 self.__imul__(Part(operand))
 
             case oe.Element():
-                self.__imul__(Clip(operand._staff_reference, operand))
+                self.__imul__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -4108,7 +4108,7 @@ class Song(Composition):
                 self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self.__itruediv__(Clip(operand._staff_reference, operand))
+                self.__itruediv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
@@ -4140,7 +4140,7 @@ class Song(Composition):
                 self.__ifloordiv__(Part(operand))
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand._staff_reference, operand))
+                self.__ifloordiv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
