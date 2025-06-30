@@ -63,27 +63,14 @@ class Element(o.Operand):
         self._channel: int                  = og.defaults._channel
         self._enabled: bool                 = True
 
-        # Clip sets the Staff, this is just a reference
-        self._staff_reference: og.Staff     = og.defaults._staff
-        self._owner_clip: oc.Clip       = None
-
+        self._owner_clip: oc.Clip           = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
-
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
-        if isinstance(staff_reference, og.Staff):
-            self._staff_reference = staff_reference
-        return self
-
-    def _get_staff_reference(self) -> 'og.Staff':
-        return self._staff_reference
 
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
         self._duration_notevalue = ra.Duration(staff_reference, self % od.Pipe( ra.Duration() ))._rational
-        self._set_staff_reference(staff_reference)
         return self
 
 
