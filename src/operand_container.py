@@ -936,9 +936,6 @@ class Composition(Container):
     def _get_staff_reference(self) -> 'og.Staff':
         return None
 
-    def _reset_staff_reference(self) -> Self:
-        return self
-
 
     def _get_staff(self) -> 'og.Staff':
         return self._staff
@@ -1724,20 +1721,11 @@ class Clip(Composition):  # Just a container of Elements
             self._staff << staff_reference  # Does a copy
         for single_element in self:
             if isinstance(single_element, oe.Element):
-                # single_element._set_staff_reference(self._staff)
                 single_element._set_owner_clip(self)
         return self
 
     def _get_staff_reference(self) -> 'og.Staff':
         return self._staff
-
-    def _reset_staff_reference(self) -> Self:
-        self._staff = og.defaults._staff.copy()
-        for single_element in self:
-            if isinstance(single_element, oe.Element):
-                # single_element._set_staff_reference(self._staff)
-                single_element._set_owner_clip(self)
-        return self
 
         
     def _set_owner_clip(self, owner_clip: 'Clip' = None) -> Self:
@@ -3152,9 +3140,6 @@ class Part(Composition):
     def _get_staff_reference(self) -> 'og.Staff':
         return self._staff
 
-    def _reset_staff_reference(self) -> Self:
-        self._staff = og.defaults._staff
-        return self
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
@@ -3752,18 +3737,11 @@ class Song(Composition):
         if isinstance(staff_reference, og.Staff):
             self._staff << staff_reference  # Does a copy
         for single_part in self._items:
-            single_part._set_staff_reference(self._staff)
             single_part._set_owner_song(self)
         return self
 
     def _get_staff_reference(self) -> 'og.Staff':
         return self._staff
-
-    def _reset_staff_reference(self) -> Self:
-        self._staff = og.defaults._staff.copy()
-        for single_part in self._items:
-            single_part._set_staff_reference(self._staff)
-        return self
 
 
     def _set_owner_song(self, owner_song: 'Song' = None) -> Self:

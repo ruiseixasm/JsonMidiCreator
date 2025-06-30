@@ -79,10 +79,6 @@ class Element(o.Operand):
     def _get_staff_reference(self) -> 'og.Staff':
         return self._staff_reference
 
-    def _reset_staff_reference(self) -> Self:
-        self._staff_reference = og.defaults._staff
-        return self
-
 
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
@@ -1013,11 +1009,6 @@ class Note(Element):
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
         super()._set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._get_staff()
-        return self
-
-    def _reset_staff_reference(self) -> 'Note':
-        super()._reset_staff_reference()
-        self._pitch._reset_staff_reference()
         return self
 
 
@@ -3330,11 +3321,6 @@ class PolyAftertouch(Aftertouch):
     def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
         super()._set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._get_staff()
-        return self
-
-    def _reset_staff_reference(self) -> 'PolyAftertouch':
-        super()._reset_staff_reference()
-        self._pitch._reset_staff_reference()
         return self
 
 
