@@ -930,10 +930,6 @@ class Composition(Container):
         self._length_beats: Fraction    = None
 
 
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
-        return self
-
-
     def _get_staff(self) -> 'og.Staff':
         return self._staff
 
