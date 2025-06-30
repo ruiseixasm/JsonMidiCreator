@@ -367,8 +367,7 @@ class Element(o.Operand):
             case Element():
                 return oc.Clip(self, operand)    # Clip does an += for << operator
             case oc.Clip():
-                self_clip: oc.Clip = operand.empty_copy(self)   # The higher order Clip sets the Staff
-                return self_clip.__iadd__(operand)
+                return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip Staff and integrates self
             # For efficient reasons
             case ra.Position():
                 self._position_beats += self._get_staff().convertToBeats(operand)._rational
@@ -398,20 +397,20 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element() | oc.Clip():
+            case Element():
                 return oc.Clip(self).__imul__(operand)
+            case oc.Clip():
+                return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip Staff and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:
-                    element_clip: oc.Clip = self._owner_clip
                     new_elements: list[Element] = []
                     if operand > 1:
                         for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()._set_owner_clip(element_clip)
-                            next_element += ra.Position( ra.Measures(element_clip, 1) * next_element_i )
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
+                            next_element += ra.Position( ra.Measures(self._owner_clip, 1) * next_element_i )
                             new_elements.append(next_element)
-                        element_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
@@ -420,17 +419,15 @@ class Element(o.Operand):
                     return new_clip
             case ra.TimeValue() | ou.TimeUnit():
                 if self._owner_clip is not None:
-                    element_clip: oc.Clip = self._owner_clip
                     new_elements: list[Element] = []
                     operand_value: Fraction = operand % Fraction()
-                    self_repeating = int( operand_value / ra.Measures(element_clip, 1) )
+                    self_repeating = int( operand_value / ra.Measures(self._owner_clip, 1) )
                     if self_repeating > 1:
                         for next_element_i in range(1, self_repeating):
-                            next_element: Element = self.copy()._set_owner_clip(element_clip)
-                            next_element += ra.Position( ra.Measures(element_clip, 1) * next_element_i )
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
+                            next_element += ra.Position( ra.Measures(self._owner_clip, 1) * next_element_i )
                             new_elements.append(next_element)
-                        element_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__imul__(operand)
         self_operand: any = self % operand
@@ -441,21 +438,22 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element() | oc.Clip():
+            case Element():
                 return oc.Clip(self).__itruediv__(operand)
+            case oc.Clip():
+                return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip Staff and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:
-                    element_clip: oc.Clip = self._owner_clip
                     new_elements: list[Element] = []
                     operand_value: Fraction = operand % Fraction()
                     if operand > 1:
                         for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()._set_owner_clip(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
                             next_element += ra.Position( self_duration * next_element_i )
                             new_elements.append(next_element)
-                        element_clip._append(new_elements)
-                    return self
+                        self._owner_clip._append(new_elements)
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
@@ -464,20 +462,18 @@ class Element(o.Operand):
                     return new_clip
             case ra.TimeValue() | ou.TimeUnit():
                 if self._owner_clip is not None:
+                    new_elements: list[Element] = []
                     self_duration: ra.Duration = self % ra.Duration()
                     duration_value: Fraction = self_duration % operand % Fraction()
                     if duration_value > 0:
-                        element_clip: oc.Clip = self._owner_clip
-                        new_elements: list[Element] = []
                         operand_value: Fraction = operand % Fraction()
                         self_repeating = int( operand_value / duration_value )
                         if self_repeating > 1:
                             for next_element_i in range(1, self_repeating):
-                                next_element: Element = self.copy()._set_owner_clip(element_clip)
+                                next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
                                 next_element += ra.Position( self_duration * next_element_i )
                                 new_elements.append(next_element)
-                            element_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__itruediv__(operand)
             case _:
@@ -492,8 +488,10 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element() | oc.Clip():
+            case Element():
                 return oc.Clip(self).__ifloordiv__(operand)
+            case oc.Clip():
+                return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip Staff and integrates self
             # Can be applied to owned elements
             case int(): # This results in a simple repeat of elements
                 if self._owner_clip is not None:
@@ -513,19 +511,17 @@ class Element(o.Operand):
                     return new_clip
             case ra.Duration():
                 if self._owner_clip is not None:
+                    new_elements: list[Element] = []
                     total_segments: int = operand % int()
                     if total_segments > 1:
                         segmented_denominator: ra.Duration = ra.Duration(total_segments)
-                        element_clip: oc.Clip = self._owner_clip
-                        new_elements: list[Element] = []
                         self /= segmented_denominator
                         self_length: ra.Length = self % ra.Length()
                         for next_element_i in range(1, total_segments):
-                            next_element: Element = self.copy()._set_owner_clip(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
-                        element_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
@@ -542,8 +538,7 @@ class Element(o.Operand):
                             second_element: Element = self.copy(second_duration)._set_owner_clip(self)
                             second_element += ra.Position(first_duration)
                             new_elements.append(second_element)
-                    self._owner_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             case _:
