@@ -83,6 +83,7 @@ class Element(o.Operand):
         self._staff_reference = og.defaults._staff
         return self
 
+
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
         self._duration_notevalue = ra.Duration(staff_reference, self % od.Pipe( ra.Duration() ))._rational

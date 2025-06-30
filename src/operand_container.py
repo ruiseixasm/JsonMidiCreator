@@ -2155,7 +2155,7 @@ class Clip(Composition):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
-                right_clip: Clip = operand.copy()._set_staff_reference(self._staff)._set_owner_clip(self)
+                right_clip: Clip = operand.copy()._set_owner_clip(self)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_clip.start()
@@ -2166,7 +2166,7 @@ class Clip(Composition):  # Just a container of Elements
 
                     right_clip -= position_offset   # Does a position offset
                     for single_element in right_clip:
-                        single_element._set_staff_reference(self._staff)._set_owner_clip(self)
+                        single_element._set_owner_clip(self)
                     
                     self._append(right_clip._items) # Propagates upwards in the stack
                     
@@ -3381,18 +3381,17 @@ class Part(Composition):
         part_position: ra.Position = self % od.Pipe( ra.Position() )
         for single_clip in self:
             if isinstance(single_clip, Clip):
-                clip_staff: og.Staff = single_clip._staff
                 clip_plotlist: list[dict] = single_clip.getPlotlist(part_position)
                 for element_plotlist in clip_plotlist:
                     if "note" in element_plotlist:
-                        clip_position_on: ra.Beats = ra.Beats(element_plotlist["note"]["position_on"])._set_staff_reference( clip_staff )
+                        clip_position_on: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_on"])
                         part_position_on: ra.Beats = self._staff.convertToBeats(clip_position_on)
                         element_plotlist["note"]["position_on"] = part_position_on._rational
-                        clip_position_off: ra.Beats = ra.Beats(element_plotlist["note"]["position_off"])._set_staff_reference( clip_staff )
+                        clip_position_off: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_off"])
                         part_position_off: ra.Beats = self._staff.convertToBeats(clip_position_off)
                         element_plotlist["note"]["position_off"] = part_position_off._rational
                     elif "automation" in element_plotlist:
-                        clip_position: ra.Beats = ra.Beats(element_plotlist["automation"]["position"])._set_staff_reference( clip_staff )
+                        clip_position: ra.Beats = ra.Beats(single_clip, element_plotlist["automation"]["position"])
                         part_position: ra.Beats = self._staff.convertToBeats(clip_position)
                         element_plotlist["automation"]["position"] = part_position._rational
 
@@ -3502,14 +3501,6 @@ class Part(Composition):
                     self.deep_copy(item) for item in operand if isinstance(item, Clip)
                 ]
                 self._sort_position()
-            case Composition():
-                # Makes sure isn't a Song owned Part first
-                if self._owner_song is None:
-                    self._set_staff_reference(operand._get_staff_reference())
-            case og.Staff():
-                # Makes sure isn't a Song owned Part first
-                if self._owner_song is None:
-                    self._set_staff_reference(operand)
             case str():
                 self._name = operand
             case tuple():
