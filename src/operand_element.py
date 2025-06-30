@@ -340,6 +340,9 @@ class Element(o.Operand):
     def __truediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__itruediv__(operand)
     
+    def __floordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.copy().__ifloordiv__(operand)
+    
 
     def __radd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.__add__(operand)
@@ -352,6 +355,9 @@ class Element(o.Operand):
 
     def __rtruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.__truediv__(operand)
+
+    def __rfloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.__floordiv__(operand)
 
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
@@ -476,9 +482,6 @@ class Element(o.Operand):
         return self
 
 
-    def __floordiv__(self, operand: any) -> Self:
-        return self.copy().__ifloordiv__(operand)
-    
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
