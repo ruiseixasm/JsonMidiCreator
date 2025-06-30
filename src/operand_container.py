@@ -1723,7 +1723,7 @@ class Clip(Composition):  # Just a container of Elements
             self._staff << staff_reference  # Does a copy
         for single_element in self:
             if isinstance(single_element, oe.Element):
-                single_element._set_staff_reference(self._staff)
+                # single_element._set_staff_reference(self._staff)
                 single_element._set_owner_clip(self)
         return self
 
@@ -1734,7 +1734,7 @@ class Clip(Composition):  # Just a container of Elements
         self._staff = og.defaults._staff.copy()
         for single_element in self:
             if isinstance(single_element, oe.Element):
-                single_element._set_staff_reference(self._staff)
+                # single_element._set_staff_reference(self._staff)
                 single_element._set_owner_clip(self)
         return self
 

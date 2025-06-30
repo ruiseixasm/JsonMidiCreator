@@ -387,7 +387,8 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Clip(od.Pipe( [self, operand.copy()] ))._set_staff_reference()._sort_position()
+                return oc.Clip(self._get_staff(), self, operand)    # Clip does an += for << operator
+                # return oc.Clip(od.Pipe( [self, operand.copy()] ))._set_staff_reference()._sort_position()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
