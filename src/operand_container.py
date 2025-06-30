@@ -1709,14 +1709,6 @@ class Clip(Composition):  # Just a container of Elements
         self._items.sort(key=lambda x: x._position_beats)
         return self
 
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
-        if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference  # Does a copy
-        for single_element in self:
-            if isinstance(single_element, oe.Element):
-                single_element._set_owner_clip(self)
-        return self
-
         
     def _set_owner_clip(self, owner_clip: 'Clip' = None) -> Self:
         """
