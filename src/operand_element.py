@@ -360,7 +360,6 @@ class Element(o.Operand):
         match operand:
             case Element():
                 return oc.Clip(self._get_staff(), self, operand)    # Clip does an += for << operator
-                # return oc.Clip(od.Pipe( [self, operand.copy()] ))._set_staff_reference()._sort_position()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
@@ -980,13 +979,6 @@ class Note(Element):
         self._pitch: og.Pitch       = og.Pitch()._set_owner_element(self)
         super().__init__(*parameters)
 
-
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
-        super()._set_staff_reference(staff_reference)
-        self._pitch._staff_reference = self._get_staff()
-        return self
-
-
     def velocity(self, velocity: int = 100) -> Self:
         self._velocity = velocity
         return self
@@ -1000,7 +992,7 @@ class Note(Element):
         return self
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._get_staff())
+        self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1297,10 +1289,7 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch():
-                self._pitch << operand
-                self._pitch._set_staff_reference(self._get_staff())
-            case ou.PitchParameter() | str() | None:
+            case og.Pitch() | ou.PitchParameter() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -3292,15 +3281,8 @@ class PolyAftertouch(Aftertouch):
         self._pitch: og.Pitch  = og.Pitch()._set_owner_element(self)
         super().__init__(*parameters)
 
-
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
-        super()._set_staff_reference(staff_reference)
-        self._pitch._staff_reference = self._get_staff()
-        return self
-
-
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave))._set_staff_reference(self._get_staff())
+        self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
