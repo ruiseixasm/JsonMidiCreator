@@ -3572,7 +3572,7 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                right_part: Part = operand.copy()._set_staff_reference(self._staff)
+                right_part: Part = operand.copy()._set_owner_song(self._owner_song)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_part % od.Pipe( ra.Position() )
@@ -3617,7 +3617,7 @@ class Part(Composition):
         match operand:
             case Part():
                 # This conversion doesn't touch on the Clips
-                right_part: Part = operand.copy()._set_staff_reference(self._staff)
+                right_part: Part = operand.copy()._set_owner_song(self._owner_song)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
@@ -3635,7 +3635,7 @@ class Part(Composition):
                 self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self.__itruediv__(Clip(operand._staff_reference, operand))
+                self.__itruediv__(Clip(operand._get_staff(), operand))
 
             case int():
                 if operand > 1:
