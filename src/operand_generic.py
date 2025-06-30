@@ -167,12 +167,6 @@ class Pitch(Generic):
         super().__init__(*parameters)
 
 
-    def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
-        if isinstance(staff_reference, Staff):
-            self._staff_reference = staff_reference
-        return self
-
-
     def _set_owner_element(self, owner_element: 'Element') -> Self:
         import operand_element as oe
         if isinstance(owner_element, oe.Element):
