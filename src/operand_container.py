@@ -3473,11 +3473,7 @@ class Part(Composition):
         match operand:
             case Part():
                 super().__lshift__(operand)
-                # Makes sure isn't a Song owned Part first
-                if self._owner_song is None:
-                    # Has to use the method in order to propagate setting
-                    self._set_staff_reference(operand._staff)
-                if self._staff is operand._staff:
+                if self._owner_song is operand._owner_song:
                     self._position_beats = operand._position_beats
                 else:
                     self << operand % ra.Position()
