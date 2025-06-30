@@ -939,8 +939,8 @@ class Composition(Container):
     def _reset_staff_reference(self) -> Self:
         return self
 
-    def _test_staff_reference(self) -> bool:
-        return True
+    # def _test_staff_reference(self) -> bool:
+    #     return True
 
 
     def _get_staff(self) -> 'og.Staff':
@@ -1769,14 +1769,16 @@ class Clip(Composition):  # Just a container of Elements
             self._staff << staff_reference  # Does a copy
         return self
 
-    def _test_staff_reference(self) -> bool:
-        for single_element in self:
-            if isinstance(single_element, oe.Element) and not (
-                single_element._staff_reference is self._staff and
-                single_element._owner_clip is not None
-            ):
-                return False
-        return True
+
+    # def _test_staff_reference(self) -> bool:
+    #     for single_element in self:
+    #         if isinstance(single_element, oe.Element) and not (
+    #             single_element._staff_reference is self._staff and
+    #             single_element._owner_clip is not None
+    #         ):
+    #             return False
+    #     return True
+
 
     def _test_owner_clip(self) -> bool:
         for single_element in self:
@@ -3806,6 +3808,13 @@ class Song(Composition):
     def _test_staff_reference(self) -> bool:
         for single_part in self._items:
             if single_part._staff is not self._staff:
+                return False
+        return True
+
+
+    def _test_owner_song(self) -> bool:
+        for single_part in self:
+            if single_part._owner_song is not self:
                 return False
         return True
 
