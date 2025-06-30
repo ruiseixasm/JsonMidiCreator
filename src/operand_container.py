@@ -1916,7 +1916,6 @@ class Clip(Composition):  # Just a container of Elements
                 "tempo": self._staff._tempo
             }
         )
-
         return self_plotlist
 
 
@@ -1943,7 +1942,6 @@ class Clip(Composition):  # Just a container of Elements
             self_playlist.extend(
                 single_element.getPlaylist(self._midi_track, position_beats, False)
             )
-
         return self_playlist
 
 
@@ -4150,9 +4148,6 @@ class Song(Composition):
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
-
-            case Composition():
-                self._set_staff_reference(operand._get_staff_reference())
 
             case _:
                 if isinstance(operand, of.Frame):
