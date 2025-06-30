@@ -2000,7 +2000,7 @@ class Clip(Composition):  # Just a container of Elements
             super().loadSerialization(serialization)
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
-            self._set_staff_reference()
+            self._set_owner_clip()
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2011,7 +2011,9 @@ class Clip(Composition):  # Just a container of Elements
                 self._length_beats      = operand._length_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
-                self._items   = self.deep_copy( operand._items )
+                self._items = self.deep_copy( operand._items )
+                self._staff << operand._staff
+                # TO BE REMOVED !!
                 self._set_staff_reference(operand._staff)
 
             case od.Pipe():
