@@ -290,12 +290,9 @@ class Element(o.Operand):
                 super().__lshift__(operand)
                 self._channel               = operand._channel
                 self._enabled               = operand._enabled
-                if self._owner_clip is operand._owner_clip: # If owned by the same Clip
-                    self._position_beats        = operand._position_beats
-                    self._duration_notevalue    = operand._duration_notevalue
-                else:
-                    self << operand % ra.Position()
-                    self << operand % ra.Duration()
+                # No conversion is done, beat and note_value values are directly copied (Same for Part)
+                self._position_beats        = operand._position_beats
+                self._duration_notevalue    = operand._duration_notevalue
 
             case od.Pipe():
                 match operand._data:

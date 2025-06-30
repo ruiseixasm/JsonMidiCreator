@@ -3421,13 +3421,8 @@ class Part(Composition):
         match operand:
             case Part():
                 super().__lshift__(operand)
-                if self._owner_song is operand._owner_song:
-                    self._position_beats = operand._position_beats
-                else:
-                    if operand._length_beats is not None:
-                        operand_length: ra.Length = operand % od.Pipe( ra.Length() )
-                        self._length_beats = operand_length._rational
-                    self << operand % ra.Position()
+                # No conversion is done, beat values are directly copied (Same for Element)
+                self._position_beats = operand._position_beats
                 self._name = operand._name
                 
             case od.Pipe():
