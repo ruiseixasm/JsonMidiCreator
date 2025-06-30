@@ -3229,7 +3229,7 @@ class Part(Composition):
 
         start_position: ra.Position = None
         for clip in clips_list:
-            clip_start: ra.Position = self._staff.convertToPosition(clip.start())
+            clip_start: ra.Position = self._get_staff().convertToPosition(clip.start())
             if clip_start:
                 if start_position is not None:
                     if clip_start < start_position:
@@ -3258,7 +3258,7 @@ class Part(Composition):
         for clip in clips_list:
             clip_finish: ra.Position = clip.finish()
             if clip_finish is not None:
-                clip_finish = self._staff.convertToPosition(clip_finish)
+                clip_finish = self._get_staff().convertToPosition(clip_finish)
                 if finish_position is not None:
                     if clip_finish > finish_position:
                         finish_position = clip_finish
@@ -3300,12 +3300,12 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                        return operand._data << self._get_staff().convertToPosition(ra.Beats(self._position_beats))
                     case str():
                         return self._name
                     case _:                 return super().__mod__(operand)
             case ra.Position():
-                return self._staff.convertToPosition(ra.Beats(self._position_beats))
+                return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
             case str():
                 return self._name
             case od.Names():
@@ -3317,7 +3317,7 @@ class Part(Composition):
                         all_names.append(single_item._track_name)
                 return od.Names(*tuple(all_names))
             case Song():
-                return Song(self._staff, self)
+                return Song(self._get_staff(), self)
             case _:
                 return super().__mod__(operand)
 
@@ -3337,14 +3337,14 @@ class Part(Composition):
                 for element_plotlist in clip_plotlist:
                     if "note" in element_plotlist:
                         clip_position_on: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_on"])
-                        part_position_on: ra.Beats = self._staff.convertToBeats(clip_position_on)
+                        part_position_on: ra.Beats = self._get_staff().convertToBeats(clip_position_on)
                         element_plotlist["note"]["position_on"] = part_position_on._rational
                         clip_position_off: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_off"])
-                        part_position_off: ra.Beats = self._staff.convertToBeats(clip_position_off)
+                        part_position_off: ra.Beats = self._get_staff().convertToBeats(clip_position_off)
                         element_plotlist["note"]["position_off"] = part_position_off._rational
                     elif "automation" in element_plotlist:
                         clip_position: ra.Beats = ra.Beats(single_clip, element_plotlist["automation"]["position"])
-                        part_position: ra.Beats = self._staff.convertToBeats(clip_position)
+                        part_position: ra.Beats = self._get_staff().convertToBeats(clip_position)
                         element_plotlist["automation"]["position"] = part_position._rational
 
                 plot_list.extend( clip_plotlist )
@@ -3436,12 +3436,12 @@ class Part(Composition):
                 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
+                    case ra.Position():     self._position_beats = self._get_staff().convertToBeats(operand._data)._rational
                     case str():             self._name = operand._data
                     case _:                 super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self._position_beats = self._staff.convertToBeats(operand)._rational
+                self._position_beats = self._get_staff().convertToBeats(operand)._rational
 
             case Clip() | oe.Element():
                 self += operand
@@ -3648,13 +3648,13 @@ class Part(Composition):
         Returns:
             Part: A copy of the self object with the items processed.
         """
-        punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
-        punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
+        punch_in: ra.Position = self._get_staff().convertToPosition(0)    # Inclusive
+        punch_length: ra.Length = self._get_staff().convertToLength(4)    # Exclusive
 
         if isinstance(position, (int, float, Fraction, ra.Position)):
-            punch_in = self._staff.convertToPosition(position)
+            punch_in = self._get_staff().convertToPosition(position)
         if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_length = self._staff.convertToLength(length)
+            punch_length = self._get_staff().convertToLength(length)
 
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
