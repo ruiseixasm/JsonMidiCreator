@@ -3431,10 +3431,11 @@ class Part(Composition):
             case Part():
                 super().__lshift__(operand)
                 # No conversion is done, beat values are directly copied (Same for Element)
-                self._position_beats = operand._position_beats
-                self._name = operand._name
+                self._position_beats    = operand._position_beats
+                self._name              = operand._name
                 # Because a Part is also defined by the Owner Song, this also needs to be copied!
-                self._owner_song            = operand._owner_song
+                if self._owner_song is None:   # << and copy operation doesn't override ownership
+                    self._owner_song    = operand._owner_song
                 
             case od.Pipe():
                 match operand._data:

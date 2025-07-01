@@ -273,7 +273,8 @@ class Element(o.Operand):
                 self._position_beats        = operand._position_beats
                 self._duration_notevalue    = operand._duration_notevalue
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
-                self._owner_clip            = operand._owner_clip
+                if self._owner_clip is None:    # << and copy operation doesn't override ownership
+                    self._owner_clip        = operand._owner_clip
 
             case od.Pipe():
                 match operand._data:
@@ -1295,15 +1296,12 @@ class Note(Element):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
-                self._pitch._set_owner_element(self)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
-                    case og.Pitch():
-                        self._pitch     = operand._data
-                        self._pitch._set_owner_element(self)
+                    case og.Pitch():        self._pitch     = operand._data
                     case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
@@ -1311,10 +1309,7 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch():
-                self._pitch << operand
-                self._pitch._set_owner_element(self)
-            case ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -3367,7 +3362,6 @@ class PolyAftertouch(Aftertouch):
 
             super().loadSerialization(serialization)
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
-            self._pitch._set_owner_element(self)
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3376,18 +3370,12 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._pitch << operand._pitch
-                self._pitch._set_owner_element(self)
             case od.Pipe():
                 match operand._data:
-                    case og.Pitch():
-                        self._pitch = operand._data
-                        self._pitch._set_owner_element(self)
+                    case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Pitch():
-                self._pitch << operand
-                self._pitch._set_owner_element(self)
-            case ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
-                self._pitch << operand
+            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
+                    self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
 

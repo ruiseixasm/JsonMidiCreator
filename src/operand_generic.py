@@ -251,7 +251,8 @@ class Key(Generic):
                 super().__lshift__(operand)
                 self._numeral = operand._numeral
                 # Because a Key is also defined by the Owner Pitch, this also needs to be copied!
-                self._owner_pitch = operand._owner_pitch
+                if self._owner_pitch is None:   # << and copy operation doesn't override ownership
+                    self._owner_pitch = operand._owner_pitch
             case od.Pipe():
                 match operand._data:
                     case int():
@@ -718,8 +719,8 @@ class Pitch(Generic):
                 self._natural               = operand._natural
                 self._scale                 << operand._scale
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
-                self._owner_element         = operand._owner_element
-                self._tonic._set_owner_pitch(self)
+                if self._owner_element is None: # << and copy operation doesn't override ownership
+                    self._owner_element     = operand._owner_element
             case od.Pipe():
                 match operand._data:
                     case Tonic():    # Must come before than Key()
@@ -757,8 +758,7 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case Tonic():    # Must come before than Key()
                 self._tonic_key = operand._numeral % 24
-                self._tonic     = operand.copy()
-                self._tonic._set_owner_pitch(self)
+                self._tonic     << operand
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit
