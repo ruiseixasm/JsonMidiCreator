@@ -3362,6 +3362,7 @@ class PolyAftertouch(Aftertouch):
 
             super().loadSerialization(serialization)
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
+            self._pitch._set_owner_element(self)
         return self
       
     def __lshift__(self, operand: any) -> Self:

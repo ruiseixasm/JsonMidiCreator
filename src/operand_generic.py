@@ -725,8 +725,7 @@ class Pitch(Generic):
                 match operand._data:
                     case Tonic():    # Must come before than Key()
                         self._tonic_key = operand._data._numeral
-                        self._tonic     = operand
-                        self._tonic._set_owner_pitch(self)
+                        self._tonic     = operand._data
                     case ou.Octave():
                         self._octave    = operand._data._unit
                     case int():
