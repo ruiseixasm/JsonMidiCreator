@@ -408,19 +408,21 @@ def test_milliseconds_duration():
 
 def test_playlists():
 
-    two_notes = Note() / 2
+    two_notes: Clip = Note() / 2
     playlist = playlist_time_ms( two_notes.getPlaylist() )
-    midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
-    midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
+    midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]   # Note 1 On     [0]
+    midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]   # Note 2 Off    [3]
     assert midi_pitch_1 == midi_pitch_2
 
-    assert two_notes[0] % Pitch() == two_notes[1] % Pitch()
-    two_notes << Nth(1)**Sharp()
-    assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
+    assert two_notes[0] % Pitch() == two_notes[1] % Pitch()     # Both are 60
+    two_notes << Nth(1)**Sharp()    # Only the first note is sharpened
+    assert two_notes[0] % Pitch() != two_notes[1] % Pitch() # Checked in isolation!
     playlist = playlist_time_ms( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
-    assert midi_pitch_1 == midi_pitch_2
+    print(f"First Pitch: {midi_pitch_1}")
+    print(f"Second Pitch: {midi_pitch_2}")
+    assert midi_pitch_1 == midi_pitch_2    # Because both notes are in the same Measure, the sharp propagates (61)
 
     two_notes.reverse()
     assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
@@ -428,6 +430,8 @@ def test_playlists():
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     assert midi_pitch_1 != midi_pitch_2
+
+test_playlists()
 
 
 def test_add_clip():

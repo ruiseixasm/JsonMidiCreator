@@ -533,6 +533,8 @@ class Pitch(Generic):
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
+                # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
+                # self._owner_element         = operand._owner_element
             case od.Pipe():
                 match operand._data:
                     case ou.Tonic():    # Must come before than Key()
