@@ -1102,8 +1102,8 @@ class Note(Element):
             }
         )
 
-        # This only applies for Clip owned Notes!
-        if self._owner_clip is not None:
+        # This only applies for Clip owned Notes called by the Clip class!
+        if midi_track is not None and self._owner_clip is not None:
 
             # Checks if it's a following tied note first
             if self._tied:
@@ -1179,8 +1179,8 @@ class Note(Element):
 
         # Already with a Playlist at this point
 
-        # This only applies for Clip owned Notes!
-        if self._owner_clip is not None:
+        # This only applies for Clip owned Notes called by the Clip class!
+        if midi_track is not None and self._owner_clip is not None:
 
             # Filers out any "devices" parameter, without "time_ms" one
             self_playlist_time_ms: list[dict] = self_playlist 
@@ -1235,8 +1235,8 @@ class Note(Element):
         self_midilist[0]["velocity"]    = self._velocity
         self_midilist[0]["pitch"]       = pitch_int
 
-        # This only applies for Clip owned Notes!
-        if self._owner_clip is not None:
+        # This only applies for Clip owned Notes called by the Clip class!
+        if midi_track is not None and self._owner_clip is not None:
 
             # Checks if it's a tied note first
             if self._tied:
