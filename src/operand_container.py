@@ -2240,7 +2240,7 @@ class Clip(Composition):  # Just a container of Elements
                         self += single_self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
-
+            # Divides the duration by the given duration amount as denominator
             case ra.Duration():
                 total_segments: int = operand % int()
                 if total_segments > 1:
@@ -2254,6 +2254,25 @@ class Clip(Composition):  # Just a container of Elements
                             next_element += ra.Position( first_element_length * next_element_i )
                             new_elements.append(next_element)
                     self._append(new_elements)
+            # Divides the duration by setting each segment with the given Length
+            case ra.Length():
+                new_elements: list[oe.Element] = []
+                for first_element in self._items:
+                    global_length: ra.Length = first_element % ra.Length()
+                    if operand > global_length:
+                        global_finish: ra.Position = first_element.finish()
+                        global_position: ra.Position = first_element % ra.Position()
+                        first_element << operand
+                        next_split: ra.Position = global_position + operand
+                        while global_finish > next_split:
+                            next_element: oe.Element = first_element.copy()._set_owner_clip(self)
+                            new_elements.append(next_element)
+                            next_element << next_split  # Just positions the `Element`
+                            next_split: ra.Position = global_position + operand
+                            if next_split > global_finish:
+                                next_element -= ra.Duration(next_split - global_finish) # Trims the extra `Duration`
+                                break
+                self._append(new_elements)
             
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 new_elements: list[oe.Element] = []
