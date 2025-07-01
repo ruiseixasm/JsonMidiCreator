@@ -1522,7 +1522,6 @@ class KeyScale(Note):
                 match operand._data:
                     case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
                     case og.Arpeggio():     return self._arpeggio
-                    case list():            return self._pitch._scale % list()
                     case _:                 return super().__mod__(operand)
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
             case ou.Mode():         return self._pitch._scale % operand

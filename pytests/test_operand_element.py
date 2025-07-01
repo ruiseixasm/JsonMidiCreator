@@ -278,7 +278,7 @@ def test_keyscale_mod():
 
     assert key_scale_string == "minor"
 
-    key_scale_list = key_scale % Src(list())
+    key_scale_list = key_scale % Scale() % list()
 
     assert key_scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
 

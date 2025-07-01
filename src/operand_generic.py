@@ -422,6 +422,10 @@ class Pitch(Generic):
             
             case Scale():
                 return self._scale.copy()
+            case ou.Mode():
+                return self._scale % operand
+            case list():
+                return self._scale % list()
 
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
