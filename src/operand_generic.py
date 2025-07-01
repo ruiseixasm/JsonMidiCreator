@@ -622,6 +622,7 @@ class Pitch(Generic):
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
                 self._degree    = (self % ou.Degree() << operand)._unit
                 self._tonic_key = (self % ou.Key() << string)._unit
+                self._scale << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
