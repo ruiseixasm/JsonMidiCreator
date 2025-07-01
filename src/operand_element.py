@@ -1630,11 +1630,6 @@ class KeyScale(Note):
                     case _:                 super().__lshift__(operand)
             case ou.Inversion():
                 self._inversion = operand._unit
-            case str():
-                operand = operand.strip()
-                # Set root note and Scale
-                self._pitch << operand
-                self._pitch._scale << operand
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
