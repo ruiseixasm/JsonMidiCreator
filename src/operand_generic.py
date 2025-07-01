@@ -149,6 +149,8 @@ class Key(Generic):
     """
     def __init__(self, *parameters):
         self._numeral: int | float = 0
+
+        self._owner_pitch: Pitch = None
         super().__init__(*parameters)
 
     def key_signature(self, key_signature: 'ou.KeySignature' = None) -> Self:
@@ -234,6 +236,11 @@ class Key(Generic):
         import operand_generic as og
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Key():
+                super().__lshift__(operand)
+                self._numeral = operand._numeral
+                # Because a Key is also defined by the Owner Pitch, this also needs to be copied!
+                self._owner_pitch = operand._owner_pitch
             case od.Pipe():
                 match operand._data:
                     case int():
