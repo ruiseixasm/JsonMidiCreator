@@ -1234,8 +1234,6 @@ class Staff(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # Measures, pitch, channel, accidental
-        self._accidentals: dict[int, dict[int, dict[int, int]]] = { 0: {} }
         # channel_pitch, position_off, note_off
         self._tied_notes: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
@@ -1243,32 +1241,6 @@ class Staff(Generic):
                                        set[int]             # set of pitches
                                   ]
                             ] = {}
-
-    def _reset_accidentals(self) -> Self:
-        self._accidentals = { 0: {} }
-        return self
-
-    # Used for Pitch class, to preserve the accidental decoration along the entire Measure when set
-    def _add_accidental(self, measure: int, pitch: int, channel: int, accidental: bool | int) -> Self:
-        if self is not defaults._staff: # defaults's staff remains clean
-            if measure >= 0:
-                if measure not in self._accidentals:
-                    self._accidentals[measure] = {}
-                if pitch not in self._accidentals[measure]:
-                    self._accidentals[measure][pitch] = {}
-                if channel not in self._accidentals[measure][pitch]:
-                    self._accidentals[measure][pitch][channel] = {}
-                if accidental is True:      # Natural means removal
-                    self._accidentals[measure][pitch].pop(channel, None)
-                elif accidental is not False:   # Adds the Sharp/Flat accidental
-                    self._accidentals[measure][pitch][channel] = accidental
-        return self
-
-    def _get_accidental(self, measure: int, pitch: int, channel: int) -> bool | int:
-        if measure in self._accidentals and pitch in self._accidentals[measure] and channel in self._accidentals[measure][pitch]:
-            return self._accidentals[measure][pitch][channel]
-        return False
-
 
     # For Playlist Notes list
     def _reset_tied_notes(self) -> Self:
@@ -1328,7 +1300,6 @@ class Staff(Generic):
         
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
-        self._reset_accidentals()
         self._reset_tied_notes()
         self._reset_stacked_notes()
 
