@@ -509,10 +509,11 @@ class Element(o.Operand):
                         for _ in range(operand):
                             new_clip.__ifloordiv__(self)
                     return new_clip
-            case ra.Duration():
+            # Divides the `Duration` by the given `Length` amount as denominator
+            case ra.Length():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
-                    total_segments: int = operand % int()
+                    total_segments: int = operand % int()   # Extracts the original imputed integer
                     if total_segments > 1:
                         segmented_denominator: ra.Duration = ra.Duration(total_segments)
                         self /= segmented_denominator
@@ -521,6 +522,27 @@ class Element(o.Operand):
                             next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
                             next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
+                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
+                else:
+                    return oc.Clip(self).__ifloordiv__(operand)
+            # Divides the `Duration` by sections with the given `Duration` (note value)
+            case ra.Duration():
+                if self._owner_clip is not None:
+                    new_elements: list[Element] = []
+                    global_length: ra.Length = self % ra.Length()
+                    if operand < global_length:
+                        global_finish: ra.Position = self.finish()
+                        global_position: ra.Position = self % ra.Position()
+                        self << operand
+                        next_split: ra.Position = global_position + operand
+                        while global_finish > next_split:
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
+                            new_elements.append(next_element)
+                            next_element << next_split  # Just positions the `Element`
+                            next_split += operand
+                            if next_split > global_finish:
+                                next_element -= ra.Duration(next_split - global_finish) # Trims the extra `Duration`
+                                break
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)

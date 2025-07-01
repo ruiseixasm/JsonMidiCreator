@@ -2202,9 +2202,6 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete(self._items, True)
 
-            case ra.Length():
-                self._length_beats.__itruediv__(operand % Fraction())
-            
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 self_duration: ra.Length = self % ra.Duration()
@@ -2240,9 +2237,9 @@ class Clip(Composition):  # Just a container of Elements
                         self += single_self_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
-            # Divides the duration by the given duration amount as denominator
-            case ra.Duration():
-                total_segments: int = operand % int()
+            # Divides the `Duration` by the given `Length` amount as denominator
+            case ra.Length():
+                total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
                     segmented_denominator: ra.Duration = ra.Duration(total_segments)
@@ -2254,12 +2251,12 @@ class Clip(Composition):  # Just a container of Elements
                             next_element += ra.Position( first_element_length * next_element_i )
                             new_elements.append(next_element)
                     self._append(new_elements)
-            # Divides the duration by setting each segment with the given Length
-            case ra.Length():
+            # Divides the `Duration` by sections with the given `Duration` (note value)
+            case ra.Duration():
                 new_elements: list[oe.Element] = []
                 for first_element in self._items:
                     global_length: ra.Length = first_element % ra.Length()
-                    if operand > global_length:
+                    if operand < global_length:
                         global_finish: ra.Position = first_element.finish()
                         global_position: ra.Position = first_element % ra.Position()
                         first_element << operand
@@ -2268,7 +2265,7 @@ class Clip(Composition):  # Just a container of Elements
                             next_element: oe.Element = first_element.copy()._set_owner_clip(self)
                             new_elements.append(next_element)
                             next_element << next_split  # Just positions the `Element`
-                            next_split: ra.Position = global_position + operand
+                            next_split += operand
                             if next_split > global_finish:
                                 next_element -= ra.Duration(next_split - global_finish) # Trims the extra `Duration`
                                 break
