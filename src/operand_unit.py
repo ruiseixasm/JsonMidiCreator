@@ -1069,12 +1069,12 @@ class Tonic(Key):
     pass
 
 class Root(Tonic):
-    """`Unit -> Key -> Tonic -> Root`
+    """`Unit -> PitchParameter -> Key -> Tonic -> Root`
     """
     pass
 
 class Home(Tonic):
-    """`Unit -> Key -> Tonic -> Home`
+    """`Unit -> PitchParameter -> Key -> Tonic -> Home`
     """
     pass
 
