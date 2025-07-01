@@ -148,7 +148,7 @@ class Key(Generic):
     int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
-        self._numeral: int | float = 0
+        self._numeral: int | float = 1  # By default it's the Tonic I, int(1)
 
         self._owner_pitch: Pitch = None
         super().__init__(*parameters)
