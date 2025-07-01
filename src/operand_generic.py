@@ -182,8 +182,7 @@ class Key(Generic):
         return self << od.Pipe( ou.Degree(unit) )
 
     def scale(self, scale: list[int] | str = None) -> Self:
-        import operand_generic as og
-        return self << od.Pipe( og.Scale(scale) )
+        return self << od.Pipe( Scale(scale) )
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
