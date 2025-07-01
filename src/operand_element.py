@@ -280,7 +280,7 @@ class Element(o.Operand):
                 # No conversion is done, beat and note_value values are directly copied (Same for Part)
                 self._position_beats        = operand._position_beats
                 self._duration_notevalue    = operand._duration_notevalue
-                # Because a Element is also defined by the Owner Clip, this also needs to be copied!
+                # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 self._owner_clip            = operand._owner_clip
 
             case od.Pipe():

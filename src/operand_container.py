@@ -3444,6 +3444,8 @@ class Part(Composition):
                 # No conversion is done, beat values are directly copied (Same for Element)
                 self._position_beats = operand._position_beats
                 self._name = operand._name
+                # Because a Part is also defined by the Owner Song, this also needs to be copied!
+                self._owner_song            = operand._owner_song
                 
             case od.Pipe():
                 match operand._data:
