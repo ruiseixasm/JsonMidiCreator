@@ -295,6 +295,8 @@ class Key(Generic):
         -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
     ]
     
+    _degrees: dict[str] = ["-", "I", "ii", "iii", "IV", "V", "vi", "vii"]
+
     def getStringToNumber(self, key: str = "C") -> int:
         key_to_find: str = key.strip().lower()
         for index, value in enumerate(Key._keys):
@@ -676,6 +678,7 @@ class Pitch(Generic):
 
         serialization = super().getSerialization()
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
+        serialization["parameters"]["tonic"]            = self.serialize( self._tonic )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
@@ -687,16 +690,18 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
+            "tonic_key" in serialization["parameters"] and "tonic" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
+            self._tonic         = self.deserialize( serialization["parameters"]["tonic"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+            self._tonic._set_owner_pitch(self)
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -706,6 +711,7 @@ class Pitch(Generic):
             case Pitch():
                 super().__lshift__(operand)
                 self._tonic_key             = operand._tonic_key
+                self._tonic                 << operand._tonic
                 self._octave                = operand._octave
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
@@ -713,10 +719,13 @@ class Pitch(Generic):
                 self._scale                 << operand._scale
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
                 self._owner_element         = operand._owner_element
+                self._tonic._set_owner_pitch(self)
             case od.Pipe():
                 match operand._data:
                     case Tonic():    # Must come before than Key()
                         self._tonic_key = operand._data._numeral
+                        self._tonic     = operand
+                        self._tonic._set_owner_pitch(self)
                     case ou.Octave():
                         self._octave    = operand._data._unit
                     case int():
@@ -748,6 +757,8 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case Tonic():    # Must come before than Key()
                 self._tonic_key = operand._numeral % 24
+                self._tonic     = operand.copy()
+                self._tonic._set_owner_pitch(self)
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit

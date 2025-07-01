@@ -258,7 +258,6 @@ class Element(o.Operand):
             self._duration_notevalue    = self.deserialize(serialization["parameters"]["duration"])
             self._channel               = self.deserialize(serialization["parameters"]["channel"])
             self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
-
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1283,6 +1282,7 @@ class Note(Element):
             self._gate      = self.deserialize( serialization["parameters"]["gate"] )
             self._tied      = self.deserialize( serialization["parameters"]["tied"] )
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
+            self._pitch._set_owner_element(self)
         return self
 
 
@@ -1295,12 +1295,15 @@ class Note(Element):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
+                self._pitch._set_owner_element(self)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
-                    case og.Pitch():        self._pitch     = operand._data
+                    case og.Pitch():
+                        self._pitch     = operand._data
+                        self._pitch._set_owner_element(self)
                     case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
@@ -1308,7 +1311,10 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch():
+                self._pitch << operand
+                self._pitch._set_owner_element(self)
+            case ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -3361,6 +3367,7 @@ class PolyAftertouch(Aftertouch):
 
             super().loadSerialization(serialization)
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
+            self._pitch._set_owner_element(self)
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3369,12 +3376,18 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._pitch << operand._pitch
+                self._pitch._set_owner_element(self)
             case od.Pipe():
                 match operand._data:
-                    case og.Pitch():            self._pitch = operand._data
+                    case og.Pitch():
+                        self._pitch = operand._data
+                        self._pitch._set_owner_element(self)
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
-                                self._pitch << operand
+            case og.Pitch():
+                self._pitch << operand
+                self._pitch._set_owner_element(self)
+            case ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
+                self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
 
