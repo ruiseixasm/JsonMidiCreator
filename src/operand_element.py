@@ -1497,10 +1497,6 @@ class KeyScale(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def scale(self, scale: list[int] | str = None) -> Self:
-        self._scale = og.Scale(scale)
-        return self
-
     def inversion(self, inversion: int = 1) -> Self:
         self._inversion = inversion
         return self
