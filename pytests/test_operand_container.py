@@ -422,7 +422,8 @@ def test_playlists():
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     print(f"First Pitch: {midi_pitch_1}")
     print(f"Second Pitch: {midi_pitch_2}")
-    assert midi_pitch_1 == midi_pitch_2    # Because both notes are in the same Measure, the sharp propagates (61)
+    # assert midi_pitch_1 == midi_pitch_2    # Because both notes are in the same Measure, the sharp propagates (61)
+    assert midi_pitch_1 != midi_pitch_2    # Abandoned the sharp propagation on same Measure (61)
 
     two_notes.reverse()
     assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
@@ -431,7 +432,7 @@ def test_playlists():
     midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
     assert midi_pitch_1 != midi_pitch_2
 
-test_playlists()
+# test_playlists()
 
 
 def test_add_clip():

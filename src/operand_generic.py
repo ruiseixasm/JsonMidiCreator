@@ -258,35 +258,18 @@ class Pitch(Generic):
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_float(self) -> float:
         key_int: int = self.get_key_int()
-        self_staff: Staff = self._get_staff()   # Optimization
-
-        position_measure: int = 0
-        element_channel: int = 0
-        if self._owner_element is not None:
-            position_measure = self._owner_element % ra.Position() % int()
-            element_channel = self._owner_element._channel
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
-            # Adds the Natural accidental
-            self_staff._add_accidental(position_measure, key_int, element_channel, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
-                accidentals_int: int = self_staff._key_signature._unit
+                accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
                     key_int += 1
                 else:
                     key_int -= 1
         elif self._sharp != 0:
-            # Adds the Sharp/Flat accidental
-            self_staff._add_accidental(position_measure, key_int, element_channel, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
-        # Check staff accidentals
-        else:
-            staff_accidentals = self_staff._get_accidental(position_measure, key_int, element_channel)
-            if staff_accidentals:    # Staff only set Sharps and Flats
-                if self._major_scale[key_int % 12] == 1:  # White key
-                    key_int += staff_accidentals    # applies Pitch self accidentals
         return float(key_int)
 
 
