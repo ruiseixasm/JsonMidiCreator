@@ -1424,6 +1424,10 @@ class Staff(Generic):
                 if self._scale.hasScale():
                     return self._scale % float()
                 return self._key_signature % float()
+            case str():
+                if self._scale.hasScale():
+                    return self._scale % str()
+                return self._key_signature % str()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
