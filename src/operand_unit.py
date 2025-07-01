@@ -731,10 +731,10 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case KeySignature():        return self.copy()
             case int():                 return self._unit
             case float():
-                return self % Key() % float()
-            case Tonic():
-                return Tonic(self % float())
-            case Key():
+                return self % og.Key() % float()
+            case og.Tonic():
+                return og.Tonic(self % float())
+            case og.Key():
                 tonic_key: int = self.get_tonic_key()
                 key_line: int = 0
                 if self._unit < 0:
@@ -742,7 +742,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 # It happens only for 7 Flats (-7) (Cb)
                 if self.is_enharmonic(tonic_key, tonic_key):
                     key_line += 2    # All Sharps/Flats
-                return Key( float(tonic_key + key_line * 12) )
+                return og.Key( float(tonic_key + key_line * 12) )
             
             case Major():               return Major() << od.Pipe(self._major)
             case Minor():               return Minor() << od.Pipe(not self._major)
@@ -789,6 +789,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         return self
       
     def __lshift__(self, operand: any) -> Self:
+        import operand_generic as og
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeySignature():
@@ -805,7 +806,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
                     self._unit *= -1
-            case Key():
+            case og.Key():
                 if self._major:
                     self._unit = self._major_keys_accidentals[ operand % int() ]
                 else:
@@ -924,160 +925,6 @@ class Semitone(PitchParameter):
     int(0) : An Integer representing the amount of Chromatic steps, from 0 to 127.
     """
     pass
-
-class Key(PitchParameter):
-    """`Unit -> PitchParameter -> Key`
-
-    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
-    the 12 keys of an octave.
-    
-    Parameters
-    ----------
-    int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
-    """
-    def key_signature(self, key_signature: 'KeySignature' = None) -> Self:
-        self._key_signature = key_signature
-        return self
-
-    def sharp(self, unit: int = None) -> Self:
-        return self << od.Pipe( Sharp(unit) )
-
-    def flat(self, unit: int = None) -> Self:
-        return self << od.Pipe( Flat(unit) )
-
-    def natural(self, unit: int = None) -> Self:
-        return self << od.Pipe( Natural(unit) )
-
-    def degree(self, unit: int = None) -> Self:
-        return self << od.Pipe( Degree(unit) )
-
-    def scale(self, scale: list[int] | str = None) -> Self:
-        import operand_generic as og
-        return self << od.Pipe( og.Scale(scale) )
-
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case str():
-                        return Key._keys[self._unit % 48]
-                    case _:
-                        return super().__mod__(operand)
-
-            case int():
-                return self._unit % 24
-
-            case float():
-                return float(self._unit % 48)
-
-            case str():
-                return Key._keys[self._unit % 48]
-
-            case Sharp():
-                line: int = self._unit // 12
-                if line % 2 == 0:   # Even line
-                    return Sharp(self._accidentals[self._unit % 48])
-                return Sharp(0)
-            case Flat():
-                line: int = self._unit // 12
-                if line % 2 == 1:   # Odd line
-                    return Flat(self._accidentals[self._unit % 48] * -1)
-                return Flat(0)
-
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return self % int() == other % int()    # This get's in consideration the just final key pressed
-            case str():
-                return self % str() == other
-            case _:
-                return super().__eq__(other)
-    
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        import operand_generic as og
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case int():
-                        self._unit = operand._data
-                    case float() | Fraction():
-                        self._unit = int(operand._data)
-                    case Semitone():
-                        self._unit = operand._data % od.Pipe( int() )
-                        self << Degree(1)
-
-                    case str():
-                        self._unit = self.getStringToNumber(operand._data) % 48
-                    case _:
-                        super().__lshift__(operand)
-          
-
-            case int():
-                self._unit = operand % 24
-            case float():
-                self._unit = int(operand) % 48
-
-            case str():
-                self_unit: int = self.getStringToNumber(operand)
-                if self_unit != -1:
-                    self._unit = self_unit
-
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    _keys: list[str] = [
-        "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
-        "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
-        "B#",  "C#", "C##", "D#", "D##", "E#",  "F#", "F##", "G#", "G##", "A#", "A##",  # All Sharps
-        "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
-    ]
-
-    _accidentals: list[int] = [
-         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
-         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
-        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
-        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
-    ]
-    
-    def getStringToNumber(self, key: str = "C") -> int:
-        key_to_find: str = key.strip().lower()
-        for index, value in enumerate(Key._keys):
-            if value.lower().find(key_to_find) != -1:
-                return index
-        return -1
-
-class Tonic(Key):
-    """`Unit -> PitchParameter -> Key -> Tonic`
-
-    An Tonic() represents the root note of a given pitch, with same pitch to a Degree of 1.
-    The default value is the Tonic key is 0 representing the key of C.
-    
-    Parameters
-    ----------
-    int(0) : An Integer representing the key offset relative to the key of C.
-    """
-    pass
-
-class Root(Tonic):
-    """`Unit -> PitchParameter -> Key -> Tonic -> Root`
-    """
-    pass
-
-class Home(Tonic):
-    """`Unit -> PitchParameter -> Key -> Tonic -> Home`
-    """
-    pass
-
 
 class Octave(PitchParameter):
     """`Unit -> PitchParameter -> Octave`
@@ -1215,6 +1062,7 @@ class Flat(PitchParameter):   # Flat (b)
             case _:
                 super().__lshift__(operand)
         return self
+
 
 class Order(Unit):
     """`Unit -> Order`

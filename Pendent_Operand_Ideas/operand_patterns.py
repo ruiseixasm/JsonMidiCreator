@@ -191,7 +191,7 @@ class Melodies(Patterns):
 
 
     def passing_tones(self,
-                tonic = ou.Tonic("C")
+                tonic = og.Tonic("C")
             ) -> oc.Clip:
         """Melodic movement using smooth stepwise motion between strong chord tones."""
         pattern: oc.Clip = oe.Note(tonic) * 8 << of.Iterate(1)
@@ -201,7 +201,7 @@ class Melodies(Patterns):
 
 
     def pedal_tones(self,
-                tonic = ou.Tonic("C")
+                tonic = og.Tonic("C")
             ) -> oc.Clip:
         """A sustained or repeated note with other melodic movement above it."""
         pattern: oc.Clip = oe.Note(tonic) * 8 << of.Foreach(1, 5, 1, 6, 1, 4, 1, 5)**ou.Degree()
@@ -209,7 +209,7 @@ class Melodies(Patterns):
 
 
     def call_response(self,
-                tonic = ou.Tonic("C"),
+                tonic = og.Tonic("C"),
                 transposition = ou.Degree(2)
             ) -> oc.Clip:
         """A phrase (Call) is answered by another phrase (Response), often with variation (Antiphony)."""
@@ -224,7 +224,7 @@ class Melodies(Patterns):
 
 
     def ostinato(self,
-                tonic = ou.Tonic("C"),
+                tonic = og.Tonic("C"),
                 degrees = [1, 5, 1, 6]
             ) -> oc.Clip:
         """A short melodic pattern repeated consistently throughout a piece (Looping Motif)."""
@@ -235,7 +235,7 @@ class Melodies(Patterns):
 
 
     def riff(self,
-                tonic = ou.Tonic("C"),
+                tonic = og.Tonic("C"),
                 degrees = [1, 5, 1, 6]
             ) -> oc.Clip:
         """A catchy and distinct repeating phrase, often rhythmic and driving (Short Repeated Phrase)."""
@@ -248,16 +248,16 @@ class Melodies(Patterns):
 
 
     def chromatic_run(self,
-                tonic = ou.Tonic("C")
+                tonic = og.Tonic("C")
             ) -> oc.Clip:
         """A melody moves by half-step intervals (semitones) instead of traditional scale steps (Half-Step Motion)."""
-        pattern: oc.Clip = oe.Note(tonic) * 8 + of.Iterate()**ou.Tonic()
+        pattern: oc.Clip = oe.Note(tonic) * 8 + of.Iterate()**og.Tonic()
         return pattern
 
 
     def syncopation(self,
-                tonic_1 = ou.Tonic("C"),
-                tonic_2 = ou.Tonic("G")
+                tonic_1 = og.Tonic("C"),
+                tonic_2 = og.Tonic("G")
             ) -> oc.Clip:
         """A melody emphasizing offbeats or unexpected rhythmic placements (Offbeat Melodies)."""
         measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ou.Beat() << of.Foreach(1, 3)**ou.Degree() << ra.Duration(1/4)
@@ -266,14 +266,14 @@ class Melodies(Patterns):
 
 
     def modal_interchange(self,
-                tonic = ou.Tonic("C")
+                tonic = og.Tonic("C")
             ) -> oc.Clip:
         """Switching to a different mode for color and harmonic interest (Borrowed Notes from Other Scales)."""
         major_pattern: oc.Clip = oe.Note(tonic) * 4 + of.Iterate(step=2)**ou.Degree() << ou.Major()
         last_note: oe.Note = major_pattern.last()
         last_note -= ou.Degree(1)
         minor_pattern: oc.Clip = major_pattern.copy(ou.Minor())
-        minor_pattern << of.Get(og.Pitch(), float())**ou.Tonic() << ou.Degree(1)
+        minor_pattern << of.Get(og.Pitch(), float())**og.Tonic() << ou.Degree(1)
         return major_pattern * minor_pattern
 
 

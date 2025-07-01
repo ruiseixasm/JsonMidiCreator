@@ -573,7 +573,6 @@ class Element(o.Operand):
         return self
 
 
-
     def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple[Fraction]:
 
         if isinstance(position_beats, Fraction):
@@ -1020,7 +1019,7 @@ class Note(Element):
         return self
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch << ou.Key(key) << ou.Octave(octave)
+        self._pitch << og.Key(key) << ou.Octave(octave)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1050,7 +1049,7 @@ class Note(Element):
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
             case int():             return self._velocity
-            case ou.PitchParameter() | str() | og.Scale() | ou.Mode():
+            case ou.PitchParameter() | og.Key() | og.Key() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ), ou.Channel(self._channel))
@@ -1316,7 +1315,7 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -1330,7 +1329,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity += operand
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
+            case og.Pitch() | og.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1341,7 +1340,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity -= operand
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
+            case og.Pitch() | og.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:
@@ -3286,7 +3285,7 @@ class PolyAftertouch(Aftertouch):
         super().__init__(*parameters)
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
-        self._pitch << ou.Key(key) << ou.Octave(octave)
+        self._pitch << og.Key(key) << ou.Octave(octave)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3308,7 +3307,7 @@ class PolyAftertouch(Aftertouch):
                     case _:             return super().__mod__(operand)
             case og.Pitch():
                 return self._pitch.copy()
-            case ou.PitchParameter() | str() | og.Scale():
+            case ou.PitchParameter() | og.Key() | str() | og.Scale():
                 return self._pitch % operand
             case ou.Octave():
                 return self._pitch % ou.Octave()
@@ -3381,7 +3380,7 @@ class PolyAftertouch(Aftertouch):
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | og.Key() | None | og.Scale() | ou.Mode() | list() | str():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
