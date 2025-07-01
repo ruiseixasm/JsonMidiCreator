@@ -254,10 +254,16 @@ class Operand:
             case ra.Index():
                 return ra.Index(self._index)
             case tuple():
-                parameters: list = []
+                results: list = []
                 for single_parameter in operand:
-                    parameters.append( self % single_parameter )
-                return tuple( parameters )
+                    if isinstance(single_parameter, tuple):
+                        chained_results = self
+                        for chained_parameter in single_parameter:
+                            chained_results %= chained_parameter
+                        results.append( chained_results )
+                    else:
+                        results.append( self % single_parameter )
+                return tuple( results )
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
