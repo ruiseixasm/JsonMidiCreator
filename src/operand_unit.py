@@ -1068,13 +1068,13 @@ class Tonic(Key):
     """
     pass
 
-class Root(Key):
-    """`Unit -> Key -> Root`
+class Root(Tonic):
+    """`Unit -> Key -> Tonic -> Root`
     """
     pass
 
-class Home(Key):
-    """`Unit -> Key -> Home`
+class Home(Tonic):
+    """`Unit -> Key -> Tonic -> Home`
     """
     pass
 
