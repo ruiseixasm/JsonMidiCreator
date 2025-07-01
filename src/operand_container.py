@@ -1728,9 +1728,7 @@ class Clip(Composition):  # Just a container of Elements
     def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
         if isinstance(staff_reference, og.Staff):
             for single_element in self:
-                if isinstance(single_element, oe.Element):
-                    single_element._convert_staff_reference(self._staff)
-                    single_element._set_owner_clip(self)
+                single_element._convert_staff_reference(self._staff)
             if self._length_beats is not None:
                 self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
             self._staff << staff_reference  # Does a copy
@@ -2126,8 +2124,6 @@ class Clip(Composition):  # Just a container of Elements
                     position_offset: ra.Position = right_position - left_length
 
                     right_clip -= position_offset   # Does a position offset
-                    for single_element in right_clip:
-                        single_element._set_owner_clip(self)
                     
                     self._append(right_clip._items) # Propagates upwards in the stack
                     
@@ -2251,7 +2247,7 @@ class Clip(Composition):  # Just a container of Elements
                         first_element /= segmented_denominator
                         first_element_length: ra.Length = first_element % ra.Length()
                         for next_element_i in range(1, total_segments):
-                            next_element: oe.Element = first_element.copy()._set_owner_clip(self)
+                            next_element: oe.Element = first_element.copy()
                             next_element += ra.Position( first_element_length * next_element_i )
                             new_elements.append(next_element)
                     self._append(new_elements)
@@ -2266,7 +2262,7 @@ class Clip(Composition):  # Just a container of Elements
                         first_element << operand
                         next_split: ra.Position = global_position + operand
                         while global_finish > next_split:
-                            next_element: oe.Element = first_element.copy()._set_owner_clip(self)
+                            next_element: oe.Element = first_element.copy()
                             new_elements.append(next_element)
                             next_element << next_split  # Just positions the `Element`
                             next_split += operand
@@ -2286,7 +2282,7 @@ class Clip(Composition):  # Just a container of Elements
                             first_duration: ra.Duration = ra.Duration(split_position - element_start)
                             second_duration: ra.Duration = ra.Duration(element_finish - split_position)
                             first_element << first_duration
-                            second_element: oe.Element = first_element.copy(second_duration)._set_owner_clip(self)
+                            second_element: oe.Element = first_element.copy(second_duration)
                             second_element += ra.Position(first_duration)
                             new_elements.append(second_element)
                 self._append(new_elements)
@@ -4108,7 +4104,6 @@ class Song(Composition):
 
                 for single_part in right_song:
                     single_part += position_offset
-                    single_part._set_owner_song(self)
 
                 self._append(right_song._items)  # Propagates upwards in the stack
                 
