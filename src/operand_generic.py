@@ -589,8 +589,6 @@ class Pitch(Generic):
                     self._natural = False
             case ou.Degree():
                 self << operand._unit   # Sets as int like above
-            case None:
-                self << -1
 
             case float() | Fraction():
                 self.set_chromatic_pitch(int(operand))
@@ -614,7 +612,7 @@ class Pitch(Generic):
             case ou.Natural():
                 self._natural = operand.__mod__(od.Pipe( bool() ))
                 
-            case Scale():
+            case Scale() | list() | ou.Mode() | None:
                 self._scale << operand
                 
             case str():
