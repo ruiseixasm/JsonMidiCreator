@@ -816,7 +816,7 @@ class Pitch(Generic):
                 new_pitch: float = self % float(-1.0) + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case Tonic():
-                self._tonic_key += operand._unit
+                self._tonic_key += operand._numeral
             case float() | Fraction():
                 new_pitch: float = self % float(-1.0) + float(operand)
                 self.set_chromatic_pitch(new_pitch)
@@ -840,7 +840,7 @@ class Pitch(Generic):
                 new_pitch: float = self % float(-1.0) - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case Tonic():
-                self._tonic_key -= operand._unit
+                self._tonic_key -= operand._numeral
             case float() | Fraction():
                 new_pitch: float = self % float(-1.0) - float(operand)
                 self.set_chromatic_pitch(new_pitch)
