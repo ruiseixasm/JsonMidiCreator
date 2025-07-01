@@ -1476,7 +1476,6 @@ class KeyScale(Note):
 
     Parameters
     ----------
-    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -1491,7 +1490,6 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale       = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
         self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
@@ -1522,14 +1520,12 @@ class KeyScale(Note):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Scale():        return self._scale
                     case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
                     case og.Arpeggio():     return self._arpeggio
-                    case list():            return self._scale % list()
+                    case list():            return self._pitch._scale % list()
                     case _:                 return super().__mod__(operand)
-            case og.Scale():        return self._scale.copy()
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
-            case ou.Mode():         return self._scale % operand
+            case ou.Mode():         return self._pitch._scale % operand
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
@@ -1541,9 +1537,9 @@ class KeyScale(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._scale     == other._scale \
-                    and self._inversion == other._inversion \
-                    and self._arpeggio  == other._arpeggio
+                    and self._pitch._scale  == other._pitch._scale \
+                    and self._inversion     == other._inversion \
+                    and self._arpeggio      == other._arpeggio
             case _:
                 return super().__eq__(other)
             
@@ -1569,9 +1565,9 @@ class KeyScale(Note):
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
-        if self._scale.hasScale():
-            for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-                transposition: int = self._scale.transposition(key_note_i)
+        if self._pitch._scale.hasScale():
+            for key_note_i in range(self._pitch._scale.keys()): # presses entire scale, 7 keys for diatonic scales
+                transposition: int = self._pitch._scale.transposition(key_note_i)
                 new_note: Note = Note(self)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
@@ -1606,7 +1602,6 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["self_scale"]   = self.serialize( self._scale )
         serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
         serialization["parameters"]["arpeggio"]     = self.serialize( self._arpeggio )
         return serialization
@@ -1615,10 +1610,9 @@ class KeyScale(Note):
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "self_scale" in serialization["parameters"] and "inversion" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
+            "inversion" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale     = self.deserialize( serialization["parameters"]["self_scale"] )
             self._inversion = self.deserialize( serialization["parameters"]["inversion"] )
             self._arpeggio  = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
@@ -1628,27 +1622,22 @@ class KeyScale(Note):
         match operand:
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale     << operand._scale
                 self._inversion = operand._inversion
                 self._arpeggio  << operand._arpeggio
             case od.Pipe():
                 match operand._data:
-                    case og.Scale():        self._scale = operand._data
                     case ou.Inversion():    self._inversion = operand._data._unit
                     case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
             case og.Scale() | list() | ou.Mode() | None:    # It's the element scale that is set
-                self._scale << operand
+                self._pitch._scale << operand
             case ou.Inversion():
                 self._inversion = operand._unit
-            case ou.KeySignature():
-                super().__lshift__(operand)
-                self._scale << operand % list()
             case str():
                 operand = operand.strip()
                 # Set root note and Scale
                 self._pitch << operand
-                self._scale << operand
+                self._pitch._scale << operand
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
@@ -1703,11 +1692,11 @@ class PitchChord(KeyScale):
         chord_notes: list[Note] = []
         
         # Sets Scale to be used
-        if self._scale.hasScale():
+        if self._pitch._scale.hasScale():
             for octave_offset, pitch_offset in enumerate(self._offsets):
                 single_note: Note = Note(self)  # Owned by same clip
                 if isinstance(pitch_offset, int):
-                    transposition: int = self._scale.transposition(pitch_offset)
+                    transposition: int = self._pitch._scale.transposition(pitch_offset)
                     single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 else:
                     single_note._pitch += pitch_offset
@@ -1863,7 +1852,7 @@ class Chord(KeyScale):
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
         # Sets Scale to be used
-        if self._scale.hasScale():
+        if self._pitch._scale.hasScale():
             for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
@@ -1871,7 +1860,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                transposition: int = self._scale.transposition(key_degree - 1)
+                transposition: int = self._pitch._scale.transposition(key_degree - 1)
                 if key_degree == 7:   # Seventh
                     if self._dominant:
                         transposition -= 1
@@ -1952,9 +1941,9 @@ class Chord(KeyScale):
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
-                    self._scale << "minor"
+                    self._pitch._scale << "minor"
                 else:
-                    self._scale << "Major"
+                    self._pitch._scale << "Major"
                 self.set_all(operand)
             case ou.Dominant():
                 if operand:
