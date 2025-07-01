@@ -156,13 +156,14 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
-        self._tonic_key: int                    = defaults._staff % ou.Key() % int()
-        self._octave: int                       = 4     # By default it's the 4th Octave!
-        self._degree: int                       = 1     # By default it's Degree 1
-        self._sharp: int                        = 0     # By default not a Sharp or Flat
-        self._natural: bool                     = False
+        self._tonic_key: int            = defaults._staff % ou.Key() % int()
+        self._octave: int               = 4     # By default it's the 4th Octave!
+        self._degree: int               = 1     # By default it's Degree 1
+        self._sharp: int                = 0     # By default not a Sharp or Flat
+        self._natural: bool             = False
+        self._scale: Scale              = Scale( None )
 
-        self._owner_element: oe.Element         = None
+        self._owner_element: oe.Element = None
         super().__init__(*parameters)
 
 
@@ -373,6 +374,7 @@ class Pitch(Generic):
                     case ou.Degree():       return operand._data << od.Pipe(self._degree)
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
+                    case Scale():           return self._scale
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
@@ -417,6 +419,9 @@ class Pitch(Generic):
             case ou.Natural():
                 return ou.Natural() << od.Pipe(self._natural)
             
+            case Scale():
+                return self._scale.copy()
+
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
@@ -446,7 +451,7 @@ class Pitch(Generic):
                 return self % float(-1.0) == other % float(-1.0)
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
-            case int() | float() | str() | ou.Key():
+            case int() | float() | str() | ou.Key() | Scale():
                 return self % other == other
             case od.Conditional():
                 return other == self
@@ -488,6 +493,7 @@ class Pitch(Generic):
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -495,7 +501,7 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree" in serialization["parameters"] and "octave" in serialization["parameters"]):
+            "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
@@ -503,6 +509,7 @@ class Pitch(Generic):
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
+            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -516,6 +523,7 @@ class Pitch(Generic):
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
+                self._scale                 << operand._scale
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
                 self._owner_element         = operand._owner_element
             case od.Pipe():
@@ -538,6 +546,8 @@ class Pitch(Generic):
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Degree():
                         self._degree = operand._data._unit
+                    case Scale():
+                        self._scale = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -598,6 +608,10 @@ class Pitch(Generic):
                     self._sharp = operand._unit % 3 * -1
             case ou.Natural():
                 self._natural = operand.__mod__(od.Pipe( bool() ))
+                
+            case Scale():
+                self._scale << operand
+                
             case str():
                 string: str = operand.strip()
                 self._sharp = \
