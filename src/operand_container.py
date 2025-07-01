@@ -3537,7 +3537,7 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                right_part: Part = operand.copy()._set_owner_song(self._owner_song)
+                right_part: Part = operand.copy()
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_part % od.Pipe( ra.Position() )
@@ -3582,7 +3582,7 @@ class Part(Composition):
         match operand:
             case Part():
                 # This conversion doesn't touch on the Clips
-                right_part: Part = operand.copy()._set_owner_song(self._owner_song)
+                right_part: Part = operand.copy()
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
@@ -3725,14 +3725,6 @@ class Song(Composition):
         if self is not self._upper_container:
             self._upper_container._sort_position()
         self._items.sort(key=lambda x: x._position_beats)
-        return self
-
-
-    def _set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
-        if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference  # Does a copy
-        for single_part in self._items:
-            single_part._set_owner_song(self)
         return self
 
 
