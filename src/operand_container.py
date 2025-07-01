@@ -1981,6 +1981,10 @@ class Clip(Composition):  # Just a container of Elements
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case om.Mutation():     operand._data.mutate(self)
 
+                    # All possible Staff parameters enter here
+                    case og.Scale() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                        self._staff << operand._data
+
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         if self.len() == clip_get.len() and len(clip_get._get) > 0:
