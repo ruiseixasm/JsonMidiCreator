@@ -185,7 +185,6 @@ class Pitch(Generic):
         return self._owner_element._get_staff()
 
 
-
     def get_accidental(self) -> bool | int:
         # parameter decorators like Sharp and Natural
         if self._natural:
@@ -259,6 +258,7 @@ class Pitch(Generic):
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_float(self) -> float:
         key_int: int = self.get_key_int()
+        self_staff: Staff = self._get_staff()   # Optimization
 
         position_measure: int = 0
         element_channel: int = 0
@@ -269,21 +269,21 @@ class Pitch(Generic):
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             # Adds the Natural accidental
-            self._get_staff()._add_accidental(position_measure, key_int, element_channel, True)
+            self_staff._add_accidental(position_measure, key_int, element_channel, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
-                accidentals_int: int = self._get_staff()._key_signature._unit
+                accidentals_int: int = self_staff._key_signature._unit
                 if accidentals_int < 0:
                     key_int += 1
                 else:
                     key_int -= 1
         elif self._sharp != 0:
             # Adds the Sharp/Flat accidental
-            self._get_staff()._add_accidental(position_measure, key_int, element_channel, self._sharp)
+            self_staff._add_accidental(position_measure, key_int, element_channel, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
         else:
-            staff_accidentals = self._get_staff()._get_accidental(position_measure, key_int, element_channel)
+            staff_accidentals = self_staff._get_accidental(position_measure, key_int, element_channel)
             if staff_accidentals:    # Staff only set Sharps and Flats
                 if self._major_scale[key_int % 12] == 1:  # White key
                     key_int += staff_accidentals    # applies Pitch self accidentals
@@ -442,8 +442,9 @@ class Pitch(Generic):
                 self_pitch: int = int( self % float() )
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
-                if not self._get_staff()._scale.hasScale() \
-                    and self._get_staff()._key_signature.is_enharmonic(self._tonic_key, key_note):
+                self_staff: Staff = self._get_staff()   # Optimization
+                if not self_staff._scale.hasScale() \
+                    and self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
@@ -718,8 +719,9 @@ class Pitch(Generic):
 
     def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
-        if self._get_staff()._scale.hasScale():
-            scale = self._get_staff()._scale % list()
+        self_staff: Staff = self._get_staff()   # Optimization
+        if self_staff._scale.hasScale():
+            scale = self_staff._scale % list()
         move_semitones: int = 0
         while move_tones > 0:
             move_semitones += 1
@@ -1278,8 +1280,7 @@ class Staff(Generic):
         return self
 
     def _get_accidental(self, measure: int, pitch: int, channel: int) -> bool | int:
-        if self is not defaults._staff \
-                and measure in self._accidentals and pitch in self._accidentals[measure] and channel in self._accidentals[measure][pitch]:
+        if measure in self._accidentals and pitch in self._accidentals[measure] and channel in self._accidentals[measure][pitch]:
             return self._accidentals[measure][pitch][channel]
         return False
 
