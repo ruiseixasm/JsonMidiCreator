@@ -253,6 +253,11 @@ class Operand:
                 return serialization
             case ra.Index():
                 return ra.Index(self._index)
+            case tuple():
+                parameters: list = []
+                for single_parameter in operand:
+                    parameters.append( self % single_parameter )
+                return tuple( parameters )
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
