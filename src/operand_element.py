@@ -80,13 +80,6 @@ class Element(o.Operand):
             self._owner_clip = owner_clip
         return self
 
-    def _get_owner_clip(self) -> 'Clip':
-        return self._owner_clip
-
-    def _reset_owner_clip(self) -> Self:
-        self._owner_clip = None
-        return self
-
     def _get_staff(self) -> 'og.Staff':
         if self._owner_clip is None:
             return og.defaults._staff

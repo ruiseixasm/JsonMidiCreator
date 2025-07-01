@@ -153,6 +153,18 @@ class Key(Generic):
         self._owner_pitch: Pitch = None
         super().__init__(*parameters)
 
+
+    def _set_owner_pitch(self, owner_pitch: 'Pitch') -> Self:
+        if isinstance(owner_pitch, Pitch):
+            self._owner_pitch = owner_pitch
+        return self
+
+    def _get_staff(self) -> 'Staff':
+        if self._owner_pitch is None:
+            return defaults._staff
+        return self._owner_pitch._get_staff()
+
+
     def key_signature(self, key_signature: 'ou.KeySignature' = None) -> Self:
         self._key_signature = key_signature
         return self
@@ -335,6 +347,7 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         import operand_element as oe
         self._tonic_key: int            = defaults._staff % Key() % int()
+        self._tonic: Tonic              = Tonic()._set_owner_pitch(self)
         self._octave: int               = 4     # By default it's the 4th Octave!
         self._degree: int               = 1     # By default it's Degree 1
         self._sharp: int                = 0     # By default not a Sharp or Flat
@@ -349,13 +362,6 @@ class Pitch(Generic):
         import operand_element as oe
         if isinstance(owner_element, oe.Element):
             self._owner_element = owner_element
-        return self
-
-    def _get_owner_element(self) -> 'Element':
-        return self._owner_element
-
-    def _reset_owner_element(self) -> Self:
-        self._owner_element = None
         return self
 
     def _get_staff(self) -> 'Staff':

@@ -3143,13 +3143,6 @@ class Part(Composition):
             self._owner_song = owner_song
         return self
 
-    def _get_owner_song(self) -> 'Song':
-        return self._owner_song
-
-    def _reset_owner_song(self) -> Self:
-        self._owner_song = None
-        return self
-
     def _get_staff(self) -> 'og.Staff':
         if self._owner_song is None:
             return og.defaults._staff
