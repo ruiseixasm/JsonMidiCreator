@@ -1316,7 +1316,7 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | str() | None | og.Scale():
+            case og.Pitch() | ou.PitchParameter() | str() | None | og.Scale() | list():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -3388,7 +3388,7 @@ class PolyAftertouch(Aftertouch):
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | str() | None | og.Scale():
+            case og.Pitch() | ou.PitchParameter() | str() | None | og.Scale() | list():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
