@@ -770,7 +770,7 @@ class Measurement(Convertible):
         match operand:
             case int():                 return self._get_staff().convertToMeasure(self) % int()
             case float():               return self._get_staff().convertToMeasures(self) % float()
-            case Fraction():            return self._get_staff().convertToMeasures(self) % Fraction()
+            case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
     # Position round type: [...)
@@ -822,8 +822,10 @@ class Measurement(Convertible):
                 self._rational = (
                     self._get_staff(operand).convertToBeats(self_measure) + self._get_staff(operand).convertToBeats(operand)
                     )._rational
-            case int() | float() | Fraction():
+            case int() | float():
                 self << Measures(operand)
+            case Fraction():
+                self._rational = operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -833,8 +835,10 @@ class Measurement(Convertible):
         match operand:
             case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
-            case int() | float() | Fraction():
+            case int() | float():
                 self += Measures(operand)
+            case Fraction():
+                self._rational += operand
         return self
     
     def __isub__(self, operand: any) -> Self:
@@ -842,8 +846,10 @@ class Measurement(Convertible):
         match operand:
             case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
-            case int() | float() | Fraction():
+            case int() | float():
                 self -= Measures(operand)
+            case Fraction():
+                self._rational -= operand
         return self
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
@@ -856,6 +862,8 @@ class Measurement(Convertible):
                 self << self_measures * operand_measures
             case int() | float() | Fraction():
                 self *= Measures(operand)  # Default variable is Measures
+            case Fraction():
+                self._rational *= operand
         return self
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
@@ -867,8 +875,12 @@ class Measurement(Convertible):
                 operand_measures: Measures = operand % Measures()
                 if operand_measures != Measures(0):
                     self << self_measures / operand_measures
-            case int() | float() | Fraction():
-                self /= Measures(operand)  # Default variable is Measures
+            case int() | float():
+                if operand != 0:
+                    self /= Measures(operand)  # Default variable is Measures
+            case Fraction():
+                if operand != 0:
+                    self._rational /= operand
         return self
 
 

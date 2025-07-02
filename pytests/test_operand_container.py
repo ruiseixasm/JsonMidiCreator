@@ -765,7 +765,7 @@ def test_clip_fitting():
     six_notes.fit(Measures(2))
     assert six_notes % Duration() == Beats(8)
 
-# test_clip_fitting()
+test_clip_fitting()
 
 
 def test_clip_map():
