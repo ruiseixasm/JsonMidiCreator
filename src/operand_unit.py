@@ -925,6 +925,45 @@ class Semitone(PitchParameter):
     """
     pass
 
+
+class Shifting(PitchParameter):
+    """`Unit -> PitchParameter -> Shifting`
+
+    Shifting() represents a transposition or a modulation along a given Scale
+    depending on the Pitch having its own Scale or not respectively.
+    
+    Parameters
+    ----------
+    int(0) : By default the `Root` note has no shifting, pitch unchanged.
+    """
+    pass
+
+class Transposition(Shifting):
+    """`Unit -> PitchParameter -> Shifting -> Transposition`
+
+    A Transposition() is used to do a transposition along the `Pitch` Scale.
+    
+    Parameters
+    ----------
+    int(0) : By default the `Root` note has no transposition, pitch unchanged.
+    """
+    pass
+
+class Modulation(Shifting):    # Modal Modulation
+    """`Unit -> PitchParameter -> Shifting -> Modulation`
+
+    A Modulation() processes the Staff KeySignature or the Staff Scale in an
+    harmonic fashion.
+    
+    Parameters
+    ----------
+    int(0) : By default the `Root` note has no modulation, pitch unchanged.
+    """
+    def __init__(self, mode: int | str = 0):
+        unit = Mode(mode)._unit # Processes text
+        super().__init__(unit)
+
+
 class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
@@ -1737,31 +1776,6 @@ class ScaleOperation(Unit):
     """`Unit -> ScaleOperation`
     """
     pass
-
-class Transposition(ScaleOperation):
-    """`Unit -> ScaleOperation -> Transposition`
-
-    A Transposition() is used to do a modal Transposition along a given Scale.
-    
-    Parameters
-    ----------
-    int(5) : Transposition along the given Scale with 1 ("1st") as the default mode
-    """
-    def __init__(self, tones: int = 5):
-        super().__init__(tones)
-
-class Modulation(ScaleOperation):    # Modal Modulation
-    """`Unit -> ScaleOperation -> Modulation`
-
-    A Modulation() is used to return a modulated Scale from a given Scale or Scale.
-    
-    Parameters
-    ----------
-    int(1) : Modulation of a given Scale with 1 ("1st") as the default mode
-    """
-    def __init__(self, mode: int | str = None):
-        unit = Mode(mode)._unit
-        super().__init__(unit)
 
 class Modulate(ScaleOperation):    # Modal Modulation
     """`Unit -> ScaleOperation -> Modulate`
