@@ -160,6 +160,7 @@ class Pitch(Generic):
         self._tonic_key: int            = defaults._staff % ou.Key() % int()
         self._octave: int               = 4     # By default it's the 4th Octave!
         self._degree: int               = 1     # By default it's Degree 1
+        self._shifting: int             = 0     # By default it's it has no shifting (transposition/modulation)
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: Scale              = Scale( None )
@@ -362,10 +363,11 @@ class Pitch(Generic):
                     case of.Frame():        return self % od.Pipe( operand._data )
                     case ou.Octave():       return operand._data << od.Pipe(self._octave)
                     case ou.Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.Degree():       return operand._data << od.Pipe(self._degree)
+                    case ou.Shifting():     return operand._data << od.Pipe(self._shifting)
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
-                    case ou.Degree():       return operand._data << od.Pipe(self._degree)
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
                     case Scale():           return self._scale
@@ -397,6 +399,8 @@ class Pitch(Generic):
             
             case ou.Degree():
                 return ou.Degree(self % int())
+            case ou.Shifting():
+                return ou.Shifting(self._shifting)
              
             case ou.Sharp():
                 final_pitch: int = int(self % float())
@@ -489,6 +493,7 @@ class Pitch(Generic):
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
+        serialization["parameters"]["shifting"]         = self.serialize( self._shifting )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
@@ -499,12 +504,14 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "shifting" in serialization["parameters"] and 
+            "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
+            self._shifting      = self.deserialize( serialization["parameters"]["shifting"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
@@ -519,6 +526,7 @@ class Pitch(Generic):
                 self._tonic_key             = operand._tonic_key
                 self._octave                = operand._octave
                 self._degree                = operand._degree
+                self._shifting              = operand._shifting
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale                 << operand._scale
@@ -545,6 +553,8 @@ class Pitch(Generic):
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Degree():
                         self._degree = operand._data._unit
+                    case ou.Shifting():
+                        self._shifting = operand._data._unit
                     case Scale():
                         self._scale = operand._data
                     case str():
@@ -583,6 +593,8 @@ class Pitch(Generic):
                     self._natural = False
             case ou.Degree():
                 self << operand._unit   # Sets as int like above
+            case ou.Shifting():
+                self._shifting = operand._unit
 
             case float() | Fraction():
                 self.set_chromatic_pitch(int(operand))
