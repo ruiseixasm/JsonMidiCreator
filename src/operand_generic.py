@@ -251,7 +251,7 @@ class Pitch(Generic):
         return key_int
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
-    def get_key_float(self) -> float:
+    def get_key_with_accidentals(self, root_key: int) -> int:
         key_int: int = self.get_root_key(self._tonic_key, self._degree - 1)
 
         # Final parameter decorators like Sharp and Natural
@@ -265,7 +265,7 @@ class Pitch(Generic):
         elif self._sharp != 0:
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
-        return float(key_int)
+        return key_int
 
 
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
@@ -386,18 +386,19 @@ class Pitch(Generic):
                 return self_degree_0 % total_degrees + 1
              
             case float():  # For some reason still dependent her of Fraction !
-                return float( 12 * (self._octave + 1) + self.get_key_float() )
+                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
+                return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
             case Fraction():    # Applies the Transposition/Modulation here
-                root_pitch: int = 12 * (self._octave + 1) + self.get_key_float()
+                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
                     if self._scale.hasScale():  # Transpose
                         transposition: int = self._scale.transposition(self._shifting)
-                        root_pitch += transposition # Jumps by semitones (chromatic tones)
+                        root_key += transposition # Jumps by semitones (chromatic tones)
                     else:   # Here the Modulation is treated as a degree_0
-                        root_pitch += self.get_root_key(root_pitch, self._shifting)
-                return Fraction(root_pitch)
+                        root_key += self.get_root_key(root_key, self._shifting)
+                return Fraction( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
@@ -405,6 +406,8 @@ class Pitch(Generic):
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
             case ou.Root():
+                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
+                root_key: int = root_pitch % 12
 
                 return ou.Root(self._tonic_key)
             case ou.Octave():
