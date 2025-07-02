@@ -671,7 +671,7 @@ class Pitch(Generic):
                 self.apply_degree_offset(operand._unit)
             case ou.Shifting():
                 self._shifting += operand._unit
-            case ou.Tone():
+            case ou.Tone() | ou.Root():
                 new_pitch: float = self % float() + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
@@ -699,7 +699,7 @@ class Pitch(Generic):
                 self.apply_degree_offset(-operand._unit)
             case ou.Shifting():
                 self._shifting -= operand._unit
-            case ou.Tone():
+            case ou.Tone() | ou.Root():
                 new_pitch: float = self % float() - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
