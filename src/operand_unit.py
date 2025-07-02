@@ -1068,13 +1068,27 @@ class Tonic(Key):
     """
     pass
 
-class Root(Tonic):
-    """`Unit -> PitchParameter -> Key -> Tonic -> Root`
+class Root(Key):
+    """`Unit -> PitchParameter -> Key -> Root`
+
+    An Root() represents the note at the configured Degree, so for a Tonic C the IV Root Key
+    becomes the Key F.
+    
+    Parameters
+    ----------
+    int(0) : An Integer representing the key offset relative to the key of C.
     """
     pass
 
-class Home(Tonic):
-    """`Unit -> PitchParameter -> Key -> Tonic -> Home`
+class Target(Key):
+    """`Unit -> PitchParameter -> Key -> Target`
+
+    An Target() Key represents the actually played Key, meaning, the Key after rooted in a given
+    `Degree` and Transposed by a given `Transposition` (`Shifting`).
+    
+    Parameters
+    ----------
+    int(0) : An Integer representing the key offset relative to the key of C.
     """
     pass
 
