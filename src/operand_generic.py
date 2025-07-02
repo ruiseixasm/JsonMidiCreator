@@ -406,10 +406,10 @@ class Pitch(Generic):
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
             case ou.Root():
-                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
-                root_key: int = root_pitch % 12
-
-                return ou.Root(self._tonic_key)
+                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1) % 12
+                root_key += self._tonic_key // 12 * 12  # key_line * total_keys
+                return ou.Root(root_key)
+            
             case ou.Octave():
                 target_pitch: int = int(self % Fraction())
                 return ou.Octave( target_pitch // 12 - 1 )
