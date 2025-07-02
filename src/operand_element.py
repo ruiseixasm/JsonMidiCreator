@@ -1674,7 +1674,6 @@ class PitchChord(KeyScale):
             chord_notes.append( single_note )
             single_note._pitch += pitch_offset
             single_note._pitch += ou.Octave(octave_offset)
-
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
@@ -1817,9 +1816,32 @@ class Chord(KeyScale):
     
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
+
+        # for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+        #     single_note: Note = Note(self)  # Owned by same clip
+        #     chord_notes.append( single_note )
+        #     key_degree: int = key_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
+        #     if key_degree == 3:   # Third
+        #         if self._sus2:
+        #             key_degree -= 1
+        #         if self._sus4:
+        #             key_degree += 1   # cancels out if both sus2 and sus4 are set to true
+        #     single_note += ou.Shifting(key_degree - 1)  # Sets the note Shifting by degrees (scale tones) (int is a degree)
+        #     # Chromatic offsets y Semitones
+        #     if key_degree == 7:         # flattens the Seventh
+        #         if self._dominant:
+        #             single_note -= ou.Semitone(1)
+        #     if key_degree == 3 or key_degree == 5:  # flattens the Third and Fifth
+        #         if self._diminished:
+        #             single_note -= ou.Semitone(1)
+
+
+        chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._pitch._scale.hasScale():
             for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+                single_note: Note = Note(self)    # Owned by the same Clip
+                chord_notes.append( single_note )
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
@@ -1833,20 +1855,18 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                single_note: Note = Note(self)    # Owned by the same Clip
                 single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
-                chord_notes.append( single_note )
         else:   # Uses the staff keys straight away
             for note_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+                single_note: Note = Note(self)    # Owned by the same Clip
+                chord_notes.append( single_note )
                 key_degree: int = note_i * 2 + 1    # 1, 3, 5, 7, 9, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                single_note: Note = Note(self)    # Owned by the same Clip
                 single_note += ou.Degree(key_degree - 1)    # Jumps by degrees (scale tones) (int is a degree)
-                chord_notes.append( single_note )
 
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
     
