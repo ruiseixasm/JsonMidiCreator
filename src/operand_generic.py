@@ -137,190 +137,6 @@ class TimeSignature(Generic):
         return self
 
 
-class Key(Generic):
-    """`Generic -> Key`
-
-    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
-    the 12 keys of an octave.
-    
-    Parameters
-    ----------
-    int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
-    """
-    def __init__(self, *parameters):
-        self._numeral: int | float = 0
-        super().__init__(*parameters)
-
-
-    def _set_owner_pitch(self, owner_pitch: 'Pitch') -> Self:
-        if isinstance(owner_pitch, Pitch):
-            self._owner_pitch = owner_pitch
-        return self
-
-    def _get_staff(self) -> 'Staff':
-        if self._owner_pitch is None:
-            return defaults._staff
-        return self._owner_pitch._get_staff()
-
-
-    def key_signature(self, key_signature: 'ou.KeySignature' = None) -> Self:
-        self._key_signature = key_signature
-        return self
-
-    def sharp(self, unit: int = None) -> Self:
-        return self << od.Pipe( ou.Sharp(unit) )
-
-    def flat(self, unit: int = None) -> Self:
-        return self << od.Pipe( ou.Flat(unit) )
-
-    def natural(self, unit: int = None) -> Self:
-        return self << od.Pipe( ou.Natural(unit) )
-
-    def degree(self, unit: int = None) -> Self:
-        return self << od.Pipe( ou.Degree(unit) )
-
-    def scale(self, scale: list[int] | str = None) -> Self:
-        import operand_generic as og
-        return self << od.Pipe( og.Scale(scale) )
-
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case str():
-                        return Key._keys[self._unit % 48]
-                    case _:
-                        return super().__mod__(operand)
-
-            case int():
-                return self._unit % 24
-
-            case float():
-                return float(self._unit % 48)
-
-            case str():
-                return Key._keys[self._unit % 48]
-
-            case ou.Sharp():
-                line: int = self._unit // 12
-                if line % 2 == 0:   # Even line
-                    return ou.Sharp(self._accidentals[self._unit % 48])
-                return ou.Sharp(0)
-            case ou.Flat():
-                line: int = self._unit // 12
-                if line % 2 == 1:   # Odd line
-                    return ou.Flat(self._accidentals[self._unit % 48] * -1)
-                return ou.Flat(0)
-
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return self % int() == other % int()    # This get's in consideration the just final key pressed
-            case str():
-                return self % str() == other
-            case _:
-                return super().__eq__(other)
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["numeral"] = self._numeral
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "numeral" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._numeral = serialization["parameters"]["numeral"]
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        import operand_generic as og
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case int():
-                        self._unit = operand._data
-                    case float() | Fraction():
-                        self._unit = int(operand._data)
-                    case ou.Semitone():
-                        self._unit = operand._data % od.Pipe( int() )
-                        self << ou.Degree(1)
-
-                    case str():
-                        self._unit = self.getStringToNumber(operand._data) % 48
-                    case _:
-                        super().__lshift__(operand)
-          
-            case int():
-                self._unit = operand % 24
-            case float():
-                self._unit = int(operand) % 48
-
-            case str():
-                self_unit: int = self.getStringToNumber(operand)
-                if self_unit != -1:
-                    self._unit = self_unit
-
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    _keys: list[str] = [
-        "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
-        "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
-        "B#",  "C#", "C##", "D#", "D##", "E#",  "F#", "F##", "G#", "G##", "A#", "A##",  # All Sharps
-        "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
-    ]
-
-    _accidentals: list[int] = [
-         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
-         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
-        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
-        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
-    ]
-    
-    _degrees: dict[str] = ["-", "I", "ii", "iii", "IV", "V", "vi", "vii"]
-
-    def getStringToNumber(self, key: str = "C") -> int:
-        key_to_find: str = key.strip().lower()
-        for index, value in enumerate(Key._keys):
-            if value.lower().find(key_to_find) != -1:
-                return index
-        return -1
-
-class Tonic(Key):
-    """`Generic -> Key -> Tonic`
-
-    An Tonic() represents the root note of a given pitch, with same pitch to a Degree of 1.
-    The default value is the Tonic key is 0 representing the key of C.
-    
-    Parameters
-    ----------
-    int(0) : An Integer representing the key offset relative to the key of C.
-    """
-    pass
-
-class Root(Tonic):
-    """`Generic -> Key -> Tonic -> Root`
-    """
-    pass
-
-class Home(Tonic):
-    """`Generic -> Key -> Tonic -> Home`
-    """
-    pass
-
-
 if TYPE_CHECKING:
     from operand_element import Element
 
@@ -341,8 +157,7 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
-        self._tonic_key: int            = defaults._staff % Key() % int()
-        self._tonic: Tonic              = Tonic()._set_owner_pitch(self)
+        self._tonic_key: int            = defaults._staff % ou.Key() % int()
         self._octave: int               = 4     # By default it's the 4th Octave!
         self._degree: int               = 1     # By default it's Degree 1
         self._sharp: int                = 0     # By default not a Sharp or Flat
@@ -546,7 +361,7 @@ class Pitch(Generic):
                 match operand._data:
                     case of.Frame():        return self % od.Pipe( operand._data )
                     case ou.Octave():       return operand._data << od.Pipe(self._octave)
-                    case Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
@@ -574,8 +389,8 @@ class Pitch(Generic):
             case ou.Semitone():
                 return ou.Semitone(self % float())
             
-            case Tonic():    # Must come before than Key()
-                return Tonic(self._tonic_key)
+            case ou.Tonic():    # Must come before than Key()
+                return ou.Tonic(self._tonic_key)
             case ou.Octave():
                 final_pitch: int = int(self % float())
                 return ou.Octave( final_pitch // 12 - 1 )
@@ -609,7 +424,7 @@ class Pitch(Generic):
                 return self._get_staff()._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 return self._get_staff()._key_signature % operand
-            case Key():
+            case ou.Key():
                 self_pitch: int = int( self % float() )
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
@@ -617,10 +432,10 @@ class Pitch(Generic):
                 if not self_staff._scale.hasScale() \
                     and self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
-                return Key( float(key_note + key_line * 12) )
+                return ou.Key( float(key_note + key_line * 12) )
             
             case str():
-                return self % Key() % str()
+                return self % ou.Key() % str()
             
             case _:
                 return super().__mod__(operand)
@@ -634,7 +449,7 @@ class Pitch(Generic):
                 return self % float(-1.0) == other % float(-1.0)
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
-            case int() | float() | str() | Key() | Scale():
+            case int() | float() | str() | ou.Key() | Scale():
                 return self % other == other
             case od.Conditional():
                 return other == self
@@ -716,13 +531,8 @@ class Pitch(Generic):
                     self._owner_element     = operand._owner_element
             case od.Pipe():
                 match operand._data:
-                    case Tonic():    # Must come before than Key()
-<<<<<<< HEAD
-                        self._tonic_key = operand._data._numeral
-                        self._tonic     = operand._data
-=======
+                    case ou.Tonic():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
->>>>>>> parent of 63642b3f (In class Key renamed _unit with _numeral)
                     case ou.Octave():
                         self._octave    = operand._data._unit
                     case int():
@@ -746,18 +556,18 @@ class Pitch(Generic):
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
                             ((operand._data).strip().lower().find("b") != -1) * -1
                         self._degree    = (self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit
-                        self._tonic_key       = Key(self._tonic_key, operand._data)._unit
+                        self._tonic_key       = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Tonic():    # Must come before than Key()
+            case ou.Tonic():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit
-            case Key():
+            case ou.Key():
                 self._sharp = 0
                 self._natural = False
                 self._degree = self.get_key_degree(operand._unit % 12)
@@ -809,7 +619,7 @@ class Pitch(Generic):
                     (ou.Sharp(max(0, self._sharp)) << string)._unit + \
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
                 self._degree    = (self % ou.Degree() << operand)._unit
-                self._tonic_key = (self % Key() << string)._unit
+                self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale << operand
             case tuple():
                 for single_operand in operand:
@@ -833,12 +643,12 @@ class Pitch(Generic):
             case ou.Tone():
                 new_pitch: float = self % float(-1.0) + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
-            case Tonic():
+            case ou.Tonic():
                 self._tonic_key += operand._unit
             case float() | Fraction():
                 new_pitch: float = self % float(-1.0) + float(operand)
                 self.set_chromatic_pitch(new_pitch)
-            case ra.Rational() | Key() | ou.Semitone():
+            case ra.Rational() | ou.Key() | ou.Semitone():
                 new_pitch: float = self % float(-1.0) + operand % float(-1.0)
                 self.set_chromatic_pitch(new_pitch)
         return self
@@ -857,12 +667,12 @@ class Pitch(Generic):
             case ou.Tone():
                 new_pitch: float = self % float(-1.0) - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
-            case Tonic():
+            case ou.Tonic():
                 self._tonic_key -= operand._unit
             case float() | Fraction():
                 new_pitch: float = self % float(-1.0) - float(operand)
                 self.set_chromatic_pitch(new_pitch)
-            case ra.Rational() | Key() | ou.Semitone():
+            case ra.Rational() | ou.Key() | ou.Semitone():
                 new_pitch: float = self % float(-1.0) - operand % float(-1.0)
                 self.set_chromatic_pitch(new_pitch)
         return self
@@ -1160,13 +970,13 @@ class Scale(Generic):
                     case list():                return self._scale_list
                     case str():                 return self.get_scale_name(self._scale_list)
                     case int():                 return self.get_scale_number(self._scale_list)
-                    case Key():                 return Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
+                    case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
                     case _:                     return super().__mod__(operand)
             case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
             case list():
                 modulated_scale: list[int] = self.modulation(None)
-                if self.hasScale() and len(operand) > 0 and isinstance(operand[0], (int, Key)):
-                    if isinstance(operand[0], Key):
+                if self.hasScale() and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
+                    if isinstance(operand[0], ou.Key):
                         key_int: int = operand[0]._unit
                     else:
                         key_int: int = operand[0]
@@ -1179,8 +989,8 @@ class Scale(Generic):
             case int():                 return self.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
-            case Tonic():               return Tonic(self % float())
-            case Key():                 return Key( self.get_tonic_number() )
+            case ou.Tonic():            return ou.Tonic(self % float())
+            case ou.Key():              return ou.Key( self.get_tonic_number() )
             case float():               return float( self.get_tonic_number() )
             case _:                     return super().__mod__(operand)
 
@@ -1572,12 +1382,12 @@ class Staff(Generic):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             # Calculated Values
-            case Tonic():
-                return Tonic(self % float())
-            case Key():
+            case ou.Tonic():
+                return ou.Tonic(self % float())
+            case ou.Key():
                 if self._scale.hasScale():
-                    return self._scale % Key()
-                return self._key_signature % Key()
+                    return self._scale % ou.Key()
+                return self._key_signature % ou.Key()
             case list():
                 if self._scale.hasScale():
                     return self._scale % list()

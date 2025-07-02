@@ -3072,7 +3072,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         last_note = None
-        smooth_range = og.Pitch(og.Key(12 // 2), -1)  # 6 chromatic steps
+        smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for item in self._items:
             if isinstance(item, oe.Note):    # Only Note has single Pitch
                 actual_note = item
