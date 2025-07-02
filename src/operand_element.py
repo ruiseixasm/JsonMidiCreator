@@ -1557,19 +1557,14 @@ class KeyScale(Note):
             
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
-
-        total_keys: int = 0
-        if self._pitch._scale.hasScale():
-            total_keys = self._pitch._scale.keys()
-        else:
-            staff_scale: list = self._get_staff() % list()
-            total_keys = sum(1 for key in staff_scale if key != 0)
-
+        active_scale: list[int] = self._pitch._scale._scale_list
+        if not active_scale:
+            active_scale = self._get_staff() % list()
+        total_keys: int = sum(1 for key in active_scale if key != 0)
         for shifting in range(total_keys):
             new_note: Note = Note(self)
             new_note._pitch._shifting += shifting
             scale_notes.append( new_note )
-
         return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
 
