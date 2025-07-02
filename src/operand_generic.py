@@ -385,10 +385,6 @@ class Pitch(Generic):
 
                 return self_degree_0 % total_degrees + 1
              
-            case float():  # For some reason still dependent her of Fraction !
-                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
-                return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
-            
             case Fraction():    # Applies the Transposition/Modulation here
                 root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
                 # Does the shifting, transposition or modulation
@@ -399,6 +395,17 @@ class Pitch(Generic):
                     else:   # Here the Modulation is treated as a degree_0
                         root_key += self.get_root_key(root_key, self._shifting)
                 return Fraction( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
+            
+            case float():  # For some reason still dependent her of Fraction !
+                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
+                # Does the shifting, transposition or modulation
+                if self._shifting != 0:
+                    if self._scale.hasScale():  # Transpose
+                        transposition: int = self._scale.transposition(self._shifting)
+                        root_key += transposition # Jumps by semitones (chromatic tones)
+                    else:   # Here the Modulation is treated as a degree_0
+                        root_key += self.get_root_key(root_key, self._shifting)
+                return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
