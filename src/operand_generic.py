@@ -203,7 +203,7 @@ class Pitch(Generic):
         return self << ou.Degree(unit)
 
 
-    def get_key_degree(self, key_int: int) -> int:
+    def get_key_degree(self, root_key: int) -> int:
         tonic_key: int = self._tonic_key % 12
         staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
@@ -211,21 +211,21 @@ class Pitch(Generic):
         degree_0: int = 0
         
         # tonic_key goes UP and then DOWN (results in flat or natural)
-        while tonic_key < key_int:
-            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
+        while tonic_key < root_key:
+            if staff_scale[ (root_key - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 += 1
             tonic_key += 1
-        while tonic_key > key_int:
-            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
+        while tonic_key > root_key:
+            if staff_scale[ (root_key - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 -= 1
             tonic_key -= 1
 
-        if staff_scale[ (key_int - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
+        if staff_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
             if self._tonic_key // 12 == 1:  # Checks the tonic key line
-                if self._tonic_key % 12 > key_int:
+                if self._tonic_key % 12 > root_key:
                     degree_0 -= 1
             else:
-                if self._tonic_key % 12 < key_int:
+                if self._tonic_key % 12 < root_key:
                     degree_0 += 1
 
         # Sets the Degree as Positive
@@ -233,12 +233,12 @@ class Pitch(Generic):
 
         return degree_0 + 1 # Degree base 1 (I)
 
-    def get_key_int(self) -> int:
+    def get_root_key(self, tonic_key: int, degree: int) -> int:
 
         staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
 
-        degree_0: int = self._degree - 1    # From base 1 to base 0
+        degree_0: int = degree - 1    # From base 1 to base 0
         degree_0 %= total_keys
 
         degree_transposition: int = 0
@@ -247,13 +247,13 @@ class Pitch(Generic):
             if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
                 degree_0 -= 1
 
-        key_int: int = self._tonic_key % 12 + degree_transposition
+        key_int: int = tonic_key % 12 + degree_transposition
 
         return key_int
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_float(self) -> float:
-        key_int: int = self.get_key_int()
+        key_int: int = self.get_root_key(self._tonic_key, self._degree)
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
