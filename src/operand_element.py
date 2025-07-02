@@ -1554,7 +1554,7 @@ class KeyScale(Note):
             
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
-        active_scale: list[int] = self._pitch._scale._scale_list
+        active_scale: list[int] = self._pitch._scale % list()   # Does the modulation
         if not active_scale:
             active_scale = self._get_staff() % list()
         total_keys: int = sum(1 for key in active_scale if key != 0)
