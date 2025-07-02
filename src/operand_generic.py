@@ -386,11 +386,13 @@ class Pitch(Generic):
 
                 return self_degree_0 % total_degrees + 1
              
-            case float() | Fraction():  # For some reason still dependent her of Fraction !
+            case float():  # For some reason still dependent her of Fraction !
                 return float( 12 * (self._octave + 1) + self.get_key_float() )
             
             case Fraction():    # Applies the Transposition/Modulation here
-                return Fraction(self._shifting)
+                root_pitch: int = 12 * (self._octave + 1) + self.get_key_float()
+
+                return Fraction(root_pitch)
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
