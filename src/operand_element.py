@@ -1557,6 +1557,19 @@ class KeyScale(Note):
             
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
+
+        total_keys: int = 0
+        if self._pitch._scale.hasScale():
+            total_keys = self._pitch._scale.keys()
+        else:
+            staff_scale: list = self._get_staff() % list()
+            total_keys = sum(1 for key in staff_scale if key != 0)
+
+        for shifting in range(total_keys):
+            new_note: Note = Note(self)
+            new_note._pitch._shifting += shifting
+            # scale_notes.append( new_note )
+
         # Sets Scale to be used
         if self._pitch._scale.hasScale():
             for key_note_i in range(self._pitch._scale.keys()): # presses entire scale, 7 keys for diatonic scales
