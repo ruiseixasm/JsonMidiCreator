@@ -395,7 +395,7 @@ class Pitch(Generic):
                         transposition: int = self._scale.transposition(self._shifting)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:   # Here the Modulation is treated as a degree_0
-                        tonic_offset: int = (root_key - self._tonic_key) % 12
+                        tonic_offset: int = root_key - self._tonic_key
                         root_key += self.modulation(tonic_offset, self._shifting)
                 return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
