@@ -252,7 +252,7 @@ class Pitch(Generic):
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
-        key_int: int = self.get_root_key(self._tonic_key, self._degree - 1)
+        key_int: int = root_key
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:

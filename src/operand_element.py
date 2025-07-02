@@ -1568,22 +1568,7 @@ class KeyScale(Note):
         for shifting in range(total_keys):
             new_note: Note = Note(self)
             new_note._pitch._shifting += shifting
-            # scale_notes.append( new_note )
-
-        # Sets Scale to be used
-        if self._pitch._scale.hasScale():
-            for key_note_i in range(self._pitch._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-                transposition: int = self._pitch._scale.transposition(key_note_i)
-                new_note: Note = Note(self)
-                new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
-                scale_notes.append( new_note )
-        else:   # Uses the staff keys straight away
-            staff_scale: list = self._get_staff() % list()
-            total_degrees: int = sum(1 for key in staff_scale if key != 0)
-            for degree_i in range(total_degrees):
-                new_note: Note = Note(self)
-                new_note._pitch += degree_i # Jumps by degrees (scale tones)
-                scale_notes.append( new_note )
+            scale_notes.append( new_note )
 
         return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
