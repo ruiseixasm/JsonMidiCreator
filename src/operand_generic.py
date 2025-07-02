@@ -1003,6 +1003,7 @@ class Scale(Generic):
         self._mode: int             = 1
         super().__init__(*parameters)
 
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, a Scale has many extraction modes
@@ -1375,6 +1376,37 @@ class Staff(Generic):
 
         return self << parameters
     
+    
+    @staticmethod
+    def transpose_scale(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+        # The given scale shall always have a size of 12
+        scale_transposition: int = 0
+        if len(scale) == 12 and sum(1 for key in scale if key != 0) > 0:
+            while steps > 0:
+                scale_transposition += 1
+                if scale[scale_transposition % 12]:
+                    steps -= 1
+            while steps < 0:
+                scale_transposition -= 1
+                if scale[scale_transposition % 12]:
+                    steps += 1
+        return scale_transposition
+
+    @staticmethod
+    def modulate_tonic(tonic_steps: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+        # The given scale shall always have a size of 12
+        tonic_modulation: int = 0
+        if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:
+            while degrees_0 > 0:
+                tonic_modulation += 1
+                if scale[ (tonic_steps + tonic_modulation) % 12 ] == 1:  # Scale key
+                    degrees_0 -= 1
+            while degrees_0 < 0:
+                tonic_modulation -= 1
+                if scale[ (tonic_steps + tonic_modulation) % 12 ] == 1:  # Scale key
+                    degrees_0 += 1
+        return tonic_modulation
+
 
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
         actual_bps: Fraction = self._tempo / 60 # Beats Per Second
