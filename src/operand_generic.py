@@ -697,6 +697,12 @@ class Pitch(Generic):
                 self.apply_degree_offset(operand)
             case ou.Degree():
                 self.apply_degree_offset(operand._unit)
+            case ou.Transposition():
+                self._shifting += operand._unit
+                self._transpose = True
+            case ou.Modulation():
+                self._shifting += operand._unit
+                self._transpose = False
             case ou.Shifting():
                 self._shifting += operand._unit
             case ou.Tone() | ou.Root():
@@ -725,6 +731,12 @@ class Pitch(Generic):
                 self.apply_degree_offset(-operand)
             case ou.Degree():
                 self.apply_degree_offset(-operand._unit)
+            case ou.Transposition():
+                self._shifting -= operand._unit
+                self._transpose = True
+            case ou.Modulation():
+                self._shifting -= operand._unit
+                self._transpose = False
             case ou.Shifting():
                 self._shifting -= operand._unit
             case ou.Tone() | ou.Root():
