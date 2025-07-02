@@ -540,11 +540,13 @@ class Pitch(Generic):
                     case ou.Octave():
                         self._octave    = operand._data._unit
                     case int():
-                        self._unit = operand._data
-                    case float() | Fraction():
-                        self._unit = int(operand._data)
+                        self._degree = operand._data
+                    case float():
+                        self._tonic_key = int(operand._data)
+                    case Fraction():
+                        self._shifting = int(operand._data)
                     case ou.Semitone():
-                        self._unit = operand._data._unit
+                        self._tonic_key = operand._data._unit
                     case ou.Sharp():
                         self._sharp = operand._data._unit
                     case ou.Flat():
