@@ -1563,8 +1563,8 @@ class KeyScale(Note):
         total_keys: int = sum(1 for key in active_scale if key != 0)
         for shifting in range(total_keys):
             new_note: Note = Note(self)
-            new_note._pitch._shifting += shifting
             scale_notes.append( new_note )
+            new_note._pitch._shifting += shifting
         return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
 
@@ -1669,24 +1669,11 @@ class PitchChord(KeyScale):
     
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
-        
-        # Sets Scale to be used
-        if self._pitch._scale.hasScale():
-            for octave_offset, pitch_offset in enumerate(self._offsets):
-                single_note: Note = Note(self)  # Owned by same clip
-                if isinstance(pitch_offset, int):
-                    transposition: int = self._pitch._scale.transposition(pitch_offset)
-                    single_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
-                else:
-                    single_note._pitch += pitch_offset
-                single_note._pitch += ou.Octave(octave_offset)
-                chord_notes.append( single_note )
-        else:
-            for octave_offset, pitch_offset in enumerate(self._offsets):
-                single_note: Note = Note(self)
-                single_note._pitch += pitch_offset
-                single_note._pitch += ou.Octave(octave_offset)
-                chord_notes.append( single_note )
+        for octave_offset, pitch_offset in enumerate(self._offsets):
+            single_note: Note = Note(self)  # Owned by same clip
+            chord_notes.append( single_note )
+            single_note._pitch += pitch_offset
+            single_note._pitch += ou.Octave(octave_offset)
 
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
