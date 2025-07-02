@@ -233,12 +233,11 @@ class Pitch(Generic):
 
         return degree_0 + 1 # Degree base 1 (I)
 
-    def get_root_key(self, tonic_key: int, degree: int) -> int:
+    def get_root_key(self, tonic_key: int, degree_0: int) -> int:
 
         staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
 
-        degree_0: int = degree - 1    # From base 1 to base 0
         degree_0 %= total_keys
 
         degree_transposition: int = 0
@@ -253,7 +252,7 @@ class Pitch(Generic):
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_float(self) -> float:
-        key_int: int = self.get_root_key(self._tonic_key, self._degree)
+        key_int: int = self.get_root_key(self._tonic_key, self._degree - 1)
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
@@ -391,16 +390,13 @@ class Pitch(Generic):
             
             case Fraction():    # Applies the Transposition/Modulation here
                 root_pitch: int = 12 * (self._octave + 1) + self.get_key_float()
-
-
-                # Sets Scale to be used
-                if self._scale.hasScale():
-                    transposition: int = self._scale.transposition(self._shifting)
-                    root_pitch += transposition # Jumps by semitones (chromatic tones)
-
-
-
-
+                # Does the shifting, transposition or modulation
+                if self._shifting != 0:
+                    if self._scale.hasScale():  # Transpose
+                        transposition: int = self._scale.transposition(self._shifting)
+                        root_pitch += transposition # Jumps by semitones (chromatic tones)
+                    else:   # Here the Modulation is treated as a degree_0
+                        root_pitch += self.get_root_key(root_pitch, self._shifting)
                 return Fraction(root_pitch)
             
             case ou.Semitone():
