@@ -404,9 +404,12 @@ class Pitch(Generic):
             
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
+            case ou.Root():
+
+                return ou.Root(self._tonic_key)
             case ou.Octave():
-                final_pitch: int = int(self % float())
-                return ou.Octave( final_pitch // 12 - 1 )
+                target_pitch: int = int(self % Fraction())
+                return ou.Octave( target_pitch // 12 - 1 )
             
             case ou.Degree():
                 return ou.Degree(self % int())
@@ -414,14 +417,14 @@ class Pitch(Generic):
                 return ou.Shifting(self._shifting)
              
             case ou.Sharp():
-                final_pitch: int = int(self % float())
-                if self._major_scale[final_pitch % 12] == 0:    # Black key
+                target_pitch: int = int(self % Fraction())
+                if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit >= 0:
                         return ou.Sharp(1)
                 return ou.Sharp(0)
             case ou.Flat():
-                final_pitch: int = int(self % float())
-                if self._major_scale[final_pitch % 12] == 0:    # Black key
+                target_pitch: int = int(self % Fraction())
+                if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit < 0:
                         return ou.Flat(1)
                 return ou.Flat(0)
