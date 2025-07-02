@@ -394,11 +394,18 @@ class Pitch(Generic):
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
                     if self._scale._scale_list:  # Transpose
-                        transposition: int = self._scale.transposition(self._shifting)
-                        root_key += transposition # Jumps by semitones (chromatic tones)
+                        modulated_scale: list[int] = self._scale % list()
                     else:   # Here the Modulation is treated as a degree_0
+                        self_staff: Staff = self._get_staff()   # Optimization
+                        modulated_scale: list[int] = self_staff % list()
+
+                    if self._transpose:
+                        transposition: int = Staff.transpose_scale(self._shifting, modulated_scale)
+                        root_key += transposition # Jumps by semitones (chromatic tones)
+                    else:
                         tonic_offset: int = root_key - self._tonic_key
-                        root_key += self.modulation(tonic_offset, self._shifting)
+                        root_key += Staff.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
+
                 return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
             case ou.Semitone():
@@ -658,6 +665,10 @@ class Pitch(Generic):
                 
             case Scale() | list() | ou.Mode() | None:
                 self._scale << operand
+                if self._scale._scale_list:
+                    self._transpose = True
+                else:
+                    self._transpose = False
 
             case str():
                 string: str = operand.strip()
@@ -1393,17 +1404,17 @@ class Staff(Generic):
         return scale_transposition
 
     @staticmethod
-    def modulate_tonic(tonic_steps: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def modulate_tonic(tonic_offset: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         tonic_modulation: int = 0
         if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:
             while degrees_0 > 0:
                 tonic_modulation += 1
-                if scale[ (tonic_steps + tonic_modulation) % 12 ] == 1:  # Scale key
+                if scale[ (tonic_offset + tonic_modulation) % 12 ] == 1:  # Scale key
                     degrees_0 -= 1
             while degrees_0 < 0:
                 tonic_modulation -= 1
-                if scale[ (tonic_steps + tonic_modulation) % 12 ] == 1:  # Scale key
+                if scale[ (tonic_offset + tonic_modulation) % 12 ] == 1:  # Scale key
                     degrees_0 += 1
         return tonic_modulation
 
