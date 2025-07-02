@@ -148,9 +148,7 @@ class Key(Generic):
     int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
-        self._numeral: int | float = 1  # By default it's the Tonic I, int(1)
-
-        self._owner_pitch: Pitch = None
+        self._numeral: int | float = 0
         super().__init__(*parameters)
 
 
@@ -182,7 +180,8 @@ class Key(Generic):
         return self << od.Pipe( ou.Degree(unit) )
 
     def scale(self, scale: list[int] | str = None) -> Self:
-        return self << od.Pipe( Scale(scale) )
+        import operand_generic as og
+        return self << od.Pipe( og.Scale(scale) )
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
@@ -247,12 +246,6 @@ class Key(Generic):
         import operand_generic as og
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Key():
-                super().__lshift__(operand)
-                self._numeral = operand._numeral
-                # Because a Key is also defined by the Owner Pitch, this also needs to be copied!
-                if self._owner_pitch is None:   # << and copy operation doesn't override ownership
-                    self._owner_pitch = operand._owner_pitch
             case od.Pipe():
                 match operand._data:
                     case int():
