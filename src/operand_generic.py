@@ -487,7 +487,6 @@ class Pitch(Generic):
 
         serialization = super().getSerialization()
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
-        serialization["parameters"]["tonic"]            = self.serialize( self._tonic )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
@@ -499,18 +498,16 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tonic_key" in serialization["parameters"] and "tonic" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
+            "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
-            self._tonic         = self.deserialize( serialization["parameters"]["tonic"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
-            self._tonic._set_owner_pitch(self)
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -520,7 +517,6 @@ class Pitch(Generic):
             case Pitch():
                 super().__lshift__(operand)
                 self._tonic_key             = operand._tonic_key
-                self._tonic                 << operand._tonic
                 self._octave                = operand._octave
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
