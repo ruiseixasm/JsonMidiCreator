@@ -233,7 +233,7 @@ class Pitch(Generic):
 
         return degree_0 + 1 # Degree base 1 (I)
 
-    def degree_transposition(self, tonic_offset: int, degree_0: int) -> int:
+    def modulation(self, tonic_offset: int, degree_0: int) -> int:
 
         staff_scale: list[int] = self._get_staff() % list() # Comes modulated
         total_keys: int = sum(1 for key in staff_scale if key != 0)
@@ -247,7 +247,7 @@ class Pitch(Generic):
         return degree_transposition
 
     def get_root_key(self, tonic_key: int, degree_0: int) -> int:
-        return tonic_key % 12 + self.degree_transposition(0, degree_0) # 0 because it's the tonic
+        return tonic_key % 12 + self.modulation(0, degree_0) # 0 because it's the tonic
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
@@ -396,7 +396,7 @@ class Pitch(Generic):
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:   # Here the Modulation is treated as a degree_0
                         tonic_offset: int = (root_key - self._tonic_key) % 12
-                        root_key += self.degree_transposition(tonic_offset, self._shifting)
+                        root_key += self.modulation(tonic_offset, self._shifting)
                 return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
             
             case ou.Semitone():
