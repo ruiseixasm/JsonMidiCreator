@@ -968,7 +968,7 @@ class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
     A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
-    the 12 keys of an octave.
+    the 12 keys of an octave. A `Key` is processed like if it was a `TargetKey`.
     
     Parameters
     ----------
@@ -1119,7 +1119,7 @@ class Root(Key):
     """
     pass
 
-class Target(Key):
+class TargetKey(Key):
     """`Unit -> PitchParameter -> Key -> Target`
 
     An Target() Key represents the actually played Key, meaning, the Key after rooted in a given
