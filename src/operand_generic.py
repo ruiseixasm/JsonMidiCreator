@@ -392,6 +392,15 @@ class Pitch(Generic):
             case Fraction():    # Applies the Transposition/Modulation here
                 root_pitch: int = 12 * (self._octave + 1) + self.get_key_float()
 
+
+                # Sets Scale to be used
+                if self._scale.hasScale():
+                    transposition: int = self._scale.transposition(self._shifting)
+                    root_pitch += transposition # Jumps by semitones (chromatic tones)
+
+
+
+
                 return Fraction(root_pitch)
             
             case ou.Semitone():
