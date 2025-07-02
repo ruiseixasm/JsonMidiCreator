@@ -129,7 +129,7 @@ class Element(o.Operand):
                     case int():
                         return self._get_staff().convertToMeasures(ra.Beats(self._position_beats)) % int()
                     case float():           return float( self._duration_notevalue )
-                    case Fraction():        return self._duration_notevalue
+                    case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
             case ra.Duration():
@@ -145,10 +145,7 @@ class Element(o.Operand):
             case int():
                 return self._get_staff().convertToMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )
-            case Fraction():
-                self_duration: ra.Duration = self % ra.Duration()
-                duration_steps: ra.Steps = self._get_staff().convertToSteps(self_duration)
-                return duration_steps._rational
+            case Fraction():        return self._position_beats
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case Element():         return operand.__class__(self)
@@ -281,6 +278,8 @@ class Element(o.Operand):
                     case ra.Position():     self._position_beats  = operand._data._rational
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
                     case ou.Channel():      self._channel = operand._data._unit
+                    case Fraction():        self._position_beats = operand._data
+                    case float():           self._duration_notevalue = ra.Duration(operand._data)._rational
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -292,9 +291,7 @@ class Element(o.Operand):
                 self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_staff_reference(self._get_staff()) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
-                steps: ra.Steps = ra.Steps(operand)
-                duration: ra.Duration = self._get_staff().convertToDuration(steps)
-                self._duration_notevalue    = duration._rational
+                self._position_beats        = operand
             case float():
                 self._duration_notevalue    = ra.Duration(operand)._rational
             case ra.Length():
@@ -1324,7 +1321,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity += operand
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1335,7 +1332,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity -= operand
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | Fraction():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1987,7 +1984,6 @@ class Retrigger(Note):
             # Returns the SYMBOLIC value of each note
             case ra.Duration():     return operand.copy() << od.Pipe( self._duration_notevalue / 2 )
             case float():           return float( self._duration_notevalue / 2 )
-            case Fraction():        return self._duration_notevalue / 2
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
@@ -2065,8 +2061,6 @@ class Retrigger(Note):
                     self._swing = operand._rational
             case ra.Duration():
                 self._duration_notevalue    = operand._rational * 2  # Equivalent to two sized Notes
-            case Fraction():
-                self._duration_notevalue    = operand * 2
             case float():
                 self._duration_notevalue    = ra.Duration(operand)._rational * 2
             case _:
