@@ -1046,7 +1046,7 @@ class Note(Element):
             case ou.PitchParameter() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch % ( self % od.Pipe( ra.Position() ) % Fraction() ), ou.Channel(self._channel))
+                return ou.DrumKit(self._pitch % ( self % od.Pipe( ra.Position() ) % float() ), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
