@@ -164,6 +164,7 @@ class Pitch(Generic):
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: Scale              = Scale( None )
+        self._transpose: bool           = False # Sets the process as Transposition instead of Modulation
 
         self._owner_element: oe.Element = None
         super().__init__(*parameters)
@@ -370,6 +371,7 @@ class Pitch(Generic):
                     case float():           return float(self._tonic_key)
                     case Fraction():        return Fraction(self._shifting)
                     case Scale():           return self._scale
+                    case bool():            return self._transpose
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
@@ -440,6 +442,9 @@ class Pitch(Generic):
             case list():
                 return self._scale % list()
 
+            case bool():
+                return self._transpose
+            
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
@@ -513,6 +518,7 @@ class Pitch(Generic):
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
+        serialization["parameters"]["transpose"]        = self.serialize( self._transpose )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -521,7 +527,7 @@ class Pitch(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "shifting" in serialization["parameters"] and 
-            "scale" in serialization["parameters"]):
+            "scale" in serialization["parameters"] and "transpose" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
@@ -531,6 +537,7 @@ class Pitch(Generic):
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+            self._transpose     = self.deserialize( serialization["parameters"]["transpose"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -546,6 +553,7 @@ class Pitch(Generic):
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale                 << operand._scale
+                self._transpose             = operand._transpose
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
                 if self._owner_element is None: # << and copy operation doesn't override ownership
                     self._owner_element     = operand._owner_element
@@ -575,6 +583,8 @@ class Pitch(Generic):
                         self._shifting = operand._data._unit
                     case Scale():
                         self._scale = operand._data
+                    case bool():
+                        self._transpose = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -611,10 +621,18 @@ class Pitch(Generic):
                     self._natural = False
             case ou.Degree():
                 self << operand._unit   # Sets as int like above
+            case ou.Transposition():
+                self._shifting = operand._unit
+                self._transpose = True
+            case ou.Modulation():
+                self._shifting = operand._unit
+                self._transpose = False
             case ou.Shifting():
                 self._shifting = operand._unit
             case Fraction():
                 self._shifting = int(operand)
+            case bool():
+                self._transpose = operand
 
             case float():
                 self.set_chromatic_pitch(int(operand))
@@ -640,7 +658,7 @@ class Pitch(Generic):
                 
             case Scale() | list() | ou.Mode() | None:
                 self._scale << operand
-                
+
             case str():
                 string: str = operand.strip()
                 self._sharp = \
