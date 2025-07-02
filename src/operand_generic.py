@@ -392,7 +392,7 @@ class Pitch(Generic):
                 root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
-                    if self._scale.hasScale():  # Transpose
+                    if self._scale._scale_list:  # Transpose
                         transposition: int = self._scale.transposition(self._shifting)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:   # Here the Modulation is treated as a degree_0
@@ -449,7 +449,7 @@ class Pitch(Generic):
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 self_staff: Staff = self._get_staff()   # Optimization
-                if not self_staff._scale.hasScale() \
+                if not self_staff._scale._scale_list \
                     and self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
@@ -757,7 +757,7 @@ class Pitch(Generic):
     def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
         self_staff: Staff = self._get_staff()   # Optimization
-        if self_staff._scale.hasScale():
+        if self_staff._scale._scale_list:
             scale = self_staff._scale % list()
         move_semitones: int = 0
         while move_tones > 0:
@@ -1011,7 +1011,7 @@ class Scale(Generic):
             case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
             case list():
                 modulated_scale: list[int] = self.modulation(None)
-                if self.hasScale() and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
+                if self._scale_list and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
                     if isinstance(operand[0], ou.Key):
                         key_int: int = operand[0]._unit
                     else:
@@ -1421,19 +1421,19 @@ class Staff(Generic):
             case ou.Tonic():
                 return ou.Tonic(self % float())
             case ou.Key():
-                if self._scale.hasScale():
+                if self._scale._scale_list:
                     return self._scale % ou.Key()
                 return self._key_signature % ou.Key()
             case list():
-                if self._scale.hasScale():
+                if self._scale._scale_list:
                     return self._scale % list()
                 return self._key_signature.get_scale_list() # Faster this way
             case float():
-                if self._scale.hasScale():
+                if self._scale._scale_list:
                     return self._scale % float()
                 return self._key_signature % float()
             case str():
-                if self._scale.hasScale():
+                if self._scale._scale_list:
                     return self._scale % str()
                 return self._key_signature % str()
             case ra.NotesPerMeasure():

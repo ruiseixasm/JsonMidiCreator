@@ -1818,7 +1818,7 @@ class Chord(KeyScale):
 
         chord_notes: list[Note] = []
         # Sets Scale to be used
-        if self._pitch._scale.hasScale():
+        if self._pitch._scale._scale_list:
             for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 single_note: Note = Note(self)  # Owned by same clip
                 chord_notes.append( single_note )
