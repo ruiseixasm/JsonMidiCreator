@@ -235,7 +235,7 @@ class Pitch(Generic):
 
     def modulation(self, tonic_offset: int, degree_0: int) -> int:
 
-        staff_scale: list[int] = self._get_staff() % list() # Comes modulated
+        staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
 
         degree_0 %= total_keys
