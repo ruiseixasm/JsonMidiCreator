@@ -238,7 +238,7 @@ class Pitch(Generic):
 
     def modulation(self, degree_0: int) -> int:
         """
-        IN THIS TYPE OF MODULATION ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+        IN THIS TYPE OF MODULATION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
         """
         key_signature: ou.KeySignature = self._get_staff()._key_signature
         staff_scale: list[int] = key_signature % list()
@@ -296,7 +296,7 @@ class Pitch(Generic):
                 root_key += transposition # Jumps by semitones (chromatic tones)
             else:
                 """
-                IN THIS TYPE OF MODULATION ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
+                IN THIS TYPE OF MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
                 """
                 tonic_offset: int = root_key - scale_tonic
                 root_key += Scale.modulate_tonic(tonic_offset, self._shifting, scale_list)
