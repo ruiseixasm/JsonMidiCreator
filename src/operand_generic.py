@@ -251,8 +251,8 @@ class Pitch(Generic):
                 degree_0 -= 1
         return degree_transposition
 
-    def get_root_key(self, tonic_key: int, degree_0: int) -> int:
-        return tonic_key % 12 + self.modulation(degree_0) # 0 because it's the tonic
+    def get_root_key(self, degree_0: int) -> int:
+        return self._tonic_key % 12 + self.modulation(degree_0)
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
@@ -398,7 +398,7 @@ class Pitch(Generic):
                 return Fraction(self._shifting)
             
             case float():  # For some reason still dependent her of Fraction !
-                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
+                root_key: int = self.get_root_key(self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
                     if self._scale._scale_list:
@@ -424,7 +424,7 @@ class Pitch(Generic):
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
             case ou.Root():
-                root_key: int = self.get_root_key(self._tonic_key, self._degree - 1) % 12
+                root_key: int = self.get_root_key(self._degree - 1) % 12
                 root_key += self._tonic_key // 12 * 12  # key_line * total_keys
                 return ou.Root(root_key)
             
