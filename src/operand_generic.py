@@ -314,14 +314,14 @@ class Pitch(Generic):
 
         return self
     
-    def set_chromatic_pitch(self, pitch: int | float) -> Self:
+    def set_chromatic_pitch(self, pitch: int) -> Self:
         
         # Reset purely decorative parameters
         self._natural = False
         self._sharp = 0
 
         # Excludes the effect of purely decorative parameters
-        key_offset: int = int( pitch - self % float() )
+        key_offset: int = pitch - self.get_pitch_note()
         return self.apply_key_offset(key_offset)
 
 
@@ -426,7 +426,7 @@ class Pitch(Generic):
                 return float( self.get_pitch_note() )
             
             case ou.Semitone():
-                return ou.Semitone(self % float())
+                return ou.Semitone(self.get_pitch_note())
             
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
@@ -436,7 +436,7 @@ class Pitch(Generic):
                 return ou.Root(root_key)
             
             case ou.Octave():
-                target_pitch: int = int(self % float())
+                target_pitch: int = self.get_pitch_note()
                 return ou.Octave( target_pitch // 12 - 1 )
             
             case ou.Degree():
@@ -445,13 +445,13 @@ class Pitch(Generic):
                 return ou.Shifting(self._shifting)
              
             case ou.Sharp():
-                target_pitch: int = int(self % float())
+                target_pitch: int = self.get_pitch_note()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit >= 0:
                         return ou.Sharp(1)
                 return ou.Sharp(0)
             case ou.Flat():
-                target_pitch: int = int(self % float())
+                target_pitch: int = self.get_pitch_note()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit < 0:
                         return ou.Flat(1)
@@ -469,7 +469,7 @@ class Pitch(Generic):
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 return self._get_staff()._key_signature % operand
             case ou.Key():
-                self_pitch: int = int( self % float() )
+                self_pitch: int = self.get_pitch_note()
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 self_staff: Staff = self._get_staff()   # Optimization
@@ -489,7 +489,7 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                return self % float() == other % float()
+                return self.get_pitch_note() == other.get_pitch_note()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
             case int() | float() | str() | ou.Key() | Scale():
@@ -504,7 +504,7 @@ class Pitch(Generic):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
-                return self % float() < other % float()
+                return self.get_pitch_note() < other.get_pitch_note()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) < other
             case int() | float():
@@ -517,7 +517,7 @@ class Pitch(Generic):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
-                return self % float() > other % float()
+                return self.get_pitch_note() > other.get_pitch_note()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) > other
             case int() | float():
@@ -630,11 +630,11 @@ class Pitch(Generic):
                 self._transpose = operand
             case int():
                 if operand > 0:
-                    staff_scale: list[int] = self._get_staff() % list()
+                    staff_scale: list[int] = self._get_staff()._key_signature % list()
                     total_degrees: int = sum(1 for key in staff_scale if key != 0)
                     self._degree = (operand - 1) % total_degrees + 1
                 elif operand == 0:
-                    self._tonic_key = int( self._get_staff() % float() )
+                    self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
                 else:
                     self << 0   # Resets the Tonic key
                     self << 1   # Resets the degree to I
@@ -723,17 +723,17 @@ class Pitch(Generic):
             case ou.Shifting():
                 self._shifting += operand._unit
             case ou.Tone() | ou.Root():
-                new_pitch: float = self % float() + self.move_semitones(operand % int())
+                new_pitch: int = self.get_pitch_note() + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
                 self._tonic_key += operand._unit
             case float():
-                new_pitch: float = self % float() + float(operand)
+                new_pitch: int = self.get_pitch_note() + int(operand)
                 self.set_chromatic_pitch(new_pitch)
             case Fraction():
                 self._shifting += int(operand)
             case ra.Rational() | ou.Key() | ou.Semitone():
-                new_pitch: float = self % float() + operand % float()
+                new_pitch: int = self.get_pitch_note() + operand % int()
                 self.set_chromatic_pitch(new_pitch)
             case dict():
                 for octave, value in operand.items():
@@ -761,17 +761,17 @@ class Pitch(Generic):
             case ou.Shifting():
                 self._shifting -= operand._unit
             case ou.Tone() | ou.Root():
-                new_pitch: float = self % float() - self.move_semitones(operand % int())
+                new_pitch: int = self.get_pitch_note() - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
                 self._tonic_key -= operand._unit
             case float():
-                new_pitch: float = self % float() - float(operand)
+                new_pitch: int = self.get_pitch_note() - int(operand)
                 self.set_chromatic_pitch(new_pitch)
             case Fraction():
                 self._shifting -= int(operand)
             case ra.Rational() | ou.Key() | ou.Semitone():
-                new_pitch: float = self % float() - operand % float()
+                new_pitch: int = self.get_pitch_note() - operand % int()
                 self.set_chromatic_pitch(new_pitch)
             case dict():
                 for octave, value in operand.items():
@@ -784,15 +784,15 @@ class Pitch(Generic):
         match operand:
             case int():
                 new_keynote = self.__class__()
-                self_int = self % int()
-                multiplied_int = self_int * operand
+                self_degree: int = self % int()
+                multiplied_int = self_degree * operand
                 new_keynote._tonic_key = multiplied_int % 12
                 new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
-                self_float = self % float()
-                multiplied_int = int(self_float * operand)
+                self_pitch: int = self.get_pitch_note()
+                multiplied_int = int(self_pitch * operand)
                 new_keynote._tonic_key = multiplied_int % 12
                 new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
@@ -801,23 +801,23 @@ class Pitch(Generic):
     
     def __div__(self, operand) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int():
-                new_keynote = self.__class__()
-                self_int = self % int()
-                multiplied_int = int(self_int / operand)
-                new_keynote._tonic_key = multiplied_int % 12
-                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
-                return new_keynote
-            case float():
-                new_keynote = self.__class__()
-                self_float = self % float()
-                multiplied_int = int(self_float / operand)
-                new_keynote._tonic_key = multiplied_int % 12
-                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
-                return new_keynote
-            case _:
-                return super().__div__(operand)
+        if operand != 0:
+            match operand:
+                case int():
+                    new_keynote = self.__class__()
+                    self_degree: int = self % int()
+                    multiplied_int = int(self_degree / operand)
+                    new_keynote._tonic_key = multiplied_int % 12
+                    new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                    return new_keynote
+                case float():
+                    new_keynote = self.__class__()
+                    self_pitch: int = self.get_pitch_note()
+                    multiplied_int = int(self_pitch / operand)
+                    new_keynote._tonic_key = multiplied_int % 12
+                    new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                    return new_keynote
+        return super().__div__(operand)
 
 
     def move_semitones(self, move_tones: int) -> int:
@@ -847,7 +847,7 @@ class Pitch(Generic):
 
     def snap(self, up: bool = False) -> Self:
         scale_list: list[int] = self._get_staff() % list()
-        self_pitch: float = self % float()
+        self_pitch: float = self.get_pitch_note()
         pitch_offset: float = 0.0
         if up:
             pitch_step: float = 1.0
