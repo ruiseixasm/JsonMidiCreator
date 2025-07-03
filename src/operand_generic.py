@@ -658,8 +658,7 @@ class Pitch(Generic):
 
             case dict():
                 for octave, value in operand.items():
-                    self << octave
-                    self << value
+                    self << octave << value
 
             case ou.DrumKit():
                 self._natural = False
