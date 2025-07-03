@@ -1538,6 +1538,20 @@ class Link(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.link(self._data)
 
+class Switch(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Switch`
+
+    Switches the sequence of the clip concerning the elements `Position`.
+
+    Args:
+        None
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.switch(self._data)
+
 class Stack(ClipProcess):
     """`Data -> Process -> ClipProcess -> Stack`
 

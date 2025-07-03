@@ -1289,12 +1289,13 @@ class Composition(Container):
                                     height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
             
 
+                # Where the VERTICAL axis is defined - Chromatic Keys
                 chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
                 # Set MIDI note ticks with Middle C in bold
                 self._ax.set_yticks(range(min_pitch, max_pitch + 1))
                 y_labels = [
-                    chromatic_keys[p % 12] + (str(p // 12 - 1) if p % 12 == 0 else "")
-                    for p in range(min_pitch, max_pitch + 1)
+                    chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
+                    for pitch in range(min_pitch, max_pitch + 1)
                 ]  # Bold Middle C
                 self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
@@ -2590,9 +2591,10 @@ class Clip(Composition):  # Just a container of Elements
 
         return self
     
+
     def reverse(self, ignore_empty_measures: bool = True) -> Self:
         """
-        Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
+        Switches the sequence of the clip concerning the elements `Position`.
 
         Args:
             None
@@ -2614,6 +2616,27 @@ class Clip(Composition):  # Just a container of Elements
             # Only changes Positions
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
+
+    def switch(self) -> Self:
+        """
+        switch just switches the positions of each `Element` with each other.
+        You may want to do a link afterwards to connect all again.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        taken_positions: list[Fraction] = []
+        for single_element in self._items:
+            taken_positions.insert(0, single_element._position_beats)
+
+        # Sets the reversed positions
+        for index, element in enumerate(self._items):
+            element._position_beats = taken_positions[index]
+
+        return self._sort_position()    # Sorting elements is imperative given the switch of positions
 
 
     def flip(self) -> Self:
@@ -2641,15 +2664,17 @@ class Clip(Composition):  # Just a container of Elements
                 elif element_pitch < lower_pitch:
                     lower_pitch = element_pitch
 
-        top_pitch: float = higher_pitch % float()
-        bottom_pitch: float = lower_pitch % float()
+        if higher_pitch is not None:
 
-        for item in self._items:
-            if isinstance(item, oe.Note):
-                element_pitch: og.Pitch = item._pitch
-                note_pitch: float = element_pitch % float()
-                new_pitch: float = top_pitch - (note_pitch - bottom_pitch)
-                element_pitch << new_pitch
+            top_pitch: int = higher_pitch.get_pitch_note()
+            bottom_pitch: int = lower_pitch.get_pitch_note()
+
+            for item in self._items:
+                if isinstance(item, oe.Note):
+                    element_pitch: og.Pitch = item._pitch
+                    note_pitch: int = element_pitch.get_pitch_note()
+                    new_pitch: int = top_pitch - (note_pitch - bottom_pitch)
+                    element_pitch << float(new_pitch)
                 
         return self
 
