@@ -163,7 +163,8 @@ class Pitch(Generic):
         self._shifting: int             = 0     # By default it's it has no shifting (transposition/modulation)
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
-        self._scale: Scale              = Scale( None )
+        self._scale_scale: Scale              = Scale( None )
+        self._scale: list[int]          = []
         self._transpose: bool           = False # Sets the process as Transposition instead of Modulation
 
         self._owner_element: oe.Element = None
@@ -376,7 +377,7 @@ class Pitch(Generic):
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
                     case Fraction():        return Fraction(self._shifting)
-                    case Scale():           return self._scale
+                    case Scale():           return self._scale_scale
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
@@ -401,9 +402,9 @@ class Pitch(Generic):
                 root_key: int = self.get_root_key(self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
-                    if self._scale._scale:
-                        modulated_scale: list[int] = self._scale % list()
-                        scale_tonic: int = self._scale.get_tonic_key()
+                    if self._scale_scale._scale:
+                        modulated_scale: list[int] = self._scale_scale % list()
+                        scale_tonic: int = self._scale_scale.get_tonic_key()
                     else:   # Here the Modulation is treated as a degree_0
                         self_staff: Staff = self._get_staff()
                         modulated_scale: list[int] = self_staff % list()
@@ -453,9 +454,9 @@ class Pitch(Generic):
                 return ou.Natural() << od.Pipe(self._natural)
             
             case Scale():
-                return self._scale.copy()
+                return self._scale_scale.copy()
             case list():
-                return self._scale % list()
+                return self._scale_scale % list()
 
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
@@ -528,7 +529,7 @@ class Pitch(Generic):
         serialization["parameters"]["shifting"]         = self.serialize( self._shifting )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
-        serialization["parameters"]["scale"]            = self.serialize( self._scale )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale_scale )
         serialization["parameters"]["transpose"]        = self.serialize( self._transpose )
         return serialization
 
@@ -547,7 +548,7 @@ class Pitch(Generic):
             self._shifting      = self.deserialize( serialization["parameters"]["shifting"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
-            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+            self._scale_scale         = self.deserialize( serialization["parameters"]["scale"] )
             self._transpose     = self.deserialize( serialization["parameters"]["transpose"] )
         return self
 
@@ -563,7 +564,7 @@ class Pitch(Generic):
                 self._shifting              = operand._shifting
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
-                self._scale                 << operand._scale
+                self._scale_scale                 << operand._scale_scale
                 self._transpose             = operand._transpose
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
                 if self._owner_element is None: # << and copy operation doesn't override ownership
@@ -595,7 +596,7 @@ class Pitch(Generic):
                     case ou.Shifting():
                         self._shifting = operand._data._unit
                     case Scale():
-                        self._scale = operand._data
+                        self._scale_scale = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -672,8 +673,8 @@ class Pitch(Generic):
                 self._natural = operand.__mod__(od.Pipe( bool() ))
                 
             case Scale() | list() | None:
-                self._scale << operand
-                if self._scale._scale:
+                self._scale_scale << operand
+                if self._scale_scale._scale:
                     self._transpose = True
                 else:
                     self._transpose = False
@@ -685,8 +686,8 @@ class Pitch(Generic):
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
                 self._degree    = (self % ou.Degree() << operand)._unit
                 self._tonic_key = (self % ou.Key() << string)._unit
-                self._scale << operand
-                if self._scale._scale:
+                self._scale_scale << operand
+                if self._scale_scale._scale:
                     self._transpose = True
                 else:
                     self._transpose = False
@@ -1098,18 +1099,7 @@ class Scale(Generic):
                     case int():                 return self.get_scale_number(self._scale)
                     case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale)) ])
                     case _:                     return super().__mod__(operand)
-            case list():
-                modulated_scale: list[int] = self.modulation(None)
-                if self._scale and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
-                    if isinstance(operand[0], ou.Key):
-                        key_int: int = operand[0]._unit
-                    else:
-                        key_int: int = operand[0]
-                    key_scale: list = [0] * 12
-                    for key_i in range(12):
-                        key_scale[(key_i + key_int) % 12] = modulated_scale[key_i]
-                    return key_scale
-                return modulated_scale
+            case list():                return self._scale.copy()
             case str():                 return self.get_scale_name(self.modulation(None))
             case int():                 return self.get_scale_number(self.modulation(None))
             case ou.Tonic():            return ou.Tonic( self.get_tonic_key() )
@@ -1168,7 +1158,7 @@ class Scale(Generic):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Scale':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "scale" in serialization["parameters"]):
             
@@ -1177,7 +1167,7 @@ class Scale(Generic):
         return self
 
 
-    def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
+    def modulate(self, mode: int | str = "5th") -> Self: # AKA as remode (remoding)
 
         modulated_scale: list[int] = self._scale.copy()
         if isinstance(self._scale, list) and len(self._scale) == 12:
@@ -1193,6 +1183,15 @@ class Scale(Generic):
                 for key_i in range(12):
                     modulated_scale[key_i] = self._scale[(key_i + modulation) % 12]
         self._scale = modulated_scale
+        return self
+    
+    def transpose(self, semitones: int) -> Self:
+
+        if isinstance(self._scale, list) and len(self._scale) == 12:
+            transposed_scale: list[int] = self._scale.copy()
+            for key_i in range(12):
+                transposed_scale[(key_i + semitones) % 12] = self._scale[key_i]
+            self._scale = transposed_scale
         return self
     
 
