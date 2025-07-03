@@ -2617,29 +2617,29 @@ class Clip(Composition):  # Just a container of Elements
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
 
-    def switch(self) -> Self:
+    def switch(self, parameter_type: type = None) -> Self:
         """
-        `switch` just switches the pitches of each `Note` with each others.
+        `switch` just switches the given type of parameters with each other elements.
 
         Args:
-            None
+            parameter_type (type): The parameter type to switch.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_notes: list[oe.Note] = [
-            single_note for single_note in self._items
-            if isinstance(single_note, oe.Note)
-        ]
-        taken_pitches: list[Fraction] = []
-        for single_note in self_notes:
-            taken_pitches.insert(0, single_note._pitch)
+        if parameter_type is not None:
+            parameter = parameter_type()
+        else:
+            parameter = og.Pitch()
+        taken_parameters: list = []
+        for single_element in self._items:
+            taken_parameters.insert(0, single_element % parameter)
 
         # Sets the reversed positions
-        for index, single_note in enumerate(self_notes):
-            single_note << taken_pitches[index] # Pitches have owners to respect
+        for index, single_element in enumerate(self._items):
+            single_element << taken_parameters[index]
 
-        return self
+        return self._sort_position()    # Sorting may be needed
 
 
     def flip(self) -> Self:

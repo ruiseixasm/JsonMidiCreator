@@ -1541,13 +1541,13 @@ class Link(ClipProcess):
 class Switch(ClipProcess):
     """`Data -> Process -> ClipProcess -> Switch`
 
-    `Switch` just switches the pitches of each `Note` with each others.
+    `Switch` just switches the given type of parameters with each other elements.
 
     Args:
         None
     """
-    def __init__(self, ignore_empty_measures: bool = True):
-        super().__init__(ignore_empty_measures)
+    def __init__(self, parameter_type: type = None):
+        super().__init__(parameter_type)
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.switch(self._data)
