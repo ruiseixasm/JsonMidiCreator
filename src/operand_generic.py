@@ -403,15 +403,18 @@ class Pitch(Generic):
                 if self._shifting != 0:
                     if self._scale._scale_list:  # Transpose
                         modulated_scale: list[int] = self._scale % list()
+                        scale_tonic: int = self._scale.get_tonic_key()
                     else:   # Here the Modulation is treated as a degree_0
                         self_staff: Staff = self._get_staff()
                         modulated_scale: list[int] = self_staff % list()
+                        scale_tonic: int = self_staff % ou.Tonic() % int()
 
                     if self._transpose:
                         transposition: int = Staff.transpose_scale(self._shifting, modulated_scale)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:
-                        tonic_offset: int = root_key - self._tonic_key
+                        # tonic_offset: int = root_key - scale_tonic
+                        tonic_offset: int = root_key - self._tonic_key  # Retained because it's teh still works TEMPORARY !!
                         root_key += Staff.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
 
                 return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
