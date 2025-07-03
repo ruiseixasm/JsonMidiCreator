@@ -1173,9 +1173,9 @@ class Modulate(ScaleProcess):    # Modal Modulation
     
     Parameters
     ----------
-    int(1) : Modulate a given Scale to 1 ("1st") as the default mode
+    int(1) : Modulate a given Scale to 1 ("1st") as the default mode.
     """
-    def __init__(self, mode: int | str = None):
+    def __init__(self, mode: int | str = 1):
         import operand_unit as ou
         unit = ou.Mode(mode)._unit
         super().__init__(unit)
@@ -1184,6 +1184,23 @@ class Modulate(ScaleProcess):    # Modal Modulation
 
     def _process(self, operand: 'Scale') -> 'Scale':
         return operand.modulate(self._data)
+
+class Transpose(ScaleProcess):    # Chromatic Transposition
+    """`Data -> Process -> ScaleProcess -> Transpose`
+
+    Transpose() is used to rotate a scale by semitones.
+    
+    Parameters
+    ----------
+    int(7) : Transpose a given Scale by 7 semitones as the default.
+    """
+    def __init__(self, semitones: int = 7):
+        super().__init__(semitones)
+
+    # CHAINABLE OPERATIONS
+
+    def _process(self, operand: 'Scale') -> 'Scale':
+        return operand.transpose(self._data)
 
 
 if TYPE_CHECKING:

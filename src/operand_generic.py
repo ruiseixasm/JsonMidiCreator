@@ -1168,7 +1168,6 @@ class Scale(Generic):
 
 
     def modulate(self, mode: int | str = "5th") -> Self: # AKA as remode (remoding)
-
         modulated_scale: list[int] = self._scale.copy()
         if isinstance(self._scale, list) and len(self._scale) == 12:
             mode_int = 1 if mode is None else ou.Mode(mode) % int()
@@ -1185,8 +1184,7 @@ class Scale(Generic):
         self._scale = modulated_scale
         return self
     
-    def transpose(self, semitones: int) -> Self:
-
+    def transpose(self, semitones: int = 7) -> Self:
         if isinstance(self._scale, list) and len(self._scale) == 12:
             transposed_scale: list[int] = self._scale.copy()
             for key_i in range(12):
