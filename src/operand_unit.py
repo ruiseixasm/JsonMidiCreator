@@ -1784,48 +1784,6 @@ class Inversion(Unit):
         super().__init__(1, *parameters)
 
 
-class ScaleOperation(Unit):
-    """`Unit -> ScaleOperation`
-    """
-    pass
-
-class Modulate(ScaleOperation):    # Modal Modulation
-    """`Unit -> ScaleOperation -> Modulate`
-
-    Modulate() is used to modulate the self Scale or Scale.
-    
-    Parameters
-    ----------
-    int(1) : Modulate a given Scale to 1 ("1st") as the default mode
-    """
-    def __init__(self, mode: int | str = None):
-        unit = Mode(mode)._unit
-        super().__init__(unit)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        if isinstance(operand, og.Scale):
-            operand = operand.copy().modulate(self._unit)
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
-class Progression(ScaleOperation):
-    """`Unit -> ScaleOperation -> Progression`
-
-    A Progression() is used to do a Progression along a given Scale.
-    
-    Parameters
-    ----------
-    int(0) : Accepts a numeral equivalent to the the Roman numerals,
-        1 instead of I, 4 instead of IV and 5 instead of V
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
-
 class Midi(Unit):
     """`Unit -> Midi`
     """
