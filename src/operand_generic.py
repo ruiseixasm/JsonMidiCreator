@@ -238,7 +238,7 @@ class Pitch(Generic):
     def modulation(self, degree_0: int) -> int:
 
         self_staff: Staff = self._get_staff()
-        staff_scale: list[int] = self_staff % list()
+        staff_scale: list[int] = self_staff._key_signature % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
         staff_tonic: int = self_staff % ou.Tonic() % int()
         tonic_offset: int = self._tonic_key - staff_tonic
@@ -408,7 +408,7 @@ class Pitch(Generic):
                         scale_tonic: int = Scale.get_tonic_key(modulated_scale)
                     else:   # Here the Modulation is treated as a degree_0
                         self_staff: Staff = self._get_staff()
-                        modulated_scale: list[int] = self_staff % list()
+                        modulated_scale: list[int] = self_staff._key_signature % list()
                         scale_tonic: int = self_staff % ou.Tonic() % int()
 
                     if self._scale and self._transpose:
