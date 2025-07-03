@@ -411,7 +411,7 @@ class Pitch(Generic):
                         modulated_scale: list[int] = self_staff % list()
                         scale_tonic: int = self_staff % ou.Tonic() % int()
 
-                    if self._transpose:
+                    if self._scale and self._transpose:
                         transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:
