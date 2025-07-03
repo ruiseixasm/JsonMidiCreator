@@ -111,23 +111,18 @@ def test_pitch_mod():
 def test_pitch_tonic():
 
     pitch = Pitch()
+    defaults << KeySignature(2) # Dorian is the 2nd in the Circle of fifths
 
     assert pitch % Tonic() == "C"
-
-    defaults << Scale("Dorian")
-
-    assert pitch % Tonic() == "C"
-    pitch << Degree(0)
+    pitch << Degree(-1) # Resets the Tonic
     assert pitch % Tonic() == "D"
 
-    defaults << Scale([])
+    defaults << KeySignature()
 
 # test_pitch_tonic()
 
 
 def test_scale_mod():
-
-    defaults << Scale([])
 
     # Perform the operation
     scale = Scale()
@@ -146,14 +141,10 @@ def test_scale_mod():
 
 def test_pitch_set():
 
-    defaults << Scale("minor")
-
     pitch_1 = Pitch(Sharp(), Degree(2))
     pitch_2 = Pitch()
     pitch_2.sharp().degree(2)
     assert pitch_1 == pitch_2
-
-    defaults << Scale([])
 
 
 def test_pitch_degrees():
@@ -436,31 +427,33 @@ def test_pitch_key_signature():
 
 def test_pitch_scales():
 
-    defaults << KeySignature() << Scale([])
+    defaults << KeySignature()
 
+    staff_pitch: Pitch = Pitch()
+    print(f"Tonic C: {staff_pitch % Tonic() % str()}")
+    assert staff_pitch % Tonic() % str() == "C"
+    
     major_scale_keys: list[str] = [
         "C", "D", "E", "F", "G", "A", "B"
     ]
 
-    defaults << Scale("Major")
-    major_pitch: Pitch = Pitch()
-    
     for degree_increase in range(7):  # Excludes 7
-        print((major_pitch + degree_increase) % str())
-        assert (major_pitch + degree_increase) % str() == major_scale_keys[degree_increase]
+        print((staff_pitch + degree_increase) % str())
+        assert (staff_pitch + degree_increase) % str() == major_scale_keys[degree_increase]
 
     print("------")
+    defaults << Minor()
     minor_scale_keys: list[str] = [
         "A", "B", "C", "D", "E", "F", "G"
     ]
-    defaults << Scale("minor")
-    minor_pitch: Pitch = Pitch()
-    
+    staff_pitch << Degree(-1)   # Auto sets the Key Signature tonic for "minor", meaning, A
+    print(f"Tonic A: {staff_pitch % Tonic() % str()}")
+    assert staff_pitch % Tonic() % str() == "A"
     for degree_increase in range(7):  # Excludes 7
-        print((minor_pitch + degree_increase) % str())
-        assert (minor_pitch + degree_increase) % str() == minor_scale_keys[degree_increase]
+        print((staff_pitch + degree_increase) % str())
+        assert (staff_pitch + degree_increase) % str() == minor_scale_keys[degree_increase]
 
-    defaults << Scale([])
+    defaults << KeySignature()
 
 # test_pitch_scales()
 

@@ -1718,7 +1718,7 @@ class Staff(Generic):
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
-            case Scale():               self._scale << operand
+            # case Scale():               self._scale << operand
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()

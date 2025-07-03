@@ -236,9 +236,7 @@ def test_note_shift():
 
 def test_note_scale():
 
-    defaults << KeySignature() << Scale([])
-
-    defaults << Scale("Major")
+    defaults << KeySignature()
     major_note: Note = Note()
 
     assert major_note % Pitch() % Key() == "C"
@@ -249,7 +247,7 @@ def test_note_scale():
     major_note += Deg(1)    # Deg alias to Degree
     assert major_note % Pitch() % Key() == "F"
 
-    defaults << Scale("minor")
+    defaults << Minor()
     minor_note: Note = Note()
 
     assert minor_note % Pitch() % Key() == "A"
@@ -260,7 +258,7 @@ def test_note_scale():
     minor_note += Deg(1)    # Deg alias to Degree
     assert minor_note % Pitch() % Key() == "D"
 
-    defaults << Scale([])
+    defaults << Major()
 
 # test_note_scale()
 

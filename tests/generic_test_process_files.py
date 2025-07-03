@@ -324,7 +324,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
-defaults << Scale("minor")
+defaults << Minor()
 (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
@@ -338,7 +338,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13.2_sequence.json")
 start_time = time.time()
-defaults << Scale([])
+defaults << Major()
 Chord("C") << Size("13th") << Scale("Major").modulate("5th") << Degree("Dominant") << Octave(3) << Duration(8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
