@@ -379,6 +379,7 @@ class Pitch(Generic):
                     case float():           return float(self._tonic_key)
                     case Fraction():        return Fraction(self._shifting)
                     case Scale():           return self._scale_scale
+                    case list():            return self._scale
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
@@ -457,7 +458,7 @@ class Pitch(Generic):
             case Scale():
                 return self._scale_scale.copy()
             case list():
-                return self._scale_scale % list()
+                return self._scale.copy()
 
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
@@ -530,7 +531,7 @@ class Pitch(Generic):
         serialization["parameters"]["shifting"]         = self.serialize( self._shifting )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
-        serialization["parameters"]["scale"]            = self.serialize( self._scale_scale )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         serialization["parameters"]["transpose"]        = self.serialize( self._transpose )
         return serialization
 
@@ -549,7 +550,7 @@ class Pitch(Generic):
             self._shifting      = self.deserialize( serialization["parameters"]["shifting"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
-            self._scale_scale         = self.deserialize( serialization["parameters"]["scale"] )
+            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
             self._transpose     = self.deserialize( serialization["parameters"]["transpose"] )
         return self
 
@@ -566,6 +567,7 @@ class Pitch(Generic):
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale_scale                 << operand._scale_scale
+                self._scale                 = operand._scale.copy()
                 self._transpose             = operand._transpose
                 # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
                 if self._owner_element is None: # << and copy operation doesn't override ownership
@@ -598,6 +600,8 @@ class Pitch(Generic):
                         self._shifting = operand._data._unit
                     case Scale():
                         self._scale_scale = operand._data
+                    case list():
+                        self._scale = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -675,10 +679,13 @@ class Pitch(Generic):
                 
             case Scale() | list() | None:
                 self._scale_scale << operand
-                if self._scale_scale._scale:
-                    self._transpose = True
-                else:
-                    self._transpose = False
+                self._transpose = bool(self._scale_scale._scale)
+            case list():
+                self._scale = operand._scale.copy()
+                self._transpose = bool(self._scale)
+            case None:
+                self._scale = []
+                self._transpose = bool(self._scale)
 
             case str():
                 string: str = operand.strip()
