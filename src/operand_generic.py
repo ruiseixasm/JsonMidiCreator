@@ -234,10 +234,14 @@ class Pitch(Generic):
 
         return degree_0 + 1 # Degree base 1 (I)
 
-    def modulation(self, tonic_offset: int, degree_0: int) -> int:
+    def modulation(self, degree_0: int) -> int:
 
-        staff_scale: list[int] = self._get_staff() % list()
+        self_staff: Staff = self._get_staff()
+        staff_scale: list[int] = self_staff % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
+        staff_tonic: int = self_staff % ou.Tonic() % int()
+        tonic_offset: int = self._tonic_key - staff_tonic
+        tonic_offset = 0    # In order to give no errors, TEMPORARY!
 
         degree_0 %= total_keys
         degree_transposition: int = 0
@@ -248,7 +252,7 @@ class Pitch(Generic):
         return degree_transposition
 
     def get_root_key(self, tonic_key: int, degree_0: int) -> int:
-        return tonic_key % 12 + self.modulation(0, degree_0) # 0 because it's the tonic
+        return tonic_key % 12 + self.modulation(degree_0) # 0 because it's the tonic
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
