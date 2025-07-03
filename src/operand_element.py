@@ -1891,9 +1891,9 @@ class Chord(KeyScale):
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
-                    self._pitch._scale << "minor"
+                    self._pitch << "minor"
                 else:
-                    self._pitch._scale << "Major"
+                    self._pitch << "Major"
                 self.set_all(operand)
             case ou.Dominant():
                 if operand:

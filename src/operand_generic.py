@@ -413,8 +413,7 @@ class Pitch(Generic):
                         transposition: int = Staff.transpose_scale(self._shifting, modulated_scale)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:
-                        # tonic_offset: int = root_key - scale_tonic
-                        tonic_offset: int = root_key - self._tonic_key  # Retained because it's teh still works TEMPORARY !!
+                        tonic_offset: int = root_key - scale_tonic
                         root_key += Staff.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
 
                 return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
@@ -686,6 +685,10 @@ class Pitch(Generic):
                 self._degree    = (self % ou.Degree() << operand)._unit
                 self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale << operand
+                if self._scale._scale_list:
+                    self._transpose = True
+                else:
+                    self._transpose = False
             case tuple():
                 for single_operand in operand:
                     self << single_operand

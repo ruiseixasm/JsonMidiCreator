@@ -325,15 +325,15 @@ def test_chord_mod():
 
 
     defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
-    triad: Chord = Chord()
-    defaults << KeySignature() # Resets the default Key Scale to C Major
+    triad: Chord = Chord()  # As is it has no Scale, so, it uses the KeySignature
+    defaults << KeySignature() # Resets the default Key Scale to C Major being used by the triad (unowned by any clip)
 
     print("------")
     three_notes = triad.get_component_elements()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
     print(f"Key: {three_notes[1] % str()}")
-    assert three_notes[1] == "G#"   # Because defaults is now using the C Major scale
+    assert three_notes[1] == "G"   # Because defaults is now using the C Major scale
     print(f"Key: {three_notes[2] % str()}")
     assert three_notes[2] == "B"
 
