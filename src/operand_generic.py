@@ -656,6 +656,11 @@ class Pitch(Generic):
                 self._tonic_key = operand._unit % 12
                 self._octave = operand._unit // 12 - 1
 
+            case dict():
+                for octave, value in operand.items():
+                    self << octave
+                    self << value
+
             case ou.DrumKit():
                 self._natural = False
                 self._sharp = 0
