@@ -1076,9 +1076,9 @@ def test_pitch_shifting():
 
     two_notes: Clip = Note() / 2
     
-    # Asserts if it's not in transpose mode
-    print(f"transpose bool false = {two_notes[0] % Pitch() % bool()}")
-    assert not two_notes[0] % Pitch() % bool()
+    # Asserts if it's in transpose mode, by default it is
+    print(f"transpose bool True = {two_notes[0] % Pitch() % bool()}")
+    assert two_notes[0] % Pitch() % bool()
 
 
 # test_pitch_shifting()

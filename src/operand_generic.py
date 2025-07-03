@@ -165,7 +165,7 @@ class Pitch(Generic):
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: list[int]          = []
-        self._transpose: bool           = False # Sets the process as Transposition instead of Modulation
+        self._transpose: bool           = True  # Sets the process as Transposition instead of Modulation
 
         self._owner_element: oe.Element = None
         super().__init__(*parameters)
@@ -410,7 +410,7 @@ class Pitch(Generic):
                         self_staff: Staff = self._get_staff()
                         modulated_scale: list[int] = self_staff._key_signature % list()
                         scale_tonic: int = self_staff % ou.Tonic() % int()
-
+                    # Transposition is only applicable to a Scale, not a Key Signature
                     if self._scale and self._transpose:
                         transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
                         root_key += transposition # Jumps by semitones (chromatic tones)
@@ -677,13 +677,10 @@ class Pitch(Generic):
                 
             case Scale():
                 self._scale = operand % list()
-                self._transpose = bool(self._scale)
             case list():
                 self._scale = operand.copy()
-                self._transpose = bool(self._scale)
             case None:
                 self._scale = []
-                self._transpose = bool(self._scale)
 
             case str():
                 string: str = operand.strip()
@@ -693,7 +690,6 @@ class Pitch(Generic):
                 self._degree    = (self % ou.Degree() << operand)._unit
                 self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale = Scale(od.Pipe(self._scale), operand) % od.Pipe(list())
-                self._transpose = bool(self._scale)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
