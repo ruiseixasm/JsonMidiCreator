@@ -1072,3 +1072,15 @@ def test_part_position():
 # test_part_position()
 
 
+def test_pitch_shifting():
+
+    two_notes: Clip = Note() / 2
+    
+    # Asserts if it's not in transpose mode
+    print(f"transpose bool false = {two_notes[0] % Pitch() % bool()}")
+    assert not two_notes[0] % Pitch() % bool()
+
+
+# test_pitch_shifting()
+
+
