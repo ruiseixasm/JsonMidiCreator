@@ -1770,6 +1770,20 @@ class Size(Unit):
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
 
+
+class Inversion(Unit):
+    """`Unit -> Inversion`
+
+    Inversion() sets the degree of inversion of a given chord.
+    
+    Parameters
+    ----------
+    int(1) : Inversion sets the degree of chords inversion starting by 0 meaning no inversion
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
+
 class ScaleOperation(Unit):
     """`Unit -> ScaleOperation`
     """
@@ -1811,17 +1825,6 @@ class Progression(ScaleOperation):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class Inversion(ScaleOperation):
-    """`Unit -> ScaleOperation -> Inversion`
-
-    Inversion() sets the degree of inversion of a given chord.
-    
-    Parameters
-    ----------
-    int(0) : Inversion sets the degree of chords inversion starting by 0 meaning no inversion
-    """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
 
 class Midi(Unit):
     """`Unit -> Midi`
