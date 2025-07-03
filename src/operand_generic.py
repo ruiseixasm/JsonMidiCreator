@@ -401,7 +401,7 @@ class Pitch(Generic):
                 root_key: int = self.get_root_key(self._tonic_key, self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
-                    if self._scale._scale_list:  # Transpose
+                    if self._scale._scale_list:
                         modulated_scale: list[int] = self._scale % list()
                         scale_tonic: int = self._scale.get_tonic_key()
                     else:   # Here the Modulation is treated as a degree_0
