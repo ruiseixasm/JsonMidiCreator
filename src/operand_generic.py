@@ -279,19 +279,19 @@ class Pitch(Generic):
         # Does the shifting, transposition or modulation
         if self._shifting != 0:
             if self._scale:
-                modulated_scale: list[int] = self._scale
-                scale_tonic: int = Scale.get_tonic_key(modulated_scale)
+                scale_list: list[int] = self._scale
+                scale_tonic: int = Scale.get_tonic_key(scale_list)
             else:   # Here the Modulation is treated as a degree_0
-                self_staff: Staff = self._get_staff()
-                modulated_scale: list[int] = self_staff._key_signature % list()
-                scale_tonic: int = self_staff % ou.Tonic() % int()
+                key_signature: ou.KeySignature = self._get_staff()._key_signature
+                scale_list: list[int] = key_signature % list()
+                scale_tonic: int = key_signature % ou.Tonic() % int()
             # Transposition is only applicable to a Scale, not a Key Signature
             if self._scale and self._transpose:
-                transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
+                transposition: int = Scale.transpose_tonic(self._shifting, scale_list)
                 root_key += transposition # Jumps by semitones (chromatic tones)
             else:
                 tonic_offset: int = root_key - scale_tonic
-                root_key += Scale.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
+                root_key += Scale.modulate_tonic(tonic_offset, self._shifting, scale_list)
 
         return 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key)
 
