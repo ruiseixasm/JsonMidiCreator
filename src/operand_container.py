@@ -2634,8 +2634,7 @@ class Clip(Composition):  # Just a container of Elements
         taken_parameters: list = []
         for single_element in self._items:
             taken_parameters.insert(0, single_element % parameter)
-
-        # Sets the reversed positions
+        # Sets the reversed parameters
         for index, single_element in enumerate(self._items):
             single_element << taken_parameters[index]
 
