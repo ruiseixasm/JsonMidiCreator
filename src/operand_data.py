@@ -1143,10 +1143,28 @@ class Clear(Process):
         return super().__rrshift__(operand)
 
 
+if TYPE_CHECKING:
+    from operand_generic import Scale
+
 class ScaleProcess(Process):
     """`Data -> Process -> ScaleProcess`
     """
-    pass
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        if isinstance(operand, og.Scale):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        if isinstance(operand, og.Scale):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Scale`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
 
 class Modulate(ScaleProcess):    # Modal Modulation
     """`Data -> Process -> ScaleProcess -> Modulate`
@@ -1164,26 +1182,8 @@ class Modulate(ScaleProcess):    # Modal Modulation
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        if isinstance(operand, og.Scale):
-            operand = operand.copy().modulate(self._unit)
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
-class Progression(ScaleProcess):
-    """`Data -> Process -> ScaleProcess -> Progression`
-
-    A Progression() is used to do a Progression along a given Scale.
-    
-    Parameters
-    ----------
-    int(0) : Accepts a numeral equivalent to the the Roman numerals,
-        1 instead of I, 4 instead of IV and 5 instead of V
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    def _process(self, operand: 'Scale') -> 'Scale':
+        return operand.modulate(self._data)
 
 
 if TYPE_CHECKING:
