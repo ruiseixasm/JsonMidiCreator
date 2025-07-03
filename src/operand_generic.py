@@ -285,7 +285,7 @@ class Pitch(Generic):
             else:   # Here the Modulation is treated as a degree_0
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 modulated_scale: list[int] = key_signature % list() # By definition it's modulated
-                scale_tonic: int = key_signature % ou.Tonic() % int()
+                scale_tonic: int = key_signature.get_tonic_key()
             # Transposition is only applicable to a Scale, not a Key Signature
             if self._scale and self._transpose:
                 transposition: int = Scale.transpose_key(self._shifting, modulated_scale)
