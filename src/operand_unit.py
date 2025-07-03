@@ -959,9 +959,7 @@ class Modulation(Shifting):    # Modal Modulation
     ----------
     int(0) : By default the `Root` note has no modulation, pitch unchanged.
     """
-    def __init__(self, mode: int | str = 0):
-        unit = Mode(mode)._unit # Processes text
-        super().__init__(unit)
+    pass
 
 
 class Key(PitchParameter):
