@@ -2939,6 +2939,25 @@ class Clip(Composition):  # Just a container of Elements
                     last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
         return self._sort_position()
 
+    def join(self) -> Self:
+        """
+        Joins all same type elements in the same `Pitch` as a single `Element`, from left to right.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with its elements joined by pitch and type.
+        """
+        if self.len() > 0:
+            
+            remove_elements: list[oe.Element] = []
+            # for single_element in self._items:
+            #     element_type: type = type(single_element)
+            #     element_pitch
+
+        return self._sort_position()
+
 
     def stack(self, ignore_empty_measures: bool = True) -> Self:
         """

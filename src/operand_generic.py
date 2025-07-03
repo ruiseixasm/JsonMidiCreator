@@ -273,6 +273,29 @@ class Pitch(Generic):
         return key_int
 
 
+    def get_pitch_note(self) -> int:
+        
+        root_key: int = self.get_root_key(self._degree - 1)
+        # Does the shifting, transposition or modulation
+        if self._shifting != 0:
+            if self._scale:
+                modulated_scale: list[int] = self._scale
+                scale_tonic: int = Scale.get_tonic_key(modulated_scale)
+            else:   # Here the Modulation is treated as a degree_0
+                self_staff: Staff = self._get_staff()
+                modulated_scale: list[int] = self_staff._key_signature % list()
+                scale_tonic: int = self_staff % ou.Tonic() % int()
+            # Transposition is only applicable to a Scale, not a Key Signature
+            if self._scale and self._transpose:
+                transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
+                root_key += transposition # Jumps by semitones (chromatic tones)
+            else:
+                tonic_offset: int = root_key - scale_tonic
+                root_key += Scale.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
+
+        return 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key)
+
+
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
         octave_tonic_key: int = self._tonic_key % 12
@@ -399,26 +422,8 @@ class Pitch(Generic):
             case Fraction():
                 return Fraction(self._shifting)
             
-            case float():  # For some reason still dependent her of Fraction !
-                root_key: int = self.get_root_key(self._degree - 1)
-                # Does the shifting, transposition or modulation
-                if self._shifting != 0:
-                    if self._scale:
-                        modulated_scale: list[int] = self._scale
-                        scale_tonic: int = Scale.get_tonic_key(modulated_scale)
-                    else:   # Here the Modulation is treated as a degree_0
-                        self_staff: Staff = self._get_staff()
-                        modulated_scale: list[int] = self_staff._key_signature % list()
-                        scale_tonic: int = self_staff % ou.Tonic() % int()
-                    # Transposition is only applicable to a Scale, not a Key Signature
-                    if self._scale and self._transpose:
-                        transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
-                        root_key += transposition # Jumps by semitones (chromatic tones)
-                    else:
-                        tonic_offset: int = root_key - scale_tonic
-                        root_key += Scale.modulate_tonic(tonic_offset, self._shifting, modulated_scale)
-
-                return float( 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key) )
+            case float():
+                return float( self.get_pitch_note() )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
