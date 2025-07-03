@@ -1040,7 +1040,7 @@ class Note(Element):
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
             case int():             return self._velocity
-            case ou.PitchParameter() | str() | og.Scale() | ou.Mode():
+            case ou.PitchParameter() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch % ( self % od.Pipe( ra.Position() ) % float() ), ou.Channel(self._channel))
@@ -1307,7 +1307,7 @@ class Note(Element):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = operand._channel
@@ -1515,7 +1515,6 @@ class KeyScale(Note):
                     case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
-            case ou.Mode():         return self._pitch._scale_scale % operand
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
@@ -3337,7 +3336,7 @@ class PolyAftertouch(Aftertouch):
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | ou.Mode() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | None | og.Scale() | list() | str():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
