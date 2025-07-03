@@ -1157,10 +1157,26 @@ class Scale(Generic):
             self._scale_list    = self.deserialize( serialization["parameters"]["scale_list"] )
             self._mode          = self.deserialize( serialization["parameters"]["mode"] )
         return self
-        
+
+
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
-        self._scale_list = self.modulation(mode)
+
+        modulated_scale: list[int] = self._scale_list.copy()
+        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
+            mode_int = self._mode if mode is None else ou.Mode(mode) % int()
+            tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
+            modulation = 0
+            if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
+                while tones > 0:
+                    modulation += 1
+                    if self._scale_list[modulation % 12]:
+                        tones -= 1
+            if modulation != 0:
+                for key_i in range(12):
+                    modulated_scale[key_i] = self._scale_list[(key_i + modulation) % 12]
+        self._scale_list = modulated_scale
         return self
+    
 
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
