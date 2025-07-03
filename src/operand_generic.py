@@ -466,8 +466,7 @@ class Pitch(Generic):
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 self_staff: Staff = self._get_staff()   # Optimization
-                if not self_staff._scale._scale \
-                    and self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
+                if self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
@@ -818,9 +817,6 @@ class Pitch(Generic):
 
     def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
-        self_staff: Staff = self._get_staff()   # Optimization
-        if self_staff._scale._scale:
-            scale = self_staff._scale % list()
         move_semitones: int = 0
         while move_tones > 0:
             move_semitones += 1
@@ -1373,7 +1369,6 @@ class Staff(Generic):
         self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
-        self._scale: Scale                          = Scale(None)
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1485,7 +1480,6 @@ class Staff(Generic):
                     case TimeSignature():       return self._time_signature
                     case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ou.KeySignature():     return self._key_signature
-                    case Scale():               return self._scale
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     # Calculated Values
@@ -1505,31 +1499,20 @@ class Staff(Generic):
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return ra.Quantization(self._quantization)
             case ou.KeySignature():     return self._key_signature.copy()
-            case Scale():               return self._scale.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             # Calculated Values
             case ou.Tonic():
-                if self._scale._scale:
-                    return ou.Tonic( self._scale.get_tonic_key() )
                 return ou.Tonic( self._key_signature.get_tonic_key() )
             case ou.Key():
-                if self._scale._scale:
-                    return self._scale % ou.Key()
                 return self._key_signature % ou.Key()
             case list():
-                if self._scale._scale:
-                    return self._scale % list()
                 return self._key_signature.get_scale_list() # Faster this way
             case float():
-                if self._scale._scale:
-                    return self._scale % float()
                 return self._key_signature % float()
             case str():
-                if self._scale._scale:
-                    return self._scale % str()
                 return self._key_signature % str()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
@@ -1675,7 +1658,6 @@ class Staff(Generic):
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1683,14 +1665,13 @@ class Staff(Generic):
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
-            "key_signature" in serialization["parameters"] and "scale" in serialization["parameters"] and "quantization" in serialization["parameters"]):
+            "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._scale             = self.deserialize( serialization["parameters"]["scale"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1702,14 +1683,12 @@ class Staff(Generic):
                 self._time_signature    << operand._time_signature
                 self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
-                self._scale             << operand._scale
             case od.Pipe():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case TimeSignature():       self._time_signature = operand._data
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
-                    case Scale():               self._scale = operand._data
                     case ra.TimeSignatureParameter():
                                                 self._time_signature << od.Pipe( operand._data )
             case od.Serialization():
