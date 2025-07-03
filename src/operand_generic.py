@@ -400,7 +400,7 @@ class Pitch(Generic):
                     if self._scale._scale_list:  # Transpose
                         modulated_scale: list[int] = self._scale % list()
                     else:   # Here the Modulation is treated as a degree_0
-                        self_staff: Staff = self._get_staff()   # Optimization
+                        self_staff: Staff = self._get_staff()
                         modulated_scale: list[int] = self_staff % list()
 
                     if self._transpose:
