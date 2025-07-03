@@ -154,6 +154,7 @@ class Pitch(Generic):
     Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
     Natural(False) : `Natural` disables the effects of `Sharp` and `Flat` and any accidental.
     Scale(None), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    bool(False) : Sets if the given scale is processed as transposition (True) or as modulation (False).
     """
     def __init__(self, *parameters):
         import operand_element as oe
@@ -1039,7 +1040,6 @@ class Scale(Generic):
     Parameters
     ----------
     list([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]), str : Sets the scale type where default scale is the Major scale.
-    Mode(1), int : Sets the `Mode` of the scale where a value different of 1 changes the tonic of the scale.
     """
     def __init__(self, *parameters):
         self._scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
