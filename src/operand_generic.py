@@ -401,7 +401,7 @@ class Pitch(Generic):
                 root_key: int = self.get_root_key(self._degree - 1)
                 # Does the shifting, transposition or modulation
                 if self._shifting != 0:
-                    if self._scale._scale_list:
+                    if self._scale._scale:
                         modulated_scale: list[int] = self._scale % list()
                         scale_tonic: int = self._scale.get_tonic_key()
                     else:   # Here the Modulation is treated as a degree_0
@@ -466,7 +466,7 @@ class Pitch(Generic):
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 self_staff: Staff = self._get_staff()   # Optimization
-                if not self_staff._scale._scale_list \
+                if not self_staff._scale._scale \
                     and self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
@@ -674,7 +674,7 @@ class Pitch(Generic):
                 
             case Scale() | list() | None:
                 self._scale << operand
-                if self._scale._scale_list:
+                if self._scale._scale:
                     self._transpose = True
                 else:
                     self._transpose = False
@@ -687,7 +687,7 @@ class Pitch(Generic):
                 self._degree    = (self % ou.Degree() << operand)._unit
                 self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale << operand
-                if self._scale._scale_list:
+                if self._scale._scale:
                     self._transpose = True
                 else:
                     self._transpose = False
@@ -819,7 +819,7 @@ class Pitch(Generic):
     def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
         self_staff: Staff = self._get_staff()   # Optimization
-        if self_staff._scale._scale_list:
+        if self_staff._scale._scale:
             scale = self_staff._scale % list()
         move_semitones: int = 0
         while move_tones > 0:
@@ -1045,8 +1045,7 @@ class Scale(Generic):
     Mode(1), int : Sets the `Mode` of the scale where a value different of 1 changes the tonic of the scale.
     """
     def __init__(self, *parameters):
-        self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
-        self._mode: int             = 1
+        self._scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
         super().__init__(*parameters)
 
 
@@ -1098,14 +1097,14 @@ class Scale(Generic):
                 return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case list():                return self._scale_list
-                    case str():                 return self.get_scale_name(self._scale_list)
-                    case int():                 return self.get_scale_number(self._scale_list)
-                    case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
+                    case list():                return self._scale
+                    case str():                 return self.get_scale_name(self._scale)
+                    case int():                 return self.get_scale_number(self._scale)
+                    case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale)) ])
                     case _:                     return super().__mod__(operand)
             case list():
                 modulated_scale: list[int] = self.modulation(None)
-                if self._scale_list and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
+                if self._scale and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
                     if isinstance(operand[0], ou.Key):
                         key_int: int = operand[0]._unit
                     else:
@@ -1130,19 +1129,19 @@ class Scale(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._scale_list == other._scale_list
+        return  self._scale == other._scale
     
     def hasScale(self) -> bool:
-        if self._scale_list == [] or self._scale_list == -1 or self._scale_list == "":
+        if self._scale == [] or self._scale == -1 or self._scale == "":
             return False
         return True
 
     def keys(self) -> int:
-        return sum(1 for key in self._scale_list if key != 0)
+        return sum(1 for key in self._scale if key != 0)
 
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
-        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
+        if isinstance(self._scale, list) and len(self._scale) == 12:
             modulated_scale: list[int] = self.modulation(None)
             while tones > 0:
                 transposition += 1
@@ -1151,55 +1150,53 @@ class Scale(Generic):
         return transposition
 
     def modulation(self, mode: int | str = "5th") -> list[int]: # AKA as remode (remoding)
-        self_scale = self._scale_list.copy()
-        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
-            mode_int = self._mode if mode is None else ou.Mode(mode) % int()
+        self_scale = self._scale.copy()
+        if isinstance(self._scale, list) and len(self._scale) == 12:
+            mode_int = 1 if mode is None else ou.Mode(mode) % int()
             tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
             transposition = 0
-            if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
+            if isinstance(self._scale, list) and len(self._scale) == 12:
                 while tones > 0:
                     transposition += 1
-                    if self._scale_list[transposition % 12]:
+                    if self._scale[transposition % 12]:
                         tones -= 1
             if transposition != 0:
                 for key_i in range(12):
-                    self_scale[key_i] = self._scale_list[(key_i + transposition) % 12]
+                    self_scale[key_i] = self._scale[(key_i + transposition) % 12]
         return self_scale
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["scale_list"]   = self.serialize( self._scale_list )
-        serialization["parameters"]["mode"]         = self.serialize( self._mode )
+        serialization["parameters"]["scale"]   = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Scale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale_list" in serialization["parameters"] and "mode" in serialization["parameters"]):
+            "scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale_list    = self.deserialize( serialization["parameters"]["scale_list"] )
-            self._mode          = self.deserialize( serialization["parameters"]["mode"] )
+            self._scale    = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
 
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
 
-        modulated_scale: list[int] = self._scale_list.copy()
-        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
-            mode_int = self._mode if mode is None else ou.Mode(mode) % int()
+        modulated_scale: list[int] = self._scale.copy()
+        if isinstance(self._scale, list) and len(self._scale) == 12:
+            mode_int = 1 if mode is None else ou.Mode(mode) % int()
             tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
             modulation = 0
-            if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
+            if isinstance(self._scale, list) and len(self._scale) == 12:
                 while tones > 0:
                     modulation += 1
-                    if self._scale_list[modulation % 12]:
+                    if self._scale[modulation % 12]:
                         tones -= 1
             if modulation != 0:
                 for key_i in range(12):
-                    modulated_scale[key_i] = self._scale_list[(key_i + modulation) % 12]
-        self._scale_list = modulated_scale
+                    modulated_scale[key_i] = self._scale[(key_i + modulation) % 12]
+        self._scale = modulated_scale
         return self
     
 
@@ -1208,27 +1205,24 @@ class Scale(Generic):
         match operand:
             case Scale():
                 super().__lshift__(operand)
-                self._scale_list    = operand._scale_list.copy()
-                self._mode          = operand._mode
+                self._scale = operand._scale.copy()
             case od.Pipe():
                 match operand._data:
-                    case list():            self._scale_list = operand._data
+                    case list():            self._scale = operand._data
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.Pipe( dict() ))
-            case int():
-                self._mode = operand
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
-                    self._scale_list = self_scale.copy()
+                    self._scale = self_scale.copy()
             case list():
                 if len(operand) == 12 and all(x in {0, 1} for x in operand) and any(x == 1 for x in operand):
-                    self._scale_list = operand.copy()
+                    self._scale = operand.copy()
                 elif operand == []:
-                    self._scale_list = []
+                    self._scale = []
             case None:
-                self._scale_list = []
+                self._scale = []
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -1318,7 +1312,7 @@ class Scale(Generic):
     ]
 
     def get_tonic_key(self) -> int:
-        return self._tonics[ max(0, self.get_scale_number( self._scale_list )) ]
+        return self._tonics[ max(0, self.get_scale_number( self._scale )) ]
 
     @staticmethod
     def get_scale_number(scale: int | str | list = 0) -> int:
@@ -1518,23 +1512,23 @@ class Staff(Generic):
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             # Calculated Values
             case ou.Tonic():
-                if self._scale._scale_list:
+                if self._scale._scale:
                     return ou.Tonic( self._scale.get_tonic_key() )
                 return ou.Tonic( self._key_signature.get_tonic_key() )
             case ou.Key():
-                if self._scale._scale_list:
+                if self._scale._scale:
                     return self._scale % ou.Key()
                 return self._key_signature % ou.Key()
             case list():
-                if self._scale._scale_list:
+                if self._scale._scale:
                     return self._scale % list()
                 return self._key_signature.get_scale_list() # Faster this way
             case float():
-                if self._scale._scale_list:
+                if self._scale._scale:
                     return self._scale % float()
                 return self._key_signature % float()
             case str():
-                if self._scale._scale_list:
+                if self._scale._scale:
                     return self._scale % str()
                 return self._key_signature % str()
             case ra.NotesPerMeasure():
