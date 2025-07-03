@@ -235,13 +235,14 @@ class Pitch(Generic):
 
         return degree_0 + 1 # Degree base 1 (I)
 
+
     def modulation(self, degree_0: int) -> int:
 
-        self_staff: Staff = self._get_staff()
-        staff_scale: list[int] = self_staff._key_signature % list()
+        key_signature: ou.KeySignature = self._get_staff()._key_signature
+        staff_scale: list[int] = key_signature % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
-        staff_tonic: int = self_staff % ou.Tonic() % int()
-        tonic_offset: int = self._tonic_key - staff_tonic
+        # staff_tonic: int = key_signature % ou.Tonic() % int()
+        # tonic_offset: int = self._tonic_key - staff_tonic
         tonic_offset = 0    # In order to give no errors, TEMPORARY!
 
         degree_0 %= total_keys
@@ -251,6 +252,7 @@ class Pitch(Generic):
             if staff_scale[ (tonic_offset + degree_transposition) % 12 ] == 1:  # Scale key
                 degree_0 -= 1
         return degree_transposition
+
 
     def get_root_key(self, degree_0: int) -> int:
         return self._tonic_key % 12 + self.modulation(degree_0)
