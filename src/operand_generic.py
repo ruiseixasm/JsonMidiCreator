@@ -679,7 +679,7 @@ class Pitch(Generic):
                 self._scale = operand % list()
                 self._transpose = bool(self._scale)
             case list():
-                self._scale = operand._scale.copy()
+                self._scale = operand.copy()
                 self._transpose = bool(self._scale)
             case None:
                 self._scale = []
