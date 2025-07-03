@@ -236,25 +236,16 @@ class Pitch(Generic):
         return degree_0 + 1 # Degree base 1 (I)
 
 
-    def transposition(self, degree_0: int) -> int:
+    def get_root_key(self, degree_0: int) -> int:
+        key_signature: ou.KeySignature = self._get_staff()._key_signature
+        modulated_scale: list[int] = key_signature.get_scale_list() # By definition it's modulated
+
+        degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
         """
         IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
         """
-        key_signature: ou.KeySignature = self._get_staff()._key_signature
-        modulated_scale: list[int] = key_signature % list() # By definition it's modulated
+        return self._tonic_key % 12 + Scale.transpose_key(degree_0, modulated_scale)
 
-        degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
-        degree_transposition: int = 0
-        while degree_0 > 0:
-            degree_transposition += 1
-            # It's supposed to have no tonic_offset given that it's supposed to have accidentals for different tonics!!!
-            if modulated_scale[ degree_transposition ] == 1:  # Scale key. degree_transposition never goes above 11
-                degree_0 -= 1
-        return degree_transposition
-
-
-    def get_root_key(self, degree_0: int) -> int:
-        return self._tonic_key % 12 + self.transposition(degree_0)
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
@@ -288,6 +279,9 @@ class Pitch(Generic):
                 scale_tonic: int = key_signature.get_tonic_key()
             # Transposition is only applicable to a Scale, not a Key Signature
             if self._scale and self._transpose:
+                """
+                IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+                """
                 transposition: int = Scale.transpose_key(self._shifting, modulated_scale)
                 root_key += transposition # Jumps by semitones (chromatic tones)
             else:
