@@ -1070,9 +1070,9 @@ class Scale(Generic):
             case int():                 return self.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
-            case ou.Tonic():            return ou.Tonic(self % float())
-            case ou.Key():              return ou.Key( self.get_tonic_number() )
-            case float():               return float( self.get_tonic_number() )
+            case ou.Tonic():            return ou.Tonic( self.get_tonic_key() )
+            case ou.Key():              return ou.Key( self.get_tonic_key() )
+            case float():               return float( self.get_tonic_key() )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
@@ -1256,13 +1256,14 @@ class Scale(Generic):
         0   # C
     ]
 
-    def get_tonic_number(self) -> int:
+    def get_tonic_key(self) -> int:
         net_mode: int = self._mode - 1
-        self_tonic: int = self._tonics[ max(0, self.get_scale_number(self._scale_list)) ]
+        self_modulated: list[int] = self % list()
+        self_tonic: int = self._tonics[ max(0, self.get_scale_number( self_modulated )) ]
         move_tonic: int = 0
         while net_mode > 0:
             move_tonic += 1
-            if self._scale_list[move_tonic % 12] == 1:
+            if self_modulated[move_tonic % 12] == 1:
                 net_mode -= 1
         return self_tonic + move_tonic
 
