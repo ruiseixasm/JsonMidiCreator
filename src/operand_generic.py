@@ -1496,7 +1496,9 @@ class Staff(Generic):
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             # Calculated Values
             case ou.Tonic():
-                return ou.Tonic(self % float())
+                if self._scale._scale_list:
+                    return ou.Tonic( self._scale.get_tonic_key() )
+                return ou.Tonic( self._key_signature.get_tonic_key() )
             case ou.Key():
                 if self._scale._scale_list:
                     return self._scale % ou.Key()
