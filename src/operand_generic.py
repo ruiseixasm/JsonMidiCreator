@@ -243,13 +243,14 @@ class Pitch(Generic):
         # total_keys: int = sum(1 for key in staff_scale if key != 0)
         # staff_tonic: int = key_signature % ou.Tonic() % int()
         # tonic_offset: int = self._tonic_key - staff_tonic
-        tonic_offset = 0    # In order to give no errors, TEMPORARY!
+        # tonic_offset = 0    # In order to give no errors, TEMPORARY!
 
         degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
         degree_transposition: int = 0
         while degree_0 > 0:
             degree_transposition += 1
-            if staff_scale[ (tonic_offset + degree_transposition) % 12 ] == 1:  # Scale key
+            # It's supposed to have no tonic_offset given that it's supposed to have accidentals for different tonics!!!
+            if staff_scale[ degree_transposition ] == 1:  # Scale key. degree_transposition never goes above 11
                 degree_0 -= 1
         return degree_transposition
 
