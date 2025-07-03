@@ -1526,7 +1526,7 @@ class KeyScale(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch._scale_scale  == other._pitch._scale_scale \
+                    and self._pitch._scale  == other._pitch._scale \
                     and self._inversion     == other._inversion \
                     and self._arpeggio      == other._arpeggio
             case _:
@@ -1553,7 +1553,7 @@ class KeyScale(Note):
             
     def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
-        active_scale: list[int] = self._pitch._scale_scale % list()   # Does the modulation
+        active_scale: list[int] = self._pitch._scale
         if not active_scale:
             active_scale = self._get_staff() % list()
         total_keys: int = sum(1 for key in active_scale if key != 0)
