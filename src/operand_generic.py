@@ -454,8 +454,6 @@ class Pitch(Generic):
             
             case Scale():
                 return self._scale.copy()
-            case ou.Mode():
-                return self._scale % operand
             case list():
                 return self._scale % list()
 
@@ -674,7 +672,7 @@ class Pitch(Generic):
             case ou.Natural():
                 self._natural = operand.__mod__(od.Pipe( bool() ))
                 
-            case Scale() | list() | ou.Mode() | None:
+            case Scale() | list() | None:
                 self._scale << operand
                 if self._scale._scale_list:
                     self._transpose = True
@@ -1100,13 +1098,11 @@ class Scale(Generic):
                 return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
                     case list():                return self._scale_list
                     case str():                 return self.get_scale_name(self._scale_list)
                     case int():                 return self.get_scale_number(self._scale_list)
                     case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
                     case _:                     return super().__mod__(operand)
-            case ou.Mode():             return ou.Mode() << od.Pipe(self._mode)
             case list():
                 modulated_scale: list[int] = self.modulation(None)
                 if self._scale_list and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
@@ -1216,14 +1212,12 @@ class Scale(Generic):
                 self._mode          = operand._mode
             case od.Pipe():
                 match operand._data:
-                    case ou.Mode():         self._mode = operand._data._unit
+                    case list():            self._scale_list = operand._data
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.Pipe( dict() ))
             case int():
                 self._mode = operand
-            # case ou.Mode():
-            #     self._mode = operand._unit
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
@@ -1324,15 +1318,7 @@ class Scale(Generic):
     ]
 
     def get_tonic_key(self) -> int:
-        net_mode: int = self._mode - 1
-        self_modulated: list[int] = self % list()
-        self_tonic: int = self._tonics[ max(0, self.get_scale_number( self_modulated )) ]
-        move_tonic: int = 0
-        while net_mode > 0:
-            move_tonic += 1
-            if self_modulated[move_tonic % 12] == 1:
-                net_mode -= 1
-        return self_tonic + move_tonic
+        return self._tonics[ max(0, self.get_scale_number( self._scale_list )) ]
 
     @staticmethod
     def get_scale_number(scale: int | str | list = 0) -> int:
