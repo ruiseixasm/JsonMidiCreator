@@ -1675,6 +1675,20 @@ class Tie(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.tie(*self._data)
 
+class Join(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Join`
+
+    Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
+
+    Args:
+        decompose (bool): If `True`, decomposes elements derived from `Note` first.
+    """
+    def __init__(self, decompose: bool = True):
+        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.join(*self._data)
+
 
 class Slur(ClipProcess):
     """`Data -> Process -> ClipProcess -> Slur`

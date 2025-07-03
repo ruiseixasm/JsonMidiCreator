@@ -2939,25 +2939,6 @@ class Clip(Composition):  # Just a container of Elements
                     last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
         return self._sort_position()
 
-    def join(self) -> Self:
-        """
-        Joins all same type elements in the same `Pitch` as a single `Element`, from left to right.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with its elements joined by pitch and type.
-        """
-        if self.len() > 0:
-            
-            remove_elements: list[oe.Element] = []
-            # for single_element in self._items:
-            #     element_type: type = type(single_element)
-            #     element_pitch
-
-        return self._sort_position()
-
 
     def stack(self, ignore_empty_measures: bool = True) -> Self:
         """
@@ -3040,7 +3021,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel << 8 | int(note._pitch % float())
+            channel_pitch: int = note._channel << 8 | note._pitch.get_pitch_note()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
@@ -3061,6 +3042,38 @@ class Clip(Composition):  # Just a container of Elements
         self._delete(removed_notes)
         return self
     
+    def join(self, decompose: bool = True) -> Self:
+        """
+        Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
+
+        Args:
+            decompose (bool): If `True`, decomposes elements derived from `Note` first.
+
+        Returns:
+            Clip: The same self object with its notes joined by pitch and type.
+        """
+        if decompose:
+            self.decompose()
+        all_notes: list[oe.Note] = [
+            single_note for single_note in self._items if type(single_note) is oe.Note
+        ]
+        removed_notes: list[oe.Note] = []
+        extended_notes: dict[int, oe.Note] = {}
+        for note in all_notes:
+            channel_pitch: int = note._channel << 8 | note._pitch.get_pitch_note()
+            if channel_pitch in extended_notes:
+                extended_note: oe.Note = extended_notes[channel_pitch]
+                extended_note_position: Fraction = extended_note._position_beats
+                finish_note_position: Fraction = note.finish()._rational
+                if finish_note_position > extended_note_position:
+                    extended_note_length: Fraction = finish_note_position - extended_note_position
+                    extended_note << ra.Length(self, extended_note_length)  # Fraction represents Beats (direct)
+                removed_notes.append(note)
+            else:
+                extended_notes[channel_pitch] = note
+        self._delete(removed_notes)
+        return self
+
 
     def slur(self, gate: float = 1.05) -> Self:
         """
