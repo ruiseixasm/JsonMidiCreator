@@ -240,12 +240,12 @@ class Pitch(Generic):
 
         key_signature: ou.KeySignature = self._get_staff()._key_signature
         staff_scale: list[int] = key_signature % list()
-        total_keys: int = sum(1 for key in staff_scale if key != 0)
+        # total_keys: int = sum(1 for key in staff_scale if key != 0)
         # staff_tonic: int = key_signature % ou.Tonic() % int()
         # tonic_offset: int = self._tonic_key - staff_tonic
         tonic_offset = 0    # In order to give no errors, TEMPORARY!
 
-        degree_0 %= total_keys
+        degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
         degree_transposition: int = 0
         while degree_0 > 0:
             degree_transposition += 1
