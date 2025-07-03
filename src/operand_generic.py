@@ -241,18 +241,14 @@ class Pitch(Generic):
         IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
         """
         key_signature: ou.KeySignature = self._get_staff()._key_signature
-        staff_scale: list[int] = key_signature % list()
-        # total_keys: int = sum(1 for key in staff_scale if key != 0)
-        # staff_tonic: int = key_signature % ou.Tonic() % int()
-        # tonic_offset: int = self._tonic_key - staff_tonic
-        # tonic_offset = 0    # In order to give no errors, TEMPORARY!
+        modulated_scale: list[int] = key_signature % list() # By definition it's modulated
 
         degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
         degree_transposition: int = 0
         while degree_0 > 0:
             degree_transposition += 1
             # It's supposed to have no tonic_offset given that it's supposed to have accidentals for different tonics!!!
-            if staff_scale[ degree_transposition ] == 1:  # Scale key. degree_transposition never goes above 11
+            if modulated_scale[ degree_transposition ] == 1:  # Scale key. degree_transposition never goes above 11
                 degree_0 -= 1
         return degree_transposition
 
@@ -284,22 +280,22 @@ class Pitch(Generic):
         # Does the shifting, transposition or modulation
         if self._shifting != 0:
             if self._scale:
-                scale_list: list[int] = self._scale
-                scale_tonic: int = Scale.get_tonic_key(scale_list)
+                modulated_scale: list[int] = self._scale
+                scale_tonic: int = Scale.get_tonic_key(modulated_scale)
             else:   # Here the Modulation is treated as a degree_0
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
-                scale_list: list[int] = key_signature % list()
+                modulated_scale: list[int] = key_signature % list() # By definition it's modulated
                 scale_tonic: int = key_signature % ou.Tonic() % int()
             # Transposition is only applicable to a Scale, not a Key Signature
             if self._scale and self._transpose:
-                transposition: int = Scale.transpose_tonic(self._shifting, scale_list)
+                transposition: int = Scale.transpose_key(self._shifting, modulated_scale)
                 root_key += transposition # Jumps by semitones (chromatic tones)
             else:
                 """
                 IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
                 """
                 tonic_offset: int = root_key - scale_tonic
-                root_key += Scale.modulate_tonic(tonic_offset, self._shifting, scale_list)
+                root_key += Scale.modulate_key(tonic_offset, self._shifting, modulated_scale)
 
         return 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key)
 
@@ -1058,7 +1054,7 @@ class Scale(Generic):
 
 
     @staticmethod
-    def transpose_tonic(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def transpose_key(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
         if len(scale) == 12 and sum(1 for key in scale if key != 0) > 0:
@@ -1073,7 +1069,7 @@ class Scale(Generic):
         return scale_transposition
 
     @staticmethod
-    def modulate_tonic(tonic_offset: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def modulate_key(tonic_offset: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         tonic_modulation: int = 0
         if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:

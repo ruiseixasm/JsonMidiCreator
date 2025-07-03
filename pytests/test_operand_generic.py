@@ -129,7 +129,7 @@ def test_scale_mod():
     assert scale % str() == "Major"
     assert scale.modulate(6) % str() == "minor" # 6th Mode
 
-    fifth_transposition: int = Scale.transpose_tonic(5 - 1, Scale("Major") % list())
+    fifth_transposition: int = Scale.transpose_key(5 - 1, Scale("Major") % list())
     assert fifth_transposition == 7 # Semitones
 
     scale.clear()
