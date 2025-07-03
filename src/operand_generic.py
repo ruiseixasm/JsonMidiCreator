@@ -410,7 +410,7 @@ class Pitch(Generic):
                         scale_tonic: int = self_staff % ou.Tonic() % int()
 
                     if self._transpose:
-                        transposition: int = Scale.transpose_scale(self._shifting, modulated_scale)
+                        transposition: int = Scale.transpose_tonic(self._shifting, modulated_scale)
                         root_key += transposition # Jumps by semitones (chromatic tones)
                     else:
                         tonic_offset: int = root_key - scale_tonic
@@ -1053,7 +1053,7 @@ class Scale(Generic):
 
 
     @staticmethod
-    def transpose_scale(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def transpose_tonic(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
         if len(scale) == 12 and sum(1 for key in scale if key != 0) > 0:
@@ -1121,8 +1121,6 @@ class Scale(Generic):
                 return modulated_scale
             case str():                 return self.get_scale_name(self.modulation(None))
             case int():                 return self.get_scale_number(self.modulation(None))
-            case ou.Transposition():    return self.transposition(operand % int())
-            case ou.Modulation():       return self.modulation(operand % int())
             case ou.Tonic():            return ou.Tonic( self.get_tonic_key() )
             case ou.Key():              return ou.Key( self.get_tonic_key() )
             case float():               return float( self.get_tonic_key() )

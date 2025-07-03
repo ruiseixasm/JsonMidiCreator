@@ -204,22 +204,22 @@ defaults << Tempo(240)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 
-    + Iterate(None, Scale("Major") % Transposition(5 - 1))**Semitone() 
+    + Iterate(step=7)**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 
-    + Iterate(None, Scale("Major") % Transposition(4 - 1))**Semitone() 
+    + Iterate(step=5)**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
 play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) / 8 
-    + Iterate(None, Scale("minor") % Transposition(5 - 1))**Semitone() 
+    + Iterate(step=7)**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
 play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) / 8 
-    + Iterate(None, Scale("minor") % Transposition(4 - 1))**Semitone() 
+    + Iterate(step=5)**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 play_list_1 + Measures(0 * 8) \
