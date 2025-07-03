@@ -1541,7 +1541,7 @@ class Link(ClipProcess):
 class Switch(ClipProcess):
     """`Data -> Process -> ClipProcess -> Switch`
 
-    Switches the sequence of the clip concerning the elements `Position`.
+    `Switch` just switches the pitches of each `Note` with each others.
 
     Args:
         None

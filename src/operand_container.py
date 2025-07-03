@@ -2619,8 +2619,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def switch(self) -> Self:
         """
-        switch just switches the positions of each `Element` with each other.
-        You may want to do a link afterwards to connect all again.
+        `switch` just switches the pitches of each `Note` with each others.
 
         Args:
             None
@@ -2628,15 +2627,19 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        taken_positions: list[Fraction] = []
-        for single_element in self._items:
-            taken_positions.insert(0, single_element._position_beats)
+        self_notes: list[oe.Note] = [
+            single_note for single_note in self._items
+            if isinstance(single_note, oe.Note)
+        ]
+        taken_pitches: list[Fraction] = []
+        for single_note in self_notes:
+            taken_pitches.insert(0, single_note._pitch)
 
         # Sets the reversed positions
-        for index, element in enumerate(self._items):
-            element._position_beats = taken_positions[index]
+        for index, single_note in enumerate(self_notes):
+            single_note << taken_pitches[index] # Pitches have owners to respect
 
-        return self._sort_position()    # Sorting elements is imperative given the switch of positions
+        return self
 
 
     def flip(self) -> Self:
