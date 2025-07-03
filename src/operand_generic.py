@@ -367,14 +367,18 @@ class Pitch(Generic):
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
+                    # bool is an int, so, it must come before an int to be processed as a bool!
+                    case bool():            return self._transpose
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
                     case Fraction():        return Fraction(self._shifting)
                     case Scale():           return self._scale
-                    case bool():            return self._transpose
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
+            case bool():    # bool is an int, so, it must come before an int to be processed as a bool!
+                return self._transpose
+            
             case int():
                 self_degree_0: int = 0
                 if self._degree > 0:
@@ -449,9 +453,6 @@ class Pitch(Generic):
             case list():
                 return self._scale % list()
 
-            case bool():
-                return self._transpose
-            
             case ou.KeySignature():
                 return self._get_staff()._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
@@ -570,6 +571,8 @@ class Pitch(Generic):
                         self._tonic_key = operand._data._unit
                     case ou.Octave():
                         self._octave    = operand._data._unit
+                    case bool():    # bool is an int, so, it must come before an int to be processed as a bool!
+                        self._transpose = operand._data
                     case int():
                         self._degree = operand._data
                     case float():
@@ -590,8 +593,6 @@ class Pitch(Generic):
                         self._shifting = operand._data._unit
                     case Scale():
                         self._scale = operand._data
-                    case bool():
-                        self._transpose = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -613,6 +614,8 @@ class Pitch(Generic):
                 self._natural = False
                 self._degree = self.get_key_degree(operand._unit % 12)
 
+            case bool():    # bool is an int, so, it must come before an int to be processed as a bool!
+                self._transpose = operand
             case int():
                 if operand > 0:
                     staff_scale: list[int] = self._get_staff() % list()
@@ -638,8 +641,6 @@ class Pitch(Generic):
                 self._shifting = operand._unit
             case Fraction():
                 self._shifting = int(operand)
-            case bool():
-                self._transpose = operand
 
             case float():
                 self.set_chromatic_pitch(int(operand))
@@ -905,11 +906,13 @@ class Controller(Generic):
                     case ou.NRPN():             return operand._data << od.Pipe(self._nrpn)
                     case ou.HighResolution():   return operand._data << od.Pipe(self._high)
                     case of.Frame():            return self % od.Pipe( operand._data )
+                    case bool():                return self._high
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << od.Pipe(self._number_msb)
             case ou.LSB():              return operand.copy() << od.Pipe(self._lsb)
             case ou.NRPN():             return operand.copy() << od.Pipe(self._nrpn)
             case ou.HighResolution():   return operand.copy() << od.Pipe(self._high)
+            case bool():                return self._high
             case dict():
                 controller_dict: dict[str, int] = {
                     "MSB": self._number_msb,
@@ -973,6 +976,8 @@ class Controller(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.MSB():      # Must be check before the Number class
                 self._number_msb = operand._unit
+            case bool():   # bool is a subclass of int !!
+                self._high = operand
             case int():         # Includes ou.MSB() as a subclass of Number
                 self._number_msb = operand
                 # Number has implicit 7 bytes CC
@@ -988,8 +993,6 @@ class Controller(Generic):
                 self._nrpn = bool(operand._unit)
             case ou.HighResolution():
                 self._high = bool(operand._unit)
-            case bool():   # bool is a subclass of int !!
-                self._high = operand
             case dict():
                 if "NUMBER" in operand and isinstance(operand["NUMBER"], int):
                     self._number_msb = operand["NUMBER"]
