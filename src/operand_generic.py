@@ -236,9 +236,9 @@ class Pitch(Generic):
         return degree_0 + 1 # Degree base 1 (I)
 
 
-    def modulation(self, degree_0: int) -> int:
+    def transposition(self, degree_0: int) -> int:
         """
-        IN THIS TYPE OF MODULATION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+        IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
         """
         key_signature: ou.KeySignature = self._get_staff()._key_signature
         staff_scale: list[int] = key_signature % list()
@@ -258,7 +258,7 @@ class Pitch(Generic):
 
 
     def get_root_key(self, degree_0: int) -> int:
-        return self._tonic_key % 12 + self.modulation(degree_0)
+        return self._tonic_key % 12 + self.transposition(degree_0)
 
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
@@ -296,7 +296,7 @@ class Pitch(Generic):
                 root_key += transposition # Jumps by semitones (chromatic tones)
             else:
                 """
-                IN THIS TYPE OF MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
+                IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
                 """
                 tonic_offset: int = root_key - scale_tonic
                 root_key += Scale.modulate_tonic(tonic_offset, self._shifting, scale_list)
