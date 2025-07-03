@@ -658,7 +658,7 @@ class Pitch(Generic):
 
             case dict():
                 for octave, value in operand.items():
-                    self << ou.Octave(octave) << value
+                    self << value << ou.Octave(octave)
 
             case ou.DrumKit():
                 self._natural = False
@@ -735,8 +735,8 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
             case dict():
                 for octave, value in operand.items():
-                    self += ou.Octave(octave)
                     self += value
+                    self += ou.Octave(octave)
         return self
     
     def __isub__(self, operand: any) -> Self:
@@ -773,8 +773,8 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
             case dict():
                 for octave, value in operand.items():
-                    self -= ou.Octave(octave)
                     self -= value
+                    self -= ou.Octave(octave)
         return self
 
     def __mul__(self, operand) -> Self:
