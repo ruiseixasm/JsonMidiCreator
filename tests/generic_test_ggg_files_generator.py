@@ -142,7 +142,7 @@ defaults << Scale("minor")
         << Inversion(1) >> Save("json/testing/_Save_Play_p.13_first_note.json") >> Export("json/testing/_Export_Play_p.13_sequence.json")
 
 defaults << Scale([])
-Chord("C") << Size("13th") << Scale("Major") << Degree("Dominant") << Mode("5th") << Octave(3) << Duration(8) \
+Chord("C") << Size("13th") << Scale("Major").modulate("5th") << Degree("Dominant") << Octave(3) << Duration(8) \
     >> Save("json/testing/_Save_Play_p.13.2_first_note.json") >> Export("json/testing/_Export_Play_p.13.2_sequence.json")
 Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
     >> Save("json/testing/_Save_Play_p.13.3_first_note.json") >> Export("json/testing/_Export_Play_p.13.3_sequence.json")

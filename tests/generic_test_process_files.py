@@ -339,7 +339,7 @@ original_save       = Load("json/testing/_Save_Play_p.13.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13.2_sequence.json")
 start_time = time.time()
 defaults << Scale([])
-Chord("C") << Size("13th") << Scale("Major") << Degree("Dominant") << Mode("5th") << Octave(3) << Duration(8) \
+Chord("C") << Size("13th") << Scale("Major").modulate("5th") << Degree("Dominant") << Octave(3) << Duration(8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

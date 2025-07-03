@@ -1222,8 +1222,8 @@ class Scale(Generic):
                 self.loadSerialization(operand % od.Pipe( dict() ))
             case int():
                 self._mode = operand
-            case ou.Mode():
-                self._mode = operand._unit
+            # case ou.Mode():
+            #     self._mode = operand._unit
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
