@@ -785,3 +785,24 @@ def test_pitch_shifting():
 
 # test_pitch_shifting()
 
+
+def test_pitch_modulation():
+    pitch_d_major: Pitch = Pitch(Tonic(D))
+    scale_degrees: list[str] = []
+    for degree_0 in range(7):
+        scale_degrees.append(
+            (pitch_d_major + Degree(degree_0)) % str()
+        )
+    print(f"Scale of Degrees: {scale_degrees}")
+
+    scale_modulated: list[str] = []
+    for steps in range(7):
+        scale_modulated.append(
+            (pitch_d_major + Modulation(steps)) % str()
+        )
+    print(f"Scale Modulated: {scale_modulated}")
+
+    assert scale_degrees == scale_modulated
+
+# test_pitch_modulation()
+
