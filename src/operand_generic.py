@@ -153,8 +153,8 @@ class Pitch(Generic):
     Degree(1), int : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
     Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
     Natural(False) : `Natural` disables the effects of `Sharp` and `Flat` and any accidental.
-    Scale(None), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
-    bool(False) : Sets if the given scale is processed as transposition (True) or as modulation (False).
+    list([]), Scale(), str, None : Sets the `Scale` to be used, `None` or `[]` uses the staff `KeySignature`.
+    bool(True) : Sets if the given scale is processed as transposition (True) or as modulation (False).
     """
     def __init__(self, *parameters):
         import operand_element as oe
