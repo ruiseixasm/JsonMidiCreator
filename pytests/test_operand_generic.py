@@ -779,10 +779,17 @@ def test_pitch_shifting():
     pitch_f_major: Pitch = Pitch("F", Scale("Major"))
 
     assert pitch_f_major % str() == "F"
+    assert pitch_f_major % Scale() % str() == "Major"
+
     modulated_keys: list[str] = ["F", "G", "A", "B", "C", "D", "E"]
     for modulation in range(7):
         print(f"M{modulation} : {(pitch_f_major + Modulation(modulation)) % str()}")
         assert (pitch_f_major + Modulation(modulation)) % str() == modulated_keys[modulation]
+
+    transposed_keys: list[str] = ["F", "G", "A", "A#", "C", "D", "E"]
+    for transposition in range(7):
+        print(f"T{transposition} : {(pitch_f_major + Transposition(transposition)) % str()}")
+        assert (pitch_f_major + Transposition(transposition)) % str() == transposed_keys[transposition]
 
 test_pitch_shifting()
 
