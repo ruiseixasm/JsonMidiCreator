@@ -279,6 +279,14 @@ class Pitch(Generic):
             + octave_transposition + degree_transposition + scale_transposition \
             + accidentals_transposition
 
+    """
+    Auxiliary methods to get specific data directly
+    """
+
+    def root_key(self) -> int:
+        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
+        degree_transposition: int = self.degree_transposition()
+        return tonic_key + degree_transposition
 
 
 
