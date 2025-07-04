@@ -343,16 +343,6 @@ class Pitch(Generic):
         return degree_0 + 1 # Degree base 1 (I)
 
 
-    def get_root_key(self, degree_0: int) -> int:
-        key_signature: ou.KeySignature = self._get_staff()._key_signature
-        tonic_scale: list[int] = key_signature.get_scale_list()
-        degree_0 %= 7   # Key Signatures always have 7 keys (diatonic scales)
-        """
-        IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
-        """
-        return self._tonic_key % 12 + Scale.transpose_key(degree_0, tonic_scale)
-
-
     # measure input lets the preservation of a given accidental to be preserved along the entire Measure
     def get_key_with_accidentals(self, root_key: int) -> int:
         key_int: int = root_key
@@ -506,7 +496,7 @@ class Pitch(Generic):
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
             case ou.Root():
-                root_key: int = self.get_root_key(self._degree - 1) % 12
+                root_key: int = self.root_key() % 12
                 root_key += self._tonic_key // 12 * 12  # key_line * total_keys
                 return ou.Root(root_key)
             
