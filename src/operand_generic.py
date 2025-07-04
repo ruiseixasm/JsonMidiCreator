@@ -426,7 +426,7 @@ class Pitch(Generic):
         self._sharp = 0
 
         # Excludes the effect of purely decorative parameters
-        key_offset: int = pitch - self.get_pitch_note()
+        key_offset: int = pitch - self.pitch_int()
         return self.apply_key_offset(key_offset)
 
 
