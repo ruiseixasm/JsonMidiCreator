@@ -1264,14 +1264,25 @@ class Composition(Container):
                 if last_position_measure != last_position_measures: # Includes the trimmed length
                     last_position_measure += 1  # Adds only if the end doesn't coincide
 
+                # PITCHES VERTICAL AXIS
+
                 # Get pitch range
                 min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
                 max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
 
                 pitch_range: int = max_pitch - min_pitch
                 if pitch_range // 12 < 4:   # less than 4 octaves
-                    octaves_range: int = pitch_range // 12
-                    max_pitch += (4 - octaves_range) * 12
+                    middle_c_reference: int = 60 + 12
+                    extra_octaves_range: int = 4 - pitch_range // 12
+                    for single_octave_range in range(extra_octaves_range):
+                        single_pitches_range: int = single_octave_range * 12
+                        raised_top: int = max_pitch + single_pitches_range
+                        lowered_bottom: int = min_pitch - single_pitches_range
+                        if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
+                            max_pitch += single_pitches_range
+                        else:
+                            min_pitch -= single_pitches_range
+
 
                 # Shade black keys
                 for pitch in range(min_pitch, max_pitch + 1):
