@@ -343,24 +343,6 @@ class Pitch(Generic):
         return degree_0 + 1 # Degree base 1 (I)
 
 
-    # measure input lets the preservation of a given accidental to be preserved along the entire Measure
-    def get_key_with_accidentals(self, root_key: int) -> int:
-        key_int: int = root_key
-
-        # Final parameter decorators like Sharp and Natural
-        if self._natural:
-            if self._major_scale[key_int % 12] == 0:  # Black key
-                accidentals_int: int = self._get_staff()._key_signature._unit
-                if accidentals_int < 0:
-                    key_int += 1
-                else:
-                    key_int -= 1
-        elif self._sharp != 0:
-            if self._major_scale[key_int % 12] == 1:  # White key
-                key_int += self._sharp  # applies Pitch self accidentals
-        return key_int
-
-
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
         octave_tonic_key: int = self._tonic_key % 12
