@@ -594,7 +594,7 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                return self.get_pitch_note() == other.get_pitch_note()
+                return self.get_pitch_note() == other.pitch_int()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
             case int() | float() | str() | ou.Key() | Scale():
