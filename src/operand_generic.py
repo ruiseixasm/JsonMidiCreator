@@ -528,10 +528,10 @@ class Pitch(Generic):
                 return Fraction(self._shifting)
             
             case float():
-                return float( self.get_pitch_note() )
+                return float( self.pitch_int() )
             
             case ou.Semitone():
-                return ou.Semitone(self.get_pitch_note())
+                return ou.Semitone(self.pitch_int())
             
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
