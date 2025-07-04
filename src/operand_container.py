@@ -1194,7 +1194,9 @@ class Composition(Container):
     ]
 
     def _plot_elements(self, plotlist: list[dict]):
-
+        """
+        The method that does the heavy work of plotting
+        """
         self._ax.clear()
 
         self._ax.set_title(f"Iteration {self._iteration} of {
@@ -1258,13 +1260,18 @@ class Composition(Container):
                 # Updates X-Axis data
                 last_position = max(note["position_off"] for note in note_plotlist)
                 last_position_measures = last_position / beats_per_measure
-                last_position_measure = int(last_position / beats_per_measure)
-                if last_position_measure != last_position_measures:
-                    last_position_measure += 1
+                last_position_measure = int(last_position_measures) # Trims extra length
+                if last_position_measure != last_position_measures: # Includes the trimmed length
+                    last_position_measure += 1  # Adds only if the end doesn't coincide
 
                 # Get pitch range
                 min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
                 max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+
+                pitch_range: int = max_pitch - min_pitch
+                if pitch_range // 12 < 4:   # less than 4 octaves
+                    octaves_range: int = pitch_range // 12
+                    max_pitch += (4 - octaves_range) * 12
 
                 # Shade black keys
                 for pitch in range(min_pitch, max_pitch + 1):
@@ -1320,7 +1327,7 @@ class Composition(Container):
                 # Updates X-Axis data
                 last_position = max(automation["position"] for automation in automation_plotlist)
                 last_position_measures = last_position / beats_per_measure
-                last_position_measure = int(last_position / beats_per_measure)
+                last_position_measure = int(last_position_measures)
                 if last_position_measure != last_position_measures:
                     last_position_measure += 1
 
@@ -1380,9 +1387,10 @@ class Composition(Container):
 
         # Draw vertical grid lines based on beats and measures
         one_extra_subdivision: float = quantization_beats
-        step_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(quantization_beats))
-        beat_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), 1)
-        measure_positions = np.arange(0.0, float(last_position_measure * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
+        four_measures_multiple: int = max(4, (last_position_measure - 1) // 4 * 4 + 4)
+        step_positions = np.arange(0.0, float(four_measures_multiple * beats_per_measure + one_extra_subdivision), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(four_measures_multiple * beats_per_measure + one_extra_subdivision), 1)
+        measure_positions = np.arange(0.0, float(four_measures_multiple * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
     
         for measure_pos in measure_positions:
             self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
