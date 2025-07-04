@@ -1043,7 +1043,7 @@ class Note(Element):
             case ou.PitchParameter() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch.get_pitch_note(), ou.Channel(self._channel))
+                return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1071,7 +1071,7 @@ class Note(Element):
         if channels is not None:
             channels["note"].add(self._channel)
 
-        pitch_int: int = self._pitch.get_pitch_note()
+        pitch_int: int = self._pitch.pitch_int()
 
         self_plotlist: list[dict] = []
     
@@ -1218,7 +1218,7 @@ class Note(Element):
         if self_duration == 0:
             return []
 
-        pitch_int: int = self._pitch.get_pitch_note()
+        pitch_int: int = self._pitch.pitch_int()
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -3284,7 +3284,7 @@ class PolyAftertouch(Aftertouch):
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
-        pitch_int: int = self._pitch.get_pitch_note()
+        pitch_int: int = self._pitch.pitch_int()
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
