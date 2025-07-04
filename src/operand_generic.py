@@ -615,11 +615,7 @@ class Pitch(Generic):
                     case ou.Natural():
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Degree():
-                        self._degree_0 = operand._data._unit  # 1 based
-                        if self._degree_0 > 0:
-                            self._degree_0 -= 1
-                        elif self._degree_0 < 0:
-                            self._degree_0 += 1
+                        self._degree_0 = abs(operand._data._unit) - 1   # 0 based
                     case ou.Shifting():
                         self._shifting = operand._data._unit
                     case Scale():
@@ -630,11 +626,7 @@ class Pitch(Generic):
                         self._sharp = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
                             ((operand._data).strip().lower().find("b") != -1) * -1
-                        self._degree_0 = (self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit  # 1 based
-                        if self._degree_0 > 0:
-                            self._degree_0 -= 1
-                        elif self._degree_0 < 0:
-                            self._degree_0 += 1
+                        self._degree_0 = abs((self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit) - 1 # 0 based
                         self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
@@ -717,11 +709,7 @@ class Pitch(Generic):
                 self._sharp = \
                     (ou.Sharp(max(0, self._sharp)) << string)._unit + \
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
-                self._degree_0 = (self % ou.Degree() << operand)._unit  # 1 based
-                if self._degree_0 > 0:
-                    self._degree_0 -= 1
-                elif self._degree_0 < 0:
-                    self._degree_0 += 1
+                self._degree_0 = abs((self % ou.Degree() << operand)._unit) - 1 # 0 based
                 self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale = Scale(od.Pipe(self._scale), operand) % od.Pipe(list())
             case tuple():
