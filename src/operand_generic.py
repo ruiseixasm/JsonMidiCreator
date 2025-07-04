@@ -541,7 +541,7 @@ class Pitch(Generic):
                 return ou.Root(root_key)
             
             case ou.Octave():
-                target_pitch: int = self.get_pitch_note()
+                target_pitch: int = self.pitch_int()
                 return ou.Octave( target_pitch // 12 - 1 )
             
             case ou.Degree():
@@ -550,13 +550,13 @@ class Pitch(Generic):
                 return ou.Shifting(self._shifting)
              
             case ou.Sharp():
-                target_pitch: int = self.get_pitch_note()
+                target_pitch: int = self.pitch_int()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit >= 0:
                         return ou.Sharp(1)
                 return ou.Sharp(0)
             case ou.Flat():
-                target_pitch: int = self.get_pitch_note()
+                target_pitch: int = self.pitch_int()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
                     if self._get_staff()._key_signature._unit < 0:
                         return ou.Flat(1)
@@ -574,7 +574,7 @@ class Pitch(Generic):
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 return self._get_staff()._key_signature % operand
             case ou.Key():
-                self_pitch: int = self.get_pitch_note()
+                self_pitch: int = self.pitch_int()
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 self_staff: Staff = self._get_staff()   # Optimization
