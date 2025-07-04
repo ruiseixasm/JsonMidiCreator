@@ -1056,7 +1056,7 @@ class Note(Element):
                     and self._tied      == other._tied \
                     and self._pitch     == other._pitch
             case int(): # int() for Note concerns Degree
-                return self._pitch._degree == other
+                return self._pitch._degree_0 == other
             case _:
                 return super().__eq__(other)
 

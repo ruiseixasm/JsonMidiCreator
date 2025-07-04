@@ -160,7 +160,7 @@ class Pitch(Generic):
         import operand_element as oe
         self._tonic_key: int            = defaults._staff % ou.Key() % int()
         self._octave: int               = 4     # By default it's the 4th Octave!
-        self._degree: int               = 1     # By default it's Degree 1
+        self._degree_0: int             = 0     # By default it's Degree 1, that 0 based becomes 0
         self._shifting: int             = 0     # By default it's it has no shifting (transposition/modulation)
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
@@ -217,7 +217,7 @@ class Pitch(Generic):
         """
         key_signature: ou.KeySignature = self._get_staff()._key_signature
         tonic_scale: list[int] = key_signature.get_scale_list()
-        degree_0 = (self._degree - 1) % 7   # Key Signatures always have 7 keys (diatonic scales)
+        degree_0 = self._degree_0 % 7   # Key Signatures always have 7 keys (diatonic scales)
         """
         IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
         """
@@ -305,7 +305,7 @@ class Pitch(Generic):
 
 
 
-    def get_key_degree(self, root_key: int) -> int:
+    def get_key_degree_0(self, root_key: int) -> int:
         tonic_key: int = self._tonic_key % 12
         staff_scale: list[int] = self._get_staff() % list()
         total_keys: int = sum(1 for key in staff_scale if key != 0)
@@ -333,7 +333,7 @@ class Pitch(Generic):
         # Sets the Degree as Positive
         degree_0 %= total_keys
 
-        return degree_0 + 1 # Degree base 1 (I)
+        return degree_0 # Degree base 0 (I)
 
 
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
@@ -367,16 +367,12 @@ class Pitch(Generic):
 
     def octave_degree_offset(self, degree_offset: int) -> tuple[int, int]:
         
-        self_degree_0: int = 0
-        if self._degree > 0:
-            self_degree_0 = self._degree - 1
-        elif self._degree < 0:
-            self_degree_0 = self._degree + 1
+        degree_0: int = self._degree_0
 
         staff_scale: list[int] = self._get_staff() % list()
         total_degrees: int = sum(1 for key in staff_scale if key != 0)
 
-        self_octave_degree_0: int = self_degree_0 % total_degrees
+        self_octave_degree_0: int = degree_0 % total_degrees
         moved_degree_0: int = self_octave_degree_0 + degree_offset
         octave_degree_0: int = moved_degree_0 % total_degrees
         octave_offset: int = moved_degree_0 // total_degrees
@@ -388,7 +384,7 @@ class Pitch(Generic):
         
         octave_offset_int, degree_offset_int = self.octave_degree_offset(degree_offset)
         self._octave += octave_offset_int
-        self._degree += degree_offset_int
+        self._degree_0 += degree_offset_int
 
         return self
     
@@ -414,14 +410,14 @@ class Pitch(Generic):
                     case of.Frame():        return self % od.Pipe( operand._data )
                     case ou.Octave():       return operand._data << od.Pipe(self._octave)
                     case ou.Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
-                    case ou.Degree():       return operand._data << od.Pipe(self._degree)
+                    case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
                     case ou.Shifting():     return operand._data << od.Pipe(self._shifting)
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
                     # bool is an int, so, it must come before an int to be processed as a bool!
                     case bool():            return self._transpose
-                    case int():             return self._degree
+                    case int():             return self._degree_0
                     case float():           return float(self._tonic_key)
                     case Fraction():        return Fraction(self._shifting)
                     case Scale():           return operand._data << od.Pipe(self._scale)
@@ -433,11 +429,7 @@ class Pitch(Generic):
                 return self._transpose
             
             case int():
-                self_degree_0: int = 0
-                if self._degree > 0:
-                    self_degree_0 = self._degree - 1
-                elif self._degree < 0:
-                    self_degree_0 = self._degree + 1
+                self_degree_0: int = self._degree_0
                 staff_scale: list[int] = self._get_staff() % list()
                 total_degrees: int = sum(1 for key in staff_scale if key != 0)
 
@@ -556,7 +548,7 @@ class Pitch(Generic):
         serialization = super().getSerialization()
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
-        serialization["parameters"]["degree"]           = self.serialize( self._degree )
+        serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
         serialization["parameters"]["shifting"]         = self.serialize( self._shifting )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
@@ -569,13 +561,13 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree" in serialization["parameters"] and "octave" in serialization["parameters"] and "shifting" in serialization["parameters"] and 
+            "degree_0" in serialization["parameters"] and "octave" in serialization["parameters"] and "shifting" in serialization["parameters"] and 
             "scale" in serialization["parameters"] and "transpose" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
-            self._degree        = self.deserialize( serialization["parameters"]["degree"] )
+            self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
             self._shifting      = self.deserialize( serialization["parameters"]["shifting"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
@@ -591,7 +583,7 @@ class Pitch(Generic):
                 super().__lshift__(operand)
                 self._tonic_key             = operand._tonic_key
                 self._octave                = operand._octave
-                self._degree                = operand._degree
+                self._degree_0              = operand._degree_0
                 self._shifting              = operand._shifting
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
@@ -609,7 +601,7 @@ class Pitch(Generic):
                     case bool():    # bool is an int, so, it must come before an int to be processed as a bool!
                         self._transpose = operand._data
                     case int():
-                        self._degree = operand._data
+                        self._degree_0 = operand._data
                     case float():
                         self._tonic_key = int(operand._data)
                     case Fraction():
@@ -623,7 +615,11 @@ class Pitch(Generic):
                     case ou.Natural():
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Degree():
-                        self._degree = operand._data._unit
+                        self._degree_0 = operand._data._unit  # 1 based
+                        if self._degree_0 > 0:
+                            self._degree_0 -= 1
+                        elif self._degree_0 < 0:
+                            self._degree_0 += 1
                     case ou.Shifting():
                         self._shifting = operand._data._unit
                     case Scale():
@@ -631,11 +627,15 @@ class Pitch(Generic):
                     case list():
                         self._scale = operand._data
                     case str():
-                        self._sharp     = \
+                        self._sharp = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
                             ((operand._data).strip().lower().find("b") != -1) * -1
-                        self._degree    = (self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit
-                        self._tonic_key       = ou.Key(self._tonic_key, operand._data)._unit
+                        self._degree_0 = (self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit  # 1 based
+                        if self._degree_0 > 0:
+                            self._degree_0 -= 1
+                        elif self._degree_0 < 0:
+                            self._degree_0 += 1
+                        self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
 
@@ -649,7 +649,7 @@ class Pitch(Generic):
             case ou.Key():
                 self._sharp = 0
                 self._natural = False
-                self._degree = self.get_key_degree(operand._unit % 12)
+                self._degree_0 = self.get_key_degree_0(operand._unit % 12)
 
             case bool():    # bool is an int, so, it must come before an int to be processed as a bool!
                 self._transpose = operand
@@ -657,7 +657,7 @@ class Pitch(Generic):
                 if operand > 0:
                     staff_scale: list[int] = self._get_staff()._key_signature % list()
                     total_degrees: int = sum(1 for key in staff_scale if key != 0)
-                    self._degree = (operand - 1) % total_degrees + 1
+                    self._degree_0 = (operand - 1) % total_degrees
                 elif operand == 0:
                     self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
                 else:
@@ -717,7 +717,11 @@ class Pitch(Generic):
                 self._sharp = \
                     (ou.Sharp(max(0, self._sharp)) << string)._unit + \
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
-                self._degree    = (self % ou.Degree() << operand)._unit
+                self._degree_0 = (self % ou.Degree() << operand)._unit  # 1 based
+                if self._degree_0 > 0:
+                    self._degree_0 -= 1
+                elif self._degree_0 < 0:
+                    self._degree_0 += 1
                 self._tonic_key = (self % ou.Key() << string)._unit
                 self._scale = Scale(od.Pipe(self._scale), operand) % od.Pipe(list())
             case tuple():
