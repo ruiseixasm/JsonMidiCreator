@@ -268,7 +268,7 @@ class Pitch(Generic):
         """
         The final chromatic conversion of the tonic_key into the midi pitch.
         """
-        tonic_key: int = self._tonic_key
+        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         octave_transposition: int = self.octave_transposition()
         degree_transposition: int = self.degree_transposition()
         root_key: int = tonic_key + degree_transposition
@@ -594,7 +594,8 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                return self.get_pitch_note() == other.pitch_int()
+                # return self.get_pitch_note() == other.pitch_int()
+                return self.pitch_int() == other.pitch_int()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
             case int() | float() | str() | ou.Key() | Scale():

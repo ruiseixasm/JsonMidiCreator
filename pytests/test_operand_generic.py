@@ -460,7 +460,19 @@ def test_pitch_scales():
 
 def test_set_chromatic_pitch():
 
-    defaults << KeySignature() << Scale([])
+    defaults << KeySignature()
+
+    pitch_ab = Pitch("Ab")
+    pitch_a = Pitch("A")
+
+    print(f"Ab scale, octave: {pitch_ab % (list(), (Octave(), int()))}")
+    print(f"A scale, octave: {pitch_a % (list(), (Octave(), int()))}")
+
+    print(f"Ab pitch_int: {pitch_ab.pitch_int()}")
+    print(f"A pitch_int: {pitch_a.pitch_int()}")
+    assert pitch_ab.pitch_int() == 68
+    assert pitch_a.pitch_int() == 69
+
 
     pitch: Pitch = Pitch()
 
@@ -579,7 +591,6 @@ def test_pitch_add():
 
     # Test all semitones from 0 to 11
     chromatic_pitches: list[float] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
-
 
 
     for sharps in range(8): # 8 is excluded
