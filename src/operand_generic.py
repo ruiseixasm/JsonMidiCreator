@@ -363,44 +363,6 @@ class Pitch(Generic):
         return key_int
 
 
-    def get_pitch_note(self) -> int:
-        root_key: int = self.get_root_key(self._degree - 1)
-        # Does the shifting, transposition or modulation
-        if self._shifting != 0:
-            if self._scale:
-                modulated_scale: list[int] = self._scale
-                if self._transpose: # Transposition is only applicable to a Scale, not a Key Signature
-                    """
-                    IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
-                    """
-                    transposition: int = Scale.transpose_key(self._shifting, modulated_scale)
-                    root_key += transposition # Jumps by semitones (chromatic tones) (intervals)
-                else:
-                    """
-                    Scale modulation is set by the Scale itself
-                    """
-                    scale_tonic: int = Scale.get_tonic_key(modulated_scale)
-                    tonic_offset: int = root_key - scale_tonic
-                    """
-                    IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
-                    """
-                    root_key += Scale.modulate_key(tonic_offset, self._shifting, modulated_scale)
-
-            else:   # For KeySignature the Modulation is treated as a degree_0
-                key_signature: ou.KeySignature = self._get_staff()._key_signature
-                tonic_scale: list[int] = key_signature.get_scale_list()
-                """
-                KeySignature modulation is set by the Tonic key instead
-                """
-                tonic_offset: int = root_key - self._tonic_key
-                """
-                IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
-                """
-                root_key += Scale.modulate_key(tonic_offset, self._shifting, tonic_scale)
-
-        return 12 * (self._octave + 1) + self.get_key_with_accidentals(root_key)
-
-
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
         octave_tonic_key: int = self._tonic_key % 12
@@ -594,7 +556,7 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                # return self.get_pitch_note() == other.pitch_int()
+                # return self.pitch_int() == other.pitch_int()
                 return self.pitch_int() == other.pitch_int()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) == other
