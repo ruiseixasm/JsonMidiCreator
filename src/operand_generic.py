@@ -182,6 +182,102 @@ class Pitch(Generic):
             return defaults._staff
         return self._owner_element._get_staff()
 
+    """
+    Methods used to calculate the final chromatic pitch as `pitch_int` by following
+    the formula:
+        pitch_int = 
+            tonic_key
+            + octave_transposition + degree_transposition + scale_transposition
+            + accidentals_transposition
+    """
+
+    def octave_transposition(self) -> int:
+        """
+        Because Midi octaves start at -1, +12 needs to be added
+        """
+        return 12 * self._octave + 12
+
+    def degree_transposition(self) -> int:
+        """
+        Based on the Key Signature, this method gives the degree transposition
+        """
+        key_signature: ou.KeySignature = self._get_staff()._key_signature
+        tonic_scale: list[int] = key_signature.get_scale_list()
+        degree_0 = (self._degree - 1) % 7   # Key Signatures always have 7 keys (diatonic scales)
+        """
+        IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+        """
+        return Scale.transpose_key(degree_0, tonic_scale)
+
+    def scale_transposition(self, root_key: int) -> int:
+        """
+        For a non zero shifting, the respective transposition or modulation of the given degree_transposition is returned.
+        """
+        transposition: int = 0
+        if self._shifting != 0:
+            if self._scale:
+                modulated_scale: list[int] = self._scale
+                if self._transpose: # Transposition is only applicable to a Scale, not a Key Signature
+                    """
+                    IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+                    """
+                    transposition = Scale.transpose_key(self._shifting, modulated_scale)
+                else:
+                    """
+                    Scale modulation is set by the Scale itself
+                    """
+                    scale_tonic: int = Scale.get_tonic_key(modulated_scale)
+                    tonic_offset: int = root_key - scale_tonic
+                    """
+                    IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
+                    """
+                    transposition = Scale.modulate_key(tonic_offset, self._shifting, modulated_scale)
+
+            else:   # For KeySignature the Modulation is treated as a degree_0
+                key_signature: ou.KeySignature = self._get_staff()._key_signature
+                tonic_scale: list[int] = key_signature.get_scale_list()
+                """
+                KeySignature modulation is set by the Tonic key instead
+                """
+                tonic_offset: int = root_key - self._tonic_key
+                """
+                IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
+                """
+                transposition = Scale.modulate_key(tonic_offset, self._shifting, tonic_scale)
+        return transposition
+
+    def accidentals_transposition(self, scale_key: int) -> int:
+        """
+        Processes the given set sharps and natural accordingly as final decorators.
+        """
+        transposition: int = 0
+        # Final parameter decorators like Sharp and Natural
+        if self._natural:
+            if self._major_scale[(scale_key + transposition) % 12] == 0:  # Black key
+                accidentals_int: int = self._get_staff()._key_signature._unit
+                if accidentals_int < 0:
+                    transposition += 1
+                else:
+                    transposition -= 1
+        elif self._sharp != 0:
+            if self._major_scale[(scale_key + transposition) % 12] == 1:  # White key
+                transposition += self._sharp  # applies Pitch self accidentals
+        return transposition
+
+    def pitch_int(self) -> int:
+        tonic_key: int = self._tonic_key
+        octave_transposition: int = self.octave_transposition()
+        degree_transposition: int = degree_transposition()
+        root_key: int = tonic_key + degree_transposition
+        scale_transposition: int = scale_transposition(root_key)
+        scale_key: int = root_key + scale_transposition
+        accidentals_transposition: int = accidentals_transposition(scale_key)
+        return tonic_key \
+            + octave_transposition + degree_transposition + scale_transposition \
+            + accidentals_transposition
+
+
+
 
     def get_accidental(self) -> bool | int:
         # parameter decorators like Sharp and Natural
