@@ -896,7 +896,7 @@ class Pitch(Generic):
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
-                self_pitch: int = self.get_pitch_note()
+                self_pitch: int = self.pitch_int()
                 multiplied_int = int(self_pitch * operand)
                 new_keynote._tonic_key = multiplied_int % 12
                 new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
@@ -917,7 +917,7 @@ class Pitch(Generic):
                     return new_keynote
                 case float():
                     new_keynote = self.__class__()
-                    self_pitch: int = self.get_pitch_note()
+                    self_pitch: int = self.pitch_int()
                     multiplied_int = int(self_pitch / operand)
                     new_keynote._tonic_key = multiplied_int % 12
                     new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
@@ -952,7 +952,7 @@ class Pitch(Generic):
 
     def snap(self, up: bool = False) -> Self:
         scale_list: list[int] = self._get_staff() % list()
-        self_pitch: int = self.get_pitch_note()
+        self_pitch: int = self.pitch_int()
         pitch_offset: int = 0
         if up:
             pitch_step: int = 1
