@@ -182,6 +182,20 @@ class Pitch(Generic):
             return defaults._staff
         return self._owner_element._get_staff()
 
+
+    def sharp(self, unit: bool = True) -> Self:
+        return self << ou.Sharp(unit)
+
+    def flat(self, unit: bool = True) -> Self:
+        return self << ou.Flat(unit)
+
+    def natural(self, unit: bool = True) -> Self:
+        return self << ou.Natural(unit)
+
+    def degree(self, unit: int = 1) -> Self:
+        return self << ou.Degree(unit)
+
+
     """
     Methods used to calculate the final chromatic pitch as `pitch_int` by following
     the formula:
@@ -290,27 +304,6 @@ class Pitch(Generic):
 
 
 
-    def get_accidental(self) -> bool | int:
-        # parameter decorators like Sharp and Natural
-        if self._natural:
-            return True         # returns as bool
-        if self._sharp != 0:
-            return self._sharp  # returns as int
-        return False
-
-
-    def sharp(self, unit: bool = True) -> Self:
-        return self << ou.Sharp(unit)
-
-    def flat(self, unit: bool = True) -> Self:
-        return self << ou.Flat(unit)
-
-    def natural(self, unit: bool = True) -> Self:
-        return self << ou.Natural(unit)
-
-    def degree(self, unit: int = 1) -> Self:
-        return self << ou.Degree(unit)
-
 
     def get_key_degree(self, root_key: int) -> int:
         tonic_key: int = self._tonic_key % 12
@@ -399,22 +392,6 @@ class Pitch(Generic):
 
         return self
     
-    def set_degree(self, degree: int) -> Self:
-
-        self_degree_0: int = 0
-        if self._degree > 0:
-            self_degree_0 = self._degree - 1
-        elif self._degree < 0:
-            self_degree_0 = self._degree + 1
-
-        degree_0: int = 0
-        if degree > 0:
-            degree_0 = degree - 1
-        elif degree < 0:
-            degree_0 = degree + 1
-
-        return self.apply_degree_offset( degree_0 - self_degree_0 )
-
 
     def __mod__(self, operand: o.T) -> o.T:
         """
