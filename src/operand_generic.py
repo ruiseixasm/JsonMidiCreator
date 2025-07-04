@@ -622,7 +622,7 @@ class Pitch(Generic):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
-                return self.get_pitch_note() > other.get_pitch_note()
+                return self.pitch_int() > other.pitch_int()
             case ou.Octave():
                 return self % od.Pipe( ou.Octave() ) > other
             case int() | float():
