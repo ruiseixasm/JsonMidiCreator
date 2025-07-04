@@ -256,22 +256,25 @@ class Pitch(Generic):
             if self._major_scale[(scale_key + transposition) % 12] == 0:  # Black key
                 accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
-                    transposition += 1
+                    transposition += 1  # Considered a flat
                 else:
-                    transposition -= 1
+                    transposition -= 1  # Considered a sharp
         elif self._sharp != 0:
             if self._major_scale[(scale_key + transposition) % 12] == 1:  # White key
                 transposition += self._sharp  # applies Pitch self accidentals
         return transposition
 
     def pitch_int(self) -> int:
+        """
+        The final chromatic conversion of the tonic_key into the midi pitch.
+        """
         tonic_key: int = self._tonic_key
         octave_transposition: int = self.octave_transposition()
-        degree_transposition: int = degree_transposition()
+        degree_transposition: int = self.degree_transposition()
         root_key: int = tonic_key + degree_transposition
-        scale_transposition: int = scale_transposition(root_key)
+        scale_transposition: int = self.scale_transposition(root_key)
         scale_key: int = root_key + scale_transposition
-        accidentals_transposition: int = accidentals_transposition(scale_key)
+        accidentals_transposition: int = self.accidentals_transposition(scale_key)
         return tonic_key \
             + octave_transposition + degree_transposition + scale_transposition \
             + accidentals_transposition

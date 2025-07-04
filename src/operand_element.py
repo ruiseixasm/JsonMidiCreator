@@ -1135,7 +1135,7 @@ class Note(Element):
         if self_duration_min == 0:
             return []
 
-        pitch_int: int = self._pitch.get_pitch_note()
+        pitch_int: int = self._pitch.pitch_int()
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         self_playlist: list[dict] = []
