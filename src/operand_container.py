@@ -1315,7 +1315,7 @@ class Composition(Container):
                     chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
                     for pitch in range(min_pitch, max_pitch + 1)
                 ]  # Bold Middle C
-                self._ax.set_yticklabels(y_labels, fontsize=10, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
 
                 self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
