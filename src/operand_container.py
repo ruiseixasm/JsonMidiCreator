@@ -2668,13 +2668,13 @@ class Clip(Composition):  # Just a container of Elements
 
         if higher_pitch is not None:
 
-            top_pitch: int = higher_pitch.get_pitch_note()
-            bottom_pitch: int = lower_pitch.get_pitch_note()
+            top_pitch: int = higher_pitch.pitch_int()
+            bottom_pitch: int = lower_pitch.pitch_int()
 
             for item in self._items:
                 if isinstance(item, oe.Note):
                     element_pitch: og.Pitch = item._pitch
-                    note_pitch: int = element_pitch.get_pitch_note()
+                    note_pitch: int = element_pitch.pitch_int()
                     new_pitch: int = top_pitch - (note_pitch - bottom_pitch)
                     element_pitch << float(new_pitch)
                 
@@ -3048,7 +3048,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel << 8 | note._pitch.get_pitch_note()
+            channel_pitch: int = note._channel << 8 | note._pitch.pitch_int()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
@@ -3087,7 +3087,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel << 8 | note._pitch.get_pitch_note()
+            channel_pitch: int = note._channel << 8 | note._pitch.pitch_int()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
