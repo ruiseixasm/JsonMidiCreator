@@ -806,9 +806,9 @@ def test_pitch_modulation():
     print(f"Scale of Degrees: {scale_degrees}")
 
     scale_modulated: list[str] = []
-    for steps in range(7):
+    for tones in range(7):
         scale_modulated.append(
-            (pitch_d_major + Modulation(steps)) % str()
+            (pitch_d_major + Tone(tones)) % str()
         )
     print(f"Scale Modulated: {scale_modulated}")
 
