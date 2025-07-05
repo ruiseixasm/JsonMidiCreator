@@ -2444,6 +2444,30 @@ class Automation(Element):
                 super().__lshift__(operand)
         return self
 
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._value += operand  # Specific and compounded parameter
+                return self
+            case ou.Value():
+                self._value += operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                self._value -= operand  # Specific and compounded parameter
+                return self
+            case ou.Value():
+                self._value -= operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
+
 
 class ControlChange(Automation):
     """`Element -> Automation -> ControlChange`
@@ -2488,11 +2512,8 @@ class ControlChange(Automation):
             case od.Pipe():
                 match operand._data:
                     case og.Controller():       return self._controller
-                    case ou.Value():            return operand._data << od.Pipe(self._value)
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case int():                 return self._value
-            case ou.Value():            return operand.copy() << self._value
             case ou.Number() | ou.LSB() | ou.HighResolution() | dict():
                 return self._controller % operand
             case _:                     return super().__mod__(operand)
@@ -2502,7 +2523,7 @@ class ControlChange(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._controller == other._controller and self._value == other._value
+                    and self._controller == other._controller
             case _:
                 return super().__eq__(other)
 
@@ -2658,18 +2679,16 @@ class ControlChange(Automation):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["controller"]   = self.serialize( self._controller )
-        serialization["parameters"]["value"]        = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "controller" in serialization["parameters"] and "value" in serialization["parameters"]):
+            "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._controller    = self.deserialize( serialization["parameters"]["controller"] )
-            self._value         = self.deserialize( serialization["parameters"]["value"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2678,44 +2697,14 @@ class ControlChange(Automation):
             case ControlChange():
                 super().__lshift__(operand)
                 self._controller    << operand._controller
-                self._value         = operand._value
             case od.Pipe():
                 match operand._data:
                     case og.Controller():       self._controller = operand._data
-                    case ou.Value():            self._value = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | str() | dict():
                 self._controller << operand
-            case int():
-                self._value = operand
-            case ou.Value():
-                self._value = operand._unit
             case _: super().__lshift__(operand)
         return self
-
-    def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int():
-                self._value += operand  # Specific and compounded parameter
-                return self
-            case ou.Value():
-                self._value += operand._unit  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int():
-                self._value -= operand  # Specific and compounded parameter
-                return self
-            case ou.Value():
-                self._value -= operand._unit  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__isub__(operand)
 
 class BankSelect(ControlChange):
     """`Element -> Automation -> ControlChange -> BankSelect`
