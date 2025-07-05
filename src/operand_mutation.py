@@ -358,8 +358,8 @@ class Exchange(Diploid):
         clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
         self._clip[source_clip_index % source_clip_len] << parameter_switch
 
-        self._clip._sort_position()
-        clip._sort_position()
+        self._clip._sort_items()
+        clip._sort_items()
 
         return self
 
@@ -580,8 +580,8 @@ class Translocation(Exchange):
             self._clip._append(target_right)
             clip._append(source_right)
 
-            self._clip._sort_position()
-            clip._sort_position()
+            self._clip._sort_items()
+            clip._sort_items()
 
         return clip
 

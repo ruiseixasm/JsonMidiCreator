@@ -160,7 +160,7 @@ class Container(o.Operand):
             self._items[left_index] = temp_item
         return self
 
-    def _sort_position(self) -> Self:
+    def _sort_items(self) -> Self:
         # Container sort position does nothing
         # Only applicable to Clip and Song
         return self
@@ -645,7 +645,7 @@ class Container(o.Operand):
             data_index: int = chaos * 1 % int() % len(parameters)
             item << parameters[data_index]
             del parameters[data_index] # Like picking up colored balls, pop out
-        return self._sort_position()
+        return self._sort_items()
 
     def swap(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         """
@@ -685,7 +685,7 @@ class Container(o.Operand):
                             self[element_i] << self[element_j] % parameter_instance
                             self[element_j] << temp_parameter
 
-        return self._sort_position()
+        return self._sort_items()
 
     def reverse(self) -> Self:
         """
@@ -703,7 +703,7 @@ class Container(o.Operand):
             # tail_operand = self._items[self_len - 1 - operand_i]
             # self._items[self_len - 1 - operand_i] = self._items[operand_i]
             # self._items[operand_i] = tail_operand
-        return self._sort_position()
+        return self._sort_items()
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
         """
@@ -719,7 +719,7 @@ class Container(o.Operand):
         """
         for item_i in range(1, self.len()):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
-        return self._sort_position()
+        return self._sort_items()
 
     def rotate(self, offset: int = 1, parameter: type = ra.Position) -> Self:
         """
@@ -755,7 +755,7 @@ class Container(o.Operand):
                 if isinstance(operand, o.Operand):
                     operand << parameters[ offset % len(parameters) ]
                 offset += 1
-        return self._sort_position()
+        return self._sort_items()
 
 
     def mask(self, *conditions) -> Self:
@@ -1723,9 +1723,9 @@ class Clip(Composition):  # Just a container of Elements
             return super()._replace(old_item, new_item)
         return self
 
-    def _sort_position(self) -> Self:
+    def _sort_items(self) -> Self:
         if self is not self._upper_container:
-            self._upper_container._sort_position()
+            self._upper_container._sort_items()
         self._items.sort(key=lambda x: x._position_beats)
         return self
 
@@ -2080,8 +2080,8 @@ class Clip(Composition):  # Just a container of Elements
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
-                    return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
-                return self._append([ new_element ])._sort_position()  # Shall be sorted!
+                    return self._append([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
+                return self._append([ new_element ])._sort_items()  # Shall be sorted!
             
             case list():
                 operand_elements = [
@@ -2104,7 +2104,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
     def __isub__(self, operand: any) -> Self:
         match operand:
@@ -2126,7 +2126,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item -= operand
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
@@ -2186,7 +2186,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__imul__(operand)
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
     def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
@@ -2239,7 +2239,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__itruediv__(operand)
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
@@ -2315,7 +2315,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__ifloordiv__(operand)
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
 
     def empty_copy(self, *parameters) -> Self:
@@ -2424,7 +2424,7 @@ class Clip(Composition):  # Just a container of Elements
                         self += element_note << position_steps
                     position_steps += 1
 
-            return self._sort_position()
+            return self._sort_items()
 
         return self
 
@@ -2496,7 +2496,7 @@ class Clip(Composition):  # Just a container of Elements
                     self += automate_element << value << position_steps
                 position_steps += 1
 
-            return self._sort_position()
+            return self._sort_items()
         
         return self
 
@@ -2547,7 +2547,7 @@ class Clip(Composition):  # Just a container of Elements
                         channel_automation += element_template << value << position_steps
                     position_steps += 1
 
-        return self._sort_position()
+        return self._sort_items()
 
     @staticmethod
     def _interpolate_list(known_indices, pattern_values) -> list:
@@ -2657,7 +2657,7 @@ class Clip(Composition):  # Just a container of Elements
         for index, single_element in enumerate(self._items):
             single_element << taken_parameters[index]
 
-        return self._sort_position()    # Sorting may be needed
+        return self._sort_items()    # Sorting may be needed
 
 
     def flip(self) -> Self:
@@ -2868,7 +2868,7 @@ class Clip(Composition):  # Just a container of Elements
         self._length_beats = ra.Length(punch_out - punch_in)._rational
         self -= punch_in   # Moves to the start of the Clip being looped/trimmed
 
-        return self._sort_position()
+        return self._sort_items()
 
 
     def monofy(self) -> Self:
@@ -2883,7 +2883,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self.len() > 1:
             # Starts by sorting by Position
-            shallow_copy: Clip = self.shallow_copy()._sort_position()
+            shallow_copy: Clip = self.shallow_copy()._sort_items()
             for index in range(shallow_copy.len()):
                 current_element: oe.Element = shallow_copy._items[index]
                 next_element: oe.Element = shallow_copy._items[index + 1]
@@ -2902,7 +2902,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        shallow_copy: Clip = self.shallow_copy()._sort_position()
+        shallow_copy: Clip = self.shallow_copy()._sort_items()
         shallow_copy_len: int = shallow_copy.len()
         for index in range(shallow_copy_len):
             current_element: oe.Element = shallow_copy._items[index]
@@ -2983,7 +2983,7 @@ class Clip(Composition):  # Just a container of Elements
                     last_element << self._staff.convertToDuration(ra.Measures(1))
                 else:
                     last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
-        return self._sort_position()
+        return self._sort_items()
 
 
     def stack(self, ignore_empty_measures: bool = True) -> Self:
@@ -3008,7 +3008,7 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
-        return self._sort_position()    # May be needed due to upper clips
+        return self._sort_items()    # May be needed due to upper clips
     
     def decompose(self) -> Self:
         """
@@ -3030,7 +3030,7 @@ class Clip(Composition):  # Just a container of Elements
         self._delete(self._items, True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
         self._append(decomposed_elements)
-        return self._sort_position()
+        return self._sort_items()
 
     def arpeggiate(self, parameters: any = None) -> Self:
         """
@@ -3533,7 +3533,7 @@ class Part(Composition):
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, Clip)
                 ]
-                self._sort_position()
+                self._sort_items()
             case str():
                 self._name = operand
             case tuple():
@@ -3715,7 +3715,7 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__ifloordiv__(operand)
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
 
     def loop(self, position = 0, length = 4) -> Self:
@@ -3749,7 +3749,7 @@ class Part(Composition):
             self._position_beats -= punch_in._rational
         self._length_beats = punch_length._rational
 
-        return self._sort_position()
+        return self._sort_items()
 
 
 class Song(Composition):
@@ -3789,9 +3789,9 @@ class Song(Composition):
         return super().__next__()
     
 
-    def _sort_position(self) -> Self:
+    def _sort_items(self) -> Self:
         if self is not self._upper_container:
-            self._upper_container._sort_position()
+            self._upper_container._sort_items()
         self._items.sort(key=lambda x: x._position_beats)
         return self
 
@@ -4052,7 +4052,7 @@ class Song(Composition):
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, Part)
                 ]
-                self._sort_position()
+                self._sort_items()
 
             case tuple():
                 for single_operand in operand:
@@ -4072,7 +4072,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ operand.copy()._set_owner_song(self) ])._sort_position()
+                self._append([ operand.copy()._set_owner_song(self) ])._sort_items()
 
             case Clip():
                 self += Part(operand)
@@ -4084,7 +4084,7 @@ class Song(Composition):
                 for item in operand:
                     if isinstance(item, Part):
                         self._append([ item.copy()._set_owner_song(self) ])
-                self._sort_position()
+                self._sort_items()
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -4239,7 +4239,7 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__ifloordiv__(operand)
-        return self._sort_position()  # Shall be sorted!
+        return self._sort_items()  # Shall be sorted!
 
 
     def loop(self, position = 0, length = 4) -> Self:
@@ -4263,7 +4263,7 @@ class Song(Composition):
 
         self._length_beats = punch_length._rational
 
-        return self._sort_position()
+        return self._sort_items()
 
 
 
