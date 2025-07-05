@@ -628,8 +628,18 @@ class Pitch(Generic):
                     self._octave = 4
                     self._sharp = 0
                     self._natural = False
+                    
             case ou.Degree():
-                self << operand._unit   # Sets as int like above
+                if operand > 0:
+                    self._degree_0 = (operand._unit - 1) % 7
+                else:
+                    self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
+                    if operand < 0:
+                        self._degree_0 = 0  # Resets the degree to I
+                        self._octave = 4
+                        self._sharp = 0
+                        self._natural = False
+                        
             case ou.Transposition():
                 self._shifting = operand._unit
             case ou.Modulation():
