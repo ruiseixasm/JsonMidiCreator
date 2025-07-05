@@ -389,7 +389,7 @@ class Pitch(Generic):
                 match operand._data:
                     case of.Frame():        return self % od.Pipe( operand._data )
                     case ou.Octave():       return operand._data << od.Pipe(self._octave)
-                    case ou.Tonic():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.TonicKey():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._tone)
@@ -411,15 +411,15 @@ class Pitch(Generic):
             case Fraction():
                 return Fraction(self._tone)
             
-            case ou.Semitone() | ou.Root():
+            case ou.Semitone() | ou.RootKey():
                 return operand.copy(self.pitch_int())
             
-            case ou.Tonic():    # Must come before than Key()
-                return ou.Tonic(self._tonic_key)
-            case ou.Root():
+            case ou.TonicKey():    # Must come before than Key()
+                return ou.TonicKey(self._tonic_key)
+            case ou.RootKey():
                 root_key: int = self.root_key() % 12
                 root_key += self._tonic_key // 12 * 12  # key_line * total_keys
-                return ou.Root(root_key)
+                return ou.RootKey(root_key)
             
             case ou.Octave():
                 target_pitch: int = self.pitch_int()
@@ -561,7 +561,7 @@ class Pitch(Generic):
                     self._owner_element     = operand._owner_element
             case od.Pipe():
                 match operand._data:
-                    case ou.Tonic():    # Must come before than Key()
+                    case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.Octave():
                         self._octave    = operand._data._unit
@@ -610,7 +610,7 @@ class Pitch(Generic):
             case Fraction():
                 self << ou.Tone(operand)
                     
-            case ou.Tonic():    # Must come before than Key()
+            case ou.TonicKey():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
@@ -634,7 +634,7 @@ class Pitch(Generic):
             case ou.Transposition() | ou.Tone():
                 self._tone = operand._unit
 
-            case ou.Semitone() | ou.Root():
+            case ou.Semitone() | ou.RootKey():
                 self.set_root_key(operand._unit)
 
             case dict():
@@ -696,12 +696,12 @@ class Pitch(Generic):
                 self.apply_degree_offset(operand._unit)
             case ou.Transposition() | ou.Tone():
                 self._tone += operand._unit
-            case ou.Root():
+            case ou.RootKey():
                 new_pitch: int = self.pitch_int() + self.move_semitones(operand % int())
                 self.set_root_key(new_pitch)
-            case ou.Tonic():
+            case ou.TonicKey():
                 self._tonic_key += operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone() | ou.Root():
+            case ra.Rational() | ou.Key() | ou.Semitone() | ou.RootKey():
                 new_pitch: int = self.pitch_int() + operand % int()
                 self.set_root_key(new_pitch)
             case dict():
@@ -728,12 +728,12 @@ class Pitch(Generic):
                 self.apply_degree_offset(-operand._unit)
             case ou.Transposition() | ou.Tone():
                 self._tone -= operand._unit
-            case ou.Root():
+            case ou.RootKey():
                 new_pitch: int = self.pitch_int() - self.move_semitones(operand % int())
                 self.set_root_key(new_pitch)
-            case ou.Tonic():
+            case ou.TonicKey():
                 self._tonic_key -= operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone() | ou.Root():
+            case ra.Rational() | ou.Key() | ou.Semitone() | ou.RootKey():
                 new_pitch: int = self.pitch_int() - operand % int()
                 self.set_root_key(new_pitch)
             case dict():
@@ -1068,7 +1068,7 @@ class Scale(Generic):
             case list():                return self._scale.copy()
             case str():                 return self.get_scale_name(self.modulation(None))
             case int():                 return self.get_scale_number(self.modulation(None))
-            case ou.Tonic():            return ou.Tonic( Scale.get_tonic_key(self._scale) )
+            case ou.TonicKey():            return ou.TonicKey( Scale.get_tonic_key(self._scale) )
             case ou.Key():              return ou.Key( Scale.get_tonic_key(self._scale) )
             case float():               return float( Scale.get_tonic_key(self._scale) )
             case _:                     return super().__mod__(operand)
@@ -1468,8 +1468,8 @@ class Staff(Generic):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             # Calculated Values
-            case ou.Tonic():
-                return ou.Tonic( self._key_signature.get_tonic_key() )
+            case ou.TonicKey():
+                return ou.TonicKey( self._key_signature.get_tonic_key() )
             case ou.Key():
                 return self._key_signature % ou.Key()
             case list():

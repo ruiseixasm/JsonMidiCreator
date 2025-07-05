@@ -732,8 +732,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case int():                 return self._unit
             case float():
                 return float(self.get_tonic_key())
-            case Tonic():
-                return Tonic(self.get_tonic_key())
+            case TonicKey():
+                return TonicKey(self.get_tonic_key())
             case Key():
                 tonic_key: int = self.get_tonic_key()
                 key_line: int = 0
@@ -965,7 +965,7 @@ class Modulation(Shifting):    # Modal Modulation
 class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
-    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
+    A `Key` is an integer from 0 to 11 (12 to 23 for flats) that describes
     the 12 keys of an octave. A `Key` is processed like if it was a `TargetKey`.
     
     Parameters
@@ -1093,10 +1093,10 @@ class Key(PitchParameter):
                 return index
         return -1
 
-class Tonic(Key):
-    """`Unit -> PitchParameter -> Key -> Tonic`
+class TonicKey(Key):
+    """`Unit -> PitchParameter -> Key -> TonicKey`
 
-    An Tonic() represents the root note of a given pitch, with same pitch to a Degree of 1.
+    An `TonicKey` represents the root note of a given pitch, with same pitch to a Degree of 1.
     The default value is the Tonic key is 0 representing the key of C.
     
     Parameters
@@ -1105,10 +1105,10 @@ class Tonic(Key):
     """
     pass
 
-class Root(Key):
-    """`Unit -> PitchParameter -> Key -> Root`
+class RootKey(Key):
+    """`Unit -> PitchParameter -> Key -> RootKey`
 
-    An Root() represents the note at the configured Degree, so for a Tonic C the IV Root Key
+    An `RootKey` represents the note at the configured Degree, so for a Tonic C the IV Root Key
     becomes the Key F.
     
     Parameters
@@ -1118,10 +1118,10 @@ class Root(Key):
     pass
 
 class TargetKey(Key):
-    """`Unit -> PitchParameter -> Key -> Target`
+    """`Unit -> PitchParameter -> Key -> TargetKey`
 
-    An Target() Key represents the actually played Key, meaning, the Key after rooted in a given
-    `Degree` and Transposed by a given `Transposition` (`Shifting`).
+    An `TargetKey` Key represents the actually played Key, meaning, the Key after rooted in a given
+    `Degree` and Transposed by a given `Transposition`.
     
     Parameters
     ----------

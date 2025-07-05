@@ -20,7 +20,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # Global Staff setting up
 defaults << Tempo(110)
 
-tonic_key = Tonic("C")
+tonic_key = TonicKey("C")
 
 chromatic_notes = Cluster(tonic_key, [0, 1, 2, 3], 1/4) % Clip()
 chromatic_notes >>= Decompose()
