@@ -2419,9 +2419,9 @@ class Automation(Element):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ControlChange():
+            case Automation():
                 super().__lshift__(operand)
-                self._value         = operand._value
+                self._value = operand._value
             case od.Pipe():
                 match operand._data:
                     case ou.Value():            self._value = operand._data._unit
@@ -3023,7 +3023,7 @@ class PitchBend(Automation):
             self << single_parameter
 
     def bend(self, bend: int = 0) -> Self:
-        self._value = bend
+        self._value, self._lsb = self._get_msb_lsb( bend )
         return self
 
 
@@ -3125,17 +3125,17 @@ class PitchBend(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["bend"] = self.serialize( self._get_bend(self._value, self._lsb) )
+        serialization["parameters"]["lsb"] = self.serialize(self._lsb)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "bend" in serialization["parameters"]):
+            "lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value, self._lsb = self._get_msb_lsb( self.deserialize( serialization["parameters"]["bend"] ) )
+            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
