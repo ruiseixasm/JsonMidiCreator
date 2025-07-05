@@ -397,8 +397,8 @@ class Pitch(Generic):
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
-                    case int():             return self._degree_0
-                    case float():           return float(self._tonic_key)
+                    case int():             return float(self._tonic_key)
+                    case float():           return self._degree_0
                     case Fraction():        return Fraction(self._shifting)
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
@@ -406,17 +406,11 @@ class Pitch(Generic):
             case of.Frame():        return self % operand
 
             case int():
-                self_degree_0: int = self._degree_0
-                staff_scale: list[int] = self._get_staff() % list()
-                total_degrees: int = sum(1 for key in staff_scale if key != 0)
-
-                return self_degree_0 % total_degrees + 1
-             
+                return self.pitch_int()
+            case float():
+                return float( self._degree_0 + 1 )
             case Fraction():
                 return Fraction(self._shifting)
-            
-            case float():
-                return float( self.pitch_int() )
             
             case ou.Semitone():
                 return ou.Semitone(self.pitch_int())
@@ -433,7 +427,7 @@ class Pitch(Generic):
                 return ou.Octave( target_pitch // 12 - 1 )
             
             case ou.Degree():
-                return ou.Degree(self % int())
+                return ou.Degree(self._degree_0 + 1)
             case ou.Shifting():
                 return ou.Shifting(self._shifting)
              
@@ -573,9 +567,7 @@ class Pitch(Generic):
                     case ou.Octave():
                         self._octave    = operand._data._unit
                     case int():
-                        self._degree_0 = operand._data
-                    case float():
-                        self._tonic_key = int(operand._data)
+                        self._tonic_key = operand._data
                     case Fraction():
                         self._shifting = int(operand._data)
                     case ou.Semitone():
@@ -586,8 +578,6 @@ class Pitch(Generic):
                         self._sharp = operand._data._unit * -1
                     case ou.Natural():
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
-                    case ou.Degree():
-                        self._degree_0 = abs(operand._data._unit) - 1   # 0 based
                     case ou.Shifting():
                         self._shifting = operand._data._unit
                     case Scale():
@@ -605,6 +595,14 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+
+            case int():
+                self.set_chromatic_pitch(operand)
+            case float():
+                self << ou.Degree(operand)
+            case Fraction():
+                self._shifting = int(operand)
+                    
             case ou.Tonic():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
@@ -615,9 +613,6 @@ class Pitch(Generic):
                 self._natural = False
                 self._degree_0 = self.get_key_degree_0(operand._unit % 12)
 
-            case int():
-                self << ou.Degree(operand)
-                    
             case ou.Degree():
                 if operand > 0:
                     self._degree_0 = (operand._unit - 1) % 7
@@ -635,11 +630,7 @@ class Pitch(Generic):
                 self._shifting = operand._unit
             case ou.Shifting():
                 self._shifting = operand._unit
-            case Fraction():
-                self._shifting = int(operand)
 
-            case float():
-                self.set_chromatic_pitch(int(operand))
             case ou.Semitone():
                 self.set_chromatic_pitch(operand._unit)
             case ou.Tone():
@@ -653,8 +644,8 @@ class Pitch(Generic):
             case ou.DrumKit():
                 self._natural = False
                 self._sharp = 0
-                self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
-                self << operand % od.Pipe( float() )  # Sets the key number regardless KeySignature or Scale!
+                self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
+                self << operand % int() # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
                     self._sharp = operand._unit % 3
@@ -691,11 +682,16 @@ class Pitch(Generic):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
-                self += operand % float()
+                self += operand.pitch_int()
             case ou.Octave():
                 self._octave += operand._unit
             case int():
-                self.apply_degree_offset(operand)
+                new_pitch: int = self.pitch_int() + operand
+                self.set_chromatic_pitch(new_pitch)
+            case float():
+                self.apply_degree_offset(int(operand))
+            case Fraction():
+                self._shifting += int(operand)
             case ou.Degree():
                 self.apply_degree_offset(operand._unit)
             case ou.Transposition():
@@ -709,11 +705,6 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
                 self._tonic_key += operand._unit
-            case float():
-                new_pitch: int = self.pitch_int() + int(operand)
-                self.set_chromatic_pitch(new_pitch)
-            case Fraction():
-                self._shifting += int(operand)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 new_pitch: int = self.pitch_int() + operand % int()
                 self.set_chromatic_pitch(new_pitch)
@@ -727,11 +718,16 @@ class Pitch(Generic):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
-                self -= operand % float()
+                self -= operand.pitch_int()
             case ou.Octave():
                 self._octave -= operand._unit
             case int():
-                self.apply_degree_offset(-operand)
+                new_pitch: int = self.pitch_int() - operand
+                self.set_chromatic_pitch(new_pitch)
+            case float():
+                self.apply_degree_offset(int(-operand))
+            case Fraction():
+                self._shifting -= int(operand)
             case ou.Degree():
                 self.apply_degree_offset(-operand._unit)
             case ou.Transposition():
@@ -745,11 +741,6 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
             case ou.Tonic():
                 self._tonic_key -= operand._unit
-            case float():
-                new_pitch: int = self.pitch_int() - int(operand)
-                self.set_chromatic_pitch(new_pitch)
-            case Fraction():
-                self._shifting -= int(operand)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 new_pitch: int = self.pitch_int() - operand % int()
                 self.set_chromatic_pitch(new_pitch)
@@ -764,15 +755,15 @@ class Pitch(Generic):
         match operand:
             case int():
                 new_keynote = self.__class__()
-                self_degree: int = self % int()
-                multiplied_int = self_degree * operand
+                self_pitch: int = self.pitch_int()
+                multiplied_int = self_pitch * operand
                 new_keynote._tonic_key = multiplied_int % 12
                 new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
-                self_pitch: int = self.pitch_int()
-                multiplied_int = int(self_pitch * operand)
+                self_degree_0: int = self._degree_0
+                multiplied_int = int(self_degree_0 * operand)
                 new_keynote._tonic_key = multiplied_int % 12
                 new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
@@ -785,15 +776,15 @@ class Pitch(Generic):
             match operand:
                 case int():
                     new_keynote = self.__class__()
-                    self_degree: int = self % int()
-                    multiplied_int = int(self_degree / operand)
+                    self_pitch: int = self.pitch_int()
+                    multiplied_int = int(self_pitch / operand)
                     new_keynote._tonic_key = multiplied_int % 12
                     new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                     return new_keynote
                 case float():
                     new_keynote = self.__class__()
-                    self_pitch: int = self.pitch_int()
-                    multiplied_int = int(self_pitch / operand)
+                    self_degree_0: int = self._degree_0
+                    multiplied_int = int(self_degree_0 / operand)
                     new_keynote._tonic_key = multiplied_int % 12
                     new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                     return new_keynote
@@ -805,11 +796,11 @@ class Pitch(Generic):
         move_semitones: int = 0
         while move_tones > 0:
             move_semitones += 1
-            if scale[(self % int() + move_semitones) % 12]:
+            if scale[(self._degree_0 + move_semitones) % 12]:
                 move_tones -= 1
         while move_tones < 0:
             move_semitones -= 1
-            if scale[(self % int() + move_semitones) % 12]:
+            if scale[(self._degree_0 + move_semitones) % 12]:
                 move_tones += 1
         return move_semitones
     
@@ -834,9 +825,9 @@ class Pitch(Generic):
         else:
             pitch_step: int = -1
         while scale_list[self_pitch + pitch_offset] == 0:
-            pitch_offset += float(pitch_step)
+            pitch_offset += pitch_step
         if pitch_offset > 0:
-            self += float(pitch_offset)
+            self += pitch_offset
         return self
 
 

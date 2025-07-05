@@ -105,16 +105,16 @@ def test_clip_mod():
         assert single_item == "C"
     
     chords_clip += Iterate()**Degree()
-    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    keys: list[str] = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         chords_clip[degree] % str() >> Print()
         assert chords_clip[degree] == keys[degree]
 
     print("------")
-    keys_float: list = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
+    keys_float: list[int] = [60, 62, 64, 65, 67, 69, 71]
     for degree in range(7):
-        chords_clip[degree] % Pitch() % float() >> Print()
-        assert chords_clip[degree] % Pitch() % float() == keys_float[degree]
+        chords_clip[degree] % Pitch() % int() >> Print()
+        assert chords_clip[degree] % Pitch() % int() == keys_float[degree]
 
     single_note = Note()
     note_clip = Clip(single_note)
