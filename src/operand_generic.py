@@ -334,7 +334,7 @@ class Pitch(Generic):
 
         return self
     
-    def set_chromatic_pitch(self, pitch: int) -> Self:
+    def set_root_key(self, pitch: int) -> Self:
         
         # Reset purely decorative parameters
         self._natural = False
@@ -411,8 +411,8 @@ class Pitch(Generic):
             case Fraction():
                 return Fraction(self._tone)
             
-            case ou.Semitone():
-                return ou.Semitone(self.pitch_int())
+            case ou.Semitone() | ou.Root():
+                return operand.copy(self.pitch_int())
             
             case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
@@ -596,7 +596,14 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
 
             case int():
-                self.set_chromatic_pitch(operand)
+                # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
+                self._natural = False
+                self._sharp = 0
+                actual_pitch: int = self.pitch_int()
+                pitch_offset: int = operand - actual_pitch
+                gross_tonic_key: int = self._tonic_key + pitch_offset
+                self._tonic_key = gross_tonic_key % 12
+                self._octave += gross_tonic_key // 12
             case float():
                 self << ou.Degree(operand)
             case Fraction():
@@ -626,8 +633,8 @@ class Pitch(Generic):
             case ou.Transposition() | ou.Tone():
                 self._tone = operand._unit
 
-            case ou.Semitone():
-                self.set_chromatic_pitch(operand._unit)
+            case ou.Semitone() | ou.Root():
+                self.set_root_key(operand._unit)
             case ou.Tone():
                 self._tonic_key = operand._unit % 12
                 self._octave = operand._unit // 12 - 1
@@ -682,7 +689,7 @@ class Pitch(Generic):
                 self._octave += operand._unit
             case int():
                 new_pitch: int = self.pitch_int() + operand
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case float():
                 self.apply_degree_offset(int(operand))
             case Fraction():
@@ -693,12 +700,12 @@ class Pitch(Generic):
                 self._tone += operand._unit
             case ou.Root():
                 new_pitch: int = self.pitch_int() + self.move_semitones(operand % int())
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case ou.Tonic():
                 self._tonic_key += operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone():
+            case ra.Rational() | ou.Key() | ou.Semitone() | ou.Root():
                 new_pitch: int = self.pitch_int() + operand % int()
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case dict():
                 for octave, value in operand.items():
                     self += value
@@ -714,7 +721,7 @@ class Pitch(Generic):
                 self._octave -= operand._unit
             case int():
                 new_pitch: int = self.pitch_int() - operand
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case float():
                 self.apply_degree_offset(int(-operand))
             case Fraction():
@@ -725,12 +732,12 @@ class Pitch(Generic):
                 self._tone -= operand._unit
             case ou.Root():
                 new_pitch: int = self.pitch_int() - self.move_semitones(operand % int())
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case ou.Tonic():
                 self._tonic_key -= operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone():
+            case ra.Rational() | ou.Key() | ou.Semitone() | ou.Root():
                 new_pitch: int = self.pitch_int() - operand % int()
-                self.set_chromatic_pitch(new_pitch)
+                self.set_root_key(new_pitch)
             case dict():
                 for octave, value in operand.items():
                     self -= value
