@@ -1974,30 +1974,6 @@ class Velocity(Midi):
     def __init__(self, *parameters):
         super().__init__(100, *parameters)         # By default is velocity 100
 
-class Pressure(Midi):
-    """`Unit -> Midi -> Pressure`
-
-    Pressure() represents the intensity with which a key is pressed after being down.
-    
-    Parameters
-    ----------
-    first : integer_like
-        A key pressure varies from 0 to 127
-    """
-    pass
-
-class Bend(Midi):
-    """`Unit -> Midi -> Bend`
-
-    Bend() sets the bending of the pitch to be associated to the PitchBend() Element.
-    
-    Parameters
-    ----------
-    int(0) : Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
-        this bending is 2 semi-tones bellow or above respectively
-    """
-    pass
-
 class Program(Midi):
     """`Unit -> Midi -> Program`
 
@@ -2230,8 +2206,32 @@ class Value(Midi):
     """
     pass
 
-class Bank(Value):   # Value of 0 means no Bank selected because Banks are 1 based
-    """`Unit -> Midi -> Value -> Bank`
+class Pressure(Value):
+    """`Unit -> Midi -> Value -> Pressure`
+
+    Pressure() represents the intensity with which a key is pressed after being down.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A key pressure varies from 0 to 127
+    """
+    pass
+
+class Bend(Value):
+    """`Unit -> Midi -> Value -> Bend`
+
+    Bend() sets the bending of the pitch to be associated to the PitchBend() Element.
+    
+    Parameters
+    ----------
+    int(0) : Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
+        this bending is 2 semi-tones bellow or above respectively
+    """
+    pass
+
+class Bank(Midi):   # Value of 0 means no Bank selected because Banks are 1 based
+    """`Unit -> Midi -> Bank`
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)        # By default is 1 the Bank "A"
