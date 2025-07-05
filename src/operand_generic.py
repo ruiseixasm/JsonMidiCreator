@@ -616,18 +616,7 @@ class Pitch(Generic):
                 self._degree_0 = self.get_key_degree_0(operand._unit % 12)
 
             case int():
-                if operand > 0:
-                    staff_scale: list[int] = self._get_staff()._key_signature % list()
-                    total_degrees: int = sum(1 for key in staff_scale if key != 0)
-                    self._degree_0 = (operand - 1) % total_degrees
-                elif operand == 0:
-                    self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
-                else:
-                    self << 0   # Resets the Tonic key
-                    self << 1   # Resets the degree to I
-                    self._octave = 4
-                    self._sharp = 0
-                    self._natural = False
+                self << ou.Degree(operand)
                     
             case ou.Degree():
                 if operand > 0:
@@ -639,7 +628,7 @@ class Pitch(Generic):
                         self._octave = 4
                         self._sharp = 0
                         self._natural = False
-                        
+
             case ou.Transposition():
                 self._shifting = operand._unit
             case ou.Modulation():
