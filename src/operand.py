@@ -296,10 +296,10 @@ class Operand:
         return not self == other
     
     def __lt__(self, other: any) -> bool:
-        return False
+        return True     # By default tells any sorting method that is already sorted
     
     def __gt__(self, other: any) -> bool:
-        return False
+        return False    # By default tells any sorting method that is already sorted
     
     def __le__(self, other: any) -> bool:
         return self.__eq__(other) or self.__lt__(other)
