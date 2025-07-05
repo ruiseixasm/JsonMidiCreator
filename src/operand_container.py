@@ -160,9 +160,12 @@ class Container(o.Operand):
             self._items[left_index] = temp_item
         return self
 
+
     def _sort_items(self) -> Self:
-        # Container sort position does nothing
-        # Only applicable to Clip and Song
+        if self is not self._upper_container:
+            self._upper_container._sort_items()
+        # This works with a list method sort
+        self._items.sort()  # Operands implement __lt__ and __gt__
         return self
 
 
