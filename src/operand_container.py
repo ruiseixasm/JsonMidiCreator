@@ -3795,13 +3795,6 @@ class Song(Composition):
         return super().__next__()
     
 
-    def _sort_items(self) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._sort_items()
-        self._items.sort(key=lambda x: x._position_beats)
-        return self
-
-
     def _set_owner_song(self, owner_song: 'Song' = None) -> Self:
         """
         Allows the setting of a distinct `Song` in the contained Elements for a transition process
