@@ -2959,11 +2959,10 @@ class PitchBend(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._bend: int = 0
         super().__init__(*parameters)
 
     def bend(self, bend: int = 0) -> Self:
-        self._bend = bend
+        self._value = bend
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2981,10 +2980,10 @@ class PitchBend(Automation):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Bend():         return ou.Bend() << od.Pipe(self._bend)
+                    case ou.Bend():         return ou.Bend() << od.Pipe(self._value)
                     case _:                 return super().__mod__(operand)
-            case int():             return self._bend
-            case ou.Bend():         return ou.Bend() << od.Pipe(self._bend)
+            case int():             return self._value
+            case ou.Bend():         return ou.Bend() << od.Pipe(self._value)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2992,7 +2991,7 @@ class PitchBend(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._bend == other._bend
+                    and self._value == other._value
             case _:
                 return super().__eq__(other)
 
@@ -3000,7 +2999,7 @@ class PitchBend(Automation):
     def _get_msb_value(self) -> int:
         
         # from -8192 to 8191
-        amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
+        amount = 8192 + self._value          # 2^14 = 16384, 16384 / 2 = 8192
         amount = max(min(amount, 16383), 0) # midi safe
 
         msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
@@ -3016,7 +3015,7 @@ class PitchBend(Automation):
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
         # from -8192 to 8191
-        amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
+        amount = 8192 + self._value          # 2^14 = 16384, 16384 / 2 = 8192
         amount = max(min(amount, 16383), 0) # midi safe
 
         msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
@@ -3051,12 +3050,12 @@ class PitchBend(Automation):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._bend
+        self_midilist[0]["value"]       = self._value
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["bend"] = self.serialize( self._bend )
+        serialization["parameters"]["bend"] = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3066,7 +3065,7 @@ class PitchBend(Automation):
             "bend" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._bend = self.deserialize( serialization["parameters"]["bend"] )
+            self._value = self.deserialize( serialization["parameters"]["bend"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3074,15 +3073,15 @@ class PitchBend(Automation):
         match operand:
             case PitchBend():
                 super().__lshift__(operand)
-                self._bend = operand._bend
+                self._value = operand._value
             case od.Pipe():
                 match operand._data:
-                    case ou.Bend():             self._bend = operand._data._unit
+                    case ou.Bend():             self._value = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case int():
-                self._bend = operand
+                self._value = operand
             case ou.Bend():
-                self._bend = operand._unit
+                self._value = operand._unit
             case _:
                 super().__lshift__(operand)
         return self
@@ -3091,10 +3090,10 @@ class PitchBend(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._bend += operand  # Specific and compounded parameter
+                self._value += operand  # Specific and compounded parameter
                 return self
             case ou.Bend():
-                self._bend += operand._unit  # Specific and compounded parameter
+                self._value += operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -3103,10 +3102,10 @@ class PitchBend(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._bend -= operand  # Specific and compounded parameter
+                self._value -= operand  # Specific and compounded parameter
                 return self
             case ou.Bend():
-                self._bend -= operand._unit  # Specific and compounded parameter
+                self._value -= operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
@@ -3126,11 +3125,10 @@ class Aftertouch(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pressure: int = 0
         super().__init__(*parameters)
 
     def pressure(self, pressure: int = 0) -> Self:
-        self._pressure = pressure
+        self._value = pressure
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3148,10 +3146,10 @@ class Aftertouch(Automation):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
+                    case ou.Pressure():     return ou.Pressure() << od.Pipe(self._value)
                     case _:                 return super().__mod__(operand)
-            case int():             return self._pressure
-            case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
+            case int():             return self._value
+            case ou.Pressure():     return ou.Pressure() << od.Pipe(self._value)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -3159,13 +3157,13 @@ class Aftertouch(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pressure == other._pressure
+                    and self._value == other._value
             case _:
                 return super().__eq__(other)
     
     
     def _get_msb_value(self) -> int:
-        return self._pressure
+        return self._value
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list:
@@ -3190,7 +3188,7 @@ class Aftertouch(Automation):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xD0 | 0x0F & self._channel - 1,
-                    "data_byte": self._pressure
+                    "data_byte": self._value
                 }
             }
         )
@@ -3203,12 +3201,12 @@ class Aftertouch(Automation):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
-        self_midilist[0]["pressure"]    = self._pressure
+        self_midilist[0]["pressure"]    = self._value
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pressure"] = self.serialize( self._pressure )
+        serialization["parameters"]["pressure"] = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3218,7 +3216,7 @@ class Aftertouch(Automation):
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
+            self._value = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3226,15 +3224,15 @@ class Aftertouch(Automation):
         match operand:
             case Aftertouch():
                 super().__lshift__(operand)
-                self._pressure = operand._pressure
+                self._value = operand._value
             case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
+                    case ou.Pressure():         self._value = operand._data.__mod__(od.Pipe( int() ))
                     case _:                     super().__lshift__(operand)
             case int():
-                self._pressure = operand
+                self._value = operand
             case ou.Pressure():
-                self._pressure = operand.__mod__(od.Pipe( int() ))
+                self._value = operand.__mod__(od.Pipe( int() ))
             case _:
                 super().__lshift__(operand)
         return self
@@ -3243,10 +3241,10 @@ class Aftertouch(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._pressure += operand  # Specific and compounded parameter
+                self._value += operand  # Specific and compounded parameter
                 return self
             case ou.Pressure():
-                self._pressure += operand._unit  # Specific and compounded parameter
+                self._value += operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -3255,10 +3253,10 @@ class Aftertouch(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._pressure -= operand  # Specific and compounded parameter
+                self._value -= operand  # Specific and compounded parameter
                 return self
             case ou.Pressure():
-                self._pressure -= operand._unit  # Specific and compounded parameter
+                self._value -= operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
@@ -3346,7 +3344,7 @@ class PolyAftertouch(Aftertouch):
                 "midi_message": {
                     "status_byte": 0xA0 | 0x0F & self._channel - 1,
                     "data_byte_1": pitch_int,
-                    "data_byte_2": self._pressure
+                    "data_byte_2": self._value
                 }
             }
         )
