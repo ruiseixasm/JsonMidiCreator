@@ -636,9 +636,6 @@ class Pitch(Generic):
 
             case ou.Semitone() | ou.Root():
                 self.set_root_key(operand._unit)
-            case ou.Tone():
-                self._tonic_key = operand._unit % 12
-                self._octave = operand._unit // 12 - 1
 
             case dict():
                 for octave, value in operand.items():
