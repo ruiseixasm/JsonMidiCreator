@@ -4051,7 +4051,7 @@ class Song(Composition):
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, Part)
                 ]
-                self._sort_items()
+                return self._sort_items()
 
             case tuple():
                 for single_operand in operand:
@@ -4061,6 +4061,8 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for single_part in self._items:
                     single_part << operand
+                return self._sort_items()
+
         return self
 
 
@@ -4092,7 +4094,7 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
-        return self
+        return self._sort_items()
 
 
     # FROM PART TO BE ADAPTED
@@ -4117,7 +4119,7 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item -= operand
-        return self
+        return self._sort_items()
 
 
     def __imul__(self, operand: any) -> Self:
@@ -4162,7 +4164,7 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__imul__(operand)
-        return self
+        return self._sort_items()
 
 
     def __itruediv__(self, operand: any) -> Self:
@@ -4206,7 +4208,7 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__itruediv__(operand)
-        return self
+        return self._sort_items()
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
