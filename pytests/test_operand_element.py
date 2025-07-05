@@ -526,36 +526,36 @@ def test_note_pitch():
     note_copy_2 = note.copy()
     note_copy_2 += Degree(2)
     print(f"Key: {(note_copy_2) % str()}, \
-            tone: {(note_copy_2) % Pitch() % float()}, degree: {(note_copy_2) % Degree() % int()}")
+            tone: {(note_copy_2) % Pitch() % int()}, degree: {(note_copy_2) % Degree() % int()}")
     assert note + Degree(2) == Note("E")    # C - D - E
 
     
     note.clear()    # Becomes like a new note
 
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 60.0  # White Key
-    note << Pitch(35.0)
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 35.0  # White Key
-    note << Pitch(42.0)
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 42.0  # Black Key
-    note << Pitch(39.0)
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 39.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 60  # White Key
+    note << Pitch(35)
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 35  # White Key
+    note << Pitch(42)
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 42  # Black Key
+    note << Pitch(39)
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 39  # Black Key
 
     note << DrumKit("Drum")
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 35.0  # White Key
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 35  # White Key
     note << DrumKit("Hi-Hat")
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 42.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 42  # Black Key
     note << DrumKit("Clap")
-    print(note % od.Pipe( Pitch() ) % float())
-    assert note % od.Pipe( Pitch() ) % float() == 39.0  # Black Key
+    print(note % od.Pipe( Pitch() ) % int())
+    assert note % od.Pipe( Pitch() ) % int() == 39  # Black Key
 
     note << Pitch()
-    assert note % Pitch() == 60.0   # Middle C
+    assert note % Pitch() == 60   # Middle C
 
     note.clear()
 

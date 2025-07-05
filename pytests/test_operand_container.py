@@ -687,11 +687,11 @@ def test_lshift_clip():
     one_measure: Clip = two_measures >> Less(Measures(1))
     assert one_measure.len() == 4
 
-    assert two_measures[0] % Pitch() == 60.0
+    assert two_measures[0] % Pitch() == 60
     two_measures << Semitone(30)
-    assert two_measures[0] % Pitch() == 30.0
+    assert two_measures[0] % Pitch() == 30
     two_measures << Pitch()
-    assert two_measures[0] % Pitch() == 60.0
+    assert two_measures[0] % Pitch() == 60
 
 
     eight_notes = Note() / 8
@@ -931,18 +931,18 @@ def test_flip_operation():
     four_notes: Clip = Note() / 4
     four_notes << Iterate(60, 2)**Semitone()
 
-    actual_pitch: float = 60.0
+    actual_pitch: int = 60
     for single_note in four_notes:
-        single_note % od.Pipe( Pitch() ) % float() >> Print()
+        single_note % od.Pipe( Pitch() ) % int() >> Print()
         assert single_note % od.Pipe( Pitch() ) == actual_pitch
-        actual_pitch += 2.0
+        actual_pitch += 2
     
     four_notes.flip()
 
     print("------")
     for single_note in four_notes:
-        actual_pitch -= 2.0
-        single_note % od.Pipe( Pitch() ) % float() >> Print()
+        actual_pitch -= 2
+        single_note % od.Pipe( Pitch() ) % int() >> Print()
         assert single_note % od.Pipe( Pitch() ) == actual_pitch
 
 # test_flip_operation()

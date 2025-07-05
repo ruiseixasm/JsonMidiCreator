@@ -175,14 +175,14 @@ def test_pitch_degrees():
     for flats_sharps in range(-7, 8):         # For all Flats and Sharps!
         defaults << KeySignature(flats_sharps)
 
-        reference_keys: list[float] = []
+        reference_keys: list[int] = []
         for degree in range(1, 8):
-            key_pitch << 1.0 << 60 << degree    # Has to reset previous Degree to 1 first
+            key_pitch << 1.0 << 60 << float(degree)    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch % int() )
 
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch << 1.0 << float(pitch_int)  # Has to reset previous Degree to 1 first
+            key_pitch << 1.0 << pitch_int  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 key_pitch << float(degree)
                 print(f"Key: {key_pitch % int()}")
@@ -410,7 +410,7 @@ def test_pitch_key_signature():
     defaults << Sharps(2)   # Changes to B minor (##) but remains the Tonic E
     E_minor_key << Degree(3)
     assert E_minor_key % str() == "G"
-    E_minor_key << Tonic("B") << 1  # Starts by Degree 1 the Tonic
+    E_minor_key << Tonic("B") << 1.0  # Starts by Degree 1 the Tonic
     E_minor_B_tonic_key: list = ["B", "C#", "D", "E", "F#", "G", "A"]   # Same as B minor
     # Sharp and Flat shall not be set by Degree
     print("------")
