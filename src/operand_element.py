@@ -2331,6 +2331,7 @@ class Automation(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
+        self._value: int = 0
         super().__init__()
         self._duration_notevalue = self._get_staff()._quantization   # Equivalent to one Step
         for single_parameter in parameters: # Faster than passing a tuple
@@ -2382,9 +2383,11 @@ class ControlChange(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
+        super().__init__()
         self._controller: og.Controller = og.defaults % og.Controller()
-        self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
-        super().__init__(*parameters)
+        self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
         self._controller = og.Controller(
