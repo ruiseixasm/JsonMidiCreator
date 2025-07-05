@@ -608,7 +608,7 @@ class Pitch(Generic):
             case float():
                 self << ou.Degree(operand)
             case Fraction():
-                self._tone = int(operand)
+                self << ou.Tone(operand)
                     
             case ou.Tonic():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
@@ -694,7 +694,7 @@ class Pitch(Generic):
             case float():
                 self.apply_degree_offset(int(operand))
             case Fraction():
-                self._tone += int(operand)
+                self += ou.Tone(operand)
             case ou.Degree():
                 self.apply_degree_offset(operand._unit)
             case ou.Transposition() | ou.Tone():
@@ -726,7 +726,7 @@ class Pitch(Generic):
             case float():
                 self.apply_degree_offset(int(-operand))
             case Fraction():
-                self._tone -= int(operand)
+                self -= ou.Tone(operand)
             case ou.Degree():
                 self.apply_degree_offset(-operand._unit)
             case ou.Transposition() | ou.Tone():
