@@ -602,7 +602,7 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 pitch_offset: int = operand - actual_pitch
                 gross_tonic_key: int = self._tonic_key % 12 + pitch_offset
-                # Makes sure it also retains the Tonic key of the previously set key line
+                # Makes sure it also retains the key line of the Tonic key
                 self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
                 self._octave += gross_tonic_key // 12
             case float():
