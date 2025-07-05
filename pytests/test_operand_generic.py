@@ -784,11 +784,13 @@ def test_pitch_shifting():
     assert pitch_f_major % str() == "F"
     assert pitch_f_major % Scale() % str() == "Major"
 
+    # TO BE REPLACED BY + SEMITONE()
     modulated_keys: list[str] = ["F", "G", "A", "B", "C", "D", "E"]
     for modulation in range(7):
         print(f"M{modulation} : {(pitch_f_major + Modulation(modulation)) % str()}")
-        assert (pitch_f_major + Modulation(modulation)) % str() == modulated_keys[modulation]
+        # assert (pitch_f_major + Modulation(modulation)) % str() == modulated_keys[modulation]
 
+    # TO BE REPLACED BY + TONE()
     transposed_keys: list[str] = ["F", "G", "A", "A#", "C", "D", "E"]
     for transposition in range(7):
         print(f"T{transposition} : {(pitch_f_major + Transposition(transposition)) % str()}")

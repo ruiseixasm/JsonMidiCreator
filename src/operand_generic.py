@@ -223,7 +223,7 @@ class Pitch(Generic):
         """
         return Scale.transpose_key(degree_0, tonic_scale)
 
-    def scale_transposition(self, root_key: int) -> int:
+    def scale_transposition(self, degree_transposition: int) -> int:
         """
         For a non zero shifting, the respective transposition or modulation of the given degree_transposition is returned.
         """
@@ -231,21 +231,7 @@ class Pitch(Generic):
         if self._shifting != 0:
             if self._scale:
                 modulated_scale: list[int] = self._scale
-                if self._transpose: # Transposition is only applicable to a Scale, not a Key Signature
-                    """
-                    IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
-                    """
-                    transposition = Scale.transpose_key(self._shifting, modulated_scale)
-                else:
-                    """
-                    Scale modulation is set by the Scale itself
-                    """
-                    scale_tonic: int = Scale.get_tonic_key(modulated_scale)
-                    tonic_offset: int = root_key - scale_tonic
-                    """
-                    IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
-                    """
-                    transposition = Scale.modulate_key(tonic_offset, self._shifting, modulated_scale)
+                transposition = Scale.transpose_key(self._shifting, modulated_scale)
 
             else:   # For KeySignature the Modulation is treated as a degree_0
                 """
@@ -255,25 +241,24 @@ class Pitch(Generic):
                 degree_0: int = self._degree_0 % 7 + self._shifting
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
-                degree_transposition: int = root_key - self._tonic_key % 12
                 transposition = Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
         return transposition
 
-    def accidentals_transposition(self, scale_key: int) -> int:
+    def accidentals_transposition(self, key: int) -> int:
         """
         Processes the given set sharps and natural accordingly as final decorators.
         """
         transposition: int = 0
         # Final parameter decorators like Sharp and Natural
         if self._natural:
-            if self._major_scale[(scale_key + transposition) % 12] == 0:  # Black key
+            if self._major_scale[(key + transposition) % 12] == 0:  # Black key
                 accidentals_int: int = self._get_staff()._key_signature._unit
                 if accidentals_int < 0:
                     transposition += 1  # Considered a flat
                 else:
                     transposition -= 1  # Considered a sharp
         elif self._sharp != 0:
-            if self._major_scale[(scale_key + transposition) % 12] == 1:  # White key
+            if self._major_scale[(key + transposition) % 12] == 1:  # White key
                 transposition += self._sharp  # applies Pitch self accidentals
         return transposition
 
@@ -284,10 +269,9 @@ class Pitch(Generic):
         tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         octave_transposition: int = self.octave_transposition()
         degree_transposition: int = self.degree_transposition()
-        root_key: int = tonic_key + degree_transposition
-        scale_transposition: int = self.scale_transposition(root_key)
-        scale_key: int = root_key + scale_transposition
-        accidentals_transposition: int = self.accidentals_transposition(scale_key)
+        scale_transposition: int = self.scale_transposition(degree_transposition)
+        transposed_tonic: int = tonic_key + degree_transposition + scale_transposition
+        accidentals_transposition: int = self.accidentals_transposition(transposed_tonic)
         return tonic_key \
             + octave_transposition + degree_transposition + scale_transposition \
             + accidentals_transposition
