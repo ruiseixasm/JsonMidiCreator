@@ -159,6 +159,10 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
+                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
+                    return self._position_beats == other._position_beats \
+                        and self._duration_notevalue == other._duration_notevalue \
+                        and self._channel == other._channel
                 return self % ra.Position() == other % ra.Position() \
                     and self % ra.Duration() == other % ra.Duration() \
                     and self._channel == other._channel

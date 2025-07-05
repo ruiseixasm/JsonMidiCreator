@@ -3235,6 +3235,10 @@ class Part(Composition):
     def __next__(self) -> 'Clip':
         return super().__next__()
     
+    def _sort_items(self) -> Self:
+        # Clips aren't sortable
+        return self
+
 
     def len(self, just_clips: bool = False) -> int:
         """
@@ -3260,32 +3264,37 @@ class Part(Composition):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
+                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
+                    return super().__eq__(other) \
+                        and self._position_beats == other._position_beats
                 return super().__eq__(other) \
                     and self % ra.Position() == other % ra.Position()
-            case ra.Position():
-                return self % ra.Position() == other
             case _:
-                return super().__eq__(other)
+                if other.__class__ == o.Operand:
+                    return True
+                if type(other) == ol.Null:
+                    return False    # Makes sure ol.Null ends up processed as False
+                return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
+                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
+                    return self._position_beats < other._position_beats
                 return self % ra.Position() < other % ra.Position()
-            case ra.Position():
-                return self % ra.Position() < other
             case _:
-                return super().__lt__(other)
+                return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
+                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
+                    return self._position_beats > other._position_beats
                 return self % ra.Position() > other % ra.Position()
-            case ra.Position():
-                return self % ra.Position() > other
             case _:
-                return super().__gt__(other)
+                return self % other > other
     
 
     def start(self) -> ra.Position:
