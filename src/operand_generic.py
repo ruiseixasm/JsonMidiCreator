@@ -479,7 +479,7 @@ class Pitch(Generic):
                 # return self.pitch_int() == other.pitch_int()
                 return self.pitch_int() == other.pitch_int()
             case ou.Octave():
-                return self % od.Pipe( ou.Octave() ) == other
+                return self % ou.Octave() == other
             case int() | float() | str() | ou.Key() | Scale():
                 return self % other == other
             case od.Conditional():
@@ -494,7 +494,7 @@ class Pitch(Generic):
             case Pitch():
                 return self.pitch_int() < other.pitch_int()
             case ou.Octave():
-                return self % od.Pipe( ou.Octave() ) < other
+                return self % ou.Octave() < other
             case int() | float():
                 return self % other < other
             case _:
@@ -507,7 +507,7 @@ class Pitch(Generic):
             case Pitch():
                 return self.pitch_int() > other.pitch_int()
             case ou.Octave():
-                return self % od.Pipe( ou.Octave() ) > other
+                return self % ou.Octave() > other
             case int() | float():
                 return self % other > other
             case _:
