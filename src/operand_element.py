@@ -2353,9 +2353,11 @@ class Automation(Element):
             case od.Pipe():
                 match operand._data:
                     case ou.Value():            return operand._data << od.Pipe(self._value)
+                    case ou.MSB():              return ou.MSB() << od.Pipe(self._value)
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
             case ou.Value():            return operand.copy() << self._value
+            case ou.MSB():              return ou.MSB() << self._value
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -2369,7 +2371,7 @@ class Automation(Element):
 
 
     def _get_msb_value(self) -> int:
-        return 0
+        return self._value
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, channels: dict[str, set[int]] = None) -> list[dict]:
         if not self._enabled:
@@ -2399,18 +2401,6 @@ class Automation(Element):
         return self_plotlist
 
 
-    def _get_msb_value(self) -> int:
-        
-        if self._controller._nrpn:
-
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-            return cc_6_msb
-        else:
-
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-            return msb_value
-            
-
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["value"] = self.serialize( self._value )
@@ -2435,10 +2425,11 @@ class Automation(Element):
             case od.Pipe():
                 match operand._data:
                     case ou.Value():            self._value = operand._data._unit
+                    case ou.MSB():              self._value = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case int():
                 self._value = operand
-            case ou.Value():
+            case ou.Value() | ou.MSB():
                 self._value = operand._unit
             case _:
                 super().__lshift__(operand)
@@ -2450,7 +2441,7 @@ class Automation(Element):
             case int():
                 self._value += operand  # Specific and compounded parameter
                 return self
-            case ou.Value():
+            case ou.Value() | ou.MSB():
                 self._value += operand._unit  # Specific and compounded parameter
                 return self
             case _:
@@ -2462,7 +2453,7 @@ class Automation(Element):
             case int():
                 self._value -= operand  # Specific and compounded parameter
                 return self
-            case ou.Value():
+            case ou.Value() | ou.MSB():
                 self._value -= operand._unit  # Specific and compounded parameter
                 return self
             case _:
@@ -3025,11 +3016,34 @@ class PitchBend(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__(*parameters)
+        super().__init__()
+        self._value: int    = 64
+        self._lsb: int      = 0
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def bend(self, bend: int = 0) -> Self:
         self._value = bend
         return self
+
+
+    @staticmethod
+    def _get_msb_lsb(bend: int) -> tuple[int]:
+        # from -8192 to 8191
+        amount = 8192 + bend        # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0) # midi safe
+        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+        return msb, lsb
+
+    @staticmethod
+    def _get_bend(msb: int, lsb: int) -> int:
+        amount: int = msb << 7 | lsb & 0x7F
+        amount = max(min(amount, 16383), 0) # midi safe
+        # from -8192 to 8191
+        bend: int = amount - 8192
+        return bend
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -3046,32 +3060,29 @@ class PitchBend(Automation):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Bend():         return ou.Bend() << od.Pipe(self._value)
-                    case _:                 return super().__mod__(operand)
-            case int():             return self._value
-            case ou.Bend():         return ou.Bend() << od.Pipe(self._value)
-            case _:                 return super().__mod__(operand)
+                    case ou.Bend():
+                        return ou.Bend() << od.Pipe(self._get_bend(self._value, self._lsb))
+                    case ou.LSB():
+                        return ou.LSB() << od.Pipe(self._lsb)
+                    case _:
+                        return super().__mod__(operand)
+            case int():
+                return self._get_bend(self._value, self._lsb)
+            case ou.Bend():
+                return ou.Bend() << self._get_bend(self._value, self._lsb)
+            case ou.LSB():
+                return ou.LSB() << od.Pipe(self._lsb)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._value == other._value
+                    and self._lsb == other._lsb
             case _:
                 return super().__eq__(other)
-
-
-    def _get_msb_value(self) -> int:
-        
-        # from -8192 to 8191
-        amount = 8192 + self._value          # 2^14 = 16384, 16384 / 2 = 8192
-        amount = max(min(amount, 16383), 0) # midi safe
-
-        msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        lsb_midi: int = amount & 0x7F       # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-    
-        return msb_midi
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
@@ -3080,13 +3091,6 @@ class PitchBend(Automation):
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
 
-        # from -8192 to 8191
-        amount = 8192 + self._value          # 2^14 = 16384, 16384 / 2 = 8192
-        amount = max(min(amount, 16383), 0) # midi safe
-
-        msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        lsb_midi: int = amount & 0x7F       # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-    
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
         
@@ -3102,8 +3106,8 @@ class PitchBend(Automation):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xE0 | 0x0F & self._channel - 1,
-                    "data_byte_1": lsb_midi,
-                    "data_byte_2": msb_midi
+                    "data_byte_1": self._lsb,
+                    "data_byte_2": self._value
                 }
             }
         )
@@ -3116,12 +3120,12 @@ class PitchBend(Automation):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._value
+        self_midilist[0]["value"]       = self._get_bend(self._value, self._lsb)
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["bend"] = self.serialize( self._value )
+        serialization["parameters"]["bend"] = self.serialize( self._get_bend(self._value, self._lsb) )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3131,7 +3135,7 @@ class PitchBend(Automation):
             "bend" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value = self.deserialize( serialization["parameters"]["bend"] )
+            self._value, self._lsb = self._get_msb_lsb( self.deserialize( serialization["parameters"]["bend"] ) )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3140,14 +3144,21 @@ class PitchBend(Automation):
             case PitchBend():
                 super().__lshift__(operand)
                 self._value = operand._value
+                self._lsb   = operand._lsb
             case od.Pipe():
                 match operand._data:
-                    case ou.Bend():             self._value = operand._data._unit
-                    case _:                     super().__lshift__(operand)
+                    case ou.Bend():
+                        self._value = operand._data._unit
+                    case ou.Bend():
+                        self._lsb = operand._data._unit
+                    case _:
+                        super().__lshift__(operand)
             case int():
-                self._value = operand
+                self._value, self._lsb = self._get_msb_lsb( operand )
             case ou.Bend():
-                self._value = operand._unit
+                self._value, self._lsb = self._get_msb_lsb( operand._unit )
+            case ou.LSB():
+                self._lsb = operand._unit
             case _:
                 super().__lshift__(operand)
         return self
@@ -3156,10 +3167,14 @@ class PitchBend(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._value += operand  # Specific and compounded parameter
+                bend: int = self._get_bend(self._value, self._lsb)
+                bend += operand
+                self._value, self._lsb = self._get_msb_lsb( bend )
                 return self
             case ou.Bend():
-                self._value += operand._unit  # Specific and compounded parameter
+                bend: int = self._get_bend(self._value, self._lsb)
+                bend += operand._unit
+                self._value, self._lsb = self._get_msb_lsb( bend )
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -3168,10 +3183,14 @@ class PitchBend(Automation):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._value -= operand  # Specific and compounded parameter
+                bend: int = self._get_bend(self._value, self._lsb)
+                bend -= operand
+                self._value, self._lsb = self._get_msb_lsb( bend )
                 return self
             case ou.Bend():
-                self._value -= operand._unit  # Specific and compounded parameter
+                bend: int = self._get_bend(self._value, self._lsb)
+                bend -= operand._unit
+                self._value, self._lsb = self._get_msb_lsb( bend )
                 return self
             case _:
                 return super().__isub__(operand)
