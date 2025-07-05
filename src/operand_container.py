@@ -1726,12 +1726,6 @@ class Clip(Composition):  # Just a container of Elements
             return super()._replace(old_item, new_item)
         return self
 
-    def _sort_items(self) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._sort_items()
-        self._items.sort(key=lambda x: x._position_beats)
-        return self
-
         
     def _set_owner_clip(self, owner_clip: 'Clip' = None) -> Self:
         """

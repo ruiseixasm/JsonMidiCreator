@@ -1013,6 +1013,34 @@ class Note(Element):
         self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
 
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Note():
+                self_position: ra.Position = self % ra.Position()
+                other_position: ra.Position = other % ra.Position()
+                # if self_position == other_position:
+                #     return self._pitch.pitch_int() < other._pitch.pitch_int()
+                return self_position < other_position
+            case Element():
+                return super().__lt__(other)
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Note():
+                self_position: ra.Position = self % ra.Position()
+                other_position: ra.Position = other % ra.Position()
+                # if self_position == other_position:
+                #     return self._pitch.pitch_int() > other._pitch.pitch_int()
+                return self_position > other_position
+            case Element():
+                return super().__gt__(other)
+            case _:
+                return self % other > other
+    
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
