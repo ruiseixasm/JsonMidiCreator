@@ -2709,18 +2709,18 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        center_pitch: float = None
+        center_pitch: int = None
         
         for item in self._items:
             if isinstance(item, oe.Note):
-                center_pitch = item._pitch % float()
+                center_pitch = item._pitch.pitch_int()
                 break
 
         for item in self._items:
             if isinstance(item, oe.Note):
-                note_pitch: float = item._pitch % float()
+                note_pitch: int = item._pitch.pitch_int()
                 if note_pitch != center_pitch:
-                    item._pitch << round(2 * center_pitch - note_pitch, 1)
+                    item._pitch << 2 * center_pitch - note_pitch
                 
         return self
 
