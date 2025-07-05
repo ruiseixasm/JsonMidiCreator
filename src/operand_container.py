@@ -4094,7 +4094,8 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
-        return self._sort_items()
+                self._sort_items()
+        return self
 
 
     # FROM PART TO BE ADAPTED
