@@ -2337,6 +2337,37 @@ class Automation(Element):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a ControlChange,
+        those Parameters are the ones of the Element, like Position and Duration,
+        and the Controller Number and Value as Number and Value.
+
+        Examples
+        --------
+        >>> controller = Controller("Modulation")
+        >>> controller % Number() % int() >> Print()
+        1
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Value():            return operand._data << od.Pipe(self._value)
+                    case _:                     return super().__mod__(operand)
+            case int():                 return self._value
+            case ou.Value():            return operand.copy() << self._value
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: Any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._value == other._value
+            case _:
+                return super().__eq__(other)
+
+
     def _get_msb_value(self) -> int:
         return 0
 
@@ -2366,6 +2397,52 @@ class Automation(Element):
         )
 
         return self_plotlist
+
+
+    def _get_msb_value(self) -> int:
+        
+        if self._controller._nrpn:
+
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+            return cc_6_msb
+        else:
+
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+            return msb_value
+            
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["value"] = self.serialize( self._value )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "value" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._value = self.deserialize( serialization["parameters"]["value"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case ControlChange():
+                super().__lshift__(operand)
+                self._value         = operand._value
+            case od.Pipe():
+                match operand._data:
+                    case ou.Value():            self._value = operand._data._unit
+                    case _:                     super().__lshift__(operand)
+            case int():
+                self._value = operand
+            case ou.Value():
+                self._value = operand._unit
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 class ControlChange(Automation):
