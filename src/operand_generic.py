@@ -248,16 +248,15 @@ class Pitch(Generic):
                     transposition = Scale.modulate_key(tonic_offset, self._shifting, modulated_scale)
 
             else:   # For KeySignature the Modulation is treated as a degree_0
+                """
+                Because in this case the transposition is no more than a degree increase,
+                the tonic_offset is 0 for the new calculated degree
+                """
+                degree_0: int = self._degree_0 % 7 + self._shifting
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
-                """
-                KeySignature modulation is set by the Tonic key instead
-                """
-                tonic_offset: int = root_key - self._tonic_key
-                """
-                IN A MODULATION SCALE ACCIDENTALS **ARE NOT** SUPPOSED TO HAPPEN
-                """
-                transposition = Scale.modulate_key(tonic_offset, self._shifting, tonic_scale)
+                degree_transposition: int = root_key - self._tonic_key % 12
+                transposition = Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
         return transposition
 
     def accidentals_transposition(self, scale_key: int) -> int:
