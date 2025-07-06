@@ -939,9 +939,10 @@ class Transposition(PitchParameter):
     pass
 
 class Tones(Transposition):
-    """`Unit -> PitchParameter -> Shifting -> Tones`
+    """`Unit -> PitchParameter -> Transposition -> Tones`
 
-    A `Tones` represent the amount of the Transposition.
+    A `Tones` represent the amount of the Transposition, it's a shorthand for `Transposition`
+    and shall not be confused with `Tone`.
     
     Parameters
     ----------
