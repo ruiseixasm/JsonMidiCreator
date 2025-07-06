@@ -239,7 +239,7 @@ class Left(Frame):  # LEFT TO RIGHT
             if isinstance(input, (int, float, Fraction)):
                 self_operand = type(self_operand)(input)
             elif isinstance(input, o.Operand):
-                self_operand = type(self_operand)(input % self_operand)
+                self_operand = input % self_operand
             
         return self_operand
 
