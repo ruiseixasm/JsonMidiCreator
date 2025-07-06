@@ -214,22 +214,23 @@ class Pitch(Generic):
         """
         Based on the Key Signature, this method gives the degree transposition
         """
-        key_signature: ou.KeySignature = self._get_staff()._key_signature
-        tonic_scale: list[int] = key_signature.get_scale_list()
-        degree_0 = self._degree_0 % 7   # Key Signatures always have 7 keys (diatonic scales)
-        """
-        IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
-        """
-        return Scale.transpose_key(degree_0, tonic_scale)
+        if self._degree_0 != 0: # Optimization
+            degree_0 = self._degree_0 % 7   # Key Signatures always have 7 keys (diatonic scales)
+            key_signature: ou.KeySignature = self._get_staff()._key_signature
+            tonic_scale: list[int] = key_signature.get_scale_list()
+            """
+            IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
+            """
+            return Scale.transpose_key(degree_0, tonic_scale)
+        return 0
 
     def scale_transposition(self, degree_transposition: int) -> int:
         """
         Processes the transposition of the Key Signature if no Scale is set.
         """
-        transposition: int = 0
         if self._transposition != 0:
             if self._scale:
-                transposition = Scale.transpose_key(self._transposition, self._scale)
+                return Scale.transpose_key(self._transposition, self._scale)
             else:   # For KeySignature the Modulation is treated as a degree_0
                 """
                 Because in this case the transposition is no more than a degree increase,
@@ -238,8 +239,8 @@ class Pitch(Generic):
                 degree_0: int = self._degree_0 % 7 + self._transposition
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
-                transposition = Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
-        return transposition
+                return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
+        return 0
 
     def accidentals_transposition(self, key: int) -> int:
         """
