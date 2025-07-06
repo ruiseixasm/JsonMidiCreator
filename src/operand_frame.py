@@ -236,7 +236,10 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
         elif isinstance(self_operand, (int, float, Fraction)):
-            self_operand = type(self_operand)(input)
+            if isinstance(input, (int, float, Fraction)):
+                self_operand = type(self_operand)(input)
+            elif isinstance(input, o.Operand):
+                self_operand = type(self_operand)(input % self_operand)
             
         return self_operand
 
