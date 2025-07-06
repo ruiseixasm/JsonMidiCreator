@@ -259,6 +259,12 @@ class Pitch(Generic):
                 transposition += self._sharp  # applies Pitch self accidentals
         return transposition
 
+    def tonic_int(self) -> int:
+        """
+        This method simple does a % 12 on the tonic key.
+        """
+        return self._tonic_key % 12 # It may represent a flat, meaning, may be above 12
+
     def root_int(self) -> int:
         """
         The final chromatic conversion of the tonic_key into the midi pitch.
@@ -267,23 +273,23 @@ class Pitch(Generic):
         degree_transposition: int = self.degree_transposition()
         return tonic_key + degree_transposition
 
-    def key_int(self) -> int:
+    def scale_int(self) -> int:
         """
-        The target key int after all processing including accidentals.
+        The target key int after all processing **excluding** accidentals.
         """
         tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        transposed_tonic: int = tonic_key + degree_transposition + scale_transposition
-        accidentals_transposition: int = self.accidentals_transposition(transposed_tonic)
-        return tonic_key + degree_transposition + scale_transposition + accidentals_transposition
+        return tonic_key + degree_transposition + scale_transposition
 
     def pitch_int(self) -> int:
         """
-        The final chromatic conversion of the tonic_key into the midi pitch.
+        The final chromatic conversion of the tonic_key into the midi pitch with accidentals.
         """
+        scale_int: int = self.scale_int()
+        accidentals_transposition: int = self.accidentals_transposition(scale_int)
         octave_transposition: int = self.octave_transposition()
-        return self.key_int() + octave_transposition
+        return scale_int + accidentals_transposition + octave_transposition
 
     """
     Auxiliary methods to get specific data directly
