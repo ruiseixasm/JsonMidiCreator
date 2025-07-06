@@ -307,16 +307,40 @@ class Pitch(Generic):
         return self
     
 
+    def match_octave(self) -> Self:
+        """
+        This method makes sure the Degree and Transposition pitches matches the set Octave
+        """
+        tonic_key: int = self._tonic_key % 12
+        # Matches the Degree firstly
+        degree_transposition: int = self.degree_transposition()
+        if degree_transposition != 0:   # Optimization
+            degree_key: int = tonic_key + degree_transposition
+            self._degree_0 -= degree_key // 12 * 7  # Offsets degree to negative
+            degree_transposition -= degree_key // 12 * 12 # Offsets transposition too
+            self._octave += degree_key // 12    # matches the Octave with the new Degree
+        # Matches the Transposition secondly
+        scale_transposition: int = self.scale_transposition(degree_transposition)
+        if scale_transposition != 0:    # Optimization
+            # Because a pitch scale may not be a diatonic scale (7 degrees)!
+            if self._scale:
+                scale_degrees: int = sum(1 for key in self._scale if key == 1)
+            else:
+                scale_degrees: int = 7
+            scale_key: int = tonic_key + degree_transposition + scale_transposition
+            self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
+            self._octave += scale_key // 12    # matches the Octave with the new Degree
+        
+        return self
 
 
 
     def get_key_degree_0(self, root_key: int) -> int:
-        tonic_key: int = self._tonic_key % 12
-        staff_scale: list[int] = self._get_staff() % list()
-        total_keys: int = sum(1 for key in staff_scale if key != 0)
-
         degree_0: int = 0
         
+        tonic_key: int = self._tonic_key % 12
+        staff_scale: list[int] = self._get_staff() % list()
+
         # tonic_key goes UP and then DOWN (results in flat or natural)
         while tonic_key < root_key:
             if staff_scale[ (root_key - tonic_key) % 12 ] == 1:  # Scale key
@@ -336,7 +360,7 @@ class Pitch(Generic):
                     degree_0 += 1
 
         # Sets the Degree as Positive
-        degree_0 %= total_keys
+        degree_0 %= 7   # Diatonic scales
 
         return degree_0 # Degree base 0 (I)
 
@@ -996,7 +1020,7 @@ class Scale(Generic):
     def transpose_key(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
-        if len(scale) == 12 and sum(1 for key in scale if key != 0) > 0:
+        if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:
             while steps > 0:
                 scale_transposition += 1
                 if scale[scale_transposition % 12]:
@@ -1069,7 +1093,7 @@ class Scale(Generic):
         return True
 
     def keys(self) -> int:
-        return sum(1 for key in self._scale if key != 0)
+        return sum(1 for key in self._scale if key == 1)
 
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
