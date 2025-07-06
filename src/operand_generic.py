@@ -283,13 +283,13 @@ class Pitch(Generic):
         degree_transposition: int = self.degree_transposition()
         return tonic_key + degree_transposition
 
-    def increment_tonic(self, half_steps: int) -> Self:
+    def increment_tonic(self, keys: int) -> Self:
         """
         Increments the tonic key by preserving the tonic in the Key Signature range
         by changing the octave accordingly.
         """
-        gross_tonic_key: int = self._tonic_key % 12 + half_steps
-        self._tonic_key = gross_tonic_key % 12
+        gross_tonic_key: int = self._tonic_key % 12 + keys
+        self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave += gross_tonic_key // 12
         return self
     
@@ -584,10 +584,7 @@ class Pitch(Generic):
                 self._sharp = 0
                 actual_pitch: int = self.pitch_int()
                 pitch_offset: int = operand - actual_pitch
-                gross_tonic_key: int = self._tonic_key % 12 + pitch_offset
-                # Makes sure it also retains the key line of the Tonic key
-                self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
-                self._octave += gross_tonic_key // 12
+                self.increment_tonic(pitch_offset)
             case float():
                 self << ou.Degree(operand)
             case Fraction():
