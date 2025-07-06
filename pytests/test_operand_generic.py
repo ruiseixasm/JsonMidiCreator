@@ -461,7 +461,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {degree} ------------")
         pitch << float(degree)
         for pitch_int in range(128):
-            pitch.set_root_key(pitch_int)
+            pitch << pitch_int
             pitch % int() >> Print()
             assert pitch == pitch_int
 
@@ -469,7 +469,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {sharps} ------------")
         defaults << KeySignature(sharps)
         for pitch_int in range(128):
-            pitch.set_root_key(pitch_int)
+            pitch << pitch_int
             pitch % int() >> Print()
             assert pitch == pitch_int
 
@@ -477,7 +477,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {flats} ------------")
         defaults << KeySignature(flats)
         for pitch_int in range(128):
-            pitch.set_root_key(pitch_int)
+            pitch << pitch_int
             pitch % int() >> Print()
             assert pitch == pitch_int
 

@@ -267,11 +267,19 @@ class Pitch(Generic):
 
     def root_int(self) -> int:
         """
-        The final chromatic conversion of the tonic_key into the midi pitch.
+        The final chromatic conversion of the tonic_key.
         """
         tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
         return tonic_key + degree_transposition
+
+    def root_key(self) -> int:
+        """
+        root_key takes into consideration the tonic gross value above 11.
+        """
+        root_int: int = self.root_int()
+        root_key: int = root_int + self._tonic_key // 12 * 12  # key_line * total_keys
+        return root_key
 
     def scale_int(self) -> int:
         """
@@ -295,11 +303,6 @@ class Pitch(Generic):
     Auxiliary methods to get specific data directly
     """
 
-    def root_key(self) -> int:
-        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self.degree_transposition()
-        return tonic_key + degree_transposition
-
     def increment_tonic(self, keys: int) -> Self:
         """
         Increments the tonic key by preserving the tonic in the Key Signature range
@@ -309,6 +312,14 @@ class Pitch(Generic):
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave_0 += gross_tonic_key // 12
         return self
+
+    def set_root_key(self, root_key: int) -> Self:
+        # Excludes the effect of purely decorative parameters
+        self._natural = False
+        self._sharp = 0
+        key_offset: int = root_key - self.root_int()
+        return self.increment_tonic(key_offset)
+
 
     def match_octave(self) -> Self:
         """
@@ -368,17 +379,6 @@ class Pitch(Generic):
         return degree_0 # Degree base 0 (I)
 
 
-    def set_root_key(self, key: int) -> Self:
-        
-        # Reset purely decorative parameters
-        self._natural = False
-        self._sharp = 0
-
-        # Excludes the effect of purely decorative parameters
-
-        key_offset: int = key - self.pitch_int()
-        return self.increment_tonic(key_offset)
-
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -428,9 +428,7 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
-                root_key: int = self.root_key() % 12
-                root_key += self._tonic_key // 12 * 12  # key_line * total_keys
-                return ou.RootKey(root_key)
+                return ou.RootKey( self.root_key() )
             
             case ou.Octave():
                 return ou.Octave(self._octave_0 - 1)
@@ -729,9 +727,8 @@ class Pitch(Generic):
                 self.set_root_key(new_pitch)
             case ou.TonicKey():
                 self._tonic_key += operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone() | ou.RootKey():
-                new_pitch: int = self.pitch_int() + operand % int()
-                self.set_root_key(new_pitch)
+            case ou.Key() | ou.Semitone() | ou.RootKey():
+                self.increment_tonic(operand._unit)
             case dict():
                 for octave, value in operand.items():
                     self += value
@@ -762,9 +759,8 @@ class Pitch(Generic):
                 self.set_root_key(new_pitch)
             case ou.TonicKey():
                 self._tonic_key -= operand._unit
-            case ra.Rational() | ou.Key() | ou.Semitone() | ou.RootKey():
-                new_pitch: int = self.pitch_int() - operand % int()
-                self.set_root_key(new_pitch)
+            case ou.Key() | ou.Semitone() | ou.RootKey():
+                self.increment_tonic(-operand._unit)
             case dict():
                 for octave, value in operand.items():
                     self -= value

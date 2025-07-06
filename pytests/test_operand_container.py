@@ -688,7 +688,7 @@ def test_lshift_clip():
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60
-    two_measures << Semitone(30)
+    two_measures << 30  # For a Note int is the Pitch << int
     assert two_measures[0] % Pitch() == 30
     two_measures << Pitch()
     assert two_measures[0] % Pitch() == 60
@@ -929,7 +929,7 @@ def test_clip_operations():
 def test_flip_operation():
 
     four_notes: Clip = Note() / 4
-    four_notes << Iterate(60, 2)**Semitone()
+    four_notes << Iterate(60, 2)
 
     actual_pitch: int = 60
     for single_note in four_notes:

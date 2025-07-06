@@ -1079,13 +1079,12 @@ class Note(Element):
                     case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
                     case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
                     case og.Pitch():        return self._pitch
-                    case int():             return self._velocity
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case int():             return self._velocity
+            case int():             return self._pitch.pitch_int()
             case ou.PitchParameter() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
@@ -1346,10 +1345,9 @@ class Note(Element):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
-                    case int():             self._velocity  = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
-            case int():             self._velocity = operand
+            case int():             self._pitch << operand
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
@@ -1367,7 +1365,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity += operand
-            case og.Pitch() | ou.PitchParameter():
+            case og.Pitch() | ou.PitchParameter() | int():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1378,7 +1376,7 @@ class Note(Element):
         match operand:
             case int():
                 self._velocity -= operand
-            case og.Pitch() | ou.PitchParameter():
+            case og.Pitch() | ou.PitchParameter() | int():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:
