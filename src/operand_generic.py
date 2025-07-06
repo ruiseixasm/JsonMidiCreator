@@ -259,19 +259,31 @@ class Pitch(Generic):
                 transposition += self._sharp  # applies Pitch self accidentals
         return transposition
 
-    def pitch_int(self) -> int:
+    def root_int(self) -> int:
         """
         The final chromatic conversion of the tonic_key into the midi pitch.
         """
         tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        octave_transposition: int = self.octave_transposition()
+        degree_transposition: int = self.degree_transposition()
+        return tonic_key + degree_transposition
+
+    def key_int(self) -> int:
+        """
+        The target key int after all processing including accidentals.
+        """
+        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
         scale_transposition: int = self.scale_transposition(degree_transposition)
         transposed_tonic: int = tonic_key + degree_transposition + scale_transposition
         accidentals_transposition: int = self.accidentals_transposition(transposed_tonic)
-        return tonic_key \
-            + octave_transposition + degree_transposition + scale_transposition \
-            + accidentals_transposition
+        return tonic_key + degree_transposition + scale_transposition + accidentals_transposition
+
+    def pitch_int(self) -> int:
+        """
+        The final chromatic conversion of the tonic_key into the midi pitch.
+        """
+        octave_transposition: int = self.octave_transposition()
+        return self.key_int() + octave_transposition
 
     """
     Auxiliary methods to get specific data directly
@@ -350,14 +362,15 @@ class Pitch(Generic):
         return degree_0 # Degree base 0 (I)
 
 
-    def set_root_key(self, pitch: int) -> Self:
+    def set_root_key(self, key: int) -> Self:
         
         # Reset purely decorative parameters
         self._natural = False
         self._sharp = 0
 
         # Excludes the effect of purely decorative parameters
-        key_offset: int = pitch - self.pitch_int()
+
+        key_offset: int = key - self.pitch_int()
         return self.increment_tonic(key_offset)
 
 
