@@ -332,19 +332,19 @@ class Pitch(Generic):
         return degree_0 # Degree base 0 (I)
 
 
-    def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
+    def octave_key_offset(self, half_steps: int) -> tuple[int, int]:
         
         octave_tonic_key: int = self._tonic_key % 12
-        moved_key: int = octave_tonic_key + key_offset
+        moved_key: int = octave_tonic_key + half_steps
         octave_key: int = moved_key % 12
         octave_offset: int = moved_key // 12
-        key_offset = octave_key - octave_tonic_key
+        half_steps = octave_key - octave_tonic_key
 
-        return octave_offset, key_offset
+        return octave_offset, half_steps
     
-    def apply_key_offset(self, key_offset: int) -> Self:
+    def increment_tonic(self, half_steps: int) -> Self:
         
-        octave_offset_int, key_offset_int = self.octave_key_offset(key_offset)
+        octave_offset_int, key_offset_int = self.octave_key_offset(half_steps)
         self._octave += octave_offset_int
         self._tonic_key += key_offset_int
 
@@ -358,7 +358,7 @@ class Pitch(Generic):
 
         # Excludes the effect of purely decorative parameters
         key_offset: int = pitch - self.pitch_int()
-        return self.apply_key_offset(key_offset)
+        return self.increment_tonic(key_offset)
 
 
     def __mod__(self, operand: o.T) -> o.T:
