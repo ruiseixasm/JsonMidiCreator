@@ -756,7 +756,7 @@ def test_staff_output():
 # test_staff_output()
 
 
-def test_pitch_shifting():
+def test_scale_transposition():
     pitch_f_major: Pitch = Pitch("F", Scale("Major"))
 
     assert pitch_f_major % str() == "F"
@@ -768,7 +768,7 @@ def test_pitch_shifting():
         print(f"T{transposition} : {(pitch_f_major + Transposition(transposition)) % str()}")
         assert (pitch_f_major + Transposition(transposition)) % str() == transposed_keys[transposition]
 
-# test_pitch_shifting()
+# test_scale_transposition()
 
 
 def test_pitch_modulation():
@@ -790,4 +790,19 @@ def test_pitch_modulation():
     assert scale_degrees == scale_modulated
 
 # test_pitch_modulation()
+
+
+def test_octave_matching():
+    pitch_0: Pitch = Pitch(0)
+
+    assert pitch_0 == 0
+
+    for pitch_int in range(128):
+        pitch_0 << pitch_int
+        assert pitch_0 == pitch_int
+        octave_0: int = pitch_0._octave_0
+        assert octave_0 == pitch_int // 12
+
+
+# test_octave_matching()
 
