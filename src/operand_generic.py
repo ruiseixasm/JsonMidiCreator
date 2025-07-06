@@ -161,7 +161,7 @@ class Pitch(Generic):
         self._tonic_key: int            = defaults._staff % ou.Key() % int()
         self._octave: int               = 4     # By default it's the 4th Octave!
         self._degree_0: int             = 0     # By default it's Degree 1, that 0 based becomes 0
-        self._tone: int                 = 0     # By default it's it has no tonal transposition
+        self._transposition: int        = 0     # By default it's it has no scale transposition
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: list[int]          = []
@@ -227,15 +227,15 @@ class Pitch(Generic):
         Processes the transposition of the Key Signature if no Scale is set.
         """
         transposition: int = 0
-        if self._tone != 0:
+        if self._transposition != 0:
             if self._scale:
-                transposition = Scale.transpose_key(self._tone, self._scale)
+                transposition = Scale.transpose_key(self._transposition, self._scale)
             else:   # For KeySignature the Modulation is treated as a degree_0
                 """
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: int = self._degree_0 % 7 + self._tone
+                degree_0: int = self._degree_0 % 7 + self._transposition
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
                 transposition = Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
@@ -392,13 +392,13 @@ class Pitch(Generic):
                     case ou.TonicKey():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
                     case ou.Transposition():
-                        return operand._data << od.Pipe(self._tone)
+                        return operand._data << od.Pipe(self._transposition)
                     case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
                     case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
                     case ou.Natural():      return operand._data << od.Pipe(self._natural)
                     case int():             return float(self._tonic_key)
                     case float():           return self._degree_0
-                    case Fraction():        return Fraction(self._tone)
+                    case Fraction():        return Fraction(self._transposition)
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
                     case _:                 return super().__mod__(operand)
@@ -409,7 +409,7 @@ class Pitch(Generic):
             case float():
                 return float( self._degree_0 + 1 )
             case Fraction():
-                return Fraction(self._tone)
+                return Fraction(self._transposition)
             
             case ou.Semitone() | ou.RootKey():
                 return operand.copy(self.pitch_int())
@@ -427,8 +427,8 @@ class Pitch(Generic):
             
             case ou.Degree():
                 return ou.Degree(self._degree_0 + 1)
-            case ou.Transposition() | ou.Tone():
-                return operand.copy(self._tone)
+            case ou.Transposition():
+                return operand.copy(self._transposition)
              
             case ou.Sharp():
                 target_pitch: int = self.pitch_int()
@@ -519,7 +519,7 @@ class Pitch(Generic):
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
-        serialization["parameters"]["tone"]             = self.serialize( self._tone )
+        serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
@@ -530,14 +530,14 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree_0" in serialization["parameters"] and "octave" in serialization["parameters"] and "tone" in serialization["parameters"] and 
+            "degree_0" in serialization["parameters"] and "octave" in serialization["parameters"] and "transposition" in serialization["parameters"] and 
             "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
-            self._tone          = self.deserialize( serialization["parameters"]["tone"] )
+            self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
@@ -552,7 +552,7 @@ class Pitch(Generic):
                 self._tonic_key             = operand._tonic_key
                 self._octave                = operand._octave
                 self._degree_0              = operand._degree_0
-                self._tone              = operand._tone
+                self._transposition         = operand._transposition
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale                 = operand._scale.copy()
@@ -568,7 +568,7 @@ class Pitch(Generic):
                     case int():
                         self._tonic_key = operand._data
                     case Fraction():
-                        self._tone = int(operand._data)
+                        self._transposition = int(operand._data)
                     case ou.Semitone():
                         self._tonic_key = operand._data._unit
                     case ou.Sharp():
@@ -577,8 +577,8 @@ class Pitch(Generic):
                         self._sharp = operand._data._unit * -1
                     case ou.Natural():
                         self._natural = operand._data.__mod__(od.Pipe( bool() ))
-                    case ou.Transposition() | ou.Tone():
-                        self._tone = operand._data._unit
+                    case ou.Transposition():
+                        self._transposition = operand._data._unit
                     case Scale():
                         self._scale = operand._data._scale
                     case list():
@@ -608,7 +608,7 @@ class Pitch(Generic):
             case float():
                 self << ou.Degree(operand)
             case Fraction():
-                self << ou.Tone(operand)
+                self << ou.Transposition(operand)
                     
             case ou.TonicKey():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
@@ -631,8 +631,8 @@ class Pitch(Generic):
                         self._sharp = 0
                         self._natural = False
 
-            case ou.Transposition() | ou.Tone():
-                self._tone = operand._unit
+            case ou.Transposition():
+                self._transposition = operand._unit
 
             case ou.Semitone() | ou.RootKey():
                 self.set_root_key(operand._unit)
@@ -691,11 +691,11 @@ class Pitch(Generic):
             case float():
                 self.apply_degree_offset(int(operand))
             case Fraction():
-                self += ou.Tone(operand)
+                self += ou.Transposition(operand)
             case ou.Degree():
                 self.apply_degree_offset(operand._unit)
-            case ou.Transposition() | ou.Tone():
-                self._tone += operand._unit
+            case ou.Transposition():
+                self._transposition += operand._unit
             case ou.RootKey():
                 new_pitch: int = self.pitch_int() + self.move_semitones(operand % int())
                 self.set_root_key(new_pitch)
@@ -723,11 +723,11 @@ class Pitch(Generic):
             case float():
                 self.apply_degree_offset(int(-operand))
             case Fraction():
-                self -= ou.Tone(operand)
+                self -= ou.Transposition(operand)
             case ou.Degree():
                 self.apply_degree_offset(-operand._unit)
-            case ou.Transposition() | ou.Tone():
-                self._tone -= operand._unit
+            case ou.Transposition():
+                self._transposition -= operand._unit
             case ou.RootKey():
                 new_pitch: int = self.pitch_int() - self.move_semitones(operand % int())
                 self.set_root_key(new_pitch)

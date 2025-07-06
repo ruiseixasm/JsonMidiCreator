@@ -1606,7 +1606,7 @@ class KeyScale(Note):
         for shifting in range(total_keys):
             new_note: Note = Note(self)
             scale_notes.append( new_note )
-            new_note._pitch._tone += shifting
+            new_note._pitch._transposition += shifting
         return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
 
@@ -1868,7 +1868,7 @@ class Chord(KeyScale):
                     key_degree -= 1
                 if self._sus4:
                     key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-            single_note._pitch._tone += key_degree - 1  # Sets the note Shifting by degrees (scale tones) (int is a degree)
+            single_note._pitch._transposition += key_degree - 1  # Sets the note Shifting by degrees (scale tones) (int is a degree)
             # Chromatic offsets by Semitones
             if key_degree == 7:         # flattens the Seventh
                 if self._dominant:

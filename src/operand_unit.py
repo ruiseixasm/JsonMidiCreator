@@ -926,10 +926,10 @@ class Semitone(PitchParameter):
     pass
 
 
-class Shifting(PitchParameter):
-    """`Unit -> PitchParameter -> Shifting`
+class Transposition(PitchParameter):
+    """`Unit -> PitchParameter -> Transposition`
 
-    Shifting() represents a transposition or a modulation along a given Scale
+    `Transposition` represents a transposition made by tones along a given Scale
     depending on the Pitch having its own Scale or not respectively.
     
     Parameters
@@ -938,26 +938,14 @@ class Shifting(PitchParameter):
     """
     pass
 
-class Transposition(Shifting):
-    """`Unit -> PitchParameter -> Shifting -> Transposition`
+class Tones(Transposition):
+    """`Unit -> PitchParameter -> Shifting -> Tones`
 
-    A Transposition() is used to do a transposition along the `Pitch` Scale.
+    A `Tones` represent the amount of the Transposition.
     
     Parameters
     ----------
     int(0) : By default the `Root` note has no transposition, pitch unchanged.
-    """
-    pass
-
-class Modulation(Shifting):    # Modal Modulation
-    """`Unit -> PitchParameter -> Shifting -> Modulation`
-
-    A Modulation() processes the Staff KeySignature or the Staff Scale in an
-    harmonic fashion.
-    
-    Parameters
-    ----------
-    int(0) : By default the `Root` note has no modulation, pitch unchanged.
     """
     pass
 
