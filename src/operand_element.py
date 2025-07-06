@@ -1132,7 +1132,7 @@ class Note(Element):
                 "note": {
                     "position_on": position_on._rational,
                     "position_off": position_off._rational,
-                    "pitch": self._pitch.pitch_int(),
+                    "pitch": pitch_int,
                     "velocity": self._velocity,
                     "channel": self._channel,
                     "plot_as_rest": False
