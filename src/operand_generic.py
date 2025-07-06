@@ -215,13 +215,12 @@ class Pitch(Generic):
         Based on the Key Signature, this method gives the degree transposition
         """
         if self._degree_0 != 0: # Optimization
-            degree_0 = self._degree_0 % 7   # Key Signatures always have 7 keys (diatonic scales)
             key_signature: ou.KeySignature = self._get_staff()._key_signature
             tonic_scale: list[int] = key_signature.get_scale_list()
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
-            return Scale.transpose_key(degree_0, tonic_scale)
+            return Scale.transpose_key(self._degree_0, tonic_scale)
         return 0
 
     def scale_transposition(self, degree_transposition: int) -> int:
@@ -236,7 +235,7 @@ class Pitch(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: int = self._degree_0 % 7 + self._transposition
+                degree_0: int = self._degree_0 + self._transposition
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
                 return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
@@ -298,7 +297,7 @@ class Pitch(Generic):
         Because Degrees need to be between 0 and 7 anything above or less needs to
         change the Octave of the Pitch.
         """
-        gross_new_degree_0: int = self._degree_0 % 7 + degrees
+        gross_new_degree_0: int = self._degree_0 + degrees
         # All diatonic scales resultant from the Key Signature have 7 keys
         self._degree_0 = gross_new_degree_0 % 7
         # Finally sets the modulated parameters
@@ -326,7 +325,7 @@ class Pitch(Generic):
             if self._scale:
                 scale_degrees: int = sum(1 for key in self._scale if key == 1)
             else:
-                scale_degrees: int = 7
+                scale_degrees: int = 7  # Diatonic scales
             scale_key: int = tonic_key + degree_transposition + scale_transposition
             self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
             self._octave += scale_key // 12    # matches the Octave with the new Degree
@@ -414,7 +413,7 @@ class Pitch(Generic):
             case int():
                 return self.pitch_int()
             case float():
-                return float( self._degree_0 + 1 )
+                return float((self._degree_0 % 7) + 1)
             case Fraction():
                 return Fraction(self._transposition)
             
@@ -433,7 +432,7 @@ class Pitch(Generic):
                 return ou.Octave( target_pitch // 12 - 1 )
             
             case ou.Degree():
-                return ou.Degree(self._degree_0 + 1)
+                return ou.Degree((self._degree_0 % 7) + 1)
             case ou.Transposition():
                 return operand.copy(self._transposition)
              
@@ -606,9 +605,12 @@ class Pitch(Generic):
                 # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
                 self._natural = False
                 self._sharp = 0
+                # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.pitch_int()
                 pitch_offset: int = operand - actual_pitch
                 self.increment_tonic(pitch_offset)
+                # There is still the need to match the Octave for the existing transpositions
+                # self.match_octave()
             case float():
                 self << ou.Degree(operand)
             case Fraction():
@@ -625,15 +627,20 @@ class Pitch(Generic):
                 self._degree_0 = self.get_key_degree_0(operand._unit % 12)
 
             case ou.Degree():
+                # Has to work with increments to keep integrity and avoid different Octave jumps
+                previous_degree_0: int = (self % ou.Degree() % int() - 1) % 7
                 if operand > 0:
-                    self._degree_0 = (operand._unit - 1) % 7
+                    new_degree_0: int = (operand._unit - 1) % 7
+                    self._degree_0 += new_degree_0 - previous_degree_0
                 else:
                     self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
                     if operand < 0:
                         self._degree_0 = 0  # Resets the degree to I
+                        self._degree_0 -= previous_degree_0
                         self._octave = 4
                         self._sharp = 0
                         self._natural = False
+                self.match_octave()
 
             case ou.Transposition():
                 self._transposition = operand._unit
