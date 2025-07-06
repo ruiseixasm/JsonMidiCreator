@@ -610,7 +610,7 @@ class Pitch(Generic):
                 pitch_offset: int = operand - actual_pitch
                 self.increment_tonic(pitch_offset)
                 # There is still the need to match the Octave for the existing transpositions
-                # self.match_octave()
+                self.match_octave()
             case float():
                 self << ou.Degree(operand)
             case Fraction():
@@ -627,7 +627,7 @@ class Pitch(Generic):
                 self._degree_0 = self.get_key_degree_0(operand._unit % 12)
 
             case ou.Degree():
-                # Has to work with increments to keep integrity and avoid different Octave jumps
+                # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 previous_degree_0: int = (self % ou.Degree() % int() - 1) % 7
                 if operand > 0:
                     new_degree_0: int = (operand._unit - 1) % 7
@@ -640,10 +640,21 @@ class Pitch(Generic):
                         self._octave = 4
                         self._sharp = 0
                         self._natural = False
+                # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
 
             case ou.Transposition():
-                self._transposition = operand._unit
+                # Has to work with increments to keep the same Octave and avoid induced Octave jumps
+                # Because a pitch scale may not be a diatonic scale (7 degrees)!
+                if self._scale:
+                    scale_degrees: int = sum(1 for key in self._scale if key == 1)
+                else:
+                    scale_degrees: int = 7  # Diatonic scales
+                previous_transposition: int = self._transposition % scale_degrees
+                new_transposition: int = operand._unit % scale_degrees
+                self._transposition += new_transposition - previous_transposition
+                # There is still the need to match the Octave for the existing transpositions
+                self.match_octave()
 
             case ou.Semitone() | ou.RootKey():
                 self.set_root_key(operand._unit)
