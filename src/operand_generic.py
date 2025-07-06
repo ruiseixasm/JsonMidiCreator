@@ -722,12 +722,8 @@ class Pitch(Generic):
                 self.match_octave()
             case ou.Transposition():
                 self._transposition += operand._unit
-            case ou.RootKey():
-                new_pitch: int = self.pitch_int() + self.move_semitones(operand % int())
-                self.set_root_key(new_pitch)
-            case ou.TonicKey():
-                self._tonic_key += operand._unit
-            case ou.Key() | ou.Semitone() | ou.RootKey():
+                self.match_octave()
+            case ou.Key() | ou.Semitone():
                 self.increment_tonic(operand._unit)
             case dict():
                 for octave, value in operand.items():
@@ -754,12 +750,8 @@ class Pitch(Generic):
                 self.match_octave()
             case ou.Transposition():
                 self._transposition -= operand._unit
-            case ou.RootKey():
-                new_pitch: int = self.pitch_int() - self.move_semitones(operand % int())
-                self.set_root_key(new_pitch)
-            case ou.TonicKey():
-                self._tonic_key -= operand._unit
-            case ou.Key() | ou.Semitone() | ou.RootKey():
+                self.match_octave()
+            case ou.Key() | ou.Semitone():
                 self.increment_tonic(-operand._unit)
             case dict():
                 for octave, value in operand.items():
