@@ -291,22 +291,6 @@ class Pitch(Generic):
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave_0 += gross_tonic_key // 12
         return self
-    
-    
-    # TO BE REMOVED
-    def increment_degrees(self, degrees: int) -> Self:
-        """
-        Because Degrees need to be between 0 and 7 anything above or less needs to
-        change the Octave of the Pitch.
-        """
-        gross_new_degree_0: int = self._degree_0 + degrees
-        # All diatonic scales resultant from the Key Signature have 7 keys
-        self._degree_0 = gross_new_degree_0 % 7
-        # Finally sets the modulated parameters
-        octave_offset: int = gross_new_degree_0 // 7
-        self._octave_0 += octave_offset
-        return self
-    
 
     def match_octave(self) -> Self:
         """
