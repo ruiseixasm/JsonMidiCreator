@@ -428,8 +428,7 @@ class Pitch(Generic):
                 return ou.RootKey(root_key)
             
             case ou.Octave():
-                target_pitch: int = self.pitch_int()
-                return ou.Octave( target_pitch // 12 - 1 )
+                return ou.Octave(self._octave_0 - 1)
             
             case ou.Degree():
                 return ou.Degree((self._degree_0 % 7) + 1)
@@ -619,8 +618,8 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
-                octave_offset: ou.Octave = operand - self % ou.Octave()
-                self._octave_0 += octave_offset._unit
+                self._octave_0 = operand._unit + 1
+
             case ou.Key():
                 self._sharp = 0
                 self._natural = False
