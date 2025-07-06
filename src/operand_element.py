@@ -1031,8 +1031,9 @@ class Note(Element):
                 else:
                     self_position: ra.Position = self % ra.Position()
                     other_position: ra.Position = other % ra.Position()
-                # if self_position == other_position:
-                #     return self._pitch.pitch_int() < other._pitch.pitch_int()
+                # Adds predictability in sorting and consistency in clipping
+                if self_position == other_position:
+                    return self._pitch.pitch_int() < other._pitch.pitch_int()
                 return self_position < other_position
             case Element():
                 return super().__lt__(other)
@@ -1049,8 +1050,9 @@ class Note(Element):
                 else:
                     self_position: ra.Position = self % ra.Position()
                     other_position: ra.Position = other % ra.Position()
-                # if self_position == other_position:
-                #     return self._pitch.pitch_int() > other._pitch.pitch_int()
+                # Adds predictability in sorting and consistency in clipping
+                if self_position == other_position:
+                    return self._pitch.pitch_int() > other._pitch.pitch_int()
                 return self_position > other_position
             case Element():
                 return super().__gt__(other)
@@ -3404,10 +3406,49 @@ class PolyAftertouch(Aftertouch):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch == other % od.Pipe( og.Pitch() )
+                    and self._pitch == other._pitch
             case _:
                 return super().__eq__(other)
     
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case PolyAftertouch():
+                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
+                    self_position: Fraction = self._position_beats
+                    other_position: Fraction = other._position_beats
+                else:
+                    self_position: ra.Position = self % ra.Position()
+                    other_position: ra.Position = other % ra.Position()
+                # Adds predictability in sorting and consistency in clipping
+                if self_position == other_position:
+                    return self._pitch.pitch_int() < other._pitch.pitch_int()
+                return self_position < other_position
+            case Element():
+                return super().__lt__(other)
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case PolyAftertouch():
+                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
+                    self_position: Fraction = self._position_beats
+                    other_position: Fraction = other._position_beats
+                else:
+                    self_position: ra.Position = self % ra.Position()
+                    other_position: ra.Position = other % ra.Position()
+                # Adds predictability in sorting and consistency in clipping
+                if self_position == other_position:
+                    return self._pitch.pitch_int() > other._pitch.pitch_int()
+                return self_position > other_position
+            case Element():
+                return super().__gt__(other)
+            case _:
+                return self % other > other
+    
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []

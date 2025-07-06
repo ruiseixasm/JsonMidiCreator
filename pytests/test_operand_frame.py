@@ -48,12 +48,11 @@ def test_foreach_mod():
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
     notes = Note() / 7  # default degree 1 relative to the note C
 
-    notes += frame  # Original sequences aren't modified by + operator
-    clip = Clip() \
-            + N(D) + N(E) + N(F) + N(G) + N(A) + N(D) + N(E) \
-        >> Stack()
-        # +     1      2      3      4      5      1      2
-        # =     2      3      4      5      6      2      3
+    notes += frame  # Increases the Degree for each **stacked** element
+    clip = Clip() / N(D) / N(E) / N(F) / N(G) / N(A) / N(D) / N(E)  # Makes sure the notes are **staked**
+              #       1      2      3      4      5      1      2
+              # +     1      1      1      1      1      1      1
+              # =     2      3      4      5      6      2      3
     
     assert notes.len() == clip.len()
     clip[0] % Pitch() % Degree() % int() >> Print()
