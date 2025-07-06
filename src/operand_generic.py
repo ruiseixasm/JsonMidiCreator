@@ -283,13 +283,22 @@ class Pitch(Generic):
         degree_transposition: int = self.degree_transposition()
         return tonic_key + degree_transposition
 
+    def increment_tonic(self, half_steps: int) -> Self:
+        """
+        Increments the tonic key by preserving the tonic in the Key Signature range
+        by changing the octave accordingly.
+        """
+        gross_tonic_key: int = self._tonic_key % 12 + half_steps
+        self._tonic_key = gross_tonic_key % 12
+        self._octave += gross_tonic_key // 12
+        return self
+    
     def increment_degrees(self, degrees: int) -> Self:
         """
         Because Degrees need to be between 0 and 7 anything above or less needs to
         change the Octave of the Pitch.
         """
-        degree_0: int = self._degree_0 % 7
-        gross_new_degree_0: int = degree_0 + degrees
+        gross_new_degree_0: int = self._degree_0 % 7 + degrees
         # All diatonic scales resultant from the Key Signature have 7 keys
         self._degree_0 = gross_new_degree_0 % 7
         # Finally sets the modulated parameters
@@ -332,24 +341,6 @@ class Pitch(Generic):
         return degree_0 # Degree base 0 (I)
 
 
-    def octave_key_offset(self, half_steps: int) -> tuple[int, int]:
-        
-        octave_tonic_key: int = self._tonic_key % 12
-        moved_key: int = octave_tonic_key + half_steps
-        octave_key: int = moved_key % 12
-        octave_offset: int = moved_key // 12
-        half_steps = octave_key - octave_tonic_key
-
-        return octave_offset, half_steps
-    
-    def increment_tonic(self, half_steps: int) -> Self:
-        
-        octave_offset_int, key_offset_int = self.octave_key_offset(half_steps)
-        self._octave += octave_offset_int
-        self._tonic_key += key_offset_int
-
-        return self
-    
     def set_root_key(self, pitch: int) -> Self:
         
         # Reset purely decorative parameters
