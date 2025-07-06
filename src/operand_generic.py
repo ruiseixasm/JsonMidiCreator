@@ -282,6 +282,21 @@ class Pitch(Generic):
         degree_transposition: int = self.degree_transposition()
         return tonic_key + degree_transposition
 
+    def increment_degrees(self, degrees: int) -> Self:
+        """
+        Because Degrees need to be between 0 and 7 anything above or less needs to
+        change the Octave of the Pitch.
+        """
+        degree_0: int = self._degree_0 % 7
+        gross_new_degree_0: int = degree_0 + degrees
+        # All diatonic scales resultant from the Key Signature have 7 keys
+        self._degree_0 = gross_new_degree_0 % 7
+        # Finally sets the modulated parameters
+        octave_offset: int = gross_new_degree_0 // 7
+        self._octave += octave_offset
+        return self
+    
+
 
 
 
@@ -344,30 +359,6 @@ class Pitch(Generic):
         key_offset: int = pitch - self.pitch_int()
         return self.apply_key_offset(key_offset)
 
-
-    def octave_degree_offset(self, degree_offset: int) -> tuple[int, int]:
-        """
-        Calculates the Octave offset for the given amount of degrees transposition.
-        """
-        degree_0: int = self._degree_0
-        # All diatonic scale resultant of the Key Signature have 7 keys
-        self_octave_degree_0: int = degree_0 % 7
-        moved_degree_0: int = self_octave_degree_0 + degree_offset
-        octave_degree_0: int = moved_degree_0 % 7
-        octave_offset: int = moved_degree_0 // 7
-        degree_offset = octave_degree_0 - self_octave_degree_0
-        return octave_offset, degree_offset
-    
-    def apply_degree_offset(self, degree_offset: int) -> Self:
-        """
-        Because Degrees need to be between 0 and 7 anything above or less needs to
-        change the Octave of the Pitch.
-        """
-        octave_offset_int, degree_offset_int = self.octave_degree_offset(degree_offset)
-        self._octave += octave_offset_int
-        self._degree_0 += degree_offset_int
-        return self
-    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -689,11 +680,11 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch + operand
             case float():
-                self.apply_degree_offset(int(operand))
+                self.increment_degrees(int(operand))
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Degree():
-                self.apply_degree_offset(operand._unit)
+                self.increment_degrees(operand._unit)
             case ou.Transposition():
                 self._transposition += operand._unit
             case ou.RootKey():
@@ -721,11 +712,11 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch - operand
             case float():
-                self.apply_degree_offset(int(-operand))
+                self.increment_degrees(int(-operand))
             case Fraction():
                 self -= ou.Transposition(operand)
             case ou.Degree():
-                self.apply_degree_offset(-operand._unit)
+                self.increment_degrees(-operand._unit)
             case ou.Transposition():
                 self._transposition -= operand._unit
             case ou.RootKey():
