@@ -686,8 +686,8 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave += operand._unit
             case int():
-                new_pitch: int = self.pitch_int() + operand
-                self.set_root_key(new_pitch)
+                actual_pitch: int = self.pitch_int()
+                self << actual_pitch + operand
             case float():
                 self.apply_degree_offset(int(operand))
             case Fraction():
@@ -718,8 +718,8 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave -= operand._unit
             case int():
-                new_pitch: int = self.pitch_int() - operand
-                self.set_root_key(new_pitch)
+                actual_pitch: int = self.pitch_int()
+                self << actual_pitch - operand
             case float():
                 self.apply_degree_offset(int(-operand))
             case Fraction():
