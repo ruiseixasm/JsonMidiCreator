@@ -230,11 +230,13 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand = self_operand_tuple
         elif self_operand.__class__ == o.Operand:
             self_operand = input
-            if isinstance(self_operand, o.Operand):
+            if isinstance(self_operand, o.Operand): # Strict operand, the default (validated as true)
                 self_operand._set = True
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
+        elif isinstance(self_operand, (int, float, Fraction)):
+            self_operand = type(self_operand)(input)
             
         return self_operand
 
