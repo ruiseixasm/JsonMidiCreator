@@ -532,6 +532,9 @@ def test_pitch_add():
     defaults << KeySignature(1)
     pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
     assert pitch_2 % Octave() == 4
+    key_pitch: Pitch = pitch_2 + 2.0
+    print(f"Pitch: {key_pitch % int()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
+            f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
     assert (pitch_2 + 2.0) % Octave() == 5
     pitch_2 % int() >> Print()
     assert pitch_2 % int() == Pitch("B") % int()

@@ -610,6 +610,7 @@ class Pitch(Generic):
                 self.increment_tonic(pitch_offset)
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
+
             case float():
                 self << ou.Degree(operand)
             case Fraction():
@@ -627,7 +628,7 @@ class Pitch(Generic):
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
-                previous_degree_0: int = (self % ou.Degree() % int() - 1) % 7
+                previous_degree_0: int = self._degree_0 % 7
                 if operand > 0:
                     new_degree_0: int = (operand._unit - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
@@ -710,11 +711,12 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch + operand
             case float():
-                self.increment_degrees(int(operand))
+                self += ou.Degree(operand)
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Degree():
-                self.increment_degrees(operand._unit)
+                self._degree_0 += operand._unit
+                self.match_octave()
             case ou.Transposition():
                 self._transposition += operand._unit
             case ou.RootKey():
@@ -742,11 +744,12 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch - operand
             case float():
-                self.increment_degrees(int(-operand))
+                self -= ou.Degree(operand)
             case Fraction():
                 self -= ou.Transposition(operand)
             case ou.Degree():
-                self.increment_degrees(-operand._unit)
+                self._degree_0 -= operand._unit
+                self.match_octave()
             case ou.Transposition():
                 self._transposition -= operand._unit
             case ou.RootKey():
