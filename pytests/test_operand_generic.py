@@ -162,7 +162,7 @@ def test_pitch_degrees():
             key_pitch << 1.0 << pitch_int  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 key_pitch << float(degree)
-                print(f"Pitch: {key_pitch % int()}, Octave: {key_pitch._octave}, Tonic: {key_pitch._tonic_key}, "
+                print(f"Pitch: {key_pitch % int()}, Octave: {key_pitch._octave_0}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % int() == reference_keys[degree - 1] + (pitch_int - 60)
 

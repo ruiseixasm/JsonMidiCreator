@@ -159,8 +159,8 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         import operand_element as oe
         self._tonic_key: int            = defaults._staff % ou.Key() % int()
-        self._octave: int               = 4     # By default it's the 4th Octave!
-        self._degree_0: int             = 0     # By default it's Degree 1, that 0 based becomes 0
+        self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
+        self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
@@ -206,9 +206,9 @@ class Pitch(Generic):
 
     def octave_transposition(self) -> int:
         """
-        Because Midi octaves start at -1, +12 needs to be added
+        Midi octaves start at -1, but octave_0 already has + 1
         """
-        return 12 * self._octave + 12
+        return 12 * self._octave_0
 
     def degree_transposition(self) -> int:
         """
@@ -289,7 +289,7 @@ class Pitch(Generic):
         """
         gross_tonic_key: int = self._tonic_key % 12 + keys
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
-        self._octave += gross_tonic_key // 12
+        self._octave_0 += gross_tonic_key // 12
         return self
     
     def increment_degrees(self, degrees: int) -> Self:
@@ -302,7 +302,7 @@ class Pitch(Generic):
         self._degree_0 = gross_new_degree_0 % 7
         # Finally sets the modulated parameters
         octave_offset: int = gross_new_degree_0 // 7
-        self._octave += octave_offset
+        self._octave_0 += octave_offset
         return self
     
 
@@ -317,7 +317,7 @@ class Pitch(Generic):
             degree_key: int = tonic_key + degree_transposition
             self._degree_0 -= degree_key // 12 * 7  # Offsets degree to negative
             degree_transposition -= degree_key // 12 * 12 # Offsets transposition too
-            self._octave += degree_key // 12    # matches the Octave with the new Degree
+            self._octave_0 += degree_key // 12    # matches the Octave with the new Degree
         # Matches the Transposition secondly
         scale_transposition: int = self.scale_transposition(degree_transposition)
         if scale_transposition != 0:    # Optimization
@@ -328,7 +328,7 @@ class Pitch(Generic):
                 scale_degrees: int = 7  # Diatonic scales
             scale_key: int = tonic_key + degree_transposition + scale_transposition
             self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
-            self._octave += scale_key // 12    # matches the Octave with the new Degree
+            self._octave_0 += scale_key // 12    # matches the Octave with the new Degree
         
         return self
 
@@ -394,8 +394,8 @@ class Pitch(Generic):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():        return self % od.Pipe( operand._data )
-                    case ou.Octave():       return operand._data << od.Pipe(self._octave)
-                    case ou.TonicKey():        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
+                    case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
@@ -523,7 +523,7 @@ class Pitch(Generic):
 
         serialization = super().getSerialization()
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
-        serialization["parameters"]["octave"]           = self.serialize( self._octave )
+        serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
         serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
@@ -536,12 +536,12 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree_0" in serialization["parameters"] and "octave" in serialization["parameters"] and "transposition" in serialization["parameters"] and 
+            "degree_0" in serialization["parameters"] and "octave_0" in serialization["parameters"] and "transposition" in serialization["parameters"] and 
             "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
-            self._octave        = self.deserialize( serialization["parameters"]["octave"] )
+            self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
             self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
@@ -556,7 +556,7 @@ class Pitch(Generic):
             case Pitch():
                 super().__lshift__(operand)
                 self._tonic_key             = operand._tonic_key
-                self._octave                = operand._octave
+                self._octave_0              = operand._octave_0
                 self._degree_0              = operand._degree_0
                 self._transposition         = operand._transposition
                 self._sharp                 = operand._sharp
@@ -570,7 +570,7 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.Octave():
-                        self._octave    = operand._data._unit
+                        self._octave_0 = operand._data._unit + 1    # Based 0 octave
                     case int():
                         self._tonic_key = operand._data
                     case Fraction():
@@ -620,7 +620,7 @@ class Pitch(Generic):
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
-                self._octave += octave_offset._unit
+                self._octave_0 += octave_offset._unit
             case ou.Key():
                 self._sharp = 0
                 self._natural = False
@@ -637,7 +637,7 @@ class Pitch(Generic):
                     if operand < 0:
                         self._degree_0 = 0  # Resets the degree to I
                         self._degree_0 -= previous_degree_0
-                        self._octave = 4
+                        self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
                         self._sharp = 0
                         self._natural = False
                 # There is still the need to match the Octave for the existing transpositions
@@ -706,7 +706,7 @@ class Pitch(Generic):
             case Pitch():
                 self += operand.pitch_int()
             case ou.Octave():
-                self._octave += operand._unit
+                self._octave_0 += operand._unit
             case int():
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch + operand
@@ -738,7 +738,7 @@ class Pitch(Generic):
             case Pitch():
                 self -= operand.pitch_int()
             case ou.Octave():
-                self._octave -= operand._unit
+                self._octave_0 -= operand._unit
             case int():
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch - operand
@@ -772,14 +772,14 @@ class Pitch(Generic):
                 self_pitch: int = self.pitch_int()
                 multiplied_int = self_pitch * operand
                 new_keynote._tonic_key = multiplied_int % 12
-                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave_0 = multiplied_int // 12
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
                 self_degree_0: int = self._degree_0
                 multiplied_int = int(self_degree_0 * operand)
                 new_keynote._tonic_key = multiplied_int % 12
-                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave_0 = multiplied_int // 12
                 return new_keynote
             case _:
                 return super().__mul__(operand)
@@ -793,14 +793,14 @@ class Pitch(Generic):
                     self_pitch: int = self.pitch_int()
                     multiplied_int = int(self_pitch / operand)
                     new_keynote._tonic_key = multiplied_int % 12
-                    new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                    new_keynote._octave_0 = multiplied_int // 12
                     return new_keynote
                 case float():
                     new_keynote = self.__class__()
                     self_degree_0: int = self._degree_0
                     multiplied_int = int(self_degree_0 / operand)
                     new_keynote._tonic_key = multiplied_int % 12
-                    new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
+                    new_keynote._octave_0 = multiplied_int // 12
                     return new_keynote
         return super().__div__(operand)
 
