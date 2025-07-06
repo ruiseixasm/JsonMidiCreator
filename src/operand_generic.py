@@ -292,6 +292,8 @@ class Pitch(Generic):
         self._octave_0 += gross_tonic_key // 12
         return self
     
+    
+    # TO BE REMOVED
     def increment_degrees(self, degrees: int) -> Self:
         """
         Because Degrees need to be between 0 and 7 anything above or less needs to
