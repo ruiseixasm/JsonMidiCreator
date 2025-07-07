@@ -483,16 +483,11 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                # return self.pitch_int() == other.pitch_int()
                 return self.pitch_int() == other.pitch_int()
-            case ou.Octave():
-                return self % ou.Octave() == other
-            case ou.PitchParameter() | int() | float() | str() | Scale():
-                return self % other == other
             case od.Conditional():
                 return other == self
             case _:
-                return super().__eq__(other)
+                return self % other == other
         return False
     
     def __lt__(self, other: any) -> bool:
@@ -500,9 +495,7 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self.pitch_int() < other.pitch_int()
-            case ou.Octave():
-                return self % ou.Octave() < other
-            case int() | float() | ou.Degree():
+            case int() | float() | ou.Degree() | ou.Octave():
                 return self % other < other
             case _:
                 return super().__lt__(other)
@@ -513,9 +506,7 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self.pitch_int() > other.pitch_int()
-            case ou.Octave():
-                return self % ou.Octave() > other
-            case int() | float() | ou.Degree():
+            case int() | float() | ou.Degree() | ou.Octave():
                 return self % other > other
             case _:
                 return super().__gt__(other)
