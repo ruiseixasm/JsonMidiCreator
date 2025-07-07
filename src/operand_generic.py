@@ -332,9 +332,10 @@ class Pitch(Generic):
             tonic_int: int = self._tonic_key % 12
             # tonic_int is used as octave reference to the root_int octave matching
             degree_key: int = tonic_int + degree_transposition
-            self._degree_0 -= degree_key // 12 * 7  # Offsets degree to negative
-            degree_transposition -= degree_key // 12 * 12 # Offsets transposition too
-            self._octave_0 += degree_key // 12    # matches the Octave with the new Degree
+            octave_offset: int = degree_key // 12
+            self._degree_0 -= octave_offset * 7 # Offsets degree to negative
+            degree_transposition -= octave_offset * 12  # Offsets transposition too
+            self._octave_0 += octave_offset     # matches the Octave with the new Degree
         # Matches the Transposition secondly
         scale_transposition: int = self.scale_transposition(degree_transposition)
         if scale_transposition != 0:    # Optimization
@@ -347,8 +348,9 @@ class Pitch(Generic):
             root_int: int = tonic_int + degree_transposition
             # root_int is used as octave reference to the scale_int octave matching
             scale_key: int = root_int + scale_transposition
-            self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
-            self._octave_0 += scale_key // 12    # matches the Octave with the new Degree
+            octave_offset: int = scale_key // 12
+            self._transposition -= octave_offset * scale_degrees    # Offsets degree to negative
+            self._octave_0 += octave_offset     # matches the Octave with the new Degree
         return self
 
 
