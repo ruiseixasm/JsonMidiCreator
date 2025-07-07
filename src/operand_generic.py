@@ -267,11 +267,11 @@ class Pitch(Generic):
 
     def root_int(self) -> int:
         """
-        The final chromatic conversion of the tonic_key.
+        Gets the root key int from the tonic_key.
         """
-        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
+        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        return tonic_key + degree_transposition
+        return tonic_int + degree_transposition
 
     def root_key(self) -> int:
         """
@@ -285,10 +285,10 @@ class Pitch(Generic):
         """
         The target key int after all processing **excluding** accidentals.
         """
-        tonic_key: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
+        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        return tonic_key + degree_transposition + scale_transposition
+        return tonic_int + degree_transposition + scale_transposition
 
     def pitch_int(self) -> int:
         """
@@ -325,11 +325,11 @@ class Pitch(Generic):
         """
         This method makes sure the Degree and Transposition pitches matches the set Octave
         """
-        tonic_key: int = self._tonic_key % 12
+        tonic_int: int = self._tonic_key % 12
         # Matches the Degree firstly
         degree_transposition: int = self.degree_transposition()
         if degree_transposition != 0:   # Optimization
-            degree_key: int = tonic_key + degree_transposition
+            degree_key: int = tonic_int + degree_transposition
             self._degree_0 -= degree_key // 12 * 7  # Offsets degree to negative
             degree_transposition -= degree_key // 12 * 12 # Offsets transposition too
             self._octave_0 += degree_key // 12    # matches the Octave with the new Degree
@@ -341,7 +341,7 @@ class Pitch(Generic):
                 scale_degrees: int = sum(1 for key in self._scale if key == 1)
             else:
                 scale_degrees: int = 7  # Diatonic scales
-            scale_key: int = tonic_key + degree_transposition + scale_transposition
+            scale_key: int = tonic_int + degree_transposition + scale_transposition
             self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
             self._octave_0 += scale_key // 12    # matches the Octave with the new Degree
         
@@ -352,18 +352,18 @@ class Pitch(Generic):
     def get_key_degree_0(self, root_key: int) -> int:
         degree_0: int = 0
         
-        tonic_key: int = self._tonic_key % 12
+        tonic_int: int = self._tonic_key % 12
         staff_scale: list[int] = self._get_staff() % list()
 
-        # tonic_key goes UP and then DOWN (results in flat or natural)
-        while tonic_key < root_key:
-            if staff_scale[ (root_key - tonic_key) % 12 ] == 1:  # Scale key
+        # tonic_int goes UP and then DOWN (results in flat or natural)
+        while tonic_int < root_key:
+            if staff_scale[ (root_key - tonic_int) % 12 ] == 1:  # Scale key
                 degree_0 += 1
-            tonic_key += 1
-        while tonic_key > root_key:
-            if staff_scale[ (root_key - tonic_key) % 12 ] == 1:  # Scale key
+            tonic_int += 1
+        while tonic_int > root_key:
+            if staff_scale[ (root_key - tonic_int) % 12 ] == 1:  # Scale key
                 degree_0 -= 1
-            tonic_key -= 1
+            tonic_int -= 1
 
         if staff_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
             if self._tonic_key // 12 == 1:  # Checks the tonic key line
