@@ -311,14 +311,8 @@ class Pitch(Generic):
         gross_tonic_key: int = self._tonic_key % 12 + keys
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave_0 += gross_tonic_key // 12
-        return self
-
-    def set_root_key(self, root_key: int) -> Self:
-        # Excludes the effect of purely decorative parameters
-        self._natural = False
-        self._sharp = 0
-        key_offset: int = root_key - self.root_int()
-        return self.increment_tonic(key_offset)
+        # There is still the need to match the Octave for the existing transpositions
+        return self.match_octave()
 
 
     def match_octave(self) -> Self:
@@ -607,8 +601,6 @@ class Pitch(Generic):
                 actual_pitch: int = self.pitch_int()
                 pitch_offset: int = operand - actual_pitch
                 self.increment_tonic(pitch_offset)
-                # There is still the need to match the Octave for the existing transpositions
-                self.match_octave()
 
             case float():
                 self << ou.Degree(operand)
@@ -656,7 +648,11 @@ class Pitch(Generic):
                 self.match_octave()
 
             case ou.Semitone() | ou.RootKey():
-                self.set_root_key(operand._unit)
+                # Excludes the effect of purely decorative parameters
+                self._natural = False
+                self._sharp = 0
+                root_offset: int = operand._unit - self.root_int()
+                self.increment_tonic(root_offset)
 
             case dict():
                 for octave, value in operand.items():
