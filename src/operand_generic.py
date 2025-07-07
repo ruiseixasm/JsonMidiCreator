@@ -323,7 +323,8 @@ class Pitch(Generic):
 
     def match_octave(self) -> Self:
         """
-        This method makes sure the Degree and Transposition pitches matches the set Octave
+        This method makes sure the Degree and Transposition pitches match the same Octave
+        while making degree_key and scale_key being in the same octave as tonic_int.
         """
         # Matches the Degree firstly
         degree_transposition: int = self.degree_transposition()
