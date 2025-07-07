@@ -1406,7 +1406,7 @@ class Cluster(Note):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._offsets: dict[int, list] = {0: [0, 2, 4]}
+        self._offsets: list = [0.0, 2.0, 4.0]
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__()
         self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
@@ -1417,10 +1417,10 @@ class Cluster(Note):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case dict():            return self._offsets
+                    case list():            return self._offsets
                     case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
-            case dict():            return self.deep_copy(self._offsets)
+            case list():            return self.deep_copy(self._offsets)
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
@@ -1438,10 +1438,9 @@ class Cluster(Note):
     
     def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
-        for octave_offset, pitch_offset in enumerate(self._offsets):
+        for pitch_offset in self._offsets:
             single_note: Note = Note(self)
             single_note._pitch += pitch_offset
-            single_note._pitch += ou.Octave(octave_offset)
             cluster_notes.append( single_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
@@ -1489,13 +1488,13 @@ class Cluster(Note):
                 self._arpeggio  << operand._arpeggio
             case od.Pipe():
                 match operand._data:
-                    case dict():
+                    case list():
                         self._offsets = operand._data
                     case og.Arpeggio():
                         self._arpeggio = operand._data
                     case _:
                         super().__lshift__(operand)
-            case dict():
+            case list():
                 self._offsets = self.deep_copy( operand )
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
@@ -1687,7 +1686,7 @@ class PitchChord(KeyScale):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._offsets: dict[int, list] = {0: [0, 2, 4]}
+        self._offsets: list = [0.0, 2.0, 4.0]
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1709,11 +1708,10 @@ class PitchChord(KeyScale):
     
     def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
-        for octave_offset, pitch_offset in enumerate(self._offsets):
+        for pitch_offset in self._offsets:
             single_note: Note = Note(self)  # Owned by same clip
             chord_notes.append( single_note )
             single_note._pitch += pitch_offset
-            single_note._pitch += ou.Octave(octave_offset)
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
@@ -1740,11 +1738,11 @@ class PitchChord(KeyScale):
                 self._offsets = self.deep_copy( operand._offsets )
             case od.Pipe():
                 match operand._data:
-                    case dict():
+                    case list():
                         self._offsets = operand._data
                     case _:
                         super().__lshift__(operand)
-            case dict():
+            case list():
                 self._offsets = self.deep_copy( operand )
             case _:
                 super().__lshift__(operand)
