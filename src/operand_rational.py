@@ -877,8 +877,6 @@ class Measurement(Convertible):
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float():
                 self += Measures(operand)
-            case Fraction():
-                self._rational += operand
             case _:
                 super().__iadd__(operand)
         return self
@@ -890,8 +888,6 @@ class Measurement(Convertible):
                 self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float():
                 self -= Measures(operand)
-            case Fraction():
-                self._rational -= operand
             case _:
                 super().__isub__(operand)
         return self
@@ -906,8 +902,6 @@ class Measurement(Convertible):
                 self << self_measures * operand_measures
             case int() | float() | Fraction():
                 self *= Measures(operand)  # Default variable is Measures
-            case Fraction():
-                self._rational *= operand
             case _:
                 super().__imul__(operand)
         return self
@@ -924,9 +918,6 @@ class Measurement(Convertible):
             case int() | float():
                 if operand != 0:
                     self /= Measures(operand)  # Default variable is Measures
-            case Fraction():
-                if operand != 0:
-                    self._rational /= operand
             case _:
                 super().__itruediv__(operand)
         return self
