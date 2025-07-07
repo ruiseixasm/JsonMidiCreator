@@ -325,10 +325,11 @@ class Pitch(Generic):
         """
         This method makes sure the Degree and Transposition pitches matches the set Octave
         """
-        tonic_int: int = self._tonic_key % 12
         # Matches the Degree firstly
         degree_transposition: int = self.degree_transposition()
         if degree_transposition != 0:   # Optimization
+            tonic_int: int = self._tonic_key % 12
+            # tonic_int is used as octave reference to the root_int octave matching
             degree_key: int = tonic_int + degree_transposition
             self._degree_0 -= degree_key // 12 * 7  # Offsets degree to negative
             degree_transposition -= degree_key // 12 * 12 # Offsets transposition too
@@ -341,12 +342,13 @@ class Pitch(Generic):
                 scale_degrees: int = sum(1 for key in self._scale if key == 1)
             else:
                 scale_degrees: int = 7  # Diatonic scales
-            scale_key: int = tonic_int + degree_transposition + scale_transposition
+            tonic_int: int = self._tonic_key % 12
+            root_int: int = tonic_int + degree_transposition
+            # root_int is used as octave reference to the scale_int octave matching
+            scale_key: int = root_int + scale_transposition
             self._transposition -= scale_key // 12 * scale_degrees  # Offsets degree to negative
             self._octave_0 += scale_key // 12    # matches the Octave with the new Degree
-        
         return self
-
 
 
     def get_key_degree_0(self, root_key: int) -> int:
