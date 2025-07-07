@@ -651,6 +651,7 @@ class Convertible(Rational):
             case Position():            return self._get_staff(operand).convertToPosition(self)
             case Length():              return self._get_staff(operand).convertToLength(self)
             case Minutes():             return Minutes( self._get_staff().getMinutes(self) )
+            case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -739,9 +740,51 @@ class Convertible(Rational):
                 self._set_staff_reference(operand._get_staff())
             case og.Staff() | None:
                 self._set_staff_reference(operand)
+            case Fraction():
+                self._rational = operand
             case _:
                 super().__lshift__(operand)
         return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Fraction():
+                self._rational += operand
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Fraction():
+                self._rational -= operand
+            case _:
+                super().__isub__(operand)
+        return self
+    
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Fraction():
+                self._rational *= operand
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
+    def __itruediv__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Fraction():
+                if operand != 0:
+                    self._rational /= operand
+            case _:
+                super().__itruediv__(operand)
+        return self
+
 
 class Measurement(Convertible):
     """`Rational -> Convertible -> Measurement`
@@ -770,7 +813,6 @@ class Measurement(Convertible):
         match operand:
             case int():                 return self._get_staff().convertToMeasure(self) % int()
             case float():               return self._get_staff().convertToMeasures(self) % float()
-            case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
     # Position round type: [...)
@@ -824,8 +866,6 @@ class Measurement(Convertible):
                     )._rational
             case int() | float():
                 self << Measures(operand)
-            case Fraction():
-                self._rational = operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -839,6 +879,8 @@ class Measurement(Convertible):
                 self += Measures(operand)
             case Fraction():
                 self._rational += operand
+            case _:
+                super().__iadd__(operand)
         return self
     
     def __isub__(self, operand: any) -> Self:
@@ -850,6 +892,8 @@ class Measurement(Convertible):
                 self -= Measures(operand)
             case Fraction():
                 self._rational -= operand
+            case _:
+                super().__isub__(operand)
         return self
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
@@ -864,6 +908,8 @@ class Measurement(Convertible):
                 self *= Measures(operand)  # Default variable is Measures
             case Fraction():
                 self._rational *= operand
+            case _:
+                super().__imul__(operand)
         return self
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
@@ -881,6 +927,8 @@ class Measurement(Convertible):
             case Fraction():
                 if operand != 0:
                     self._rational /= operand
+            case _:
+                super().__itruediv__(operand)
         return self
 
 
