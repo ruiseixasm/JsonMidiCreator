@@ -608,7 +608,7 @@ class Pitch(Generic):
                 self._sharp = 0
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.tonic_int()
-                tonic_offset: int = operand._unit - actual_pitch
+                tonic_offset: int = operand._unit % 12 - actual_pitch
                 self.increment_tonic(tonic_offset)
 
             case float():
