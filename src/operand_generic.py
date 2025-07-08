@@ -602,6 +602,15 @@ class Pitch(Generic):
                 pitch_offset: int = operand - actual_pitch
                 self.increment_tonic(pitch_offset)
 
+            case ou.Semitone():
+                # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
+                self._natural = False
+                self._sharp = 0
+                # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
+                actual_pitch: int = self.tonic_int()
+                tonic_offset: int = operand._unit - actual_pitch
+                self.increment_tonic(tonic_offset)
+
             case float():
                 self << ou.Degree(operand)
             case Fraction():
@@ -647,7 +656,7 @@ class Pitch(Generic):
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
 
-            case ou.Semitone() | ou.RootKey():
+            case ou.RootKey():
                 # Excludes the effect of purely decorative parameters
                 self._natural = False
                 self._sharp = 0
