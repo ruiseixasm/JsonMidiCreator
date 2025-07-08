@@ -698,8 +698,8 @@ class Pitch(Generic):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Pitch():
-                self += operand.pitch_int()
+            case Pitch() | ou.Semitone():
+                self += operand % int()
             case ou.Octave():
                 self._octave_0 += operand._unit
             case int():
@@ -715,7 +715,7 @@ class Pitch(Generic):
             case ou.Transposition():
                 self._transposition += operand._unit
                 self.match_octave()
-            case ou.Key() | ou.Semitone():
+            case ou.Key():
                 self.increment_tonic(operand._unit)
             case dict():
                 for octave, value in operand.items():
@@ -726,8 +726,8 @@ class Pitch(Generic):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Pitch():
-                self -= operand.pitch_int()
+            case Pitch() | ou.Semitone():
+                self -= operand % int()
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case int():
@@ -743,7 +743,7 @@ class Pitch(Generic):
             case ou.Transposition():
                 self._transposition -= operand._unit
                 self.match_octave()
-            case ou.Key() | ou.Semitone():
+            case ou.Key():
                 self.increment_tonic(-operand._unit)
             case dict():
                 for octave, value in operand.items():
