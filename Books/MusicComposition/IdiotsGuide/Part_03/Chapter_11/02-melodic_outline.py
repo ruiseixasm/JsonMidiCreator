@@ -22,12 +22,12 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-defaults << 60.0 << ""
+settings << 60.0 << ""
 Key() % str() >> Print()
 chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), O3), "F")
 chords >> R >> P
 
-defaults << 120
+settings << 120
 original_melody = Note() * 14 << Foreach(
     quarter, quarter, dotted_quarter, eight,
     eight, eight, eight, eight, half,

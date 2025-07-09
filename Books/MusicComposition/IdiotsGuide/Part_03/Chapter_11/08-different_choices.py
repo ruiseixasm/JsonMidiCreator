@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-defaults << "##"
+settings << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> S

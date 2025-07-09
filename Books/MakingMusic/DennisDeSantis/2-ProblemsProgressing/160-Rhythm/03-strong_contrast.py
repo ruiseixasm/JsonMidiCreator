@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(110)
+settings << Tempo(110)
 
 tresillo: Clip = Note(DrumKit("Drum"), 1/16) * 6 << Iterate(3)**Steps()
 tresillo *= tresillo / Mask(Nth(1, 2)) << Foreach(B2, B3)

@@ -24,15 +24,15 @@ if src_path not in sys.path:
 
 # Determine the operating system
 import platform
-from operand_generic import defaults
+from operand_generic import settings
 from operand_container import Devices
 current_os = platform.system()
 if current_os == "Windows":
-    defaults << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
+    settings << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    defaults << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
+    settings << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    defaults << Devices(["VMPK", "FLUID"])          # FLUID Synth
+    settings << Devices(["VMPK", "FLUID"])          # FLUID Synth
 
 
 from operand_element import Chord

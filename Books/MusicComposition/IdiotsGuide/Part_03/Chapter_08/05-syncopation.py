@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << KeySignature("b")
+settings << KeySignature("b")
 
 smooth: Clip = Note("F") * (3*4 + 1) >> Link()
 smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
@@ -38,7 +38,7 @@ syncopated >> Link()
 syncopated >> Rest() >> Play()
 
 
-defaults << KeySignature(3)    # 3 sharps
+settings << KeySignature(3)    # 3 sharps
 
 straight_a: Clip = Note("A", 1/8) * 4 + Foreach(0, 1, 3, 2)
 straight_b: Clip = Note("A", 1/8) * 4 - Foreach(0, 1, 2, 3)

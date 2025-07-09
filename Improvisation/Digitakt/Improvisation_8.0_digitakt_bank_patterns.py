@@ -15,10 +15,10 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-device_list = defaults % Devices() % list() >> Print()
+device_list = settings % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
 device_list >> Print()
-defaults << Device(device_list)
+settings << Device(device_list)
 
 
 # Processing Degrees
@@ -49,7 +49,7 @@ bank_pattern: dict[str, list[int]] = {
 }
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
-defaults << Tempo(120)
+settings << Tempo(120)
 
 
 set_pattern_to_2 = ProgramChange(auto_channel, Program("2"))

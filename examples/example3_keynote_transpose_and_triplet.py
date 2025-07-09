@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 single_clock = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 

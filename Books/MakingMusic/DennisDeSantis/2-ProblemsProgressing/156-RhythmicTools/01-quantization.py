@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(90)
+settings << Tempo(90)
 
 original_measure: Clip = Note(1/16, Vel(70), O3) * 16 << Foreach(2, 3, 4, 6, 9, 7, 8, 7, 6, 5, 3, 2, 1, 2, 3, 4) # Degrees of Major Scale
 # original_measure * 4 >> P

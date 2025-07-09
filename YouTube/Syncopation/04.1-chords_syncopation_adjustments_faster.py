@@ -22,26 +22,26 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
-defaults << Tempo(115)     # Same tempo than the video tutorial
+settings << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
+settings << Tempo(115)     # Same tempo than the video tutorial
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
 
 
-hi_hat: Clip = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Clip = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4
+kick: Clip = Nt(Dur(settings % Quant()), DrumKit("Drum"), Stackable(False)) * 4
 kick += Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Clip = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2
+clap: Clip = Nt(Dur(settings % Quant()), DrumKit("Clap"), Stackable(False)) * 2
 clap += Iterate(Beats(1))
 clap += Beats(1)
 clap *= 4       # 4 measures long

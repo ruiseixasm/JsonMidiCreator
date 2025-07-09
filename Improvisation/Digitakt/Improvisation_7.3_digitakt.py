@@ -15,10 +15,10 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-device_list = defaults % Devices() % list() >> Print()
+device_list = settings % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
 device_list >> Print()
-defaults << Device(device_list)
+settings << Device(device_list)
 
 
 # Processing Degrees
@@ -33,7 +33,7 @@ closed_hat  = Channel(6)
 open_hat    = Channel(7)
 cymbal      = Channel(8)
 
-defaults << Tempo(130)
+settings << Tempo(130)
 
 open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16))
 open_hats_clip << TrackName("Open Hat")

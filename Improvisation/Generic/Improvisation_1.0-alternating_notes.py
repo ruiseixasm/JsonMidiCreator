@@ -17,7 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 # Global Staff setting up
-defaults << Tempo(140)
+settings << Tempo(140)
 
 for amount in (8, 10):
     Note(1/64) * amount << Foreach(1, 3, 4) >> Play()

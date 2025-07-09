@@ -34,10 +34,10 @@ def test_staff_parameters():
 
     four_notes = Note() / 4
     # Tempo is centralized in defaults
-    assert defaults % Tempo() == 120.0
-    defaults << Tempo(145)
-    assert defaults % Tempo() == 145.0
-    defaults << Tempo(120)  # resets to the default
+    assert settings % Tempo() == 120.0
+    settings << Tempo(145)
+    assert settings % Tempo() == 145.0
+    settings << Tempo(120)  # resets to the default
 
     assert four_notes % KeySignature() == 0
     four_notes << KeySignature(2)

@@ -158,7 +158,7 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
-        self._tonic_key: int            = defaults._staff % ou.Key() % int()
+        self._tonic_key: int            = settings._staff % ou.Key() % int()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
@@ -178,7 +178,7 @@ class Pitch(Generic):
 
     def _get_staff(self) -> 'Staff':
         if self._owner_element is None:
-            return defaults._staff
+            return settings._staff
         return self._owner_element._get_staff()
 
 
@@ -1345,7 +1345,7 @@ class Staff(Generic):
     """
     def __init__(self, *parameters):
         super().__init__()
-        # Set Global Staff Defaults at the end of this file bottom bellow
+        # Set Global Staff Settings at the end of this file bottom bellow
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
@@ -1393,7 +1393,7 @@ class Staff(Generic):
 
     # Checks for stacked notes
     def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
-        if self is not defaults._staff: # defaults's staff remains clean
+        if self is not settings._staff: # defaults's staff remains clean
             if note_on not in self._stacked_notes:
                 self._stacked_notes[note_on] = {
                     channel_byte: {
@@ -1428,7 +1428,7 @@ class Staff(Generic):
     
     
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
-        actual_bps: Fraction = defaults._tempo / 60 # Beats Per Second
+        actual_bps: Fraction = settings._tempo / 60 # Beats Per Second
         time_seconds: int = 60 * minutes + seconds
         beats_per_measure: int = self._time_signature._top
         total_beats: Fraction = time_seconds * actual_bps
@@ -1612,7 +1612,7 @@ class Staff(Generic):
 
     def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> Fraction:
         time_beats: ra.Beats = self.convertToBeats(time)
-        return time_beats._rational / defaults._tempo
+        return time_beats._rational / settings._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         if position is None:
@@ -1900,10 +1900,10 @@ class Arpeggio(Generic):
         return self
 
 
-class Defaults(Generic):
-    """`Generic -> Defaults`
+class Settings(Generic):
+    """`Generic -> Settings`
 
-    The `Defaults` operand is declared as the variable `defaults` and is available right away, \
+    The `Settings` operand is declared as the variable `defaults` and is available right away, \
         this variable concentrates the total variables that set the `defaults` of each newly created `Operand`.
     The `defaults` variable parameters can be changes at any time but they only set the newly created operands and these \
         changes have no impact on already created operands.
@@ -1982,7 +1982,7 @@ class Defaults(Generic):
             case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockStopModes())
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Defaults') -> bool:
+    def __eq__(self, other: 'Settings') -> bool:
         other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
@@ -2044,7 +2044,7 @@ class Defaults(Generic):
         import operand_element as oe
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Defaults():
+            case Settings():
                 super().__lshift__(operand)
                 self._tempo             = operand._tempo
                 self._staff             << operand._staff
@@ -2122,7 +2122,7 @@ class Defaults(Generic):
         return super().__isub__(operand)
 
 
-# Instantiate the Global Defaults here.
-defaults: Defaults = Defaults()
+# Instantiate the Global Settings here.
+settings: Settings = Settings()
 
 

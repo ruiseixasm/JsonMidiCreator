@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-defaults << "#"
+settings << "#"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 slow_melody = Note() * 5 << 1/1 << Nth(2, 3)**half >> S
@@ -33,7 +33,7 @@ chords = Chord(1/2) * 6 + Chord() >> S
 chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << O3
 chords + slow_melody >> L >> R >> P
 
-defaults << "b"
+settings << "b"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 fast_melody = \

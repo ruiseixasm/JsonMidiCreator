@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-defaults << 40
+settings << 40
 Key() % str() >> Print()
 
 chords_F = Chord(1/1) * 7

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << KeySignature("##")
+settings << KeySignature("##")
 
 long_notes: Clip = Note("D", 1/1) * 4 + Note("D", 1/2, Position(Measures(1), Beats(2))) >> Link()
 long_notes << Foreach(6, 5, 1, 2, 6)**Degree() << Nth(3, 4)**Octave(5)

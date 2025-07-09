@@ -26,10 +26,10 @@ from JsonMidiCreator import *
 INSTRUMENT = ["Digitakt", "Elektron"]
 
 if INSTRUMENT:
-    defaults << Device(INSTRUMENT)   # Elektron Digitakt
+    settings << Device(INSTRUMENT)   # Elektron Digitakt
 
 rest_play = (R(), P)
-defaults << Tempo(105)
+settings << Tempo(105)
 
 
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 8 << Iterate(2)**Steps()

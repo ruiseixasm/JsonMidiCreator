@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # https://youtu.be/sIBSN1_9Geo?si=_AW-FASDVtHK8irY
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 # C - G - A# | A minor with Tonic C
 KeyScale(Scale("minor"), TonicKey("C"), 2.0) >> P

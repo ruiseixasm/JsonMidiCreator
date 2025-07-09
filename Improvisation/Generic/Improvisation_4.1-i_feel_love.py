@@ -18,8 +18,8 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # https://youtu.be/sIBSN1_9Geo?si=_AW-FASDVtHK8irY
 
 # Global Staff setting up
-defaults << Tempo(120)
-defaults << Minor()
+settings << Tempo(120)
+settings << Minor()
 
 first_notes = Note(1/8) * 3 << Duration(1/16)
 

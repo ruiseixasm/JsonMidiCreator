@@ -30,7 +30,7 @@ smooth_movement_3: Clip = smooth_movement_p1.copy() << Nth(3, 4)**Foreach("D", "
 (smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2, 
  smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2 - 1, Rest()) >> Play()
 
-defaults << KeySignature("b")
+settings << KeySignature("b")
 whole_notes: Clip = Note(1/1) * 4 << Foreach("F", "B", "E", Pitch("C", 5))
 whole_notes >> Rest() >> Play()
 
@@ -44,7 +44,7 @@ outline: Clip = Note(1/2) * 7 >> Link()
 outline << Foreach("F", "A", "G", "F", "E", "D", "E")
 outline >> Rest() >> Play()
 
-defaults << KeySignature("#")
+settings << KeySignature("#")
 # Matrix approach instead of a Vectorial one!
 mixed = Note() * (2*6 + 2*5)
 mixed << Foreach(

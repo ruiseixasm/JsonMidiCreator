@@ -26,11 +26,11 @@ from JsonMidiCreator import *
 # https://youtu.be/gDS6oerX0wY?si=n3TQLqnub8xBLGIh
 
 
-device_list = defaults % Devices() % list() >> Print()
+device_list = settings % Devices() % list() >> Print()
 device_list.insert(0, "Blofeld")
 device_list >> Print()
-defaults << Device(device_list)
-defaults << TimeSignature(3, 4) << Tempo(90)
+settings << Device(device_list)
+settings << TimeSignature(3, 4) << Tempo(90)
 
 chords = Chord() * 4 << Cycle("I", "IV", "V", "I")**Degree()
 # chords >> Play()

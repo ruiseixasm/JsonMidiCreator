@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << KeySignature(-1)   # Same as 'b'
+settings << KeySignature(-1)   # Same as 'b'
 arch_contour_1: Clip = Note("A") * 6 << Foreach(1/4, 1/8, 1/8, 1/4, 1/8, 1/8) >> Stack()
 arch_contour_2: Clip = Note("A") * 4 << Foreach(1/4, 1/8, 1/8, 1/2) >> Stack()
 
@@ -32,7 +32,7 @@ arch_contour: Clip = \
     arch_contour_2.copy() + Foreach(2, 1, -1, 1)
 arch_contour >> Rest() >> Play()
 
-defaults << KeySignature("#")
+settings << KeySignature("#")
 inverted_arch_1: Clip = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, Dotted(1/4), 1/8) >> Stack() \
     << Foreach("C", "A", "B", "G") << Less(Pitch("D", 4))**Octave(5) << Greater(Pitch("D", 5))**Octave(4)
 inverted_arch_2: Clip = inverted_arch_1 >> Copy() \
@@ -42,7 +42,7 @@ inverted_arch_3: Clip = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> 
 inverted_arch_4: Clip = Note("A", 1/1) * 1
 (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 
-defaults << KeySignature()
+settings << KeySignature()
 ascending_m: Clip = Note() * 4
 ascending_1: Clip = ((ascending_m | Nth(1, 2, 3)).copy() << Foreach("F", "G", "A")) >> Link()
 ascending_2: Clip = ascending_m.copy() << Foreach("G", "A", "B", "G")
@@ -50,7 +50,7 @@ ascending_3: Clip = ascending_m.copy() << Foreach("C", "B", "C", "D")
 ascending_4: Clip = (ascending_m | Nth(1)).copy() << "E" << 1/1
 (ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
 
-defaults << KeySignature(-2)
+settings << KeySignature(-2)
 descending_m: Clip = Note(1/8) * 5 >> Link()
 descending_1: Clip = descending_m >> Copy() << Octave(5) << Foreach("D", "C", "B", "A", "B")
 descending_2: Clip = descending_1.copy() - 1
@@ -62,7 +62,7 @@ descending: Clip = (descending_1, descending_2, descending_3, descending_4, Rest
 # for note_i in range(descending.len() - 1):
 #     descending.copy() - Nth(note_i + 1)**1 >> Play()
 
-defaults << KeySignature(2)
+settings << KeySignature(2)
 stationary_m: Clip = Note() * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack()
 stationary_1: Clip = stationary_m >> Copy() << Foreach("A", "G", "A", "B")
 stationary_2: Clip = stationary_1.copy() - (stationary_1 | Even()) >> Link() << Foreach("A", "G")

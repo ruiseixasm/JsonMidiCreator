@@ -34,7 +34,7 @@ results_list        = []
 ####### TEST1 ############
 
 # Global Staff setting up
-defaults << Tempo(110)
+settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
 single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
@@ -122,7 +122,7 @@ results_list.append({
 })
 
 
-defaults % Staff() >> Save("json/testing/_Save_Staff_process.json")
+settings % Staff() >> Save("json/testing/_Save_Staff_process.json")
 
 
 ############### TEST2 #######################
@@ -179,7 +179,7 @@ results_list.append({
 ############### TEST3 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 single_clock: Clip = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
@@ -269,7 +269,7 @@ original_save       = Load("json/testing/_Save_Play_p.10.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.2_sequence.json")
 start_time = time.time()
 # Global Staff setting up
-defaults << Tempo(60)
+settings << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
@@ -307,7 +307,7 @@ results_list.append({
 ############### TEST5 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
@@ -324,7 +324,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
-defaults << Minor()
+settings << Minor()
 (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
@@ -338,7 +338,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13.2_sequence.json")
 start_time = time.time()
-defaults << Major()
+settings << Major()
 Chord("C") << Size("13th") << Scale("Major").modulate("5th") << Degree("Dominant") << Octave(3) << Duration(8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
@@ -364,7 +364,7 @@ results_list.append({
 ############### TEST6 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
@@ -423,7 +423,7 @@ results_list.append({
 ############### TEST7 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 original_save       = Load("json/testing/_Save_Play_p.16_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.16_sequence.json")
@@ -466,7 +466,7 @@ results_list.append({
 
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 original_save       = Load("json/testing/_Save_Play_p.19_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.19_sequence.json")
@@ -500,7 +500,7 @@ original_save       = Load("json/testing/_Save_Play_p.21_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.21_sequence.json")
 start_time = time.time()
 # Global Staff setting up
-defaults << Tempo(240)
+settings << Tempo(240)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 

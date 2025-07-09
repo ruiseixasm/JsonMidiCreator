@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 # The enabled Clock makes everything last at least one Measure!
-defaults << D_Blofeld.device << ClockedDevices(D_Blofeld.device) << Tempo(110)
+settings << D_Blofeld.device << ClockedDevices(D_Blofeld.device) << Tempo(110)
 
 # Set a sound of a given Bank
 D_Blofeld.program_change(95, "B") + Chord(2/1) >> Pv

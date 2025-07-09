@@ -15,16 +15,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults % Devices() % list() >> Print()
-defaults += D_Blofeld.device
-defaults % Devices() % list() >> Print()
+settings % Devices() % list() >> Print()
+settings += D_Blofeld.device
+settings % Devices() % list() >> Print()
 
 
 # Processing Degrees
 chooser = Input(SinX() * 100)
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
-defaults << Tempo(120)
+settings << Tempo(120)
 
 long_note_c = Note(1/1)
 
@@ -41,6 +41,6 @@ print("2nd LOOP")
 
 
 
-defaults -= D_Blofeld.device
-defaults % Devices() % list() >> Print()
+settings -= D_Blofeld.device
+settings % Devices() % list() >> Print()
 

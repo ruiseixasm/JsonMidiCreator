@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 ####### TEST1 ############
 
 # Global Staff setting up
-defaults << Tempo(110)
+settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
 single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
@@ -60,7 +60,7 @@ all_elements += first_note + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
 
-defaults % Staff() >> Save("json/testing/_Save_Staff_ggg.json")
+settings % Staff() >> Save("json/testing/_Save_Staff_ggg.json")
 
 
 ############### TEST2 #######################
@@ -84,7 +84,7 @@ load / 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> Save("json/te
 ############### TEST3 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 single_clock = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
 composition: Part = Part(single_clock)
 
@@ -110,7 +110,7 @@ composition + triplets \
 ############### TEST4 #######################
 
 # Global Staff setting up
-defaults << Tempo(60)
+settings << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
@@ -132,16 +132,16 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 ############### TEST5 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 (Chord() / 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
-defaults << Minor()
+settings << Minor()
 (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() \
     >> Save("json/testing/_Save_Play_p.12_first_note.json") >> Export("json/testing/_Export_Play_p.12_sequence.json") \
         << Inversion(1) >> Save("json/testing/_Save_Play_p.13_first_note.json") >> Export("json/testing/_Export_Play_p.13_sequence.json")
 
-defaults << Major()
+settings << Major()
 Chord("C") << Size("13th") << Scale("Major").modulate("5th") << Degree("Dominant") << Octave(3) << Duration(8) \
     >> Save("json/testing/_Save_Play_p.13.2_first_note.json") >> Export("json/testing/_Export_Play_p.13.2_sequence.json")
 Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
@@ -151,7 +151,7 @@ Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
 ############### TEST6 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 (Chord(1/4) / 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
@@ -171,7 +171,7 @@ all_chords >> Save("json/testing/_Save_Play_p.15.3_first_note.json") >> Export("
 ############### TEST7 #######################
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 (Chord() << NoteValue(1)) / 3 + Iterate()**Inversion() << Duration(1) \
     >> Save("json/testing/_Save_Play_p.16_first_note.json") >> Export("json/testing/_Export_Play_p.16_sequence.json")
@@ -187,7 +187,7 @@ defaults << Tempo(120)
 
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 (Chord("Major") << NoteValue(1/8)) / 13 + Iterate()**Semitone() << Duration(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
@@ -200,7 +200,7 @@ defaults << Tempo(120)
 
 
 # Global Staff setting up
-defaults << Tempo(240)
+settings << Tempo(240)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) / 8 

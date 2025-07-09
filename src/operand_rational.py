@@ -635,7 +635,7 @@ class Convertible(Rational):
                     return other._staff_reference
             elif isinstance(other, og.Staff):
                 return other
-            return og.defaults._staff
+            return og.settings._staff
         return self._staff_reference
     
 

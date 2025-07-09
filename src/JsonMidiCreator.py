@@ -37,11 +37,11 @@ from presets import *
 import platform
 current_os = platform.system()
 if current_os == "Windows":
-    defaults << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
+    settings << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    defaults << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
+    settings << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    defaults << Devices(["VMPK", "FLUID"])          # FLUID Synth
+    settings << Devices(["VMPK", "FLUID"])          # FLUID Synth
 
 
 # Set group of constants

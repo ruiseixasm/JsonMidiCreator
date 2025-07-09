@@ -929,12 +929,12 @@ class Composition(Container):
     def __init__(self, *operands):
         super().__init__()
         # Song sets the Staff, this is just a reference
-        self._staff: og.Staff           = og.defaults._staff
+        self._staff: og.Staff           = og.settings._staff
         self._length_beats: Fraction    = None
 
 
     def _get_staff(self) -> 'og.Staff':
-        return og.defaults._staff
+        return og.settings._staff
 
 
     def _first_element(self) -> 'oe.Element':
@@ -1704,7 +1704,7 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
-        self._staff: og.Staff           = og.defaults._staff.copy()
+        self._staff: og.Staff           = og.settings._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
         for single_operand in operands:
@@ -1893,7 +1893,7 @@ class Clip(Composition):  # Just a container of Elements
                     "note":         sorted(channels["note"]),
                     "automation":   sorted(channels["automation"])
                 },
-                "tempo": og.defaults._tempo
+                "tempo": og.settings._tempo
             }
         )
         return self_plotlist
@@ -3193,7 +3193,7 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
-        self._staff = og.defaults._staff
+        self._staff = og.settings._staff
         self._items: list[Clip] = []
         self._name: str = "Part"
 
@@ -3220,7 +3220,7 @@ class Part(Composition):
 
     def _get_staff(self) -> 'og.Staff':
         if self._owner_song is None:
-            return og.defaults._staff
+            return og.settings._staff
         return self._owner_song._staff
 
 
@@ -3774,7 +3774,7 @@ class Song(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._staff = og.defaults._staff.copy()
+        self._staff = og.settings._staff.copy()
         self._items: list[Part] = []
         for single_operand in operands:
             self << single_operand

@@ -15,12 +15,12 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults % Devices() % list() >> Print()
-defaults << D_Blofeld.device
-defaults % Devices() % list() >> Print()
+settings % Devices() % list() >> Print()
+settings << D_Blofeld.device
+settings % Devices() % list() >> Print()
 
 
-defaults << Tempo(120)
+settings << Tempo(120)
 
 
 variables_decay_cc = ControlChange(
@@ -30,5 +30,5 @@ variables_decay_cc = ControlChange(
 variables_decay_cc * 4 + Chord(4/1) >> P
 
 
-defaults -= D_Blofeld.device
-defaults % Devices() % list() >> Print()
+settings -= D_Blofeld.device
+settings % Devices() % list() >> Print()

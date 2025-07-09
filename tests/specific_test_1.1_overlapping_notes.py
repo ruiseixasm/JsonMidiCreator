@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << Tempo(60)
+settings << Tempo(60)
 
 beat_tick = Note(Channel(10), Pitch(33.0)) * 4 << Duration(1/16)
 

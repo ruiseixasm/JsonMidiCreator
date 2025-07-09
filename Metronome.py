@@ -22,10 +22,10 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(120)     # Sets the metronome tempo
-defaults << Measures(4)    # Sets the length in Measures
+settings << Tempo(120)     # Sets the metronome tempo
+settings << Measures(4)    # Sets the length in Measures
 
-measures_long: int = defaults.__mod__(od.Pipe( Measures() )).__mod__(od.Pipe( int() ))
+measures_long: int = settings.__mod__(od.Pipe( Measures() )).__mod__(od.Pipe( int() ))
 
 measure_bell: Clip = Nt(DrumKit(34)) * 1 * measures_long
 # measure_bell >> Play()

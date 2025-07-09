@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(90) << Measures(7)
+settings << Tempo(90) << Measures(7)
 # Global variable to simulate a key signature (number of sharps or flats)
 global_key_signature = 0  # Example: 0 means C Major (no sharps or flats)
 

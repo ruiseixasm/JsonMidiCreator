@@ -15,16 +15,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-defaults % Devices() % list() >> Print()
-defaults += D_Digitakt.device
-defaults % Devices() % list() >> Print()
+settings % Devices() % list() >> Print()
+settings += D_Digitakt.device
+settings % Devices() % list() >> Print()
 
 
 # Processing Degrees
 chooser = Input(SinX() * 100)
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
-defaults << Tempo(120)
+settings << Tempo(120)
 
 
 print("1st LOOP")
@@ -51,6 +51,6 @@ variables_level_nrpn * 4 >> P
 
 
 
-defaults -= D_Digitakt.device
-defaults % Devices() % list() >> Print()
+settings -= D_Digitakt.device
+settings % Devices() % list() >> Print()
 

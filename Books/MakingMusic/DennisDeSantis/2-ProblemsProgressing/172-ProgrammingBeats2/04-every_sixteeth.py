@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(110)
+settings << Tempo(110)
 
 
 # Linear Drum pattern programming

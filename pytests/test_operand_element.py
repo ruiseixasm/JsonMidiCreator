@@ -83,7 +83,7 @@ def test_note_mod():
     note = Note("F")
     assert note % Key() % str() == "F"
 
-    defaults << Tempo(110)
+    settings << Tempo(110)
 
     playlist: list = [    
         {
@@ -124,7 +124,7 @@ def test_note_mod():
     assert first_note_playlist == playlist
 
     # Resets changed Tempo to the default value of 120 bpm
-    defaults << Tempo(120)
+    settings << Tempo(120)
 
     note.clear()
 
@@ -236,7 +236,7 @@ def test_note_shift():
 
 def test_note_scale():
 
-    defaults << KeySignature()
+    settings << KeySignature()
     major_note: Note = Note()
 
     assert major_note % Pitch() % Key() == "C"
@@ -247,7 +247,7 @@ def test_note_scale():
     major_note += Deg(1)    # Deg alias to Degree
     assert major_note % Pitch() % Key() == "F"
 
-    defaults << Minor()
+    settings << Minor()
     minor_note: Note = Note()
 
     assert minor_note % Pitch() % Key() == "A"
@@ -258,7 +258,7 @@ def test_note_scale():
     minor_note += Deg(1)    # Deg alias to Degree
     assert minor_note % Pitch() % Key() == "D"
 
-    defaults << Major()
+    settings << Major()
 
 # test_note_scale()
 
@@ -283,7 +283,7 @@ def test_keyscale_mod():
 
 def test_chord_mod():
 
-    defaults << KeySignature() << Scale([])
+    settings << KeySignature() << Scale([])
 
     # Perform the operation
     chord = Chord("A") << Scale("minor") << Size("7th") << Duration(1/2)
@@ -297,9 +297,9 @@ def test_chord_mod():
     assert three_notes[1] == "E"
     assert three_notes[2] == "G"
 
-    defaults << KeySignature(1, Minor())    # E minor scale
+    settings << KeySignature(1, Minor())    # E minor scale
     triad_e_minor: Chord = Chord("minor")
-    defaults << KeySignature()
+    settings << KeySignature()
 
     three_notes = triad_e_minor.get_component_elements()
     print(f"Key: {three_notes[0] % str()}")
@@ -310,7 +310,7 @@ def test_chord_mod():
     assert three_notes[2] == "B"
 
     print("------")
-    defaults << KeySignature(1, Minor())    # E minor scale
+    settings << KeySignature(1, Minor())    # E minor scale
     triad_e_minor: Chord = Chord()
 
     three_notes = triad_e_minor.get_component_elements()
@@ -322,9 +322,9 @@ def test_chord_mod():
     assert three_notes[2] == "B"
 
 
-    defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
+    settings << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
     triad: Chord = Chord()  # As is it has no Scale, so, it uses the KeySignature
-    defaults << KeySignature() # Resets the default Key Scale to C Major being used by the triad (unowned by any clip)
+    settings << KeySignature() # Resets the default Key Scale to C Major being used by the triad (unowned by any clip)
     # Now we are using the E Major given the C Major Key Signature
     print("------")
     three_notes = triad.get_component_elements()
@@ -434,7 +434,7 @@ def test_clock_element():
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
 
-    defaults << Tempo(90)
+    settings << Tempo(90)
     clock_specific = Clock(NoteValue(Measures(1)))
     clock_playlist = playlist_time_ms( clock_specific.getPlaylist() )
     total_messages = len(clock_playlist)
@@ -453,7 +453,7 @@ def test_clock_element():
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
 
-    defaults << Tempo(120)
+    settings << Tempo(120)
 
 # test_clock_element()
 

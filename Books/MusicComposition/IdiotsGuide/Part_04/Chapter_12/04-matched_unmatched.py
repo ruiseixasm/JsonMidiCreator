@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << "bb"
+settings << "bb"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 matched_phrases = \

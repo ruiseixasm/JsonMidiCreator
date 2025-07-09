@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # https://youtu.be/1v578xNBDyY?si=_eveiFQ4K4cfyhuB
 
 # Global Staff setting up
-defaults << Tempo(110)
+settings << Tempo(110)
 
 tonic_key = TonicKey("C")
 

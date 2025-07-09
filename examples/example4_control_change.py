@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(60)
+settings << Tempo(60)
 
 chord: Element = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)

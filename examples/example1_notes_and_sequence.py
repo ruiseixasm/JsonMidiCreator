@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Tempo(110)
+settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
 single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")

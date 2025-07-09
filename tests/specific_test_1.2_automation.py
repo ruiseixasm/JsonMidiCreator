@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
-defaults << Tempo(120)
+settings << Tempo(120)
 
 
 automation_cc = Clip(Note()) >> Automate([95, 50, 20, 50, 90, 99], "1... 1.1. .1.. ..11")

@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(120)
+settings << Tempo(120)
 
 motif: Clip = Note(1/16) * 12
 motif << Nth(6)**Duration(Steps(3)) << Nth(12)**Duration(Steps(2)) >> Stack() << Octave(3)

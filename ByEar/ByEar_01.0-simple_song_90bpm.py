@@ -24,13 +24,13 @@ from JsonMidiCreator import *
 # https://youtu.be/0HAxftAH-PU?si=Ou4FZwYBRoGh8ML1
 
 
-device_list = defaults % Devices() % list() >> Print()
+device_list = settings % Devices() % list() >> Print()
 device_list.insert(0, "Blofeld")
 device_list >> Print()
-defaults << Device(device_list)
+settings << Device(device_list)
 
 # Global Staff setting up
-defaults << Tempo(90)
+settings << Tempo(90)
 
 note_duration = Duration(1/16)
 three_notes = Note() * 3 << Foreach(Dotted(note_duration), note_duration, note_duration) >> Stack()

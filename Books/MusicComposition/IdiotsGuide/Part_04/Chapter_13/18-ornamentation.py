@@ -27,7 +27,7 @@ rest_play = (R(), P)
 motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
 melody: Clip = motif * 2 << MidiTrack("Melody")
-defaults << KeySignature(1, Minor())   # Sets the default Key Note configuration
+settings << KeySignature(1, Minor())   # Sets the default Key Note configuration
 melody \
     + Note(Position(2 + 1/8), Degree(2)) \
     + Note(Position(2 + 5/8), Degree(6)) \

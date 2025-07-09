@@ -102,7 +102,7 @@ def test_position_default():
 
 def test_position_specific():
 
-    defaults << TimeSignature(3, 8) << Quantization(1/32)
+    settings << TimeSignature(3, 8) << Quantization(1/32)
 
     position: Position = Position(1.5)  # 1.5 Measures
     # Same as a 3/8 time signature
@@ -123,14 +123,14 @@ def test_position_specific():
     print(int(1.5 * steps_per_measure) % steps_per_measure)
     assert position.convertToStep() == int(1.5 * steps_per_measure) % steps_per_measure
 
-    defaults << TimeSignature(4, 4) << Quantization(1/16)
+    settings << TimeSignature(4, 4) << Quantization(1/16)
 
 # test_position_specific()
 
 
 def test_position_unit():
 
-    defaults << TimeSignature(4, 4) << Quantization(1/16)
+    settings << TimeSignature(4, 4) << Quantization(1/16)
 
     position: Position = Position()
     assert position % Measure() == 0

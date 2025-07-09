@@ -365,7 +365,7 @@ class Operand:
             self._set = False   # by default a new copy of data unsets the Operand
             # COPY THE SELF OPERANDS RECURSIVELY
             self._next_operand = self.deep_copy(operand._next_operand)
-        elif operand is og.defaults:
+        elif operand is og.settings:
             self << operand % self
         return self
     

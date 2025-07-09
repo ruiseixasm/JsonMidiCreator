@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # https://youtu.be/TbDUsEmbsPw?si=kkpOfJ1vrp1ECd1x
 
 # Global Staff setting up
-defaults << Tempo(120)
+settings << Tempo(120)
 
 # All whites
 b_minor_scale = KeyScale(Scale("Dorian"), "D")

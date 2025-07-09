@@ -59,8 +59,8 @@ class Element(o.Operand):
         import operand_container as oc
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
-        self._duration_notevalue: Fraction  = og.defaults._duration
-        self._channel: int                  = og.defaults._channel
+        self._duration_notevalue: Fraction  = og.settings._duration
+        self._channel: int                  = og.settings._channel
         self._enabled: bool                 = True
 
         self._owner_clip: oc.Clip           = None
@@ -82,7 +82,7 @@ class Element(o.Operand):
 
     def _get_staff(self) -> 'og.Staff':
         if self._owner_clip is None:
-            return og.defaults._staff
+            return og.settings._staff
         return self._owner_clip._staff
 
 
@@ -220,7 +220,7 @@ class Element(o.Operand):
         self_denominator: int = self._get_staff()._time_signature._bottom
         self_position: float = float(self._position_beats)
         self_duration: float = self._get_staff().convertToBeats(ra.Duration(self._duration_notevalue)) % od.Pipe( float() )
-        self_tempo: float = float(og.defaults._tempo)
+        self_tempo: float = float(og.settings._tempo)
         if isinstance(position_beats, Fraction):
             self_position = float(position_beats + self._position_beats)
 
@@ -995,7 +995,7 @@ class Note(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._velocity: int         = og.defaults._velocity
+        self._velocity: int         = og.settings._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: int             = False
         self._pitch: og.Pitch       = og.Pitch()._set_owner_element(self)
@@ -1169,7 +1169,7 @@ class Note(Element):
             return []
 
         pitch_int: int = self._pitch.pitch_int()
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         self_playlist: list[dict] = []
     
@@ -2496,7 +2496,7 @@ class ControlChange(Automation):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller: og.Controller = og.defaults % og.Controller()
+        self._controller: og.Controller = og.settings % og.Controller()
         self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -2557,7 +2557,7 @@ class ControlChange(Automation):
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
         time_ms: float = o.minutes_to_time_ms(self_position_min)
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3109,7 +3109,7 @@ class PitchBend(Automation):
         if not self._enabled:
             return []
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3275,7 +3275,7 @@ class Aftertouch(Automation):
         if not self._enabled:
             return []
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3430,7 +3430,7 @@ class PolyAftertouch(Aftertouch):
             return []
 
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -3550,7 +3550,7 @@ class ProgramChange(Element):
         if not self._enabled:
             return []
         self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3674,7 +3674,7 @@ class Panic(Element):
         if not self._enabled:
             return []
 
-        devices: list[str] = midi_track._devices if midi_track else og.defaults._devices
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []

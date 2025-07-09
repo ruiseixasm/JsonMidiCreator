@@ -266,7 +266,7 @@ class TimeUnit(Unit):
                     return other._staff_reference
             elif isinstance(other, og.Staff):
                 return other
-            return og.defaults._staff
+            return og.settings._staff
         return self._staff_reference
 
 
@@ -1849,7 +1849,7 @@ class MidiTrack(Midi):
     def __init__(self, *parameters):
         import operand_generic as og
         self._name: str             = "Track 1"
-        self._devices: list[str]    = og.defaults._devices.copy()
+        self._devices: list[str]    = og.settings._devices.copy()
         super().__init__(1, *parameters)
 
     def devices(self, devices: list[str] = None) -> Self:
@@ -1857,7 +1857,7 @@ class MidiTrack(Midi):
         if devices is not None:
             self._devices = devices
         else:
-            self._devices = og.defaults._devices.copy()
+            self._devices = og.settings._devices.copy()
         return self
 
     def __mod__(self, operand: o.T) -> o.T:

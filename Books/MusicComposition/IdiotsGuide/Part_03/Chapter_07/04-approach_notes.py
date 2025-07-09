@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << KeySignature("b")
+settings << KeySignature("b")
 
 approach: Clip = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach[-1]

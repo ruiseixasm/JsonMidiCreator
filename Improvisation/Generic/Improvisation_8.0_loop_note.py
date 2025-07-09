@@ -17,11 +17,11 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
-defaults += Device("Blofeld")
+settings += Device("Blofeld")
 start_program = D_Blofeld.program_change(4, "A") >> P
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
-defaults << ClockedDevices("Blofeld")
+settings << ClockedDevices("Blofeld")
 
 two_notes = Note() / 2 << Iterate(step=2)**Beats()
 possibilities = Foreach(1, 2, 3, 4, 5, 6, 7)**Degree()

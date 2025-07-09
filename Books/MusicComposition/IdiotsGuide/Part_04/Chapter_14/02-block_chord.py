@@ -22,8 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << KeySignature(-1)   # Sets the default Key Note configuration
-defaults << Tempo(120)
+settings << KeySignature(-1)   # Sets the default Key Note configuration
+settings << Tempo(120)
 
 melody_playlist: Playlist = Import("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_melody_jmp.json")
 # melody_playlist >> Play()

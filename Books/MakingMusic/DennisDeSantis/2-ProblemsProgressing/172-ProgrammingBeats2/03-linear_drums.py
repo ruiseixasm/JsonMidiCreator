@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << Tempo(110)
+settings << Tempo(110)
 
 # Direct programming
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 3 << Foreach(2, 8, 14)**Step()

@@ -22,8 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R(), P)
-defaults << 150
-defaults % Key() % str() >> Print()    # Returns the tonic key (I)
+settings << 150
+settings % Key() % str() >> Print()    # Returns the tonic key (I)
 
 rhythmic_notes = Note() * 8 * 8 << Foreach(whole, dotted_half, half, dotted_quarter, dotted_eight, eight, dotted_sixteenth, sixteenth) >> Stack()
 # rhythmic_notes >> P

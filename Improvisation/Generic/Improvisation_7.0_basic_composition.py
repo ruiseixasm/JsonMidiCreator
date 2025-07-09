@@ -18,9 +18,9 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 # Devices to sync
-defaults << ClockedDevices("Digitakt", "Blofeld", "Virtual")
+settings << ClockedDevices("Digitakt", "Blofeld", "Virtual")
 # defaults << ClockedDevices("Virtual")
-defaults += Device("Digitakt")
+settings += Device("Digitakt")
 
 # Four Measures clips for Pattern Change
 pattern_change_1 = Clip(ProgramChange(2, D_Digitakt.auto_channel), Measures(3.5))   # Sets the NEXT pattern

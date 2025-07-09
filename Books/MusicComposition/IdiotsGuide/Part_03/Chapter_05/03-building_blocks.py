@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-defaults << KeySignature(-1) << Tempo(130)
+settings << KeySignature(-1) << Tempo(130)
 motif = Note("B", 1/8) + Note("C", 5, 1/16) + Note("B", 1/16) + Note("A", 1/8)
 
 end_point_1 = Note("G", 1/8) + Note("A", Dotted(1/4)) + Note("F", 1/8)

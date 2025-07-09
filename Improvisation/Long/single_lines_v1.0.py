@@ -102,7 +102,7 @@ final_part >> Plot()
 entire_part: Part = Part()
 
 # Setting the Key Signature for the global Staff
-defaults << KeySignature(1)
+settings << KeySignature(1)
 chord_progression: Clip = Chord(Channel(2), Tied()) * 4
 chord_progression << Foreach(1, 4, 5)**Degree()
 chord_progression >> Rotate(-1) >> Decompose() >> Plot(False)
