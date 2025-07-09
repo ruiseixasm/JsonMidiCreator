@@ -383,16 +383,16 @@ def test_milliseconds_duration():
 
     duration = NoteValue(1/16 * (3*4 + 2))
     duration >> Print()
-    rest_clip = Note(duration) / 1
-    clip_playlist = playlist_time_ms( rest_clip.getPlaylist() )
+    note_clip = Note(duration) / 1
+    clip_playlist = playlist_time_ms( note_clip.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
     clip_stop = clip_playlist[1]
     assert clip_start["time_ms"] == 0.0
     assert clip_stop["time_ms"] == 1750.0
 
-    rest_clip_copy = rest_clip.copy()
-    clip_playlist = playlist_time_ms( rest_clip_copy.getPlaylist() )
+    note_clip_copy = note_clip.copy()
+    clip_playlist = playlist_time_ms( note_clip_copy.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     clip_start = clip_playlist[0]
     clip_stop = clip_playlist[1]
@@ -406,6 +406,8 @@ def test_milliseconds_duration():
     clip_stop = clip_playlist[1]
     assert clip_start["time_ms"] == 0.0
     assert clip_stop["time_ms"] == 500.0
+
+# test_milliseconds_duration()
 
 
 def test_playlists():

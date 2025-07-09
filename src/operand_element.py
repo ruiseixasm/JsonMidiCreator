@@ -132,7 +132,7 @@ class Element(o.Operand):
                     case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-            case ra.Duration():
+            case ra.Duration() | ra.NoteValue():
                 return operand.copy()._set_staff_reference(self._get_staff()) << od.Pipe( self._duration_notevalue )
             case ra.Position():
                 return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
@@ -287,7 +287,7 @@ class Element(o.Operand):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Duration():
+            case ra.Duration() | ra.NoteValue():
                 self._duration_notevalue    = self._get_staff().convertToDuration(operand)._rational
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._get_staff().convertToBeats(operand)._rational
@@ -2011,7 +2011,8 @@ class Retrigger(Note):
             case ou.Number():       return ou.Number() << od.Pipe(self._number)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
-            case ra.Duration():     return operand.copy() << od.Pipe( self._duration_notevalue / 2 )
+            case ra.Duration() | ra.NoteValue():
+                return operand.copy() << od.Pipe( self._duration_notevalue / 2 )
             case float():           return float( self._duration_notevalue / 2 )
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
@@ -2088,7 +2089,7 @@ class Retrigger(Note):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ra.Duration():
+            case ra.Duration() | ra.NoteValue():
                 self._duration_notevalue    = operand._rational * 2  # Equivalent to two sized Notes
             case float():
                 self._duration_notevalue    = ra.Duration(operand)._rational * 2
@@ -2211,7 +2212,8 @@ class Tuplet(Element):
                     case _:                 return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             case ou.Number():       return ou.Number() << len(self._elements)
-            case ra.Duration():     return operand << od.Pipe( self._duration_notevalue / 2 )
+            case ra.Duration() | ra.NoteValue():
+                return operand << od.Pipe( self._duration_notevalue / 2 )
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
@@ -2296,7 +2298,7 @@ class Tuplet(Element):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ra.Duration():
+            case ra.Duration() | ra.NoteValue():
                 self._duration_notevalue = operand._rational * 2  # Equivalent to two sized Notes
             case list():
                                                                      # Rest because is the root super class with Duration

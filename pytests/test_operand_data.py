@@ -70,7 +70,7 @@ def test_serialization_mod():
 
     # Perform the operation
     serialization = Serialization() << Retrigger("D")
-    serialization_total_duration = serialization % Pipe( NoteValue() )
+    serialization_total_duration = serialization % Pipe( Duration() )
 
     # Retrigger by default it's a Triplet with a real duration of 2* the default duration of 1/4 
     assert serialization_total_duration == ra.NoteValue(1/4 * 2)
@@ -82,7 +82,7 @@ def test_serialization_mod():
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
     assert serialization == retrigger
 
-    serialization_total_duration = serialization % Pipe( NoteValue() )
+    serialization_total_duration = serialization % Pipe( Duration() )
 
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
     assert serialization_total_duration == ra.NoteValue(1/4 * 2)

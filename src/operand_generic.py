@@ -1524,6 +1524,11 @@ class Staff(Generic):
                 beats_per_note: int = time_staff._time_signature._bottom
                 beats: Fraction = time._rational * beats_per_note
                 return ra.Beats(beats)._set_staff_reference(self)
+            case ra.NoteValue(): # The most internally called option
+                time_staff: Staff = time._get_staff(self)
+                beats_per_note: int = time_staff._time_signature._bottom
+                beats: Fraction = time._rational * beats_per_note
+                return ra.Beats(beats)._set_staff_reference(self)
             case ra.Measures():
                 time_staff: Staff = time._get_staff(self)
                 beats_per_measure: int = time_staff._time_signature._top

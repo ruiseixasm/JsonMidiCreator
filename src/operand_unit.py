@@ -276,6 +276,7 @@ class TimeUnit(Unit):
             case ra.Beats():            return self._get_staff(operand).convertToBeats(self)
             case ra.Measures():         return self._get_staff(operand).convertToMeasures(self)
             case ra.Duration():         return self._get_staff(operand).convertToDuration(self)
+            case ra.NoteValue():        return self._get_staff(operand).convertToDuration(self)
             case ra.Steps():            return self._get_staff(operand).convertToSteps(self)
             case Measure():             return self._get_staff(operand).convertToMeasure(self)
             case Beat():                return self._get_staff(operand).convertToBeat(self)

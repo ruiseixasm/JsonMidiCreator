@@ -462,19 +462,19 @@ def test_note3_element():
 
     triplet_note = Triplet("C")
     assert triplet_note % NoteValue() == Duration(1/4)
-    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/2)
+    assert triplet_note % od.Pipe( Duration() ) == NoteValue(1/2)
     assert triplet_note % Position() == 0.0
     triplet_note << NoteValue(1/8)
     assert triplet_note % NoteValue() == Duration(1/8)
-    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/4)
+    assert triplet_note % od.Pipe( Duration() ) == NoteValue(1/4)
     assert triplet_note % Position() == 0.0
     triplet_note << NoteValue(1/16)
     assert triplet_note % NoteValue() == Duration(1/16)
-    assert triplet_note % od.Pipe( NoteValue() ) == Duration(1/8)
+    assert triplet_note % od.Pipe( Duration() ) == NoteValue(1/8)
     assert triplet_note % Position() == 0.0
 
     assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
-    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.Pipe( NoteValue() ) == Duration(1/8)
+    assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.Pipe( Duration() ) == NoteValue(1/8)
     assert (Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
 
 # test_note3_element()
