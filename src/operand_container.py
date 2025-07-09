@@ -1698,7 +1698,7 @@ class Clip(Composition):  # Just a container of Elements
     ----------
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
-    Staff(defaults) : A staff on which `TimeValue` units are based and `Element` items placed.
+    Staff(settings) : A staff on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
     Length : Returns the length of all combined elements.
     """
@@ -3769,7 +3769,7 @@ class Song(Composition):
     ----------
     list([]) : A list of `Part` type items.
     int : Returns the len of the list.
-    Staff(defaults) : It keeps its own staff on which their `Part` items are placed.
+    Staff(settings) : It keeps its own staff on which their `Part` items are placed.
     Length : Returns the length of all combined parts.
     """
     def __init__(self, *operands):

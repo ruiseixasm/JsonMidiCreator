@@ -148,7 +148,7 @@ class Pitch(Generic):
 
     Parameters
     ----------
-    Tonic(defaults), None : The tonic key on which the `Degree` is based on.
+    Tonic(settings), None : The tonic key on which the `Degree` is based on.
     Octave(4) : The octave on the keyboard with the middle C setting on the 4th octave.
     Degree(1), int : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
     Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
