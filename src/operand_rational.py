@@ -363,6 +363,65 @@ class Probability(Rational):
     pass
 
 
+class Tempo(Rational):
+    """`Rational -> Tempo`
+
+    Tempo() represents the Staff Beats per Minute (BPM). The default is 120 BPM.
+
+    Parameters
+    ----------
+    Fraction(120) : The playing tempo with the default as 120 BPM (Beats Per Minute).
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> staff = Staff(Tempo(110))
+    >>> staff % Tempo() % Fraction() >> Print()
+    110
+    """
+    def __init__(self, *parameters):
+        super().__init__(120, *parameters)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
+                tempo = re.findall(r"\d+(?:\.\d+)?", operand)
+                if len(tempo) > 0:
+                    self << float(tempo[0])
+            case _: super().__lshift__(operand)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+
+    def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__iadd__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__isub__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__imul__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__itruediv__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+
+
 class StaffParameter(Rational):
     """`Rational -> StaffParameter`"""
     pass
@@ -495,64 +554,6 @@ class StepsPerNote(StaffParameter):
     """
     def __init__(self, *parameters):
         super().__init__(16, *parameters)
-
-class Tempo(StaffParameter):
-    """`Rational -> StaffParameter -> Tempo`
-
-    Tempo() represents the Staff Beats per Minute (BPM). The default is 120 BPM.
-
-    Parameters
-    ----------
-    Fraction(120) : The playing tempo with the default as 120 BPM (Beats Per Minute).
-    
-    Examples
-    --------
-    Gets the Staff Steps per Measure:
-    >>> staff = Staff(Tempo(110))
-    >>> staff % Tempo() % Fraction() >> Print()
-    110
-    """
-    def __init__(self, *parameters):
-        super().__init__(120, *parameters)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case str():
-                # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
-                tempo = re.findall(r"\d+(?:\.\d+)?", operand)
-                if len(tempo) > 0:
-                    self << float(tempo[0])
-            case _: super().__lshift__(operand)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-
-    def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__iadd__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__isub__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__imul__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__itruediv__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
 
 class Quantization(StaffParameter):
     """`Rational -> StaffParameter -> Quantization`
