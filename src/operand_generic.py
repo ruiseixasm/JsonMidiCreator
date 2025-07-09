@@ -1942,6 +1942,9 @@ class Settings(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def beats_to_minutes(self, beats: Fraction) -> Fraction:
+        return beats / self._tempo
+
     def __mod__(self, operand: o.T) -> o.T:
         import operand_element as oe
         match operand:
