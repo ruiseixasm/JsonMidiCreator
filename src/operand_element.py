@@ -179,9 +179,7 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    return self._position_beats < other._position_beats
-                return self % ra.Position() < other % ra.Position()
+                return self._position_beats < other._position_beats
             case _:
                 return self % other < other
     
@@ -189,9 +187,7 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    return self._position_beats > other._position_beats
-                return self % ra.Position() > other % ra.Position()
+                return self._position_beats > other._position_beats
             case _:
                 return self % other > other
     
@@ -1025,12 +1021,8 @@ class Note(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Note():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    self_position: Fraction = self._position_beats
-                    other_position: Fraction = other._position_beats
-                else:
-                    self_position: ra.Position = self % ra.Position()
-                    other_position: ra.Position = other % ra.Position()
+                self_position: Fraction = self._position_beats
+                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
                 if self_position == other_position:
                     return self._pitch.pitch_int() < other._pitch.pitch_int()
@@ -1044,12 +1036,8 @@ class Note(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Note():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    self_position: Fraction = self._position_beats
-                    other_position: Fraction = other._position_beats
-                else:
-                    self_position: ra.Position = self % ra.Position()
-                    other_position: ra.Position = other % ra.Position()
+                self_position: Fraction = self._position_beats
+                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
                 if self_position == other_position:
                     return self._pitch.pitch_int() > other._pitch.pitch_int()
@@ -2375,12 +2363,8 @@ class Automation(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Automation():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    self_position: Fraction = self._position_beats
-                    other_position: Fraction = other._position_beats
-                else:
-                    self_position: ra.Position = self % ra.Position()
-                    other_position: ra.Position = other % ra.Position()
+                self_position: Fraction = self._position_beats
+                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
                 if self_position == other_position:
                     return self._value < other._value
@@ -2394,12 +2378,8 @@ class Automation(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Automation():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    self_position: Fraction = self._position_beats
-                    other_position: Fraction = other._position_beats
-                else:
-                    self_position: ra.Position = self % ra.Position()
-                    other_position: ra.Position = other % ra.Position()
+                self_position: Fraction = self._position_beats
+                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
                 if self_position == other_position:
                     return self._value > other._value
