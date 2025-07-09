@@ -123,14 +123,6 @@ def test_position_specific():
     print(int(1.5 * steps_per_measure) % steps_per_measure)
     assert position.convertToStep() == int(1.5 * steps_per_measure) % steps_per_measure
 
-    position_copy: Position = Position(position)
-
-    different_staff = defaults % Staff() << Tempo(120 / 2)
-
-    assert position_copy == position
-    # Slower Beat takes longer than a faster one, meaning, it's twice as long
-    assert different_staff.convertToBeats(position_copy) == position.convertToBeats() * 2 # Double the tempo
-
     defaults << TimeSignature(4, 4) << Quantization(1/16)
 
 # test_position_specific()

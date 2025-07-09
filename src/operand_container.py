@@ -1893,7 +1893,7 @@ class Clip(Composition):  # Just a container of Elements
                     "note":         sorted(channels["note"]),
                     "automation":   sorted(channels["automation"])
                 },
-                "tempo": self._staff._tempo
+                "tempo": og.defaults._tempo
             }
         )
         return self_plotlist

@@ -33,9 +33,11 @@ import sys
 def test_staff_parameters():
 
     four_notes = Note() / 4
-    assert four_notes % Tempo() == 120.0
-    four_notes << Tempo(145)
-    assert four_notes % Tempo() == 145.0
+    # Tempo is centralized in defaults
+    assert defaults % Tempo() == 120.0
+    defaults << Tempo(145)
+    assert defaults % Tempo() == 145.0
+    defaults << Tempo(120)  # resets to the default
 
     assert four_notes % KeySignature() == 0
     four_notes << KeySignature(2)
@@ -1024,7 +1026,7 @@ def test_clip_length():
 def test_part_position():
 
     note_clip_120 = Note() / 1
-    note_clip_60 = note_clip_120 / 1 << Tempo(60)
+    note_clip_60 = note_clip_120 / 1 * Duration(2)  # Twice the duration
 
     part_120 = Part(note_clip_120) << Measures(2)
     part_60 = Part(note_clip_60)
@@ -1037,37 +1039,6 @@ def test_part_position():
     print(f"Part Duration: {part_120 % Duration() % Fraction()}")
     assert part_120 % Duration() == 1/4
     assert part_120 % Duration() == part_60 % Duration() * 1/2
-
-    full_song = Song(part_120, part_60) << Tempo(90)    # song with different Tempo, 90 vs 60, 3/2
-    assert full_song.len() == 2
-    assert full_song[0] % Position() == full_song[1] % Position()
-    assert (full_song[0] % Position()).getMinutes() == (full_song[1] % Position()).getMinutes()
-    assert full_song[0] % Position() % Minutes() == full_song[1] % Position() % Minutes()
-    print(f"Song Start: {full_song.start() % Fraction()}")
-    print(f"Song Finish: {full_song.finish() % Fraction()}")
-    print(f"Song Net Duration: {full_song.net_duration() % Fraction()}")
-    assert full_song.net_duration() == 3/8      # Not 1/4 because different tempos, thus, it's 3/2 * 1/4 = 3/8
-    print(f"Song[0] Duration: {full_song[0] % Duration() % Fraction()}")
-    assert full_song[0] % Duration() == 3/16  # Part now has the Song staff, 90 bpm instead of 120 bpm, 3/4, meaning, 1/4 * 3/4 = 3/16
-    assert full_song.net_duration() == full_song[1].net_duration()
-    assert full_song[0] % Duration() == full_song[1] % Duration() * 1/2
-    assert full_song.net_duration().getMinutes() == full_song[1].net_duration().getMinutes()
-    assert full_song.net_duration() % Minutes() == full_song[1].net_duration() % Minutes()
-    assert full_song.net_duration().getMinutes() == full_song[0].net_duration().getMinutes() * 2
-    assert full_song.net_duration() % Minutes() == full_song[0].net_duration() % Minutes() * 2
-
-
-    position_playlist = (full_song[0] % Position()).getPlaylist()
-    song_playlist = playlist_time_ms( full_song.getPlaylist() )
-    # Notes On (Position)
-    assert song_playlist[0]["time_ms"] == position_playlist[0]["time_ms"]
-    assert song_playlist[0]["time_ms"] == song_playlist[2]["time_ms"]
-    # Notes Off (Length)
-    length_120_ms: float    = song_playlist[1]["time_ms"] - song_playlist[0]["time_ms"]
-    length_60_ms: float     = song_playlist[3]["time_ms"] - song_playlist[2]["time_ms"]
-    print(f"120: {length_120_ms} 60: {length_60_ms}")
-    # 120 bpm takes less time than 60 bpm (/ 2)
-    assert length_120_ms == length_60_ms / 2
 
 # test_part_position()
 

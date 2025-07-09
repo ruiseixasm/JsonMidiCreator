@@ -47,10 +47,9 @@ def test_staff_mod():
     staff_2 = staff_1.copy()
     
     assert staff_1 == staff_2
-    assert staff_1 % Tempo() % float() == 120.0
+    # Tempo is centralized in defaults
+    assert defaults % Tempo() % float() == 120.0
     assert staff_1 % BeatsPerMeasure() % float() == 4.0
-    staff_1 << 110
-    assert staff_1 != staff_2
 
 
 def test_staff_parameters():

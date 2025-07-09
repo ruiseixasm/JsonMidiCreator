@@ -224,7 +224,7 @@ class Element(o.Operand):
         self_denominator: int = self._get_staff()._time_signature._bottom
         self_position: float = float(self._position_beats)
         self_duration: float = self._get_staff().convertToBeats(ra.Duration(self._duration_notevalue)) % od.Pipe( float() )
-        self_tempo: float = float(self._get_staff()._tempo)
+        self_tempo: float = float(og.defaults._tempo)
         if isinstance(position_beats, Fraction):
             self_position = float(position_beats + self._position_beats)
 

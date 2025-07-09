@@ -1346,7 +1346,6 @@ class Staff(Generic):
     def __init__(self, *parameters):
         super().__init__()
         # Set Global Staff Defaults at the end of this file bottom bellow
-        self._tempo: Fraction                       = Fraction(120)
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
@@ -1429,7 +1428,7 @@ class Staff(Generic):
     
     
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
-        actual_bps: Fraction = self._tempo / 60 # Beats Per Second
+        actual_bps: Fraction = defaults._tempo / 60 # Beats Per Second
         time_seconds: int = 60 * minutes + seconds
         beats_per_measure: int = self._time_signature._top
         total_beats: Fraction = time_seconds * actual_bps
@@ -1458,7 +1457,6 @@ class Staff(Generic):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
-                    case ra.Tempo():            return ra.Tempo(self._tempo)
                     case TimeSignature():       return self._time_signature
                     case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ou.KeySignature():     return self._key_signature
@@ -1477,7 +1475,6 @@ class Staff(Generic):
             case of.Frame():            return self % operand
             # Direct Values
             case of.Frame():            return self % od.Pipe( operand._data )
-            case ra.Tempo():            return ra.Tempo(self._tempo)
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return ra.Quantization(self._quantization)
             case ou.KeySignature():     return self._key_signature.copy()
@@ -1514,25 +1511,14 @@ class Staff(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._tempo             == other._tempo \
-            and self._time_signature    == other._time_signature \
+        return  self._time_signature    == other._time_signature \
             and self._quantization      == other._quantization \
             and self._key_signature     == other._key_signature
 
     def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Beats':
         match time:
             case ra.Beats() | ra.Measurement():
-                time_staff: Staff = time._get_staff(self)
-                # By default Time values have no Staff reference,
-                # so, they aren't transformed, just converted !!
-                if time_staff._tempo == self._tempo:
-                    return ra.Beats(time._rational)._set_staff_reference(self)
-                # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
-                beats_a: Fraction = time._rational
-                tempo_a: Fraction = time._staff_reference._tempo
-                tempo_b: Fraction = self._tempo
-                beats_b: Fraction = beats_a * tempo_b / tempo_a
-                return ra.Beats(beats_b)._set_staff_reference(self)
+                return ra.Beats(time._rational)._set_staff_reference(self)
             case ra.Duration(): # The most internally called option
                 time_staff: Staff = time._get_staff(self)
                 beats_per_note: int = time_staff._time_signature._bottom
@@ -1626,7 +1612,7 @@ class Staff(Generic):
 
     def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> Fraction:
         time_beats: ra.Beats = self.convertToBeats(time)
-        return time_beats._rational / self._tempo
+        return time_beats._rational / defaults._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         if position is None:
@@ -1636,7 +1622,6 @@ class Staff(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
@@ -1646,11 +1631,10 @@ class Staff(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
@@ -1661,13 +1645,11 @@ class Staff(Generic):
         match operand:
             case Staff():
                 super().__lshift__(operand)
-                self._tempo             = operand._tempo
                 self._time_signature    << operand._time_signature
                 self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
             case od.Pipe():
                 match operand._data:
-                    case ra.Tempo():            self._tempo = operand._data._rational
                     case TimeSignature():       self._time_signature = operand._data
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
@@ -1675,7 +1657,6 @@ class Staff(Generic):
                                                 self._time_signature << od.Pipe( operand._data )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Tempo():            self._tempo = operand._rational
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
@@ -1685,12 +1666,9 @@ class Staff(Generic):
                 self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
-            case int() | float():
-                self._tempo = ra.Tempo(operand)._rational
             case Fraction():
                 self._duration = operand
             case str():
-                self._tempo = ra.Tempo(self._tempo, operand)._rational
                 self._key_signature << operand
             case tuple():
                 for single_operand in operand:
@@ -1698,20 +1676,6 @@ class Staff(Generic):
             case _:
                 self._key_signature << operand
         return self
-
-    def __iadd__(self, operand: any) -> Self:
-        match operand:
-            case ra.Tempo():
-                self._tempo += operand._rational
-                return self
-        return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> Self:
-        match operand:
-            case ra.Tempo():
-                self._tempo -= operand._rational
-                return self
-        return super().__isub__(operand)
 
 
 class Arpeggio(Generic):
@@ -1959,6 +1923,7 @@ class Defaults(Generic):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._tempo: Fraction                       = Fraction(120)
         self._staff: Staff                          = Staff()
         self._duration: Fraction                    = Fraction(1/4)
         self._octave: int                           = 4
@@ -1980,6 +1945,7 @@ class Defaults(Generic):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
+                    case ra.Tempo():            return ra.Tempo(self._tempo)
                     case Staff():               return self._staff
                     case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -1996,6 +1962,7 @@ class Defaults(Generic):
                     case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
+            case ra.Tempo():            return ra.Tempo(self._tempo)
             case Staff():               return self._staff.copy()
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -2023,7 +1990,8 @@ class Defaults(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._staff             == other._staff \
+        return  self._tempo             == other._tempo \
+            and self._staff             == other._staff \
             and self._duration          == other._duration \
             and self._octave            == other._octave \
             and self._velocity          == other._velocity \
@@ -2036,6 +2004,7 @@ class Defaults(Generic):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["staff"]            = self.serialize( self._staff )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
@@ -2052,12 +2021,13 @@ class Defaults(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "tempo" in serialization["parameters"] and "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
@@ -2076,6 +2046,7 @@ class Defaults(Generic):
         match operand:
             case Defaults():
                 super().__lshift__(operand)
+                self._tempo             = operand._tempo
                 self._staff             << operand._staff
                 self._duration          = operand._duration
                 self._octave            = operand._octave
@@ -2088,6 +2059,7 @@ class Defaults(Generic):
                 self._clock_stop_mode   = operand._clock_stop_mode
             case od.Pipe():
                 match operand._data:
+                    case ra.Tempo():            self._tempo = operand._data._rational
                     case Staff():               self._staff = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
@@ -2100,7 +2072,8 @@ class Defaults(Generic):
                     case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
+            case ra.Tempo():            self._tempo = operand._rational
+            case Staff() | ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
@@ -2132,7 +2105,7 @@ class Defaults(Generic):
                     self._devices = self_devices % od.Pipe( list() )
                 return self
             case ra.Tempo():
-                self._staff += operand
+                self._tempo += operand._rational
                 return self
         return super().__iadd__(operand)
 
@@ -2144,7 +2117,7 @@ class Defaults(Generic):
                 self._devices = self_devices % od.Pipe( list() )
                 return self
             case ra.Tempo():
-                self._staff -= operand
+                self._tempo -= operand._rational
                 return self
         return super().__isub__(operand)
 
