@@ -275,13 +275,13 @@ class TimeUnit(Unit):
         match operand:
             case ra.Beats():            return self._get_staff(operand).convertToBeats(self)
             case ra.Measures():         return self._get_staff(operand).convertToMeasures(self)
-            case ra.Duration():         return self._get_staff(operand).convertToDuration(self)
             case ra.NoteValue():        return self._get_staff(operand).convertToDuration(self)
             case ra.Steps():            return self._get_staff(operand).convertToSteps(self)
             case Measure():             return self._get_staff(operand).convertToMeasure(self)
             case Beat():                return self._get_staff(operand).convertToBeat(self)
             case Step():                return self._get_staff(operand).convertToStep(self)
             case ra.Position():         return self._get_staff(operand).convertToPosition(self)
+            case ra.Duration():         return self._get_staff(operand).convertToDuration(self) # Has to come before that `Length` because it's its subclass
             case ra.Length():           return self._get_staff(operand).convertToLength(self)
             case _:                     return super().__mod__(operand)
 
@@ -289,7 +289,7 @@ class TimeUnit(Unit):
         import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
         match other:
-            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+            case ra.Convertible() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
                     == self._get_staff(other).convertToBeats(other)._rational
             case _:
@@ -300,7 +300,7 @@ class TimeUnit(Unit):
         import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
         match other:
-            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+            case ra.Convertible() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
                     < self._get_staff(other).convertToBeats(other)._rational
             case _:
@@ -311,7 +311,7 @@ class TimeUnit(Unit):
         import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
         match other:
-            case ra.Measurement() | ra.TimeValue() | ra.Duration() | TimeUnit():
+            case ra.Convertible() | TimeUnit():
                 return self._get_staff(other).convertToBeats(self)._rational \
                     > self._get_staff(other).convertToBeats(other)._rational
             case _:
