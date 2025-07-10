@@ -731,7 +731,7 @@ class Convertible(Rational):
         import operand_container as oc
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case self.__class__():
+            case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
                 super().__lshift__(operand)
