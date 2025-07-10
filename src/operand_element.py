@@ -508,7 +508,7 @@ class Element(o.Operand):
                             new_clip.__ifloordiv__(self)
                     return new_clip
             # Divides the `Duration` by the given `Length` amount as denominator
-            case ra.Length():
+            case ra.Length() | ra.Duration():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     total_segments: int = operand % int()   # Extracts the original imputed integer
@@ -522,11 +522,11 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.Duration():
+            case ra.NoteValue():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats
-                    segment_duration: Fraction = operand._rational
+                    segment_duration: Fraction = ra.Duration(self, operand)._rational
                     if segment_duration < group_length:
                         group_position: Fraction = self._position_beats
                         group_finish: Fraction = group_position + self._duration_beats

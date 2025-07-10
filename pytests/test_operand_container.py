@@ -1055,3 +1055,18 @@ def test_pitch_shifting():
 # test_pitch_shifting()
 
 
+def test_split_note():
+
+    note_clip: Clip = Note(1/1) * 1
+    assert note_clip % int() == 1
+
+    # NoteValue split
+    assert note_clip // NoteValue(1/4) % int() == 4
+
+    # Frame split
+    assert note_clip // NoteValue(1/4) // All()**NoteValue(1/8) % int() == 8
+
+
+
+# test_split_note()
+

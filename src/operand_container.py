@@ -2241,7 +2241,7 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
             # Divides the `Duration` by the given `Length` amount as denominator
-            case ra.Length():
+            case ra.Length() | ra.Duration():
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
@@ -2254,11 +2254,11 @@ class Clip(Composition):  # Just a container of Elements
                             new_elements.append(next_element)
                     self._append(new_elements)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.Duration():
+            case ra.NoteValue():
                 new_elements: list[oe.Element] = []
                 for first_element in self._items:
                     group_length: Fraction = first_element._duration_beats
-                    segment_duration: Fraction = operand._rational
+                    segment_duration: Fraction = ra.Duration(self, operand)._rational
                     if segment_duration < group_length:
                         group_start: Fraction = first_element._position_beats
                         group_finish: Fraction = group_start + first_element._duration_beats
