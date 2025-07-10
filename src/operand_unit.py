@@ -281,8 +281,8 @@ class TimeUnit(Unit):
             case Beat():                return self._get_staff(operand).convertToBeat(self)
             case Step():                return self._get_staff(operand).convertToStep(self)
             case ra.Position():         return self._get_staff(operand).convertToPosition(self)
-            case ra.Duration():         return self._get_staff(operand).convertToDuration(self) # Has to come before that `Length` because it's its subclass
             case ra.Length():           return self._get_staff(operand).convertToLength(self)
+            case ra.Duration():         return self._get_staff(operand).convertToDuration(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:

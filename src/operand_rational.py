@@ -650,8 +650,8 @@ class Convertible(Rational):
             case ou.Beat():             return self._get_staff(operand).convertToBeat(self)
             case ou.Step():             return self._get_staff(operand).convertToStep(self)
             case Position():            return self._get_staff(operand).convertToPosition(self)
-            case Duration():            return self._get_staff(operand).convertToDuration(self) # Has to come before that `Length` because it's its subclass
             case Length():              return self._get_staff(operand).convertToLength(self)
+            case Duration():            return self._get_staff(operand).convertToDuration(self)
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
@@ -997,7 +997,7 @@ class Length(Measurement):
         return rounded_length + Steps(1)
 
 class Duration(Measurement):
-    """`Rational -> Convertible -> Measurement -> Length -> Duration`
+    """`Rational -> Convertible -> Measurement -> Duration`
 
     Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
     
