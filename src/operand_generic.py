@@ -1519,11 +1519,6 @@ class Staff(Generic):
         match time:
             case ra.Beats() | ra.Measurement():
                 return ra.Beats(time._rational)._set_staff_reference(self)
-            case ra.Duration(): # The most internally called option
-                time_staff: Staff = time._get_staff(self)
-                beats_per_note: int = time_staff._time_signature._bottom
-                beats: Fraction = time._rational * beats_per_note
-                return ra.Beats(beats)._set_staff_reference(self)
             case ra.NoteValue(): # The most internally called option
                 time_staff: Staff = time._get_staff(self)
                 beats_per_note: int = time_staff._time_signature._bottom
@@ -1566,7 +1561,6 @@ class Staff(Generic):
         measures: Fraction = time_beats._rational / beats_per_measure
         return ra.Measures(measures)._set_staff_reference(self)
 
-
     def convertToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Steps':
         time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_note: int = self._time_signature._bottom
@@ -1575,11 +1569,11 @@ class Staff(Generic):
         steps: Fraction = time_beats._rational / beats_per_step
         return ra.Steps(steps)._set_staff_reference(self)
 
-    def convertToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Duration':
+    def convertToNoteValue(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.NoteValue':
         time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_note: int = self._time_signature._bottom
-        duration: Fraction = time_beats._rational / beats_per_note
-        return ra.Duration(duration)._set_staff_reference(self)
+        notevalue: Fraction = time_beats._rational / beats_per_note
+        return ra.NoteValue(notevalue)._set_staff_reference(self)
 
     def convertToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ou.Measure':
         if isinstance(time, ra.Measurement):
@@ -1613,6 +1607,11 @@ class Staff(Generic):
     def convertToLength(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Length':
         time_beats: ra.Beats = self.convertToBeats(time)
         return ra.Length(time_beats)._set_staff_reference(self)
+
+    def convertToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Duration':
+        time_beats: ra.Beats = self.convertToBeats(time)
+        beats: Fraction = time_beats._rational
+        return ra.Duration(beats)._set_staff_reference(self)
 
 
     def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> Fraction:
