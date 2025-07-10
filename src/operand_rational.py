@@ -1002,6 +1002,12 @@ class Duration(Measurement):
     ----------
     Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case float() | int():
+                return self._get_staff().convertToNoteValue(self) % operand
+            case _:                     return super().__mod__(operand)
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1041,7 +1047,9 @@ class Duration(Measurement):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__iadd__(self._get_staff(operand).convertToDuration(operand)._rational)
+                self_notevalue: NoteValue = self % NoteValue()
+                operand_notevalue: NoteValue = operand % NoteValue()
+                self << self_notevalue + operand_notevalue
             case int() | float():
                 self += NoteValue(operand)
             case _:
@@ -1052,7 +1060,9 @@ class Duration(Measurement):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__isub__(self._get_staff(operand).convertToDuration(operand)._rational)
+                self_notevalue: NoteValue = self % NoteValue()
+                operand_notevalue: NoteValue = operand % NoteValue()
+                self << self_notevalue - operand_notevalue
             case int() | float():
                 self -= NoteValue(operand)
             case _:
@@ -1063,7 +1073,9 @@ class Duration(Measurement):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__imul__(self._get_staff(operand).convertToDuration(operand)._rational)
+                self_notevalue: NoteValue = self % NoteValue()
+                operand_notevalue: NoteValue = operand % NoteValue()
+                self << self_notevalue * operand_notevalue
             case int() | float():
                 self *= NoteValue(operand)
             case _:
@@ -1074,7 +1086,10 @@ class Duration(Measurement):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
-                super().__itruediv__(self._get_staff(operand).convertToDuration(operand)._rational)
+                self_notevalue: NoteValue = self % NoteValue()
+                operand_notevalue: NoteValue = operand % NoteValue()
+                if operand_notevalue != NoteValue(0):
+                    self << self_notevalue / operand_notevalue
             case int() | float():
                 self /= NoteValue(operand)
             case _:

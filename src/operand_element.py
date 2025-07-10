@@ -132,8 +132,10 @@ class Element(o.Operand):
                     case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-            case ra.Duration() | ra.NoteValue():
+            case ra.Duration():
                 return operand.copy()._set_staff_reference(self._get_staff()) << od.Pipe( self._duration_beats )
+            case ra.NoteValue():
+                return operand.copy()._set_staff_reference(self._get_staff()) << ra.Beats( self._duration_beats )
             case ra.Position():
                 return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
@@ -287,8 +289,10 @@ class Element(o.Operand):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Duration() | ra.NoteValue():
-                self._duration_beats    = self._get_staff().convertToDuration(operand)._rational
+            case ra.Duration():
+                self._duration_beats        = self._get_staff().convertToDuration(operand)._rational
+            case ra.NoteValue():
+                self << ra.Duration(self, operand)
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._get_staff().convertToBeats(operand)._rational
             case ou.TimeUnit():
