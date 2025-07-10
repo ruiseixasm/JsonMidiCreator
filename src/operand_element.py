@@ -778,7 +778,7 @@ class Clock(Element):
         else:
 
             pulses_per_beat: Fraction = self._get_staff() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
-            total_clock_pulses: int = self._get_staff().convertToBeats( ra.Duration(self._duration_beats) ) * pulses_per_beat % int()
+            total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
 
             if total_clock_pulses > 0:
 
@@ -940,14 +940,14 @@ class Rest(Element):
 
         self_plotlist: list[dict] = []
     
-        position_on: ra.Position = ra.Position(position_beats + self._position_beats)
-        position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
+        position_on: Fraction = position_beats + self._position_beats
+        position_off: Fraction = position_on + self._duration_beats
 
         self_plotlist.append(
             {
                 "note": {
-                    "position_on": position_on._rational,
-                    "position_off": position_off._rational,
+                    "position_on": position_on,
+                    "position_off": position_off,
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
                     "channel": self._channel,
@@ -1086,14 +1086,14 @@ class Note(Element):
 
         self_plotlist: list[dict] = []
     
-        position_on: ra.Position = ra.Position(position_beats + self._position_beats)
-        position_off: ra.Position = position_on + self % od.Pipe( ra.Duration() )
+        position_on: Fraction = position_beats + self._position_beats
+        position_off: Fraction = position_on + self._duration_beats
 
         self_plotlist.append(
             {
                 "note": {
-                    "position_on": position_on._rational,
-                    "position_off": position_off._rational,
+                    "position_on": position_on,
+                    "position_off": position_off,
                     "pitch": pitch_int,
                     "velocity": self._velocity,
                     "channel": self._channel,
@@ -1114,7 +1114,7 @@ class Note(Element):
 
                 tied_note: bool = self._get_staff()._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
-                    position_on._rational, position_off._rational,
+                    position_on, position_off,
                     self_plotlist[0]["note"], extend_note
                 )
 
@@ -1224,7 +1224,7 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        self_duration_beats: Fraction = self._get_staff().convertToBeats( ra.Duration(self._duration_beats) )._rational * self._gate
+        self_duration_beats: Fraction = self._duration_beats * self._gate
         self_duration: float = float(self_duration_beats)
         if self_duration == 0:
             return []
@@ -2382,13 +2382,13 @@ class Automation(Element):
 
         self_plotlist: list[dict] = []
         
-        position_on: ra.Position = ra.Position(position_beats + self._position_beats)
+        position_on: Fraction = position_beats + self._position_beats
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
             {
                 "automation": {
-                    "position": position_on._rational,
+                    "position": position_on,
                     "value": self._get_msb_value(),
                     "channel": self._channel
                 }
@@ -3703,7 +3703,7 @@ class Panic(Element):
             # Starts by turning off All keys for all pitches, from 0 to 127
             for pitch in range(128):
                 self_playlist.extend(
-                    Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.Duration(1/16)), ou.Velocity(0))
+                    Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.NoteValue(1/16)), ou.Velocity(0))
                         .getPlaylist(midi_track, position_beats, False)
                 )
 
