@@ -175,6 +175,8 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
+                if self._position_beats == other._position_beats:
+                    return self._channel < other._channel
                 return self._position_beats < other._position_beats
             case _:
                 return self % other < other
@@ -183,6 +185,8 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
+                if self._position_beats == other._position_beats:
+                    return self._channel > other._channel
                 return self._position_beats > other._position_beats
             case _:
                 return self % other > other
@@ -1003,7 +1007,11 @@ class Note(Element):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    return self._pitch.pitch_int() < other._pitch.pitch_int()
+                    self_pitch: int = self._pitch.pitch_int()
+                    other_pitch: int = other._pitch.pitch_int()
+                    if self_pitch == other_pitch:
+                        return self._channel < other._channel
+                    return self_pitch < other_pitch
                 return self._position_beats < other._position_beats
             case Element():
                 return super().__lt__(other)
@@ -1016,7 +1024,11 @@ class Note(Element):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    return self._pitch.pitch_int() > other._pitch.pitch_int()
+                    self_pitch: int = self._pitch.pitch_int()
+                    other_pitch: int = other._pitch.pitch_int()
+                    if self_pitch == other_pitch:
+                        return self._channel > other._channel
+                    return self_pitch > other_pitch
                 return self._position_beats > other._position_beats
             case Element():
                 return super().__gt__(other)
@@ -2347,6 +2359,8 @@ class Automation(Element):
             case Automation():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
+                    if self._value == other._value:
+                        return self._channel < other._channel
                     return self._value < other._value
                 return self._position_beats < other._position_beats
             case Element():
@@ -2360,6 +2374,8 @@ class Automation(Element):
             case Automation():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
+                    if self._value == other._value:
+                        return self._channel > other._channel
                     return self._value > other._value
                 return self._position_beats > other._position_beats
             case Element():
