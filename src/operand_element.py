@@ -162,12 +162,8 @@ class Element(o.Operand):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Element():
-                if self._owner_clip is other._owner_clip:   # Most of the cases. Optimization!
-                    return self._position_beats == other._position_beats \
-                        and self._duration_beats == other._duration_beats \
-                        and self._channel == other._channel
-                return self % ra.Position() == other % ra.Position() \
-                    and self % ra.Duration() == other % ra.Duration() \
+                return self._position_beats == other._position_beats \
+                    and self._duration_beats == other._duration_beats \
                     and self._channel == other._channel
             case od.Conditional():
                 return other == self
@@ -261,7 +257,7 @@ class Element(o.Operand):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
-            self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
+            self._duration_beats        = self.deserialize(serialization["parameters"]["duration"])
             self._channel               = self.deserialize(serialization["parameters"]["channel"])
             self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
         return self
@@ -277,7 +273,7 @@ class Element(o.Operand):
                 self._enabled               = operand._enabled
                 # No conversion is done, beat and note_value values are directly copied (Same for Part)
                 self._position_beats        = operand._position_beats
-                self._duration_beats    = operand._duration_beats
+                self._duration_beats        = operand._duration_beats
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 if self._owner_clip is None:    # << and copy operation doesn't override ownership
                     self._owner_clip        = operand._owner_clip
@@ -306,7 +302,7 @@ class Element(o.Operand):
             case Fraction():
                 self._position_beats        = operand
             case ra.Length():
-                self._duration_beats    = self._get_staff().convertToDuration(operand)._rational
+                self._duration_beats        = self._get_staff().convertToDuration(operand)._rational
             case int():
                 self._position_beats        = self._get_staff().convertToBeats(ra.Measures(operand))._rational
             case ou.Channel():
@@ -1009,12 +1005,10 @@ class Note(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Note():
-                self_position: Fraction = self._position_beats
-                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
-                if self_position == other_position:
+                if self._position_beats == other._position_beats:
                     return self._pitch.pitch_int() < other._pitch.pitch_int()
-                return self_position < other_position
+                return self._position_beats < other._position_beats
             case Element():
                 return super().__lt__(other)
             case _:
@@ -1024,12 +1018,10 @@ class Note(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Note():
-                self_position: Fraction = self._position_beats
-                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
-                if self_position == other_position:
+                if self._position_beats == other._position_beats:
                     return self._pitch.pitch_int() > other._pitch.pitch_int()
-                return self_position > other_position
+                return self._position_beats > other._position_beats
             case Element():
                 return super().__gt__(other)
             case _:
@@ -2357,12 +2349,10 @@ class Automation(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Automation():
-                self_position: Fraction = self._position_beats
-                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
-                if self_position == other_position:
+                if self._position_beats == other._position_beats:
                     return self._value < other._value
-                return self_position < other_position
+                return self._position_beats < other._position_beats
             case Element():
                 return super().__lt__(other)
             case _:
@@ -2372,12 +2362,10 @@ class Automation(Element):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Automation():
-                self_position: Fraction = self._position_beats
-                other_position: Fraction = other._position_beats
                 # Adds predictability in sorting and consistency in clipping
-                if self_position == other_position:
+                if self._position_beats == other._position_beats:
                     return self._value > other._value
-                return self_position > other_position
+                return self._position_beats > other._position_beats
             case Element():
                 return super().__gt__(other)
             case _:
