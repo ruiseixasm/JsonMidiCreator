@@ -2209,7 +2209,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
-                self_duration: ra.Length = self % ra.Duration()
+                self_duration: ra.Duration = self % ra.Duration()
                 duration_value: Fraction = self_duration % operand % Fraction()
                 if duration_value > 0:
                     operand_value: Fraction = operand % Fraction()
@@ -2247,32 +2247,32 @@ class Clip(Composition):  # Just a container of Elements
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
-                    segmented_denominator: ra.Duration = ra.Duration(total_segments)
                     for first_element in self._items:
-                        first_element /= segmented_denominator
-                        first_element_length: ra.Length = first_element % ra.Length()
+                        first_element._duration_beats /= total_segments
+                        first_element_duration: Fraction = first_element._duration_beats
                         for next_element_i in range(1, total_segments):
-                            next_element: oe.Element = first_element.copy()
-                            next_element += ra.Position( first_element_length * next_element_i )
+                            next_element: oe.Element = first_element.copy() # already with the right duration
+                            next_element._position_beats += first_element_duration * next_element_i
                             new_elements.append(next_element)
                     self._append(new_elements)
             # Divides the `Duration` by sections with the given `Duration` (note value)
             case ra.Duration():
                 new_elements: list[oe.Element] = []
                 for first_element in self._items:
-                    global_length: ra.Length = first_element % ra.Length()
-                    if operand < global_length:
-                        global_finish: ra.Position = first_element.finish()
-                        global_position: ra.Position = first_element % ra.Position()
-                        first_element << operand
-                        next_split: ra.Position = global_position + operand
-                        while global_finish > next_split:
+                    group_length: Fraction = first_element._duration_beats
+                    segment_duration: Fraction = operand._fraction
+                    if segment_duration < group_length:
+                        group_start: Fraction = first_element._position_beats
+                        group_finish: Fraction = group_start + first_element._duration_beats
+                        first_element._duration_beats = segment_duration
+                        next_split: Fraction = group_start + segment_duration
+                        while group_finish > next_split:
                             next_element: oe.Element = first_element.copy()
                             new_elements.append(next_element)
-                            next_element << next_split  # Just positions the `Element`
-                            next_split += operand
-                            if next_split > global_finish:
-                                next_element -= ra.Duration(next_split - global_finish) # Trims the extra `Duration`
+                            next_element._position_beats = next_split  # Just positions the `Element`
+                            next_split += segment_duration
+                            if next_split > group_finish:
+                                next_element._duration_beats -= next_split - group_finish # Trims the extra `Duration`
                                 break
                 self._append(new_elements)
             
@@ -2984,7 +2984,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         for index, single_element in enumerate(self._items):
             if index > 0:   # Not the first element
-                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(self._items[index - 1]._duration_beats))._rational
+                duration_beats: Fraction = self._items[index - 1]._duration_beats
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
                 if ignore_empty_measures:
