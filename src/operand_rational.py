@@ -650,8 +650,8 @@ class Convertible(Rational):
             case ou.Beat():             return self._get_staff(operand).convertToBeat(self)
             case ou.Step():             return self._get_staff(operand).convertToStep(self)
             case Position():            return self._get_staff(operand).convertToPosition(self)
+            case Duration():            return self._get_staff(operand).convertToDuration(self) # Has to come before that `Length` because it's its subclass
             case Length():              return self._get_staff(operand).convertToLength(self)
-            case Duration():            return self._get_staff(operand).convertToDuration(self)
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
@@ -670,7 +670,7 @@ class Convertible(Rational):
     def __lt__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
-            case Measurement() | TimeValue() | Duration():
+            case Convertible():
                 return self._get_staff(other).convertToBeats(self)._rational \
                     < self._get_staff(other).convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
@@ -682,7 +682,7 @@ class Convertible(Rational):
     def __gt__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
-            case Measurement() | TimeValue() | Duration():
+            case Convertible():
                 return self._get_staff(other).convertToBeats(self)._rational \
                     > self._get_staff(other).convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
