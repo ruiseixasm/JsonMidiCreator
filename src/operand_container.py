@@ -3405,23 +3405,8 @@ class Part(Composition):
         """
         plot_list: list = []
         for single_clip in self:
-            if isinstance(single_clip, Clip):
-                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats)
-                for element_plotlist in clip_plotlist:
-                    if "note" in element_plotlist:
-                        clip_position_on: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_on"])
-                        part_position_on: ra.Beats = self._get_staff().convertToBeats(clip_position_on)
-                        element_plotlist["note"]["position_on"] = part_position_on._rational
-                        clip_position_off: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_off"])
-                        part_position_off: ra.Beats = self._get_staff().convertToBeats(clip_position_off)
-                        element_plotlist["note"]["position_off"] = part_position_off._rational
-                    elif "automation" in element_plotlist:
-                        clip_position: ra.Beats = ra.Beats(single_clip, element_plotlist["automation"]["position"])
-                        part_position: ra.Beats = self._get_staff().convertToBeats(clip_position)
-                        element_plotlist["automation"]["position"] = part_position._rational
-
-                plot_list.extend( clip_plotlist )
-
+            clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats)
+            plot_list.extend( clip_plotlist )
         return plot_list
 
 
