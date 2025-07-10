@@ -136,6 +136,8 @@ class Element(o.Operand):
                 return operand.copy()._set_staff_reference(self._get_staff()) << od.Pipe( self._duration_beats )
             case ra.NoteValue():
                 return operand.copy()._set_staff_reference(self._get_staff()) << ra.Beats( self._duration_beats )
+            case float():
+                return self % ra.NoteValue() % float()
             case ra.Position():
                 return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
@@ -146,7 +148,6 @@ class Element(o.Operand):
             case Element():         return self.copy()
             case int():
                 return self._get_staff().convertToMeasures(ra.Beats(self._position_beats)) % int()
-            case float():           return float( self._duration_beats )
             case Fraction():        return self._position_beats
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
@@ -293,6 +294,8 @@ class Element(o.Operand):
                 self._duration_beats        = self._get_staff().convertToDuration(operand)._rational
             case ra.NoteValue():
                 self << ra.Duration(self, operand)
+            case float():
+                self << ra.NoteValue(operand)
             case ra.Position() | ra.TimeValue():
                 self._position_beats        = self._get_staff().convertToBeats(operand)._rational
             case ou.TimeUnit():
@@ -300,8 +303,6 @@ class Element(o.Operand):
                 self._position_beats        = self_position._rational
             case Fraction():
                 self._position_beats        = operand
-            case float():
-                self._duration_beats    = ra.Duration(operand)._rational
             case ra.Length():
                 self._duration_beats    = self._get_staff().convertToDuration(operand)._rational
             case int():
