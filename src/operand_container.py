@@ -3404,10 +3404,9 @@ class Part(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        part_position: ra.Position = self % od.Pipe( ra.Position() )
         for single_clip in self:
             if isinstance(single_clip, Clip):
-                clip_plotlist: list[dict] = single_clip.getPlotlist(part_position)
+                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats)
                 for element_plotlist in clip_plotlist:
                     if "note" in element_plotlist:
                         clip_position_on: ra.Beats = ra.Beats(single_clip, element_plotlist["note"]["position_on"])
@@ -3454,8 +3453,7 @@ class Part(Composition):
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                part_position: ra.Position = self % od.Pipe( ra.Position() )
-                midi_list.extend(single_clip.getMidilist(part_position))
+                midi_list.extend(single_clip.getMidilist(self._position_beats))
         return midi_list
 
     def getSerialization(self) -> dict:
