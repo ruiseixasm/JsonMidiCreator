@@ -2185,13 +2185,13 @@ class Clip(Composition):  # Just a container of Elements
                 right_start_position: ra.Position = operand.start()
                 if right_start_position is not None:
                     length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                    # Convert Length to Position
-                    add_position: ra.Position = ra.Position(length_shift)
+                    position_shift: Fraction = length_shift._rational
                     # Elements to be added and propagated upwards on the stack
-                    operand_elements = [
-                        (single_element + add_position)._set_owner_clip(self)
-                        for single_element in operand._items
-                    ]
+                    operand_elements: list[oe.Element] = []
+                    for single_element in operand._items:
+                        element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
+                        operand_elements.append(element_copy)
+                        element_copy._position_beats += position_shift
                     self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
