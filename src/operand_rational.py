@@ -644,14 +644,14 @@ class Convertible(Rational):
         match operand:
             case Beats():               return self._get_staff(operand).convertToBeats(self)
             case Measures():            return self._get_staff(operand).convertToMeasures(self)
-            case Duration():            return self._get_staff(operand).convertToDuration(self)
-            case NoteValue():           return self._get_staff(operand).convertToDuration(self)
+            case NoteValue():           return self._get_staff(operand).convertToNoteValue(self)
             case Steps():               return self._get_staff(operand).convertToSteps(self)
             case ou.Measure():          return self._get_staff(operand).convertToMeasure(self)
             case ou.Beat():             return self._get_staff(operand).convertToBeat(self)
             case ou.Step():             return self._get_staff(operand).convertToStep(self)
             case Position():            return self._get_staff(operand).convertToPosition(self)
             case Length():              return self._get_staff(operand).convertToLength(self)
+            case Duration():            return self._get_staff(operand).convertToDuration(self)
             case Minutes():             return Minutes( self._get_staff().getMinutes(self) )
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
