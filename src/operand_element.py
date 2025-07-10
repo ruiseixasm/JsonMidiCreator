@@ -445,12 +445,11 @@ class Element(o.Operand):
             case int():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
-                    operand_value: Fraction = operand % Fraction()
                     if operand > 1:
                         for next_element_i in range(1, operand):
                             next_element: Element = self.copy()
-                            next_element += ra.Position( self_duration * next_element_i )
                             new_elements.append(next_element)
+                            next_element._position_beats += self._duration_beats * next_element_i
                         self._owner_clip._append(new_elements)
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
@@ -470,8 +469,8 @@ class Element(o.Operand):
                         if self_repeating > 1:
                             for next_element_i in range(1, self_repeating):
                                 next_element: Element = self.copy()
-                                next_element += ra.Position( self_duration * next_element_i )
                                 new_elements.append(next_element)
+                                next_element._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__itruediv__(operand)
