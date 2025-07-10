@@ -207,7 +207,9 @@ class Element(o.Operand):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        
+        self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+
         return [
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min)
@@ -572,23 +574,6 @@ class Element(o.Operand):
         return self
 
 
-
-    def get_position_duration_minutes(self, position_beats: Fraction = Fraction(0)) -> tuple[Fraction]:
-
-        if isinstance(position_beats, Fraction):
-            self_position_min: Fraction = self._get_staff().getMinutes(
-                ra.Beats(position_beats + self._position_beats)
-            )
-        else:
-            self_position_min: Fraction = self._get_staff().getMinutes( ra.Beats(self._position_beats) )
-        self_duration_min: Fraction = self._get_staff().getMinutes( ra.Duration(self._duration_beats) )
-
-        return self_position_min, self_duration_min
-
-    def get_beats_minutes(self, beats: Fraction) -> Fraction:
-        return self._get_staff().getMinutes( ra.Beats(beats) )
-
-
 class Group(Element):
     """`Element -> Group`
 
@@ -803,7 +788,8 @@ class Clock(Element):
 
             if total_clock_pulses > 0:
 
-                self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+                self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+                self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
                 # Starts by setting the Devices
                 if devices_header and isinstance(midi_track, ou.MidiTrack):
@@ -1163,9 +1149,10 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        _, self_duration_min = self.get_position_duration_minutes(position_beats)
         self_position_beats: Fraction = position_beats + self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
+
         if self_duration_min == 0:
             return []
 
@@ -2559,7 +2546,9 @@ class ControlChange(Automation):
         if not self._enabled:
             return []
 
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        self_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+
         time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
@@ -3112,7 +3101,10 @@ class PitchBend(Automation):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        
+        self_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -3278,7 +3270,10 @@ class Aftertouch(Automation):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
         if not self._enabled:
             return []
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        
+        self_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -3433,7 +3428,9 @@ class PolyAftertouch(Aftertouch):
         if not self._enabled:
             return []
 
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        self_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
 
@@ -3553,7 +3550,10 @@ class ProgramChange(Element):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
-        self_position_min, self_duration_min = self.get_position_duration_minutes(position_beats)
+        
+        self_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
