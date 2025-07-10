@@ -525,19 +525,20 @@ class Element(o.Operand):
             case ra.Duration():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
-                    global_length: ra.Length = self % ra.Length()
-                    if operand < global_length:
-                        global_finish: ra.Position = self.finish()
-                        global_position: ra.Position = self % ra.Position()
-                        self << operand
-                        next_split: ra.Position = global_position + operand
-                        while global_finish > next_split:
+                    group_length: Fraction = self._duration_beats
+                    segment_duration: Fraction = operand._rational
+                    if segment_duration < group_length:
+                        group_position: Fraction = self._position_beats
+                        group_finish: Fraction = group_position + self._duration_beats
+                        self._duration_beats = segment_duration
+                        next_split: Fraction = group_position + segment_duration
+                        while group_finish > next_split:
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
-                            next_element << next_split  # Just positions the `Element`
-                            next_split += operand
-                            if next_split > global_finish:
-                                next_element -= ra.Duration(next_split - global_finish) # Trims the extra `Duration`
+                            next_element._position_beats = next_split  # Just positions the `Element`
+                            next_split += segment_duration
+                            if next_split > group_finish:
+                                next_element._duration_beats -= next_split - group_finish # Trims the extra `Duration`
                                 break
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
