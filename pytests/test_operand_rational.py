@@ -368,13 +368,17 @@ def test_div_time():
 def test_basic_conversions():
 
     position = Position(10.5)
+
     assert position % Measures() % Fraction() == 10.5
     assert position % Measure() % Fraction() == 10
     assert position % Beats() % Fraction() == 10.5 * 4
     assert position % Beat() % Fraction() == 2      # Second beat in the Measure 10
     assert position % Steps() % Fraction() == 10.5 * 4 * 4
     assert position % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
-    assert position % Duration() % Fraction() == 10 * (1/1) + 2 * (1/4)
+    print(f"NoteValue: {position % NoteValue() % Fraction()} vs. {10 * (1/1) + 2 * (1/4)}")
+    assert position % NoteValue() % Fraction() == 10 * (1/1) + 2 * (1/4)
+    print(f"NoteValue: {position % Duration() % Fraction()} vs. {(10 * (1/1) + 2 * (1/4)) * 4}")
+    assert position % Duration() % Fraction() == (10 * (1/1) + 2 * (1/4)) * 4 # Because one note value is 4 beats !
 
     quantization: Quantization = Quantization(1/16)
     assert quantization % Fraction() == 1/16
