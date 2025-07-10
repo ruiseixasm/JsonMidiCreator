@@ -2278,18 +2278,19 @@ class Clip(Composition):  # Just a container of Elements
             
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 new_elements: list[oe.Element] = []
-                for first_element in self._items:
-                    element_start: ra.Position = first_element.start()
-                    split_position: ra.Position = element_start.copy(operand)
-                    if split_position > element_start:
-                        element_finish: ra.Position = first_element.finish()
-                        if split_position < element_finish:
-                            first_duration: ra.Duration = ra.Duration(split_position - element_start)
-                            second_duration: ra.Duration = ra.Duration(element_finish - split_position)
-                            first_element << first_duration
-                            second_element: oe.Element = first_element.copy(second_duration)
-                            second_element += ra.Position(first_duration)
-                            new_elements.append(second_element)
+                for left_element in self._items:
+                    left_start: Fraction = left_element._position_beats
+                    split_position: Fraction = ra.Position(self, left_start, operand)._rational
+                    if split_position > left_start:
+                        right_finish: Fraction = left_element._position_beats + left_element._duration_beats
+                        if split_position < right_finish:
+                            left_duration: Fraction = split_position - left_start
+                            right_duration: Fraction = right_finish - split_position
+                            left_element._duration_beats = left_duration
+                            right_element: oe.Element = left_element.copy()
+                            new_elements.append(right_element)
+                            right_element._position_beats = split_position
+                            right_element._duration_beats = right_duration
                 self._append(new_elements)
 
             case tuple():
