@@ -50,11 +50,13 @@ def test_dotted_mod():
     assert dotted % Fraction() == 1/4 * 3/2
     print(dotted % Dotted() % float())
     assert dotted % Dotted() % float() == 1/4
+    print(dotted % NoteValue() % Fraction())
+    assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
     print(dotted % Duration() % Fraction())
-    assert dotted % Duration() % Fraction() == Fraction(3, 8)
+    assert dotted % Duration() % Fraction() == Fraction(3, 8) * 4
     assert dotted % Pipe( Fraction() ) == Fraction(3, 8)
 
-    undotted = Duration(dotted)
+    undotted = NoteValue(dotted)
     assert dotted % od.Pipe( Fraction() ) == Fraction(3, 8)
     assert undotted % od.Pipe( Fraction() ) == Fraction(1, 4)
 
