@@ -546,17 +546,18 @@ class Element(o.Operand):
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
-                    self_start: ra.Position = self.start()
-                    split_position: ra.Position = self_start.copy(operand)
-                    if split_position > self_start:
-                        self_finish: ra.Position = self.finish()
-                        if split_position < self_finish:
-                            first_duration: ra.Duration = ra.Duration(split_position - self_start)
-                            second_duration: ra.Duration = ra.Duration(self_finish - split_position)
-                            self << first_duration
-                            second_element: Element = self.copy(second_duration)._set_owner_clip(self)
-                            second_element += ra.Position(first_duration)
-                            new_elements.append(second_element)
+                    left_start: Fraction = self._position_beats
+                    split_position: Fraction = ra.Position(self, left_start, operand)._rational
+                    if split_position > left_start:
+                        right_finish: Fraction = left_start + self._duration_beats
+                        if split_position < right_finish:
+                            left_duration: Fraction = split_position - left_start
+                            right_duration: Fraction = right_finish - split_position
+                            self._duration_beats = left_duration
+                            right_element: Element = self.copy()
+                            new_elements.append(right_element)
+                            right_element._position_beats = split_position
+                            right_element._duration_beats = right_duration
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)

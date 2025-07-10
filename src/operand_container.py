@@ -2280,7 +2280,7 @@ class Clip(Composition):  # Just a container of Elements
                     left_start: Fraction = left_element._position_beats
                     split_position: Fraction = ra.Position(self, left_start, operand)._rational
                     if split_position > left_start:
-                        right_finish: Fraction = left_element._position_beats + left_element._duration_beats
+                        right_finish: Fraction = left_start + left_element._duration_beats
                         if split_position < right_finish:
                             left_duration: Fraction = split_position - left_start
                             right_duration: Fraction = right_finish - split_position
