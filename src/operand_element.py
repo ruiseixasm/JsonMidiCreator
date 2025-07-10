@@ -369,10 +369,10 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip Staff and integrates self
             # For efficient reasons
             case ra.Position():
-                self._position_beats += self._get_staff().convertToBeats(operand)._rational
+                self._position_beats += operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats += operand._rational
             case _:
-                if isinstance(operand, ou.TimeUnit):    # avoids erroneous behavior
-                    operand = self._get_staff().convertToBeats(operand)
                 self_operand: any = self % operand
                 self_operand += operand
                 return self << self_operand
@@ -383,10 +383,10 @@ class Element(o.Operand):
         match operand:
             # For efficient reasons
             case ra.Position():
-                self._position_beats -= self._get_staff().convertToBeats(operand)._rational
+                self._position_beats -= operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats -= operand._rational
             case _:
-                if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
-                    operand = self._get_staff().convertToBeats(operand)
                 self_operand: any = self % operand
                 self_operand -= operand
                 return self << self_operand
