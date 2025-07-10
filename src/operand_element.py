@@ -188,10 +188,10 @@ class Element(o.Operand):
                 return self % other > other
     
     def start(self) -> ra.Position:
-        return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
+        return ra.Position(self, self._position_beats)
 
     def finish(self) -> ra.Position:
-        return self._get_staff().convertToPosition(ra.Beats(self._position_beats)) + self % od.Pipe( ra.Length() )
+        return ra.Position(self, self._position_beats + self._duration_beats)
 
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
