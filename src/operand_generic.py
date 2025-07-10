@@ -1614,10 +1614,6 @@ class Staff(Generic):
         return ra.Duration(beats)._set_staff_reference(self)
 
 
-    def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> Fraction:
-        time_beats: ra.Beats = self.convertToBeats(time)
-        return time_beats._rational / settings._tempo
-
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return [{ "time_ms": o.minutes_to_time_ms( settings.beats_to_minutes(position_beats) ) }]
 

@@ -283,7 +283,6 @@ class TimeUnit(Unit):
             case Step():                return self._get_staff(operand).convertToStep(self)
             case ra.Position():         return self._get_staff(operand).convertToPosition(self)
             case ra.Length():           return self._get_staff(operand).convertToLength(self)
-            case ra.Minutes():          return ra.Minutes( self._get_staff().getMinutes(self) )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -350,9 +349,6 @@ class TimeUnit(Unit):
     def convertToLength(self) -> 'Length':
         return self._get_staff().convertToLength(self)
 
-
-    def getMinutes(self) -> Fraction:
-        return self._get_staff().getMinutes(self)
 
     def getPlaylist(self) -> list[dict]:
         return self._get_staff().getPlaylist(self)

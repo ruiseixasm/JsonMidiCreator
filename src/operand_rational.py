@@ -652,7 +652,6 @@ class Convertible(Rational):
             case Position():            return self._get_staff(operand).convertToPosition(self)
             case Length():              return self._get_staff(operand).convertToLength(self)
             case Duration():            return self._get_staff(operand).convertToDuration(self)
-            case Minutes():             return Minutes( self._get_staff().getMinutes(self) )
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
@@ -719,10 +718,6 @@ class Convertible(Rational):
     def convertToLength(self) -> 'Length':
         return self._get_staff().convertToLength(self)
 
-
-    def getMinutes(self) -> Fraction:
-        beats: Fraction = self % Beats() % Fraction()
-        return self._get_staff().getMinutes(self)
 
     def getPlaylist(self) -> list[dict]:
         beats: Fraction = self % Beats() % Fraction()

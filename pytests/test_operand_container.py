@@ -1036,8 +1036,6 @@ def test_part_position():
     assert part_120 % Position() != part_60 % Position()
     part_60 << Measures(2)
     assert part_120 % Position() == part_60 % Position()
-    assert (part_120 % Position()).getMinutes() == (part_60 % Position()).getMinutes()
-    assert part_120 % Position() % Minutes() == part_60 % Position() % Minutes()
     print(f"Part Duration: {part_120 % Duration() % Fraction()}")
     assert part_120 % Duration() == 1/4
     assert part_120 % Duration() == part_60 % Duration() * 1/2

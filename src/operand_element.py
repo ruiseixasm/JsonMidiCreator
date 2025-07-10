@@ -219,11 +219,9 @@ class Element(o.Operand):
 
         self_numerator: int = self._get_staff()._time_signature._top
         self_denominator: int = self._get_staff()._time_signature._bottom
-        self_position: float = float(self._position_beats)
-        self_duration: float = self._get_staff().convertToBeats(ra.Duration(self._duration_beats)) % od.Pipe( float() )
+        self_position: float = float(position_beats + self._position_beats)
+        self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
-        if isinstance(position_beats, Fraction):
-            self_position = float(position_beats + self._position_beats)
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -756,11 +754,11 @@ class Clock(Element):
                     single_devices.add(clocked_device)
 
             pulses_per_beat: Fraction = global_staff % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
-            total_clock_pulses: int = global_staff.convertToBeats( ra.Duration(self._duration_beats) ) * pulses_per_beat % int()
+            total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
 
             if total_clock_pulses > 0:
                 
-                self_duration_min: Fraction = global_staff.getMinutes( ra.NoteValue(self._duration_beats) )
+                self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
                 single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
                 self_playlist.append(
