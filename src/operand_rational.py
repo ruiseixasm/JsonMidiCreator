@@ -997,7 +997,7 @@ class Length(Measurement):
         return rounded_length + Steps(1)
 
 class Duration(Measurement):
-    """`Rational -> Convertible -> Measurement -> Duration`
+    """`Rational -> Convertible -> Measurement -> Length -> Duration`
 
     Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
     
@@ -1016,7 +1016,7 @@ class Duration(Measurement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Duration():
+            case Measurement():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
                 self._rational = operand._rational
