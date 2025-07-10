@@ -2007,9 +2007,11 @@ class Retrigger(Note):
             case ou.Number():       return ou.Number() << od.Pipe(self._number)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
-            case ra.Duration() | ra.NoteValue():
+            case ra.Duration():
                 return operand.copy() << od.Pipe( self._duration_beats / 2 )
-            case float():           return float( self._duration_beats / 2 )
+            case ra.NoteValue():
+                return operand.copy() << self % ra.Duration()
+            case float():           return self % ra.NoteValue() % float()
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
@@ -2085,10 +2087,12 @@ class Retrigger(Note):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ra.Duration() | ra.NoteValue():
-                self._duration_beats    = operand._rational * 2  # Equivalent to two sized Notes
+            case ra.Duration():
+                self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
+            case ra.NoteValue():
+                self << ra.Duration(self, operand)
             case float():
-                self._duration_beats    = ra.Duration(operand)._rational * 2
+                self << ra.NoteValue(operand)
             case _:
                 super().__lshift__(operand)
         return self
