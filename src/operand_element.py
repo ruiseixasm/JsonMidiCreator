@@ -513,13 +513,11 @@ class Element(o.Operand):
                     new_elements: list[Element] = []
                     total_segments: int = operand % int()   # Extracts the original imputed integer
                     if total_segments > 1:
-                        segmented_denominator: ra.Duration = ra.Duration(total_segments)
-                        self /= segmented_denominator
-                        self_length: ra.Length = self % ra.Length()
+                        self._duration_beats /= total_segments
                         for next_element_i in range(1, total_segments):
                             next_element: Element = self.copy()
-                            next_element += ra.Position( self_length * next_element_i )
                             new_elements.append(next_element)
+                            next_element._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
