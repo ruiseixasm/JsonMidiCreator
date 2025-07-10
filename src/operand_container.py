@@ -274,10 +274,10 @@ class Container(o.Operand):
     def __gt__(self, other: any) -> bool:
         return self % other > other
 
-    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
 
-    def getMidilist(self, position: ra.Position = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
 
     def getSerialization(self) -> dict:
@@ -1164,7 +1164,7 @@ class Composition(Container):
         return self.empty_copy()
 
 
-    def getPlotlist(self, position: ra.Position = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -1852,17 +1852,7 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    def _get_position_beats(self, position: ra.Position = None) -> Fraction:
-
-        position_beats: Fraction = Fraction(0)
-
-        if isinstance(position, ra.Position):
-            position_beats += self._staff.convertToPosition(position)._rational
-
-        return position_beats
-
-
-    def getPlotlist(self, position: ra.Position = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -1883,7 +1873,7 @@ class Clip(Composition):  # Just a container of Elements
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
-                for single_playlist in single_element.getPlotlist(self._midi_track, position, channels)
+                for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, channels)
         )
         # sorted(set) returns the sorted list from set
         # list_none = list(set).sort() doesn't return anything but None !
@@ -1899,7 +1889,7 @@ class Clip(Composition):  # Just a container of Elements
         return self_plotlist
 
 
-    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -1910,7 +1900,6 @@ class Clip(Composition):  # Just a container of Elements
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         self._staff.reset()
-        position_beats: Fraction = self._get_position_beats(position)
 
         self_playlist: list[dict] = [
             {
@@ -1925,7 +1914,7 @@ class Clip(Composition):  # Just a container of Elements
         return self_playlist
 
 
-    def getMidilist(self, position: ra.Position = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
@@ -1936,7 +1925,6 @@ class Clip(Composition):  # Just a container of Elements
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
         self._staff.reset()
-        position_beats: Fraction = self._get_position_beats(position)
 
         return [
             single_midilist
@@ -3449,9 +3437,8 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        part_position: ra.Position = self % od.Pipe( ra.Position() )
         for single_clip in self:
-            play_list.extend(single_clip.getPlaylist(part_position))
+            play_list.extend(single_clip.getPlaylist(self._position_beats))
         return play_list
 
     def getMidilist(self) -> list[dict]:

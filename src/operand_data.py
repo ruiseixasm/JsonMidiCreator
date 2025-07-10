@@ -391,18 +391,18 @@ class Serialization(Data):
     if TYPE_CHECKING:
         from operand_rational import Position
 
-    def getPlaylist(self, position: 'Position' = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list:
         match self._data:
             case o.Operand():
-                return self._data.getPlaylist(position)
+                return self._data.getPlaylist(position_beats)
             case list():
                 return self._data
         return []
 
-    def getMidilist(self, midi_track = None, position = None) -> list:
+    def getMidilist(self, midi_track = None, position_beats: Fraction = Fraction(0)) -> list:
         match self._data:
             case o.Operand():
-                return self._data.getMidilist(midi_track, position)
+                return self._data.getMidilist(midi_track, position_beats)
             case list():
                 return self._data
         return []
@@ -552,13 +552,11 @@ class Playlist(Data):
             return finish_position_ms
         return 0.0
   
-    def getPlaylist(self, position: 'Position' = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         import operand_rational as ra
         if isinstance(self._data, list) and len(self._data) > 0:
-            if not isinstance(position, ra.Position):
-                position: ra.Position = ra.Position(0)
             # Position generates a dummy list with the position as ms
-            operand_playlist_list: list[dict] = position.getPlaylist()
+            operand_playlist_list: list[dict] = ra.Position(position_beats).getPlaylist()
             offset_position_ms: float = operand_playlist_list[0]["time_ms"]
             self_playlist_list_copy: list[dict] = self.deep_copy( self._data )
             for self_dict in self_playlist_list_copy:

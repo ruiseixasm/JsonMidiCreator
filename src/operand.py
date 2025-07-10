@@ -240,9 +240,6 @@ class Operand:
             case of.Frame():
                 return self % (operand % Operand())
             case od.Playlist():
-                position = operand % ra.Position()
-                if isinstance(position, ra.Position):
-                    return od.Playlist() << od.Pipe( self.getPlaylist(position) )
                 return od.Playlist() << od.Pipe( self.getPlaylist() )
             case od.Serialization():
                 return od.Serialization(self)
@@ -318,10 +315,10 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
-    def getPlaylist(self, position = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
 
-    def getMidilist(self, midi_track = None, position = None) -> list[dict]:
+    def getMidilist(self, midi_track = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
 
     def getSerialization(self) -> dict:

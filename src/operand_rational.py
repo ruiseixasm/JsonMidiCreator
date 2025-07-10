@@ -721,10 +721,12 @@ class Convertible(Rational):
 
 
     def getMinutes(self) -> Fraction:
+        beats: Fraction = self % Beats() % Fraction()
         return self._get_staff().getMinutes(self)
 
     def getPlaylist(self) -> list[dict]:
-        return self._get_staff().getPlaylist(self)
+        beats: Fraction = self % Beats() % Fraction()
+        return self._get_staff().getPlaylist(beats)
 
     # CHAINABLE OPERATIONS
 

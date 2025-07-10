@@ -1619,10 +1619,8 @@ class Staff(Generic):
         time_beats: ra.Beats = self.convertToBeats(time)
         return time_beats._rational / settings._tempo
 
-    def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
-        if position is None:
-            return [{ "time_ms": 0.0 }]
-        return [{ "time_ms": o.minutes_to_time_ms(self.getMinutes(position)) }]
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+        return [{ "time_ms": o.minutes_to_time_ms( settings.beats_to_minutes(position_beats) ) }]
 
 
     def getSerialization(self) -> dict:
