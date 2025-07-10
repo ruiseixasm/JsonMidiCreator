@@ -2120,18 +2120,16 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 right_clip: Clip = operand.copy()._set_owner_clip(self)
-
-                left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_clip.start()
+
                 if right_position is not None:
 
+                    left_length: ra.Length = self % ra.Length()
                     right_position = right_position.roundMeasures()
                     position_offset: ra.Position = right_position - left_length
-
                     right_clip -= position_offset   # Does a position offset
                     
                     self._append(right_clip._items) # Propagates upwards in the stack
-                    
                     if self._length_beats is not None:
                         self._length_beats += (right_clip % ra.Length())._rational
 

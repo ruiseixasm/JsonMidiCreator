@@ -407,8 +407,8 @@ class Element(o.Operand):
                     if operand > 1:
                         for next_element_i in range(1, operand):
                             next_element: Element = self.copy()
-                            next_element += ra.Position( ra.Measures(self._owner_clip, 1) * next_element_i )
                             new_elements.append(next_element)
+                            next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip()
@@ -424,8 +424,8 @@ class Element(o.Operand):
                     if self_repeating > 1:
                         for next_element_i in range(1, self_repeating):
                             next_element: Element = self.copy()
-                            next_element += ra.Position( ra.Measures(self._owner_clip, 1) * next_element_i )
                             new_elements.append(next_element)
+                            next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__imul__(operand)
