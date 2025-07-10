@@ -286,21 +286,21 @@ class Element(o.Operand):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Duration():
-                self._duration_beats        = self._get_staff().convertToDuration(operand)._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats        = operand._rational
             case ra.NoteValue():
                 self << ra.Duration(self, operand)
             case float():
                 self << ra.NoteValue(operand)
-            case ra.Position() | ra.TimeValue():
+            case ra.Position():
+                self._position_beats        = operand._rational
+            case ra.TimeValue():
                 self._position_beats        = self._get_staff().convertToBeats(operand)._rational
             case ou.TimeUnit():
                 self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_staff_reference(self._get_staff()) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
                 self._position_beats        = operand
-            case ra.Length():
-                self._duration_beats        = self._get_staff().convertToDuration(operand)._rational
             case int():
                 self._position_beats        = self._get_staff().convertToBeats(ra.Measures(operand))._rational
             case ou.Channel():
