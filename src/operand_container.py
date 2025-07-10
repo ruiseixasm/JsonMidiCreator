@@ -2984,7 +2984,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         for index, single_element in enumerate(self._items):
             if index > 0:   # Not the first element
-                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(self._items[index - 1]._duration_notevalue))._rational
+                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(self._items[index - 1]._duration_beats))._rational
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
                 if ignore_empty_measures:

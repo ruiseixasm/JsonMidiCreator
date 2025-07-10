@@ -1927,7 +1927,7 @@ class Settings(Generic):
         super().__init__()
         self._tempo: Fraction                       = Fraction(120)
         self._staff: Staff                          = Staff()
-        self._duration: Fraction                    = Fraction(1/4)
+        self._duration: Fraction                    = Fraction(1)   # Means 1 beat
         self._octave: int                           = 4
         self._velocity: int                         = 100
         self._controller: Controller                = Controller("Pan")
