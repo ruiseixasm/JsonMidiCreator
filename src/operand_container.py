@@ -1218,7 +1218,7 @@ class Composition(Container):
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: Fraction = ra.Duration(self, quantization).convertToLength() % od.Pipe( Fraction() )
+        quantization_beats: Fraction = ra.NoteValue(self, quantization).convertToLength() % od.Pipe( Fraction() )
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
