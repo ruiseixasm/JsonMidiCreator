@@ -1277,14 +1277,13 @@ class Composition(Container):
                 if pitch_range // 12 < 4:   # less than 4 octaves
                     middle_c_reference: int = 60 + 12
                     extra_octaves_range: int = 4 - pitch_range // 12
-                    for single_octave_range in range(extra_octaves_range):
-                        single_pitches_range: int = single_octave_range * 12
-                        raised_top: int = max_pitch + single_pitches_range
-                        lowered_bottom: int = min_pitch - single_pitches_range
+                    for _ in range(extra_octaves_range):
+                        raised_top: int = max_pitch + 12
+                        lowered_bottom: int = min_pitch - 12
                         if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
-                            max_pitch += single_pitches_range
+                            max_pitch += 12
                         else:
-                            min_pitch -= single_pitches_range
+                            min_pitch -= 12
 
 
                 # Shade black keys
