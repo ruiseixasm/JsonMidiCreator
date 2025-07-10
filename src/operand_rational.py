@@ -846,6 +846,10 @@ class Measurement(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Measurement():
+                if self._staff_reference is None:
+                    self._staff_reference = operand._staff_reference
+                self._rational = operand._rational  # Both are in beats
             case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
@@ -872,6 +876,8 @@ class Measurement(Convertible):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Measurement():
+                self._rational += operand._rational  # Both are in beats
             case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float():
@@ -883,6 +889,8 @@ class Measurement(Convertible):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Measurement():
+                self._rational -= operand._rational  # Both are in beats
             case Convertible() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float():
