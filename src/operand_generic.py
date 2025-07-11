@@ -1096,8 +1096,7 @@ class Scale(Generic):
             modulated_scale: list[int] = self.modulation(None)
             while tones > 0:
                 transposition += 1
-                if modulated_scale[transposition % 12]:
-                    tones -= 1
+                tones -= modulated_scale[transposition % 12]
         return transposition
 
     def modulation(self, mode: int | str = "5th") -> list[int]: # AKA as remode (remoding)
@@ -1109,8 +1108,7 @@ class Scale(Generic):
             if isinstance(self._scale, list) and len(self._scale) == 12:
                 while tones > 0:
                     transposition += 1
-                    if self._scale[transposition % 12]:
-                        tones -= 1
+                    tones -= self._scale[transposition % 12]
             if transposition != 0:
                 for key_i in range(12):
                     self_scale[key_i] = self._scale[(key_i + transposition) % 12]
@@ -1141,8 +1139,7 @@ class Scale(Generic):
             if isinstance(self._scale, list) and len(self._scale) == 12:
                 while tones > 0:
                     modulation += 1
-                    if self._scale[modulation % 12]:
-                        tones -= 1
+                    tones -= self._scale[modulation % 12]
             if modulation != 0:
                 for key_i in range(12):
                     modulated_scale[key_i] = self._scale[(key_i + modulation) % 12]
