@@ -356,12 +356,10 @@ class Pitch(Generic):
 
         # tonic_int goes UP and then DOWN (results in flat or natural)
         while tonic_int < root_key:
-            if staff_scale[ (root_key - tonic_int) % 12 ] == 1:  # Scale key
-                degree_0 += 1
+            degree_0 += staff_scale[ (root_key - tonic_int) % 12 ]
             tonic_int += 1
         while tonic_int > root_key:
-            if staff_scale[ (root_key - tonic_int) % 12 ] == 1:  # Scale key
-                degree_0 -= 1
+            degree_0 -= staff_scale[ (root_key - tonic_int) % 12 ]
             tonic_int -= 1
 
         if staff_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
