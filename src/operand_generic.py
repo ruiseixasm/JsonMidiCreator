@@ -335,7 +335,7 @@ class Pitch(Generic):
         if scale_transposition != 0:    # Optimization
             # Because a pitch scale may not be a diatonic scale (7 degrees)!
             if self._scale:
-                scale_degrees: int = sum(1 for key in self._scale if key == 1)
+                scale_degrees: int = sum(self._scale)
             else:
                 scale_degrees: int = 7  # Diatonic scales
             tonic_int: int = self._tonic_key % 12
@@ -647,7 +647,7 @@ class Pitch(Generic):
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 # Because a pitch scale may not be a diatonic scale (7 degrees)!
                 if self._scale:
-                    scale_degrees: int = sum(1 for key in self._scale if key == 1)
+                    scale_degrees: int = sum(self._scale)
                 else:
                     scale_degrees: int = 7  # Diatonic scales
                 previous_transposition: int = self._transposition % scale_degrees
@@ -801,19 +801,6 @@ class Pitch(Generic):
         return super().__div__(operand)
 
 
-    def move_semitones(self, move_tones: int) -> int:
-        scale = self._major_scale    # Major scale for the default staff
-        move_semitones: int = 0
-        while move_tones > 0:
-            move_semitones += 1
-            if scale[(self._degree_0 + move_semitones) % 12]:
-                move_tones -= 1
-        while move_tones < 0:
-            move_semitones -= 1
-            if scale[(self._degree_0 + move_semitones) % 12]:
-                move_tones += 1
-        return move_semitones
-    
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     _white_keys: dict = {
@@ -1034,30 +1021,26 @@ class Scale(Generic):
     def transpose_key(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
-        if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:
+        if len(scale) == 12 and sum(scale) > 0:
             while steps > 0:
                 scale_transposition += 1
-                if scale[scale_transposition % 12]:
-                    steps -= 1
+                steps -= scale[scale_transposition % 12]
             while steps < 0:
                 scale_transposition -= 1
-                if scale[scale_transposition % 12]:
-                    steps += 1
+                steps += scale[scale_transposition % 12]
         return scale_transposition
 
     @staticmethod
     def modulate_key(tonic_offset: int = 0, degrees_0: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         tonic_modulation: int = 0
-        if len(scale) == 12 and sum(1 for key in scale if key == 1) > 0:
+        if len(scale) == 12 and sum(scale) > 0:
             while degrees_0 > 0:
                 tonic_modulation += 1
-                if scale[ (tonic_offset + tonic_modulation) % 12 ] == 1:  # Scale key
-                    degrees_0 -= 1
+                degrees_0 -= scale[ (tonic_offset + tonic_modulation) % 12 ]
             while degrees_0 < 0:
                 tonic_modulation -= 1
-                if scale[ (tonic_offset + tonic_modulation) % 12 ] == 1:  # Scale key
-                    degrees_0 += 1
+                degrees_0 += scale[ (tonic_offset + tonic_modulation) % 12 ]
         return tonic_modulation
 
 
@@ -1107,7 +1090,7 @@ class Scale(Generic):
         return True
 
     def keys(self) -> int:
-        return sum(1 for key in self._scale if key == 1)
+        return sum(self._scale)
 
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
