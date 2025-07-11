@@ -1275,7 +1275,7 @@ class Composition(Container):
 
                 pitch_range: int = max_pitch - min_pitch
                 if pitch_range // 12 < 4:   # less than 4 octaves
-                    middle_c_reference: int = 60 + 12
+                    middle_c_reference: int = 60    # middle C pitch
                     extra_octaves_range: int = 4 - pitch_range // 12
                     for _ in range(extra_octaves_range):
                         raised_top: int = max_pitch + 12
