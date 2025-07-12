@@ -118,7 +118,7 @@ class Element(o.Operand):
                     case ra.Duration():
                         return operand._data._set_staff_reference(self._get_staff()) << od.Pipe( self._duration_beats )
                     case ra.Position():
-                        return operand._data._set_staff_reference(self._get_staff()) << od.Pipe( self._position_beats )
+                        return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
                         return operand._data._set_staff_reference(self._get_staff()) \
                             << self._get_staff().convertToLength(ra.Duration(self._duration_beats))
@@ -132,9 +132,10 @@ class Element(o.Operand):
                     case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-            case ra.Position():     return ra.Position(self, self._position_beats)
+            case ra.Position():
+                return operand.copy( ra.Beats(self, self._position_beats) )
             case ra.Duration() | ra.Length():
-                return operand.copy(self, self._duration_beats)
+                return operand.copy( ra.Beats(self, self._duration_beats) )
             case ra.NoteValue():
                 return operand.copy()._set_staff_reference(self._get_staff()) << ra.Beats( self._duration_beats )
             case float():

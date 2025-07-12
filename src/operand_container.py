@@ -1066,7 +1066,7 @@ class Composition(Container):
                     case _:                 return super().__mod__(operand)
             # By definition Clips are always at Position 0
             case ra.Position():
-                return ra.Position(self, 0)
+                return operand.copy( ra.Position(self, 0) )
             case ra.Length():
                 if self._length_beats is not None:
                     return operand.copy( ra.Length(self, self._length_beats) )
@@ -3371,12 +3371,12 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << self._get_staff().convertToPosition(ra.Beats(self._position_beats))
+                        return operand._data << ra.Position(self, self._position_beats)
                     case str():
                         return self._name
                     case _:                 return super().__mod__(operand)
             case ra.Position():
-                return self._get_staff().convertToPosition(ra.Beats(self._position_beats))
+                return operand.copy( ra.Position(self, self._position_beats) )
             case str():
                 return self._name
             case od.Names():
