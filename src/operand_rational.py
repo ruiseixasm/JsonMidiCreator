@@ -1494,7 +1494,8 @@ class Measure(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         time_staff: Staff = self._get_staff(self)
         beats_per_measure: int = time_staff._time_signature._top
-        return Fraction( int(beats / beats_per_measure) )
+        relative_measure: int = int(beats / beats_per_measure)
+        return Fraction( relative_measure )
 
 
     # CHAINABLE OPERATIONS
@@ -1578,7 +1579,11 @@ class Beat(TimeUnit):
         return Fraction( int(self_time) )
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        return Fraction( int(beats) )
+        time_staff: Staff = self._get_staff(self)
+        absolute_beat: int = int(beats)
+        beats_per_measure: int = time_staff._time_signature._top
+        relative_beat: int = absolute_beat % beats_per_measure
+        return Fraction( relative_beat )
 
 
     # CHAINABLE OPERATIONS
@@ -1671,7 +1676,12 @@ class Step(TimeUnit):
         time_staff: Staff = self._get_staff(self)
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
-        return Fraction( int(beats / beats_per_step) )
+        absolute_step: int = int(beats / beats_per_step)
+
+        beats_per_measure: int = time_staff._time_signature._top
+        steps_per_measure: int = int(beats_per_measure / beats_per_step)
+        relative_step: int = absolute_step % steps_per_measure
+        return Fraction( relative_step )
 
 
     # CHAINABLE OPERATIONS
