@@ -833,17 +833,13 @@ class Measurement(Convertible):
 
     # Position round type: [...)
     def roundMeasures(self) -> Self:
-        measure: Measure = self % Measure() # From the start at Beats 0
-        beats: Beats = measure % Beats()
-        return self.copy(beats._rational)
+        self_measures: Measures = self % Measures()
+        return self.copy(self_measures.roundMeasures())
 
     # Position round type: [...)
     def roundBeats(self) -> Self:
-        self_copy: Measurement = self.copy()
-        beats: Fraction = self._rational    # Already in beats
-        beats = Fraction( int(beats) )
-        self_copy._rational = beats
-        return self_copy
+        self_beats: Beats = self % Beats()
+        return self.copy(self_beats.roundBeats())
     
     # Position round type: [...)
     def roundSteps(self) -> Self:
@@ -1148,6 +1144,12 @@ class Measures(TimeValue):
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
 
+    # Position round type: [...)
+    def roundMeasures(self) -> Self:
+        self << int(self._rational)
+        return self # NO copy !
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1209,6 +1211,12 @@ class Beats(TimeValue):
     Fraction(0) : Proportional value to a `Beat` on the `Staff`.
     """
 
+    # Position round type: [...)
+    def roundBeats(self) -> Self:
+        self << int(self._rational)
+        return self # NO copy !
+    
+    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1284,6 +1292,11 @@ class Steps(TimeValue):
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return beats / beats_per_step
+
+    # Position round type: [...)
+    def roundSteps(self) -> Self:
+        self << int(self._rational)
+        return self # NO copy !
 
 
     # CHAINABLE OPERATIONS
