@@ -1392,21 +1392,6 @@ class TimeUnit(Convertible):
         return self._staff_reference
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_rational as ra
-        match operand:
-            case ra.Beats():            return self._get_staff(operand).convertToBeats(self)
-            case ra.Measures():         return self._get_staff(operand).convertToMeasures(self)
-            case ra.NoteValue():        return self._get_staff(operand).convertToDuration(self)
-            case ra.Steps():            return self._get_staff(operand).convertToSteps(self)
-            case Measure():             return self._get_staff(operand).convertToMeasure(self)
-            case Beat():                return self._get_staff(operand).convertToBeat(self)
-            case Step():                return self._get_staff(operand).convertToStep(self)
-            case ra.Position():         return self._get_staff(operand).convertToPosition(self)
-            case ra.Length():           return self._get_staff(operand).convertToLength(self)
-            case ra.Duration():         return self._get_staff(operand).convertToDuration(self)
-            case _:                     return super().__mod__(operand)
-
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
