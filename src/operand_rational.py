@@ -619,19 +619,22 @@ class Convertible(Rational):
     def roundMeasures(self) -> Self:
         measures: Measures = self % Measures()
         measures << measures % int()
-        return self.copy(measures)
+        self << measures
+        return self # NO copy !
 
     # Position round type: [...)
     def roundBeats(self) -> Self:
         beats: Beats = self % Beats()
         beats << beats % int()
-        return self.copy(beats)
+        self << beats
+        return self # NO copy !
     
     # Position round type: [...)
     def roundSteps(self) -> Self:
         steps: Steps = self % Steps()
         steps << steps % int()
-        return self.copy(steps)
+        self << steps
+        return self # NO copy !
 
 
     def __mod__(self, operand: o.T) -> o.T:
