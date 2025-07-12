@@ -57,8 +57,8 @@ def test_dotted_mod():
     assert dotted % Pipe( Fraction() ) == Fraction(3, 8)
 
     undotted = NoteValue(dotted)
-    assert dotted % od.Pipe( Fraction() ) == Fraction(3, 8)
-    assert undotted % od.Pipe( Fraction() ) == Fraction(1, 4)
+    assert dotted == 1/4
+    assert undotted == 3/8
 
 # test_dotted_mod()
 
