@@ -1018,8 +1018,9 @@ class Duration(Measurement):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float() | int():
-                return self._get_staff().convertToNoteValue(self) % operand
-            case _:                     return super().__mod__(operand)
+                return self % NoteValue() % operand
+            case _:
+                return super().__mod__(operand)
 
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
         time_staff: Staff = self._get_staff()
@@ -1308,7 +1309,7 @@ class Steps(TimeValue):
             case Steps():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = self._get_staff(operand).convertToSteps(operand)._rational
+                self._rational = operand._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1470,29 +1471,8 @@ class TimeUnit(Convertible):
     def convertToLength(self) -> 'Length':
         return self._get_staff().convertToLength(self)
 
-
     def getPlaylist(self) -> list[dict]:
         return self._get_staff().getPlaylist(self)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
-        import operand_element as oe
-        import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case self.__class__():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                super().__lshift__(operand)
-            case oe.Element() | oc.Composition():
-                self._set_staff_reference(operand._get_staff())
-            case og.Staff() | None:
-                self._set_staff_reference(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
 
 
 class Measure(TimeUnit):
@@ -1534,10 +1514,10 @@ class Measure(TimeUnit):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Convertible():
+            case Measure():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = self._get_staff(operand).convertToMeasure(operand)._rational
+                self._rational = operand._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1623,10 +1603,10 @@ class Beat(TimeUnit):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Convertible():
+            case Beat():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = self._get_staff(operand).convertToBeat(operand)._rational
+                self._rational = operand._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1722,10 +1702,10 @@ class Step(TimeUnit):
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Convertible():
+            case Step():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = self._get_staff(operand).convertToStep(operand)._rational
+                self._rational = operand._rational
             case _:
                 super().__lshift__(operand)
         return self
