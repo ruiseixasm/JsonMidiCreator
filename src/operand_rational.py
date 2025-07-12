@@ -560,6 +560,10 @@ class Minutes(Rational):
     """`Rational -> Minutes`"""
     pass
 
+
+if TYPE_CHECKING:
+    from operand_generic import Staff
+
 class Convertible(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
@@ -568,8 +572,13 @@ class Convertible(Rational):
         self._staff_reference: og.Staff = None
         super().__init__(*parameters)
 
-    if TYPE_CHECKING:
-        from operand_generic import Staff
+
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        return Fraction(self_time).limit_denominator(self._limit_denominator)
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        return Fraction(beats).limit_denominator(self._limit_denominator)
+
 
     def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
         import operand_generic as og
@@ -755,6 +764,18 @@ class Measurement(Convertible):
 
     Measurement() represents either a Length or a Position.
     """
+
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return self_time * beats_per_measure
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return beats / beats_per_measure
+
+    
     def measurement(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
@@ -973,6 +994,17 @@ class Duration(Measurement):
             case float() | int():
                 return self._get_staff().convertToNoteValue(self) % operand
             case _:                     return super().__mod__(operand)
+
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        return self_time * beats_per_note
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        return beats / beats_per_note
+
 
     # CHAINABLE OPERATIONS
 
@@ -1256,9 +1288,6 @@ class TimeUnit(Convertible):
         # so, they aren't transformed, just converted !!
         self._staff_reference: og.Staff = None
         super().__init__(*parameters)
-
-    if TYPE_CHECKING:
-        from operand_generic import Staff
 
     def _set_staff_reference(self, staff_reference: 'Staff' = None) -> 'TimeUnit':
         import operand_generic as og
@@ -1629,6 +1658,17 @@ class NoteValue(Convertible):
     """
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
+
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        return self_time * beats_per_note
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        return beats / beats_per_note
+
 
     # CHAINABLE OPERATIONS
 
