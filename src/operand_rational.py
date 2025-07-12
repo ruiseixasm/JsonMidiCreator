@@ -615,6 +615,25 @@ class Convertible(Rational):
         return self._staff_reference
     
 
+    # Position round type: [...)
+    def roundMeasures(self) -> Self:
+        measures: Measures = self % Measures()
+        measures << measures % int()
+        return self.copy(measures)
+
+    # Position round type: [...)
+    def roundBeats(self) -> Self:
+        beats: Beats = self % Beats()
+        beats << beats % int()
+        return self.copy(beats)
+    
+    # Position round type: [...)
+    def roundSteps(self) -> Self:
+        steps: Steps = self % Steps()
+        steps << steps % int()
+        return self.copy(steps)
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Convertible():
@@ -811,16 +830,14 @@ class Measurement(Convertible):
 
     # Position round type: [...)
     def roundMeasures(self) -> Self:
-        self_copy: Measurement = self.copy()
-        measures: Fraction = self_copy.convertToMeasures()._rational
-        measures = Fraction( int(measures) )
-        self_copy._rational = self_copy._get_staff().convertToBeats( Measures(measures) )._rational
-        return self_copy
+        measure: Measure = self % Measure() # From the start at Beats 0
+        beats: Beats = measure % Beats()
+        return self.copy(beats._rational)
 
     # Position round type: [...)
     def roundBeats(self) -> Self:
         self_copy: Measurement = self.copy()
-        beats: Fraction = self_copy.convertToBeats()._rational
+        beats: Fraction = self._rational    # Already in beats
         beats = Fraction( int(beats) )
         self_copy._rational = beats
         return self_copy
@@ -1127,7 +1144,6 @@ class Measures(TimeValue):
         time_staff: Staff = self._get_staff(self)
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
-
 
     # CHAINABLE OPERATIONS
 
