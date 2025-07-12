@@ -640,6 +640,7 @@ class Convertible(Rational):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Convertible():
+                # self_beats: Fraction = self.copy(operand._staff_reference)._get_beats()
                 self_beats: Fraction = self._get_beats()
                 return operand.copy(self._staff_reference)._set_with_beats(self_beats)
             # Fraction sets the value directly
@@ -722,7 +723,7 @@ class Convertible(Rational):
             case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self << operand % self  # Makes sure the conversion is done into the self type
+                self._rational = (operand % self)._rational # Makes sure the conversion is done into the self type
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
