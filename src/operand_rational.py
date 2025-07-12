@@ -582,6 +582,10 @@ class Convertible(Rational):
     def _get_beats(self) -> Fraction:
         return self._convert_to_beats(self._rational)
 
+    def _set_with_beats(self, beats: Fraction) -> Self:
+        self._rational = self._convert_from_beats(beats)
+        return self
+
 
     def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
         import operand_generic as og
@@ -780,6 +784,10 @@ class Measurement(Convertible):
 
     def _get_beats(self) -> Fraction:
         return self._rational   # Kept as beats already
+
+    def _set_with_beats(self, beats: Fraction) -> Self:
+        self._rational = beats  # Kept as beats already
+        return self
 
     
     def measurement(self, beats: float = None) -> Self:
