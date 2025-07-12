@@ -1479,38 +1479,36 @@ class Staff(Generic):
     def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Beats':
         match time:
             case ra.Beats() | ra.Measurement():
+                # Beats is the common unity among all staffs, so, direct conversion is possible
                 return ra.Beats(time._rational)._set_staff_reference(self)
-            case ra.NoteValue(): # The most internally called option
+            case ra.NoteValue():
                 time_staff: Staff = time._get_staff(self)
                 beats_per_note: int = time_staff._time_signature._bottom
-                beats: Fraction = time._rational * beats_per_note
-                return ra.Beats(beats)._set_staff_reference(self)
+                time_beats: Fraction = time._rational * beats_per_note
+                return ra.Beats(time_beats)._set_staff_reference(self)
             case ra.Measures():
                 time_staff: Staff = time._get_staff(self)
                 beats_per_measure: int = time_staff._time_signature._top
-                beats: Fraction = time._rational * beats_per_measure
-                return ra.Beats(beats)._set_staff_reference(self)
+                time_beats: Fraction = time._rational * beats_per_measure
+                return ra.Beats(time_beats)._set_staff_reference(self)
             case ra.Steps():
                 notes_per_step: Fraction = settings._quantization
                 time_staff: Staff = time._get_staff(self)
                 beats_per_note: int = time_staff._time_signature._bottom
                 beats_per_step: Fraction = beats_per_note * notes_per_step
-                beats: Fraction = time._rational * beats_per_step
-                return ra.Beats(beats)._set_staff_reference(self)
+                time_beats: Fraction = time._rational * beats_per_step
+                return ra.Beats(time_beats)._set_staff_reference(self)
             case ou.Measure():
-                time_staff: Staff = time._get_staff(self)
                 return self.convertToBeats(
-                    ra.Measures(time._unit)._set_staff_reference(time_staff)
+                    ra.Measures(time._unit)._set_staff_reference(time._staff_reference)
                 )
             case ou.Beat():
-                time_staff: Staff = time._get_staff(self)
                 return self.convertToBeats(
-                    ra.Beats(time._unit)._set_staff_reference(time_staff)
+                    ra.Beats(time._unit)._set_staff_reference(time._staff_reference)
                 )
             case ou.Step():
-                time_staff: Staff = time._get_staff(self)
                 return self.convertToBeats(
-                    ra.Steps(time._unit)._set_staff_reference(time_staff)
+                    ra.Steps(time._unit)._set_staff_reference(time._staff_reference)
                 )
             case int():
                 return self.convertToBeats(ra.Measures(time))
