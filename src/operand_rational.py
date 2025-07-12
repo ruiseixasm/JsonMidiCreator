@@ -1252,8 +1252,11 @@ class NoteValue(Convertible):
     
     Parameters
     ----------
-    float(0) : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    float(1/4) : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
+    def __init__(self, *parameters):
+        super().__init__(1/4, *parameters)
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1365,7 +1368,7 @@ class Dotted(NoteValue):
     
     Parameters
     ----------
-    float(0) : Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    float(1/4) : Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
 
     def __mod__(self, operand: o.T) -> o.T:
