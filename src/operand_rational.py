@@ -579,6 +579,9 @@ class Convertible(Rational):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         return beats
 
+    def _get_beats(self) -> Fraction:
+        return self._convert_to_beats(self._rational)
+
 
     def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
         import operand_generic as og
@@ -774,6 +777,9 @@ class Measurement(Convertible):
         time_staff: Staff = self._get_staff(self)
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
+
+    def _get_beats(self) -> Fraction:
+        return self._rational   # Kept as beats already
 
     
     def measurement(self, beats: float = None) -> Self:
@@ -1561,6 +1567,7 @@ class Beat(TimeUnit):
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         return Fraction( int(beats) )
+
 
     # CHAINABLE OPERATIONS
 
