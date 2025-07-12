@@ -627,8 +627,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other == other
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    == self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats() == other._get_beats()
             case _:
                 return super().__eq__(other)
         return False
@@ -639,8 +638,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other < other
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    < self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats() < other._get_beats()
             case _:
                 return super().__lt__(other)
         return False
@@ -651,8 +649,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other > other
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    > self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats() > other._get_beats()
             case _:
                 return super().__gt__(other)
         return False
