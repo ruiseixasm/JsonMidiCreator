@@ -1774,7 +1774,7 @@ class Clip(Composition):  # Just a container of Elements
             first_element: oe.Element = self._first_element()
             if first_element:
                 start_beats = first_element._position_beats
-            return self._staff.convertToPosition(ra.Beats(start_beats))
+            return ra.Position(self, start_beats)
         return None
 
 
@@ -1799,7 +1799,7 @@ class Clip(Composition):  # Just a container of Elements
                         + (single_element % ra.Length())._rational
                     if element_finish > finish_beats:
                         finish_beats = element_finish
-            return self._staff.convertToPosition(ra.Beats(finish_beats))
+            return ra.Position(self, finish_beats)
         return None
 
 
