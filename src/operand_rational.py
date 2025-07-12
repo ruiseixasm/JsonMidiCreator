@@ -902,7 +902,7 @@ class Measurement(Convertible):
             case Measurement():
                 self._rational -= operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
-                self._rational -= self._get_staff(operand).convertToBeats(operand)._rational
+                self._rational -= operand % Beats(self._staff_reference) % Fraction()
             case int() | float():
                 self -= Measures(operand)
             case _:
@@ -915,7 +915,7 @@ class Measurement(Convertible):
         match operand:
             case Convertible():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
-                operand_measures: Measures = operand % Measures()
+                operand_measures: Measures = operand % Measures(self._staff_reference)
                 self << self_measures * operand_measures
             case int() | float():
                 self *= Measures(operand)  # Default variable is Measures
@@ -929,7 +929,7 @@ class Measurement(Convertible):
         match operand:
             case Convertible():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
-                operand_measures: Measures = operand % Measures()
+                operand_measures: Measures = operand % Measures(self._staff_reference)
                 if operand_measures != Measures(0):
                     self << self_measures / operand_measures
             case int() | float():
