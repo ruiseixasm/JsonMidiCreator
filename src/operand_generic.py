@@ -1438,7 +1438,7 @@ class Staff(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case TimeSignature():       return self._time_signature.copy()
-            case ra.Quantization():     return ra.Quantization(settings._quantization)
+            case ra.Quantization():     return settings % operand
             case ou.KeySignature():     return self._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         return self._key_signature % operand
@@ -1899,7 +1899,7 @@ class Settings(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Tempo():            return ra.Tempo(self._tempo)
-                    case ra.Quantization():     return ra.Quantization(self._quantization)
+                    case ra.Quantization():     return operand._data << self._quantization
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case Staff():               return self._staff
@@ -1919,7 +1919,7 @@ class Settings(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case ra.Tempo():            return ra.Tempo(self._tempo)
-            case ra.Quantization():     return ra.Quantization(self._quantization)
+            case ra.Quantization():     return operand.copy(self._quantization)
             case ra.StepsPerNote():
                 return ra.StepsPerNote() << 1 / self._quantization
             case ra.StepsPerMeasure():

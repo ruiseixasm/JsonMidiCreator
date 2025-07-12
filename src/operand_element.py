@@ -2317,7 +2317,7 @@ class Automation(Element):
         self._value: int = 0
         super().__init__()
         # Equivalent to one Step
-        self << og.settings % ra.Quantization() # Quantization is a NoteValue
+        self << og.settings % ra.Quantization(self) # Quantization is a NoteValue
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
