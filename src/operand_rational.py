@@ -572,12 +572,12 @@ class Convertible(Rational):
         self._staff_reference: og.Staff = None
         super().__init__(*parameters)
 
-
+    # By default considers beats as the self_time, meaning, no conversion is done to the values
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        return Fraction(self_time).limit_denominator(self._limit_denominator)
+        return self_time
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        return Fraction(beats).limit_denominator(self._limit_denominator)
+        return beats
 
 
     def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
@@ -1179,12 +1179,6 @@ class Beats(TimeValue):
     ----------
     Fraction(0) : Proportional value to a `Beat` on the `Staff`.
     """
-    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        return self_time
-
-    def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        return beats
-
 
     # CHAINABLE OPERATIONS
 
