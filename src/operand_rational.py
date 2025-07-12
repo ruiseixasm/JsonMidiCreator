@@ -614,6 +614,9 @@ class Convertible(Rational):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            # case Convertible():
+            #     self_beats: Fraction = self._get_beats()
+            #     return operand.copy()._set_with_beats(self_beats)
             case Beats():               return self._get_staff(operand).convertToBeats(self)
             case Measures():            return self._get_staff(operand).convertToMeasures(self)
             case NoteValue():           return self._get_staff(operand).convertToNoteValue(self)
@@ -624,6 +627,7 @@ class Convertible(Rational):
             case Position():            return self._get_staff(operand).convertToPosition(self)
             case Length():              return self._get_staff(operand).convertToLength(self)
             case Duration():            return self._get_staff(operand).convertToDuration(self)
+            # Fraction sets the value directly
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
