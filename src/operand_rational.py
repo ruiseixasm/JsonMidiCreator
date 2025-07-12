@@ -810,6 +810,23 @@ class Measurement(Convertible):
     def measurement(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
+
+    # Position round type: [...)
+    def roundMeasures(self) -> Self:
+        self_measures: Measures = self % Measures()
+        return self.copy(self_measures.roundMeasures())
+
+    # Position round type: [...)
+    def roundBeats(self) -> Self:
+        self_beats: Beats = self % Beats()
+        return self.copy(self_beats.roundBeats())
+    
+    # Position round type: [...)
+    def roundSteps(self) -> Self:
+        self_steps: Steps = self % Steps()
+        return self.copy(self_steps.roundSteps())
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Time,
@@ -830,24 +847,6 @@ class Measurement(Convertible):
             case int():                 return self % Measure() % int()     # Measure, NOT Measures
             case float():               return self % Measures() % float()
             case _:                     return super().__mod__(operand)
-
-    # Position round type: [...)
-    def roundMeasures(self) -> Self:
-        self_measures: Measures = self % Measures()
-        return self.copy(self_measures.roundMeasures())
-
-    # Position round type: [...)
-    def roundBeats(self) -> Self:
-        self_beats: Beats = self % Beats()
-        return self.copy(self_beats.roundBeats())
-    
-    # Position round type: [...)
-    def roundSteps(self) -> Self:
-        self_copy: Measurement = self.copy()
-        steps: Fraction = self_copy.convertToSteps()._rational
-        steps = Fraction( int(steps) )
-        self_copy._rational = self_copy._get_staff().convertToBeats( Steps(steps) )._rational
-        return self_copy
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
