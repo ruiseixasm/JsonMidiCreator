@@ -1750,6 +1750,10 @@ class NoteValue(Convertible):
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
 
+    def _get_self_time(self) -> Fraction:
+        return self._rational
+    
+
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
         time_staff: Staff = self._get_staff(self)
         beats_per_note: int = time_staff._time_signature._bottom
