@@ -861,18 +861,20 @@ class Measurement(Convertible):
                     self._staff_reference = operand._staff_reference
                 match operand:
                     case Measure():
-                        measure_beats: Beats = self._get_staff(operand).convertToBeats(self) \
-                            - self._get_staff(operand).convertToBeats(self._get_staff(operand).convertToMeasure(self))
-                        self._rational = (self._get_staff(operand).convertToBeats(operand) + measure_beats)._rational
+                        self_beats: Beats = self % Beats()
+                        measure_beats: Beats = self_beats - self_beats.copy().roundMeasures()
+                        operand_beats: Beats = operand % Beats(self._staff_reference)
+                        operand_beats.roundMeasures()
+                        self._rational = (operand_beats + measure_beats) % Fraction()
                     case Beat() | Step():
-                        self_measure: Measure = self._get_staff(operand).convertToMeasure(self)
-                        self._rational = (
-                            self._get_staff(operand).convertToBeats(self_measure) + self._get_staff(operand).convertToBeats(operand)
-                            )._rational
+                        self_beats: Beats = self % Beats()
+                        self_beats.roundMeasures()
+                        self_beats += operand
+                        self._rational = self_beats._rational
                     case Measurement():
                         self._rational = operand._rational  # Both are in beats
                     case Convertible():
-                        self._rational = self._get_staff(operand).convertToBeats(operand)._rational
+                        self._rational = operand % Beats(self._staff_reference) % Fraction()
                     case _:
                         super().__lshift__(operand)
             case int() | float():
