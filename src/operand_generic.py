@@ -1631,8 +1631,6 @@ class Staff(Generic):
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
-            # case Scale():               self._scale << operand
-            # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()
             case ra.StepsPerNote():
@@ -1929,6 +1927,8 @@ class Settings(Generic):
                         | int() | float() | Fraction() | str():
                                                 return self._staff % od.Pipe( operand._data )
                     case ra.Quantization():     return ra.Quantization(self._quantization)
+                    case ra.StepsPerNote():
+                        return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1947,6 +1947,8 @@ class Settings(Generic):
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
             case ra.Quantization():     return ra.Quantization(self._quantization)
+            case ra.StepsPerNote():
+                return ra.StepsPerNote() << 1 / self._quantization
             case ra.Duration():         return operand.copy() << self._duration
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -2063,6 +2065,10 @@ class Settings(Generic):
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
             case ra.Quantization():     self._quantization = operand._rational
+            case ra.StepsPerMeasure():
+                self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
+            case ra.StepsPerNote():
+                self._quantization = 1 / (operand % Fraction())
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit
