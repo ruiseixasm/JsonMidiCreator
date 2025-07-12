@@ -1385,7 +1385,7 @@ class Cluster(Note):
         self._offsets: list = [0.0, 2.0, 4.0]
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__()
-        self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << ra.Measures(1) % ra.Duration()  # By default a Scale and a Chord has one Measure duration
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1499,7 +1499,7 @@ class KeyScale(Note):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self << self._get_staff().convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << ra.Measures(1) % ra.Duration()  # By default a Scale and a Chord has one Measure duration
         self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
