@@ -731,11 +731,12 @@ def test_staff_output():
     steps_per_measure % Fraction() >> Print()
     assert steps_per_measure == 16.0
 
-    staff << StepsPerMeasure(12)
-    steps_per_measure = staff % StepsPerMeasure()
+    settings << StepsPerMeasure(12)
+    steps_per_measure = settings % StepsPerMeasure()
     steps_per_measure % Fraction() >> Print()
     assert steps_per_measure == 12.0
 
+    settings << Quantization(1/16)  # Resets settings quantization
 
 # test_staff_output()
 

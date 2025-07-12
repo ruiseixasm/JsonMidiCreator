@@ -1322,7 +1322,6 @@ class Staff(Generic):
         super().__init__()
         # Set Global Staff Settings at the end of this file bottom bellow
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
-        self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
 
@@ -1433,23 +1432,13 @@ class Staff(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case TimeSignature():       return self._time_signature
-                    case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ou.KeySignature():     return self._key_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
-                    # Calculated Values
-                    case ra.NotesPerMeasure():
-                        return self._time_signature % od.Pipe( ra.NotesPerMeasure() )
-                    case ra.StepsPerNote():
-                        return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
-                    case ra.StepsPerMeasure():
-                        return ra.StepsPerMeasure() \
-                            << od.Pipe( self % od.Pipe( ra.StepsPerNote() ) % od.Pipe( Fraction() ) \
-                                * (self % od.Pipe( ra.NotesPerMeasure() ) % od.Pipe( Fraction() )))
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case TimeSignature():       return self._time_signature.copy()
-            case ra.Quantization():     return ra.Quantization(self._quantization)
+            case ra.Quantization():     return ra.Quantization(settings._quantization)
             case ou.KeySignature():     return self._key_signature.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         return self._key_signature % operand
@@ -1469,7 +1458,7 @@ class Staff(Generic):
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
-                return ra.StepsPerNote() << 1 / self._quantization
+                return ra.StepsPerNote() << 1 / settings._quantization
             case ra.StepsPerMeasure():
                 return ra.StepsPerMeasure() \
                     << (self % ra.StepsPerNote() % Fraction()) * (self % ra.NotesPerMeasure() % Fraction())
@@ -1485,7 +1474,6 @@ class Staff(Generic):
         if isinstance(other, od.Conditional):
             return other == self
         return  self._time_signature    == other._time_signature \
-            and self._quantization      == other._quantization \
             and self._key_signature     == other._key_signature
 
     def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Beats':
@@ -1594,7 +1582,6 @@ class Staff(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
-        serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         return serialization
 
@@ -1602,12 +1589,10 @@ class Staff(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and
-            "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
-            self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
         return self
     
@@ -1617,12 +1602,10 @@ class Staff(Generic):
             case Staff():
                 super().__lshift__(operand)
                 self._time_signature    << operand._time_signature
-                self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
             case od.Pipe():
                 match operand._data:
                     case TimeSignature():       self._time_signature = operand._data
-                    case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
                     case ra.TimeSignatureParameter():
                                                 self._time_signature << od.Pipe( operand._data )
@@ -1630,11 +1613,6 @@ class Staff(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
-            case ra.Quantization():     self._quantization = operand._rational
-            case ra.StepsPerMeasure():
-                self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()
-            case ra.StepsPerNote():
-                self._quantization = 1 / (operand % Fraction())
             case Fraction():
                 self._duration = operand
             case str():

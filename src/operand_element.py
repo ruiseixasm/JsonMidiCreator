@@ -2316,7 +2316,8 @@ class Automation(Element):
     def __init__(self, *parameters):
         self._value: int = 0
         super().__init__()
-        self._duration_beats = self._get_staff()._quantization   # Equivalent to one Step
+        # Equivalent to one Step
+        self._duration_beats = ra.NoteValue(self, og.settings._quantization) % ra.Beats() % Fraction()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
