@@ -692,7 +692,8 @@ class Convertible(Rational):
                     self._staff_reference = operand._staff_reference
                 self << operand % self  # Makes sure the conversion is done into the self type
             case oe.Element() | oc.Composition():
-                self._set_staff_reference(operand._get_staff())
+                if self._staff_reference is None:
+                    self._staff_reference = operand._get_staff()
             case og.Staff() | None:
                 self._set_staff_reference(operand)
             case Fraction():
