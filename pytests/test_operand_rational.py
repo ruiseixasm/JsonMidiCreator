@@ -148,11 +148,17 @@ def test_length_unit():
 
     length: Length = Length()
     assert length % Measure() == 0
+
+    assert length + Steps(1/2) == 1/32          # Measures
+    assert length + Steps(1/2) == Measure(0)    # Measure
+    assert length + Steps(1/2) == Beat(0)       # Beat
+    assert length + Steps(1/2) == Step(0)       # Step
+
     # Test if length as Length was round up
-    assert length + Steps(1/2) == 1             # 1 Measure (int)
-    assert length + Steps(1/2) == Measure(1)    # 1 Measure
-    assert length + Steps(1/2) == Beat(1)       # 1 Beat
-    assert length + Steps(1/2) == Step(1)       # 1 Beat
+    assert (length + Steps(1/2)).roundMeasures() == 1           # 1 Measure (int)
+    assert (length + Steps(1/2)).roundMeasures() == Measure(1)  # 1 Measure
+    assert (length + Steps(1/2)).roundBeats() == Beat(1)        # 1 Beat
+    assert (length + Steps(1/2)).roundSteps() == Step(1)        # 1 Step
 
 # test_length_unit()
 
