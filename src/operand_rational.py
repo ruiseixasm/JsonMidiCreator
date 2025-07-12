@@ -641,7 +641,6 @@ class Convertible(Rational):
         match operand:
             case Convertible():
                 self_beats: Fraction = self.copy(operand._staff_reference)._get_beats()
-                # self_beats: Fraction = self._get_beats()
                 return operand.copy(self._staff_reference)._set_with_beats(self_beats)
             # Fraction sets the value directly
             case Fraction():            return self._rational
@@ -727,9 +726,6 @@ class Convertible(Rational):
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
-                    # UNIT TESTING TO BE REMOVED
-                    if not isinstance(operand._get_staff(), og.Staff):
-                        assert False
             case og.Staff():
                 if self._staff_reference is None:
                     self._staff_reference = operand
@@ -893,8 +889,7 @@ class Measurement(Convertible):
             case Measurement():
                 self._rational += operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
-                # self._rational += operand % Beats(self._staff_reference) % Fraction()
-                self._rational += self._get_staff(operand).convertToBeats(operand)._rational
+                self._rational += operand % Beats(self._staff_reference) % Fraction()
             case int() | float():
                 self += Measures(operand)
             case _:
