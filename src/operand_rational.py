@@ -1108,6 +1108,17 @@ class Measures(TimeValue):
     ----------
     Fraction(0) : Proportional value to a `Measure` on the `Staff`.
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return self_time * beats_per_measure
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return beats / beats_per_measure
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1168,6 +1179,13 @@ class Beats(TimeValue):
     ----------
     Fraction(0) : Proportional value to a `Beat` on the `Staff`.
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        return self_time
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        return beats
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1228,6 +1246,23 @@ class Steps(TimeValue):
     ----------
     Fraction(0) : Steps as 1, 2, 4, 8...
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        import operand_generic as og
+        notes_per_step: Fraction = og.settings._quantization
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        return self_time * beats_per_step
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        import operand_generic as og
+        notes_per_step: Fraction = og.settings._quantization
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        return beats / beats_per_step
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
