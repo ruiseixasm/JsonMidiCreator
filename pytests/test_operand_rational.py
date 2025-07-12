@@ -387,7 +387,9 @@ def test_basic_conversions():
     duration: Duration = Duration()
     assert duration % Fraction() == 0
     duration << quantization
-    assert duration % Fraction() == 1/16
+    assert duration % Steps() == 1
+    assert duration % Fraction() == 1/4 # A quarter of a beat
+    assert duration % float() == 1/16
 
     assert Beats(2) % Measures() == Measures(1/2)
 

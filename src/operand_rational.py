@@ -422,51 +422,6 @@ class Tempo(Rational):
         return self
 
 
-class Quantization(Rational):
-    """`Rational -> Quantization`
-
-    Quantization() represents the Note Value of each Step. The default is 1/16.
-
-    Parameters
-    ----------
-    Fraction(1/16) : The Note value of each `Step`.
-    
-    Examples
-    --------
-    Gets the Staff Steps per Measure:
-    >>> staff = Staff() << Quantization(1/8)
-    >>> staff % Quantization() % Fraction() >> Print()
-    1/8
-    """
-    def __init__(self, *parameters):
-        super().__init__(1/16, *parameters)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case str():
-                time_division: str = operand.strip().upper()
-                match time_division:
-                    case "1/1" | "1":       super().__lshift__(1)
-                    case "1/2":             super().__lshift__(1/2)
-                    case "1/4":             super().__lshift__(1/4)
-                    case "1/6" | "1/4T":    super().__lshift__(1/6)
-                    case "1/8":             super().__lshift__(1/8)
-                    case "1/12" | "1/8T":   super().__lshift__(1/12)
-                    case "1/16":            super().__lshift__(1/16)
-                    case "1/24" | "1/16T":  super().__lshift__(1/24)
-                    case "1/32":            super().__lshift__(1/32)
-                    case "1/48" | "1/32T":  super().__lshift__(1/48)
-                    case "1/64":            super().__lshift__(1/64)
-                    case "1/96" | "1/64T":  super().__lshift__(1/96)
-                    case _:                 super().__lshift__(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
 class StaffParameter(Rational):
     """`Rational -> StaffParameter`"""
     pass
@@ -1372,6 +1327,24 @@ class NoteValue(Convertible):
                 super().__itruediv__(operand)
         return self
 
+class Quantization(NoteValue):
+    """`Rational -> Convertible -> NoteValue -> Quantization`
+
+    Quantization() represents the Note Value of each Step. The default is 1/16.
+
+    Parameters
+    ----------
+    Fraction(1/16) : The Note value of each `Step`.
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> staff = Staff() << Quantization(1/8)
+    >>> staff % Quantization() % Fraction() >> Print()
+    1/8
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/16, *parameters)
 
 class Dotted(NoteValue):
     """`Rational -> Convertible -> NoteValue -> Dotted`
