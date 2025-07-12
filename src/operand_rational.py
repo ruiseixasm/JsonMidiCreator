@@ -1434,6 +1434,8 @@ class Dotted(NoteValue):
         match operand:
             case Dotted():
                 self._rational *= operand._rational * 2 / 3 # Reverses evocation of the numerical input
+            case int() | float():
+                self *= Dotted(operand)
             case _:
                 super().__imul__(operand)
         return self
@@ -1444,6 +1446,8 @@ class Dotted(NoteValue):
             case Dotted():
                 if operand._rational != 0:
                     self._rational /= operand._rational * 2 / 3 # Reverses evocation of the numerical input
+            case int() | float():
+                self /= Dotted(operand)
             case _:
                 super().__itruediv__(operand)
         return self
