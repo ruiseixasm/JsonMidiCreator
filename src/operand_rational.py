@@ -802,27 +802,25 @@ class Measurement(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
+            case Convertible() | ou.TimeUnit():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = operand._rational  # Both are in beats
-            case Convertible():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = self._get_staff(operand).convertToBeats(operand)._rational
-            case ou.Measure():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                measure_beats: Beats = self._get_staff(operand).convertToBeats(self) \
-                    - self._get_staff(operand).convertToBeats(self._get_staff(operand).convertToMeasure(self))
-                self._rational = (self._get_staff(operand).convertToBeats(operand) + measure_beats)._rational
-            case ou.Beat() | ou.Step():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self_measure: ou.Measure = self._get_staff(operand).convertToMeasure(self)
-                self._rational = (
-                    self._get_staff(operand).convertToBeats(self_measure) + self._get_staff(operand).convertToBeats(operand)
-                    )._rational
+                match operand:
+                    case Measurement():
+                        self._rational = operand._rational  # Both are in beats
+                    case Convertible():
+                        self._rational = self._get_staff(operand).convertToBeats(operand)._rational
+                    case ou.Measure():
+                        measure_beats: Beats = self._get_staff(operand).convertToBeats(self) \
+                            - self._get_staff(operand).convertToBeats(self._get_staff(operand).convertToMeasure(self))
+                        self._rational = (self._get_staff(operand).convertToBeats(operand) + measure_beats)._rational
+                    case ou.Beat() | ou.Step():
+                        self_measure: ou.Measure = self._get_staff(operand).convertToMeasure(self)
+                        self._rational = (
+                            self._get_staff(operand).convertToBeats(self_measure) + self._get_staff(operand).convertToBeats(operand)
+                            )._rational
+                    case _:
+                        super().__lshift__(operand)
             case int() | float():
                 self << Measures(operand)
             case _:
