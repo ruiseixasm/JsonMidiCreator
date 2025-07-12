@@ -2143,7 +2143,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._delete(self._items, True)
                     
 
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
                 self_length: ra.Length = self % ra.Length()
@@ -2203,7 +2203,7 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete(self._items, True)
 
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
                 self_duration: ra.Duration = self % ra.Duration()
                 duration_value: Fraction = self_duration % operand % Fraction()
@@ -2272,7 +2272,7 @@ class Clip(Composition):  # Just a container of Elements
                                 break
                 self._append(new_elements)
             
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 new_elements: list[oe.Element] = []
                 for left_element in self._items:
                     left_start: Fraction = left_element._position_beats
@@ -2917,10 +2917,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        if isinstance(length, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+        if isinstance(length, (ra.Position, ra.TimeValue, ra.Duration, ra.TimeUnit)):
             fitting_finish: ra.Position = self._staff.convertToPosition(length)
         else:
-            fitting_finish: ra.Position = self._staff.convertToPosition(ou.Measure(1))
+            fitting_finish: ra.Position = self._staff.convertToPosition(ra.Measure(1))
         actual_finish: ra.Position = self.finish()
         if actual_finish is None:
             actual_finish = ra.Position(self)
@@ -3494,7 +3494,7 @@ class Part(Composition):
                     case str():             self._name = operand._data
                     case _:                 super().__lshift__(operand)
 
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self._position_beats = self._get_staff().convertToBeats(operand)._rational
 
             case Clip() | oe.Element():

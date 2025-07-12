@@ -112,8 +112,8 @@ class Drums(Patterns):
                 hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
             ) -> oc.Clip:
         """Reggae One Drop – Snare (or rimshot) and kick on beat 3, with hi-hat or guitar skank filling the space."""
-        pattern: oc.Clip = oe.Note(kick, 1/16) * 1 << ou.Beat(2)    # Beat starts on 0
-        pattern += oe.Note(rimshot, 1/16) * 1 << ou.Beat(2)    # Beat starts on 0
+        pattern: oc.Clip = oe.Note(kick, 1/16) * 1 << ra.Beat(2)    # Beat starts on 0
+        pattern += oe.Note(rimshot, 1/16) * 1 << ra.Beat(2)    # Beat starts on 0
         pattern += oe.Note(hi_hats) * 4 + ra.Beats(1/2)
         return pattern << ra.Duration(1/16)
 
@@ -215,11 +215,11 @@ class Melodies(Patterns):
         """A phrase (Call) is answered by another phrase (Response), often with variation (Antiphony)."""
         pattern: oc.Clip = oe.Note(tonic) * 4 << of.Foreach(1, 2, 3, 5)**ou.Degree()
         pattern *= 2
-        second_measure = pattern | of.Equal(ou.Measure(1))
+        second_measure = pattern | of.Equal(ra.Measure(1))
         second_measure += transposition
         two_notes = second_measure | of.Odd()
         two_notes.reverse()
-        two_notes += ou.Beat(3)
+        two_notes += ra.Beat(3)
         return pattern << ou.Tied()
 
 
@@ -260,7 +260,7 @@ class Melodies(Patterns):
                 tonic_2 = ou.TonicKey("G")
             ) -> oc.Clip:
         """A melody emphasizing offbeats or unexpected rhythmic placements (Offbeat Melodies)."""
-        measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ou.Beat() << of.Foreach(1, 3)**ou.Degree() << ra.Duration(1/4)
+        measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ra.Beat() << of.Foreach(1, 3)**ou.Degree() << ra.Duration(1/4)
         measure_2: oc.Clip = oe.Note(tonic_2, 1/2) * 2 << of.Foreach(1, 2)**ou.Degree() << ra.Duration(1/4)
         return measure_1 * measure_2
 

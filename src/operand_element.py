@@ -140,7 +140,7 @@ class Element(o.Operand):
                 return operand.copy()._set_staff_reference(self._get_staff()) << ra.Beats( self._duration_beats )
             case float():
                 return self % ra.NoteValue() % float()
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue() | ra.TimeUnit():
                 return self._get_staff().convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
@@ -299,7 +299,7 @@ class Element(o.Operand):
                 self._position_beats        = operand._rational
             case ra.TimeValue():
                 self._position_beats        = self._get_staff().convertToBeats(operand)._rational
-            case ou.TimeUnit():
+            case ra.TimeUnit():
                 self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_staff_reference(self._get_staff()) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
@@ -417,7 +417,7 @@ class Element(o.Operand):
                         for _ in range(operand):
                             new_clip.__imul__(self)
                     return new_clip
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue() | ra.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     operand_value: Fraction = operand % Fraction()
@@ -459,7 +459,7 @@ class Element(o.Operand):
                         for _ in range(operand):
                             new_clip.__itruediv__(self)
                     return new_clip
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue() | ra.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     self_duration: ra.Duration = self % ra.Duration()
@@ -544,7 +544,7 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     left_start: Fraction = self._position_beats

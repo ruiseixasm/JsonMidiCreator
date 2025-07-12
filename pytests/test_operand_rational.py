@@ -285,7 +285,7 @@ def test_sub_beats():
     position -= Beats(-4)
     assert position == Position(2.5)
 
-# test_sub_beats()
+test_sub_beats()
 
 
 def test_sub_steps():
@@ -450,10 +450,10 @@ def test_multi_testing():
     print(position % Measure() % int())
     assert position % Measure() == 10
     assert position % Measure() + 1 == 11
-    print(ra.Measures(position % ou.Measure() + 1) % float())
+    print(ra.Measures(position % ra.Measure() + 1) % float())
     assert ra.Measures(11) == 11.0
-    assert ra.Measures(ou.Measure(11)) == 11.0
-    position << ra.Measures(position % ou.Measure() + 1) # Rounded up Duration to Measures
+    assert ra.Measures(ra.Measure(11)) == 11.0
+    position << ra.Measures(position % ra.Measure() + 1) # Rounded up Duration to Measures
     print(position % Measures() % Fraction())
     assert position == Position(11)
 
