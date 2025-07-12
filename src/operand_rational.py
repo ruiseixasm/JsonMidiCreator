@@ -616,7 +616,7 @@ class Convertible(Rational):
         match operand:
             case Convertible():
                 self_beats: Fraction = self._get_beats()
-                return operand.copy()._set_with_beats(self_beats)
+                return operand.copy(self._staff_reference)._set_with_beats(self_beats)
             # Fraction sets the value directly
             case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
@@ -701,8 +701,9 @@ class Convertible(Rational):
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
-            case og.Staff() | None:
-                self._set_staff_reference(operand)
+            case og.Staff() | None: # Also avoids setting as None
+                if self._staff_reference is None:
+                    self._staff_reference = operand
             case Fraction():
                 self._rational = operand
             case _:
@@ -801,8 +802,8 @@ class Measurement(Convertible):
         8.0
         """
         match operand:
-            case int():                 return self._get_staff().convertToMeasure(self) % int()     # Measure, NOT Measures
-            case float():               return self._get_staff().convertToMeasures(self) % float()
+            case int():                 return self % Measure() % int()     # Measure, NOT Measures
+            case float():               return self % Measures() % float()
             case _:                     return super().__mod__(operand)
 
     # Position round type: [...)
