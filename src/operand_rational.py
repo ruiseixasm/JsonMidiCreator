@@ -640,8 +640,8 @@ class Convertible(Rational):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Convertible():
-                # self_beats: Fraction = self.copy(operand._staff_reference)._get_beats()
-                self_beats: Fraction = self._get_beats()
+                self_beats: Fraction = self.copy(operand._staff_reference)._get_beats()
+                # self_beats: Fraction = self._get_beats()
                 return operand.copy(self._staff_reference)._set_with_beats(self_beats)
             # Fraction sets the value directly
             case Fraction():            return self._rational
@@ -727,6 +727,9 @@ class Convertible(Rational):
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
+                    # UNIT TESTING TO BE REMOVED
+                    if not isinstance(operand._get_staff(), og.Staff):
+                        assert False
             case og.Staff():
                 if self._staff_reference is None:
                     self._staff_reference = operand
@@ -890,6 +893,7 @@ class Measurement(Convertible):
             case Measurement():
                 self._rational += operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
+                # self._rational += operand % Beats(self._staff_reference) % Fraction()
                 self._rational += self._get_staff(operand).convertToBeats(operand)._rational
             case int() | float():
                 self += Measures(operand)
@@ -1966,8 +1970,7 @@ class Dotted(NoteValue):
                     case "1/96" | "1/64T":  super().__lshift__(1/96 * 3/2)
                     case _:                 super().__lshift__(operand)
             case _:
-                if not isinstance(operand, (Rational, ou.Unit)):
-                    super().__lshift__(operand)
+                super().__lshift__(operand)
         return self
 
     def __imul__(self, operand: any) -> Self:
