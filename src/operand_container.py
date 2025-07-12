@@ -1217,8 +1217,8 @@ class Composition(Container):
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
         beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
-        quantization: Fraction = self._staff % ra.Quantization() % Fraction()
-        quantization_beats: Fraction = ra.NoteValue(self, quantization).convertToLength() % od.Pipe( Fraction() )
+        quantization: Fraction = og.settings._quantization
+        quantization_beats: Fraction = ra.NoteValue(self, quantization).convertToBeats()._rational
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
