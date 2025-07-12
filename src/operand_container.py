@@ -1061,7 +1061,7 @@ class Composition(Container):
                 match operand._data:
                     case ra.Length():
                         if self._length_beats is not None:
-                            return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
+                            return operand._data << ra.Length(self, self._length_beats)
                         return None
                     case _:                 return super().__mod__(operand)
             # By definition Clips are always at Position 0
@@ -1069,8 +1069,8 @@ class Composition(Container):
                 return ra.Position(self, 0)
             case ra.Length():
                 if self._length_beats is not None:
-                    return self._staff.convertToLength( ra.Beats(self._length_beats) )
-                return self.length()
+                    return operand.copy( ra.Length(self, self._length_beats) )
+                return operand.copy( self.length() )
             case ra.Duration():
                 return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
