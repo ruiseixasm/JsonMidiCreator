@@ -690,7 +690,7 @@ class Convertible(Rational):
             case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                super().__lshift__(operand)
+                self << operand % self  # Makes sure the conversion is done into the self type
             case oe.Element() | oc.Composition():
                 self._set_staff_reference(operand._get_staff())
             case og.Staff() | None:
