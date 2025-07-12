@@ -1503,9 +1503,9 @@ class Staff(Generic):
                 beats: Fraction = time._rational * beats_per_measure
                 return ra.Beats(beats)._set_staff_reference(self)
             case ra.Steps():
+                notes_per_step: Fraction = settings._quantization
                 time_staff: Staff = time._get_staff(self)
                 beats_per_note: int = time_staff._time_signature._bottom
-                notes_per_step: Fraction = time_staff._quantization
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats: Fraction = time._rational * beats_per_step
                 return ra.Beats(beats)._set_staff_reference(self)
@@ -1535,9 +1535,9 @@ class Staff(Generic):
         return ra.Measures(measures)._set_staff_reference(self)
 
     def convertToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Steps':
+        notes_per_step: Fraction = settings._quantization
         time_beats: ra.Beats = self.convertToBeats(time)
         beats_per_note: int = self._time_signature._bottom
-        notes_per_step: Fraction = self._quantization
         beats_per_step: Fraction = beats_per_note * notes_per_step
         steps: Fraction = time_beats._rational / beats_per_step
         return ra.Steps(steps)._set_staff_reference(self)
@@ -1562,12 +1562,12 @@ class Staff(Generic):
         return ou.Beat(relative_beat)._set_staff_reference(self)
 
     def convertToStep(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ou.Step':
+        notes_per_step: Fraction = settings._quantization
         if isinstance(time, ra.Measurement):
             time = time.roundSteps()
         absolute_step: int = self.convertToSteps(time) % int()
         beats_per_measure: int = self._time_signature._top
         beats_per_note: int = self._time_signature._bottom
-        notes_per_step: Fraction = self._quantization
         beats_per_step: Fraction = beats_per_note * notes_per_step
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
         relative_step: int = absolute_step % steps_per_measure
