@@ -727,7 +727,7 @@ class Convertible(Rational):
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
-            case og.Staff() | None: # Also avoids setting as None
+            case og.Staff():
                 if self._staff_reference is None:
                     self._staff_reference = operand
             case Fraction():
