@@ -1337,13 +1337,13 @@ class Quantization(NoteValue):
 
     Parameters
     ----------
-    Fraction(1/16) : The Note value of each `Step`.
+    float(1/16) : The Note value of each `Step`.
     
     Examples
     --------
     Gets the Staff Steps per Measure:
-    >>> staff = Staff() << Quantization(1/8)
-    >>> staff % Quantization() % Fraction() >> Print()
+    >>> settings << Quantization(1/8)
+    >>> settings % Quantization() % Fraction() >> Print()
     1/8
     """
     def __init__(self, *parameters):
