@@ -1474,6 +1474,17 @@ class Measure(TimeUnit):
     Default Measure (0):
     >>> measure = Measure()
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return Fraction( int(self_time) ) * beats_per_measure
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_staff: Staff = self._get_staff(self)
+        beats_per_measure: int = time_staff._time_signature._top
+        return Fraction( int(beats / beats_per_measure) )
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1551,6 +1562,12 @@ class Beat(TimeUnit):
     Default Beat (0):
     >>> beat = Beat()
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        return Fraction( int(self_time) )
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        return Fraction( int(beats) )
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1627,6 +1644,23 @@ class Step(TimeUnit):
     Default Step (0):
     >>> step = Step()
     """
+    def _convert_to_beats(self, self_time: Fraction) -> Fraction:
+        import operand_generic as og
+        notes_per_step: Fraction = og.settings._quantization
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        return Fraction( int(self_time) ) * beats_per_step
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        import operand_generic as og
+        notes_per_step: Fraction = og.settings._quantization
+        time_staff: Staff = self._get_staff(self)
+        beats_per_note: int = time_staff._time_signature._bottom
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        return Fraction( int(beats / beats_per_step) )
+
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
