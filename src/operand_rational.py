@@ -791,12 +791,12 @@ class Measurement(Convertible):
     """
 
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
 
@@ -1023,12 +1023,12 @@ class Duration(Measurement):
             case _:                     return super().__mod__(operand)
 
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         return beats / beats_per_note
 
@@ -1137,12 +1137,12 @@ class Measures(TimeValue):
     Fraction(0) : Proportional value to a `Measure` on the `Staff`.
     """
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
 
@@ -1282,7 +1282,7 @@ class Steps(TimeValue):
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return self_time * beats_per_step
@@ -1290,7 +1290,7 @@ class Steps(TimeValue):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return beats / beats_per_step
@@ -1517,13 +1517,13 @@ class Measure(TimeUnit):
     >>> measure = Measure()
     """
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         self_time: Fraction = self._get_self_time()
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_measure: int = time_staff._time_signature._top
         relative_measure: int = int(beats / beats_per_measure)
         return Fraction( relative_measure )
@@ -1611,7 +1611,7 @@ class Beat(TimeUnit):
         return self_time
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         absolute_beat: int = int(beats)
         beats_per_measure: int = time_staff._time_signature._top
         relative_beat: int = absolute_beat % beats_per_measure
@@ -1697,7 +1697,7 @@ class Step(TimeUnit):
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         self_time: Fraction = self._get_self_time()
@@ -1706,7 +1706,7 @@ class Step(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         absolute_step: int = int(beats / beats_per_step)
@@ -1789,12 +1789,12 @@ class NoteValue(Convertible):
     
 
     def _convert_to_beats(self, self_time: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff(self)
+        time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         return beats / beats_per_note
 
