@@ -1397,8 +1397,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    == self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats(other._staff_reference) \
+                    == other._get_beats(self._staff_reference)
             case _:
                 return super().__eq__(other)
         return False
@@ -1408,8 +1408,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    < self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats(other._staff_reference) \
+                    < other._get_beats(self._staff_reference)
             case _:
                 return super().__lt__(other)
         return False
@@ -1419,8 +1419,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_staff(other).convertToBeats(self)._rational \
-                    > self._get_staff(other).convertToBeats(other)._rational
+                return self._get_beats(other._staff_reference) \
+                    > other._get_beats(self._staff_reference)
             case _:
                 return super().__gt__(other)
         return False
