@@ -1512,9 +1512,13 @@ class Staff(Generic):
                 return self.convertToBeats(
                     ra.Steps(time._unit)._set_staff_reference(time_staff)
                 )
-            case float() | int() | Fraction():
+            case int():
                 return self.convertToBeats(ra.Measures(time))
-        return ra.Beats()._set_staff_reference(self)
+            case float():
+                return self.convertToBeats(ra.NoteValue(time))
+            case Fraction():
+                return ra.Beats(time)._set_staff_reference(self)
+        return ra.Beats(Fraction(0))._set_staff_reference(self)
 
     def convertToMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit', float, int, Fraction] = None) -> 'ra.Measures':
         time_beats: ra.Beats = self.convertToBeats(time)
