@@ -1601,7 +1601,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__iadd__(self._get_staff(operand).convertToBeat(operand)._rational)
+                super().__iadd__( operand % Beat(self._staff_reference) % Fraction() )
             case _:
                 super().__iadd__(operand)
         return self
@@ -1611,7 +1611,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__isub__(self._get_staff(operand).convertToBeat(operand)._rational)
+                super().__isub__( operand % Beat(self._staff_reference) % Fraction() )
             case _:
                 super().__isub__(operand)
         return self
@@ -1621,7 +1621,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__imul__(self._get_staff(operand).convertToBeat(operand)._rational)
+                super().__imul__( operand % Beat(self._staff_reference) % Fraction() )
             case _:
                 super().__imul__(operand)
         return self
@@ -1631,7 +1631,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__itruediv__(self._get_staff(operand).convertToBeat(operand)._rational)
+                super().__itruediv__( operand % Beat(self._staff_reference) % Fraction() )
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1700,7 +1700,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__iadd__(self._get_staff(operand).convertToStep(operand)._rational)
+                super().__iadd__( operand % Step(self._staff_reference) % Fraction() )
             case _:
                 super().__iadd__(operand)
         return self
@@ -1710,7 +1710,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__isub__(self._get_staff(operand).convertToStep(operand)._rational)
+                super().__isub__( operand % Step(self._staff_reference) % Fraction() )
             case _:
                 super().__isub__(operand)
         return self
@@ -1720,7 +1720,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__imul__(self._get_staff(operand).convertToStep(operand)._rational)
+                super().__imul__( operand % Step(self._staff_reference) % Fraction() )
             case _:
                 super().__imul__(operand)
         return self
@@ -1730,7 +1730,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__itruediv__(self._get_staff(operand).convertToStep(operand)._rational)
+                super().__itruediv__( operand % Step(self._staff_reference) % Fraction() )
             case _:
                 super().__itruediv__(operand)
         return self
