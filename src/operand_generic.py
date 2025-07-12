@@ -1315,11 +1315,8 @@ class Staff(Generic):
 
     Parameters
     ----------
-    Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
-    Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
-    Scale(None) : Sets the `Scale` of the `Staff`, by default it has no scale and thus it uses the `KeySignature` instead.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1451,8 +1448,6 @@ class Staff(Generic):
                                 * (self % od.Pipe( ra.NotesPerMeasure() ) % od.Pipe( Fraction() )))
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            # Direct Values
-            case of.Frame():            return self % od.Pipe( operand._data )
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return ra.Quantization(self._quantization)
             case ou.KeySignature():     return self._key_signature.copy()
@@ -1886,6 +1881,8 @@ class Settings(Generic):
 
     Parameters
     ----------
+    Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
+    Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     Staff(), int, float, Fraction, str : It keeps its own global `Staff` that will be used by `Element` and `Clip` at their creation.
     Duration(1/4) : The default note `Element` duration is 1/4 note.
     Octave(4) : The default `Octave` is the 4th relative to the middle C.
@@ -1900,6 +1897,7 @@ class Settings(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._tempo: Fraction                       = Fraction(120)
+        self._quantization: Fraction                = Fraction(1/16)
         self._staff: Staff                          = Staff()
         self._duration: Fraction                    = Fraction(1)   # Means 1 beat
         self._octave: int                           = 4
@@ -1930,6 +1928,7 @@ class Settings(Generic):
                         | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff % od.Pipe( operand._data )
+                    case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1947,6 +1946,7 @@ class Settings(Generic):
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
+            case ra.Quantization():     return ra.Quantization(self._quantization)
             case ra.Duration():         return operand.copy() << self._duration
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1970,6 +1970,7 @@ class Settings(Generic):
         if isinstance(other, od.Conditional):
             return other == self
         return  self._tempo             == other._tempo \
+            and self._quantization      == other._quantization \
             and self._staff             == other._staff \
             and self._duration          == other._duration \
             and self._octave            == other._octave \
@@ -1984,6 +1985,7 @@ class Settings(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
+        serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["staff"]            = self.serialize( self._staff )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
@@ -2000,13 +2002,15 @@ class Settings(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and "staff" in serialization["parameters"]
+            and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
+            self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
@@ -2026,6 +2030,7 @@ class Settings(Generic):
             case Settings():
                 super().__lshift__(operand)
                 self._tempo             = operand._tempo
+                self._quantization      = operand._quantization
                 self._staff             << operand._staff
                 self._duration          = operand._duration
                 self._octave            = operand._octave
@@ -2040,6 +2045,7 @@ class Settings(Generic):
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case Staff():               self._staff = operand._data
+                    case ra.Quantization():     self._quantization = operand._data._rational
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
                     case ou.Velocity():         self._velocity = operand._data._unit
@@ -2056,6 +2062,7 @@ class Settings(Generic):
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
+            case ra.Quantization():     self._quantization = operand._rational
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit
