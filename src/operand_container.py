@@ -2958,8 +2958,7 @@ class Clip(Composition):  # Just a container of Elements
             # Adjust last_element duration based on its Measure position
             if last_element is not None:    # LAST ELEMENT ONLY!
                 remaining_beats: Fraction = \
-                    self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational \
-                        - last_element._position_beats
+                    ra.Length(self, last_element._position_beats).roundMeasures()._rational - last_element._position_beats
                 if remaining_beats == 0:    # Means it's on the next Measure alone, thus, it's a one Measure note
                     last_element << ra.Measures(self, 1) % ra.Duration()
                 else:
@@ -3059,7 +3058,7 @@ class Clip(Composition):  # Just a container of Elements
                     note_length: Fraction = note % od.Pipe( ra.Length() ) % od.Pipe( Fraction() )   # In Beats
                     extended_length: Fraction = extended_note_length + note_length
                     # Extends the original note duration and marks note for removal
-                    extended_note << self._staff.convertToLength(ra.Beats(extended_length))
+                    extended_note << ra.Length(self, extended_length)
                     removed_notes.append(note)
                 else:
                     # Becomes the new original note
@@ -3701,13 +3700,13 @@ class Part(Composition):
         Returns:
             Part: A copy of the self object with the items processed.
         """
-        punch_in: ra.Position = self._get_staff().convertToPosition(0)    # Inclusive
-        punch_length: ra.Length = self._get_staff().convertToLength(4)    # Exclusive
+        punch_in: ra.Position = ra.Position(self, Fraction(0))  # Inclusive
+        punch_length: ra.Length = ra.Length(self, Fraction(4))  # Exclusive
 
         if isinstance(position, (int, float, Fraction, ra.Position)):
-            punch_in = self._get_staff().convertToPosition(position)
+            punch_in = ra.Position(self, position)
         if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_length = self._get_staff().convertToLength(length)
+            punch_length = ra.Length(self, length)
 
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
@@ -4221,9 +4220,9 @@ class Song(Composition):
         Returns:
             Song: A copy of the self object with the items processed.
         """
-        punch_length: ra.Length = self._staff.convertToLength(4)    # Exclusive
+        punch_length: ra.Length = ra.Length(self, Fraction(4))  # Exclusive
         if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_length = self._staff.convertToLength(length)
+            punch_length = ra.Length(self, length)
 
         # No Part is removed, only elements are removed
         for part_loop in self._items:

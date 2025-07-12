@@ -116,12 +116,11 @@ class Element(o.Operand):
             case od.Pipe():
                 match operand._data:
                     case ra.Duration():
-                        return operand._data._set_staff_reference(self._get_staff()) << od.Pipe( self._duration_beats )
+                        return operand._data << ra.Duration(self, self._duration_beats)
                     case ra.Position():
                         return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
-                        return operand._data._set_staff_reference(self._get_staff()) \
-                            << self._get_staff().convertToLength(ra.Duration(self._duration_beats))
+                        return operand._data << ra.Length(self, self._duration_beats)
                     case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)

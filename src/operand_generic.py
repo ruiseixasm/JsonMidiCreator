@@ -1567,14 +1567,6 @@ class Staff(Generic):
         time_beats: ra.Beats = self.convertToBeats(time)
         return ra.Position(time_beats)._set_staff_reference(self)
 
-    def convertToLength(self, time: Union['ra.Convertible', 'ra.TimeUnit', float, int, Fraction] = None) -> 'ra.Length':
-        time_beats: ra.Beats = self.convertToBeats(time)
-        return ra.Length(time_beats)._set_staff_reference(self)
-
-    def convertToDuration(self, time: Union['ra.Convertible', 'ra.TimeUnit', float, int, Fraction] = None) -> 'ra.Duration':
-        time_beats: ra.Beats = self.convertToBeats(time)
-        beats: Fraction = time_beats._rational
-        return ra.Duration(beats)._set_staff_reference(self)
 
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -1715,7 +1707,7 @@ class Arpeggio(Generic):
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length % ra.Position()
-            note_length: ra.Length = note_staff.convertToLength(ra.Duration(self._duration_notevalue))
+            note_length: ra.Length = ra.Length(note_staff, self._duration_notevalue)
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
