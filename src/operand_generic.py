@@ -1921,14 +1921,14 @@ class Settings(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Tempo():            return ra.Tempo(self._tempo)
+                    case ra.Quantization():     return ra.Quantization(self._quantization)
+                    case ra.StepsPerNote():
+                        return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case Staff():               return self._staff
                     case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff % od.Pipe( operand._data )
-                    case ra.Quantization():     return ra.Quantization(self._quantization)
-                    case ra.StepsPerNote():
-                        return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1941,14 +1941,17 @@ class Settings(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case ra.Tempo():            return ra.Tempo(self._tempo)
+            case ra.Quantization():     return ra.Quantization(self._quantization)
+            case ra.StepsPerNote():
+                return ra.StepsPerNote() << 1 / self._quantization
+            case ra.StepsPerMeasure():
+                return ra.StepsPerMeasure() \
+                    << (self % ra.StepsPerNote() % Fraction()) * (self._staff % ra.NotesPerMeasure() % Fraction())
             case Staff():               return self._staff.copy()
             case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
-            case ra.Quantization():     return ra.Quantization(self._quantization)
-            case ra.StepsPerNote():
-                return ra.StepsPerNote() << 1 / self._quantization
             case ra.Duration():         return operand.copy() << self._duration
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -2046,8 +2049,8 @@ class Settings(Generic):
             case od.Pipe():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
-                    case Staff():               self._staff = operand._data
                     case ra.Quantization():     self._quantization = operand._data._rational
+                    case Staff():               self._staff = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
                     case ou.Velocity():         self._velocity = operand._data._unit
@@ -2060,15 +2063,15 @@ class Settings(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
+            case ra.Quantization():     self._quantization = operand._rational
+            case ra.StepsPerNote():
+                self._quantization = 1 / (operand % Fraction())
+            case ra.StepsPerMeasure():
+                self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
             case Staff() | ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
-            case ra.Quantization():     self._quantization = operand._rational
-            case ra.StepsPerMeasure():
-                self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
-            case ra.StepsPerNote():
-                self._quantization = 1 / (operand % Fraction())
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit
