@@ -774,7 +774,7 @@ class Measurement(Convertible):
         8.0
         """
         match operand:
-            case int():                 return self._get_staff().convertToMeasure(self) % int()
+            case int():                 return self._get_staff().convertToMeasure(self) % int()     # Measure, NOT Measures
             case float():               return self._get_staff().convertToMeasures(self) % float()
             case _:                     return super().__mod__(operand)
 
