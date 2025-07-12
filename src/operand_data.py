@@ -743,7 +743,7 @@ class Process(Data):
         match operand:
             case oc.Composition() | oe.Element():
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                clock_length: ra.Length = operand.finish().convertToLength().roundMeasures()
+                clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = og.settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( global_staff = operand._get_staff() ) )  # Clock Playlist
@@ -760,7 +760,7 @@ class Process(Data):
                     last_time_ms: float = \
                         sorted(playlist_time_ms, key=lambda x: x['time_ms'])[-1]["time_ms"]
                     # By default, time classes use the defaults Staff
-                    single_measure_beats: ra.Beats = ra.Measures(1).convertToBeats()
+                    single_measure_beats: ra.Beats = ra.Measures(1) % ra.Beats()
                     single_measure_minutes: Fraction = og.settings.beats_to_minutes( single_measure_beats._rational )
                     single_measure_ms: float = o.minutes_to_time_ms( single_measure_minutes )
                     total_measures: int = last_time_ms // single_measure_ms

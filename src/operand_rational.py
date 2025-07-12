@@ -679,32 +679,6 @@ class Convertible(Rational):
                 return super().__gt__(other)
         return False
 
-    def convertToBeats(self) -> 'Beats':
-        return self._get_staff().convertToBeats(self)
-
-    def convertToMeasures(self) -> 'Measures':
-        return self._get_staff().convertToMeasures(self)
-
-    def convertToSteps(self) -> 'Steps':
-        return self._get_staff().convertToSteps(self)
-
-    def convertToDuration(self) -> 'Duration':
-        return self._get_staff().convertToDuration(self)
-
-    def convertToMeasure(self) -> 'Measure':
-        return self._get_staff().convertToMeasure(self)
-
-    def convertToBeat(self) -> 'Beat':
-        return self._get_staff().convertToBeat(self)
-
-    def convertToStep(self) -> 'Step':
-        return self._get_staff().convertToStep(self)
-
-    def convertToPosition(self) -> 'Position':
-        return self._get_staff().convertToPosition(self)
-
-    def convertToLength(self) -> 'Length':
-        return self._get_staff().convertToLength(self)
 
 
     def getPlaylist(self) -> list[dict]:
@@ -1429,32 +1403,7 @@ class TimeUnit(Convertible):
     if TYPE_CHECKING:
         from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps, Minutes
 
-    def convertToBeats(self) -> 'Beats':
-        return self._get_staff().convertToBeats(self)
 
-    def convertToMeasures(self) -> 'Measures':
-        return self._get_staff().convertToMeasures(self)
-
-    def convertToSteps(self) -> 'Steps':
-        return self._get_staff().convertToSteps(self)
-
-    def convertToDuration(self) -> 'Duration':
-        return self._get_staff().convertToDuration(self)
-
-    def convertToMeasure(self) -> 'Measure':
-        return self._get_staff().convertToMeasure(self)
-
-    def convertToBeat(self) -> 'Beat':
-        return self._get_staff().convertToBeat(self)
-
-    def convertToStep(self) -> 'Step':
-        return self._get_staff().convertToStep(self)
-
-    def convertToPosition(self) -> 'Position':
-        return self._get_staff().convertToPosition(self)
-
-    def convertToLength(self) -> 'Length':
-        return self._get_staff().convertToLength(self)
 
     def getPlaylist(self) -> list[dict]:
         return self._get_staff().getPlaylist(self)

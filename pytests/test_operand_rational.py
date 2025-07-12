@@ -119,11 +119,11 @@ def test_position_specific():
     assert position % Beats() == 1.5 * beats_per_measure
     print(position % Steps() % Pipe( Fraction() ))
     print(1.5 * beats_per_measure * steps_per_beat)
-    assert position.convertToSteps() == 1.5 * beats_per_measure * steps_per_beat
+    assert position % Steps() == 1.5 * beats_per_measure * steps_per_beat
     print(int(1.5 * beats_per_measure) % beats_per_measure)
-    assert position.convertToBeat() == int(1.5 * beats_per_measure) % beats_per_measure
+    assert position % Beat() == int(1.5 * beats_per_measure) % beats_per_measure
     print(int(1.5 * steps_per_measure) % steps_per_measure)
-    assert position.convertToStep() == int(1.5 * steps_per_measure) % steps_per_measure
+    assert position % Step() == int(1.5 * steps_per_measure) % steps_per_measure
 
     settings << TimeSignature(4, 4) << Quantization(1/16)
 

@@ -2507,7 +2507,7 @@ class Clip(Composition):  # Just a container of Elements
                 
                 # Find indices of known values
                 known_indices = [
-                    (element % ra.Position()).convertToSteps() % int() for element in channel_automation._items
+                    element % ra.Position() % ra.Steps() % int() for element in channel_automation._items
                 ]
 
                 total_messages: int = known_indices[-1] - known_indices[0] + 1
@@ -2576,7 +2576,7 @@ class Clip(Composition):  # Just a container of Elements
             
             element_position: ra.Position = single_element % ra.Position()
             wavelength_duration: Fraction = ra.Duration(wavelength)._rational
-            wavelength_position: Fraction = element_position.convertToDuration()._rational
+            wavelength_position: Fraction = element_position % ra.Duration() % Fraction()
             wavelength_ratio: Fraction = wavelength_position / wavelength_duration
             # The default unit of measurement of Position and Length is in Measures !!
             wave_phase: float = float(wavelength_ratio * 360 + phase)   # degrees
@@ -2897,7 +2897,7 @@ class Clip(Composition):  # Just a container of Elements
                 self += rest_element
         
         last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
-        staff_end: ra.Position = last_element.finish().convertToLength().roundMeasures().convertToPosition()
+        staff_end: ra.Position = (last_element.finish() % ra.Length()).roundMeasures() % ra.Position()
         if last_element.finish() < staff_end:
             rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
             rest_element: oe.Rest = \
