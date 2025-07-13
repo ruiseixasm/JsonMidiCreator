@@ -602,7 +602,6 @@ class Convertible(Rational):
 
     def _get_staff(self, other_staff: 'Staff' = None) -> 'Staff':
         import operand_generic as og
-        import operand_rational as ra
         if self._staff_reference is None:
             if isinstance(other_staff, og.Staff):
                 return other_staff
