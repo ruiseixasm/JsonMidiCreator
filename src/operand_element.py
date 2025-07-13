@@ -2486,9 +2486,10 @@ class ControlChange(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__()
+        # Absolutely needs to come before the __init__, otherwise gives error about _controller not found !!
         self._controller: og.Controller = og.settings % og.Controller()
         self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
+        super().__init__()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
