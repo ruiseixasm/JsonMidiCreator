@@ -627,19 +627,25 @@ class Pitch(Generic):
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 previous_degree_0: int = self._degree_0 % 7
-                if operand > 0:
+                if operand < 0:
+                    self._degree_0 = 0  # Resets the degree to I
+                    self._degree_0 -= previous_degree_0
+                    self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
+                    self._sharp = 0
+                    self._natural = False
+                else:
                     new_degree_0: int = ((operand._unit + operand._semitones) - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
-                else:
-                    self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
-                    if operand < 0:
-                        self._degree_0 = 0  # Resets the degree to I
-                        self._degree_0 -= previous_degree_0
-                        self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
-                        self._sharp = 0
-                        self._natural = False
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
+            
+            case None:  # Works as a reset
+                self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
+                self._degree_0 = 0  # Resets the degree to I
+                self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
+                self._transposition = 0
+                self._sharp = 0
+                self._natural = False
 
             case ou.Transposition():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps

@@ -514,14 +514,14 @@ def test_note_pitch():
         note += Semitone(1)
 
     print("------")
-    note << Deg(0)  # Tonic key again
+    note << Deg(-1)  # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         (note + Deg(degree)) % str() >> Print()
         assert note + Deg(degree) == keys[degree]
 
     print("------")
-    note << Deg(0) << Deg(1)    # Tonic key again and resets the degree to 1
+    note << None    # Tonic key again and resets the degree to 1
     note << Octave(4)           # Makes sure it's C4 again
     note_copy_2 = note.copy()
     note_copy_2 += Degree(2)

@@ -90,7 +90,7 @@ def test_pitch_tonic():
     settings << KeySignature(2) # Dorian is the 2nd in the Circle of fifths
 
     assert pitch % TonicKey() == "C"
-    pitch << Degree(-1) # Resets the Tonic
+    pitch << None   # Resets the Tonic
     assert pitch % TonicKey() == "D"
 
     settings << KeySignature()
@@ -423,7 +423,7 @@ def test_pitch_scales():
     minor_scale_keys: list[str] = [
         "A", "B", "C", "D", "E", "F", "G"
     ]
-    staff_pitch << Degree(-1)   # Auto sets the Key Signature tonic for "minor", meaning, A
+    staff_pitch << None # Auto sets the Key Signature tonic for "minor", meaning, A
     print(f"Tonic A: {staff_pitch % TonicKey() % str()}")
     assert staff_pitch % TonicKey() % str() == "A"
     for degree in range(7):  # Excludes 7
