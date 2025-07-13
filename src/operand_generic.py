@@ -1019,33 +1019,16 @@ class Scale(Generic):
     def transpose_key(steps: int | float = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
+        semitones: int = round((steps - int(steps)) * 10)
+        steps: int = int(steps)
         if len(scale) == 12 and sum(scale) > 0:
             while steps > 0:
-                if steps < 1:   # it's a float with semitones on top
-                    semitones: int = round(steps * 10)
-                    steps = 0
-                    while semitones > 0:
-                        if scale[(scale_transposition + 1) % 12] == 0:
-                            scale_transposition += 1
-                            semitones -= 1
-                        else:
-                            break
-                else:
-                    scale_transposition += 1
-                    steps -= scale[scale_transposition % 12]
+                scale_transposition += 1
+                steps -= scale[scale_transposition % 12]
             while steps < 0:
-                if steps > -1:  # it's a float with semitones on top
-                    semitones: int = round(steps * 10)
-                    steps = 0
-                    while semitones < 0:
-                        if scale[(scale_transposition - 1) % 12] == 0:
-                            scale_transposition -= 1
-                            semitones += 1
-                        else:
-                            break
-                else:
-                    scale_transposition -= 1
-                    steps += scale[scale_transposition % 12]
+                scale_transposition -= 1
+                steps += scale[scale_transposition % 12]
+        scale_transposition += semitones
         return scale_transposition
 
     @staticmethod
