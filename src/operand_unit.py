@@ -799,20 +799,6 @@ class Degree(PitchParameter):
                 super().__lshift__(operand)
         return self
 
-    # def __iadd__(self, number: any) -> 'Degree':
-    #     super().__iadd__(number)
-    #     # BASE 1 MOVEMENTS SHALL NOT RESULT IN -1 OR 0 DEGREES
-    #     if self._unit == 0 or self._unit == -1:
-    #         self._unit = 1      # Always jumps to 1
-    #     return self
-    
-    # def __isub__(self, number: any) -> 'Degree':
-    #     super().__isub__(number)
-    #     # BASE 1 MOVEMENTS SHALL NOT RESULT IN -1 OR 0 DEGREES
-    #     if self._unit == 0 or self._unit == -1:
-    #         self._unit = 1      # Always jumps to 1
-    #     return self
-    
     def stringSetDegree(self, string: str) -> None:
         string = string.strip()
         match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
