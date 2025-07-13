@@ -93,7 +93,7 @@ def test_floordiv_sequence():
 @pytest.mark.heavy
 def test_operand_copy():
 
-    basic_parameters: tuple = (None, 3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True)
+    basic_parameters: tuple = (None, 3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 3.2)
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
     print("1st Cycle - Simple data")
@@ -225,7 +225,7 @@ def test_operand_copy():
 @pytest.mark.heavy
 def test_operand_serialization():
 
-    basic_parameters: tuple = (None, 3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True)
+    basic_parameters: tuple = (None, 3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 3.3)
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
     print("1st Cycle - Simple data")
