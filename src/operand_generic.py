@@ -1023,19 +1023,29 @@ class Scale(Generic):
             while steps > 0:
                 if steps < 1:   # it's a float with semitones on top
                     semitones: int = round(steps * 10)
+                    steps = 0
                     while semitones > 0:
                         if scale[(scale_transposition + 1) % 12] == 0:
-                            semitones -= 1
                             scale_transposition += 1
+                            semitones -= 1
                         else:
-                            steps = 0
                             break
                 else:
                     scale_transposition += 1
                     steps -= scale[scale_transposition % 12]
             while steps < 0:
-                scale_transposition -= 1
-                steps += scale[scale_transposition % 12]
+                if steps > -1:  # it's a float with semitones on top
+                    semitones: int = round(steps * 10)
+                    steps = 0
+                    while semitones < 0:
+                        if scale[(scale_transposition - 1) % 12] == 0:
+                            scale_transposition -= 1
+                            semitones += 1
+                        else:
+                            break
+                else:
+                    scale_transposition -= 1
+                    steps += scale[scale_transposition % 12]
         return scale_transposition
 
     @staticmethod
