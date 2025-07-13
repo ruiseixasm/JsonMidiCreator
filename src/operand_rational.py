@@ -1123,17 +1123,6 @@ class Measures(TimeValue):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Measures():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
     def __iadd__(self, operand: any) -> 'Measures':
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1189,17 +1178,6 @@ class Beats(TimeValue):
     
     
     # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Beats():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
@@ -1271,17 +1249,6 @@ class Steps(TimeValue):
 
 
     # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Steps():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
@@ -1413,18 +1380,6 @@ class Measure(TimeUnit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Measure():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
     def __iadd__(self, operand: any) -> 'Measure':
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
@@ -1501,18 +1456,6 @@ class Beat(TimeUnit):
 
 
     # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Beat():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def __iadd__(self, operand: any) -> 'Beat':
         import operand_rational as ra
@@ -1601,18 +1544,6 @@ class Step(TimeUnit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Step():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
     def __iadd__(self, operand: any) -> 'Step':
         import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
@@ -1686,10 +1617,6 @@ class NoteValue(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case NoteValue():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
-                self._rational = operand._rational
             case str():
                 time_division: str = operand.strip().upper()
                 match time_division:
