@@ -808,3 +808,22 @@ def test_octave_matching():
 
 # test_octave_matching()
 
+
+def test_degree_float():
+
+    pitch_degree: Pitch = Pitch()
+    assert pitch_degree % int() == 60
+
+    pitch_degree << 5.0
+    assert pitch_degree % int() == 60 + 7
+
+    pitch_degree << 5.1
+    assert pitch_degree % int() == 60 + 7 + 1
+
+    pitch_degree << 5.2
+    assert pitch_degree % int() == 60 + 7 - 1
+
+
+
+# test_degree_float()
+
