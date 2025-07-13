@@ -160,7 +160,7 @@ class Pitch(Generic):
         import operand_element as oe
         self._tonic_key: int            = settings._staff % ou.Key() % int()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
-        self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
+        self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
@@ -628,7 +628,7 @@ class Pitch(Generic):
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 previous_degree_0: int = self._degree_0 % 7
                 if operand > 0:
-                    new_degree_0: int = (operand._unit - 1) % 7
+                    new_degree_0: int = ((operand._unit + operand._semitones) - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
                 else:
                     self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
