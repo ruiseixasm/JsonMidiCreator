@@ -1020,7 +1020,7 @@ class Scale(Generic):
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
         semitones: int = round((steps - int(steps)) * 10)
-        steps: int = int(steps)
+        steps: int = round(steps)
         if len(scale) == 12 and sum(scale) > 0:
             while steps > 0:
                 scale_transposition += 1
