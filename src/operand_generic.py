@@ -161,7 +161,7 @@ class Pitch(Generic):
         self._tonic_key: int            = settings._staff % ou.Key() % int()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
-        self._transposition: int        = 0     # By default it's it has no scale transposition
+        self._transposition: float      = 0.0   # By default it's it has no scale transposition
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: list[int]          = []
@@ -235,7 +235,7 @@ class Pitch(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: int = self._degree_0 + self._transposition
+                degree_0: float = int(self._degree_0) + self._transposition
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
                 return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
@@ -655,7 +655,7 @@ class Pitch(Generic):
                 else:
                     scale_degrees: int = 7  # Diatonic scales
                 previous_transposition: int = self._transposition % scale_degrees
-                new_transposition: int = operand._unit % scale_degrees
+                new_transposition: int = (operand._unit + operand._semitones) % scale_degrees
                 self._transposition += new_transposition - previous_transposition
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
