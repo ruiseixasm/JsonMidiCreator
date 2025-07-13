@@ -2488,8 +2488,8 @@ class ControlChange(Automation):
     def __init__(self, *parameters):
         # Absolutely needs to come before the __init__, otherwise gives error about _controller not found !!
         self._controller: og.Controller = og.settings % og.Controller()
-        self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
         super().__init__()
+        self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
