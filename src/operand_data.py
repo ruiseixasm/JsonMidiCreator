@@ -1032,8 +1032,10 @@ class Play(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import threading
+        import operand_container as oc
+        import operand_element as oe
         match operand:
-            case o.Operand():
+            case oc.Composition() | oe.Element() | Playlist():
                 playlist: list[dict] = self._clocked_playlist(operand)
                 if self._data[1] and self._data[2]:
                     # Start the function in a new process
