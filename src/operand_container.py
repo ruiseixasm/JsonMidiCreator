@@ -1124,14 +1124,14 @@ class Composition(Container):
             case od.Pipe():
                 match operand._data:
                     case ra.Length():
-                        self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                        self._length_beats = operand._data._rational
                         if self._length_beats < 0:
                             self._length_beats = None
                     case None:              self._length_beats = None
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
-                self._length_beats = self._staff.convertToBeats(operand)._rational
+                self._length_beats = operand._rational
                 if self._length_beats < 0:
                     self._length_beats = None
             case None:
@@ -2001,7 +2001,7 @@ class Clip(Composition):  # Just a container of Elements
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
-                self._length_beats = self._staff.convertToBeats(operand)._rational
+                self._length_beats = operand._rational
                 if self._length_beats < 0:
                     self._length_beats = None
             case None:
@@ -2145,7 +2145,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
-                operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
+                operand_beats: Fraction = ra.Beats(self, operand)._rational
                 self_length: ra.Length = self % ra.Length()
                 self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
@@ -2765,7 +2765,7 @@ class Clip(Composition):  # Just a container of Elements
                     new_length: ra.Length = length - element % ra.Position()
                     element << new_length
             if self._length_beats is not None:
-                self._length_beats = min(self._length_beats, self._staff.convertToBeats(length)._rational)
+                self._length_beats = min(self._length_beats, length._rational)
         return self
     
     def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
@@ -2831,13 +2831,13 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A copy of the self object with the items processed.
         """
-        punch_in: ra.Position = self._staff.convertToPosition(0)    # Inclusive
-        punch_out: ra.Position = punch_in + self._staff.convertToPosition(4)   # Exclusive
+        punch_in: ra.Position = ra.Position(self, Fraction(0))              # Inclusive
+        punch_out: ra.Position = punch_in + ra.Position(self, Fraction(4))  # Exclusive
 
         if isinstance(position, (int, float, Fraction, ra.Position)):
-            punch_in = self._staff.convertToPosition(position)
+            punch_in = ra.Position(self, position)
         if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_out = punch_in + self._staff.convertToBeats(length)
+            punch_out = punch_in + ra.Beats(length)
         
         included_elements: list[oe.Element] = [
             inside_element for inside_element in self._items
@@ -2918,15 +2918,15 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         if isinstance(length, (ra.Position, ra.TimeValue, ra.Duration, ra.TimeUnit)):
-            fitting_finish: ra.Position = self._staff.convertToPosition(length)
+            fitting_finish: ra.Position = ra.Position(self, length)
         else:
-            fitting_finish: ra.Position = self._staff.convertToPosition(ra.Measure(1))
+            fitting_finish: ra.Position = ra.Position(ra.Measure(self, 1))
         actual_finish: ra.Position = self.finish()
         if actual_finish is None:
             actual_finish = ra.Position(self)
         length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
-        self.__imul__(ra.Position(float(length_ratio)))   # Adjust positions
-        self.__imul__(ra.Duration(float(length_ratio)))   # Adjust durations
+        self.__imul__(ra.Position(self, float(length_ratio)))   # Adjust positions
+        self.__imul__(ra.Duration(self, float(length_ratio)))   # Adjust durations
         return self
 
     def link(self, ignore_empty_measures: bool = True) -> Self:
