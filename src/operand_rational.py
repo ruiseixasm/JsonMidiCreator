@@ -596,24 +596,19 @@ class Convertible(Rational):
             self._staff_reference = staff_reference
         return self
 
-    def _get_staff_reference(self) -> 'Staff':
-        return self._staff_reference
-
     def _reset_staff_reference(self) -> Self:
         self._staff_reference = None
         return self
 
-    def _get_staff(self, other: Union['Convertible', 'TimeUnit', 'Staff'] = None) -> 'Staff':
+    def _get_staff(self, other_staff: 'Staff' = None) -> 'Staff':
         import operand_generic as og
+        import operand_rational as ra
         if self._staff_reference is None:
-            if isinstance(other, (Convertible, TimeUnit)):
-                if other._staff_reference is not None:
-                    return other._staff_reference
-            elif isinstance(other, og.Staff):
-                return other
+            if isinstance(other_staff, og.Staff):
+                return other_staff
             return og.settings._staff
         return self._staff_reference
-    
+
 
     # Position round type: [...)
     def roundMeasures(self) -> Self:
@@ -1339,32 +1334,6 @@ class TimeUnit(Convertible):
     def _get_self_time(self) -> Fraction:
         return Fraction( int(self._rational) )
     
-
-    def _set_staff_reference(self, staff_reference: 'Staff' = None) -> 'TimeUnit':
-        import operand_generic as og
-        if isinstance(staff_reference, og.Staff):
-            self._staff_reference = staff_reference
-        return self
-
-    def _get_staff_reference(self) -> 'Staff':
-        return self._staff_reference
-
-    def _reset_staff_reference(self) -> 'TimeUnit':
-        self._staff_reference = None
-        return self
-
-    def _get_staff(self, other: Union['Convertible', 'TimeUnit', 'Staff'] = None) -> 'Staff':
-        import operand_generic as og
-        import operand_rational as ra
-        if self._staff_reference is None:
-            if isinstance(other, (ra.Convertible, TimeUnit)):
-                if other._staff_reference is not None:
-                    return other._staff_reference
-            elif isinstance(other, og.Staff):
-                return other
-            return og.settings._staff
-        return self._staff_reference
-
 
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
