@@ -674,7 +674,6 @@ class Convertible(Rational):
         return False
 
 
-
     def getPlaylist(self) -> list[dict]:
         beats: Fraction = self % Beats() % Fraction()
         return self._get_staff().getPlaylist(beats)
@@ -690,7 +689,9 @@ class Convertible(Rational):
             case Convertible():
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
-                self._rational = (operand % self)._rational # Makes sure the conversion is done into the self type
+                # Needs to go very easy to avoid infinite Recursion
+                operand_beats: Beats = operand._get_beats(self._staff_reference)
+                self._set_with_beats(operand_beats)
             case oe.Element() | oc.Composition():
                 if self._staff_reference is None:
                     self._staff_reference = operand._get_staff()
