@@ -778,7 +778,7 @@ class Degree(PitchParameter):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float():
-                return self._unit + self._semitones
+                return round(self._unit + self._semitones, 1)
             case str():
                 adjusted_degree: int = self._unit
                 if adjusted_degree > 0:

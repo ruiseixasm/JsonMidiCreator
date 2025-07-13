@@ -220,7 +220,7 @@ class Pitch(Generic):
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
-            return Scale.transpose_key(int(self._degree_0), tonic_scale)
+            return Scale.transpose_key(round(self._degree_0), tonic_scale)
         return 0
 
     def scale_transposition(self, degree_transposition: int) -> int:
@@ -235,14 +235,14 @@ class Pitch(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: float = int(self._degree_0) + self._transposition
+                degree_0: float = round(self._degree_0) + self._transposition
                 key_signature: ou.KeySignature = self._get_staff()._key_signature
                 tonic_scale: list[int] = key_signature.get_scale_list()
                 return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
         return 0
 
     def chromatic_transposition(self) -> int:
-        degree_int: int = int(self._degree_0)
+        degree_int: int = round(self._degree_0)
         semitones: int = round((self._degree_0 - degree_int) * 10)
         if semitones % 2:  # Odd - same direction, same sign
             semitones = (semitones // 2) + (1 if semitones > 0 else -1)
@@ -653,8 +653,11 @@ class Pitch(Generic):
                     self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
                     self._sharp = 0
                     self._natural = False
+                elif operand < 1:
+                    # Changes only the chromatic transposition
+                    self._degree_0 = round(self._degree_0) + operand % float()
                 else:
-                    new_degree_0: int = ((operand._unit + operand._semitones) - 1) % 7
+                    new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave()
