@@ -553,53 +553,6 @@ class Semitone(PitchParameter):
     pass
 
 
-class Transposition(PitchParameter):
-    """`Unit -> PitchParameter -> Transposition`
-
-    `Transposition` represents a transposition made by tones along a given Scale
-    depending on the Pitch having its own Scale or not respectively.
-    
-    Parameters
-    ----------
-    int(0) : By default the `Root` note has no shifting, pitch unchanged.
-    """
-    def __init__(self, *parameters):
-        self._semitones: float = 0.0
-        super().__init__(*parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case float():
-                return self._unit + self._semitones
-            case _:
-                return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case float():
-                self._unit = int(operand)
-                self._semitones = round(operand - self._unit, 1)
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
-class Tones(Transposition):
-    """`Unit -> PitchParameter -> Transposition -> Tones`
-
-    A `Tones` represent the amount of the Transposition, it's a shorthand for `Transposition`
-    and shall not be confused with `Tone`.
-    
-    Parameters
-    ----------
-    int(0) : By default the `Root` note has no transposition, pitch unchanged.
-    """
-    pass
-
-
 class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
@@ -880,6 +833,96 @@ class Degree(PitchParameter):
             case "v"   | "dominant":                self._unit = 5
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
+
+
+class Transposition(PitchParameter):
+    """`Unit -> PitchParameter -> Transposition`
+
+    `Transposition` represents a transposition made by tones along a given Scale
+    depending on the Pitch having its own Scale or not respectively.
+    
+    Parameters
+    ----------
+    int(0) : By default the `Root` note has no shifting, pitch unchanged.
+    """
+    def __init__(self, *parameters):
+        self._semitones: float = 0.0
+        super().__init__(*parameters)
+
+    def __eq__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Transposition):
+            return self % float() == other % float()
+        if isinstance(other, od.Conditional):
+            return other == self
+        return self % other == other
+    
+    def __lt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if isinstance(other, Transposition):
+            return self % float() < other % float()
+        if isinstance(other, od.Conditional):
+            return other < self
+        return super().__lt__(other)
+    
+    def __gt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if isinstance(other, Transposition):
+            return self % float() > other % float()
+        if isinstance(other, od.Conditional):
+            return other > self
+        return super().__gt__(other)
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case float():
+                return self._unit + self._semitones
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["semitones"] = self.serialize( self._semitones )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "semitones" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._semitones = self.deserialize( serialization["parameters"]["semitones"] )
+        return self
+      
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Transposition():
+                self._unit      = operand._unit
+                self._semitones = operand._semitones
+            case float():
+                self._unit = int(operand)
+                self._semitones = round(operand - self._unit, 1)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+class Tones(Transposition):
+    """`Unit -> PitchParameter -> Transposition -> Tones`
+
+    A `Tones` represent the amount of the Transposition, it's a shorthand for `Transposition`
+    and shall not be confused with `Tone`.
+    
+    Parameters
+    ----------
+    int(0) : By default the `Root` note has no transposition, pitch unchanged.
+    """
+    pass
+
 
 class Sharp(PitchParameter):  # Sharp (#)
     """`Unit -> PitchParameter -> Sharp`
