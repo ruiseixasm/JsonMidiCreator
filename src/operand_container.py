@@ -3298,8 +3298,8 @@ class Part(Composition):
 
         start_position: ra.Position = None
         for clip in clips_list:
-            clip_start: ra.Position = self._get_staff().convertToPosition(clip.start())
-            if clip_start:
+            clip_start: ra.Position = clip.start()
+            if clip_start is not None:
                 if start_position is not None:
                     if clip_start < start_position:
                         start_position = clip_start
@@ -3327,7 +3327,6 @@ class Part(Composition):
         for clip in clips_list:
             clip_finish: ra.Position = clip.finish()
             if clip_finish is not None:
-                clip_finish = self._get_staff().convertToPosition(clip_finish)
                 if finish_position is not None:
                     if clip_finish > finish_position:
                         finish_position = clip_finish
@@ -3488,12 +3487,12 @@ class Part(Composition):
                 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._position_beats = self._get_staff().convertToBeats(operand._data)._rational
+                    case ra.Position():     self._position_beats = operand._data._rational
                     case str():             self._name = operand._data
                     case _:                 super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                self._position_beats = self._get_staff().convertToBeats(operand)._rational
+                self._position_beats = operand % ra.Position(self) % Fraction()
 
             case Clip() | oe.Element():
                 self += operand

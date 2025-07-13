@@ -87,7 +87,7 @@ class Element(o.Operand):
 
 
     def position(self, position_measures: float = None) -> Self:
-        self._position_beats = self._get_staff().convertToPosition(ra.Measures(position_measures))._rational
+        self._position_beats = ra.Measures(self, position_measures) % ra.Position() % Fraction()
         return self
 
     def duration(self, duration: float = None) -> Self:
@@ -126,7 +126,7 @@ class Element(o.Operand):
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
                     case int():
-                        return self._get_staff().convertToMeasures(ra.Beats(self._position_beats)) % int()
+                        return ra.Beats(self, self._position_beats) % ra.Measures() % int()
                     case float():           return float( self._duration_beats )
                     case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
@@ -140,11 +140,11 @@ class Element(o.Operand):
             case float():
                 return self % ra.NoteValue() % float()
             case ra.TimeValue() | ra.TimeUnit():
-                return self._get_staff().convertToPosition(ra.Beats(self._position_beats)) % operand
+                return ra.Beats(self, self._position_beats) % operand
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
             case int():
-                return self._get_staff().convertToMeasures(ra.Beats(self._position_beats)) % int()
+                return ra.Beats(self, self._position_beats) % ra.Measures() % int()
             case Fraction():        return self._position_beats
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
@@ -297,14 +297,14 @@ class Element(o.Operand):
             case ra.Position():
                 self._position_beats        = operand._rational
             case ra.TimeValue():
-                self._position_beats        = self._get_staff().convertToBeats(operand)._rational
+                self._position_beats        = operand % ra.Beats(self) % Fraction()
             case ra.TimeUnit():
                 self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_staff_reference(self._get_staff()) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
                 self._position_beats        = operand
             case int():
-                self._position_beats        = self._get_staff().convertToBeats(ra.Measures(operand))._rational
+                self._position_beats        = ra.Measures(self, operand) % ra.Beats() % Fraction()
             case ou.Channel():
                 self._channel               = operand._unit
             case ou.Enable():
@@ -2009,7 +2009,7 @@ class Retrigger(Note):
     def get_component_elements(self) -> list[Element]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self._get_staff().convertToPosition(ra.Beats(self._position_beats))
+        note_position: ra.Position = ra.Position(self, self._position_beats)
         single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._number) ) # Already 2x single note duration
         for _ in range(self._number):
             swing_ratio = self._swing
