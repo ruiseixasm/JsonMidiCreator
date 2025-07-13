@@ -815,7 +815,7 @@ class Degree(PitchParameter):
                     case _:
                         super().__lshift__(operand)
             case float():
-                self._unit = int(operand)
+                self._unit = round(operand)
                 self._semitones = round(operand - self._unit, 1)
             case str():
                 self.stringSetDegree(operand)
