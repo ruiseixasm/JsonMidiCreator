@@ -563,7 +563,29 @@ class Transposition(PitchParameter):
     ----------
     int(0) : By default the `Root` note has no shifting, pitch unchanged.
     """
-    pass
+    def __init__(self, *parameters):
+        self._semitones: float = 0.0
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case float():
+                return self._unit + self._semitones
+            case _:
+                return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case float():
+                self._unit = int(operand)
+                self._semitones = round(operand - self._unit, 1)
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Tones(Transposition):
     """`Unit -> PitchParameter -> Transposition -> Tones`
@@ -768,12 +790,15 @@ class Degree(PitchParameter):
     int(1) : Accepts a numeral (5) or the string (V) with 1 as the default
     """
     def __init__(self, *parameters):
+        self._semitones: float = 0.0
         super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case float():
+                return self._unit + self._semitones
             case str():
                 adjusted_degree: int = self._unit
                 if adjusted_degree > 0:
@@ -793,6 +818,9 @@ class Degree(PitchParameter):
                         self.stringSetDegree(operand._data)
                     case _:
                         super().__lshift__(operand)
+            case float():
+                self._unit = int(operand)
+                self._semitones = round(operand - self._unit, 1)
             case str():
                 self.stringSetDegree(operand)
             case _:
