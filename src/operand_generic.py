@@ -220,7 +220,7 @@ class Pitch(Generic):
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
-            return Scale.transpose_key(self._degree_0, tonic_scale)
+            return Scale.transpose_key(int(self._degree_0), tonic_scale)
         return 0
 
     def scale_transposition(self, degree_transposition: int) -> int:
@@ -240,6 +240,15 @@ class Pitch(Generic):
                 tonic_scale: list[int] = key_signature.get_scale_list()
                 return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
         return 0
+
+    def chromatic_transposition(self) -> int:
+        degree_int: int = int(self._degree_0)
+        semitones: int = round((self._degree_0 - degree_int) * 10)
+        if semitones % 2:  # Odd - same direction, same sign
+            semitones = (semitones // 2) + (1 if semitones > 0 else -1)
+        else:  # Even - inverse sign
+            semitones = semitones // (-2)
+        return semitones
 
     def accidentals_transposition(self, key: int) -> int:
         """
@@ -290,14 +299,25 @@ class Pitch(Generic):
         scale_transposition: int = self.scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + scale_transposition
 
+    def chromatic_int(self) -> int:
+        """
+        The configured Degree chromatic transposition in the float number.
+        """
+        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
+        degree_transposition: int = self.degree_transposition()
+        scale_transposition: int = self.scale_transposition(degree_transposition)
+        chromatic_transposition: int = self.chromatic_transposition()
+        return tonic_int + degree_transposition + scale_transposition + chromatic_transposition
+
     def pitch_int(self) -> int:
         """
         The final chromatic conversion of the tonic_key into the midi pitch with accidentals.
         """
-        scale_int: int = self.scale_int()
-        accidentals_transposition: int = self.accidentals_transposition(scale_int)
+        chromatic_int: int = self.chromatic_int()
+
+        accidentals_transposition: int = self.accidentals_transposition(chromatic_int)
         octave_transposition: int = self.octave_transposition()
-        return scale_int + accidentals_transposition + octave_transposition
+        return chromatic_int + accidentals_transposition + octave_transposition
 
     """
     Auxiliary methods to get specific data directly
@@ -1022,15 +1042,9 @@ class Scale(Generic):
 
 
     @staticmethod
-    def transpose_key(steps: int | float = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def transpose_key(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
-        semitones: int = round((steps - int(steps)) * 10)
-        if semitones % 2:  # Odd - same direction, same sign
-            semitones = (semitones // 2) + (1 if semitones > 0 else -1)
-        else:  # Even - inverse sign
-            semitones = semitones // (-2)
-        steps: int = round(steps)
         if len(scale) == 12 and sum(scale) > 0:
             while steps > 0:
                 scale_transposition += 1
@@ -1038,7 +1052,6 @@ class Scale(Generic):
             while steps < 0:
                 scale_transposition -= 1
                 steps += scale[scale_transposition % 12]
-        scale_transposition += semitones
         return scale_transposition
 
     @staticmethod
