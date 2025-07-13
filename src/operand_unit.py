@@ -795,6 +795,33 @@ class Degree(PitchParameter):
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
+    def __eq__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Degree):
+            return self % float() == other % float()
+        if isinstance(other, od.Conditional):
+            return other == self
+        return self % other == other
+    
+    def __lt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if isinstance(other, Degree):
+            return self % float() < other % float()
+        if isinstance(other, od.Conditional):
+            return other < self
+        return super().__lt__(other)
+    
+    def __gt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if isinstance(other, Degree):
+            return self % float() > other % float()
+        if isinstance(other, od.Conditional):
+            return other > self
+        return super().__gt__(other)
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float():
@@ -807,11 +834,27 @@ class Degree(PitchParameter):
             case _:
                 return super().__mod__(operand)
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["semitones"] = self.serialize( self._semitones )
+        return serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "semitones" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._semitones = self.deserialize( serialization["parameters"]["semitones"] )
+        return self
+      
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Degree():
+                self._unit      = operand._unit
+                self._semitones = operand._semitones
             case od.Pipe():
                 match operand._data:
                     case str():
