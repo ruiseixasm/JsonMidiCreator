@@ -780,17 +780,17 @@ class Measurement(Convertible):
         return self << od.Pipe( beats )
 
 
-    # Position round type: [...)
+    # Measurement round type: [...)
     def roundMeasures(self) -> Self:
         self_measures: Measures = self % Measures()
         return self.copy(self_measures.roundMeasures())
 
-    # Position round type: [...)
+    # Measurement round type: [...)
     def roundBeats(self) -> Self:
         self_beats: Beats = self % Beats()
         return self.copy(self_beats.roundBeats())
     
-    # Position round type: [...)
+    # Measurement round type: [...)
     def roundSteps(self) -> Self:
         self_steps: Steps = self % Steps()
         return self.copy(self_steps.roundSteps())
@@ -931,6 +931,22 @@ class Position(Measurement):
     def position(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
+    # # Position round type: [...) + 1
+    # def roundMeasures(self) -> Self:
+    #     rounded_position: Position = super().roundMeasures()
+    #     return rounded_position.__iadd__(Measure(1))
+
+    # # Position round type: [...) + 1
+    # def roundBeats(self) -> Self:
+    #     rounded_position: Position = super().roundBeats()
+    #     return rounded_position.__iadd__(Beat(1))
+    
+    # # Position round type: [...) + 1
+    # def roundSteps(self) -> Self:
+    #     rounded_position: Position = super().roundSteps()
+    #     return rounded_position.__iadd__(Step(1))
+
+
 class Length(Measurement):
     """`Rational -> Convertible -> Measurement -> Length`
 
@@ -959,21 +975,22 @@ class Length(Measurement):
         rounded_length: Length = super().roundMeasures()
         if rounded_length == self:
             return rounded_length
-        return rounded_length + Measures(1)
+        return rounded_length.__iadd__(Measure(1))
 
     # Measurement/Length round type: (...]
     def roundBeats(self) -> Self:
         rounded_length: Length = super().roundBeats()
         if rounded_length == self:
             return rounded_length
-        return rounded_length + Beats(1)
+        return rounded_length.__iadd__(Beat(1))
     
     # Measurement/Length round type: (...]
     def roundSteps(self) -> Self:
         rounded_length: Length = super().roundSteps()
         if rounded_length == self:
             return rounded_length
-        return rounded_length + Steps(1)
+        return rounded_length.__iadd__(Step(1))
+
 
 class Duration(Measurement):
     """`Rational -> Convertible -> Measurement -> Duration`
@@ -984,6 +1001,29 @@ class Duration(Measurement):
     ----------
     Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
+    
+    # Measurement/Duration round type: (...]
+    def roundMeasures(self) -> Self:
+        rounded_duration: Duration = super().roundMeasures()
+        if rounded_duration == self:
+            return rounded_duration
+        return rounded_duration.__iadd__(Measure(1))
+
+    # Measurement/Duration round type: (...]
+    def roundBeats(self) -> Self:
+        rounded_duration: Duration = super().roundBeats()
+        if rounded_duration == self:
+            return rounded_duration
+        return rounded_duration.__iadd__(Beat(1))
+    
+    # Measurement/Duration round type: (...]
+    def roundSteps(self) -> Self:
+        rounded_duration: Duration = super().roundSteps()
+        if rounded_duration == self:
+            return rounded_duration
+        return rounded_duration.__iadd__(Step(1))
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float() | int():
