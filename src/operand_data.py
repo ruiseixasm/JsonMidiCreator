@@ -1036,16 +1036,17 @@ class Play(ReadOnly):
         import operand_element as oe
         match operand:
             case oc.Composition() | oe.Element() | Playlist():
-                playlist: list[dict] = self._clocked_playlist(operand)
-                if self._data[1] and self._data[2]:
-                    # Start the function in a new process
-                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._data[0]))
-                    process.start()
-                    operand >> Plot(self._data[2])
-                else:
-                    if self._data[1] and not self._data[2]:
+                if len(operand % Pipe(list())) > 0:
+                    playlist: list[dict] = self._clocked_playlist(operand)
+                    if self._data[1] and self._data[2]:
+                        # Start the function in a new process
+                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._data[0]))
+                        process.start()
                         operand >> Plot(self._data[2])
-                    c.jsonMidiPlay(playlist, self._data[0])
+                    else:
+                        if self._data[1] and not self._data[2]:
+                            operand >> Plot(self._data[2])
+                        c.jsonMidiPlay(playlist, self._data[0])
                 return operand
             case _:
                 return super().__rrshift__(operand)
