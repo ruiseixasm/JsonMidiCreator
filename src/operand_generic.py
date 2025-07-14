@@ -158,6 +158,8 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         import operand_element as oe
+        self._key_signature: ou.KeySignature \
+                                        = settings % ou.KeySignature()
         self._tonic_key: int            = settings._staff % ou.Key() % int()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
@@ -416,6 +418,7 @@ class Pitch(Generic):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():        return self % od.Pipe( operand._data )
+                    case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
                     case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
@@ -431,7 +434,9 @@ class Pitch(Generic):
                     case list():            return self._scale
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-
+            case ou.KeySignature():
+                return self._key_signature.copy()
+            
             case int():
                 return self.pitch_int()
             case float():
@@ -532,6 +537,7 @@ class Pitch(Generic):
     def getSerialization(self) -> dict:
 
         serialization = super().getSerialization()
+        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
@@ -545,11 +551,12 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
-            "degree_0" in serialization["parameters"] and "octave_0" in serialization["parameters"] and "transposition" in serialization["parameters"] and 
-            "scale" in serialization["parameters"]):
+            "key_signature" in serialization["parameters"] and "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and
+            "natural" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "octave_0" in serialization["parameters"] and
+            "transposition" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
@@ -565,6 +572,7 @@ class Pitch(Generic):
         match operand:
             case Pitch():
                 super().__lshift__(operand)
+                self._key_signature         << operand._key_signature
                 self._tonic_key             = operand._tonic_key
                 self._octave_0              = operand._octave_0
                 self._degree_0              = operand._degree_0
@@ -577,6 +585,8 @@ class Pitch(Generic):
                     self._owner_element     = operand._owner_element
             case od.Pipe():
                 match operand._data:
+                    case ou.KeySignature():
+                        self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.Octave():
@@ -610,6 +620,8 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ou.KeySignature():
+                self._key_signature << operand
 
             case int():
                 # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
