@@ -660,9 +660,9 @@ class Group(Element):
                 self._elements = self.deep_copy( operand )
             case dict():
                 if all(isinstance(key, int) for key in operand.keys()):
-                    for index, value in operand.items():
+                    for index, parameter in operand.items():
                         if index >= 0 and index < len(self._elements):
-                            self._elements[index] << value
+                            self._elements[index] << parameter
             case _:
                 super().__lshift__(operand)
         return self
