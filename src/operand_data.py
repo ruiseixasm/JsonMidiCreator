@@ -1036,7 +1036,7 @@ class Play(ReadOnly):
         import operand_element as oe
         match operand:
             case oc.Composition() | oe.Element() | Playlist():
-                if len(operand % Pipe(list())) > 0:
+                if isinstance(operand, oe.Element) or len(operand % Pipe(list())) > 0:
                     playlist: list[dict] = self._clocked_playlist(operand)
                     if self._data[1] and self._data[2]:
                         # Start the function in a new process
