@@ -2050,7 +2050,7 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
-        return self
+        return self._sort_items()
 
 
     # Avoids the costly copy of Track self doing +=
@@ -3501,10 +3501,12 @@ class Part(Composition):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._items = [
-                    self.deep_copy(item) for item in operand if isinstance(item, Clip)
-                ]
-                self._sort_items()
+                if all(isinstance(item, Clip) for item in operand):
+                    self._items = [item.copy() for item in operand]
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
+                        
             case str():
                 self._name = operand
             case tuple():
@@ -3515,7 +3517,7 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
-        return self
+        return self._sort_items()
 
 
     def __iadd__(self, operand: any) -> Self:
@@ -4012,10 +4014,11 @@ class Song(Composition):
             case og.Staff() | og.TimeSignature():
                 self._staff << operand
             case list():
-                self._items = [
-                    self.deep_copy(item) for item in operand if isinstance(item, Part)
-                ]
-                return self._sort_items()
+                if all(isinstance(item, Part) for item in operand):
+                    self._items = [item.copy() for item in operand]
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
 
             case tuple():
                 for single_operand in operand:
@@ -4025,9 +4028,8 @@ class Song(Composition):
                     operand._set_inside_container(self)
                 for single_part in self._items:
                     single_part << operand
-                return self._sort_items()
 
-        return self
+        return self._sort_items()
 
 
     def __iadd__(self, operand: any) -> Self:
