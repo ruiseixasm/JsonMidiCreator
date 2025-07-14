@@ -659,10 +659,10 @@ class Group(Element):
             case list():
                 self._elements = self.deep_copy( operand )
             case dict():
-                for key, value in operand.items():
-                    if isinstance(key, int):
-                        if 0 < key <= len(self._elements):
-                            self._elements[key - 1] << value
+                if all(isinstance(key, int) for key in operand.keys()):
+                    for index, value in operand.items():
+                        if index >= 0 and index < len(self._elements):
+                            self._elements[index] << value
             case _:
                 super().__lshift__(operand)
         return self
@@ -1471,9 +1471,12 @@ class Cluster(Note):
             case list():
                 self._offsets = self.deep_copy( operand )
             case dict():
-                for index, offset in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._offsets):
-                        self._offsets[index] = self.deep_copy(offset)
+                if all(isinstance(key, int) for key in operand.keys()):
+                    for index, offset in operand.items():
+                        if index >= 0 and index < len(self._offsets):
+                            self._offsets[index] = self.deep_copy(offset)
+                else:   # Not for me
+                    self._pitch << operand
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
@@ -1723,9 +1726,12 @@ class PitchChord(KeyScale):
             case list():
                 self._offsets = self.deep_copy( operand )
             case dict():
-                for index, offset in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._offsets):
-                        self._offsets[index] = self.deep_copy(offset)
+                if all(isinstance(key, int) for key in operand.keys()):
+                    for index, offset in operand.items():
+                        if index >= 0 and index < len(self._offsets):
+                            self._offsets[index] = self.deep_copy(offset)
+                else:   # Not for me
+                    self._pitch << operand
             case _:
                 super().__lshift__(operand)
         return self
