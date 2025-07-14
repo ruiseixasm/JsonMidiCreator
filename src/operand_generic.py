@@ -158,7 +158,6 @@ class Pitch(Generic):
     bool(True) : Sets if the given scale is processed as transposition (True) or as modulation (False).
     """
     def __init__(self, *parameters):
-        import operand_element as oe
         self._key_signature: ou.KeySignature \
                                         = settings % ou.KeySignature()
         self._tonic_key: int            = settings % ou.Key() % int()
