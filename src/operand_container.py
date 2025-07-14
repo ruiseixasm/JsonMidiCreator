@@ -2022,6 +2022,14 @@ class Clip(Composition):  # Just a container of Elements
                 else:   # Not for me
                     for item in self._items:
                         item << operand
+            case dict():
+                if all(isinstance(item, oe.Element) for item in operand.values()):
+                    for index, item in operand.items():
+                        if isinstance(index, int) and index >= 0 and index < len(self._items):
+                            self._items[index] = item.copy()
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
 
             case om.Mutation():
                 operand.copy().mutate(self)
@@ -3506,7 +3514,15 @@ class Part(Composition):
                 else:   # Not for me
                     for item in self._items:
                         item << operand
-                        
+            case dict():
+                if all(isinstance(item, Clip) for item in operand.values()):
+                    for index, item in operand.items():
+                        if isinstance(index, int) and index >= 0 and index < len(self._items):
+                            self._items[index] = item.copy()
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
+
             case str():
                 self._name = operand
             case tuple():
@@ -4016,6 +4032,14 @@ class Song(Composition):
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
+            case dict():
+                if all(isinstance(item, Part) for item in operand.values()):
+                    for index, item in operand.items():
+                        if isinstance(index, int) and index >= 0 and index < len(self._items):
+                            self._items[index] = item.copy()
                 else:   # Not for me
                     for item in self._items:
                         item << operand
