@@ -1718,6 +1718,10 @@ class PitchChord(KeyScale):
                         super().__lshift__(operand)
             case list():
                 self._offsets = self.deep_copy( operand )
+            case dict():
+                for index, item in operand.items():
+                    if isinstance(index, int) and index >= 0 and index < len(self._items):
+                        self._items[index] = self.deep_copy(item)
             case _:
                 super().__lshift__(operand)
         return self
