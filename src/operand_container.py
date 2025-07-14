@@ -1304,7 +1304,7 @@ class Composition(Container):
                                     height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dashed', alpha = 1)
                         else:
                             self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.5, color=channel_color, edgecolor='black', linewidth=2, alpha = (note["velocity"] / 127))
+                                    height=0.5, color=channel_color, edgecolor='black', linewidth=1, alpha = (note["velocity"] / 127))
             
 
                 # Where the VERTICAL axis is defined - Chromatic Keys
