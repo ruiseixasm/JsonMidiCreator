@@ -340,6 +340,11 @@ class Container(o.Operand):
                 self._append([
                     self.deep_copy(item) for item in operand
                 ])
+            case dict():
+                for index, item in operand.items():
+                    if isinstance(index, int) and index >= 0 and index < len(self._items):
+                        self._items[index] = self.deep_copy(item)
+                        
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -4353,6 +4358,11 @@ class ClipGet(Container):
                 self._append([
                     self.deep_copy(item) for item in operand
                 ])
+            case dict():
+                for index, item in operand.items():
+                    if isinstance(index, int) and index >= 0 and index < len(self._items):
+                        self._items[index] = self.deep_copy(item)
+
             case tuple():
                 self._get = operand
             case _: # Works for Frame too
