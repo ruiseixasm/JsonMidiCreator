@@ -569,9 +569,11 @@ class Element(o.Operand):
     def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            e_button: Optional[Callable[['Composition'], Any]] = None) -> 'Composition':
+            e_button: Optional[Callable[['Composition'], Any]] = None) -> Self:
         import operand_container as oc
-        return oc.Clip(self).plot(block, pause, iterations, n_button, c_button, e_button)
+        oc.Clip(self).plot(block, pause, iterations, n_button, c_button, e_button)
+        return self
+
 
 class Group(Element):
     """`Element -> Group`
