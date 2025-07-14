@@ -663,9 +663,14 @@ class Group(Element):
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._elements = self.deep_copy( operand )
+                if all(isinstance(item, Element) for item in self._elements):
+                    self._elements = self.deep_copy( operand )
             case dict():
-                if all(isinstance(key, int) for key in operand.keys()):
+                if all(isinstance(item, Element) for item in operand.values()):
+                    for index, single_element in operand.items():
+                        if isinstance(index, int) and index >= 0 and index < len(self._elements):
+                            self._elements[index] = single_element.copy()
+                elif all(isinstance(key, int) for key in operand.keys()):
                     for index, parameter in operand.items():
                         if index >= 0 and index < len(self._elements):
                             self._elements[index] << parameter
