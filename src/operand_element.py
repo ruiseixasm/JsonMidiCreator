@@ -981,7 +981,7 @@ class Note(Element):
         self._velocity: int         = og.settings._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: int             = False
-        self._pitch: og.Pitch       = og.Pitch()._set_owner_element(self)
+        self._pitch: og.Pitch       = og.Pitch()
         super().__init__(*parameters)
 
     def velocity(self, velocity: int = 100) -> Self:
@@ -1301,7 +1301,6 @@ class Note(Element):
             self._gate      = self.deserialize( serialization["parameters"]["gate"] )
             self._tied      = self.deserialize( serialization["parameters"]["tied"] )
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
-            self._pitch._set_owner_element(self)
         return self
 
 
@@ -3382,7 +3381,7 @@ class PolyAftertouch(Aftertouch):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitch: og.Pitch  = og.Pitch()._set_owner_element(self)
+        self._pitch: og.Pitch  = og.Pitch()
         super().__init__(*parameters)
 
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
@@ -3472,7 +3471,6 @@ class PolyAftertouch(Aftertouch):
 
             super().loadSerialization(serialization)
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
-            self._pitch._set_owner_element(self)
         return self
       
     def __lshift__(self, operand: any) -> Self:

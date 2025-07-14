@@ -148,6 +148,7 @@ class Pitch(Generic):
 
     Parameters
     ----------
+    KeySignature(settings) : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Tonic(settings), None : The tonic key on which the `Degree` is based on.
     Octave(4) : The octave on the keyboard with the middle C setting on the 4th octave.
     Degree(1), int : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
@@ -167,21 +168,7 @@ class Pitch(Generic):
         self._sharp: int                = 0     # By default not a Sharp or Flat
         self._natural: bool             = False
         self._scale: list[int]          = []
-
-        self._owner_element: oe.Element = None
         super().__init__(*parameters)
-
-
-    def _set_owner_element(self, owner_element: 'Element') -> Self:
-        import operand_element as oe
-        if isinstance(owner_element, oe.Element):
-            self._owner_element = owner_element
-        return self
-
-    def _get_staff(self) -> 'Staff':
-        if self._owner_element is None:
-            return settings._staff
-        return self._owner_element._get_staff()
 
 
     def sharp(self, unit: bool = True) -> Self:
@@ -575,9 +562,6 @@ class Pitch(Generic):
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale                 = operand._scale.copy()
-                # Because a Pitch is also defined by the Owner Element, this also needs to be copied!
-                if self._owner_element is None: # << and copy operation doesn't override ownership
-                    self._owner_element     = operand._owner_element
             case od.Pipe():
                 match operand._data:
                     case ou.KeySignature():
