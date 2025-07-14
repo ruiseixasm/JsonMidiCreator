@@ -1047,6 +1047,8 @@ class Play(ReadOnly):
                         if self._data[1] and not self._data[2]:
                             operand >> Plot(self._data[2])
                         c.jsonMidiPlay(playlist, self._data[0])
+                else:
+                    print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case _:
                 return super().__rrshift__(operand)
