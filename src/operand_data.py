@@ -1012,7 +1012,8 @@ class Plot(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        if isinstance(operand, oc.Composition):
+        import operand_element as oe
+        if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._data)
         return operand
 

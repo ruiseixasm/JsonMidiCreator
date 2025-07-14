@@ -39,9 +39,7 @@ def get_channel_pitch(channel: int, pitch: int) -> int:
     return channel << 8 | pitch
 
 if TYPE_CHECKING:
-    from operand_container import Clip
-    from operand_container import Part
-    from operand_container import Song
+    from operand_container import Composition, Clip, Part, Song
 
 class Element(o.Operand):
     """`Element`
@@ -568,6 +566,12 @@ class Element(o.Operand):
                     return self << self_operand
         return self
 
+    def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
+            n_button: Optional[Callable[['Composition'], 'Composition']] = None,
+            c_button: Optional[Callable[['Composition'], 'Composition']] = None,
+            e_button: Optional[Callable[['Composition'], Any]] = None) -> 'Composition':
+        import operand_container as oc
+        return oc.Clip(self).plot(block, pause, iterations, n_button, c_button, e_button)
 
 class Group(Element):
     """`Element -> Group`
