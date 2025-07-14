@@ -1470,6 +1470,10 @@ class Cluster(Note):
                         super().__lshift__(operand)
             case list():
                 self._offsets = self.deep_copy( operand )
+            case dict():
+                for index, offset in operand.items():
+                    if isinstance(index, int) and index >= 0 and index < len(self._offsets):
+                        self._offsets[index] = self.deep_copy(offset)
             case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
@@ -1719,9 +1723,9 @@ class PitchChord(KeyScale):
             case list():
                 self._offsets = self.deep_copy( operand )
             case dict():
-                for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._items):
-                        self._items[index] = self.deep_copy(item)
+                for index, offset in operand.items():
+                    if isinstance(index, int) and index >= 0 and index < len(self._offsets):
+                        self._offsets[index] = self.deep_copy(offset)
             case _:
                 super().__lshift__(operand)
         return self
