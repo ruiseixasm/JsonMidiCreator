@@ -2017,9 +2017,12 @@ class Clip(Composition):  # Just a container of Elements
                 self += operand
 
             case list():
-                self._items = [
-                    item.copy() for item in operand if isinstance(item, oe.Element)
-                ]
+                if all(isinstance(item, oe.Element) for item in operand):
+                    self._items = [item.copy() for item in operand]
+                else:   # Not for me
+                    for item in self._items:
+                        item << operand
+
             case om.Mutation():
                 operand.copy().mutate(self)
             

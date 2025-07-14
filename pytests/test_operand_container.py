@@ -961,12 +961,12 @@ def test_clip_content():
         assert isinstance(item, Element)
 
     clip_items: Clip = Clip([Note(), Channel(1), Velocity(100), Rest()])
-    assert clip_items.len() == 2
+    assert clip_items.len() == 0    # All elements shall be of Element type
     for item in clip_items:
         assert isinstance(item, Element)
 
     clip_items = clip_items + Channel() + Velocity() + Clock()  # Only Elements are added, in this case Clock
-    assert clip_items.len() == 3
+    assert clip_items.len() == 1
     for item in clip_items:
         assert isinstance(item, Element)
 
