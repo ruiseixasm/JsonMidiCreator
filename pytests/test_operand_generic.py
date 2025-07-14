@@ -87,7 +87,8 @@ def test_pitch_mod():
 def test_pitch_tonic():
 
     pitch = Pitch()
-    settings << KeySignature(2) # Dorian is the 2nd in the Circle of fifths
+    # Pitch keeps its own Key Signature
+    pitch << KeySignature(2) # Dorian is the 2nd in the Circle of fifths
 
     assert pitch % TonicKey() == "C"
     pitch << None   # Resets the Tonic
@@ -419,7 +420,8 @@ def test_pitch_scales():
         assert (staff_pitch + float(degree)) % str() == major_scale_keys[degree]
 
     print("------")
-    settings << Minor()
+    # KeySignature is a Pitch attribute
+    staff_pitch << Minor()
     minor_scale_keys: list[str] = [
         "A", "B", "C", "D", "E", "F", "G"
     ]

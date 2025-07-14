@@ -231,14 +231,19 @@ class Total(Unit):
     """
     pass
 
-class Accidentals(Unit):
-    """`Unit -> Accidentals`
+class PitchParameter(Unit):
+    """`Unit -> PitchParameter`
+    """
+    pass
+
+class Accidentals(PitchParameter):
+    """`Unit -> PitchParameter -> Accidentals`
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
 class Sharps(Accidentals):  # Sharps (###)
-    """`Unit -> Accidentals -> Sharps`
+    """`Unit -> PitchParameter -> Accidentals -> Sharps`
 
     Sharps() is intended to be used with KeySignature to set its amount of Sharps.
     
@@ -288,8 +293,8 @@ class Flats(Accidentals):   # Flats (bbb)
         return self
 
 
-class KeySignature(Unit):       # Sharps (+) and Flats (-)
-    """`Unit -> KeySignature`
+class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
+    """`Unit -> PitchParameter -> KeySignature`
 
     A KeySignature() consists in an integer from -7 to 7 describing the amount
     of Sharps for positive values and the amount of Flats for negative values.
@@ -524,11 +529,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         18:     +7      # Gb
     }
 
-
-class PitchParameter(Unit):
-    """`Unit -> PitchParameter`
-    """
-    pass
 
 class Tone(PitchParameter):
     """`Unit -> PitchParameter -> Tone`

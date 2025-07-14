@@ -160,7 +160,7 @@ class Pitch(Generic):
         import operand_element as oe
         self._key_signature: ou.KeySignature \
                                         = settings % ou.KeySignature()
-        self._tonic_key: int            = settings._staff % ou.Key() % int()
+        self._tonic_key: int            = settings % ou.Key() % int()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
@@ -217,8 +217,7 @@ class Pitch(Generic):
         Based on the Key Signature, this method gives the degree transposition
         """
         if self._degree_0 != 0: # Optimization
-            key_signature: ou.KeySignature = self._get_staff()._key_signature
-            tonic_scale: list[int] = key_signature.get_scale_list()
+            tonic_scale: list[int] = self._key_signature.get_scale_list()
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
@@ -238,8 +237,7 @@ class Pitch(Generic):
                 the tonic_offset is 0 for the new calculated degree
                 """
                 degree_0: float = round(self._degree_0) + self._transposition
-                key_signature: ou.KeySignature = self._get_staff()._key_signature
-                tonic_scale: list[int] = key_signature.get_scale_list()
+                tonic_scale: list[int] = self._key_signature.get_scale_list()
                 return Scale.transpose_key(degree_0, tonic_scale) - degree_transposition
         return 0
 
@@ -260,7 +258,7 @@ class Pitch(Generic):
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             if self._major_scale[(key + transposition) % 12] == 0:  # Black key
-                accidentals_int: int = self._get_staff()._key_signature._unit
+                accidentals_int: int = self._key_signature._unit
                 if accidentals_int < 0:
                     transposition += 1  # Considered a flat
                 else:
@@ -374,17 +372,17 @@ class Pitch(Generic):
         degree_0: int = 0
         
         tonic_int: int = self._tonic_key % 12
-        staff_scale: list[int] = self._get_staff() % list()
+        keysignature_scale: list[int] = self._key_signature % list()
 
         # tonic_int goes UP and then DOWN (results in flat or natural)
         while tonic_int < root_key:
-            degree_0 += staff_scale[ (root_key - tonic_int) % 12 ]
+            degree_0 += keysignature_scale[ (root_key - tonic_int) % 12 ]
             tonic_int += 1
         while tonic_int > root_key:
-            degree_0 -= staff_scale[ (root_key - tonic_int) % 12 ]
+            degree_0 -= keysignature_scale[ (root_key - tonic_int) % 12 ]
             tonic_int -= 1
 
-        if staff_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
+        if keysignature_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
             if self._tonic_key // 12 == 1:  # Checks the tonic key line
                 if self._tonic_key % 12 > root_key:
                     degree_0 -= 1
@@ -463,13 +461,13 @@ class Pitch(Generic):
             case ou.Sharp():
                 target_pitch: int = self.pitch_int()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
-                    if self._get_staff()._key_signature._unit >= 0:
+                    if self._key_signature._unit >= 0:
                         return ou.Sharp(1)
                 return ou.Sharp(0)
             case ou.Flat():
                 target_pitch: int = self.pitch_int()
                 if self._major_scale[target_pitch % 12] == 0:    # Black key
-                    if self._get_staff()._key_signature._unit < 0:
+                    if self._key_signature._unit < 0:
                         return ou.Flat(1)
                 return ou.Flat(0)
             case ou.Natural():
@@ -480,16 +478,13 @@ class Pitch(Generic):
             case list():
                 return self._scale.copy()
 
-            case ou.KeySignature():
-                return self._get_staff()._key_signature.copy()
-            case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
-                return self._get_staff()._key_signature % operand
+            case ou.Quality():
+                return self._key_signature % operand
             case ou.Key():
                 self_pitch: int = self.pitch_int()
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
-                self_staff: Staff = self._get_staff()   # Optimization
-                if self_staff._key_signature.is_enharmonic(self._tonic_key, key_note):
+                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
@@ -620,7 +615,7 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.KeySignature():
+            case ou.KeySignature() | ou.Quality():
                 self._key_signature << operand
 
             case int():
@@ -675,7 +670,7 @@ class Pitch(Generic):
                 self.match_octave()
             
             case None:  # Works as a reset
-                self._tonic_key = self._get_staff()._key_signature.get_tonic_key()
+                self._tonic_key = self._key_signature.get_tonic_key()
                 self._degree_0 = 0  # Resets the degree to I
                 self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
                 self._transposition = 0
@@ -853,7 +848,7 @@ class Pitch(Generic):
          }
 
     def snap(self, up: bool = False) -> Self:
-        scale_list: list[int] = self._get_staff() % list()
+        scale_list: list[int] = self._key_signature % list()
         self_pitch: int = self.pitch_int()
         pitch_offset: int = 0
         if up:
@@ -1357,14 +1352,11 @@ class Staff(Generic):
     Parameters
     ----------
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
-    KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     """
     def __init__(self, *parameters):
         super().__init__()
         # Set Global Staff Settings at the end of this file bottom bellow
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
-        # Key Signature is an alias of Sharps and Flats of a Scale
-        self._key_signature: ou.KeySignature        = ou.KeySignature()
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1473,29 +1465,14 @@ class Staff(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case TimeSignature():       return self._time_signature
-                    case ou.KeySignature():     return self._key_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return settings % operand
-            case ou.KeySignature():     return self._key_signature.copy()
-            case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
-                                        return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
-            # Calculated Values
-            case ou.TonicKey():
-                return ou.TonicKey( self._key_signature.get_tonic_key() )
-            case ou.Key():
-                return self._key_signature % ou.Key()
-            case list():
-                return self._key_signature.get_scale_list() # Faster this way
-            case float():
-                return self._key_signature % float()
-            case str():
-                return self._key_signature % str()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
@@ -1514,8 +1491,7 @@ class Staff(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._time_signature    == other._time_signature \
-            and self._key_signature     == other._key_signature
+        return  self._time_signature    == other._time_signature
 
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -1525,18 +1501,16 @@ class Staff(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
-        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
-            self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1544,27 +1518,21 @@ class Staff(Generic):
         match operand:
             case Staff():
                 super().__lshift__(operand)
-                self._time_signature    << operand._time_signature
-                self._key_signature     << operand._key_signature
+                self._time_signature << operand._time_signature
             case od.Pipe():
                 match operand._data:
                     case TimeSignature():       self._time_signature = operand._data
-                    case ou.KeySignature():     self._key_signature = operand._data
                     case ra.TimeSignatureParameter():
                                                 self._time_signature << od.Pipe( operand._data )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
-            case Fraction():
-                self._duration = operand
-            case str():
-                self._key_signature << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
             case _:
-                self._key_signature << operand
+                super().__lshift__(operand)
         return self
 
 
@@ -1803,6 +1771,7 @@ class Settings(Generic):
     Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     Staff(), int, float, Fraction, str : It keeps its own global `Staff` that will be used by `Element` and `Clip` at their creation.
+    KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Duration(1/4) : The default note `Element` duration is 1/4 note.
     Octave(4) : The default `Octave` is the 4th relative to the middle C.
     Velocity(100) : Sets the default velocity of a `Note` as 100.
@@ -1818,6 +1787,8 @@ class Settings(Generic):
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/16)
         self._staff: Staff                          = Staff()
+        # Key Signature is an alias of Sharps and Flats of a Scale
+        self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._duration: Fraction                    = Fraction(1)   # Means 1 beat
         self._octave: int                           = 4
         self._velocity: int                         = 100
@@ -1846,10 +1817,7 @@ class Settings(Generic):
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case Staff():               return self._staff
-                    case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                        | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                        | int() | float() | Fraction() | str():
-                                                return self._staff % od.Pipe( operand._data )
+                    case ou.KeySignature():     return self._key_signature
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1869,10 +1837,16 @@ class Settings(Generic):
                 return ra.StepsPerMeasure() \
                     << (self % ra.StepsPerNote() % Fraction()) * (self._staff % ra.NotesPerMeasure() % Fraction())
             case Staff():               return self._staff.copy()
-            case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | int() | float() | Fraction() | str():
+            case ra.StaffParameter() | TimeSignature():
                                         return self._staff % operand
+            case ou.KeySignature():     return self._key_signature.copy()
+            case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
+                                        return self._key_signature % operand
+            # Calculated Values
+            case list():
+                return self._key_signature.get_scale_list() # Faster this way
+            case ou.TonicKey():
+                return ou.TonicKey( self._key_signature.get_tonic_key() )
             case ra.Duration():         return operand.copy() << self._duration
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1898,6 +1872,7 @@ class Settings(Generic):
         return  self._tempo             == other._tempo \
             and self._quantization      == other._quantization \
             and self._staff             == other._staff \
+            and self._key_signature     == other._key_signature \
             and self._duration          == other._duration \
             and self._octave            == other._octave \
             and self._velocity          == other._velocity \
@@ -1913,6 +1888,7 @@ class Settings(Generic):
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["staff"]            = self.serialize( self._staff )
+        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
@@ -1928,8 +1904,8 @@ class Settings(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and "staff" in serialization["parameters"]
-            and "duration" in serialization["parameters"] and
+            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and "staff" in serialization["parameters"] and
+            "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
@@ -1938,6 +1914,7 @@ class Settings(Generic):
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
+            self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
             self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
@@ -1958,6 +1935,7 @@ class Settings(Generic):
                 self._tempo             = operand._tempo
                 self._quantization      = operand._quantization
                 self._staff             << operand._staff
+                self._key_signature     << operand._key_signature
                 self._duration          = operand._duration
                 self._octave            = operand._octave
                 self._velocity          = operand._velocity
@@ -1972,6 +1950,7 @@ class Settings(Generic):
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case Staff():               self._staff = operand._data
+                    case ou.KeySignature():     self._key_signature = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
                     case ou.Velocity():         self._velocity = operand._data._unit
@@ -1989,10 +1968,10 @@ class Settings(Generic):
                 self._quantization = 1 / (operand % Fraction())
             case ra.StepsPerMeasure():
                 self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
-            case Staff() | ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                | Scale() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | int() | float() | Fraction() | str():
+            case Staff() | ra.StaffParameter() | TimeSignature():
                                         self._staff << operand
+            case ou.KeySignature() | ou.Quality() | int() | float() | Fraction() | str():
+                                        self._key_signature << operand
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit

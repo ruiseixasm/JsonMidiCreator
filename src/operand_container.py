@@ -1073,8 +1073,7 @@ class Composition(Container):
                 return operand.copy( self.length() )
             case ra.Duration():
                 return self.duration()
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
-                | float() | Fraction():
+            case og.Staff() | og.TimeSignature():
                 return self._staff % operand
             case _:
                 return super().__mod__(operand)
@@ -1833,8 +1832,7 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
-                | float() | Fraction():
+            case og.Staff() | og.TimeSignature():
                 return self._staff % operand
             case Part():            return Part(self._staff, self)
             case Song():            return Song(self._staff, self)
@@ -1983,7 +1981,7 @@ class Clip(Composition):  # Just a container of Elements
                     case om.Mutation():     operand._data.mutate(self)
 
                     # All possible Staff parameters enter here
-                    case og.Scale() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                    case og.Staff() | og.TimeSignature():
                         self._staff << operand._data
 
                     case ClipGet():
@@ -2009,7 +2007,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
-            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | og.TimeSignature():
                 self._staff << operand  # Staff has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
@@ -2076,7 +2074,7 @@ class Clip(Composition):  # Just a container of Elements
                     return self._append(operand_elements, self_last_element)
                 return self._append(operand_elements)
 
-            case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | og.TimeSignature():
                 self._staff += operand
 
             case tuple():
@@ -2098,7 +2096,7 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 return self._delete(operand)
             
-            case ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | og.TimeSignature():
                 self._staff -= operand
 
             case tuple():
@@ -3899,8 +3897,7 @@ class Song(Composition):
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() \
-                | float() | Fraction():
+            case og.Staff() | og.TimeSignature():
                 return self._staff % operand
             case od.Names():
                 all_names: list[str] = []
@@ -4009,7 +4006,7 @@ class Song(Composition):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | og.TimeSignature():
                 self._staff << operand
             case list():
                 self._items = [

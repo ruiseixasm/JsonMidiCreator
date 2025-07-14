@@ -39,9 +39,10 @@ def test_staff_parameters():
     assert settings % Tempo() == 145.0
     settings << Tempo(120)  # resets to the default
 
-    assert four_notes % KeySignature() == 0
+    # KeySignature is an Element parameter, NOT a Clip one
+    assert four_notes[0] % KeySignature() == 0
     four_notes << KeySignature(2)
-    assert four_notes % KeySignature() == 2
+    assert four_notes[0] % KeySignature() == 2
 
 # test_staff_parameters()
 
