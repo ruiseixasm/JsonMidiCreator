@@ -1134,7 +1134,7 @@ class Note(Element):
                     note_off["position_off"] = position_off_beats
 
 
-                tied_note: bool = self._get_staff()._tie_note(
+                tied_note: bool = og.settings._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     position_on, position_off,
                     self_plotlist[0]["note"], extend_note
@@ -1145,7 +1145,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._get_staff()._stack_note(
+            if not og.settings._stack_note(
                 self_plotlist[0]['note']["position_on"],
                 self._channel - 1,
                 pitch_int
@@ -1219,7 +1219,7 @@ class Note(Element):
                     note_off["time_ms"] = o.minutes_to_time_ms(position_off)
 
 
-                tied_note: bool = self._get_staff()._tie_note(
+                tied_note: bool = og.settings._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     self_position_min, self_position_min + self_duration_min * self._gate,
                     self_playlist[1], extend_note
@@ -1230,7 +1230,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._get_staff()._stack_note(
+            if not og.settings._stack_note(
                 self_playlist_time_ms[0]["time_ms"],
                 self_playlist_time_ms[0]["midi_message"]["status_byte"],
                 self_playlist_time_ms[0]["midi_message"]["data_byte_1"]
@@ -1271,7 +1271,7 @@ class Note(Element):
 
                 self_position: Fraction = (Fraction(0) if position_beats is None else position_beats) + self._position_beats
 
-                tied_note: bool = self._get_staff()._tie_note(
+                tied_note: bool = og.settings._tie_note(
                     get_channel_pitch(self._channel, pitch_int),
                     self_position, self_position + self_duration_beats,
                     self_midilist[0], extend_note
@@ -1282,7 +1282,7 @@ class Note(Element):
 
 
             # Record present Note on the Staff stacked notes
-            if not self._get_staff()._stack_note(
+            if not og.settings._stack_note(
                 self_midilist[0]["time"],
                 self_midilist[0]["channel"],
                 self_midilist[0]["pitch"]

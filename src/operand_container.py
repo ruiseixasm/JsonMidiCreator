@@ -1863,7 +1863,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        self._staff.reset()
+        og.settings.reset()
 
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
@@ -1900,7 +1900,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        self._staff.reset()
+        og.settings.reset()
 
         self_playlist: list[dict] = [
             {
@@ -1925,7 +1925,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        self._staff.reset()
+        og.settings.reset()
 
         return [
             single_midilist
