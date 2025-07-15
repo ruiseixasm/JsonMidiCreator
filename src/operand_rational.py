@@ -832,28 +832,20 @@ class Measurement(Convertible):
                 if self._staff_reference is None:
                     self._staff_reference = operand._staff_reference
                 match operand:
+                    case Measurement() | Beats():
+                        self._rational = operand._rational  # Both are in beats
                     case Measure():
                         actual_measure: Measure = self % Measure()
                         offset_measure: Measure = operand - actual_measure
                         self += Measures(offset_measure)
-                        # self_beats: Beats = self % Beats()
-                        # measure_beats: Beats = self_beats - self_beats.copy().roundMeasures()
-                        # operand_beats: Beats = operand % Beats(self._staff_reference)
-                        # operand_beats.roundMeasures()
-                        # self._rational = (operand_beats + measure_beats) % Fraction()
-
-                    # # CAN'T USE THIS YET, FAILS AT COPYING BEAT AS IS !!
-                    # case Beat():
-                    #     actual_beat: Beat = self % Beat()
-                    #     offset_beat: Beat = operand - actual_beat
-                    #     self += Beats(offset_beat)
-                    case Beat() | Step():
-                        self_beats: Beats = self % Beats()
-                        self_beats.roundMeasures()
-                        self_beats += operand
-                        self._rational = self_beats._rational
-                    case Measurement() | Beats():
-                        self._rational = operand._rational  # Both are in beats
+                    case Beat():
+                        actual_beat: Beat = self % Beat()
+                        offset_beat: Beat = operand - actual_beat
+                        self += Beats(offset_beat)
+                    case Step():
+                        actual_step: Step = self % Step()
+                        offset_step: Step = operand - actual_step
+                        self += Steps(offset_step)
                     case Convertible():
                         self._rational = operand % Beats(self._staff_reference) % Fraction()
                     case _:
