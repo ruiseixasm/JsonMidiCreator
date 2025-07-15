@@ -849,7 +849,7 @@ class Measurement(Convertible):
                         self_beats.roundMeasures()
                         self_beats += operand
                         self._rational = self_beats._rational
-                    case Measurement():
+                    case Measurement() | Beats():
                         self._rational = operand._rational  # Both are in beats
                     case Convertible():
                         self._rational = operand % Beats(self._staff_reference) % Fraction()
