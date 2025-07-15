@@ -1881,6 +1881,7 @@ class Settings(Generic):
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["staff"]            = self.serialize( self._staff )
+        serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
@@ -1898,7 +1899,7 @@ class Settings(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and "staff" in serialization["parameters"] and
-            "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
@@ -1907,6 +1908,7 @@ class Settings(Generic):
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._staff             = self.deserialize( serialization["parameters"]["staff"] )
+            self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
@@ -1928,6 +1930,7 @@ class Settings(Generic):
                 self._tempo             = operand._tempo
                 self._quantization      = operand._quantization
                 self._staff             << operand._staff
+                self._time_signature    << operand._time_signature
                 self._key_signature     << operand._key_signature
                 self._duration          = operand._duration
                 self._octave            = operand._octave
@@ -1943,6 +1946,7 @@ class Settings(Generic):
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case Staff():               self._staff = operand._data
+                    case TimeSignature():       self._time_signature = operand._data
                     case ou.KeySignature():     self._key_signature = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
@@ -1963,6 +1967,8 @@ class Settings(Generic):
                 self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
             case Staff() | ra.StaffParameter() | TimeSignature():
                                         self._staff << operand
+            case TimeSignature() | ra.TimeSignatureParameter():
+                                        self._time_signature << operand
             case ou.KeySignature() | ou.Quality() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
             case ra.Duration():         self._duration = operand._rational
