@@ -790,7 +790,7 @@ def test_clip_map():
 def test_clip_selectors():
 
     four_notes: Clip = Note() / 4
-    four_notes += All()**Beat(1)
+    four_notes += Beat(1)
     assert four_notes[0] % Beats() == 1
     assert four_notes[2] % Beats() == 3    # Middle uses nth, so, 2 means the 3rd element
     assert four_notes[-1] % Beats() == 4

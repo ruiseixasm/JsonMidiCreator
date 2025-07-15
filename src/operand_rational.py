@@ -830,11 +830,20 @@ class Measurement(Convertible):
                     self._staff_reference = operand._staff_reference
                 match operand:
                     case Measure():
-                        self_beats: Beats = self % Beats()
-                        measure_beats: Beats = self_beats - self_beats.copy().roundMeasures()
-                        operand_beats: Beats = operand % Beats(self._staff_reference)
-                        operand_beats.roundMeasures()
-                        self._rational = (operand_beats + measure_beats) % Fraction()
+                        actual_measure: Measure = self % Measure()
+                        offset_measure: Measure = operand - actual_measure
+                        self += Measures(offset_measure)
+                        # self_beats: Beats = self % Beats()
+                        # measure_beats: Beats = self_beats - self_beats.copy().roundMeasures()
+                        # operand_beats: Beats = operand % Beats(self._staff_reference)
+                        # operand_beats.roundMeasures()
+                        # self._rational = (operand_beats + measure_beats) % Fraction()
+
+                    # # CAN'T USE THIS YET, FAILS AT COPYING BEAT AS IS !!
+                    # case Beat():
+                    #     actual_beat: Beat = self % Beat()
+                    #     offset_beat: Beat = operand - actual_beat
+                    #     self += Beats(offset_beat)
                     case Beat() | Step():
                         self_beats: Beats = self % Beats()
                         self_beats.roundMeasures()
@@ -855,7 +864,7 @@ class Measurement(Convertible):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
+            case Measurement() | Beats() | Beat():
                 self._rational += operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
                 self._rational += operand % Beats(self._staff_reference) % Fraction()
@@ -868,7 +877,7 @@ class Measurement(Convertible):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measurement():
+            case Measurement() | Beats() | Beat():
                 self._rational -= operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
                 self._rational -= operand % Beats(self._staff_reference) % Fraction()
@@ -1421,7 +1430,6 @@ class Measure(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> 'Measure':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1431,7 +1439,6 @@ class Measure(TimeUnit):
         return self
     
     def __isub__(self, operand: any) -> 'Measure':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1441,7 +1448,6 @@ class Measure(TimeUnit):
         return self
     
     def __imul__(self, operand: any) -> 'Measure':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1451,7 +1457,6 @@ class Measure(TimeUnit):
         return self
     
     def __itruediv__(self, operand: any) -> 'Measure':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1498,7 +1503,6 @@ class Beat(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> 'Beat':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1508,7 +1512,6 @@ class Beat(TimeUnit):
         return self
     
     def __isub__(self, operand: any) -> 'Beat':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1518,7 +1521,6 @@ class Beat(TimeUnit):
         return self
     
     def __imul__(self, operand: any) -> 'Beat':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1528,7 +1530,6 @@ class Beat(TimeUnit):
         return self
     
     def __itruediv__(self, operand: any) -> 'Beat':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1585,7 +1586,6 @@ class Step(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> 'Step':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1595,7 +1595,6 @@ class Step(TimeUnit):
         return self
     
     def __isub__(self, operand: any) -> 'Step':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1605,7 +1604,6 @@ class Step(TimeUnit):
         return self
     
     def __imul__(self, operand: any) -> 'Step':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
@@ -1615,7 +1613,6 @@ class Step(TimeUnit):
         return self
     
     def __itruediv__(self, operand: any) -> 'Step':
-        import operand_rational as ra
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():

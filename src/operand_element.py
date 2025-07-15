@@ -373,7 +373,7 @@ class Element(o.Operand):
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
-                return self << self_operand
+                self << self_operand
         return self
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
@@ -387,7 +387,7 @@ class Element(o.Operand):
             case _:
                 self_operand: any = self % operand
                 self_operand -= operand
-                return self << self_operand
+                self << self_operand
         return self
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
@@ -427,9 +427,11 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__imul__(operand)
-        self_operand: any = self % operand
-        self_operand *= operand # Generic `self_operand`
-        return self << self_operand
+            case _:
+                self_operand: any = self % operand
+                self_operand *= operand # Generic `self_operand`
+                self << self_operand
+        return self
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
@@ -476,7 +478,7 @@ class Element(o.Operand):
                 if operand != 0:
                     self_operand: any = self % operand
                     self_operand /= operand # Generic `self_operand`
-                    return self << self_operand
+                    self << self_operand
         return self
 
 
@@ -1348,8 +1350,6 @@ class Note(Element):
     def __iadd__(self, operand: any) -> 'Note':
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int():
-                self._velocity += operand
             case og.Pitch() | ou.PitchParameter() | int():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
@@ -1359,8 +1359,6 @@ class Note(Element):
     def __isub__(self, operand: any) -> 'Note':
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int():
-                self._velocity -= operand
             case og.Pitch() | ou.PitchParameter() | int():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
