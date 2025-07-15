@@ -35,7 +35,7 @@ else:  # Assume Linux/Unix
 from JsonMidiCreator import *
 
 
-total_measures: int = (settings % Staff()).convert_time_to_measures(seconds=40)
+total_measures: int = settings.convert_time_to_measures(seconds=40)
 print(total_measures)
 
 triad = Chord() * 4

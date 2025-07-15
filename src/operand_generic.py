@@ -1347,15 +1347,6 @@ class Staff(Generic):
             self << single_parameter
 
     
-    def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
-        actual_bps: Fraction = settings._tempo / 60 # Beats Per Second
-        time_seconds: int = 60 * minutes + seconds
-        beats_per_measure: int = self._time_signature._top
-        total_beats: Fraction = time_seconds * actual_bps
-        total_measures: int = int(total_beats / beats_per_measure)
-        return total_measures
-
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Staff,
