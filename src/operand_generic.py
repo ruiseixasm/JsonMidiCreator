@@ -1865,6 +1865,7 @@ class Settings(Generic):
         return  self._tempo             == other._tempo \
             and self._quantization      == other._quantization \
             and self._staff             == other._staff \
+            and self._time_signature    == other._time_signature \
             and self._key_signature     == other._key_signature \
             and self._duration          == other._duration \
             and self._octave            == other._octave \
