@@ -602,7 +602,7 @@ class Group(Element):
                 match operand._data:
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case list():            return self._elements.copy()
+            case list():            return self.deep_copy(self._elements)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -663,7 +663,7 @@ class Group(Element):
                     case _:
                         super().__lshift__(operand)
             case list():
-                if all(isinstance(item, Element) for item in self._elements):
+                if all(isinstance(item, Element) for item in operand):
                     self._elements = self.deep_copy( operand )
             case dict():
                 if all(isinstance(item, Element) for item in operand.values()):
@@ -1526,23 +1526,6 @@ class KeyScale(Note):
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a KeyScale,
-        those Parameters are the ones of the Element, like Position and Duration,
-        together with the ones of a Note, like Duration and Pitch,
-        plus the Scale and Mode, the last one as 1 by default.
-
-        Examples
-        --------
-        >>> scale = KeyScale()
-        >>> scale % str() >> Print()
-        Major
-        >>> scale << "minor"
-        >>> scale % str() >> Print()
-        minor
-        >>> scale % list() >> Print()
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
-        """
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1553,7 +1536,6 @@ class KeyScale(Note):
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
-            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1685,9 +1667,9 @@ class PitchChord(KeyScale):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case dict():            return self._offsets
+                    case list():            return self._offsets
                     case _:                 return super().__mod__(operand)
-            case dict():            return self.deep_copy(self._offsets)
+            case list():            return self.deep_copy(self._offsets)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1834,7 +1816,6 @@ class Chord(KeyScale):
             case ou.Augmented():    return ou.Augmented() << od.Pipe(self._augmented)
             case ou.Sus2():         return ou.Sus2() << od.Pipe(self._sus2)
             case ou.Sus4():         return ou.Sus4() << od.Pipe(self._sus4)
-            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2027,7 +2008,6 @@ class Retrigger(Note):
             case ra.NoteValue():
                 return operand.copy() << self % ra.Duration()
             case float():           return self % ra.NoteValue() % float()
-            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list[Element]:
@@ -2229,7 +2209,7 @@ class Tuplet(Element):
             case ou.Number():       return ou.Number() << len(self._elements)
             case ra.Duration() | ra.NoteValue():
                 return operand << od.Pipe( self._duration_beats / 2 )
-            case list():            return self.get_component_elements()
+            case list():            return self.deep_copy(self._elements)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2316,8 +2296,7 @@ class Tuplet(Element):
             case ra.Duration() | ra.NoteValue():
                 self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
             case list():
-                                                                     # Rest because is the root super class with Duration
-                if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
+                if len(operand) > 0 and all(isinstance(single_element, Element) for single_element in operand):
                     self._elements = self.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
