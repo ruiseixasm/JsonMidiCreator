@@ -1351,6 +1351,10 @@ class TimeUnit(Convertible):
         return Fraction( int(self._rational) )
     
 
+    def measure_unit(self) -> Self:
+        return self
+
+
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
@@ -1383,15 +1387,6 @@ class TimeUnit(Convertible):
             case _:
                 return super().__gt__(other)
         return False
-
-
-    if TYPE_CHECKING:
-        from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps, Minutes
-
-
-
-    def getPlaylist(self) -> list[dict]:
-        return self._get_staff().getPlaylist(self)
 
 
 class Measure(TimeUnit):
@@ -1499,6 +1494,11 @@ class Beat(TimeUnit):
         relative_beat: int = absolute_beat % beats_per_measure
         return Fraction( relative_beat )
 
+    def measure_unit(self) -> Self:
+        time_staff: Staff = self._get_staff()
+        absolute_beat: int = int(self._rational)
+        beats_per_measure: int = time_staff._time_signature._top
+        return self << absolute_beat % beats_per_measure
 
     # CHAINABLE OPERATIONS
 
@@ -1575,13 +1575,23 @@ class Step(TimeUnit):
         time_staff: Staff = self._get_staff()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
-        absolute_step: int = int(beats / beats_per_step)
 
+        absolute_step: int = int(beats / beats_per_step)
         beats_per_measure: int = time_staff._time_signature._top
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
         relative_step: int = absolute_step % steps_per_measure
         return Fraction( relative_step )
 
+    def measure_unit(self) -> Self:
+        import operand_generic as og
+        notes_per_step: Fraction = og.settings._quantization
+        time_staff: Staff = self._get_staff()
+        beats_per_note: int = time_staff._time_signature._bottom
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        absolute_step: int = int(self._rational)
+        beats_per_measure: int = time_staff._time_signature._top
+        steps_per_measure: int = int(beats_per_measure / beats_per_step)
+        return self << absolute_step % steps_per_measure
 
     # CHAINABLE OPERATIONS
 
