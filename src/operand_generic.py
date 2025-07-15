@@ -1675,6 +1675,7 @@ class Settings(Generic):
     Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     Staff(), int, float, Fraction, str : It keeps its own global `Staff` that will be used by `Element` and `Clip` at their creation.
+    TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Duration(1/4) : The default note `Element` duration is 1/4 note.
     Octave(4) : The default `Octave` is the 4th relative to the middle C.
@@ -1691,7 +1692,7 @@ class Settings(Generic):
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/16)
         self._staff: Staff                          = Staff()
-        # Key Signature is an alias of Sharps and Flats of a Scale
+        self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._duration: Fraction                    = Fraction(1)   # Means 1 beat
         self._octave: int                           = 4
@@ -1802,6 +1803,9 @@ class Settings(Generic):
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case Staff():               return self._staff
+                    case TimeSignature():       return self._time_signature
+                    case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
+                    case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     case ou.KeySignature():     return self._key_signature
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
@@ -1824,6 +1828,10 @@ class Settings(Generic):
             case Staff():               return self._staff.copy()
             case ra.StaffParameter() | TimeSignature():
                                         return self._staff % operand
+            case TimeSignature():       return self._time_signature.copy()
+            case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
+            case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
+            case ra.NotesPerMeasure():  return self._time_signature % ra.NotesPerMeasure()
             case ou.KeySignature():     return self._key_signature.copy()
             case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self._key_signature % operand
