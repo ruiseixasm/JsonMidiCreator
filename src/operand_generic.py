@@ -321,7 +321,7 @@ class Pitch(Generic):
         return self.match_octave()
 
 
-    def match_octave(self) -> Self:
+    def match_octave(self, move_octave = True) -> Self:
         """
         This method makes sure the Degree and Transposition pitches match the same Octave
         while making degree_key and scale_key being in the same octave as tonic_int.
@@ -335,7 +335,8 @@ class Pitch(Generic):
             octave_offset: int = degree_key // 12
             self._degree_0 -= octave_offset * 7 # Offsets degree to negative
             degree_transposition -= octave_offset * 12  # Offsets transposition too
-            self._octave_0 += octave_offset     # matches the Octave with the new Degree
+            if move_octave:
+                self._octave_0 += octave_offset     # matches the Octave with the new Degree
         # Matches the Transposition secondly
         scale_transposition: int = self.scale_transposition(degree_transposition)
         if scale_transposition != 0:    # Optimization
@@ -350,7 +351,8 @@ class Pitch(Generic):
             scale_key: int = root_int + scale_transposition
             octave_offset: int = scale_key // 12
             self._transposition -= octave_offset * scale_degrees    # Offsets degree to negative
-            self._octave_0 += octave_offset     # matches the Octave with the new Degree
+            if move_octave:
+                self._octave_0 += octave_offset     # matches the Octave with the new Degree
         return self
 
 
@@ -650,7 +652,7 @@ class Pitch(Generic):
                     new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
                 # There is still the need to match the Octave for the existing transpositions
-                self.match_octave()
+                self.match_octave(False)    # Keep actual octave (False)
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature.get_tonic_key()
@@ -671,7 +673,7 @@ class Pitch(Generic):
                 new_transposition: int = operand._unit % scale_degrees
                 self._transposition += new_transposition - previous_transposition
                 # There is still the need to match the Octave for the existing transpositions
-                self.match_octave()
+                self.match_octave(False)    # Keep actual octave (False)
 
             case ou.RootKey():
                 # Excludes the effect of purely decorative parameters

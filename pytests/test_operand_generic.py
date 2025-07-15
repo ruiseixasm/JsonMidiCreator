@@ -161,10 +161,10 @@ def test_pitch_degrees():
             print("---")
             key_pitch << 1.0 << pitch_int  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
-                key_pitch << float(degree)
                 print(f"Pitch: {key_pitch % int()}, Octave: {key_pitch._octave_0}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % int() == reference_keys[degree - 1] + (pitch_int - 60)
+                key_pitch += float(1)  # += to increment Octave too
 
     print("------")
     settings << KeySignature("###") # A Major scale key signature
@@ -808,6 +808,23 @@ def test_octave_matching():
             print(f" | Octave_0: {octave_0}, Octave: {pitch_0 % Octave() % int()}")
             assert octave_0 == pitch_int // 12
 
+    # Testing for the D minor Key Signature
+    minor_d_pitch = Pitch()
+    assert minor_d_pitch % TonicKey() == "C"
+
+    minor_d_pitch << KeySignature(Minor(), "b")
+    assert minor_d_pitch % TonicKey() == "C"
+    minor_d_pitch << None   # Resets the Tonic to D
+    assert minor_d_pitch % TonicKey() == "D"
+    assert minor_d_pitch % RootKey() == "D"
+    assert minor_d_pitch % Octave() == 4
+    minor_d_pitch << Degree("VII")
+    assert minor_d_pitch % TonicKey() == "D"
+    assert minor_d_pitch % RootKey() == "C"
+    # Makes sure changing the Degree doesn't change the Octave
+    print(f"Octave: {minor_d_pitch % Octave() % int()}")
+    assert minor_d_pitch % Octave() == 4
+
 # test_octave_matching()
 
 
@@ -824,8 +841,6 @@ def test_degree_float():
 
     pitch_degree << 5.2
     assert pitch_degree % int() == 60 + 7 - 1
-
-
 
 # test_degree_float()
 
