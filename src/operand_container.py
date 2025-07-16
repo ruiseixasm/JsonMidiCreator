@@ -1278,9 +1278,9 @@ class Composition(Container):
                 f"Time = {int(x / clip_tempo * 60 // 60)}'"
                 f"{int(x / clip_tempo * 60 % 60)}''"
                 f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
-                f"Measures = {int(x / beats_per_measure)}, "
-                f"Beats = {int(x)}, "
-                f"Steps = {int(x / beats_per_measure * steps_per_measure)}, "
+                f"Measure = {int(x / beats_per_measure)}, "
+                f"Beat = {int(x % beats_per_measure)}, "
+                f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
                 f"Pitch = {int(y + 0.5)}"
             )
 
@@ -1359,9 +1359,9 @@ class Composition(Container):
                 f"Time = {int(x / clip_tempo * 60 // 60)}'"
                 f"{int(x / clip_tempo * 60 % 60)}''"
                 f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
-                f"Measures = {int(x / beats_per_measure)}, "
-                f"Beats = {int(x)}, "
-                f"Steps = {int(x / beats_per_measure * steps_per_measure)}, "
+                f"Measure = {int(x / beats_per_measure)}, "
+                f"Beat = {int(x % beats_per_measure)}, "
+                f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
                 f"Value = {int(y + 0.5)}"
             )
 
