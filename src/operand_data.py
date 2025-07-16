@@ -1288,7 +1288,7 @@ class Filter(ContainerProcess):
         return super().__rrshift__(operand)
     
     def _process(self, operand: 'Container') -> 'Container':
-        return operand.mask(*self._data)
+        return operand.filter(*self._data)
 
 
 class Drop(ContainerProcess):
