@@ -1218,9 +1218,7 @@ class ContainerProcess(Process):
     Processes applicable exclusively to `Container` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand.copy())
-        return super().__rrshift__(operand)
+        return self.__irrshift__(self.deep_copy(operand))
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1282,11 +1280,6 @@ class Filter(ContainerProcess):
     def __init__(self, *conditions):
         super().__init__(*conditions)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return self.__irrshift__(operand)   # Special case, NO copy
-        return super().__rrshift__(operand)
-    
     def _process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._data)
 
@@ -1462,27 +1455,16 @@ if TYPE_CHECKING:
 
 TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
 
-class CompositionProcess(Process):
-    """`Data -> Process -> CompositionProcess`
+class CompositionProcess(ContainerProcess):
+    """`Data -> Process -> ContainerProcess -> CompositionProcess`
 
     Processes applicable to any `Composition`.
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self.__irrshift__(self.deep_copy(operand))
-
-    def __irrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Composition):
-            return self._process(operand)
-        else:
-            print(f"Warning: Operand is NOT a `Composition`!")
-        return super().__rrshift__(operand)
-
     def _process(self, operand: TypeComposition) -> TypeComposition:
         return operand
 
 class Loop(CompositionProcess):
-    """`Data -> Process -> CompositionProcess -> Loop`
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> Loop`
 
     Creates a loop from the Composition from the given `Position` with a given `Length`.
 
@@ -1498,7 +1480,7 @@ class Loop(CompositionProcess):
 
 
 class ClipProcess(CompositionProcess):
-    """`Data -> Process -> CompositionProcess -> ClipProcess`
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> ClipProcess`
 
     Processes applicable exclusively to `Clip` operands.
     """
@@ -1514,7 +1496,7 @@ class ClipProcess(CompositionProcess):
         return operand
 
 class Fit(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Fit`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Fit`
 
     Fits the entire clip in a given length.
 
@@ -1530,7 +1512,7 @@ class Fit(ClipProcess):
         return operand.fit(self._data)
 
 class Link(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Link`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Link`
 
     Adjusts the duration/length of each `Element` to connect to the start of the next element.
     For the last element in the clip, this is extended up to the end of the `Measure`.
@@ -1545,7 +1527,7 @@ class Link(ClipProcess):
         return operand.link(self._data)
 
 class Switch(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Switch`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Switch`
 
     `Switch` just switches the given type of parameters with each other elements.
 
@@ -1559,7 +1541,7 @@ class Switch(ClipProcess):
         return operand.switch(self._data)
 
 class Stack(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Stack`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Stack`
 
     Moves each Element to start at the finish position of the previous one.
     If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
@@ -1574,7 +1556,7 @@ class Stack(ClipProcess):
         return operand.stack(self._data)
 
 class Quantize(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Quantize`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Quantize`
 
     Quantizes a `Clip` by a given amount from 0.0 to 1.0.
 
@@ -1589,7 +1571,7 @@ class Quantize(ClipProcess):
 
 
 class Decompose(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Decompose`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Decompose`
 
     Transform each element in its component elements if it's a composed element,
     like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
@@ -1605,7 +1587,7 @@ if TYPE_CHECKING:
     from operand_element import Element
     
 class Arpeggiate(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Arpeggiate`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Arpeggiate`
 
     Distributes each element accordingly to the configured arpeggio by the parameters given.
 
@@ -1617,7 +1599,7 @@ class Arpeggiate(ClipProcess):
 
 
 class Purge(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Purge`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Purge`
 
     With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
 
@@ -1629,7 +1611,7 @@ class Purge(ClipProcess):
 
 
 class Stepper(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Stepper`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Stepper`
 
     Sets the steps in a Drum Machine for a given `Note`.
 
@@ -1644,7 +1626,7 @@ class Stepper(ClipProcess):
         return operand.stepper(*self._data)
 
 class Automate(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Automate`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Automate`
 
     Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
 
@@ -1663,7 +1645,7 @@ class Automate(ClipProcess):
         return operand.automate(*self._data)
 
 class Interpolate(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Interpolate`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Interpolate`
 
     Interpolates the multiple values of a given `Automation` element by `Channel`.
 
@@ -1674,7 +1656,7 @@ class Interpolate(ClipProcess):
         return operand.interpolate()
 
 class Oscillate(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Oscillate`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Oscillate`
 
     Applies for each item element the value at the given position given by the oscillator function at
     that same position.
@@ -1695,7 +1677,7 @@ class Oscillate(ClipProcess):
 
 
 class Tie(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Tie`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Tie`
 
     Extends the `Note` elements as tied when applicable.
     Works only on Notes, and NOT on its derived elements, as `Chord`,
@@ -1711,7 +1693,7 @@ class Tie(ClipProcess):
         return operand.tie(*self._data)
 
 class Join(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Join`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Join`
 
     Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
 
@@ -1726,7 +1708,7 @@ class Join(ClipProcess):
 
 
 class Slur(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Slur`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Slur`
 
     Changes the note `Gate` in order to crate a small overlap.
 
@@ -1740,7 +1722,7 @@ class Slur(ClipProcess):
         return operand.slur(self._data)
 
 class Smooth(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Smooth`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Smooth`
 
     Adjusts the `Note` octave to have the closest pitch to the previous one.
 
@@ -1752,7 +1734,7 @@ class Smooth(ClipProcess):
 
 
 class Flip(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Flip`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Flip`
 
     Flip is similar to reverse but instead of reversing the elements position it reverses the
     Note's respective Pitch, like vertically mirrored.
@@ -1764,7 +1746,7 @@ class Flip(ClipProcess):
         return operand.flip()
 
 class Invert(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Invert`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Invert`
 
     `Invert` is similar to 'Flip' but based in a center defined by the first note on which all notes are vertically mirrored.
 
@@ -1776,7 +1758,7 @@ class Invert(ClipProcess):
 
 
 class Snap(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Snap`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Snap`
 
     For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
 
@@ -1794,7 +1776,7 @@ if TYPE_CHECKING:
     from operand_rational import Length
 
 class Extend(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Extend`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Extend`
 
     Extends (stretches) the given clip along a given length.
 
@@ -1808,7 +1790,7 @@ class Extend(ClipProcess):
         return operand.extend(self._data)
 
 class Trim(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Trim`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Trim`
 
     Trims the given clip at a given length.
 
@@ -1822,7 +1804,7 @@ class Trim(ClipProcess):
         return operand.trim(self._data)
 
 class Cut(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Cut`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Cut`
 
     Cuts (removes) the section of the clip from the start to the finish positions.
 
@@ -1839,7 +1821,7 @@ class Cut(ClipProcess):
         return operand.cut(*self._data)
 
 class Select(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Select`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Select`
 
     Selects the section of the clip that will be preserved.
 
@@ -1856,7 +1838,7 @@ class Select(ClipProcess):
         return operand.select(*self._data)
 
 class Monofy(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Monofy`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Monofy`
 
     Cuts out any part of an element Duration that overlaps with the next element.
 
@@ -1867,7 +1849,7 @@ class Monofy(ClipProcess):
         return operand.monofy()
 
 class Fill(ClipProcess):
-    """`Data -> Process -> ClipProcess -> Fill`
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Fill`
 
     Adds up Rests to empty spaces (lengths) in a staff for each Measure.
 
@@ -1879,7 +1861,7 @@ class Fill(ClipProcess):
 
 
 class PartProcess(CompositionProcess):
-    """`Data -> Process -> CompositionProcess -> PartProcess`
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> PartProcess`
 
     Processes applicable exclusively to `Part` operands.
     """
@@ -1895,7 +1877,7 @@ class PartProcess(CompositionProcess):
         return operand
 
 class SongProcess(CompositionProcess):
-    """`Data -> Process -> CompositionProcess -> SongProcess`
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> SongProcess`
 
     Processes applicable exclusively to `Song` operands.
     """
