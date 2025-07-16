@@ -3004,6 +3004,27 @@ class Clip(Composition):  # Just a container of Elements
         
         return self._sort_items()    # May be needed due to upper clips
     
+    def quantize(self, amount: float = 1.0) -> Self:
+        """
+        Quantizes the Clip by a given amount from 0.0 to 1.0.
+
+        Args:
+            amount (float): The amount of quantization to apply from 0.0 to 1.0.
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        quantization_beats: Fraction = og.settings % ra.Quantization(self) % ra.Beats() % Fraction()
+        amount_rational: Fraction = ra.Amount(amount) % Fraction()
+        for single_element in self._items:
+            element_position: Fraction = single_element._position_beats
+            unquantized_amount: Fraction = element_position % quantization_beats
+            quantization_limit: int = round(unquantized_amount / quantization_beats)
+            position_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
+            single_element._position_beats += position_offset
+        return self
+    
+
     def decompose(self) -> Self:
         """
         Transform each element in its component elements if it's a composed element,
