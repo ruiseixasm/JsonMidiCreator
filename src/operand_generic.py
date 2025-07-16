@@ -1847,7 +1847,7 @@ class Settings(Generic):
                 self._quantization = self._time_signature % ra.NotesPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
-            case ou.KeySignature() | ou.Quality() | int() | float() | Fraction() | str():
+            case ou.KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
