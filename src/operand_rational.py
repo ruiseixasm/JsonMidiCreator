@@ -438,8 +438,8 @@ class TimeSignatureParameter(TimeSignatureParameter):
 class BeatsPerMeasure(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatsPerMeasure`
 
-    BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
-    The default is 4, 4 Beats per Measure.
+    BeatsPerMeasure is the **top** number of the time signature,
+    in a 3/4 time signature 3 are the Beats per Measure. The default is 4, 4 Beats per Measure.
 
     Parameters
     ----------
@@ -460,8 +460,8 @@ class BeatsPerMeasure(TimeSignatureParameter):
 class BeatNoteValue(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatNoteValue`
 
-    BeatNoteValue() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
-    The default is 1/4, 1/4 NoteValue for each Beat.
+    BeatNoteValue is the inverted **bottom** number of the time signature, represents the Note Value for the Beat,
+    in a 3/4 time signature 1/4 is the Beats Note Value. The default is 1/4, 1/4 NoteValue for each Beat.
 
     Parameters
     ----------

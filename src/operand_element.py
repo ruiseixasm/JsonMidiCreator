@@ -767,7 +767,8 @@ class Clock(Element):
                     self_clock_devices.append(clocked_device)
                     single_devices.add(clocked_device)
 
-            pulses_per_beat: Fraction = time_signature % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            notes_per_beat: Fraction = time_signature % ra.BeatNoteValue() % Fraction()
+            pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
             total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
 
             if total_clock_pulses > 0:
@@ -791,11 +792,13 @@ class Clock(Element):
         # NORMAL use case scenario
         else:
 
-            pulses_per_beat: Fraction = self._get_time_signature() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            notes_per_beat: Fraction = self._get_time_signature() % ra.BeatNoteValue() % Fraction()
+            pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
             total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
 
             if total_clock_pulses > 0:
 
+                # Global duration of the entire clocking period
                 self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
                 self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 

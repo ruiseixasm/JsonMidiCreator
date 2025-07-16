@@ -71,8 +71,6 @@ class TimeSignature(Generic):
                     case TimeSignature():       return self
                     case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
                     case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
-                    # Calculated Values
-                    case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case TimeSignature():       return self.copy()
