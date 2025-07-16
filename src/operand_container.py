@@ -1975,8 +1975,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._time_signature         << operand._time_signature
-                self._midi_track    << operand._midi_track
+                self._time_signature    << operand._time_signature
+                self._midi_track        << operand._midi_track
                 self._set_owner_clip()
 
             case od.Pipe():
@@ -3529,7 +3529,14 @@ class Part(Composition):
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self._position_beats = operand % ra.Position(self) % Fraction()
 
-            case Clip() | oe.Element():
+            case Clip():
+                if operand.is_a_mask():
+                    # Has to wrap the Mask as a Clip first
+                    self.__iadd__(Clip(operand._items))
+                else:
+                    self.__iadd__(operand)
+
+            case oe.Element():
                 self += operand
 
             case od.Serialization():
@@ -3572,7 +3579,7 @@ class Part(Composition):
                     self += single_clip
 
             case Clip():
-                self._append([ operand.copy() ])
+                self._append([ Clip(operand._items) ])
 
             case oe.Element():
                 self += Clip(operand)
@@ -3599,7 +3606,7 @@ class Part(Composition):
             case Part():
                 return self._delete(operand._items)
             case Clip():
-                return self._delete(operand)
+                return self._delete([ operand ])
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
             case list():

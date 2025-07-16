@@ -698,6 +698,7 @@ class Clock(Element):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._duration_beats        = ra.Measures(self, 1) % ra.Beats() % Fraction()
         self._devices: list[str]    = []
         self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
         self._clock_stop_mode: int  = 0     # 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total"
