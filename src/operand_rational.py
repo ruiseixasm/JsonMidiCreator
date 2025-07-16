@@ -693,7 +693,7 @@ class Convertible(Rational):
                 self._set_with_beats(operand_beats)
             case oe.Element() | oc.Composition():
                 if self._time_signature_reference is None:
-                    self._time_signature_reference = operand._get_staff()
+                    self._time_signature_reference = operand._get_time_signature()
             case og.Staff():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand

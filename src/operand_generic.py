@@ -1524,7 +1524,7 @@ class Arpeggio(Generic):
 
         if self._order > 0 and len(notes) > 0:
 
-            note_staff: Staff = notes[0]._get_staff()
+            note_staff: Staff = notes[0]._get_time_signature()
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length % ra.Position()

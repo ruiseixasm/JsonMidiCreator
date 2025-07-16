@@ -938,7 +938,7 @@ class Composition(Container):
         self._length_beats: Fraction    = None
 
 
-    def _get_staff(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.Staff':
         return og.settings._staff
 
 
@@ -1712,7 +1712,7 @@ class Clip(Composition):  # Just a container of Elements
         for single_operand in operands:
             self << single_operand
 
-    def _get_staff(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.Staff':
         return self._staff
 
 
@@ -3215,7 +3215,7 @@ class Part(Composition):
             self._owner_song = owner_song
         return self
 
-    def _get_staff(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.Staff':
         if self._owner_song is None:
             return og.settings._staff
         return self._owner_song._staff
@@ -3767,7 +3767,7 @@ class Song(Composition):
         for single_operand in operands:
             self << single_operand
 
-    def _get_staff(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.Staff':
         return self._staff
 
 

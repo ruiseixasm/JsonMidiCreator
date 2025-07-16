@@ -78,7 +78,7 @@ class Element(o.Operand):
             self._owner_clip = owner_clip
         return self
 
-    def _get_staff(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.Staff':
         if self._owner_clip is None:
             return og.settings._staff
         return self._owner_clip._staff
@@ -134,7 +134,7 @@ class Element(o.Operand):
             case ra.Duration() | ra.Length():
                 return operand.copy( ra.Beats(self, self._duration_beats) )
             case ra.NoteValue():
-                return operand.copy()._set_time_signature_reference(self._get_staff()) << ra.Beats( self._duration_beats )
+                return operand.copy()._set_time_signature_reference(self._get_time_signature()) << ra.Beats( self._duration_beats )
             case float():
                 return self % ra.NoteValue() % float()
             case ra.TimeValue() | ra.TimeUnit():
@@ -216,8 +216,8 @@ class Element(o.Operand):
             return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
-        self_numerator: int = self._get_staff()._time_signature._top
-        self_denominator: int = self._get_staff()._time_signature._bottom
+        self_numerator: int = self._get_time_signature()._time_signature._top
+        self_denominator: int = self._get_time_signature()._time_signature._bottom
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
@@ -297,7 +297,7 @@ class Element(o.Operand):
             case ra.TimeValue():
                 self._position_beats        = operand % ra.Beats(self) % Fraction()
             case ra.TimeUnit():
-                self_position: ra.Position  = ra.Position(od.Pipe( self._position_beats ))._set_time_signature_reference(self._get_staff()) << operand
+                self_position: ra.Position  = ra.Position(self, od.Pipe( self._position_beats )) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
                 self._position_beats        = operand
@@ -791,7 +791,7 @@ class Clock(Element):
         # NORMAL use case scenario
         else:
 
-            pulses_per_beat: Fraction = self._get_staff() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            pulses_per_beat: Fraction = self._get_time_signature() % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
             total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
 
             if total_clock_pulses > 0:
@@ -1570,7 +1570,7 @@ class KeyScale(Note):
         scale_notes: list[Note] = []
         active_scale: list[int] = self._pitch._scale
         if not active_scale:
-            active_scale = self._get_staff() % list()
+            active_scale = self._get_time_signature() % list()
         total_keys: int = sum(1 for key in active_scale if key != 0)
         for shifting in range(total_keys):
             new_note: Note = Note(self)
