@@ -321,16 +321,7 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
-                operand_items_copy: list = []
-                for single_item in operand._items:
-                    # It must take into account that Masks Containers have their copy disabled
-                    if isinstance(single_item, Container):
-                        operand_items_copy.append(
-                            type(single_item)(single_item)  # Equivalent to a copy
-                        )
-                    else:
-                        operand_items_copy.append(self.deep_copy(single_item))
-                self._append( operand_items_copy )
+                self._append( self.deep_copy(operand._items) )
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -534,11 +525,39 @@ class Container(o.Operand):
         return self
 
 
-    def copy(self, *parameters) -> Self:
-        # Masks have their copy disabled !!
+    # Masks DON'T do copy on basic operations !!
+
+    def __add__(self, operand: any) -> Self:
         if self.is_a_mask():
-            return self # Can't copy a mask
-        return super().copy(*parameters)
+            return self.__iadd__(operand)
+        return self.copy().__iadd__(operand)
+    
+    def __sub__(self, operand: any) -> Self:
+        if self.is_a_mask():
+            return self.__isub__(operand)
+        return self.copy().__isub__(operand)
+    
+    def __mul__(self, operand: any) -> Self:
+        if self.is_a_mask():
+            return self.__imul__(operand)
+        return self.copy().__imul__(operand)
+    
+    def __truediv__(self, operand: any) -> Self:
+        if self.is_a_mask():
+            return self.__itruediv__(operand)
+        return self.copy().__itruediv__(operand)
+    
+    def __floordiv__(self, operand: any) -> Self:
+        if self.is_a_mask():
+            return self.__ifloordiv__(operand)
+        return self.copy().__ifloordiv__(operand)
+    
+
+    # def copy(self, *parameters) -> Self:
+    #     # Masks have their copy disabled !!
+    #     if self.is_a_mask():
+    #         return self # Can't copy a mask
+    #     return super().copy(*parameters)
 
     def empty_copy(self, *parameters) -> Self:
         """
