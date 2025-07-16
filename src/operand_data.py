@@ -746,7 +746,7 @@ class Process(Data):
                 clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = og.settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
-                playlist.extend( default_clock.getPlaylist( global_staff = operand._get_time_signature() ) )  # Clock Playlist
+                playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case Playlist():
 
@@ -768,7 +768,7 @@ class Process(Data):
                         total_measures += 1
                     # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
                     default_clock: oe.Clock = og.settings % oe.Clock() << ra.Length(total_measures)
-                    playlist.extend( default_clock.getPlaylist( global_staff = og.settings._staff ) )  # Clock Playlist
+                    playlist.extend( default_clock.getPlaylist( time_signature = og.settings._time_signature ) )  # Clock Playlist
                     playlist.extend( operand_playlist ) # Operand Playlist
 
         return playlist

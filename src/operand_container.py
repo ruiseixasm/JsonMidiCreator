@@ -221,7 +221,7 @@ class Container(o.Operand):
 
     def first(self) -> Any:
         """
-        Gets the first Item accordingly to it's Position on the Staff.
+        Gets the first Item accordingly to it's Position on the TimeSignature.
 
         Args:
             None
@@ -236,7 +236,7 @@ class Container(o.Operand):
 
     def last(self) -> Any:
         """
-        Gets the last Item accordingly to it's Position on the Staff.
+        Gets the last Item accordingly to it's Position on the TimeSignature.
 
         Args:
             None
@@ -933,18 +933,18 @@ class Composition(Container):
     """
     def __init__(self, *operands):
         super().__init__()
-        # Song sets the Staff, this is just a reference
-        self._staff: og.Staff           = og.settings._staff
-        self._length_beats: Fraction    = None
+        # Song sets the TimeSignature, this is just a reference
+        self._time_signature: og.TimeSignature  = og.settings._time_signature
+        self._length_beats: Fraction            = None
 
 
-    def _get_time_signature(self) -> 'og.Staff':
-        return og.settings._staff
+    def _get_time_signature(self) -> 'og.TimeSignature':
+        return og.settings._time_signature
 
 
     def _first_element(self) -> 'oe.Element':
         """
-        Gets the first Element accordingly to it's Position on the Staff.
+        Gets the first Element accordingly to it's Position on the TimeSignature.
 
         Args:
             None
@@ -956,7 +956,7 @@ class Composition(Container):
 
     def _last_element(self) -> 'oe.Element':
         """
-        Gets the last Element accordingly to it's Position on the Staff.
+        Gets the last Element accordingly to it's Position on the TimeSignature.
 
         Args:
             None
@@ -1078,8 +1078,8 @@ class Composition(Container):
                 return operand.copy( self.length() )
             case ra.Duration():
                 return self.duration()
-            case og.Staff() | og.TimeSignature():
-                return self._staff % operand
+            case og.TimeSignature():
+                return self._time_signature % operand
             case _:
                 return super().__mod__(operand)
 
@@ -1220,7 +1220,7 @@ class Composition(Container):
         # self._ax.set_xlim(current_min, current_max * 1.03)
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
-        beats_per_measure: Fraction = self._staff % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
+        beats_per_measure: Fraction = self._time_signature % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
         quantization_beats: Fraction = og.settings % ra.Quantization(self) % ra.Beats() % Fraction()
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
@@ -1700,20 +1700,20 @@ class Clip(Composition):  # Just a container of Elements
     ----------
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
-    Staff(settings) : A staff on which `TimeValue` units are based and `Element` items placed.
+    TimeSignature(settings) : A staff on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
     Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
-        self._staff: og.Staff           = og.settings._staff.copy()
+        self._time_signature: og.TimeSignature           = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
         for single_operand in operands:
             self << single_operand
 
-    def _get_time_signature(self) -> 'og.Staff':
-        return self._staff
+    def _get_time_signature(self) -> 'og.TimeSignature':
+        return self._time_signature
 
 
     def __getitem__(self, index: int) -> 'oe.Element':
@@ -1738,19 +1738,19 @@ class Clip(Composition):  # Just a container of Elements
             for single_element in self._items:
                 single_element._set_owner_clip(self)
         elif isinstance(owner_clip, Clip):
-            self._staff << owner_clip._staff    # Does a parameters copy
+            self._time_signature << owner_clip._time_signature    # Does a parameters copy
             for single_element in self._items:
                 single_element._set_owner_clip(owner_clip)
         return self
 
 
-    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        if isinstance(staff_reference, og.Staff):
+    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
+        if isinstance(staff_reference, og.TimeSignature):
             for single_element in self:
-                single_element._convert_staff_reference(self._staff)
+                single_element._convert_time_signature(self._time_signature)
             if self._length_beats is not None:
                 self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._staff << staff_reference  # Does a copy
+            self._time_signature << staff_reference  # Does a copy
         return self
 
 
@@ -1822,7 +1822,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Staff():        return self._staff
+                    case og.TimeSignature():        return self._time_signature
                     case ou.MidiTrack():    return self._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
@@ -1833,14 +1833,14 @@ class Clip(Composition):  # Just a container of Elements
                             clip_get._items.append(element_parameter)
                         return clip_get
                     case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff.copy()
+            case og.TimeSignature():        return self._time_signature.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
-            case og.Staff() | og.TimeSignature():
-                return self._staff % operand
-            case Part():            return Part(self._staff, self)
-            case Song():            return Song(self._staff, self)
+            case og.TimeSignature() | og.TimeSignature():
+                return self._time_signature % operand
+            case Part():            return Part(self._time_signature, self)
+            case Song():            return Song(self._time_signature, self)
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._items:
@@ -1945,7 +1945,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"]        = self.serialize(self._staff)
+        serialization["parameters"]["staff"]        = self.serialize(self._time_signature)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
         return serialization
 
@@ -1965,7 +1965,7 @@ class Clip(Composition):  # Just a container of Elements
             "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff             = self.deserialize(serialization["parameters"]["staff"])
+            self._time_signature             = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
             self._set_owner_clip()
         return self
@@ -1975,19 +1975,19 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._staff         << operand._staff
+                self._time_signature         << operand._time_signature
                 self._midi_track    << operand._midi_track
                 self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
-                    case og.Staff():        self._staff = operand._data
+                    case og.TimeSignature():        self._time_signature = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case om.Mutation():     operand._data.mutate(self)
 
-                    # All possible Staff parameters enter here
-                    case og.Staff() | og.TimeSignature():
-                        self._staff << operand._data
+                    # All possible TimeSignature parameters enter here
+                    case og.TimeSignature() | og.TimeSignature():
+                        self._time_signature << operand._data
 
                     case ClipGet():
                         clip_get: ClipGet = operand._data
@@ -2012,8 +2012,8 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
-            case og.Staff() | og.TimeSignature():
-                self._staff << operand  # Staff has no clock!
+            case og.TimeSignature() | og.TimeSignature():
+                self._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -2044,7 +2044,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self._staff << operand._staff
+                self._time_signature << operand._time_signature
 
             case ClipGet():
                 clip_get: ClipGet = operand
@@ -2090,8 +2090,8 @@ class Clip(Composition):  # Just a container of Elements
                     return self._append(operand_elements, self_last_element)
                 return self._append(operand_elements)
 
-            case og.Staff() | og.TimeSignature():
-                self._staff += operand
+            case og.TimeSignature() | og.TimeSignature():
+                self._time_signature += operand
 
             case tuple():
                 for single_operand in operand:
@@ -2112,8 +2112,8 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 return self._delete(operand)
             
-            case og.Staff() | og.TimeSignature():
-                self._staff -= operand
+            case og.TimeSignature() | og.TimeSignature():
+                self._time_signature -= operand
 
             case tuple():
                 for single_operand in operand:
@@ -2325,7 +2325,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_copy._staff               << self._staff
+        empty_copy._time_signature               << self._time_signature
         empty_copy._midi_track          << self._midi_track
         empty_copy._length_beats        = self._length_beats
         for single_parameter in parameters:
@@ -2344,8 +2344,8 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with a list of the same items of the original one.
         """
         shallow_copy: Clip              = super().shallow_copy()
-        # It's a shallow copy, so it shares the same Staff and midi track
-        shallow_copy._staff             = self._staff   
+        # It's a shallow copy, so it shares the same TimeSignature and midi track
+        shallow_copy._time_signature             = self._time_signature   
         shallow_copy._midi_track        = self._midi_track
         shallow_copy._length_beats      = self._length_beats
         for single_parameter in parameters:
@@ -3190,23 +3190,23 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
-        self._staff = og.settings._staff
+        self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
         self._name: str = "Part"
 
-        # Song sets the Staff, this is just a reference
+        # Song sets the TimeSignature, this is just a reference
         self._owner_song: Song      = None
 
         for single_operand in operands:
             self << single_operand
 
 
-    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        if isinstance(staff_reference, og.Staff):
+    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
+        if isinstance(staff_reference, og.TimeSignature):
             self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
             if self._length_beats is not None:
                 self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._staff = staff_reference  # Does an assignment
+            self._time_signature = staff_reference  # Does an assignment
         return self
 
 
@@ -3215,10 +3215,10 @@ class Part(Composition):
             self._owner_song = owner_song
         return self
 
-    def _get_time_signature(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_song is None:
-            return og.settings._staff
-        return self._owner_song._staff
+            return og.settings._time_signature
+        return self._owner_song._time_signature
 
 
     def __getitem__(self, key: str | int) -> 'Clip':
@@ -3298,7 +3298,7 @@ class Part(Composition):
         """
         Gets the starting position of all its Clips.
         This is the same as the minimum `Position` of all `Clip` positions.
-        This position is Part reference_staff based position.
+        This position is Part reference_time_signature based position.
 
         Args:
             None
@@ -3325,7 +3325,7 @@ class Part(Composition):
     def finish(self) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
-        as the maximum of all of them. This position is `Part` reference_staff based `Position`.
+        as the maximum of all of them. This position is `Part` reference_time_signature based `Position`.
 
         Args:
             None
@@ -3750,25 +3750,25 @@ class Song(Composition):
     """`Container -> Composition -> Song`
 
     This type of `Container` aggregates only `Part` items. This type
-    of `Composition` has a `Staff` working similarly to `Clip` operands, where
+    of `Composition` has a `TimeSignature` working similarly to `Clip` operands, where
     `Clip` contains `Element` items while `Song` contains `Part` ones.
 
     Parameters
     ----------
     list([]) : A list of `Part` type items.
     int : Returns the len of the list.
-    Staff(settings) : It keeps its own staff on which their `Part` items are placed.
+    TimeSignature(settings) : It keeps its own staff on which their `Part` items are placed.
     Length : Returns the length of all combined parts.
     """
     def __init__(self, *operands):
         super().__init__()
-        self._staff = og.settings._staff.copy()
+        self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
         for single_operand in operands:
             self << single_operand
 
-    def _get_time_signature(self) -> 'og.Staff':
-        return self._staff
+    def _get_time_signature(self) -> 'og.TimeSignature':
+        return self._time_signature
 
 
     def __getitem__(self, key: int) -> 'Part':
@@ -3792,19 +3792,19 @@ class Song(Composition):
             for single_part in self._items:
                 single_part._set_owner_song(self)
         elif isinstance(owner_song, Song):
-            self._staff << owner_song._staff    # Does a parameters copy
+            self._time_signature << owner_song._time_signature    # Does a parameters copy
             for single_part in self._items:
                 single_part._set_owner_song(owner_song)
         return self
 
 
-    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        if isinstance(staff_reference, og.Staff):
+    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
+        if isinstance(staff_reference, og.TimeSignature):
             for single_part in self:
-                single_part._convert_staff_reference(self._staff)
+                single_part._convert_time_signature_reference(self._time_signature)
             if self._length_beats is not None:
                 self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._staff << staff_reference  # Does a copy
+            self._time_signature << staff_reference  # Does a copy
         return self
 
 
@@ -3819,7 +3819,7 @@ class Song(Composition):
         """
         Gets the starting position of all its Parts.
         This is the same as the minimum `Position` of all `Part` positions, which ones,
-        share the same common Song Staff reference.
+        share the same common Song TimeSignature reference.
 
         Args:
             None
@@ -3830,7 +3830,7 @@ class Song(Composition):
         start_position: ra.Position = None
 
         for single_part in self._items:
-            # Already includes the Song Staff conversion
+            # Already includes the Song TimeSignature conversion
             part_start: ra.Position = single_part.start()
             if part_start is not None:
                 absolute_start: ra.Position = single_part % ra.Position() + part_start
@@ -3846,7 +3846,7 @@ class Song(Composition):
         """
         Gets the finishing position of all its Parts.
         This is the same as the maximum `Position` of all `Part` positions, which ones,
-        share the same common Song Staff reference.
+        share the same common Song TimeSignature reference.
 
         Args:
             None
@@ -3857,7 +3857,7 @@ class Song(Composition):
         finish_position: ra.Position = None
 
         for single_part in self._items:
-            # Already includes the Song Staff conversion
+            # Already includes the Song TimeSignature conversion
             part_finish: ra.Position = single_part.finish()
             if part_finish is not None:
                 absolute_finish: ra.Position = single_part % ra.Position() + part_finish
@@ -3920,11 +3920,11 @@ class Song(Composition):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Staff():        return self._staff
+                    case og.TimeSignature():        return self._time_signature
                     case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff.copy()
-            case og.Staff() | og.TimeSignature():
-                return self._staff % operand
+            case og.TimeSignature():        return self._time_signature.copy()
+            case og.TimeSignature() | og.TimeSignature():
+                return self._time_signature % operand
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
@@ -3992,7 +3992,7 @@ class Song(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"] = self.serialize(self._staff)
+        serialization["parameters"]["staff"] = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4011,7 +4011,7 @@ class Song(Composition):
             "staff" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff = self.deserialize(serialization["parameters"]["staff"])
+            self._time_signature = self.deserialize(serialization["parameters"]["staff"])
             self._set_owner_song()
         return self
 
@@ -4019,12 +4019,12 @@ class Song(Composition):
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self._staff << operand._staff
+                self._time_signature << operand._time_signature
                 self._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
-                    case og.Staff():        self._staff = operand._data
+                    case og.TimeSignature():        self._time_signature = operand._data
                     case _:                 super().__lshift__(operand)
 
             case Part() | Clip() | oe.Element():
@@ -4032,8 +4032,8 @@ class Song(Composition):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case og.Staff() | og.TimeSignature():
-                self._staff << operand
+            case og.TimeSignature() | og.TimeSignature():
+                self._time_signature << operand
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]

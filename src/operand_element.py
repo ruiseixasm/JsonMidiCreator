@@ -66,9 +66,9 @@ class Element(o.Operand):
             self << single_parameter
 
 
-    def _convert_staff_reference(self, staff_reference: 'og.Staff') -> Self:
-        self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
-        self._duration_beats = ra.Duration(staff_reference, self % od.Pipe( ra.Duration() ))._rational
+    def _convert_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+        self._position_beats = ra.Position(time_signature, self % od.Pipe( ra.Position() ))._rational
+        self._duration_beats = ra.Duration(time_signature, self % od.Pipe( ra.Duration() ))._rational
         return self
 
 
@@ -78,10 +78,10 @@ class Element(o.Operand):
             self._owner_clip = owner_clip
         return self
 
-    def _get_time_signature(self) -> 'og.Staff':
+    def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
-            return og.settings._staff
-        return self._owner_clip._staff
+            return og.settings._time_signature
+        return self._owner_clip._time_signature
 
 
     def position(self, position_measures: float = None) -> Self:
@@ -364,7 +364,7 @@ class Element(o.Operand):
             case Element():
                 return oc.Clip(self, operand)    # Clip does an += for << operator
             case oc.Clip():
-                return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip Staff and integrates self
+                return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
             case ra.Position():
                 self._position_beats += operand._rational
@@ -397,7 +397,7 @@ class Element(o.Operand):
             case Element():
                 return oc.Clip(self).__imul__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip Staff and integrates self
+                return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:
@@ -440,7 +440,7 @@ class Element(o.Operand):
             case Element():
                 return oc.Clip(self).__itruediv__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip Staff and integrates self
+                return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:
@@ -489,7 +489,7 @@ class Element(o.Operand):
             case Element():
                 return oc.Clip(self).__ifloordiv__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip Staff and integrates self
+                return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int(): # This results in a simple repeat of elements
                 if self._owner_clip is not None:
@@ -748,7 +748,7 @@ class Clock(Element):
                 return super().__eq__(other)
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
-                                                                    global_staff: og.Staff = None) -> list[dict]:
+                                                                    time_signature: og.TimeSignature = None) -> list[dict]:
         if not self._enabled:
             return []
 
@@ -757,7 +757,7 @@ class Clock(Element):
         self_playlist: list[dict] = []
 
         # Set to be used as a Global clock !
-        if isinstance(global_staff, og.Staff):
+        if isinstance(time_signature, og.TimeSignature):
 
             single_devices: set[str] = set()
             self_clock_devices: list[list[str]] = []
@@ -767,7 +767,7 @@ class Clock(Element):
                     self_clock_devices.append(clocked_device)
                     single_devices.add(clocked_device)
 
-            pulses_per_beat: Fraction = global_staff % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
+            pulses_per_beat: Fraction = time_signature % od.Pipe( ra.BeatNoteValue() ) % Fraction() * pulses_per_note
             total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
 
             if total_clock_pulses > 0:
@@ -933,7 +933,7 @@ class Clock(Element):
 class Rest(Element):
     """`Element -> Rest`
 
-    A `Rest` element is essentially used to occupy space on a `Staff` for a process of `Clip` stacking or linking.
+    A `Rest` element is essentially used to occupy space on a `TimeSignature` for a process of `Clip` stacking or linking.
 
     Parameters
     ----------
@@ -1144,7 +1144,7 @@ class Note(Element):
                     return []   # Discards note
 
 
-            # Record present Note on the Staff stacked notes
+            # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
                 self_plotlist[0]['note']["position_on"],
                 self._channel - 1,
@@ -1229,7 +1229,7 @@ class Note(Element):
                     return []   # Discards note
 
 
-            # Record present Note on the Staff stacked notes
+            # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
                 self_playlist_time_ms[0]["time_ms"],
                 self_playlist_time_ms[0]["midi_message"]["status_byte"],
@@ -1281,7 +1281,7 @@ class Note(Element):
                     return []   # Discards note
 
 
-            # Record present Note on the Staff stacked notes
+            # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
                 self_midilist[0]["time"],
                 self_midilist[0]["channel"],
@@ -1372,7 +1372,7 @@ class Cluster(Note):
     A `Cluster` element aggregates multiple notes based on the list len and content. \
         That content is added to the present single `Note` configuration.
     The difference between a `Cluster` and a `PitchChord`, is that a `Cluster` hasn't its own scale,
-        and thus always adders to the the Key Signature or `Staff` scale.
+        and thus always adders to the the Key Signature or `TimeSignature` scale.
 
     Parameters
     ----------

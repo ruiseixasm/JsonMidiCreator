@@ -122,7 +122,7 @@ results_list.append({
 })
 
 
-settings % Staff() >> Save("json/testing/_Save_Staff_process.json")
+settings % TimeSignature() >> Save("json/testing/_Save_TimeSignature_process.json")
 
 
 ############### TEST2 #######################

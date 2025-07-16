@@ -60,7 +60,7 @@ all_elements += first_note + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
 
-settings % Staff() >> Save("json/testing/_Save_Staff_ggg.json")
+settings % TimeSignature() >> Save("json/testing/_Save_TimeSignature_ggg.json")
 
 
 ############### TEST2 #######################

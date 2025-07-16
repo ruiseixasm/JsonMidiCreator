@@ -366,7 +366,7 @@ class Probability(Rational):
 class Tempo(Rational):
     """`Rational -> Tempo`
 
-    Tempo() represents the Staff Beats per Minute (BPM). The default is 120 BPM.
+    Tempo() represents the TimeSignature Beats per Minute (BPM). The default is 120 BPM.
 
     Parameters
     ----------
@@ -374,8 +374,8 @@ class Tempo(Rational):
     
     Examples
     --------
-    Gets the Staff Steps per Measure:
-    >>> staff = Staff(Tempo(110))
+    Gets the TimeSignature Steps per Measure:
+    >>> staff = TimeSignature(Tempo(110))
     >>> staff % Tempo() % Fraction() >> Print()
     110
     """
@@ -422,16 +422,16 @@ class Tempo(Rational):
         return self
 
 
-class StaffParameter(Rational):
-    """`Rational -> StaffParameter`"""
+class TimeSignatureParameter(Rational):
+    """`Rational -> TimeSignatureParameter`"""
     pass
 
-class TimeSignatureParameter(StaffParameter):
-    """`Rational -> StaffParameter -> TimeSignatureParameter`"""
+class TimeSignatureParameter(TimeSignatureParameter):
+    """`Rational -> TimeSignatureParameter -> TimeSignatureParameter`"""
     pass
 
 class BeatsPerMeasure(TimeSignatureParameter):
-    """`Rational -> StaffParameter -> TimeSignatureParameter -> BeatsPerMeasure`
+    """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatsPerMeasure`
 
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     The default is 4, 4 Beats per Measure.
@@ -453,7 +453,7 @@ class BeatsPerMeasure(TimeSignatureParameter):
         super().__init__(4, *parameters)
 
 class BeatNoteValue(TimeSignatureParameter):
-    """`Rational -> StaffParameter -> TimeSignatureParameter -> BeatNoteValue`
+    """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatNoteValue`
 
     BeatNoteValue() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     The default is 1/4, 1/4 NoteValue for each Beat.
@@ -475,7 +475,7 @@ class BeatNoteValue(TimeSignatureParameter):
         super().__init__(1/4, *parameters)
 
 class NotesPerMeasure(TimeSignatureParameter):
-    """`Rational -> StaffParameter -> TimeSignatureParameter -> NotesPerMeasure`
+    """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> NotesPerMeasure`
 
     NotesPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature 3/4 is the Measure Note Value.
     The default is 1, 1 NoteValue for each Measure. This is just an output parameter and not a setting one.
@@ -498,12 +498,12 @@ class NotesPerMeasure(TimeSignatureParameter):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-class StepsPerMeasure(StaffParameter):
-    """`Rational -> StaffParameter -> StepsPerMeasure`
+class StepsPerMeasure(TimeSignatureParameter):
+    """`Rational -> TimeSignatureParameter -> StepsPerMeasure`
 
     StepsPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature with 
     a Quantization of 1/16 you get 12 Steps per each Measure.
-    The default is 16, 16 Steps for each Measure. This concerns Staff objects Quantization.
+    The default is 16, 16 Steps for each Measure. This concerns TimeSignature objects Quantization.
 
     Parameters
     ----------
@@ -511,8 +511,8 @@ class StepsPerMeasure(StaffParameter):
     
     Examples
     --------
-    Gets the Staff Steps per Measure:
-    >>> staff = Staff()
+    Gets the TimeSignature Steps per Measure:
+    >>> staff = TimeSignature()
     >>> staff << TimeSignature(3, 4)
     >>> steps_per_measure = staff % StepsPerMeasure()
     >>> steps_per_measure % Fraction() >> Print()
@@ -527,12 +527,12 @@ class StepsPerMeasure(StaffParameter):
     def __init__(self, *parameters):
         super().__init__(16, *parameters)
 
-class StepsPerNote(StaffParameter):
-    """`Rational -> StaffParameter -> StepsPerNote`
+class StepsPerNote(TimeSignatureParameter):
+    """`Rational -> TimeSignatureParameter -> StepsPerNote`
 
     StepsPerNote() represents the inversion of the Quantization, for a Quantization of 1/16 
     you will get 16 Notes per Step.
-    The default is 16, 16 Steps for each Note. This concerns Staff objects Quantization.
+    The default is 16, 16 Steps for each Note. This concerns TimeSignature objects Quantization.
 
     Parameters
     ----------
@@ -540,14 +540,14 @@ class StepsPerNote(StaffParameter):
     
     Examples
     --------
-    Gets the Staff Steps per Measure:
-    >>> staff = Staff()
+    Gets the TimeSignature Steps per Measure:
+    >>> staff = TimeSignature()
     >>> staff << TimeSignature(3, 4)
     >>> steps_per_note = staff % StepsPerNote()
     >>> steps_per_note % Fraction() >> Print()
     16
 
-    Gets the Staff Quantization:
+    Gets the TimeSignature Quantization:
     >>> staff << StepsPerNote(32)
     >>> staff % Quantization() % Fraction() >> Print()
     1/32
@@ -562,25 +562,25 @@ class Minutes(Rational):
 
 
 if TYPE_CHECKING:
-    from operand_generic import Staff
+    from operand_generic import TimeSignature
 
 class Convertible(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
-        # By default Time values have no Staff reference,
+        # By default Time values have no TimeSignature reference,
         # so, they aren't transformed, just converted !!
-        self._time_signature_reference: og.Staff = None
+        self._time_signature_reference: og.TimeSignature = None
         super().__init__(*parameters)
 
     # By default considers beats as the self_time, meaning, no conversion is done to the values
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         return self_time
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         return beats
 
-    def _get_beats(self, other_staff: 'Staff' = None) -> Fraction:
-        return self._convert_to_beats(self._rational, other_staff)
+    def _get_beats(self, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        return self._convert_to_beats(self._rational, other_time_signature)
 
     def _set_with_beats(self, beats: Fraction) -> Self:
         self._rational = self._convert_from_beats(beats)
@@ -590,18 +590,18 @@ class Convertible(Rational):
         return self._convert_from_beats(self._rational)
 
 
-    def _set_time_signature_reference(self, staff_reference: 'Staff' = None) -> Self:
+    def _set_time_signature_reference(self, staff_reference: 'TimeSignature' = None) -> Self:
         import operand_generic as og
-        if isinstance(staff_reference, og.Staff):
+        if isinstance(staff_reference, og.TimeSignature):
             self._time_signature_reference = staff_reference
         return self
 
-    def _get_time_signature(self, other_staff: 'Staff' = None) -> 'Staff':
+    def _get_time_signature(self, other_time_signature: 'TimeSignature' = None) -> 'TimeSignature':
         import operand_generic as og
         if self._time_signature_reference is None:
-            if isinstance(other_staff, og.Staff):
-                return other_staff
-            return og.settings._staff
+            if isinstance(other_time_signature, og.TimeSignature):
+                return other_time_signature
+            return og.settings._time_signature
         return self._time_signature_reference
 
 
@@ -695,7 +695,7 @@ class Convertible(Rational):
             case oe.Element() | oc.Composition():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._get_time_signature()
-            case og.Staff():
+            case og.TimeSignature():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand
             case Fraction():
@@ -758,17 +758,17 @@ class Measurement(Convertible):
     Measurement() represents either a Length or a Position.
     """
 
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_measure: int = time_staff._time_signature._top
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_measure: int = time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_time_signature()
-        beats_per_measure: int = time_staff._time_signature._top
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_measure: int = time_signature._top
         return beats / beats_per_measure
 
-    def _get_beats(self, other_staff: 'Staff' = None) -> Fraction:
+    def _get_beats(self, other_time_signature: 'TimeSignature' = None) -> Fraction:
         return self._rational   # Kept as beats already
 
     def _set_with_beats(self, beats: Fraction) -> Self:
@@ -918,7 +918,7 @@ class Position(Measurement):
 
     Parameters
     ----------
-    Fraction(0) : The position on the `Staff` measured in `Measures`.
+    Fraction(0) : The position on the `TimeSignature` measured in `Measures`.
     
     Examples
     --------
@@ -957,7 +957,7 @@ class Length(Measurement):
 
     Parameters
     ----------
-    Fraction(0) : Represents the duration along the `Staff` in `Measures`.
+    Fraction(0) : Represents the duration along the `TimeSignature` in `Measures`.
     
     Examples
     --------
@@ -1032,14 +1032,14 @@ class Duration(Measurement):
             case _:
                 return super().__mod__(operand)
 
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_note: int = time_staff._time_signature._bottom
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_note: int = time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_time_signature()
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
         return beats / beats_per_note
 
 
@@ -1144,16 +1144,16 @@ class Measures(TimeValue):
     
     Parameters
     ----------
-    Fraction(0) : Proportional value to a `Measure` on the `Staff`.
+    Fraction(0) : Proportional value to a `Measure` on the `TimeSignature`.
     """
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_measure: int = time_staff._time_signature._top
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_measure: int = time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_time_signature()
-        beats_per_measure: int = time_staff._time_signature._top
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_measure: int = time_signature._top
         return beats / beats_per_measure
 
     # Position round type: [...)
@@ -1209,7 +1209,7 @@ class Beats(TimeValue):
     
     Parameters
     ----------
-    Fraction(0) : Proportional value to a `Beat` on the `Staff`.
+    Fraction(0) : Proportional value to a `Beat` on the `TimeSignature`.
     """
 
     # Position round type: [...)
@@ -1267,19 +1267,19 @@ class Steps(TimeValue):
     ----------
     Fraction(0) : Steps as 1, 2, 4, 8...
     """
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_note: int = time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return self_time * beats_per_step
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_time_signature()
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return beats / beats_per_step
 
@@ -1334,9 +1334,9 @@ class TimeUnit(Convertible):
     """
     def __init__(self, *parameters):
         import operand_generic as og
-        # By default Time values have no Staff reference,
+        # By default Time values have no TimeSignature reference,
         # so, they aren't transformed, just converted !!
-        self._time_signature_reference: og.Staff = None
+        self._time_signature_reference: og.TimeSignature = None
         super().__init__(*parameters)
 
     def _get_self_time(self) -> Fraction:
@@ -1384,7 +1384,7 @@ class TimeUnit(Convertible):
 class Measure(TimeUnit):
     """`Rational -> Convertible -> TimeUnit -> Measure`
 
-    A Measure() represents the basic unit of a Staff division.
+    A Measure() represents the basic unit of a TimeSignature division.
 
     Parameters
     ----------
@@ -1401,15 +1401,15 @@ class Measure(TimeUnit):
     Default Measure (0):
     >>> measure = Measure()
     """
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_measure: int = time_staff._time_signature._top
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_measure: int = time_signature._top
         self_time: Fraction = self._get_self_time()
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_time_signature()
-        beats_per_measure: int = time_staff._time_signature._top
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_measure: int = time_signature._top
         return Fraction( int(beats / beats_per_measure) )
 
 
@@ -1474,7 +1474,7 @@ class Beat(TimeUnit):
     Default Beat (0):
     >>> beat = Beat()
     """
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         self_time: Fraction = self._get_self_time()
         return self_time
 
@@ -1482,9 +1482,9 @@ class Beat(TimeUnit):
         return Fraction( int(beats) )
 
     def measure_unit(self) -> Self:
-        time_staff: Staff = self._get_time_signature()
+        time_signature: TimeSignature = self._get_time_signature()
         absolute_beat: int = int(self._rational)
-        beats_per_measure: int = time_staff._time_signature._top
+        beats_per_measure: int = time_signature._top
         return self << absolute_beat % beats_per_measure
 
     # CHAINABLE OPERATIONS
@@ -1547,11 +1547,11 @@ class Step(TimeUnit):
     Default Step (0):
     >>> step = Step()
     """
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_note: int = time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         self_time: Fraction = self._get_self_time()
         return self_time * beats_per_step
@@ -1559,19 +1559,19 @@ class Step(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_time_signature()
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return Fraction( int(beats / beats_per_step) )
 
     def measure_unit(self) -> Self:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_time_signature()
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         absolute_step: int = int(self._rational)
-        beats_per_measure: int = time_staff._time_signature._top
+        beats_per_measure: int = time_signature._top
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
         return self << absolute_step % steps_per_measure
 
@@ -1630,14 +1630,14 @@ class NoteValue(Convertible):
         return self._rational
     
 
-    def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_time_signature(other_staff)
-        beats_per_note: int = time_staff._time_signature._bottom
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_note: int = time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_time_signature()
-        beats_per_note: int = time_staff._time_signature._bottom
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
         return beats / beats_per_note
 
 
@@ -1714,7 +1714,7 @@ class Quantization(NoteValue):
     
     Examples
     --------
-    Gets the Staff Steps per Measure:
+    Gets the TimeSignature Steps per Measure:
     >>> settings << Quantization(1/8)
     >>> settings % Quantization() % Fraction() >> Print()
     1/8

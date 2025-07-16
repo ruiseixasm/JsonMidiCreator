@@ -1328,113 +1328,113 @@ class Scale(Generic):
         return []   # Has no scale at all
 
 
-class Staff(Generic):
-    """`Generic -> Staff`
+# class Staff(Generic):
+#     """`Generic -> Staff`
 
-    A `Staff` is one of the most important `Operands` it works as the root for tempo and time values configurations for \
-        `Composition` operands like `Clip` and `Song`.
+#     A `Staff` is one of the most important `Operands` it works as the root for tempo and time values configurations for \
+#         `Composition` operands like `Clip` and `Song`.
 
-    Parameters
-    ----------
-    TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        # Set Global Staff Settings at the end of this file bottom bellow
-        self._time_signature: TimeSignature         = TimeSignature(4, 4)
+#     Parameters
+#     ----------
+#     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
+#     """
+#     def __init__(self, *parameters):
+#         super().__init__()
+#         # Set Global Staff Settings at the end of this file bottom bellow
+#         self._time_signature: TimeSignature         = TimeSignature(4, 4)
 
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+#         for single_parameter in parameters: # Faster than passing a tuple
+#             self << single_parameter
 
     
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Staff,
-        those Parameters are the ones that define a Staff as global defaults,
-        they include the ones relative to the time signature like Beats per Measure
-        and Neat Note Value, the Tempo, the Quantization among others.
+#     def __mod__(self, operand: o.T) -> o.T:
+#         """
+#         The % symbol is used to extract a Parameter, in the case of a Staff,
+#         those Parameters are the ones that define a Staff as global defaults,
+#         they include the ones relative to the time signature like Beats per Measure
+#         and Neat Note Value, the Tempo, the Quantization among others.
 
-        Examples
-        --------
-        >>> defaults % Tempo() % float()
-        120.0
-        >>> defaults << BeatsPerMeasure(3)
-        >>> defaults % BeatsPerMeasure() % float()
-        3.0
-        """
-        match operand:
-            case self.__class__():
-                return self.copy()
-            case od.Pipe():
-                match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
-                    case TimeSignature():       return self._time_signature
-                    case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
-                    case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
-                    case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
-            case TimeSignature():       return self._time_signature.copy()
-            case ra.Quantization():     return settings % operand
-            case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
-            case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
-            case ra.NotesPerMeasure():
-                return self._time_signature % ra.NotesPerMeasure()
-            case ra.StepsPerNote():
-                return ra.StepsPerNote() << 1 / settings._quantization
-            case ra.StepsPerMeasure():
-                return ra.StepsPerMeasure() \
-                    << (self % ra.StepsPerNote() % Fraction()) * (self % ra.NotesPerMeasure() % Fraction())
-            case _:
-                return super().__mod__(operand)
+#         Examples
+#         --------
+#         >>> defaults % Tempo() % float()
+#         120.0
+#         >>> defaults << BeatsPerMeasure(3)
+#         >>> defaults % BeatsPerMeasure() % float()
+#         3.0
+#         """
+#         match operand:
+#             case self.__class__():
+#                 return self.copy()
+#             case od.Pipe():
+#                 match operand._data:
+#                     case of.Frame():            return self % od.Pipe( operand._data )
+#                     case TimeSignature():       return self._time_signature
+#                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
+#                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
+#                     case _:                     return super().__mod__(operand)
+#             case of.Frame():            return self % operand
+#             case TimeSignature():       return self._time_signature.copy()
+#             case ra.Quantization():     return settings % operand
+#             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
+#             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
+#             case ra.NotesPerMeasure():
+#                 return self._time_signature % ra.NotesPerMeasure()
+#             case ra.StepsPerNote():
+#                 return ra.StepsPerNote() << 1 / settings._quantization
+#             case ra.StepsPerMeasure():
+#                 return ra.StepsPerMeasure() \
+#                     << (self % ra.StepsPerNote() % Fraction()) * (self % ra.NotesPerMeasure() % Fraction())
+#             case _:
+#                 return super().__mod__(operand)
 
-    def __eq__(self, other: 'Staff') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if type(self) != type(other):
-            return False
-        if isinstance(other, od.Conditional):
-            return other == self
-        return  self._time_signature    == other._time_signature
+#     def __eq__(self, other: 'Staff') -> bool:
+#         other ^= self    # Processes the Frame operand if any exists
+#         if other.__class__ == o.Operand:
+#             return True
+#         if type(self) != type(other):
+#             return False
+#         if isinstance(other, od.Conditional):
+#             return other == self
+#         return  self._time_signature    == other._time_signature
 
 
 
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
-        return serialization
+#     def getSerialization(self) -> dict:
+#         serialization = super().getSerialization()
+#         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
+#         return serialization
 
-    # CHAINABLE OPERATIONS
+#     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Staff':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"]):
+#     def loadSerialization(self, serialization: dict) -> 'Staff':
+#         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+#             "time_signature" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
-        return self
+#             super().loadSerialization(serialization)
+#             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
+#         return self
     
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Staff():
-                super().__lshift__(operand)
-                self._time_signature << operand._time_signature
-            case od.Pipe():
-                match operand._data:
-                    case TimeSignature():       self._time_signature = operand._data
-                    case ra.TimeSignatureParameter():
-                                                self._time_signature << od.Pipe( operand._data )
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case TimeSignature() | ra.TimeSignatureParameter():
-                                        self._time_signature << operand
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-            case _:
-                super().__lshift__(operand)
-        return self
+#     def __lshift__(self, operand: any) -> Self:
+#         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+#         match operand:
+#             case Staff():
+#                 super().__lshift__(operand)
+#                 self._time_signature << operand._time_signature
+#             case od.Pipe():
+#                 match operand._data:
+#                     case TimeSignature():       self._time_signature = operand._data
+#                     case ra.TimeSignatureParameter():
+#                                                 self._time_signature << od.Pipe( operand._data )
+#             case od.Serialization():
+#                 self.loadSerialization( operand.getSerialization() )
+#             case TimeSignature() | ra.TimeSignatureParameter():
+#                                         self._time_signature << operand
+#             case tuple():
+#                 for single_operand in operand:
+#                     self << single_operand
+#             case _:
+#                 super().__lshift__(operand)
+#         return self
 
 
 class Arpeggio(Generic):
@@ -1521,11 +1521,11 @@ class Arpeggio(Generic):
 
         if self._order > 0 and len(notes) > 0:
 
-            note_staff: Staff = notes[0]._get_time_signature()
+            time_signature: TimeSignature = notes[0]._get_time_signature()
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length % ra.Position()
-            note_length: ra.Length = ra.Length(note_staff, self._duration_notevalue)
+            note_length: ra.Length = ra.Length(time_signature, self._duration_notevalue)
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
@@ -1671,7 +1671,6 @@ class Settings(Generic):
     ----------
     Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
-    Staff(), int, float, Fraction, str : It keeps its own global `Staff` that will be used by `Element` and `Clip` at their creation.
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Duration(1/4) : The default note `Element` duration is 1/4 note.
@@ -1688,7 +1687,6 @@ class Settings(Generic):
         super().__init__()
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/16)
-        self._staff: Staff                          = Staff()
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._duration: Fraction                    = Fraction(1)   # Means 1 beat
@@ -1778,7 +1776,7 @@ class Settings(Generic):
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
         actual_bps: Fraction = settings._tempo / 60 # Beats Per Second
         time_seconds: int = 60 * minutes + seconds
-        beats_per_measure: int = self._staff._time_signature._top
+        beats_per_measure: int = self._time_signature._top
         total_beats: Fraction = time_seconds * actual_bps
         total_measures: int = int(total_beats / beats_per_measure)
         return total_measures
@@ -1799,7 +1797,6 @@ class Settings(Generic):
                     case ra.Quantization():     return operand._data << self._quantization
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
-                    case Staff():               return self._staff
                     case TimeSignature():       return self._time_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
@@ -1821,10 +1818,7 @@ class Settings(Generic):
                 return ra.StepsPerNote() << 1 / self._quantization
             case ra.StepsPerMeasure():
                 return ra.StepsPerMeasure() \
-                    << (self % ra.StepsPerNote() % Fraction()) * (self._staff % ra.NotesPerMeasure() % Fraction())
-            case Staff():               return self._staff.copy()
-            case ra.StaffParameter() | TimeSignature():
-                                        return self._staff % operand
+                    << (self % ra.StepsPerNote() % Fraction()) * (self._time_signature % ra.NotesPerMeasure() % Fraction())
             case TimeSignature():       return self._time_signature.copy()
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
@@ -1861,7 +1855,6 @@ class Settings(Generic):
             return other == self
         return  self._tempo             == other._tempo \
             and self._quantization      == other._quantization \
-            and self._staff             == other._staff \
             and self._time_signature    == other._time_signature \
             and self._key_signature     == other._key_signature \
             and self._duration          == other._duration \
@@ -1882,7 +1875,6 @@ class Settings(Generic):
         serialization = super().getSerialization()
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
-        serialization["parameters"]["staff"]            = self.serialize( self._staff )
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
@@ -1900,7 +1892,7 @@ class Settings(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and "staff" in serialization["parameters"] and
+            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "devices" in serialization["parameters"] and
@@ -1909,7 +1901,6 @@ class Settings(Generic):
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
-            self._staff             = self.deserialize( serialization["parameters"]["staff"] )
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
@@ -1931,7 +1922,6 @@ class Settings(Generic):
                 super().__lshift__(operand)
                 self._tempo             = operand._tempo
                 self._quantization      = operand._quantization
-                self._staff             << operand._staff
                 self._time_signature    << operand._time_signature
                 self._key_signature     << operand._key_signature
                 self._duration          = operand._duration
@@ -1947,7 +1937,6 @@ class Settings(Generic):
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
                     case ra.Quantization():     self._quantization = operand._data._rational
-                    case Staff():               self._staff = operand._data
                     case TimeSignature():       self._time_signature = operand._data
                     case ou.KeySignature():     self._key_signature = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
@@ -1966,9 +1955,7 @@ class Settings(Generic):
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
             case ra.StepsPerMeasure():
-                self._quantization = self._staff % ra.NotesPerMeasure() / operand % Fraction()
-            case Staff() | ra.StaffParameter() | TimeSignature():
-                                        self._staff << operand
+                self._quantization = self._time_signature % ra.NotesPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ou.KeySignature() | ou.Quality() | int() | float() | Fraction() | str():

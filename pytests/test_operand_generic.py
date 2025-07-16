@@ -43,7 +43,7 @@ import sys
 def test_staff_mod():
 
     # Perform the operation
-    staff_1 = Staff()
+    staff_1 = TimeSignature()
     staff_2 = staff_1.copy()
     
     assert staff_1 == staff_2
@@ -682,8 +682,6 @@ def test_full_conversions():
 
     settings << KeySignature()
     
-    default_staff: Staff = settings % Staff()
-
     for time_value in (Position(10.5), Measures(10.5), Beats(10.5 * 4),
                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
         assert time_value % Measures() == 10.5
@@ -722,14 +720,14 @@ def test_staff_output():
 
     settings << KeySignature()
     
-    staff = Staff()
-    staff << TimeSignature(3, 4)
-    steps_per_measure = staff % StepsPerMeasure()
+    settings << TimeSignature()
+    settings << TimeSignature(3, 4)
+    steps_per_measure = settings % StepsPerMeasure()
     steps_per_measure % Fraction() >> Print()
     assert steps_per_measure == 12.0
 
-    staff << TimeSignature(4, 4)
-    steps_per_measure = staff % StepsPerMeasure()
+    settings << TimeSignature(4, 4)
+    steps_per_measure = settings % StepsPerMeasure()
     steps_per_measure % Fraction() >> Print()
     assert steps_per_measure == 16.0
 
