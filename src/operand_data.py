@@ -1267,7 +1267,8 @@ class Mask(ContainerProcess):
         super().__init__(*conditions)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
             return self.__irrshift__(operand)   # Special case, NO copy
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
