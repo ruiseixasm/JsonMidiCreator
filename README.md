@@ -44,6 +44,7 @@ Then open you favorite browser and copy and paste one of the given URLs as instr
 All classes are documented with docstrings, you can mouse over the class to get a pop up with the class description.
 ## Classes documentation in Jupyter
 While using Jupyter notebooks, you may press `Shift + Tab` to get the class popup equal to the one described above.
-## Notebooks examples
-If you prefer real example, you can go to the folder [Jupyter](https://github.com/ruiseixasm/JsonMidiCreator/tree/main/Jupyter) in the present library and open any of those in your computer or in GitHub too trough the previous link.
+## Jupyter Notebooks examples
+If you prefer real example, you can go to the folder [Jupyter](https://github.com/ruiseixasm/JsonMidiCreator/tree/main/Jupyter) in the present library
+and open any of those files with the extension `.ipynb` in your computer or directly in GitHub, by clicking on them.
 
