@@ -405,7 +405,7 @@ def test_basic_conversions():
 def test_full_conversions():
 
     position = Position()
-    position_staff = position._get_staff()
+    position_staff = position._get_time_signature()
 
     for time_value in (Measures(10.5), Beats(10.5 * 4),
                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):

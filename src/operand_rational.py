@@ -569,7 +569,7 @@ class Convertible(Rational):
         import operand_generic as og
         # By default Time values have no Staff reference,
         # so, they aren't transformed, just converted !!
-        self._staff_reference: og.Staff = None
+        self._time_signature_reference: og.Staff = None
         super().__init__(*parameters)
 
     # By default considers beats as the self_time, meaning, no conversion is done to the values
@@ -590,23 +590,19 @@ class Convertible(Rational):
         return self._convert_from_beats(self._rational)
 
 
-    def _set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
+    def _set_time_signature_reference(self, staff_reference: 'Staff' = None) -> Self:
         import operand_generic as og
         if isinstance(staff_reference, og.Staff):
-            self._staff_reference = staff_reference
+            self._time_signature_reference = staff_reference
         return self
 
-    def _reset_staff_reference(self) -> Self:
-        self._staff_reference = None
-        return self
-
-    def _get_staff(self, other_staff: 'Staff' = None) -> 'Staff':
+    def _get_time_signature(self, other_staff: 'Staff' = None) -> 'Staff':
         import operand_generic as og
-        if self._staff_reference is None:
+        if self._time_signature_reference is None:
             if isinstance(other_staff, og.Staff):
                 return other_staff
             return og.settings._staff
-        return self._staff_reference
+        return self._time_signature_reference
 
 
     # Position round type: [...)
@@ -634,8 +630,8 @@ class Convertible(Rational):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Convertible():
-                self_beats: Fraction = self._get_beats(operand._staff_reference)
-                self_operand: o.T = operand.copy(self._staff_reference)._set_with_beats(self_beats)
+                self_beats: Fraction = self._get_beats(operand._time_signature_reference)
+                self_operand: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
                 if isinstance(self_operand, TimeUnit):
                     return self_operand.measure_unit()
                 return self_operand
@@ -649,7 +645,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other == other
             case Convertible():
-                return self._get_beats(other._staff_reference) == other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) == other._get_beats(self._time_signature_reference)
             case _:
                 return super().__eq__(other)
         return False
@@ -660,7 +656,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other < other
             case Convertible():
-                return self._get_beats(other._staff_reference) < other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) < other._get_beats(self._time_signature_reference)
             case _:
                 return super().__lt__(other)
         return False
@@ -671,7 +667,7 @@ class Convertible(Rational):
             case TimeUnit() | int() | float():
                 return self % other > other
             case Convertible():
-                return self._get_beats(other._staff_reference) > other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) > other._get_beats(self._time_signature_reference)
             case _:
                 return super().__gt__(other)
         return False
@@ -679,7 +675,7 @@ class Convertible(Rational):
 
     def getPlaylist(self) -> list[dict]:
         beats: Fraction = self % Beats() % Fraction()
-        return self._get_staff().getPlaylist(beats)
+        return self._get_time_signature().getPlaylist(beats)
 
     # CHAINABLE OPERATIONS
 
@@ -690,17 +686,17 @@ class Convertible(Rational):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
                 # Needs to go very easy to avoid infinite Recursion
-                operand_beats: Beats = operand._get_beats(self._staff_reference)
+                operand_beats: Beats = operand._get_beats(self._time_signature_reference)
                 self._set_with_beats(operand_beats)
             case oe.Element() | oc.Composition():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._get_staff()
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._get_staff()
             case og.Staff():
-                if self._staff_reference is None:
-                    self._staff_reference = operand
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand
             case Fraction():
                 self._rational = operand
             case _:
@@ -762,12 +758,12 @@ class Measurement(Convertible):
     """
 
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_measure: int = time_staff._time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
 
@@ -829,8 +825,8 @@ class Measurement(Convertible):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                if self._staff_reference is None:
-                    self._staff_reference = operand._staff_reference
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
                 match operand:
                     case Measurement() | Beats():
                         self._rational = operand._rational  # Both are in beats
@@ -847,7 +843,7 @@ class Measurement(Convertible):
                         offset_step: Step = operand - actual_step
                         self += Steps(offset_step)
                     case Convertible():
-                        self._rational = operand % Beats(self._staff_reference) % Fraction()
+                        self._rational = operand % Beats(self._time_signature_reference) % Fraction()
                     case _:
                         super().__lshift__(operand)
             case int() | float():
@@ -862,7 +858,7 @@ class Measurement(Convertible):
             case Measurement() | Beats() | Beat():
                 self._rational += operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
-                self._rational += operand % Beats(self._staff_reference) % Fraction()
+                self._rational += operand % Beats(self._time_signature_reference) % Fraction()
             case int() | float():
                 self += Measures(operand)
             case _:
@@ -875,7 +871,7 @@ class Measurement(Convertible):
             case Measurement() | Beats() | Beat():
                 self._rational -= operand._rational  # Both are in beats
             case Convertible():  # Implicit Measurement conversion
-                self._rational -= operand % Beats(self._staff_reference) % Fraction()
+                self._rational -= operand % Beats(self._time_signature_reference) % Fraction()
             case int() | float():
                 self -= Measures(operand)
             case _:
@@ -888,7 +884,7 @@ class Measurement(Convertible):
         match operand:
             case Convertible():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
-                operand_measures: Measures = operand % Measures(self._staff_reference)
+                operand_measures: Measures = operand % Measures(self._time_signature_reference)
                 self << self_measures * operand_measures
             case int() | float():
                 self *= Measures(operand)  # Default variable is Measures
@@ -902,7 +898,7 @@ class Measurement(Convertible):
         match operand:
             case Convertible():  # Implicit Measurement conversion
                 self_measures: Measures = self % Measures()
-                operand_measures: Measures = operand % Measures(self._staff_reference)
+                operand_measures: Measures = operand % Measures(self._time_signature_reference)
                 if operand_measures != Measures(0):
                     self << self_measures / operand_measures
             case int() | float():
@@ -1036,12 +1032,12 @@ class Duration(Measurement):
                 return super().__mod__(operand)
 
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_note: int = time_staff._time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_note: int = time_staff._time_signature._bottom
         return beats / beats_per_note
 
@@ -1150,12 +1146,12 @@ class Measures(TimeValue):
     Fraction(0) : Proportional value to a `Measure` on the `Staff`.
     """
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_measure: int = time_staff._time_signature._top
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_measure: int = time_staff._time_signature._top
         return beats / beats_per_measure
 
@@ -1273,7 +1269,7 @@ class Steps(TimeValue):
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return self_time * beats_per_step
@@ -1281,7 +1277,7 @@ class Steps(TimeValue):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return beats / beats_per_step
@@ -1339,7 +1335,7 @@ class TimeUnit(Convertible):
         import operand_generic as og
         # By default Time values have no Staff reference,
         # so, they aren't transformed, just converted !!
-        self._staff_reference: og.Staff = None
+        self._time_signature_reference: og.Staff = None
         super().__init__(*parameters)
 
     def _get_self_time(self) -> Fraction:
@@ -1355,8 +1351,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_beats(other._staff_reference) \
-                    == other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) \
+                    == other._get_beats(self._time_signature_reference)
             case _:
                 return super().__eq__(other)
         return False
@@ -1366,8 +1362,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_beats(other._staff_reference) \
-                    < other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) \
+                    < other._get_beats(self._time_signature_reference)
             case _:
                 return super().__lt__(other)
         return False
@@ -1377,8 +1373,8 @@ class TimeUnit(Convertible):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
-                return self._get_beats(other._staff_reference) \
-                    > other._get_beats(self._staff_reference)
+                return self._get_beats(other._time_signature_reference) \
+                    > other._get_beats(self._time_signature_reference)
             case _:
                 return super().__gt__(other)
         return False
@@ -1405,13 +1401,13 @@ class Measure(TimeUnit):
     >>> measure = Measure()
     """
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_measure: int = time_staff._time_signature._top
         self_time: Fraction = self._get_self_time()
         return self_time * beats_per_measure
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_measure: int = time_staff._time_signature._top
         return Fraction( int(beats / beats_per_measure) )
 
@@ -1422,7 +1418,7 @@ class Measure(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__iadd__( operand % Measure(self._staff_reference) % Fraction() )
+                super().__iadd__( operand % Measure(self._time_signature_reference) % Fraction() )
             case _:
                 super().__iadd__(operand)
         return self
@@ -1431,7 +1427,7 @@ class Measure(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__isub__( operand % Measure(self._staff_reference) % Fraction() )
+                super().__isub__( operand % Measure(self._time_signature_reference) % Fraction() )
             case _:
                 super().__isub__(operand)
         return self
@@ -1440,7 +1436,7 @@ class Measure(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__imul__( operand % Measure(self._staff_reference) % Fraction() )
+                super().__imul__( operand % Measure(self._time_signature_reference) % Fraction() )
             case _:
                 super().__imul__(operand)
         return self
@@ -1449,7 +1445,7 @@ class Measure(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__itruediv__( operand % Measure(self._staff_reference) % Fraction() )
+                super().__itruediv__( operand % Measure(self._time_signature_reference) % Fraction() )
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1485,7 +1481,7 @@ class Beat(TimeUnit):
         return Fraction( int(beats) )
 
     def measure_unit(self) -> Self:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         absolute_beat: int = int(self._rational)
         beats_per_measure: int = time_staff._time_signature._top
         return self << absolute_beat % beats_per_measure
@@ -1496,7 +1492,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__iadd__( operand % Beat(self._staff_reference) % Fraction() )
+                super().__iadd__( operand % Beat(self._time_signature_reference) % Fraction() )
             case _:
                 super().__iadd__(operand)
         return self
@@ -1505,7 +1501,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__isub__( operand % Beat(self._staff_reference) % Fraction() )
+                super().__isub__( operand % Beat(self._time_signature_reference) % Fraction() )
             case _:
                 super().__isub__(operand)
         return self
@@ -1514,7 +1510,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__imul__( operand % Beat(self._staff_reference) % Fraction() )
+                super().__imul__( operand % Beat(self._time_signature_reference) % Fraction() )
             case _:
                 super().__imul__(operand)
         return self
@@ -1523,7 +1519,7 @@ class Beat(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__itruediv__( operand % Beat(self._staff_reference) % Fraction() )
+                super().__itruediv__( operand % Beat(self._time_signature_reference) % Fraction() )
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1553,7 +1549,7 @@ class Step(TimeUnit):
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         self_time: Fraction = self._get_self_time()
@@ -1562,7 +1558,7 @@ class Step(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         return Fraction( int(beats / beats_per_step) )
@@ -1570,7 +1566,7 @@ class Step(TimeUnit):
     def measure_unit(self) -> Self:
         import operand_generic as og
         notes_per_step: Fraction = og.settings._quantization
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_note: int = time_staff._time_signature._bottom
         beats_per_step: Fraction = beats_per_note * notes_per_step
         absolute_step: int = int(self._rational)
@@ -1584,7 +1580,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__iadd__( operand % Step(self._staff_reference) % Fraction() )
+                super().__iadd__( operand % Step(self._time_signature_reference) % Fraction() )
             case _:
                 super().__iadd__(operand)
         return self
@@ -1593,7 +1589,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__isub__( operand % Step(self._staff_reference) % Fraction() )
+                super().__isub__( operand % Step(self._time_signature_reference) % Fraction() )
             case _:
                 super().__isub__(operand)
         return self
@@ -1602,7 +1598,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__imul__( operand % Step(self._staff_reference) % Fraction() )
+                super().__imul__( operand % Step(self._time_signature_reference) % Fraction() )
             case _:
                 super().__imul__(operand)
         return self
@@ -1611,7 +1607,7 @@ class Step(TimeUnit):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible():
-                super().__itruediv__( operand % Step(self._staff_reference) % Fraction() )
+                super().__itruediv__( operand % Step(self._time_signature_reference) % Fraction() )
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1634,12 +1630,12 @@ class NoteValue(Convertible):
     
 
     def _convert_to_beats(self, self_time: Fraction, other_staff: 'Staff' = None) -> Fraction:
-        time_staff: Staff = self._get_staff(other_staff)
+        time_staff: Staff = self._get_time_signature(other_staff)
         beats_per_note: int = time_staff._time_signature._bottom
         return self_time * beats_per_note
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_staff: Staff = self._get_staff()
+        time_staff: Staff = self._get_time_signature()
         beats_per_note: int = time_staff._time_signature._bottom
         return beats / beats_per_note
 
