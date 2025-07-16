@@ -60,6 +60,7 @@
         "markeredgecolor",
         "markeredgewidth",
         "markersize",
+        "matplotlib",
         "Midifile",
         "Midilist",
         "midiutil",
