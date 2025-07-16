@@ -28,6 +28,34 @@ def composition(clip: Clip) -> Composition:
     # This becomes a mask
     one_measure = clip >> Or(Measure(0), Measure(1))
     # Automatically sorted by position
+
+    # PROBLEM HERE
+
+        #         interrupted_clip = one_measure + Measures(4) + one_measure
+        #                     ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+        # File "/home/rui/GitHub/JsonMidiCreator/src/operand.py", line 433, in __add__
+        #     return self.copy().__iadd__(operand)
+        #         ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+        # File "/home/rui/GitHub/JsonMidiCreator/src/operand_container.py", line 2074, in __iadd__
+        #     self += single_element
+        # File "/home/rui/GitHub/JsonMidiCreator/src/operand_container.py", line 2080, in __iadd__
+        #     return self._append([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
+        #         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+        # File "/home/rui/GitHub/JsonMidiCreator/src/operand_container.py", line 168, in _sort_items
+        #     self._items.sort()  # Operands implement __lt__ and __gt__
+        #     ~~~~~~~~~~~~~~~~^^
+        # File "/home/rui/GitHub/JsonMidiCreator/src/operand_element.py", line 1024, in __lt__
+        #     if self._position_beats == other._position_beats:
+        #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        # File "/usr/local/lib/python3.13/fractions.py", line 967, in __eq__
+        #     return (a._numerator == b.numerator and
+        #                             ^^^^^^^^^^^
+        # File "/usr/local/lib/python3.13/fractions.py", line 414, in numerator
+        #     @property
+            
+        # KeyboardInterrupt
+
+
     interrupted_clip = one_measure + Measures(4) + one_measure
     return snare_part + interrupted_clip
 
