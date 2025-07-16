@@ -1398,9 +1398,6 @@ class Staff(Generic):
         return  self._time_signature    == other._time_signature
 
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
-        return [{ "time_ms": o.minutes_to_time_ms( settings.beats_to_minutes(position_beats) ) }]
-
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1877,6 +1874,10 @@ class Settings(Generic):
             and self._clock_ppqn        == other._clock_ppqn \
             and self._clock_stop_mode   == other._clock_stop_mode
     
+
+    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+        return [{ "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ) }]
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )

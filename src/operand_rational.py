@@ -674,8 +674,9 @@ class Convertible(Rational):
 
 
     def getPlaylist(self) -> list[dict]:
+        import operand_generic as og
         beats: Fraction = self % Beats() % Fraction()
-        return self._get_time_signature().getPlaylist(beats)
+        return og.settings.getPlaylist(beats)
 
     # CHAINABLE OPERATIONS
 
