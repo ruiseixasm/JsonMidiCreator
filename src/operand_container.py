@@ -535,6 +535,7 @@ class Container(o.Operand):
 
 
     def copy(self, *parameters) -> Self:
+        # Masks have their copy disabled !!
         if self.is_a_mask():
             return self # Can't copy a mask
         return super().copy(*parameters)
@@ -636,7 +637,6 @@ class Container(o.Operand):
             key=lambda x: x % compare
         )
         self << od.Pipe( sorted_items )
-        # self._items.sort(key=lambda x: x % compare)
         if reverse:
             self._items.reverse()
         return self
@@ -1598,7 +1598,7 @@ class Composition(Container):
         Returns:
             Composition: Returns the presently plotted clip.
         """
-        self._iterations: list[Composition] = [ self.copy() ]   # Works with a copy (Read Only)
+        self._iterations: list[Composition] = [ type(self)(self) ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._iteration: int = 0
         self._n_function = n_button
