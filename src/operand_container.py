@@ -3006,7 +3006,7 @@ class Clip(Composition):  # Just a container of Elements
     
     def quantize(self, amount: float = 1.0) -> Self:
         """
-        Quantizes the Clip by a given amount from 0.0 to 1.0.
+        Quantizes a `Clip` by a given amount from 0.0 to 1.0.
 
         Args:
             amount (float): The amount of quantization to apply from 0.0 to 1.0.

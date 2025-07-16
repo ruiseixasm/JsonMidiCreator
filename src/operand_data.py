@@ -1573,6 +1573,21 @@ class Stack(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.stack(self._data)
 
+class Quantize(ClipProcess):
+    """`Data -> Process -> ClipProcess -> Quantize`
+
+    Quantizes a `Clip` by a given amount from 0.0 to 1.0.
+
+    Args:
+        amount (float): The amount of quantization to apply from 0.0 to 1.0.
+    """
+    def __init__(self, amount: float = 1.0):
+        super().__init__(amount)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.quantize(self._data)
+
+
 class Decompose(ClipProcess):
     """`Data -> Process -> ClipProcess -> Decompose`
 
