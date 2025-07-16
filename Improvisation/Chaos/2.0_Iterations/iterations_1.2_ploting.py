@@ -22,11 +22,14 @@ def new_clip(clip: Clip) -> Clip:
     return clip
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
+
+ghost_notes >> Plot()
+
 snare_part = Part(ghost_notes)
 
 def composition(clip: Clip) -> Composition:
-    # This becomes a mask
-    one_measure = clip >> Or(Measure(0), Measure(1))
+    # This filter retains the clip as a Clip and not as a Mask
+    one_measure = clip.filter(Or(Measure(0), Measure(1)))
     # Automatically sorted by position
 
     # PROBLEM HERE
@@ -63,10 +66,15 @@ def composition(clip: Clip) -> Composition:
 four_notes = Note() * 4 << Key("A") << Duration(1/8) << Channel(2)
 seed_clip: Clip = (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 + four_notes
 
+# masked_clip = seed_clip.filter(Or(Measure(0), Measure(1)))
+# masked_clip >> Plot()   # Returns a copy of the mask as a real Clip
+# masked_interrupted_clip = masked_clip + Measures(4) + masked_clip
+# masked_interrupted_clip >> Plot()   # Returns a copy of the mask as a real Clip
 
-# Testing composition method first
-composed_clip: Composition = composition(seed_clip)
-composed_clip >> Plot()
+
+# # Testing composition method first
+# composed_clip: Composition = composition(seed_clip)
+# composed_clip >> Plot()
 
 
 def pass_trough_composition(clip: Clip) -> Composition:

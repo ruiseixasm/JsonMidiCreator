@@ -553,12 +553,6 @@ class Container(o.Operand):
         return self.copy().__ifloordiv__(operand)
     
 
-    # def copy(self, *parameters) -> Self:
-    #     # Masks have their copy disabled !!
-    #     if self.is_a_mask():
-    #         return self # Can't copy a mask
-    #     return super().copy(*parameters)
-
     def empty_copy(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
@@ -1284,7 +1278,10 @@ class Composition(Container):
                 f"Time = {int(x / clip_tempo * 60 // 60)}'"
                 f"{int(x / clip_tempo * 60 % 60)}''"
                 f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
-                f"Beat = {int(x)}, Pitch = {int(y + 0.5)}"
+                f"Measures = {int(x / beats_per_measure)}, "
+                f"Beats = {int(x)}, "
+                f"Steps = {int(x / beats_per_measure * steps_per_measure)}, "
+                f"Pitch = {int(y + 0.5)}"
             )
 
             note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
@@ -1357,11 +1354,15 @@ class Composition(Container):
         else:
 
             self._ax.set_ylabel("Automation Values (MSB)")
+            # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
                 f"Time = {int(x / clip_tempo * 60 // 60)}'"
                 f"{int(x / clip_tempo * 60 % 60)}''"
                 f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
-                f"Beat = {int(x)}, Value = {int(y + 0.5)}"
+                f"Measures = {int(x / beats_per_measure)}, "
+                f"Beats = {int(x)}, "
+                f"Steps = {int(x / beats_per_measure * steps_per_measure)}, "
+                f"Value = {int(y + 0.5)}"
             )
 
             automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
@@ -1456,7 +1457,10 @@ class Composition(Container):
         )
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
-        self._ax.set_xticklabels(beat_labels, rotation=0)
+        if four_measures_multiple > 100:
+            self._ax.set_xticklabels(beat_labels, fontsize=6, rotation=45)
+        else:
+            self._ax.set_xticklabels(beat_labels, rotation=0)
         self._fig.canvas.draw_idle()
 
         return None
