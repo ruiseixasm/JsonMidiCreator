@@ -1081,5 +1081,7 @@ def test_process_mask():
     same_mask: Clip = masked_native_clip >> Stack()
     assert masked_native_clip == native_clip
     assert same_mask == native_clip
+    # Now by using the mask the native_copy was stacked changed
+    assert native_clip == copy_clip
 
 # test_process_mask()
