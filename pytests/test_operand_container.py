@@ -1067,7 +1067,19 @@ def test_split_note():
     # Frame split
     assert note_clip // NoteValue(1/4) // All()**NoteValue(1/8) % int() == 8
 
-
-
 # test_split_note()
 
+
+def test_process_mask():
+    native_clip: Clip = Note() // 4
+    copy_clip: Clip = native_clip >> Stack()
+    assert copy_clip != native_clip
+    masked_native_clip: Clip = native_clip.mask()
+    assert masked_native_clip.is_a_mask()
+    assert masked_native_clip == native_clip
+    # A >> from a Mask shall not result in a copy!
+    same_mask: Clip = masked_native_clip >> Stack()
+    assert masked_native_clip == native_clip
+    assert same_mask == native_clip
+
+# test_process_mask()

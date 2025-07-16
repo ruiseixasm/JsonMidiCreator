@@ -1218,7 +1218,13 @@ class ContainerProcess(Process):
     Processes applicable exclusively to `Container` operands.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self.__irrshift__(self.deep_copy(operand))
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            if operand.is_a_mask(): # Mask retains the original Container
+                return self.__irrshift__(operand)
+            return self.__irrshift__(operand.copy())
+        print(f"Warning: Operand is NOT a `Container`!")
+        return operand
 
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
