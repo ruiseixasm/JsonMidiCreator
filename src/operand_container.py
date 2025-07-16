@@ -321,7 +321,16 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
-                self._append( self.deep_copy( operand._items ) )
+                operand_items_copy: list = []
+                for single_item in operand._items:
+                    # It must take into account that Masks Containers have their copy disabled
+                    if isinstance(single_item, Container):
+                        operand_items_copy.append(
+                            type(single_item)(single_item)  # Equivalent to a copy
+                        )
+                    else:
+                        operand_items_copy.append(self.deep_copy(single_item))
+                self._append( operand_items_copy )
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -2070,8 +2079,7 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                for single_element in operand:
-                    self += single_element
+                self += operand._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -2085,10 +2093,7 @@ class Clip(Composition):  # Just a container of Elements
                     single_element.copy()._set_owner_clip(self)
                     for single_element in operand if isinstance(single_element, oe.Element)
                 ]
-                if self.len() > 0:
-                    self_last_element: oe.Element = self[-1]
-                    return self._append(operand_elements, self_last_element)
-                return self._append(operand_elements)
+                self._append(operand_elements)
 
             case og.TimeSignature() | og.TimeSignature():
                 self._time_signature += operand
@@ -2131,7 +2136,7 @@ class Clip(Composition):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
-                right_clip: Clip = operand.copy()._set_owner_clip(self)
+                right_clip: Clip = Clip(operand)._set_owner_clip(self)
                 right_position: ra.Position = right_clip.start()
 
                 if right_position is not None:
@@ -2238,8 +2243,8 @@ class Clip(Composition):  # Just a container of Elements
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
-            case Clip():
-                # Elements to be added and propagated upwards on the stack
+            case Clip() | list():
+                # Equivalent to +=
                 self += operand
 
             case oe.Element():
@@ -2325,7 +2330,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_copy._time_signature               << self._time_signature
+        empty_copy._time_signature      << self._time_signature
         empty_copy._midi_track          << self._midi_track
         empty_copy._length_beats        = self._length_beats
         for single_parameter in parameters:
@@ -3530,11 +3535,7 @@ class Part(Composition):
                 self._position_beats = operand % ra.Position(self) % Fraction()
 
             case Clip():
-                if operand.is_a_mask():
-                    # Has to wrap the Mask as a Clip first
-                    self.__iadd__(Clip(operand._items))
-                else:
-                    self.__iadd__(operand)
+                self.__iadd__(operand)
 
             case oe.Element():
                 self += operand
@@ -3579,7 +3580,7 @@ class Part(Composition):
                     self += single_clip
 
             case Clip():
-                self._append([ Clip(operand._items) ])
+                self._append([ Clip(operand) ])
 
             case oe.Element():
                 self += Clip(operand)
@@ -3627,7 +3628,8 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                right_part: Part = operand.copy()
+                # Part(operand) works as copy on Masks while operand.copy() doesn't !!
+                right_part: Part = Part(operand)
 
                 left_length: ra.Length = self % ra.Length()
                 right_position: ra.Position = right_part % od.Pipe( ra.Position() )
@@ -3672,7 +3674,7 @@ class Part(Composition):
         match operand:
             case Part():
                 # This conversion doesn't touch on the Clips
-                right_part: Part = operand.copy()
+                right_part: Part = Part(operand)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
@@ -4096,7 +4098,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ operand.copy()._set_owner_song(self) ])._sort_items()
+                self._append([ Part(operand)._set_owner_song(self) ])._sort_items()
 
             case Clip():
                 self += Part(operand)
@@ -4149,7 +4151,7 @@ class Song(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_owner_song(self)
+                right_song: Song = Song(operand)._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
@@ -4194,7 +4196,7 @@ class Song(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Song():
-                right_song: Song = operand.copy()._set_owner_song(self)
+                right_song: Song = Song(operand)._set_owner_song(self)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
