@@ -17,7 +17,9 @@ python -m pip install -U matplotlib
 ```
 
 ## How to get the JsonMidiPlayer files
-Go to the [JsonMidiPlayer Releases page](https://github.com/ruiseixasm/JsonMidiPlayer/releases) and in the last release page you open, download the .dll or .so file for Windows or Linux respectively.
+1. Go to the [JsonMidiPlayer Releases page](https://github.com/ruiseixasm/JsonMidiPlayer/releases) and in the last release page you open, download the `.dll` or `.so` file for Windows or Linux respectively;
+2. Copy the `.dll` or `.so` file into your own local [JsonMidiCreator](https://github.com/ruiseixasm/JsonMidiCreator) library `/lib` folder.
+Go to [/lib](https://github.com/ruiseixasm/JsonMidiCreator/tree/main/lib) to see even more details.
 
 ## How to install the mido library
 Go to your command line and type:
