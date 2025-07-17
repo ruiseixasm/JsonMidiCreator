@@ -522,7 +522,7 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.NoteValue():
+            case ra.NoteValue() | ra.TimeValue():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats
@@ -543,7 +543,7 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
-            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
+            case ra.Position() | ra.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
                     left_start: Fraction = self._position_beats

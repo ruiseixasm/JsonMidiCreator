@@ -1264,7 +1264,7 @@ class Mask(ContainerProcess):
         condition (Any): Sets a condition to be compared with `==` operator.
     """
     def __init__(self, *conditions):
-        super().__init__(*conditions)
+        super().__init__(conditions)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1286,7 +1286,7 @@ class Filter(ContainerProcess):
         condition (Any): Sets a condition to be compared with `==` operator.
     """
     def __init__(self, *conditions):
-        super().__init__(*conditions)
+        super().__init__(conditions)
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._data)

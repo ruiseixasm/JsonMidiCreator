@@ -2294,7 +2294,7 @@ class Clip(Composition):  # Just a container of Elements
                             new_elements.append(next_element)
                     self._append(new_elements)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.NoteValue():
+            case ra.NoteValue() | ra.TimeValue():
                 new_elements: list[oe.Element] = []
                 for first_element in self._items:
                     group_length: Fraction = first_element._duration_beats
@@ -2314,7 +2314,7 @@ class Clip(Composition):  # Just a container of Elements
                                 break
                 self._append(new_elements)
             
-            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
+            case ra.Position() | ra.TimeUnit():
                 new_elements: list[oe.Element] = []
                 for left_element in self._items:
                     left_start: Fraction = left_element._position_beats
