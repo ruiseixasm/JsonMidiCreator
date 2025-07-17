@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 # Global Staff setting up
 settings << Tempo(60)
 
-chord: Element = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
+chord: Element = Chord() << Duration(2.0) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
 oscillate: Oscillate = Oscillate(50, offset=64)
 control_change: Clip = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
 control_change >>= oscillate

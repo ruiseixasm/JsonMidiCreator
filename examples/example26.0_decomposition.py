@@ -47,7 +47,7 @@ single_chord /= single_chord[0]
 single_chord >> Plot(False)
 
 third_note = single_chord >> Nth(3)
-third_note /= Duration(2)
+third_note /= Duration(2.0)
 third_note /= third_note[0] >> Copy() << Degree(4)
 
 third_note >> Plot(False)

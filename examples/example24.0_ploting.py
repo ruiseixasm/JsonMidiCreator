@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 def process_clip(clip: Clip) -> Clip:
-    clip /= Duration(2)
+    clip /= Duration(2.0)
     return clip
 
 four_notes = Note() * 4

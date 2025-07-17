@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Equal(Measures(3))**Duration(1) >> Stack()
+tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Equal(Measures(3))**Duration(1/1) >> Stack()
 tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 # tension >> Play()
 

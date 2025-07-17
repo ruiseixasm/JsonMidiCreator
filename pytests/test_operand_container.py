@@ -1029,7 +1029,7 @@ def test_clip_length():
 def test_part_position():
 
     note_clip_120 = Note() / 1
-    note_clip_60 = note_clip_120 / 1 * Duration(2)  # Twice the duration
+    note_clip_60 = note_clip_120 / 1 * Duration(2.0)  # Twice the duration
 
     part_120 = Part(note_clip_120) << Measures(2)
     part_60 = Part(note_clip_60)

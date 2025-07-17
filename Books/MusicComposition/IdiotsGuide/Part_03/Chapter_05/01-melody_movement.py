@@ -32,14 +32,14 @@ movement >> Play(True)
 Rest(1) >> Export("json/_Export_Rest_01.1.json") >> Play(True)
 
 movement = Note(Octave(5)) * 9
-movement << Container(Duration(1/2), None, None, Duration(1/2), Duration(1/2), Duration(1/2), None, None, Duration(1))
+movement << Container(Duration(1/2), None, None, Duration(1/2), Duration(1/2), Duration(1/2), None, None, Duration(1/1))
 movement << Container(None, None, None, Pitch("B", 4), None, Key("D"), Key("D"), Key("D"), None)
 movement >> Stack() >> Play()
 
 Rest(1) >> Export("json/_Export_Rest_01.2.json") >> Play(True)
 
 movement = Note() * 12
-movement << Nth(7)**Duration(1/2) << Nth(12)**Duration(1)
+movement << Nth(7)**Duration(1/2) << Nth(12)**Duration(1/1)
 movement += Container(9, 6, 7, 10, 9, 8, 7, 6, 5, 4, 0, 1)
 movement >> Stack() >> Play()
 

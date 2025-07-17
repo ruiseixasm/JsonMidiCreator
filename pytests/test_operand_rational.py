@@ -90,7 +90,7 @@ def test_position_default():
     # Time signature Top decides the Beats per Measure (Must be 4)
     print(f"Top: {settings % TimeSignature() % BeatsPerMeasure() % Fraction()}")
     assert settings % TimeSignature() % BeatsPerMeasure() % Fraction() == 4
-    
+
     position_measures = Position(1.5)
     position_measures % float() >> Print()   # 3/2
     assert position_measures % float() == 3/2
@@ -350,7 +350,7 @@ def test_div_time_values():
     assert position == Measures(40)     # Same as * 8
 
     position = Position(5)
-    position /= Duration(2) # Same as Measures(2 / 1) = Measures(2)
+    position /= Duration(2.0) # Same as Measures(2 / 1) = Measures(2)
     print(f"Measures(5) / Measures(2/1) == {position % Measures() % Fraction()}")
     assert position == Measures(2.5)     # Same as / 2
 

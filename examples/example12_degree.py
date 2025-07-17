@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-single_note = Note("C") << Duration(1)
+single_note = Note("C") << Duration(1/1)
 single_note >> Play() << Duration(1/16)
 
 for degree in range(2, 9):

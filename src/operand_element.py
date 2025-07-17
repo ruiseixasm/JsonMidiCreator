@@ -2015,10 +2015,10 @@ class Retrigger(Note):
         note_position: ra.Position = ra.Position(self, self._position_beats)
         single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._number) ) # Already 2x single note duration
         for _ in range(self._number):
-            swing_ratio = self._swing
+            swing_ratio: Fraction = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
-            note_duration: ra.Duration = single_note_duration * 2 * swing_ratio
+            note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
             retrigger_notes.append( Note(self, note_duration, note_position) )
             note_position += note_duration
             self_iteration += 1
@@ -2231,7 +2231,7 @@ class Tuplet(Element):
             swing_ratio = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
-            element_position += element_duration * 2 * swing_ratio
+            element_position += element_duration * Fraction(2) * swing_ratio
             self_iteration += 1
         return tuplet_elements
 

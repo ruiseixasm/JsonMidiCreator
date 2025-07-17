@@ -24,11 +24,11 @@ from JsonMidiCreator import *
 familiar_bar1 = Note("F", 5) * 4 - Iterate()**0
 familiar_bar2 = Note("B", Dotted(1/2)) + Note("F", 5)
 familiar_bar3 = Note("E", 5) + Note("D", 5) + Note("G") + Note("A")
-familiar_bar4 = Note("B", Duration(1))
+familiar_bar4 = Note("B", Duration(1/1))
 familiar_bar1 >> familiar_bar2 >> familiar_bar3 >> familiar_bar4 >> Play()
 
 
-tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Equal(Measures(3))**Duration(1) >> Stack()
+tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Equal(Measures(3))**Duration(1/1) >> Stack()
 tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 tension >> Play()
 
@@ -50,18 +50,18 @@ repeat_4 = Note("B", 5) - 2 << 1/1
 (repeat_1, repeat_2, repeat_3) >> repeat_4 >> Play()
 
 
-form_1 = Note("B", 5, Gate(1)) * 6 << Nth(1, 6)**Duration(1) << Nth(2, 3, 4, 5)**Duration(1/2) << Nth(6)**Gate(0.9) >> Stack()
+form_1 = Note("B", 5, Gate(1)) * 6 << Nth(1, 6)**Duration(1/1) << Nth(2, 3, 4, 5)**Duration(1/2) << Nth(6)**Gate(0.9) >> Stack()
 form_1 + Foreach(0, 3, 2, 1, 2)
 
 form_2 = (form_1 | Equal(Measures(0), Measures(3))) >> Copy()
 form_2 = form_2 + Note("B", 5, Measures(1), Gate(1)) * 5 >> Sort()
 form_2 + Foreach(-1, 0, -1, -2, -1, 0, -1)
-form_2 << Nth(6)**Duration(1) >> Stack()
+form_2 << Nth(6)**Duration(1/1) >> Stack()
 
-form_3 = Note("B", 5, Gate(1)) * 10 << Nth(1, 8, 9)**Duration(1/2) << Nth(10)**(Duration(1), Gate(0.9))
+form_3 = Note("B", 5, Gate(1)) * 10 << Nth(1, 8, 9)**Duration(1/2) << Nth(10)**(Duration(1/1), Gate(0.9))
 form_3 + Foreach(-2, 5, 4, 3, 2, 1, -1, 0, 1, 2)
 
-form_4 = Note("B", 5, Gate(1)) * 8 << Nth(6, 7)**Duration(1/2) << Nth(1, 8)**(Duration(1)) << Nth(8)**(Gate(0.9))
+form_4 = Note("B", 5, Gate(1)) * 8 << Nth(6, 7)**Duration(1/2) << Nth(1, 8)**(Duration(1/1)) << Nth(8)**(Gate(0.9))
 form_4 + Foreach(3, 2, 1, -2, -1, 0, -3, -2)
 
 settings << KeySignature("#") << Tempo(125)

@@ -36,7 +36,7 @@ open_hat    = Channel(7)
 cymbal      = Channel(8)
 
 kick_clip = Note(kick) * 3 << TrackName("Kick")
-kick_clip /= Duration(2)
+kick_clip /= Duration(2.0)
 snare_clip = Note(snare) * 1 << TrackName("Snare")
 closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 

@@ -701,7 +701,7 @@ class Nth(InputFilter):
     """`Frame -> Left -> InputFilter -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
-    In `Nth(1, 6)**Duration(1)` sets the 1st and 6th `Clip` elements to 1 as note value.
+    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
 
     Parameters
     ----------

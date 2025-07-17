@@ -1340,7 +1340,7 @@ class Arpeggio(Generic):
     """
     def __init__(self, *parameters):
         self._order: int = 1    # "Up" by default
-        self._duration_notevalue: Fraction = ra.Duration(1/16)._rational
+        self._duration_beats: Fraction = ra.Duration(1/16)._rational
         self._swing: Fraction = ra.Swing(0.5)._rational
         self._chaos: ch.Chaos = ch.SinX()
         super().__init__(*parameters)
@@ -1353,22 +1353,22 @@ class Arpeggio(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case ou.Order():            return operand._data << od.Pipe( self._order )
-                    case ra.Duration():         return operand._data << od.Pipe( self._duration_notevalue )
+                    case ra.Duration():         return operand._data << od.Pipe( self._duration_beats )
                     case ra.Swing():            return operand._data << od.Pipe( self._swing )
                     case ch.Chaos():            return self._chaos
                     case int():                 return self._order
-                    case float():               return float( self._duration_notevalue )
-                    case Fraction():            return self._duration_notevalue
+                    case float():               return float( self._duration_beats )
+                    case Fraction():            return self._duration_beats
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case ou.Order():            return ou.Order(self._order)
             case str():                 return ou.Order(self._order) % str()
-            case ra.Duration():         return ra.Duration( self._duration_notevalue )
+            case ra.Duration():         return ra.Duration( self._duration_beats )
             case ra.Swing():            return ra.Swing(self._swing)
             case ch.Chaos():            return self._chaos.copy()
             case int():                 return self._order
-            case float():               return float( self._duration_notevalue )
-            case Fraction():            return self._duration_notevalue
+            case float():               return float( self._duration_beats )
+            case Fraction():            return self._duration_beats
             case _:                     return super().__mod__(operand)
 
 
@@ -1414,7 +1414,7 @@ class Arpeggio(Generic):
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
             arpeggio_end_position: ra.Position = arpeggio_length % ra.Position()
-            note_length: ra.Length = ra.Length(time_signature, self._duration_notevalue)
+            note_length: ra.Length = ra.Length(time_signature, self._duration_beats)
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
@@ -1474,7 +1474,7 @@ class Arpeggio(Generic):
             return False
         if isinstance(other, Arpeggio):
             return  self._order                 == other._order \
-                and self._duration_notevalue    == other._duration_notevalue \
+                and self._duration_beats    == other._duration_beats \
                 and self._chaos                 == other._chaos
         if isinstance(other, od.Conditional):
             return other == self
@@ -1483,7 +1483,7 @@ class Arpeggio(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["order"]            = self.serialize( self._order )
-        serialization["parameters"]["duration"]         = self.serialize( self._duration_notevalue )
+        serialization["parameters"]["duration"]         = self.serialize( self._duration_beats )
         serialization["parameters"]["swing"]            = self.serialize( self._swing )
         serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
         return serialization
@@ -1497,7 +1497,7 @@ class Arpeggio(Generic):
 
             super().loadSerialization(serialization)
             self._order                 = self.deserialize( serialization["parameters"]["order"] )
-            self._duration_notevalue    = self.deserialize( serialization["parameters"]["duration"] )
+            self._duration_beats    = self.deserialize( serialization["parameters"]["duration"] )
             self._swing                 = self.deserialize( serialization["parameters"]["swing"] )
             self._chaos                 = self.deserialize( serialization["parameters"]["chaos"] )
         return self
@@ -1508,23 +1508,23 @@ class Arpeggio(Generic):
             case Arpeggio():
                 super().__lshift__(operand)
                 self._order                 = operand._order
-                self._duration_notevalue    = operand._duration_notevalue
+                self._duration_beats    = operand._duration_beats
                 self._swing                 = operand._swing
                 self._chaos                 << operand._chaos
             case od.Pipe():
                 match operand._data:
                     case ou.Order():                self._order = operand._data._unit
-                    case ra.Duration():             self._duration_notevalue = operand._data._rational
+                    case ra.Duration():             self._duration_beats = operand._data._rational
                     case ra.Swing():                self._swing = operand._data._rational
                     case ch.Chaos():                self._chaos = operand._data
                     case int():                     self._order = operand._data
-                    case float():                   self._duration_notevalue = ra.Duration(operand._data)._rational
-                    case Fraction():                self._duration_notevalue = operand._data
+                    case float():                   self._duration_beats = ra.Duration(operand._data)._rational
+                    case Fraction():                self._duration_beats = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Order():                self._order = operand._unit
             case str():                     self._order = ou.Order(operand)._unit
-            case ra.Duration():             self._duration_notevalue = operand._rational
+            case ra.Duration():             self._duration_beats = operand._rational
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -1534,8 +1534,8 @@ class Arpeggio(Generic):
                     self._swing = operand._rational
             case ch.Chaos():                self._chaos << operand
             case int():                     self._order = operand
-            case float():                   self._duration_notevalue = ra.Duration(operand)._rational
-            case Fraction():                self._duration_notevalue = operand
+            case float():                   self._duration_beats = ra.Duration(operand)._rational
+            case Fraction():                self._duration_beats = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand

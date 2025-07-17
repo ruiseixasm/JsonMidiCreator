@@ -36,7 +36,7 @@ open_hat    = Channel(7)
 cymbal      = Channel(8)
 
 kick_ptn = Note(kick) * 3
-kick_ptn /= Duration(2)
+kick_ptn /= Duration(2.0)
 snare_ptn = Note(snare) * 1
 
 full_clip = kick_ptn + snare_ptn << Duration(1/16)

@@ -42,5 +42,5 @@ chromatic_order / 2 * 8 >> Plot(False)
 
 chromatic_order << Tempo(120)
 
-chromatic_order * Duration(2) / 16 >> Stack() >> Plot()
+chromatic_order * Duration(2.0) / 16 >> Stack() >> Plot()
 
