@@ -651,25 +651,29 @@ def test_element_position():
     single_note = Note()
 
     single_note << Beat(0)
-    assert single_note == Beats(0)
+    assert single_note == Beat(0)
     assert single_note == Position(Beats(0))
+    assert single_note == Measure(0)
 
     single_note << Beat(1)
-    assert single_note == Beats(1)
+    assert single_note == Beat(1)
     assert single_note == Position(Beats(1))
+    assert single_note == Measure(0)
 
     single_note << Beat(2)
-    assert single_note == Beats(2)
+    assert single_note == Beat(2)
     assert single_note == Position(Beats(2))
+    assert single_note == Measure(0)
 
     single_note << Beat(3)
-    assert single_note == Beats(3)
+    assert single_note == Beat(3)
     assert single_note == Position(Beats(3))
+    assert single_note == Measure(0)
 
     # Because Beat(4) goes to the next Measure
     single_note << Beat(4)
-    assert single_note == Beats(4)
+    assert single_note == Beat(0)
     assert single_note == Position(Beats(4))
-    assert single_note == Position(Measures(1))
+    assert single_note == Measure(1)
 
 # test_element_position()
