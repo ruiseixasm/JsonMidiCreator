@@ -646,3 +646,30 @@ def test_chord_degree():
 
 # test_chord_degree()
 
+
+def test_element_position():
+    single_note = Note()
+
+    single_note << Beat(0)
+    assert single_note == Beats(0)
+    assert single_note == Position(Beats(0))
+
+    single_note << Beat(1)
+    assert single_note == Beats(1)
+    assert single_note == Position(Beats(1))
+
+    single_note << Beat(2)
+    assert single_note == Beats(2)
+    assert single_note == Position(Beats(2))
+
+    single_note << Beat(3)
+    assert single_note == Beats(3)
+    assert single_note == Position(Beats(3))
+
+    # Because Beat(4) goes to the next Measure
+    single_note << Beat(4)
+    assert single_note == Beats(4)
+    assert single_note == Position(Beats(4))
+    assert single_note == Position(Measures(1))
+
+# test_element_position()

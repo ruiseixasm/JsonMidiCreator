@@ -475,3 +475,29 @@ def test_multi_testing():
 
 # test_multi_testing()
 
+
+def test_position_setting():
+    position = Position(Fraction(0))
+
+    position << Beat(0)
+    assert position == Beats(0)
+    assert position == Position(Beats(0))
+
+    position << Beat(1)
+    assert position == Beats(1)
+    assert position == Position(Beats(1))
+
+    position << Beat(2)
+    assert position == Beats(2)
+    assert position == Position(Beats(2))
+
+    position << Beat(3)
+    assert position == Beats(3)
+    assert position == Position(Beats(3))
+
+    # Because Beat(4) goes to the next Measure
+    position << Beat(4)
+    assert position == Beats(4)
+    assert position == Position(Beats(4))
+    assert position == Position(Measures(1))
+
