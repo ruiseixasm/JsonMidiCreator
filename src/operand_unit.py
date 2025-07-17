@@ -1639,13 +1639,13 @@ class Program(Midi):
         super().__init__(1, *parameters)    # By default is 1 the Piano
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case str():                     return Program.numberToName(self._unit - 1)
+                    case str():                     return Program.numberToName(self._unit)
                     case _:                         return super().__mod__(operand)
-            case str():                 return Program.numberToName(self._unit - 1)
+            case int():                 return self._unit + 1
+            case str():                 return Program.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -1657,13 +1657,14 @@ class Program(Midi):
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
+            case int():
+                self._unit = operand - 1
             case str():
                 operand = operand.strip()
                 if operand.isdigit():
-                    self._unit = int(operand)
+                    self._unit = int(operand) - 1
                 else:
                     self.nameToNumber(operand)
-                    self._unit += 1
             case _:
                 super().__lshift__(operand)
         return self
@@ -1823,7 +1824,7 @@ class Program(Midi):
             for instrument_name in instrument["names"]:
                 # Check if all input words are present in the name string
                 if all(word in instrument_name.lower() for word in name_split):
-                    self._unit = instrument["midi_instrument"] + 1
+                    self._unit = instrument["midi_instrument"]
                     return
 
     @staticmethod

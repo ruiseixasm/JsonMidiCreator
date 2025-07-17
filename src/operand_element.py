@@ -3509,13 +3509,13 @@ class ProgramChange(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._program: int  = 1
-        self._bank: int     = 0
-        self._high: bool    = False
+        self._program_0: int    = 0 # Based 0 value, midi friendly
+        self._bank: int         = 0
+        self._high: bool        = False
         super().__init__(*parameters)
 
     def program(self, program: int | str = "Piano") -> Self:
-        self._program = ou.Program(program)
+        self._program_0 = ou.Program(program)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3533,12 +3533,12 @@ class ProgramChange(Element):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Program():          return operand._data << self._program
+                    case ou.Program():          return operand._data << self._program_0 + 1
                     case ou.Bank():             return operand._data << self._bank
                     case ou.HighResolution():   return operand._data << self._high
                     case _:                 return super().__mod__(operand)
-            case int():                 return self._program
-            case ou.Program():          return ou.Program(self._program)
+            case int():                 return self._program_0 + 1
+            case ou.Program():          return ou.Program(self._program_0 + 1)
             case ou.Bank():             return ou.Bank(self._bank)
             case ou.HighResolution():   return ou.HighResolution(self._high)
             case _:                     return super().__mod__(operand)
@@ -3548,7 +3548,7 @@ class ProgramChange(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._program == other._program \
+                    and self._program_0 == other._program_0 \
                     and self._bank == other._bank and self._high == other._high
             case _:
                 return super().__eq__(other)
@@ -3584,7 +3584,7 @@ class ProgramChange(Element):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xC0 | 0x0F & self._channel - 1,
-                    "data_byte": self._program - 1
+                    "data_byte": self._program_0
                 }
             }
         )
@@ -3597,24 +3597,24 @@ class ProgramChange(Element):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
-        self_midilist[0]["program"]     = self._program - 1
+        self_midilist[0]["program"]     = self._program_0
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["program"]  = self.serialize( self._program )
-        serialization["parameters"]["bank"]     = self.serialize( self._bank )
-        serialization["parameters"]["high"]     = self.serialize( self._high )
+        serialization["parameters"]["program_0"]    = self.serialize( self._program_0 )
+        serialization["parameters"]["bank"]         = self.serialize( self._bank )
+        serialization["parameters"]["high"]         = self.serialize( self._high )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "program" in serialization["parameters"] and "bank" in serialization["parameters"] and "high" in serialization["parameters"]):
+            "program_0" in serialization["parameters"] and "bank" in serialization["parameters"] and "high" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program   = self.deserialize( serialization["parameters"]["program"] )
+            self._program_0 = self.deserialize( serialization["parameters"]["program_0"] )
             self._bank      = self.deserialize( serialization["parameters"]["bank"] )
             self._high      = self.deserialize( serialization["parameters"]["high"] )
         return self
@@ -3624,19 +3624,17 @@ class ProgramChange(Element):
         match operand:
             case ProgramChange():
                 super().__lshift__(operand)
-                self._program   = operand._program
+                self._program_0 = operand._program_0
                 self._bank      = operand._bank
                 self._high      = operand._high
             case od.Pipe():
                 match operand._data:
-                    case ou.Program():          self._program = operand._data._unit
+                    case ou.Program():          self._program_0 = operand._data._unit
                     case ou.Bank():             self._bank = operand._data._unit
                     case ou.HighResolution():   self._high = operand._data % bool()
                     case _:                     super().__lshift__(operand)
-            case int():
-                self._program = operand
-            case ou.Program() | str():
-                self._program = ou.Program(operand)._unit
+            case ou.Program() | int() | str():
+                self._program_0 = ou.Program(operand)._unit
             case ou.Bank():
                 self._bank = operand._unit
             case ou.HighResolution():
@@ -3649,7 +3647,7 @@ class ProgramChange(Element):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._program += operand  # Specific and compounded parameter
+                self._program_0 += operand  # Specific and compounded parameter
             case ou.Program():
                 self += operand._unit
             case _:
@@ -3660,7 +3658,7 @@ class ProgramChange(Element):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                self._program -= operand  # Specific and compounded parameter
+                self._program_0 -= operand  # Specific and compounded parameter
             case ou.Program():
                 self -= operand._unit
             case _:
