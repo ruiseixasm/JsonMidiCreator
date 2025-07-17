@@ -115,13 +115,14 @@ def test_foreach_mod():
     assert four_notes[2] == quarter
     assert four_notes[3] == quarter
 
+    print(f"Position[1]: {four_notes[1] % Position() % Fraction()}")
     four_notes << Foreach(range(2,6))**Beat()
-    print(f"Position: {four_notes[0] % Position() % Fraction()}")
+    print(f"Position[0]: {four_notes[0] % Position() % Fraction()}")
     assert four_notes[0] == Position(Beats(2))
-    print(f"Position: {four_notes[1] % Position() % Fraction()}")
-    assert four_notes[1] == Position(Beats(3))
-    assert four_notes[2] == Position(Beats(4))
-    assert four_notes[3] == Position(Beats(5))
+    print(f"Position[1]: {four_notes[1] % Position() % Fraction()}")
+    assert four_notes[1] == Position(Beats(3)) + Measures(1)
+    assert four_notes[2] == Position(Beats(4)) + Measures(1)
+    assert four_notes[3] == Position(Beats(5)) + Measures(1)
 
 # test_foreach_mod()
 
