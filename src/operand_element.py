@@ -129,7 +129,7 @@ class Element(o.Operand):
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-            case ra.TimeUnit() | ra.Position() | ra.TimeValue():
+            case ra.Position() | ra.TimeUnit() | ra.TimeValue():
                 # For TimeUnit only the `% operand` does the measure_module of it
                 return ra.Beats(self, self._position_beats) % operand
             case ra.Duration() | ra.Length() | ra.NoteValue():

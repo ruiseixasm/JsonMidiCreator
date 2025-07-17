@@ -76,7 +76,7 @@ def test_position_lshift():
     assert position == 0.0
     position += Measures(1)
     assert position == 1.0
-    position += Beats(2)
+    position += Beat(2)
     print(f"Measures: {position % Measures() % float()}")
     assert position == 1.5
     position << Beat(0)
@@ -243,7 +243,7 @@ def test_add_beats():
 
     position = Position()
     measures = Measures(0.5)
-    position += Beats(2)
+    position += Beat(2)
     assert position == measures
 
     position << Measure(1)

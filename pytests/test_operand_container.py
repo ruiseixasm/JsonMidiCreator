@@ -776,24 +776,26 @@ def test_clip_fitting():
 def test_clip_map():
 
     four_notes: Clip = Note() / 4
-    four_notes += All()**Beat(1)
+    four_notes += All()**Beat(1)    # Changes Position
     assert four_notes[0] % Beat() == 1
+    assert four_notes[0] % Position() == Beats(1)
     assert four_notes[0] % Beats() == 1
     assert four_notes[1] % Beat() == 2
-    assert four_notes[1] % Beats() == 2
+    assert four_notes[1] % Position() == Beats(2)
     assert four_notes[2] % Beat() == 3
-    assert four_notes[2] % Beats() == 3
+    assert four_notes[2] % Position() == Beats(3)
     assert four_notes[3] % Beat() == 0
-    assert four_notes[3] % Beats() == 4
+    assert four_notes[3] % Position() == Beats(4)
 
 
 def test_clip_selectors():
 
     four_notes: Clip = Note() / 4
     four_notes += Beat(1)
-    assert four_notes[0] % Beats() == 1
-    assert four_notes[2] % Beats() == 3    # Middle uses nth, so, 2 means the 3rd element
-    assert four_notes[-1] % Beats() == 4
+    assert four_notes[0] % Beat() == 1
+    assert four_notes[2] % Beat() == 3    # Middle uses nth, so, 2 means the 3rd element
+    assert four_notes[-1] % Beat() == 0
+    assert four_notes[-1] % Position() == Beats(4)
 
     # Test for bad input
     empty_clip: Clip = Clip()
