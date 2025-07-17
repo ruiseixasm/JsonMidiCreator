@@ -13,6 +13,6 @@ The file to be copied must have the name `libJsonMidiPlayer_ctypes.dylib`.
 ## Binary files
 If you don't want to compile the libraries yourself, you can download the already compiled files from the [JsonMidiPlayer sourceforge site](https://sourceforge.net/projects/json-midi-player/) with the respective direct links below.
 ### Library for Windows
-https://sourceforge.net/projects/json-midi-player/files/Windows/lib/
+https://sourceforge.net/projects/json-midi-player/files/Windows/
 ### Library for Linux
-https://sourceforge.net/projects/json-midi-player/files/Linux/lib/
+https://sourceforge.net/projects/json-midi-player/files/Linux/
