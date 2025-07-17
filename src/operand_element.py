@@ -300,7 +300,7 @@ class Element(o.Operand):
                 self_position: ra.Position  = ra.Position(self, od.Pipe( self._position_beats )) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
-                self._duration_beats        = operand
+                self._duration_beats        = ra.Beats(operand)._rational
             case int():
                 self._position_beats        = ra.Measures(self, operand) % ra.Beats() % Fraction()
             case ou.Channel():

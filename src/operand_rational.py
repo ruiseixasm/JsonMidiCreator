@@ -640,8 +640,6 @@ class Convertible(Rational):
                 if isinstance(self_operand, TimeUnit):
                     return self_operand.measure_unit()
                 return self_operand
-            # Fraction sets the value directly
-            case Fraction():            return self._rational
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -703,8 +701,6 @@ class Convertible(Rational):
             case og.TimeSignature():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand
-            case Fraction():
-                self._rational = operand
             case _:
                 super().__lshift__(operand)
         return self
