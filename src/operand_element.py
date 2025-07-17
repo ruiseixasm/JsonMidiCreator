@@ -1071,6 +1071,8 @@ class Note(Element):
                     case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
                     case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
                     case og.Pitch():        return self._pitch
+                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                                            return self._pitch % operand
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
@@ -1336,6 +1338,8 @@ class Note(Element):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
+                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                                            self._pitch << operand
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case int():             self._pitch << operand
@@ -3403,6 +3407,8 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():    return self._pitch
+                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                                        return self._pitch % operand
                     case _:             return super().__mod__(operand)
             case og.Pitch():
                 return self._pitch.copy()
@@ -3481,6 +3487,8 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
+                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                                                self._pitch << operand
                     case _:                     super().__lshift__(operand)
             case og.Pitch() | ou.PitchParameter() | ou.Quality() | None | og.Scale() | list() | str():
                                 self._pitch << operand
