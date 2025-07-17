@@ -865,8 +865,8 @@ def test_clip_duration():
 
     print(f"Duration_0: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % int() == 4    # Total of 4 notes
-    # Problem here Measures treated differently from Measure !!!!!
-    assert Measures(1) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
+    # Measures has to be wrapped with Position because by itself set the Duration!
+    assert Position(Measures(1)) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
     # All Notes are now at position Measure 1
     print(f"Duration_1: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % int() == 4    # Total of 4 notes
@@ -874,7 +874,7 @@ def test_clip_duration():
     print(f"Total Duration: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
-test_clip_duration()
+# test_clip_duration()
 
 
 def test_clip_operations():
