@@ -1907,17 +1907,10 @@ class Chord(KeyScale):
             case ou.Size():                 self._size = operand._unit
             case str():
                 operand = operand.strip()
-                # Set Chord root note
+                # Set Pitch parameters with the string
                 self._pitch << operand
                 # Set Chord size
                 self._size = ou.Size(od.Pipe( self._size ), operand)._unit
-                # Set Chord scale
-                if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
-                    and operand.find("dim") == -1:
-                    self._pitch << "minor"
-                else:
-                    self._pitch << "Major"
-                self.set_all(operand)
             case ou.Dominant():
                 if operand:
                     self.set_all()

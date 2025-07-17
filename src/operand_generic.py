@@ -710,9 +710,9 @@ class Pitch(Generic):
                 self._sharp = \
                     (ou.Sharp(max(0, self._sharp)) << string)._unit + \
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
-                self._degree_0 = abs((self % ou.Degree() << operand)._unit) - 1 # 0 based
-                self._tonic_key = (self % ou.Key() << string)._unit
-                self._scale = Scale(od.Pipe(self._scale), operand) % od.Pipe(list())
+                self << (self % ou.Degree() << string) # Safe, doesn't change the octave
+                self << (self % ou.TonicKey() << string)
+                self << Scale(od.Pipe(self._scale), operand)
             case tuple():
                 for single_operand in operand:
                     self << single_operand

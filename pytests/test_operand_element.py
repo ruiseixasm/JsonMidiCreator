@@ -612,5 +612,37 @@ def test_chord_degree():
     print(f"Semitone: {chord_triad % Semitone() % int()}")
     assert chord_triad % Semitone() == 0
 
+    # Tests the setting of the Degree indirectly with strings
+    chord_triad << Degree("I")
+    assert chord_triad % Semitone() == 0
+    chord_triad << Degree("ii")
+    assert chord_triad % Semitone() == 2
+    chord_triad << Degree("iii")
+    assert chord_triad % Semitone() == 4
+    chord_triad << Degree("IV")
+    assert chord_triad % Semitone() == 5
+    chord_triad << Degree("V")
+    assert chord_triad % Semitone() == 7
+    chord_triad << Degree("vi")
+    assert chord_triad % Semitone() == 9
+    chord_triad << Degree("vii")
+    assert chord_triad % Semitone() == 11
+
+    # Tests the setting of the Degree directly with strings
+    chord_triad << "I"
+    assert chord_triad % Semitone() == 0
+    chord_triad << "ii"
+    assert chord_triad % Semitone() == 2
+    chord_triad << "iii"
+    assert chord_triad % Semitone() == 4
+    chord_triad << "IV"
+    assert chord_triad % Semitone() == 5
+    chord_triad << "V"
+    assert chord_triad % Semitone() == 7
+    chord_triad << "vi"
+    assert chord_triad % Semitone() == 9
+    chord_triad << "vii"
+    assert chord_triad % Semitone() == 11
+
 # test_chord_degree()
 
