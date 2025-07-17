@@ -129,14 +129,13 @@ class Element(o.Operand):
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
-            case ra.Position():
-                return operand.copy( ra.Beats(self, self._position_beats) )
+            case ra.TimeUnit() | ra.Position() | ra.TimeValue():
+                # For TimeUnit only the `% operand` does the measure_module of it
+                return ra.Beats(self, self._position_beats) % operand
             case ra.Duration() | ra.Length() | ra.NoteValue():
                 return operand.copy( ra.Beats(self, self._duration_beats) )
             case float():
                 return self % ra.NoteValue() % float()
-            case ra.TimeValue() | ra.TimeUnit():
-                return ra.Beats(self, self._position_beats) % operand
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
             case int():
