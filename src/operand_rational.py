@@ -1044,9 +1044,7 @@ class Duration(Measurement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int():
-                self << Steps(operand)
-            case float():
+            case float() | int():
                 self << NoteValue(operand)
             case str():
                 time_division: str = operand.strip().upper()
@@ -1075,9 +1073,7 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue + operand_notevalue
-            case int():
-                self += Steps(operand)
-            case float():
+            case float() | int():
                 self += NoteValue(operand)
             case _:
                 super().__iadd__(operand)
@@ -1090,9 +1086,7 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue - operand_notevalue
-            case int():
-                self -= Steps(operand)
-            case float():
+            case float() | int():
                 self -= NoteValue(operand)
             case _:
                 super().__isub__(operand)
