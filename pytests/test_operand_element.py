@@ -142,7 +142,7 @@ def test_note_lshift():
     note: Note = Note()
 
     assert note % Position() == 0.0
-    note += Measures(1)
+    note += Measure(1)
     assert note % Position() == 1.0
     note += Beat(2)
     assert note % Position() == 1.5

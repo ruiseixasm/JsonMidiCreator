@@ -846,29 +846,32 @@ def test_clip_duration():
     four_notes_1: Clip = Note() / 4 << NoteValue(1/8)
     four_notes_2: Clip = Note() / 4
 
-    Beats(2) >> four_notes_1 # SETS common Position!!
-    assert four_notes_1 % Position() == Beats(0)    # Clip has no Position on its own
-    Beats(-2) >> four_notes_1 # SETS common Position!!
-    assert four_notes_1 % Position() == Beats(0)    # Always is 0!
+    Beat(2) >> four_notes_1 # SETS common Position!!
+    assert four_notes_1 % Position() == Beat(0)    # Clip has no Position on its own
+    Beat(-2) >> four_notes_1 # SETS common Position!!
+    assert four_notes_1 % Position() == Beat(0)    # Always is 0!
 
-    print(four_notes_2[0] % Beats() % int())
-    assert four_notes_2[0] % Beats() == 0
+    print(four_notes_2[0] % Beat() % int())
+    assert four_notes_2[0] % Beat() == 0
 
     eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure
-    print(eight_notes[0] % Beats() % int())
-    assert eight_notes[0] % Beats() == -2
-    print(eight_notes[4] % Beats() % int())
-    assert eight_notes[4] % Beats() == 4 
+    print(eight_notes[0] % Position() % Beats() % int())
+    assert eight_notes[0] % Position() == Beats(-2)
+    print(eight_notes[4] % Position() % Beats() % int())
+    assert eight_notes[4] % Position() == Beats(4)
 
-    print(four_notes_2[0] % Beats() % int())
-    assert four_notes_2[0] % Beats() == 0
+    print(four_notes_2[0] % Beat() % int())
+    assert four_notes_2[0] % Beat() == 0
 
     print(f"Duration_0: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % int() == 4    # Total of 4 notes
+    # Problem here Measures treated differently from Measure !!!!!
     assert Measures(1) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
+    # All Notes are now at position Measure 1
     print(f"Duration_1: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % int() == 4    # Total of 4 notes
     assert four_notes_1.net_duration() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
+    print(f"Total Duration: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
 # test_clip_duration()
