@@ -1049,3 +1049,96 @@ class GetR(Right):
             extracted_data._set = extracted_data._set # Set status has to be kept
         return extracted_data
 
+class BasicOperationR(Right):
+    """`Frame -> Right -> BasicOperationR`
+
+    A `BasicOperationR` does a basic operation like `+` or `/` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    None : This `Frame` has no parameters.
+    """
+    def __init__(self, parameter: any = 1):
+        super().__init__()
+        self._named_parameters['parameter'] = parameter
+
+class AddR(BasicOperationR):
+    """`Frame -> Right -> BasicOperationR -> AddR`
+
+    An `AddR` does a basic `+` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `+` on input.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        extracted_data = super().__ixor__(input)
+        if isinstance(extracted_data, list):
+            for index, _ in enumerate(extracted_data):
+                extracted_data[index] += self._named_parameters['parameter']
+        else:
+            extracted_data += self._named_parameters['parameter']
+        if isinstance(extracted_data, o.Operand):
+            extracted_data._set = extracted_data._set # Set status has to be kept
+        return extracted_data
+
+class SubtractR(BasicOperationR):
+    """`Frame -> Right -> BasicOperationR -> SubtractR`
+
+    A `SubtractR` does a basic `-` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `-` on input.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        extracted_data = super().__ixor__(input)
+        if isinstance(extracted_data, list):
+            for index, _ in enumerate(extracted_data):
+                extracted_data[index] -= self._named_parameters['parameter']
+        else:
+            extracted_data -= self._named_parameters['parameter']
+        if isinstance(extracted_data, o.Operand):
+            extracted_data._set = extracted_data._set # Set status has to be kept
+        return extracted_data
+
+class MultiplyR(BasicOperationR):
+    """`Frame -> Right -> BasicOperationR -> MultiplyR`
+
+    A `MultiplyR` does a basic `*` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `*` on input.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        extracted_data = super().__ixor__(input)
+        if isinstance(extracted_data, list):
+            for index, _ in enumerate(extracted_data):
+                extracted_data[index] *= self._named_parameters['parameter']
+        else:
+            extracted_data *= self._named_parameters['parameter']
+        if isinstance(extracted_data, o.Operand):
+            extracted_data._set = extracted_data._set # Set status has to be kept
+        return extracted_data
+
+class DivideR(BasicOperationR):
+    """`Frame -> Right -> BasicOperationR -> DivideR`
+
+    A `DivideR` does a basic `/` on the input before passing it to the next `Frame`.
+
+    Parameters
+    ----------
+    int(1) : A parameter to do an `/` on input.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        extracted_data = super().__ixor__(input)
+        if isinstance(extracted_data, list):
+            for index, _ in enumerate(extracted_data):
+                extracted_data[index] /= self._named_parameters['parameter']
+        else:
+            extracted_data /= self._named_parameters['parameter']
+        if isinstance(extracted_data, o.Operand):
+            extracted_data._set = extracted_data._set # Set status has to be kept
+        return extracted_data
+
