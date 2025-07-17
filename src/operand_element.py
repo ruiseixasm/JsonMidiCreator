@@ -131,10 +131,8 @@ class Element(o.Operand):
             case of.Frame():        return self % operand
             case ra.Position():
                 return operand.copy( ra.Beats(self, self._position_beats) )
-            case ra.Duration() | ra.Length():
+            case ra.Duration() | ra.Length() | ra.NoteValue():
                 return operand.copy( ra.Beats(self, self._duration_beats) )
-            case ra.NoteValue():
-                return operand.copy()._set_time_signature_reference(self._get_time_signature()) << ra.Beats( self._duration_beats )
             case float():
                 return self % ra.NoteValue() % float()
             case ra.TimeValue() | ra.TimeUnit():
