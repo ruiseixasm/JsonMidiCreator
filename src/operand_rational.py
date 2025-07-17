@@ -1049,7 +1049,9 @@ class Duration(Measurement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float():
+            case int():
+                self << Steps(operand)
+            case float():
                 self << NoteValue(operand)
             case str():
                 time_division: str = operand.strip().upper()
@@ -1078,7 +1080,9 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue + operand_notevalue
-            case int() | float():
+            case int():
+                self += Steps(operand)
+            case float():
                 self += NoteValue(operand)
             case _:
                 super().__iadd__(operand)
@@ -1091,7 +1095,9 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue - operand_notevalue
-            case int() | float():
+            case int():
+                self -= Steps(operand)
+            case float():
                 self -= NoteValue(operand)
             case _:
                 super().__isub__(operand)
@@ -1104,7 +1110,9 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue * operand_notevalue
-            case int() | float():
+            case int():
+                self *= Steps(operand)
+            case float():
                 self *= NoteValue(operand)
             case _:
                 super().__imul__(operand)
@@ -1118,7 +1126,9 @@ class Duration(Measurement):
                 operand_notevalue: NoteValue = operand % NoteValue()
                 if operand_notevalue != NoteValue(0):
                     self << self_notevalue / operand_notevalue
-            case int() | float():
+            case int():
+                self /= Steps(operand)
+            case float():
                 self /= NoteValue(operand)
             case _:
                 super().__itruediv__(operand)
