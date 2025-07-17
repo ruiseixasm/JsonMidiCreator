@@ -2228,7 +2228,7 @@ class Tuplet(Element):
         for single_element in self._elements:
             element_duration = single_element % od.Pipe( ra.Duration() )
             tuplet_elements.append(single_element.copy() << element_position)
-            swing_ratio = self._swing
+            swing_ratio: Fraction = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
             element_position += element_duration * Fraction(2) * swing_ratio

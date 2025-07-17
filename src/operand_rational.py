@@ -888,8 +888,6 @@ class Measurement(Convertible):
                 self_measures: Measures = self % Measures()
                 operand_measures: Measures = operand % Measures(self._time_signature_reference)
                 self << self_measures * operand_measures
-            # case int() | float():
-            #     self *= Measures(operand)  # Default variable is Measures
             case _:
                 super().__imul__(operand)
         return self
@@ -903,9 +901,6 @@ class Measurement(Convertible):
                 operand_measures: Measures = operand % Measures(self._time_signature_reference)
                 if operand_measures != Measures(0):
                     self << self_measures / operand_measures
-            # case int() | float():
-            #     if operand != 0:
-            #         self /= Measures(operand)  # Default variable is Measures
             case _:
                 super().__itruediv__(operand)
         return self
@@ -1110,10 +1105,6 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue * operand_notevalue
-            # case int():
-            #     self *= Steps(operand)
-            # case float():
-            #     self *= NoteValue(operand)
             case _:
                 super().__imul__(operand)
         return self
@@ -1126,10 +1117,6 @@ class Duration(Measurement):
                 operand_notevalue: NoteValue = operand % NoteValue()
                 if operand_notevalue != NoteValue(0):
                     self << self_notevalue / operand_notevalue
-            # case int():
-            #     self /= Steps(operand)
-            # case float():
-            #     self /= NoteValue(operand)
             case _:
                 super().__itruediv__(operand)
         return self
