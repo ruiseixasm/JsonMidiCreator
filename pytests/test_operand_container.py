@@ -874,7 +874,7 @@ def test_clip_duration():
     print(f"Total Duration: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
-# test_clip_duration()
+test_clip_duration()
 
 
 def test_clip_operations():

@@ -294,8 +294,8 @@ class Element(o.Operand):
             case ra.TimeValue():
                 self._position_beats        = operand % ra.Beats(self) % Fraction()
             case ra.TimeUnit():
-                self_position: ra.Position  = ra.Position(self, od.Pipe( self._position_beats )) << operand
-                self._position_beats        = self_position._rational
+                # The setting of the TimeUnit depends on the Element position
+                self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
             case int():
