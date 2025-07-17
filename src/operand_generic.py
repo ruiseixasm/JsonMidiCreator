@@ -428,8 +428,8 @@ class Pitch(Generic):
             case Fraction():
                 return Fraction(self._transposition)
             
-            case ou.Semitone() | ou.RootKey():
-                return operand.copy(self.pitch_int())
+            case ou.Semitone():
+                return operand.copy(self.pitch_int() % 12)
             
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)

@@ -607,3 +607,10 @@ def test_chord_element():
 # test_chord_element()
 
 
+def test_chord_degree():
+    chord_triad: Element = Chord()
+    print(f"Semitone: {chord_triad % Semitone() % int()}")
+    assert chord_triad % Semitone() == 0
+
+# test_chord_degree()
+
