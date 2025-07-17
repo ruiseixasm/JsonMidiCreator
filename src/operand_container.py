@@ -1243,7 +1243,7 @@ class Composition(Container):
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
         beats_per_measure: Fraction = self._time_signature % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
-        quantization_beats: Fraction = og.settings % ra.Quantization(self) % ra.Beats() % Fraction()
+        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
@@ -3042,7 +3042,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        quantization_beats: Fraction = og.settings % ra.Quantization(self) % ra.Beats() % Fraction()
+        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         amount_rational: Fraction = ra.Amount(amount) % Fraction()
         for single_element in self._items:
             element_position: Fraction = single_element._position_beats
