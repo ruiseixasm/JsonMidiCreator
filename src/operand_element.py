@@ -126,7 +126,7 @@ class Element(o.Operand):
                     case int():
                         return ra.Beats(self, self._position_beats) % ra.Measures() % int()
                     case float():           return float( self._duration_beats )
-                    case Fraction():        return self._position_beats
+                    case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
             case ra.Position():
@@ -143,7 +143,7 @@ class Element(o.Operand):
             case Element():         return self.copy()
             case int():
                 return ra.Beats(self, self._position_beats) % ra.Measures() % int()
-            case Fraction():        return self._position_beats
+            case Fraction():        return self._duration_beats
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case Element():         return operand.__class__(self)
@@ -281,7 +281,7 @@ class Element(o.Operand):
                     case ra.Duration() | ra.Length():
                         self._duration_beats  = operand._data._rational
                     case ou.Channel():      self._channel = operand._data._unit
-                    case Fraction():        self._position_beats = operand._data
+                    case Fraction():        self._duration_beats = operand._data
                     case float():           self._duration_beats = ra.Duration(operand._data)._rational
 
             case od.Serialization():
@@ -300,7 +300,7 @@ class Element(o.Operand):
                 self_position: ra.Position  = ra.Position(self, od.Pipe( self._position_beats )) << operand
                 self._position_beats        = self_position._rational
             case Fraction():
-                self._position_beats        = operand
+                self._duration_beats        = operand
             case int():
                 self._position_beats        = ra.Measures(self, operand) % ra.Beats() % Fraction()
             case ou.Channel():
