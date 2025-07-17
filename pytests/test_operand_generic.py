@@ -720,7 +720,6 @@ def test_staff_output():
 
     settings << KeySignature()
     
-    settings << TimeSignature()
     settings << TimeSignature(3, 4)
     steps_per_measure = settings % StepsPerMeasure()
     steps_per_measure % Fraction() >> Print()
@@ -736,7 +735,8 @@ def test_staff_output():
     steps_per_measure % Fraction() >> Print()
     assert steps_per_measure == 12.0
 
-    settings << Quantization(1/16)  # Resets settings quantization
+    # Quantization is in Beats ratio
+    settings << Quantization(1/4)  # Resets settings quantization
 
 # test_staff_output()
 

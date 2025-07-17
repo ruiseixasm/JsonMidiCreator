@@ -1575,7 +1575,7 @@ class Settings(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._tempo: Fraction                       = Fraction(120)
-        self._quantization: Fraction                = Fraction(1/16)
+        self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._duration: Fraction                    = Fraction(1)   # Means 1 beat
@@ -1706,8 +1706,7 @@ class Settings(Generic):
             case ra.StepsPerNote():
                 return ra.StepsPerNote() << 1 / self._quantization
             case ra.StepsPerMeasure():
-                return ra.StepsPerMeasure() \
-                    << (self % ra.StepsPerNote() % Fraction()) * (self._time_signature % ra.NotesPerMeasure() % Fraction())
+                return ra.StepsPerMeasure(self._time_signature % ra.BeatsPerMeasure() % Fraction() / self._quantization)
             case TimeSignature():       return self._time_signature.copy()
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
@@ -1844,7 +1843,7 @@ class Settings(Generic):
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
             case ra.StepsPerMeasure():
-                self._quantization = self._time_signature % ra.NotesPerMeasure() / operand % Fraction()
+                self._quantization = self._time_signature % ra.BeatsPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ou.KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():

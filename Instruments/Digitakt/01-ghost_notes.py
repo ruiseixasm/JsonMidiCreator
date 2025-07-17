@@ -65,7 +65,7 @@ backbeats * 8 >> P
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-anticipation << Quantization(1/32)
+anticipation << Quantization(1/8)   # Quantization is in Beats ratio
 anticipation += Steps(1/2)
 anticipation << Duration(0.40 * 1/32)
 

@@ -65,20 +65,32 @@ def test_dotted_mod():
 
 def test_position_lshift():
 
+    # Quantization is in Beats ratio, meaning, 1/4 by default
+    print(f"Quantization: {settings % Quantization() % Fraction()}")
+    # Time signature Top decides the Beats per Measure (Must be 4)
+    print(f"Top: {settings % TimeSignature() % BeatsPerMeasure() % Fraction()}")
+    assert settings % TimeSignature() % BeatsPerMeasure() % Fraction() == 4
+
     position: Position = Position()
 
     assert position == 0.0
     position += Measures(1)
     assert position == 1.0
     position += Beats(2)
+    print(f"Measures: {position % Measures() % float()}")
     assert position == 1.5
     position << Beat(0)
     assert position == 1.0
 
 # test_position_lshift()
 
+
 def test_position_default():
 
+    # Time signature Top decides the Beats per Measure (Must be 4)
+    print(f"Top: {settings % TimeSignature() % BeatsPerMeasure() % Fraction()}")
+    assert settings % TimeSignature() % BeatsPerMeasure() % Fraction() == 4
+    
     position_measures = Position(1.5)
     position_measures % float() >> Print()   # 3/2
     assert position_measures % float() == 3/2
@@ -104,15 +116,13 @@ def test_position_default():
 
 def test_position_specific():
 
-    settings << TimeSignature(3, 8) << Quantization(1/32)
+    settings << TimeSignature(3, 8) << Quantization(1/8)   # Quantization is in Beats ratio
 
     position: Position = Position(1.5)  # 1.5 Measures
     # Same as a 3/8 time signature
     beats_per_measure: int = 3
-    beats_per_note: int = 8
+    steps_per_beat: int = 8
     # Quantization of 1/32 (note value)
-    steps_per_note: int = 32
-    steps_per_beat: int = int(steps_per_note / beats_per_note)
     steps_per_measure: int = steps_per_beat * beats_per_measure
 
     print(position % Beats() % Pipe( Fraction() ))
@@ -125,14 +135,14 @@ def test_position_specific():
     print(int(1.5 * steps_per_measure) % steps_per_measure)
     assert position % Step() == int(1.5 * steps_per_measure) % steps_per_measure
 
-    settings << TimeSignature(4, 4) << Quantization(1/16)
+    settings << TimeSignature(4, 4) << Quantization(1/4)   # Quantization is in Beats ratio
 
 # test_position_specific()
 
 
 def test_position_unit():
 
-    settings << TimeSignature(4, 4) << Quantization(1/16)
+    settings << TimeSignature(4, 4) << Quantization(1/4)   # Quantization is in Beats ratio
 
     position: Position = Position()
     assert position % Measure() == 0
@@ -388,8 +398,8 @@ def test_basic_conversions():
     print(f"NoteValue: {position % Duration() % Fraction()} vs. {(10 * (1/1) + 2 * (1/4)) * 4}")
     assert position % Duration() % Fraction() == (10 * (1/1) + 2 * (1/4)) * 4 # Because one note value is 4 beats !
 
-    quantization: Quantization = Quantization(1/16)
-    assert quantization % Fraction() == 1/16
+    quantization: Quantization = Quantization(1/4)  # Quantization is in Beats ratio
+    assert quantization % Fraction() == 1/4         # Quantization is in Beats ratio
     duration: Duration = Duration()
     assert duration % Fraction() == 0
     duration << quantization

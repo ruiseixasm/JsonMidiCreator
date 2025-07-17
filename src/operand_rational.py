@@ -1258,11 +1258,30 @@ class Beats(TimeValue):
                 super().__itruediv__(operand)
         return self
 
+class Quantization(Beats):
+    """`Rational -> Convertible -> Beats -> Quantization`
+
+    Quantization() represents the Step duration in Beats. The default is 1/4 Beat.
+
+    Parameters
+    ----------
+    float(1/4) : The `Beat` ratio of each `Step`.
+    
+    Examples
+    --------
+    Gets the TimeSignature Steps per Measure:
+    >>> settings << Quantization(1/8)
+    >>> settings % Quantization() % Fraction() >> Print()
+    1/8
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/4, *parameters)
+
 
 class Steps(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Steps`
 
-    A Step() represents the Length given by the `Quantization`, normally 1/16 Note Value.
+    A Step() represents the Length given by the `Quantization`, normally 1/4 Beats.
     
     Parameters
     ----------
@@ -1270,18 +1289,12 @@ class Steps(TimeValue):
     """
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         import operand_generic as og
-        notes_per_step: Fraction = og.settings._quantization
-        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
-        beats_per_note: int = time_signature._bottom
-        beats_per_step: Fraction = beats_per_note * notes_per_step
+        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return self_time * beats_per_step
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
-        notes_per_step: Fraction = og.settings._quantization
-        time_signature: TimeSignature = self._get_time_signature()
-        beats_per_note: int = time_signature._bottom
-        beats_per_step: Fraction = beats_per_note * notes_per_step
+        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return beats / beats_per_step
 
     # Position round type: [...)
@@ -1550,27 +1563,18 @@ class Step(TimeUnit):
     """
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
         import operand_generic as og
-        notes_per_step: Fraction = og.settings._quantization
-        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
-        beats_per_note: int = time_signature._bottom
-        beats_per_step: Fraction = beats_per_note * notes_per_step
-        self_time: Fraction = self._get_self_time()
-        return self_time * beats_per_step
+        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
+        return int(self_time) * beats_per_step
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
-        notes_per_step: Fraction = og.settings._quantization
-        time_signature: TimeSignature = self._get_time_signature()
-        beats_per_note: int = time_signature._bottom
-        beats_per_step: Fraction = beats_per_note * notes_per_step
+        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return Fraction( int(beats / beats_per_step) )
 
     def measure_unit(self) -> Self:
         import operand_generic as og
-        notes_per_step: Fraction = og.settings._quantization
+        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         time_signature: TimeSignature = self._get_time_signature()
-        beats_per_note: int = time_signature._bottom
-        beats_per_step: Fraction = beats_per_note * notes_per_step
         absolute_step: int = int(self._rational)
         beats_per_measure: int = time_signature._top
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
@@ -1703,25 +1707,6 @@ class NoteValue(Convertible):
             case _:
                 super().__itruediv__(operand)
         return self
-
-class Quantization(NoteValue):
-    """`Rational -> Convertible -> NoteValue -> Quantization`
-
-    Quantization() represents the Note Value of each Step. The default is 1/16.
-
-    Parameters
-    ----------
-    float(1/16) : The Note value of each `Step`.
-    
-    Examples
-    --------
-    Gets the TimeSignature Steps per Measure:
-    >>> settings << Quantization(1/8)
-    >>> settings % Quantization() % Fraction() >> Print()
-    1/8
-    """
-    def __init__(self, *parameters):
-        super().__init__(1/16, *parameters)
 
 class Dotted(NoteValue):
     """`Rational -> Convertible -> NoteValue -> Dotted`
