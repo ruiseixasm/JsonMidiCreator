@@ -1999,7 +1999,7 @@ class Retrigger(Note):
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
                 return operand.copy() << od.Pipe( self._duration_beats / 2 )
-            case ra.NoteValue():
+            case ra.NoteValue() | ra.TimeValue():
                 return operand.copy() << self % ra.Duration()
             case float():           return self % ra.NoteValue() % float()
             case _:                 return super().__mod__(operand)
@@ -2287,8 +2287,8 @@ class Tuplet(Element):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ra.Duration() | ra.NoteValue():
-                self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
+            case ra.Duration() | ra.NoteValue() | ra.TimeValue():
+                self._duration_beats = operand % ra.NoteValue(self) % Fraction() * 2  # Equivalent to two sized Notes
             case list():
                 if len(operand) > 0 and all(isinstance(single_element, Element) for single_element in operand):
                     self._elements = self.deep_copy(operand)

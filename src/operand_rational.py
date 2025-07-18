@@ -1334,6 +1334,204 @@ class Steps(TimeValue):
         return self
 
 
+class NoteValue(Convertible):
+    """`Rational -> Convertible -> NoteValue`
+
+    NoteValue() represents the Note Value duration of a `Note`, a `NoteValue` typically comes as 1/4, 1/8 and 1/16.
+    
+    Parameters
+    ----------
+    float(1/4) : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/4, *parameters)
+
+    def _get_self_time(self) -> Fraction:
+        return self._rational
+    
+
+    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
+        beats_per_note: int = time_signature._bottom
+        return self_time * beats_per_note
+
+    def _convert_from_beats(self, beats: Fraction) -> Fraction:
+        time_signature: TimeSignature = self._get_time_signature()
+        beats_per_note: int = time_signature._bottom
+        return beats / beats_per_note
+
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                time_division: str = operand.strip().upper()
+                match time_division:
+                    case "1/1" | "1":       super().__lshift__(1)
+                    case "1/2":             super().__lshift__(1/2)
+                    case "1/4":             super().__lshift__(1/4)
+                    case "1/6" | "1/4T":    super().__lshift__(1/6)
+                    case "1/8":             super().__lshift__(1/8)
+                    case "1/12" | "1/8T":   super().__lshift__(1/12)
+                    case "1/16":            super().__lshift__(1/16)
+                    case "1/24" | "1/16T":  super().__lshift__(1/24)
+                    case "1/32":            super().__lshift__(1/32)
+                    case "1/48" | "1/32T":  super().__lshift__(1/48)
+                    case "1/64":            super().__lshift__(1/64)
+                    case "1/96" | "1/64T":  super().__lshift__(1/96)
+                    case _:                 super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case NoteValue():
+                self._rational += operand._rational
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case NoteValue():
+                self._rational -= operand._rational
+            case _:
+                super().__isub__(operand)
+        return self
+    
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case NoteValue():
+                self._rational *= operand._rational
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    def __itruediv__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case NoteValue():
+                if operand._rational != 0:
+                    self._rational /= operand._rational
+            case _:
+                super().__itruediv__(operand)
+        return self
+
+class Dotted(NoteValue):
+    """`Rational -> Convertible -> NoteValue -> Dotted`
+
+    A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
+    Dots are equivalent to the following Note Values:
+
+        +--------+-------------+------------+
+        | Dotted | Equivalence | Note Value |
+        +--------+-------------+------------+
+        | 1      | 1    + 1/2  | 3/2        |
+        | 1/2    | 1/2  + 1/4  | 3/4        |
+        | 1/4    | 1/4  + 1/8  | 3/8        |
+        | 1/8    | 1/8  + 1/16 | 3/16       |
+        | 1/16   | 1/16 + 1/32 | 3/32       |
+        | 1/32   | 1/32 + 1/64 | 3/64       |
+        +--------+-------------+------------+
+    
+    Parameters
+    ----------
+    float(1/4) : Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    """
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Dotted Note,
+        those Parameters are the Dotted length as a Fraction(), a float() an int()
+        or even other type of time units, like Measure and Beat with the respective
+        conversion accordingly to the note value of set time signature.
+
+        Examples
+        --------
+        >>> dotted = Dotted(1/4)
+        >>> dotted % NoteValue() % Fraction()
+        Fraction(3, 8)
+        >>> dotted % Dotted() % Fraction()
+        Fraction(1, 4)
+        >>> dotted % Beat() % Fraction()
+        Fraction(3, 2)
+        """
+        match operand:
+            case Dotted():
+                return self.copy()
+            case int() | float():
+                # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
+                other_rational: Fraction = self._rational * 2/3
+                if isinstance(operand, int):
+                    return int(other_rational)
+                if isinstance(operand, float):
+                    return float(other_rational)
+                return other_rational
+            case _: return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.Pipe() | od.Serialization():
+                super().__lshift__(operand)
+            # It's just a wrapper for NoteValue 3/2
+            case int() | float():
+                super().__lshift__(operand) # Starts by setting the self._rational as NoteValue
+                # Then it's multiplied by 3/2 because it's a Dotted Note
+                self._rational = self._rational * 3 / 2 # Retains the Fraction
+                # DON'T DO THIS: "self._rational *= 3/2"
+            case str():
+                time_division: str = operand.strip().upper()
+                match time_division:
+                    case "1/1" | "1":       super().__lshift__(1 * 3/2)
+                    case "1/2":             super().__lshift__(1/2 * 3/2)
+                    case "1/4":             super().__lshift__(1/4 * 3/2)
+                    case "1/6" | "1/4T":    super().__lshift__(1/6 * 3/2)
+                    case "1/8":             super().__lshift__(1/8 * 3/2)
+                    case "1/12" | "1/8T":   super().__lshift__(1/12 * 3/2)
+                    case "1/16":            super().__lshift__(1/16 * 3/2)
+                    case "1/24" | "1/16T":  super().__lshift__(1/24 * 3/2)
+                    case "1/32":            super().__lshift__(1/32 * 3/2)
+                    case "1/48" | "1/32T":  super().__lshift__(1/48 * 3/2)
+                    case "1/64":            super().__lshift__(1/64 * 3/2)
+                    case "1/96" | "1/64T":  super().__lshift__(1/96 * 3/2)
+                    case _:                 super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Dotted():
+                self._rational *= operand._rational * 2 / 3 # Reverses evocation of the numerical input
+            case int() | float():
+                self *= Dotted(operand)
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    def __itruediv__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Dotted():
+                if operand._rational != 0:
+                    self._rational /= operand._rational * 2 / 3 # Reverses evocation of the numerical input
+            case int() | float():
+                self /= Dotted(operand)
+            case _:
+                super().__itruediv__(operand)
+        return self
+
+
 class TimeUnit(Convertible):
     """`Rational -> Convertible -> TimeUnit`
     """
@@ -1605,204 +1803,6 @@ class Step(TimeUnit):
         match operand:
             case Convertible():
                 super().__itruediv__( operand % Step(self._time_signature_reference) % Fraction() )
-            case _:
-                super().__itruediv__(operand)
-        return self
-
-
-class NoteValue(Convertible):
-    """`Rational -> Convertible -> NoteValue`
-
-    NoteValue() represents the Note Value duration of a `Note`, a `NoteValue` typically comes as 1/4, 1/8 and 1/16.
-    
-    Parameters
-    ----------
-    float(1/4) : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
-    """
-    def __init__(self, *parameters):
-        super().__init__(1/4, *parameters)
-
-    def _get_self_time(self) -> Fraction:
-        return self._rational
-    
-
-    def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
-        time_signature: TimeSignature = self._get_time_signature(other_time_signature)
-        beats_per_note: int = time_signature._bottom
-        return self_time * beats_per_note
-
-    def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        time_signature: TimeSignature = self._get_time_signature()
-        beats_per_note: int = time_signature._bottom
-        return beats / beats_per_note
-
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case str():
-                time_division: str = operand.strip().upper()
-                match time_division:
-                    case "1/1" | "1":       super().__lshift__(1)
-                    case "1/2":             super().__lshift__(1/2)
-                    case "1/4":             super().__lshift__(1/4)
-                    case "1/6" | "1/4T":    super().__lshift__(1/6)
-                    case "1/8":             super().__lshift__(1/8)
-                    case "1/12" | "1/8T":   super().__lshift__(1/12)
-                    case "1/16":            super().__lshift__(1/16)
-                    case "1/24" | "1/16T":  super().__lshift__(1/24)
-                    case "1/32":            super().__lshift__(1/32)
-                    case "1/48" | "1/32T":  super().__lshift__(1/48)
-                    case "1/64":            super().__lshift__(1/64)
-                    case "1/96" | "1/64T":  super().__lshift__(1/96)
-                    case _:                 super().__lshift__(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case NoteValue():
-                self._rational += operand._rational
-            case _:
-                super().__iadd__(operand)
-        return self
-    
-    def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case NoteValue():
-                self._rational -= operand._rational
-            case _:
-                super().__isub__(operand)
-        return self
-    
-    def __imul__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case NoteValue():
-                self._rational *= operand._rational
-            case _:
-                super().__imul__(operand)
-        return self
-    
-    def __itruediv__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case NoteValue():
-                if operand._rational != 0:
-                    self._rational /= operand._rational
-            case _:
-                super().__itruediv__(operand)
-        return self
-
-class Dotted(NoteValue):
-    """`Rational -> Convertible -> NoteValue -> Dotted`
-
-    A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
-    Dots are equivalent to the following Note Values:
-
-        +--------+-------------+------------+
-        | Dotted | Equivalence | Note Value |
-        +--------+-------------+------------+
-        | 1      | 1    + 1/2  | 3/2        |
-        | 1/2    | 1/2  + 1/4  | 3/4        |
-        | 1/4    | 1/4  + 1/8  | 3/8        |
-        | 1/8    | 1/8  + 1/16 | 3/16       |
-        | 1/16   | 1/16 + 1/32 | 3/32       |
-        | 1/32   | 1/32 + 1/64 | 3/64       |
-        +--------+-------------+------------+
-    
-    Parameters
-    ----------
-    float(1/4) : Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
-    """
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Dotted Note,
-        those Parameters are the Dotted length as a Fraction(), a float() an int()
-        or even other type of time units, like Measure and Beat with the respective
-        conversion accordingly to the note value of set time signature.
-
-        Examples
-        --------
-        >>> dotted = Dotted(1/4)
-        >>> dotted % NoteValue() % Fraction()
-        Fraction(3, 8)
-        >>> dotted % Dotted() % Fraction()
-        Fraction(1, 4)
-        >>> dotted % Beat() % Fraction()
-        Fraction(3, 2)
-        """
-        match operand:
-            case Dotted():
-                return self.copy()
-            case int() | float():
-                # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
-                other_rational: Fraction = self._rational * 2/3
-                if isinstance(operand, int):
-                    return int(other_rational)
-                if isinstance(operand, float):
-                    return float(other_rational)
-                return other_rational
-            case _: return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.Pipe() | od.Serialization():
-                super().__lshift__(operand)
-            # It's just a wrapper for NoteValue 3/2
-            case int() | float():
-                super().__lshift__(operand) # Starts by setting the self._rational as NoteValue
-                # Then it's multiplied by 3/2 because it's a Dotted Note
-                self._rational = self._rational * 3 / 2 # Retains the Fraction
-                # DON'T DO THIS: "self._rational *= 3/2"
-            case str():
-                time_division: str = operand.strip().upper()
-                match time_division:
-                    case "1/1" | "1":       super().__lshift__(1 * 3/2)
-                    case "1/2":             super().__lshift__(1/2 * 3/2)
-                    case "1/4":             super().__lshift__(1/4 * 3/2)
-                    case "1/6" | "1/4T":    super().__lshift__(1/6 * 3/2)
-                    case "1/8":             super().__lshift__(1/8 * 3/2)
-                    case "1/12" | "1/8T":   super().__lshift__(1/12 * 3/2)
-                    case "1/16":            super().__lshift__(1/16 * 3/2)
-                    case "1/24" | "1/16T":  super().__lshift__(1/24 * 3/2)
-                    case "1/32":            super().__lshift__(1/32 * 3/2)
-                    case "1/48" | "1/32T":  super().__lshift__(1/48 * 3/2)
-                    case "1/64":            super().__lshift__(1/64 * 3/2)
-                    case "1/96" | "1/64T":  super().__lshift__(1/96 * 3/2)
-                    case _:                 super().__lshift__(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __imul__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Dotted():
-                self._rational *= operand._rational * 2 / 3 # Reverses evocation of the numerical input
-            case int() | float():
-                self *= Dotted(operand)
-            case _:
-                super().__imul__(operand)
-        return self
-    
-    def __itruediv__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Dotted():
-                if operand._rational != 0:
-                    self._rational /= operand._rational * 2 / 3 # Reverses evocation of the numerical input
-            case int() | float():
-                self /= Dotted(operand)
             case _:
                 super().__itruediv__(operand)
         return self
