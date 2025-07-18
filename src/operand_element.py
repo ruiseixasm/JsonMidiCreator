@@ -2078,7 +2078,7 @@ class Retrigger(Note):
                     self._swing = operand._rational
             case ra.Duration():
                 self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
-            case ra.NoteValue():
+            case ra.NoteValue() | ra.TimeValue():
                 self << ra.Duration(self, operand)
             case float():
                 self << ra.NoteValue(operand)
@@ -2288,7 +2288,7 @@ class Tuplet(Element):
                 else:
                     self._swing = operand._rational
             case ra.Duration() | ra.NoteValue() | ra.TimeValue():
-                self._duration_beats = operand % ra.NoteValue(self) % Fraction() * 2  # Equivalent to two sized Notes
+                self._duration_beats = operand % ra.Beats(self) % Fraction() * 2  # Equivalent to two sized Notes
             case list():
                 if len(operand) > 0 and all(isinstance(single_element, Element) for single_element in operand):
                     self._elements = self.deep_copy(operand)
