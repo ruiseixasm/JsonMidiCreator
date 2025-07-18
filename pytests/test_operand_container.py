@@ -263,7 +263,8 @@ def test_rshift_container():
 
 
     # Part testing ###################################################
-    note_clip = Clip(Note(), Note("E")) << Iterate()**Beats() # A single Measure clip long!
+    # Beat sets Position while Beats set Duration
+    note_clip = Clip(Note(), Note("E")) << Iterate()**Beat() # A single Measure clip long!
     note_clip % Length() % float() >> Pr
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
@@ -812,6 +813,7 @@ def test_clip_selectors():
 
 def test_position_shift():
 
+    # Integers set the Pitch
     chords: Clip = Chord() / 4 << Foreach(1, 5, 6, 4)
 
     assert chords % Position() == 0.0
@@ -826,11 +828,12 @@ def test_position_shift():
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords[0] % Position() == Steps(-3)
     fifth_measure_chords = chords.copy()
-    Measures(4) >> fifth_measure_chords # SETS, doesn't Move!!
-    print(f"Length: {chords % Length() % float()}")
+    # To set ALL Chords into the SAME position, Measures need to be wrapped with Position
+    Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move!!
+    print(f"Chords Length: {chords % Length() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     assert chords % Length() == 1.0 # All Elements became at the same position, 1.0 length each one
-    print(f"Length: {fifth_measure_chords % Length() % float()}")
+    print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
     assert fifth_measure_chords % Length() == 5.0   # All Elements became at the same position, 1.0 length each one

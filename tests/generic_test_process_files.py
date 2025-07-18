@@ -43,7 +43,7 @@ single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
-first_note = Note(Steps(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
+first_note = Note(Step(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
