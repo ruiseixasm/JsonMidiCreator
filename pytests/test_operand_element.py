@@ -130,7 +130,7 @@ def test_note_mod():
 
     assert note % Measure() == 0
     assert note == Measure(0)
-    note += Measures(1)
+    note += Measure(1)  # Measure and NOT Measures is what changes Position
     assert note % Measure() == 1
     assert note == Measure(1)
 

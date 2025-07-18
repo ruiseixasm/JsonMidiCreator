@@ -537,7 +537,7 @@ def test_mul_clip():
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Duration() == Measures(1.5) # Measures
 
-    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
+    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
     assert hi_hat._test_owner_clip()
     hi_hat >>= Nth(2, 4)
@@ -575,7 +575,8 @@ def test_mul_clip():
     assert two_notes[1] % Position() == 1.0
 
     timed_rest = Rest(NoteValue(1/16 * (3*4 + 2)))  # 7/8 = 0.875
-    timed_clip = Note(Steps(3*4 + 2)) + Rest()      # Steps(14) = 0.875 = 7/8
+    # Step and NOT Steps is the one that set the Position
+    timed_clip = Note(Step(3*4 + 2)) + Rest()       # Step(14) = 0.875 = 7/8
 
     assert type(timed_clip[0]) == type(Rest())
     assert type(timed_clip[1]) == type(Note())
@@ -815,11 +816,13 @@ def test_position_shift():
 
     assert chords % Position() == 0.0
     print(f"Position first [0]: {chords[0] % Position() % float()}")
-    Steps(3) >> chords
+    # To set ALL Chords into the SAME position, Steps need to be wrapped with Position
+    Position(Steps(3)) >> chords   # Step and NOT Steps is what changes Position
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
 
-    Steps(-3) >> chords # SETS, doesn't Move!!
+    # To set ALL Chords into the SAME position, Steps need to be wrapped with Position
+    Position(Steps(-3)) >> chords # SETS, doesn't Move!! # Step and NOT Steps is what changes Position
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords[0] % Position() == Steps(-3)
     fifth_measure_chords = chords.copy()
