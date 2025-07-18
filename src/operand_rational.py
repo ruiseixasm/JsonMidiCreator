@@ -1334,8 +1334,8 @@ class Steps(TimeValue):
         return self
 
 
-class NoteValue(Convertible):
-    """`Rational -> Convertible -> NoteValue`
+class NoteValue(TimeValue):
+    """`Rational -> Convertible -> TimeValue -> NoteValue`
 
     NoteValue() represents the Note Value duration of a `Note`, a `NoteValue` typically comes as 1/4, 1/8 and 1/16.
     
@@ -1424,7 +1424,7 @@ class NoteValue(Convertible):
         return self
 
 class Dotted(NoteValue):
-    """`Rational -> Convertible -> NoteValue -> Dotted`
+    """`Rational -> Convertible -> TimeValue -> NoteValue -> Dotted`
 
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
