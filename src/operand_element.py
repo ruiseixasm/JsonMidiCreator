@@ -132,7 +132,7 @@ class Element(o.Operand):
             case ra.Position() | ra.TimeUnit() | ra.TimeValue():
                 # For TimeUnit only the `% operand` does the measure_module of it
                 return ra.Beats(self, self._position_beats) % operand
-            case ra.Duration() | ra.Length() | ra.NoteValue():
+            case ra.Duration() | ra.Length() | ra.NoteValue() | ra.TimeValue():
                 return operand.copy( ra.Beats(self, self._duration_beats) )
             case float():
                 return self % ra.NoteValue() % float()
@@ -285,14 +285,14 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration() | ra.Length():
                 self._duration_beats        = operand._rational
-            case ra.NoteValue():
+            case ra.TimeValue():
+                self._position_beats        = operand % ra.Beats(self) % Fraction()
+            case ra.NoteValue() | ra.TimeValue():
                 self << ra.Duration(self, operand)
             case float():
                 self << ra.NoteValue(operand)
             case ra.Position():
                 self._position_beats        = operand._rational
-            case ra.TimeValue():
-                self._position_beats        = operand % ra.Beats(self) % Fraction()
             case ra.TimeUnit():
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()

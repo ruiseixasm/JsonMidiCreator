@@ -338,7 +338,7 @@ def test_rrshift_clip():
 
     print("------")
     moved_two_notes = two_notes.copy()
-    moved_two_notes += Measures(1)
+    moved_two_notes += Measure(1)   # Measure is for Position while Measures is for Duration
     moved_two_notes % Position() % Fraction() >> Print()    # 0
     assert moved_two_notes == Position(0)
     moved_two_notes[0] % Position() % Fraction() >> Print() # 1
@@ -504,24 +504,26 @@ def test_mul_clip():
     first_note = eight_notes_1[0]
     third_note = eight_notes_1[2]
     fifth_note = eight_notes_1[4]
-    first_note % Measures() % Fraction() >> Print()
-    assert first_note % Measures() == 0.0   # in measures
-    third_note % Measures() % Fraction() >> Print()
-    assert third_note % Measures() == 1.0   # in measures
-    fifth_note % Measures() % Fraction() >> Print()
-    assert fifth_note % Measures() == 2.0   # in measures
+    # For Position MEasure shall be used instead of Measures
+    first_note % Measure() % Fraction() >> Print()
+    assert first_note % Measure() == 0.0   # in measures
+    third_note % Measure() % Fraction() >> Print()
+    assert third_note % Measure() == 1.0   # in measures
+    fifth_note % Measure() % Fraction() >> Print()
+    assert fifth_note % Measure() == 2.0   # in measures
     
     eight_notes_2 = four_notes * 2
     assert eight_notes_2.len() == 8
     first_note = eight_notes_2[0]
     third_note = eight_notes_2[2]
     fifth_note = eight_notes_2[4]
-    first_note % Measures() % Fraction() >> Print()
-    assert first_note % Measures() == 0.0   # in measures
-    third_note % Measures() % Fraction() >> Print()
-    assert third_note % Measures() == 0.5   # in measures
-    fifth_note % Measures() % Fraction() >> Print()
-    assert fifth_note % Measures() == 1.0   # in measures
+    # For Position MEasure shall be used instead of Measures
+    first_note % Measure() % Fraction() >> Print()
+    assert first_note % Measure() == 0.0   # in measures
+    third_note % Position() % Measures() % Fraction() >> Print()
+    assert third_note % Position() % Measures() == 0.5   # in measures
+    fifth_note % Measure() % Fraction() >> Print()
+    assert fifth_note % Measure() == 1.0   # in measures
 
     assert eight_notes_1 != eight_notes_2
 
@@ -661,12 +663,12 @@ def test_clip_composition():
 def test_element_stacking():
 
     two_notes: Clip = Note() / 2
-    assert two_notes[-1] == Beats(1)
+    assert two_notes[-1] == Beat(1)
 
     two_notes << 1/8    # Stacking is NOT included!
-    assert two_notes[-1] == Beats(1)
+    assert two_notes[-1] == Beat(1)
     two_notes >>= Stack()
-    assert two_notes[-1] == Beats(1/2)
+    assert two_notes[-1] == Step(2) # 2 Steps == 1/2 Beats
     
 # test_element_stacking()
 
@@ -689,7 +691,7 @@ def test_lshift_clip():
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
-    one_measure: Clip = two_measures >> Less(Measures(1))
+    one_measure: Clip = two_measures >> Less(Measure(1))
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60
@@ -910,11 +912,11 @@ def test_clip_operations():
     assert reversed_serialization % Data("float") == 3.75
 
     assert straight_clip != reversed_clip
-    assert straight_clip.copy().reverse()[0] == reversed_clip[0] + Beats(0.25)
-    assert straight_clip.copy().reverse()[1] == reversed_clip[1] + Beats(0.25)
-    assert straight_clip.copy().reverse()[2] == reversed_clip[2] + Beats(0.25)
-    assert straight_clip.copy().reverse()[3] == reversed_clip[3] + Beats(0.25)
-    assert straight_clip.reverse() == reversed_clip + All()**Beats(0.25)
+    assert straight_clip.copy().reverse()[0] == reversed_clip[0] + Step(1)  # 1 Step == 1/4 Beats
+    assert straight_clip.copy().reverse()[1] == reversed_clip[1] + Step(1)
+    assert straight_clip.copy().reverse()[2] == reversed_clip[2] + Step(1)
+    assert straight_clip.copy().reverse()[3] == reversed_clip[3] + Step(1)
+    assert straight_clip.reverse() == reversed_clip + All()**Step(1)
 
 
     three_notes = Note(1/4) + Note(1/2) + Note(1/2) >> Stack()
