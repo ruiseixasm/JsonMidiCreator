@@ -2245,13 +2245,12 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete(self._items, True)
 
-            case ra.TimeValue() | ra.TimeUnit():
+            case ra.TimeUnit():
                 self_repeating: int = 0
-                self_duration: ra.Duration = self % ra.Duration()
-                duration_value: Fraction = self_duration % operand % Fraction()
-                if duration_value > 0:
-                    operand_value: Fraction = operand % Fraction()
-                    self_repeating = int( operand_value / duration_value )
+                self_duration: Fraction = self % ra.Duration() % Fraction() # Kept in Beats
+                if self_duration > 0:
+                    operand_duration: Fraction = operand % ra.Beats(self) % Fraction()  # Converted to Beats
+                    self_repeating = int( operand_duration / self_duration )
                 self.__itruediv__(self_repeating)
 
             case tuple():

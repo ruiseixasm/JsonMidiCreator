@@ -453,14 +453,13 @@ class Element(o.Operand):
                         for _ in range(operand):
                             new_clip.__itruediv__(self)
                     return new_clip
-            case ra.TimeValue() | ra.TimeUnit():
+            case ra.TimeUnit():
                 if self._owner_clip is not None:
                     new_elements: list[Element] = []
-                    self_duration: ra.Duration = self % ra.Duration()
-                    duration_value: Fraction = self_duration % operand % Fraction()
-                    if duration_value > 0:
-                        operand_value: Fraction = operand % Fraction()
-                        self_repeating = int( operand_value / duration_value )
+                    self_duration: Fraction = self._duration_beats
+                    if self_duration > 0:
+                        operand_duration_value: Fraction = operand % ra.Beats() % Fraction()
+                        self_repeating = int( operand_duration_value / self_duration )
                         if self_repeating > 1:
                             for next_element_i in range(1, self_repeating):
                                 next_element: Element = self.copy()

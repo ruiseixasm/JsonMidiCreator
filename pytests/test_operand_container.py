@@ -677,7 +677,7 @@ def test_element_stacking():
 
 def test_lshift_clip():
 
-    base_line: Clip = Nt(dotted_eight) / Measures(4)
+    base_line: Clip = Nt(dotted_eight) / Measure(4)
     print(f"Duration: {base_line % Duration() % float()}")
     assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
     base_line += Step(1)
@@ -721,7 +721,7 @@ def test_lshift_clip():
     assert filtered_notes[2] % Position() == 0.50
     assert filtered_notes[3] % Position() == 0.75
 
-# test_lshift_clip()
+test_lshift_clip()
 
 
 def test_clip_filter():
