@@ -537,6 +537,39 @@ class Drag(Left):
             return super().__ixor__(self._first_parameter)
         return super().__ixor__(input)
 
+
+class Mux(Left):
+    """`Frame -> Left -> Mux`
+
+    A `Mux` does a multiplexing of multiple elements into single ones, allowing this way a more versatile way of flow.
+
+    Parameters
+    ----------
+    Any(None) : A set of integers by which the elements will be multiplexed by.
+    """
+    def __init__(self, *parameters):
+        self._last_parameter: Any = None
+        validated_parameters: list[int] = []
+        for param in parameters:
+            if isinstance(param, int):
+                validated_parameters.append(param)
+        self._full_range: int = sum(validated_parameters)
+        super().__init__(*validated_parameters)
+
+    def __ixor__(self, input: o.T) -> o.T:
+        final_remainder: int = 0
+        tamed_index: int = self._index % self._full_range
+        for multiplex in self._parameters:
+            if tamed_index // multiplex == 0:
+                final_remainder = tamed_index % multiplex
+                break
+            tamed_index -= multiplex
+        if final_remainder == 0:
+            self._last_parameter = super().__ixor__(input)
+        self._increment_index(Mux)
+        return self._last_parameter
+
+
 class Foreach(Left):
     """`Frame -> Left -> Foreach`
 
