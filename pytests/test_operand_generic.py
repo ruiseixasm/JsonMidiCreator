@@ -842,3 +842,9 @@ def test_degree_float():
 
 # test_degree_float()
 
+
+def test_root_key():
+    major_pitch = Pitch()
+    assert major_pitch % Octave() == 4
+
+# test_root_key()

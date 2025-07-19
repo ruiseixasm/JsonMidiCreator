@@ -624,15 +624,19 @@ class Pitch(Generic):
             case Fraction():
                 self << ou.Transposition(operand)
                     
-            case ou.TonicKey():    # Must come before than Key()
-                self._tonic_key = operand._unit % 24
             case ou.Octave():
                 self._octave_0 = operand._unit + 1
 
+            case ou.TonicKey():    # Must come before than Key()
+                self._tonic_key = operand._unit % 24
+            case ou.RootKey():
+                self._sharp = 0
+                self._natural = False
+                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
             case ou.Key():
                 self._sharp = 0
                 self._natural = False
-                self._degree_0 = self.get_key_degree_0(operand._unit % 12)
+                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
@@ -672,13 +676,6 @@ class Pitch(Generic):
                 self._transposition += new_transposition - previous_transposition
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave(False)    # Keep actual octave (False)
-
-            case ou.RootKey():
-                # Excludes the effect of purely decorative parameters
-                self._natural = False
-                self._sharp = 0
-                root_offset: int = operand._unit - self.root_int()
-                self.increment_tonic(root_offset)
 
             case dict():
                 for octave, value in operand.items():
