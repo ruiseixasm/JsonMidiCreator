@@ -1754,7 +1754,13 @@ class Clip(Composition):  # Just a container of Elements
         return self._time_signature
 
 
-    def __getitem__(self, index: int) -> 'oe.Element':
+    def __getitem__(self, index: int | of.Frame) -> 'oe.Element':
+        if isinstance(index, of.Frame):
+            index._set_inside_container(self)
+            for single_item in self._items:
+                if single_item == index:
+                    return single_item
+            return ol.Null()
         return super().__getitem__(index)
     
     def __next__(self) -> 'oe.Element':
