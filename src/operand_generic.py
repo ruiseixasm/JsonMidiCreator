@@ -377,58 +377,34 @@ class Pitch(Generic):
     def key_transposition_semitone(self, key_int: int) -> tuple[int, int]:
         transposition: int = 0
         semitone: int = 0
-        root_int: int = self.root_int()
-        root_offset: int = key_int - root_int
         scale_degrees: int = 7  # Diatonic scales
         if self._scale:
             transposition_scale: list[int] = self._scale
             scale_degrees = sum(self._scale)
+            first_key_int: int = self.root_int()
         else:
             transposition_scale: list[int] = self._key_signature.get_scale_list()
-            root_offset -= self.degree_transposition()  # Discount Degree Transposition already included
+            first_key_int: int = self.tonic_int()   # Transposition becomes equivalent to degrees
+        first_key_offset: int = key_int - first_key_int
+        
         # For Semitones
-        if transposition_scale[root_offset % 12] == 0:
-            if root_offset < 0:
+        if transposition_scale[first_key_offset % 12] == 0:
+            if first_key_offset < 0:
                 semitone = -1   # Needs to go down further
             else:
                 semitone = +1   # Needs to go up further
         # For Tones
-        while root_offset > 0:
-            transposition += transposition_scale[root_offset % 12]
-            root_offset -= 1
-        while root_offset < 0:
-            transposition -= transposition_scale[root_offset % 12]
-            root_offset += 1
+        while first_key_offset > 0:
+            transposition += transposition_scale[first_key_offset % 12]
+            first_key_offset -= 1
+        while first_key_offset < 0:
+            transposition -= transposition_scale[first_key_offset % 12]
+            first_key_offset += 1
+        # Finally, transposition needs to be corrected for the usage of the Key Signature scale
+        if not self._scale:
+            # Partial transposition already done by degrees
+            transposition -= self.degree_transposition()
         return transposition % scale_degrees, semitone
-
-
-    def get_key_degree_0(self, root_key: int) -> int:
-        degree_0: int = 0
-        
-        tonic_int: int = self._tonic_key % 12
-        keysignature_scale: list[int] = self._key_signature % list()
-
-        # tonic_int goes UP and then DOWN (results in flat or natural)
-        while tonic_int < root_key:
-            degree_0 += keysignature_scale[ (root_key - tonic_int) % 12 ]
-            tonic_int += 1
-        while tonic_int > root_key:
-            degree_0 -= keysignature_scale[ (root_key - tonic_int) % 12 ]
-            tonic_int -= 1
-
-        if keysignature_scale[ (root_key - self._tonic_key) % 12 ] == 0:  # Key NOT on the scale
-            if self._tonic_key // 12 == 1:  # Checks the tonic key line
-                if self._tonic_key % 12 > root_key:
-                    degree_0 -= 1
-            else:
-                if self._tonic_key % 12 < root_key:
-                    degree_0 += 1
-
-        # Sets the Degree as Positive
-        degree_0 %= 7   # Diatonic scales
-
-        return degree_0 # Degree base 0 (I)
-
 
 
     def __mod__(self, operand: o.T) -> o.T:
