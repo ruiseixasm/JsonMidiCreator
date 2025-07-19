@@ -655,8 +655,12 @@ class Pitch(Generic):
                 self._tonic_key = operand._unit % 24
             case ou.RootKey():
                 degree, semitone = self.key_degree_semitone(operand._unit % 12)
+                # Uses the Degree Accidental system instead of changing the Tonic key
+                if semitone > 0:
+                    degree += round((semitone * 2 - 1) / 10, 1)
+                elif semitone < 0:
+                    degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Degree(degree)
-                self.increment_tonic(semitone)
             case ou.TargetKey():
                 self._sharp = 0
                 self._natural = False
