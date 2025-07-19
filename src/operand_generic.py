@@ -700,9 +700,7 @@ class Pitch(Generic):
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Transposition(transposition) << ou.Degree(degree)
             case ou.Key():
-                self._sharp = 0
-                self._natural = False
-                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
+                self << ou.TargetKey(operand)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
