@@ -355,20 +355,23 @@ class Pitch(Generic):
 
     def key_degree_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale_list()
-        tone: int = 0
+        degree_0: int = 0
         semitone: int = 0
-        tonic_offset: int = (key_int - self._tonic_key) % 12
+        tonic_offset: int = key_int - self._tonic_key % 12
+        # For Semitones
+        if signature_scale[semitone % 12] == 0:
+            if self._key_signature._unit < 0:   # flats
+                semitone = -1
+            else:   # sharps
+                semitone = +1
         # For Tones
         while tonic_offset > 0:
             tonic_offset -= 1
-            tone += signature_scale[tonic_offset % 12]
+            degree_0 += signature_scale[tonic_offset % 12]
         while tonic_offset < 0:
             tonic_offset += 1
-            tone -= signature_scale[tonic_offset % 12]
-        # For Semitones
-        while signature_scale[semitone % 12] == 0:
-            semitone += 1
-        return tone, semitone
+            degree_0 -= signature_scale[tonic_offset % 12]
+        return degree_0, semitone
 
 
     def get_key_degree_0(self, root_key: int) -> int:

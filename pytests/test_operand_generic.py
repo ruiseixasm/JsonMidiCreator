@@ -305,6 +305,146 @@ def test_pitch_degrees():
 # test_pitch_degrees()
 
 
+def test_root_key():
+
+    print("------")
+    settings << KeySignature("###") # A Major scale key signature
+    a_major_scale: list[str] = [
+        "A", "B", "C#", "D", "E", "F#", "G#"
+    ]
+    a_degree_d_major_scale: list[str] = [
+        "D", "E", "F#", "G#", "A", "B", "C#"
+    ]
+    pitch = Pitch(RootKey("D"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == a_degree_d_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    a_degree_cs_major_scale: list[str] = [
+        "C#", "D", "E", "F#", "G#", "A", "B"
+    ]
+    pitch = Pitch(RootKey("C#"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == a_degree_cs_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    pitch = Pitch(RootKey("C")) # Shall become C# because in A Major C is sharped
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == a_degree_cs_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    a_degree_f_major_scale: list[str] = [
+        "F#", "G#", "A", "B", "C#", "D", "E"
+    ]
+    pitch = Pitch(RootKey("F"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == a_degree_f_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    a_degree_f_major_scale: list[str] = [
+        "G#", "A", "B", "C#", "D", "E", "F#"
+    ]
+    pitch = Pitch(RootKey("G"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == a_degree_f_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("------")
+    settings << KeySignature("##") # D Major scale key signature
+    d_major_scale: list[str] = [
+        "D", "E", "F#", "G", "A", "B", "C#"
+    ]
+    pitch = Pitch()
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == d_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    d_degree_fs_major_scale: list[str] = [
+        "F#", "G", "A", "B", "C#", "D", "E"
+    ]
+    pitch = Pitch(RootKey("F#"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == d_degree_fs_major_scale[degree]
+        pitch += 1.0  # One degree each time
+    print("---")
+    pitch = Pitch(RootKey("F"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == d_degree_fs_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("------")
+    settings << KeySignature("b") # F Major scale key signature
+    f_major_scale: list[str] = [
+        "F", "G", "A", "Bb", "C", "D", "E"
+    ]
+    pitch = Pitch()
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == f_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    f_degree_bb_major_scale: list[str] = [
+        "Bb", "C", "D", "E", "F", "G", "A"
+    ]
+    pitch = Pitch(RootKey("Bb"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == f_degree_bb_major_scale[degree]
+        pitch += 1.0  # One degree each time
+    print("---")
+    pitch = Pitch(RootKey("B"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == f_degree_bb_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("------")
+    settings << KeySignature("bb") # Bb Major scale key signature
+    bb_major_scale: list[str] = [
+        "Bb", "C", "D", "Eb", "F", "G", "A"
+    ]
+    pitch = Pitch()
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == bb_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    print("---")
+    bb_degree_eb_major_scale: list[str] = [
+        "Eb", "F", "G", "A", "Bb", "C", "D"
+    ]
+    pitch = Pitch(RootKey("Eb"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"RootKey: {pitch % str()}")
+        assert pitch == bb_degree_eb_major_scale[degree]
+        pitch += 1.0  # One degree each time
+    print("---")
+    pitch = Pitch(RootKey("E"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        print(f"Key: {pitch % str()}")
+        assert pitch == bb_degree_eb_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+    # Resets the defaults
+    settings << KeySignature()
+
+# test_root_key()
+
+
 def test_pitch_key_signature():
 
     settings << KeySignature()
