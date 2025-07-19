@@ -353,25 +353,26 @@ class Pitch(Generic):
                 self._octave_0 += octave_offset     # matches the Octave with the new Degree
         return self
 
+
     def key_degree_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale_list()
         degree_0: int = 0
         semitone: int = 0
         tonic_offset: int = key_int - self._tonic_key % 12
         # For Semitones
-        if signature_scale[semitone % 12] == 0:
-            if self._key_signature._unit < 0:   # flats
-                semitone = -1
-            else:   # sharps
-                semitone = +1
+        if signature_scale[tonic_offset % 12] == 0:
+            if tonic_offset < 0:
+                semitone = -1   # Needs to go down further
+            else:
+                semitone = +1   # Needs to go up further
         # For Tones
         while tonic_offset > 0:
-            tonic_offset -= 1
             degree_0 += signature_scale[tonic_offset % 12]
+            tonic_offset -= 1
         while tonic_offset < 0:
-            tonic_offset += 1
             degree_0 -= signature_scale[tonic_offset % 12]
-        return degree_0, semitone
+            tonic_offset += 1
+        return degree_0 % 7 + 1, semitone
 
 
     def get_key_degree_0(self, root_key: int) -> int:
@@ -380,13 +381,6 @@ class Pitch(Generic):
         tonic_int: int = self._tonic_key % 12
         keysignature_scale: list[int] = self._key_signature % list()
 
-        root_tones, root_semitones = self.key_degree_semitone(root_key)
-
-        print(f"Tonic int: {tonic_int}")
-        print(f"Root key: {root_key}")
-        print(f"Tones: {root_tones}")
-        print(f"Semitones: {root_semitones}")
-
         # tonic_int goes UP and then DOWN (results in flat or natural)
         while tonic_int < root_key:
             degree_0 += keysignature_scale[ (root_key - tonic_int) % 12 ]
@@ -394,9 +388,6 @@ class Pitch(Generic):
         while tonic_int > root_key:
             degree_0 -= keysignature_scale[ (root_key - tonic_int) % 12 ]
             tonic_int -= 1
-
-        print(f"Degree_0: {degree_0}")
-        # degree_0 = root_tones
 
         if keysignature_scale[ (root_key - self._tonic_key) % 12 ] == 0:  # Key NOT on the scale
             if self._tonic_key // 12 == 1:  # Checks the tonic key line
@@ -663,15 +654,15 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                self._sharp = 0
-                self._natural = False
-                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
+                degree, semitone = self.key_degree_semitone(operand._unit % 12)
+                self << ou.Degree(degree)
+                self.increment_tonic(semitone)
             case ou.TargetKey():
                 self._sharp = 0
                 self._natural = False
                 self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
             case ou.Key():
-                self << ou.RootKey(operand)
+                self << ou.TargetKey(operand)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
