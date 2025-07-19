@@ -360,6 +360,13 @@ class Pitch(Generic):
         tonic_int: int = self._tonic_key % 12
         keysignature_scale: list[int] = self._key_signature % list()
 
+        root_tones, root_semitones = Scale.key_tones_semitones((root_key - tonic_int) % 12, keysignature_scale)
+
+        print(f"Tonic int: {tonic_int}")
+        print(f"Root key: {root_key}")
+        print(f"Tones: {root_tones}")
+        print(f"Semitones: {root_semitones}")
+
         # tonic_int goes UP and then DOWN (results in flat or natural)
         while tonic_int < root_key:
             degree_0 += keysignature_scale[ (root_key - tonic_int) % 12 ]
@@ -367,6 +374,9 @@ class Pitch(Generic):
         while tonic_int > root_key:
             degree_0 -= keysignature_scale[ (root_key - tonic_int) % 12 ]
             tonic_int -= 1
+
+        print(f"Degree_0: {degree_0}")
+        # degree_0 = root_tones
 
         if keysignature_scale[ (root_key - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
             if self._tonic_key // 12 == 1:  # Checks the tonic key line
@@ -435,6 +445,13 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 return ou.RootKey( self.root_key() )
+            case ou.Key():
+                self_pitch: int = self.pitch_int()
+                key_note: int = self_pitch % 12
+                key_line: int = self._tonic_key // 12
+                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
+                    key_line += 2    # All Sharps/Flats
+                return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Octave():
                 return ou.Octave(self._octave_0 - 1)
@@ -466,13 +483,6 @@ class Pitch(Generic):
 
             case ou.Quality():
                 return self._key_signature % operand
-            case ou.Key():
-                self_pitch: int = self.pitch_int()
-                key_note: int = self_pitch % 12
-                key_line: int = self._tonic_key // 12
-                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
-                    key_line += 2    # All Sharps/Flats
-                return ou.Key( float(key_note + key_line * 12) )
             
             case str():
                 return self % ou.Key() % str()
@@ -615,9 +625,12 @@ class Pitch(Generic):
                 self._natural = False
                 self._sharp = 0
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
-                actual_pitch: int = self.tonic_int()
+                actual_pitch: int = self.tonic_int()    # Based on the outputted Tonic
                 tonic_offset: int = operand._unit % 12 - actual_pitch
-                self.increment_tonic(tonic_offset)
+                new_tonic: int = (self._tonic_key + tonic_offset) % 12
+                tonic_line: int = self._tonic_key // 12
+                self._tonic_key = new_tonic + tonic_line * 12
+                self.match_octave(False)    # Keep actual octave (False)
 
             case float():
                 self << ou.Degree(operand)
@@ -1056,6 +1069,24 @@ class Scale(Generic):
                 tonic_modulation -= 1
                 degrees_0 += scale[ (tonic_offset + tonic_modulation) % 12 ]
         return tonic_modulation
+
+    @staticmethod
+    def key_tones_semitones(key_int: int = 7, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> tuple[int, int]:
+        # The given scale shall always have a size of 12
+        tones: int = 0
+        semitones: int = 0
+        if len(scale) == 12 and sum(scale) > 0:
+            # For Tones
+            while key_int > 0:
+                key_int -= 1
+                tones += scale[key_int % 12]
+            while key_int < 0:
+                key_int += 1
+                tones -= scale[key_int % 12]
+            # For Semitones
+            while scale[semitones % 12] == 0:
+                semitones += 1
+        return tones, semitones
 
 
     def __mod__(self, operand: o.T) -> o.T:
