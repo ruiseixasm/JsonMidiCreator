@@ -199,19 +199,6 @@ class Pipe(Data):
                     self._data << operand
         return self
 
-class Previous(Data):
-    """`Data -> Previous`
-
-    Data that contains the result of a previous iteration used in the Frame basic selectors.
-
-    Parameters
-    ----------
-    Any(None) : Any type of data.
-    """
-    def __init__(self, data = None):
-        super().__init__()
-        self._data = data
-
 
 class Conditional(Data):
     """`Data -> Conditional`

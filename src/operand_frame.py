@@ -274,6 +274,28 @@ class Input(Left):
         return super().__ixor__(self._named_parameters['input'])
 
 
+class Previous(Left):
+    """`Frame -> Left -> Previous`
+
+    Represents the previous processed `Element`, returns `Null()` for the first one.
+
+    Parameters
+    ----------
+    Any(None) : Any type of data.
+    """
+    def __init__(self, previous: any = None):
+        super().__init__()
+        self._named_parameters['previous'] = previous
+
+    def __ixor__(self, input: o.T) -> o.T:
+        if self._named_parameters['previous'] is None:
+            self._named_parameters['previous'] = input
+            return ol.Null()
+        parameter: Any = super().__ixor__(self._named_parameters['previous'])
+        self._named_parameters['previous'] = input
+        return parameter
+
+
 class PassThrough(Left):
     """`Frame -> Left -> PassThrough`
 
@@ -776,8 +798,7 @@ class BasicComparison(InputFilter):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met. \
-    It's is also possible to set a `Previous` condition in each case the input has to compare as `True` to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met.
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
@@ -785,14 +806,6 @@ class BasicComparison(InputFilter):
 
     def __ixor__(self, input: o.T) -> o.T:
         for condition in self._parameters:
-            if isinstance(condition, od.Previous):
-                previous_inputs: list = self._named_parameters['previous']
-                previous_inputs.insert(0, input)
-                previous_i: int = condition._data
-                if isinstance(previous_i, int) and previous_i < len(previous_inputs):
-                    condition = previous_inputs[previous_i]
-                else:
-                    continue
             if not self._compare(input, condition): # Where the comparison is made
                 return ol.Null()
         self_operand = self._next_operand
@@ -816,8 +829,7 @@ class Equal(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as equal (`==`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be equal to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as equal (`==`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -830,8 +842,7 @@ class NotEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as NOT equal (`not ==`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be NOT equal to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as NOT equal (`not ==`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -844,8 +855,7 @@ class Greater(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as greater (`>`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be greater to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as greater (`>`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -858,8 +868,7 @@ class Less(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as less (`<`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be less to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as less (`<`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -872,8 +881,7 @@ class GreaterOrEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as greater or equal (`>=`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be greater or equal to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as greater or equal (`>=`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
@@ -886,8 +894,7 @@ class LessOrEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as less or equal (`<=`). \
-    It's is also possible to set a `Previous` condition in each case the input has to be less or equal to the previous nth one.
+    Any(None) : One or more conditions where **all** need to be met as less or equal (`<=`).
     """
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
