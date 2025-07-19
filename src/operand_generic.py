@@ -374,6 +374,33 @@ class Pitch(Generic):
             tonic_offset += 1
         return degree_0 % 7 + 1, semitone
 
+    def key_transposition_semitone(self, key_int: int) -> tuple[int, int]:
+        transposition: int = 0
+        semitone: int = 0
+        root_int: int = self.root_int()
+        root_offset: int = key_int - root_int
+        scale_degrees: int = 7  # Diatonic scales
+        if self._scale:
+            transposition_scale: list[int] = self._scale
+            scale_degrees = sum(self._scale)
+        else:
+            transposition_scale: list[int] = self._key_signature.get_scale_list()
+            root_offset -= self.degree_transposition()  # Discount Degree Transposition already included
+        # For Semitones
+        if transposition_scale[root_offset % 12] == 0:
+            if root_offset < 0:
+                semitone = -1   # Needs to go down further
+            else:
+                semitone = +1   # Needs to go up further
+        # For Tones
+        while root_offset > 0:
+            transposition += transposition_scale[root_offset % 12]
+            root_offset -= 1
+        while root_offset < 0:
+            transposition -= transposition_scale[root_offset % 12]
+            root_offset += 1
+        return transposition % scale_degrees, semitone
+
 
     def get_key_degree_0(self, root_key: int) -> int:
         degree_0: int = 0
@@ -664,9 +691,18 @@ class Pitch(Generic):
             case ou.TargetKey():
                 self._sharp = 0
                 self._natural = False
-                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
+                degree: float = 0.0 # No linear accidentals
+                transposition, semitone = self.key_transposition_semitone(operand._unit % 12)
+                # Uses the Degree Accidental system instead of changing the Tonic key
+                if semitone > 0:
+                    degree += round((semitone * 2 - 1) / 10, 1)
+                elif semitone < 0:
+                    degree += round((-1) * (semitone * 2) / 10, 1)
+                self << ou.Transposition(transposition) << ou.Degree(degree)
             case ou.Key():
-                self << ou.TargetKey(operand)
+                self._sharp = 0
+                self._natural = False
+                self << ou.Degree(self.get_key_degree_0(operand._unit % 12) + 1)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
