@@ -2342,6 +2342,15 @@ class Clip(Composition):  # Just a container of Elements
                             right_element._duration_beats = right_duration
                 self._append(new_elements)
 
+            case list():
+                clip_notes: list[oe.Note] = [
+                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
+                ]
+                for single_note in clip_notes:
+                    # Already includes call to replace
+                    single_note.__ifloordiv__(operand)
+                return self # No need to sort items, is a direct replace
+
             case tuple():
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
