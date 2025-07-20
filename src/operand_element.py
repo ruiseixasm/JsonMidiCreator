@@ -1269,29 +1269,38 @@ class Note(Element):
             
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            cluster_note: Cluster = Cluster(self)
-            cluster_note << operand
-            if self._owner_clip is not None:
-                self._owner_clip._replace(self, cluster_note)
-            return cluster_note
+            if operand: # Not empty list
+                cluster_note: Cluster = Cluster(self)
+                cluster_note << operand
+                if self._owner_clip is not None:
+                    self._owner_clip._replace(self, cluster_note)
+                return cluster_note
+            else:   # Empty list means make it a Note again
+                return Note(operand)
         return super().__imul__(operand)
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            cluster_note: Cluster = Cluster(self)
-            cluster_note << operand
-            if self._owner_clip is not None:
-                self._owner_clip._replace(self, cluster_note)
-            return cluster_note
+            if operand: # Not empty list
+                cluster_note: Cluster = Cluster(self)
+                cluster_note << operand
+                if self._owner_clip is not None:
+                    self._owner_clip._replace(self, cluster_note)
+                return cluster_note
+            else:   # Empty list means make it a Note again
+                return Note(operand)
         return super().__itruediv__(operand)
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            cluster_note: Cluster = Cluster(self)
-            cluster_note << operand
-            if self._owner_clip is not None:
-                self._owner_clip._replace(self, cluster_note)
-            return cluster_note
+            if operand: # Not empty list
+                cluster_note: Cluster = Cluster(self)
+                cluster_note << operand
+                if self._owner_clip is not None:
+                    self._owner_clip._replace(self, cluster_note)
+                return cluster_note
+            else:   # Empty list means make it a Note again
+                return Note(operand)
         return super().__ifloordiv__(operand)
 
 
