@@ -1368,133 +1368,6 @@ class Note(Element):
                 return super().__isub__(operand)
 
 
-class Cluster(Note):
-    """`Element -> Note -> Cluster`
-
-    A `Cluster` element aggregates multiple notes based on the list len and content. \
-        That content is added to the present single `Note` configuration.
-    The difference between a `Cluster` and a `PitchChord`, is that a `Cluster` hasn't its own scale,
-        and thus always adders to the the Key Signature or `TimeSignature` scale.
-
-    Parameters
-    ----------
-    dict({0: [0, 2, 4]}) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
-    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        self._offsets: list = [0.0, 2.0, 4.0]
-        self._arpeggio: og.Arpeggio = og.Arpeggio("None")
-        super().__init__()
-        self << ra.Measures(1) % ra.Duration()  # By default a Scale and a Chord has one Measure duration
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case list():            return self._offsets
-                    case og.Arpeggio():     return self._arpeggio
-                    case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._offsets)
-            case og.Arpeggio():     return self._arpeggio.copy()
-            case ou.Order() | ra.Swing() | ch.Chaos():
-                                    return self._arpeggio % operand
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._offsets == other._offsets \
-                    and self._arpeggio == other._arpeggio
-            case _:
-                return super().__eq__(other)
-    
-    def get_component_elements(self) -> list[Element]:
-        cluster_notes: list[Note] = []
-        for pitch_offset in self._offsets:
-            single_note: Note = Note(self)
-            single_note._pitch += pitch_offset
-            cluster_notes.append( single_note )
-        return self._arpeggio.arpeggiate(cluster_notes)
-
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
-        self_plotlist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
-        return self_plotlist
-    
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
-        self_playlist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
-        self_midilist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
-        return self_midilist
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["offsets"]  = self.serialize( self._offsets )
-        serialization["parameters"]["arpeggio"] = self.serialize( self._arpeggio )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "offsets" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._offsets  = self.deserialize( serialization["parameters"]["offsets"] )
-            self._arpeggio = self.deserialize( serialization["parameters"]["arpeggio"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Cluster():
-                super().__lshift__(operand)
-                self._offsets = self.deep_copy( operand._offsets )
-                self._arpeggio  << operand._arpeggio
-            case od.Pipe():
-                match operand._data:
-                    case list():
-                        self._offsets = operand._data
-                    case og.Arpeggio():
-                        self._arpeggio = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case list():
-                self._offsets = self.deep_copy( operand )
-            case dict():
-                if all(isinstance(key, int) for key in operand.keys()):
-                    for index, offset in operand.items():
-                        if index >= 0 and index < len(self._offsets):
-                            self._offsets[index] = self.deep_copy(offset)
-                else:   # Not for me
-                    self._pitch << operand
-            case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
-                self._arpeggio << operand
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
 class KeyScale(Note):
     """`Element -> Note -> KeyScale`
 
@@ -1637,15 +1510,15 @@ class KeyScale(Note):
         return self
 
 
-class PitchChord(KeyScale):
-    """`Element -> Note -> KeyScale -> PitchChord`
+class Cluster(KeyScale):
+    """`Element -> Note -> KeyScale -> Cluster`
 
-    A `PitchChord` element allows the triggering of notes concerning specific degrees of a given `Scale`.
+    A `Cluster` element allows the triggering of notes concerning specific degrees of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
     Parameters
     ----------
-    dict({0: [0, 2, 4]}) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
+    list([0.0, 2.0, 4.0]) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
     Inversion(0) : The number of inversion of the `Chord`.
     Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
@@ -1707,7 +1580,7 @@ class PitchChord(KeyScale):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case PitchChord():
+            case Cluster():
                 super().__lshift__(operand)
                 self._offsets = self.deep_copy( operand._offsets )
             case od.Pipe():

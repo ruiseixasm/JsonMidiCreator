@@ -34,12 +34,12 @@ else:  # Assume Linux/Unix
 
 
 
-from operand_element import PitchChord
+from operand_element import Cluster
 from operand_data import Play, Plot
 from operand_container import Clip
 from operand_unit import Inversion
 
-polychord: Clip = PitchChord("minor", [1, 3, 5], Inversion(1)) * 1
+polychord: Clip = Cluster("minor", [1, 3, 5], Inversion(1)) * 1
 
 polychord >> Plot()
 
