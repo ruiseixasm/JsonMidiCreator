@@ -575,14 +575,14 @@ class Element(o.Operand):
         return self
 
 
-class Group(Element):
-    """`Element -> Group`
+class Cluster(Element):
+    """`Element -> Cluster`
 
-    A `Group` element aggregates any other type of `Element` of any amount.
+    A `Cluster` element aggregates any other type of `Element` of any amount.
 
     Parameters
     ----------
-    list([ControlChange(ou.Number("Pan"), 0), Note()]) : A list with all the elements grouped by `Group`.
+    list([ControlChange(ou.Number("Pan"), 0), Note()]) : A list with all the elements grouped by `Cluster`.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
@@ -653,7 +653,7 @@ class Group(Element):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Group():
+            case Cluster():
                 super().__lshift__(operand)
                 self._elements = self.deep_copy( operand._elements )
             case od.Pipe():
@@ -1514,10 +1514,10 @@ class KeyScale(Note):
         return self
 
 
-class Cluster(KeyScale):
-    """`Element -> Note -> KeyScale -> Cluster`
+class PitchChord(KeyScale):
+    """`Element -> Note -> KeyScale -> PitchChord`
 
-    A `Cluster` element allows the triggering of notes concerning specific degrees of a given `Scale`.
+    A `PitchChord` element allows the triggering of notes concerning specific degrees of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
     Parameters
@@ -1584,7 +1584,7 @@ class Cluster(KeyScale):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Cluster():
+            case PitchChord():
                 super().__lshift__(operand)
                 self._offsets = self.deep_copy( operand._offsets )
             case od.Pipe():

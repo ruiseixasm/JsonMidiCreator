@@ -21,7 +21,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 settings << Tempo(110)
 
 tonic_key = TonicKey("C")
-chromatic_notes = Cluster(tonic_key, [0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/8)) * 1
+chromatic_notes = PitchChord(tonic_key, [0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/8)) * 1
 
 for key in range(8):
     chromatic_notes += TonicKey(key)

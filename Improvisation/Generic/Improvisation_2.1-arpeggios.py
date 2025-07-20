@@ -22,7 +22,7 @@ settings << Tempo(110)
 
 tonic_key = TonicKey("C")
 
-chromatic_notes = Cluster(tonic_key, [0, 1, 2, 3], 1/4) % Clip()
+chromatic_notes = PitchChord(tonic_key, [0, 1, 2, 3], 1/4) % Clip()
 chromatic_notes >>= Decompose()
 chromatic_notes /= 2
 chromatic_notes.mask(Beat(0)).arpeggiate("Up")
@@ -31,7 +31,7 @@ chromatic_notes >> Plot(False)
 
 chromatic_notes / 2 * 8 >> Plot(False)
 
-chromatic_order = Cluster(tonic_key, [0, 2.0, 1.0, 3.0], 1/4) % Clip() << Tempo(60)
+chromatic_order = PitchChord(tonic_key, [0, 2.0, 1.0, 3.0], 1/4) % Clip() << Tempo(60)
 chromatic_order >>= Decompose()
 chromatic_order /= 2
 chromatic_order.mask(Beat(0)).arpeggiate("Up")
