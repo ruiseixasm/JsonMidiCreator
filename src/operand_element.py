@@ -1024,9 +1024,9 @@ class Note(Element):
                     self_pitch: int = self._pitch.pitch_int()
                     other_pitch: int = other._pitch.pitch_int()
                     if self_pitch == other_pitch:
-                        return self._channel < other._channel
+                        return super().__lt__(other)
                     return self_pitch < other_pitch
-                return self._position_beats < other._position_beats
+                return super().__lt__(other)
             case Element():
                 return super().__lt__(other)
             case _:
@@ -1041,9 +1041,9 @@ class Note(Element):
                     self_pitch: int = self._pitch.pitch_int()
                     other_pitch: int = other._pitch.pitch_int()
                     if self_pitch == other_pitch:
-                        return self._channel > other._channel
+                        return super().__gt__(other)
                     return self_pitch > other_pitch
-                return self._position_beats > other._position_beats
+                return super().__gt__(other)
             case Element():
                 return super().__gt__(other)
             case _:
