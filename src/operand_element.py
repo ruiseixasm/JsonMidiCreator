@@ -171,7 +171,9 @@ class Element(o.Operand):
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
-                    return self._channel < other._channel
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel < other._channel
+                    return self._duration_beats > other._duration_beats # Longer duration comes first
                 return self._position_beats < other._position_beats
             case _:
                 return self % other < other
@@ -181,7 +183,9 @@ class Element(o.Operand):
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
-                    return self._channel > other._channel
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel > other._channel
+                    return self._duration_beats < other._duration_beats # Longer duration comes first
                 return self._position_beats > other._position_beats
             case _:
                 return self % other > other
