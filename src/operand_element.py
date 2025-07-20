@@ -1269,38 +1269,26 @@ class Note(Element):
             
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            if operand: # Not empty list
-                cluster_note: Cluster = Cluster(self)
-                cluster_note << operand
-                if self._owner_clip is not None:
-                    self._owner_clip._replace(self, cluster_note)
-                return cluster_note
-            else:   # Empty list means make it a Note again
-                return Note(operand)
+            return self.__ifloordiv__(operand)
         return super().__imul__(operand)
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            if operand: # Not empty list
-                cluster_note: Cluster = Cluster(self)
-                cluster_note << operand
-                if self._owner_clip is not None:
-                    self._owner_clip._replace(self, cluster_note)
-                return cluster_note
-            else:   # Empty list means make it a Note again
-                return Note(operand)
+            return self.__ifloordiv__(operand)
         return super().__itruediv__(operand)
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, list):    # Results in a Cluster based on Notes
-            if operand: # Not empty list
-                cluster_note: Cluster = Cluster(self)
-                cluster_note << operand
+            if operand: # Non empty list
+                self_cluster: Cluster = Cluster(self, operand)
                 if self._owner_clip is not None:
-                    self._owner_clip._replace(self, cluster_note)
-                return cluster_note
+                    self._owner_clip._replace(self, self_cluster)
+                return self_cluster
             else:   # Empty list means make it a Note again
-                return Note(operand)
+                self_note: Note = Note(self)
+                if self._owner_clip is not None:
+                    self._owner_clip._replace(self, self_note)
+                return self_note
         return super().__ifloordiv__(operand)
 
 
