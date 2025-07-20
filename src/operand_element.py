@@ -1268,13 +1268,40 @@ class Note(Element):
                 return super().__isub__(operand)
             
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        if isinstance(operand, list):    # Results in a Cluster based on Notes
-            return self.__ifloordiv__(operand)
+        import operand_container as oc
+        if isinstance(operand, list):
+            if operand: # Non empty list
+                new_notes: list[Note] = []
+                for index, pitch_offset in enumerate(operand):
+                    if index == 0:
+                        self._pitch += pitch_offset
+                    else:
+                        self_copy: Note = self.copy()
+                        new_notes.append(self_copy)
+                        self_copy._pitch += pitch_offset
+                        self_copy._position_beats += self._duration_beats * index
+                if self._owner_clip is not None:
+                    return self._owner_clip._append(new_notes)._sort_items()
+                return oc.Clip(self)._append(new_notes)._sort_items()
+            return self
         return super().__imul__(operand)
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        if isinstance(operand, list):    # Results in a Cluster based on Notes
-            return self.__ifloordiv__(operand)
+        import operand_container as oc
+        if isinstance(operand, list):
+            if operand: # Non empty list
+                new_notes: list[Note] = []
+                for index, pitch_offset in enumerate(operand):
+                    if index == 0:
+                        self._pitch += pitch_offset
+                    else:
+                        self_copy: Note = self.copy()
+                        new_notes.append(self_copy)
+                        self_copy._pitch += pitch_offset
+                if self._owner_clip is not None:
+                    return self._owner_clip._append(new_notes)._sort_items()
+                return oc.Clip(self)._append(new_notes)._sort_items()
+            return self
         return super().__itruediv__(operand)
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
