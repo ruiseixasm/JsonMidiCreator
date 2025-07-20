@@ -2214,7 +2214,13 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = []
 
             case list():
-                return self.__ifloordiv__(operand)
+                clip_notes: list[oe.Note] = [
+                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
+                ]
+                for single_note in clip_notes:
+                    # Already includes call to append
+                    single_note.__imul__(operand)
+                return self # Items already sorted
 
             case tuple():
                 for single_operand in operand:
@@ -2269,7 +2275,13 @@ class Clip(Composition):  # Just a container of Elements
                 self.__itruediv__(self_repeating)
 
             case list():
-                return self.__ifloordiv__(operand)
+                clip_notes: list[oe.Note] = [
+                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
+                ]
+                for single_note in clip_notes:
+                    # Already includes call to append
+                    single_note.__itruediv__(operand)
+                return self # Items already sorted
 
             case tuple():
                 for single_operand in operand:
