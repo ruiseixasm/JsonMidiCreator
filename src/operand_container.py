@@ -2213,6 +2213,15 @@ class Clip(Composition):  # Just a container of Elements
                 if operand != self:
                     self._items = []
 
+            case list():
+                clip_notes: list[oe.Note] = [
+                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
+                ]
+                for single_note in clip_notes:
+                    # Already includes call to replace
+                    single_note.__imul__(operand)
+                return self # No need to sort items, is a direct replace
+
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
@@ -2264,6 +2273,15 @@ class Clip(Composition):  # Just a container of Elements
                     operand_duration: Fraction = operand % ra.Beats(self) % Fraction()  # Converted to Beats
                     self_repeating = int( operand_duration / self_duration )
                 self.__itruediv__(self_repeating)
+
+            case list():
+                clip_notes: list[oe.Note] = [
+                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
+                ]
+                for single_note in clip_notes:
+                    # Already includes call to replace
+                    single_note.__itruediv__(operand)
+                return self # No need to sort items, is a direct replace
 
             case tuple():
                 for single_operand in operand:
