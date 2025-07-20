@@ -175,7 +175,7 @@ class Melodies(Patterns):
                 measures: int = 2
             ) -> oc.Clip:
         """A short melody is repeated at different pitches while maintaining the same interval pattern (Repetition with Transposition)."""
-        pattern: oc.Clip = oe.PitchChord([0, 2, 4, 6], 1/1) * measures + of.Iterate() # Increases one Degree on the second Measure
+        pattern: oc.Clip = oe.Cluster([0, 2, 4, 6], 1/1) * measures + of.Iterate() # Increases one Degree on the second Measure
         return pattern << og.Arpeggio("Up", 1/4)
 
 

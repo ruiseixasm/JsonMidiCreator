@@ -575,110 +575,6 @@ class Element(o.Operand):
         return self
 
 
-class Cluster(Element):
-    """`Element -> Cluster`
-
-    A `Cluster` element aggregates any other type of `Element` of any amount.
-
-    Parameters
-    ----------
-    list([ControlChange(ou.Number("Pan"), 0), Note()]) : A list with all the elements grouped by `Cluster`.
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        self._elements: list[Element] = [
-            # From top to down, from left to right
-            ControlChange(ou.Number("Pan"), 0),
-            Note()
-        ]
-        super().__init__(*parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case list():            return self._elements
-                    case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._elements)
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._elements == other._elements
-            case _:
-                return super().__eq__(other)
-    
-    def get_component_elements(self) -> list[Element]:
-        return self._elements
-
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
-        self_playlist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
-        return self_playlist
-    
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
-        self_playlist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
-        self_midilist: list[dict] = []
-        for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
-        return self_midilist
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["elements"] = self.serialize( self._elements )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "elements" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._elements  = self.deserialize( serialization["parameters"]["elements"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Cluster():
-                super().__lshift__(operand)
-                self._elements = self.deep_copy( operand._elements )
-            case od.Pipe():
-                match operand._data:
-                    case list():
-                        self._elements = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case list():
-                if all(isinstance(item, Element) for item in operand):
-                    self._elements = self.deep_copy( operand )
-            case dict():
-                if all(isinstance(item, Element) for item in operand.values()):
-                    for index, single_element in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._elements):
-                            self._elements[index] = single_element.copy()
-                elif all(isinstance(key, int) for key in operand.keys()):
-                    for index, parameter in operand.items():
-                        if index >= 0 and index < len(self._elements):
-                            self._elements[index] << parameter
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
 class Clock(Element):
     """`Element -> Clock`
 
@@ -1514,10 +1410,10 @@ class KeyScale(Note):
         return self
 
 
-class PitchChord(KeyScale):
-    """`Element -> Note -> KeyScale -> PitchChord`
+class Cluster(KeyScale):
+    """`Element -> Note -> KeyScale -> Cluster`
 
-    A `PitchChord` element allows the triggering of notes concerning specific degrees of a given `Scale`.
+    A `Cluster` element allows the triggering of notes concerning specific degrees of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
     Parameters
@@ -1584,7 +1480,7 @@ class PitchChord(KeyScale):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case PitchChord():
+            case Cluster():
                 super().__lshift__(operand)
                 self._offsets = self.deep_copy( operand._offsets )
             case od.Pipe():
