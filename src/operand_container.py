@@ -1355,7 +1355,7 @@ class Composition(Container):
 
                             if "middle_pitch" in note:
                                 self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
-                                                color='black', linewidth=0.5, alpha=1)
+                                                color='black', linewidth=0.5, alpha = color_alpha)
             
 
                 # Where the VERTICAL axis is defined - Chromatic Keys
