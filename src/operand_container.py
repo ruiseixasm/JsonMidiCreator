@@ -1337,10 +1337,10 @@ class Composition(Container):
                             line_style: str = 'solid'
                             if isinstance(note["self"], oe.KeyScale):
                                 bar_hatch = '|||'
-                                line_style: str = 'dashed'
+                                line_style = 'dashed'
                             elif isinstance(note["self"], oe.Retrigger):
                                 bar_hatch = '---'
-                                line_style: str = 'dashed'
+                                line_style = 'dashed'
                             edge_color: str = 'black'
                             color_alpha: float = max(0.1, note["velocity"] / 127)
                             if note["velocity"] > 127:
