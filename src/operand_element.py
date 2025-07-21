@@ -315,6 +315,7 @@ class Element(o.Operand):
 
 
     def __rshift__(self, operand: o.T) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.Serialization():
                 return self << operand % od.Pipe()
@@ -323,8 +324,8 @@ class Element(o.Operand):
                 return self
         return self.copy().__irshift__(operand)
 
-    # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand: o.T) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
                 wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
