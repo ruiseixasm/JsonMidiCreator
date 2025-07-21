@@ -321,7 +321,17 @@ class Element(o.Operand):
             case od.Playlist():
                 operand.__rrshift__(self)
                 return self
-        return super().__rshift__(operand)
+        return self.copy().__irshift__(operand)
+
+    # Pass trough method that always results in a Container (Self)
+    def __irshift__(self, operand: o.T) -> Self:
+        match operand:
+            case Element():
+                wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
+                if self._owner_clip is not None:
+                    self._owner_clip._replace(self, wrapped_self)
+                return wrapped_self
+        return super().__irshift__(operand)
 
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
