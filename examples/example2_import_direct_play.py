@@ -24,8 +24,8 @@ from JsonMidiCreator import *
 # Process Exported files
 first_import = Import("json/_Export_1.1_sequence.json")
 second_import = Import("json/_Export_1.2_all_elements.json")    # It has a clock!
-first_import + Measures(0) >> first_import + Measures(2) >> first_import + Measures(4) >> first_import + Measures(6) \
-    >> second_import + Measures(8) \
+first_import + Measure(0) >> first_import + Measure(2) >> first_import + Measure(4) >> first_import + Measure(6) \
+    >> second_import + Measure(8) \
     >> Export("json/_Export_2.1_multiple_imports.json") >> Play(1)
 
 # Process Loaded files as Elements

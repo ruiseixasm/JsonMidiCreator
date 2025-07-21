@@ -622,7 +622,7 @@ class Playlist(Data):
         import operand_element as oe
         import operand_container as oc
         match operand:
-            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
+            case ra.Position() | ra.TimeUnit():
                 # Position generates a dummy list with the position as ms
                 operand_playlist_list: list[dict] = operand.getPlaylist()
                 offset_position_ms: float = operand_playlist_list[0]["time_ms"]
@@ -645,7 +645,7 @@ class Playlist(Data):
     def __isub__(self, operand: any) -> Self:
         import operand_rational as ra
         match operand:
-            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
+            case ra.Position() | ra.TimeUnit():
                 # Position generates a dummy list with the position as ms
                 operand_playlist_list: list[dict] = operand.getPlaylist()
                 offset_position_ms: float = operand_playlist_list[0]["time_ms"]

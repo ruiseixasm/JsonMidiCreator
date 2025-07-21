@@ -408,9 +408,9 @@ class Element(o.Operand):
                             next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip()
-                    if operand > 0:
-                        for _ in range(operand):
+                    new_clip: oc.Clip = oc.Clip(self)
+                    if operand > 1:
+                        for _ in range(operand - 1):
                             new_clip.__imul__(self)
                     return new_clip
             case ra.TimeValue() | ra.TimeUnit():
@@ -452,9 +452,9 @@ class Element(o.Operand):
                         self._owner_clip._append(new_elements)
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip()
-                    if operand > 0:
-                        for _ in range(operand):
+                    new_clip: oc.Clip = oc.Clip(self)
+                    if operand > 1:
+                        for _ in range(operand - 1):
                             new_clip.__itruediv__(self)
                     return new_clip
             case ra.TimeUnit():

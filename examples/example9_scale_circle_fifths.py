@@ -50,8 +50,8 @@ play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) /
 # play_list_4 >> Play()
 
 play_list_1 + Measures(0 * 8) \
-    >> play_list_2 + Measures(1 * 8) \
-    >> play_list_3 + Measures(2 * 8) \
-    >> play_list_4 + Measures(3 * 8) \
+    >> play_list_2 + Measure(1 * 8) \
+    >> play_list_3 + Measure(2 * 8) \
+    >> play_list_4 + Measure(3 * 8) \
     >> Play(True) >> Export("json/_Export_Example9_circle_fifths.json")
 # play_list_2 >> Play()

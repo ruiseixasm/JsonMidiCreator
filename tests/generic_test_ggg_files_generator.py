@@ -68,8 +68,8 @@ settings % TimeSignature() >> Save("json/testing/_Save_TimeSignature_ggg.json")
 # Process Exported files
 first_import = Import("json/testing/_Export_1.1_sequence.json")
 second_import = Import("json/testing/_Export_1.2_all_elements.json")    # It has a clock!
-first_import + Measures(0) >> first_import + Measures(2) >> first_import + Measures(4) >> first_import + Measures(6) \
-    >> second_import + Measures(8) \
+first_import + Measure(0) >> first_import + Measure(2) >> first_import + Measure(4) >> first_import + Measure(6) \
+    >> second_import + Measure(8) \
     >> Export("json/testing/_Export_2.1_multiple_imports.json") >> Save("json/testing/_Save_Play_p.5_first_note.json") >> Export("json/testing/_Export_Play_p.5_sequence.json")
 
 # Process Loaded files as Elements
@@ -223,9 +223,9 @@ play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) /
     << Duration(1/1) << Velocity(70) << Octave(4))
 
 play_list_1 + Measures(0 * 8) \
-    >> play_list_2 + Measures(1 * 8) \
-    >> play_list_3 + Measures(2 * 8) \
-    >> play_list_4 + Measures(3 * 8) \
+    >> play_list_2 + Measure(1 * 8) \
+    >> play_list_3 + Measure(2 * 8) \
+    >> play_list_4 + Measure(3 * 8) \
     >> Save("json/testing/_Save_Play_p.21_first_note.json") >> Export("json/testing/_Export_Play_p.21_sequence.json")
 
 

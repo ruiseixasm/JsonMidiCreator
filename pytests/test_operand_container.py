@@ -671,8 +671,16 @@ def test_element_stacking():
     assert two_notes[-1] == Beat(1)
     two_notes >>= Stack()
     assert two_notes[-1] == Step(2) # 2 Steps == 1/2 Beats
+
+    single_note: Note = Note(Measure(1))
+    print(f"Position: {single_note % Position() % Fraction()}")
+    assert single_note % Position() == Beats(4)
+    four_notes: Clip = single_note / 4
+    print(f"Position: {four_notes[0] % Position() % Fraction()}")
+    assert four_notes[0] % Position() == Beats(4)
+
     
-# test_element_stacking()
+test_element_stacking()
 
 
 def test_lshift_clip():
@@ -721,7 +729,7 @@ def test_lshift_clip():
     assert filtered_notes[2] % Position() == 0.50
     assert filtered_notes[3] % Position() == 0.75
 
-test_lshift_clip()
+# test_lshift_clip()
 
 
 def test_clip_filter():
