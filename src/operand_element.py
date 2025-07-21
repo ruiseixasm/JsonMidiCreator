@@ -1409,6 +1409,8 @@ class KeyScale(Note):
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
+        # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
+        self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
             plot_dict["note"]["self"] = self
