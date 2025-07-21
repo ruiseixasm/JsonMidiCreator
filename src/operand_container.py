@@ -2132,6 +2132,22 @@ class Clip(Composition):  # Just a container of Elements
                     item << operand
         return self._sort_items()
 
+    def __rshift__(self, operand: any) -> Self:
+        match operand:
+            case oe.Element():
+                if self.is_a_mask():
+                    return self.__irshift__(operand)
+                return self.copy().__irshift__(operand)
+        return super().__rshift__(operand)
+    
+    def __irshift__(self, operand) -> Self:
+        match operand:
+            case oe.Element():
+                for single_element in self._items:
+                    self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
+                return self
+        return super().__irshift__(operand)
+
 
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> Self:
