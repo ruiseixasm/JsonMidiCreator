@@ -863,7 +863,7 @@ class Rest(Element):
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
                     "channel": self._channel,
-                    "plot_as_rest": True
+                    "self": self
                 }
             }
         )
@@ -1019,7 +1019,7 @@ class Note(Element):
                     "pitch": pitch_int,
                     "velocity": self._velocity,
                     "channel": self._channel,
-                    "plot_as_rest": False
+                    "self": self
                 }
             }
         )
@@ -1409,6 +1409,9 @@ class KeyScale(Note):
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
+        # Makes sure the self is correctly set
+        for plot_dict in self_plotlist:
+            plot_dict["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -1846,6 +1849,9 @@ class Retrigger(Note):
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
+        # Makes sure the self is correctly set
+        for plot_dict in self_plotlist:
+            plot_dict["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -2057,6 +2063,9 @@ class Tuplet(Element):
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
+        # Makes sure the self is correctly set
+        for plot_dict in self_plotlist:
+            plot_dict["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -2224,7 +2233,8 @@ class Automation(Element):
                 "automation": {
                     "position": position_on,
                     "value": self._get_msb_value(),
-                    "channel": self._channel
+                    "channel": self._channel,
+                    "self": self
                 }
             }
         )
