@@ -1331,13 +1331,16 @@ class Composition(Container):
                         if type(note["self"]) is oe.Rest:
                             # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                             self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dashed', alpha = 1)
+                                    height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
                         else:
                             bar_hatch: str = ''
+                            line_style: str = 'solid'
                             if isinstance(note["self"], oe.KeyScale):
                                 bar_hatch = '|||'
+                                line_style: str = 'dashed'
                             elif isinstance(note["self"], oe.Retrigger):
                                 bar_hatch = '---'
+                                line_style: str = 'dashed'
                             edge_color: str = 'black'
                             color_alpha: float = max(0.1, note["velocity"] / 127)
                             if note["velocity"] > 127:
@@ -1348,7 +1351,7 @@ class Composition(Container):
                                 color_alpha = 1.0
                             
                             self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, alpha = color_alpha)
+                                    height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
             
 
                 # Where the VERTICAL axis is defined - Chromatic Keys
