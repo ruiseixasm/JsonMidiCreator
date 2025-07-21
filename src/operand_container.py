@@ -1781,7 +1781,9 @@ class Clip(Composition):  # Just a container of Elements
         return super().__getitem__(index)
     
     def __setitem__(self, index: int | of.Frame, value) -> Self:
-        self[index] << value
+        index_element: oe.Element = self[index]
+        if index_element is not value:  # If it's already the same value no need to set it
+            index_element << value
         return self
     
     def __next__(self) -> 'oe.Element':
