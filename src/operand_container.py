@@ -1763,7 +1763,7 @@ class Clip(Composition):  # Just a container of Elements
             return ol.Null()
         return super().__getitem__(index)
     
-    def __setitem__(self, index: int | of.Frame, value) -> 'oe.Element':
+    def __setitem__(self, index: int | of.Frame, value) -> Self:
         self[index] << value
         return self
     
