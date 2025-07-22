@@ -1118,8 +1118,9 @@ class Scale(Generic):
 
 
     @staticmethod
-    def plot(tonic_key: ou.Key = ou.Key(), scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]):
+    def plot(scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1], tonic_key: ou.Key = ou.Key()):
 
+        tonic_int: int = tonic_key % int()
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
         fig, ax = plt.subplots(figsize=(12, 6))
@@ -1140,7 +1141,6 @@ class Scale(Generic):
         if last_position_measure != last_position_measures:
             last_position_measure += 1
 
-
         # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
         ax.set_ylabel("Chromatic Keys")
         # Where the corner Coordinates are defined
@@ -1158,7 +1158,9 @@ class Scale(Generic):
         # PITCHES VERTICAL AXIS
         # Get pitch range
         min_pitch: int = 0
-        max_pitch: int = 24 - 1
+        max_pitch: int = 12 - 1
+        if tonic_int > 0:
+            max_pitch = 24 - 1
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
@@ -1166,7 +1168,6 @@ class Scale(Generic):
                 ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
         # Plot notes
-        tonic_int: int = tonic_key % int()
         for pitch, scale_key in enumerate(scale):
             if scale_key:
                 ax.barh(y = tonic_int + pitch, width = float( 1 if o.is_black_key(tonic_int + pitch) else 2 ), left = float(1), 
