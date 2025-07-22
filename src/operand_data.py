@@ -1000,8 +1000,14 @@ class Plot(ReadOnly):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         import operand_element as oe
+        import operand_generic as og
+        import operand_unit as ou
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._data)
+        if isinstance(operand, og.Scale):
+            og.Scale.plot(operand % list())
+        elif isinstance(operand, ou.KeySignature):
+            og.Scale.plot(operand % list(), operand % ou.Key())
         return operand
 
 
