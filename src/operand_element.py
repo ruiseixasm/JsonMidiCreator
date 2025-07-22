@@ -1284,13 +1284,12 @@ class Note(Element):
             if operand: # Non empty list
                 new_notes: list[Note] = []
                 for index, pitch_offset in enumerate(operand):
-                    if index == 0:
-                        self._pitch += pitch_offset
-                    else:
+                    if index > 0:
                         self_copy: Note = self.copy()
                         new_notes.append(self_copy)
                         self_copy._pitch += pitch_offset
                         self_copy._position_beats += self._duration_beats * index
+                self._pitch += operand[0]
                 if self._owner_clip is not None:
                     return self._owner_clip._append(new_notes)._sort_items()
                 return oc.Clip(self)._append(new_notes)._sort_items()
@@ -1303,12 +1302,11 @@ class Note(Element):
             if operand: # Non empty list
                 new_notes: list[Note] = []
                 for index, pitch_offset in enumerate(operand):
-                    if index == 0:
-                        self._pitch += pitch_offset
-                    else:
+                    if index > 0:
                         self_copy: Note = self.copy()
                         new_notes.append(self_copy)
                         self_copy._pitch += pitch_offset
+                self._pitch += operand[0]
                 if self._owner_clip is not None:
                     return self._owner_clip._append(new_notes)._sort_items()
                 return oc.Clip(self)._append(new_notes)._sort_items()
