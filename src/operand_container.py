@@ -52,7 +52,7 @@ try:
 except ImportError:
     print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
     print("Please install it by running 'pip install numpy'.")
-        
+
 
 class Container(o.Operand):
     """`Container`
@@ -1737,9 +1737,6 @@ class Composition(Container):
         #     plt.pause(0.1)  # Pause to allow GUI event processing
 
         return self._iterations[self._iteration]
-
-
-
 
 
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand

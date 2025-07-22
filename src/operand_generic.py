@@ -32,6 +32,25 @@ import operand_label as ol
 import operand_chaos as ch
 import operand_container as oc
 
+# Define ANSI escape codes for colors
+RED = "\033[91m"
+RESET = "\033[0m"
+        
+try:
+    # pip install matplotlib
+    import matplotlib.pyplot as plt
+    from matplotlib.backend_bases import MouseEvent
+    from matplotlib.widgets import Button
+except ImportError:
+    print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
+    print("Please install it by running 'pip install matplotlib'.")
+try:
+    # pip install numpy
+    import numpy as np
+except ImportError:
+    print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
+    print("Please install it by running 'pip install numpy'.")
+
 
 class Generic(o.Operand):
     """`Generic`
@@ -1096,6 +1115,98 @@ class Scale(Generic):
                 tonic_modulation -= 1
                 degrees_0 += scale[ (tonic_offset + tonic_modulation) % 12 ]
         return tonic_modulation
+
+
+    @staticmethod
+    def plot(tonic_key: ou.Key = ou.Key(), scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]):
+
+        # Enable interactive mode (doesn't block the execution)
+        plt.ion()
+        fig, ax = plt.subplots(figsize=(12, 6))
+        ax.clear()
+        ax.set_title(f"Tonic {tonic_key % str()} Scale {scale}")
+
+        # Horizontal X-Axis, Time related (COMMON)
+        ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
+
+        beats_per_measure: Fraction = 4
+        quantization_beats: Fraction = 4
+        steps_per_measure: Fraction = 4
+
+        # By default it's 1 Measure long
+        last_position: Fraction = beats_per_measure
+        last_position_measures: Fraction = last_position / beats_per_measure
+        last_position_measure: int = int(last_position / beats_per_measure)
+        if last_position_measure != last_position_measures:
+            last_position_measure += 1
+
+
+        # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
+        ax.set_ylabel("Chromatic Keys")
+        # Where the corner Coordinates are defined
+        ax.format_coord = lambda x, y: (
+            f"Pitch = {int(y + 0.5)}"
+        )
+
+        # Updates X-Axis data
+        last_position = Fraction(1) # Beat 1
+        last_position_measures = last_position / beats_per_measure
+        last_position_measure = int(last_position_measures) # Trims extra length
+        if last_position_measure != last_position_measures: # Includes the trimmed length
+            last_position_measure += 1  # Adds only if the end doesn't coincide
+
+        # PITCHES VERTICAL AXIS
+        # Get pitch range
+        min_pitch: int = 0
+        max_pitch: int = 24 - 1
+
+        # Shade black keys
+        for pitch in range(min_pitch, max_pitch + 1):
+            if o.is_black_key(pitch):
+                ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+
+        # Plot notes
+        tonic_int: int = tonic_key % int()
+        for pitch, scale_key in enumerate(scale):
+            if scale_key:
+                ax.barh(y = tonic_int + pitch, width = float( 1 if o.is_black_key(tonic_int + pitch) else 2 ), left = float(1), 
+                        height=0.5, color='black', edgecolor='black', linewidth=1, linestyle='solid', alpha = 1)
+
+        # Where the VERTICAL axis is defined - Chromatic Keys
+        chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+        # Set MIDI note ticks with Middle C in bold
+        ax.set_yticks(range(min_pitch, max_pitch + 1))
+        y_labels = [
+            chromatic_keys[pitch % 12] + (str(pitch // 12) if pitch % 12 == 0 else "")
+            for pitch in range(min_pitch, max_pitch + 1)
+        ]  # Bold Middle C
+        ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+        ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+        # Draw vertical grid lines based on beats and measures
+        one_extra_subdivision: float = quantization_beats
+        single_measure: int = 1 # It's just for a scale visualization
+        step_positions = np.arange(0.0, float(single_measure * beats_per_measure + one_extra_subdivision), float(quantization_beats))
+        beat_positions = np.arange(0.0, float(single_measure * beats_per_measure + one_extra_subdivision), 1)
+        measure_positions = np.arange(0.0, float(single_measure * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
+    
+        for measure_pos in measure_positions:
+            ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+        for beat_pos in beat_positions:
+            ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5, linewidth=0.5)  # Measure lines
+        for grid_pos in step_positions:
+            ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.25, linewidth=0.5)  # Beat subdivisions
+
+        ax.set_xticks(measure_positions)  # Only show measure & beat labels
+        fig.canvas.draw_idle()
+
+        # Where the padding is set
+        plt.tight_layout()
+        plt.subplots_adjust(right=0.975)  # 2.5% right padding
+        # Avoids too thick hatch lines
+        plt.rcParams['hatch.linewidth'] = 0.10
+
+        plt.show(block=True)
 
 
     def __mod__(self, operand: o.T) -> o.T:
