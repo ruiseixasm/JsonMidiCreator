@@ -1770,20 +1770,35 @@ class Clip(Composition):  # Just a container of Elements
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
 
+    def _index_from_frame(self, frame: of.Frame) -> int:
+        """
+        Read Only method
+        """
+        frame._set_inside_container(self)
+        for index, single_element in enumerate(self._items):
+            if single_element == frame:
+                return index
+        return None
 
     def __getitem__(self, index: int | of.Frame) -> 'oe.Element':
+        """
+        Read Only method
+        """
         if isinstance(index, of.Frame):
-            index._set_inside_container(self)
-            for single_item in self._items:
-                if single_item == index:
-                    return single_item
+            element_index: int = self._index_from_frame(index)
+            if element_index is not None:
+                return self._items[element_index]
             return ol.Null()
         return super().__getitem__(index)
     
-    def __setitem__(self, index: int | of.Frame, value) -> Self:
-        index_element: oe.Element = self[index]
-        if index_element is not value:  # If it's already the same value no need to set it
-            index_element << value
+    def __setitem__(self, index: int | of.Frame, value: oe.Element) -> Self:
+        """
+        Read and Write method
+        """
+        if isinstance(value, oe.Element):
+            target_element: oe.Element = self[index]
+            if isinstance(target_element, oe.Element) and value is not target_element:
+                self._replace(target_element, value)    # Makes sure it propagates
         return self
     
     def __next__(self) -> 'oe.Element':
