@@ -1005,9 +1005,9 @@ class Plot(ReadOnly):
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._data)
         if isinstance(operand, og.Scale):
-            og.Scale.plot(operand % list())
+            og.Scale.plot(self._data[0], operand % list())
         elif isinstance(operand, ou.KeySignature):
-            og.Scale.plot(operand % list(), operand % ou.Key())
+            og.Scale.plot(self._data[0], operand % list(), operand % ou.Key(), operand % str())
         return operand
 
 

@@ -1118,21 +1118,20 @@ class Scale(Generic):
 
 
     @staticmethod
-    def plot(scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1], tonic_key: ou.Key = ou.Key()):
+    def plot(block: bool = True, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1], tonic_key: ou.Key = ou.Key(), key_signature: str = None):
 
         tonic_int: int = tonic_key % int()
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.clear()
-        ax.set_title(f"Tonic {tonic_key % str()} Scale {scale}")
+        ax.set_title(f"Scale {tonic_key % str()} {Scale.get_scale_name(scale)}{f", Key Signature '{key_signature}'" if key_signature is not None else ""}")
 
         # Horizontal X-Axis, Time related (COMMON)
         ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
-        beats_per_measure: Fraction = 4
-        quantization_beats: Fraction = 4
-        steps_per_measure: Fraction = 4
+        beats_per_measure: Fraction = Fraction(4)
+        quantization_beats: Fraction = Fraction(1) / Fraction(4)
 
         # By default it's 1 Measure long
         last_position: Fraction = beats_per_measure
@@ -1158,9 +1157,9 @@ class Scale(Generic):
         # PITCHES VERTICAL AXIS
         # Get pitch range
         min_pitch: int = 0
-        max_pitch: int = 12 - 1
-        if tonic_int > 0:
-            max_pitch = 24 - 1
+        max_pitch: int = 12
+        if key_signature is not None:
+            max_pitch = 24
 
         # Shade black keys
         for pitch in range(min_pitch, max_pitch + 1):
@@ -1181,7 +1180,7 @@ class Scale(Generic):
             chromatic_keys[pitch % 12] + (str(pitch // 12) if pitch % 12 == 0 else "")
             for pitch in range(min_pitch, max_pitch + 1)
         ]  # Bold Middle C
-        ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+        ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
         ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         # Draw vertical grid lines based on beats and measures
@@ -1198,7 +1197,7 @@ class Scale(Generic):
         for grid_pos in step_positions:
             ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.25, linewidth=0.5)  # Beat subdivisions
 
-        ax.set_xticks(measure_positions)  # Only show measure & beat labels
+        ax.set_xticks([])
         fig.canvas.draw_idle()
 
         # Where the padding is set
@@ -1207,7 +1206,7 @@ class Scale(Generic):
         # Avoids too thick hatch lines
         plt.rcParams['hatch.linewidth'] = 0.10
 
-        plt.show(block=True)
+        plt.show(block=block)
 
 
     def __mod__(self, operand: o.T) -> o.T:

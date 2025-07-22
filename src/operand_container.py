@@ -1364,7 +1364,7 @@ class Composition(Container):
                     chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
                     for pitch in range(min_pitch, max_pitch + 1)
                 ]  # Bold Middle C
-                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold' if 60 in range(min_pitch, max_pitch + 1) else 'normal')
+                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
 
                 self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
@@ -1457,14 +1457,14 @@ class Composition(Container):
         measure_positions = np.arange(0.0, float(four_measures_multiple * beats_per_measure + one_extra_subdivision), float(beats_per_measure))
     
         for measure_pos in measure_positions:
-            self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)  # Measure lines
+            self._ax.axvline(measure_pos, color='black', linestyle='-', alpha=1.0, linewidth=0.7)   # Measure lines
         for beat_pos in beat_positions:
-            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5, linewidth=0.5)  # Measure lines
+            self._ax.axvline(beat_pos, color='gray', linestyle='-', alpha=0.5, linewidth=0.5)       # Beat lines
         for grid_pos in step_positions:
-            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.25, linewidth=0.5)  # Beat subdivisions
+            self._ax.axvline(grid_pos, color='gray', linestyle='dotted', alpha=0.25, linewidth=0.5) # Step subdivisions
 
         # Set x-axis labels in 'Measure.Beat' format
-        beat_labels = [
+        measure_labels = [
             f"{int(pos // float(beats_per_measure))}" for pos in measure_positions
         ]
         
@@ -1477,9 +1477,9 @@ class Composition(Container):
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
         if four_measures_multiple > 100:
-            self._ax.set_xticklabels(beat_labels, fontsize=6, rotation=45)
+            self._ax.set_xticklabels(measure_labels, fontsize=6, rotation=45)
         else:
-            self._ax.set_xticklabels(beat_labels, rotation=0)
+            self._ax.set_xticklabels(measure_labels, rotation=0)
         self._fig.canvas.draw_idle()
 
         return None
