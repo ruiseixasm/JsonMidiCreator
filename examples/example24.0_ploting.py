@@ -35,4 +35,5 @@ four_notes << Key("A")
 
 (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot()
 
+settings % KeySignature() >> Plot()
 
