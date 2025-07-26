@@ -2486,7 +2486,7 @@ class Clip(Composition):  # Just a container of Elements
         int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
 
         Returns:
-            Container: The same self object with the items removed if any.
+            Clip: The same self object with the items removed if any.
         """
         finish_position: ra.Position = self.finish()
         if finish_position is not None:
@@ -2519,6 +2519,39 @@ class Clip(Composition):  # Just a container of Elements
                     if single_element > ra.Measure(single_measure):
                         single_measure -= ra.Measure(1)
 
+        return self
+
+    def crop(self, *measures) -> Self:
+        """
+        Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+        Parameters
+        ----------
+        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
+
+        Returns:
+            Clip: The same self object with the items removed if any.
+        """
+        finish_position: ra.Position = self.finish()
+        if finish_position is not None:
+
+            measures_list: list[int] = []
+            for single_measure in measures:
+                if isinstance(single_measure, (list, tuple, set)):
+                    for measure in single_measure:
+                        if isinstance(measure, (int, float, Fraction)):
+                            measures_list.append(int(measure))
+                elif isinstance(single_measure, (int, float, Fraction)):
+                    measures_list.append(int(measure))
+            
+            end_measure: int = finish_position % ra.Measure() % int()
+            
+            all_measures = range(end_measure + 1)
+            drop_measures: list[int] = [
+                single_measure for single_measure in all_measures
+                if single_measure not in measures_list
+            ]
+            return self.drop(drop_measures)
         return self
 
 
