@@ -2351,13 +2351,13 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = []
 
             case list():
-                clip_notes: list[oe.Note] = [
-                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
-                ]
-                for single_note in clip_notes:
-                    # Already includes call to append
-                    single_note.__imul__(operand)
-                return self # Items already sorted
+                new_elements: list[oe.Element] = []
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
+                        clip_measure << ra.Measure(index)   # Stacked by measure *
+                        new_elements.extend(clip_measure._items)
+                self._delete(self._items)._append(new_elements)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
@@ -2412,13 +2412,11 @@ class Clip(Composition):  # Just a container of Elements
                 self.__itruediv__(self_repeating)
 
             case list():
-                clip_notes: list[oe.Note] = [
-                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
-                ]
-                for single_note in clip_notes:
-                    # Already includes call to append
-                    single_note.__itruediv__(operand)
-                return self # Items already sorted
+                clip_measures: Clip = Clip()
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        clip_measures /= self.mask(ra.Measure(int(single_measure))) # Stacked notes /
+                self._delete(self._items)._append(clip_measures._items)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
@@ -2498,13 +2496,13 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(new_elements)
 
             case list():
-                clip_notes: list[oe.Note] = [
-                    single_note for single_note in self._items if isinstance(single_note, oe.Note)
-                ]
-                for single_note in clip_notes:
-                    # Already includes call to replace
-                    single_note.__ifloordiv__(operand)
-                return self # No need to sort items, is a direct replace
+                new_elements: list[oe.Element] = []
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
+                        clip_measure << ra.Measure(0)   # Side by Side //
+                        new_elements.extend(clip_measure._items)
+                self._delete(self._items)._append(new_elements)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
