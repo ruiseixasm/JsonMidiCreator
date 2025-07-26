@@ -834,25 +834,6 @@ class Container(o.Operand):
         return self
 
 
-    def drop(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
-        """
-        Removes items based on a given probability of such removal happening.
-
-        Args:
-            probability (float): The probability of an item being removed.
-            chaos (Chaos): The chaotic generation targeted by the probability.
-
-        Returns:
-            Container: The same self object with the items removed if any.
-        """
-        if not isinstance(chaos, ch.Chaos):
-            chaos = ch.SinX()
-        probability = ra.Probability(probability)._rational
-        for single_item in self._items:
-            if chaos * 1 % int() % probability.denominator < probability.numerator:
-                self._delete([ single_item ])
-        return self
-    
     def operate(self, operand: Any = None, operator: str = "<<") -> Self:
         """
         Allows the setting of a specific operator as operation with a str as operator symbol.
@@ -2466,6 +2447,51 @@ class Clip(Composition):  # Just a container of Elements
         for single_parameter in parameters:
             shallow_copy << single_parameter
         return shallow_copy
+
+
+    def drop(self, *measures) -> Self:
+        """
+        Drops from the `Clip` all given `Measure` numbers as parameters.
+
+        Parameters
+        ----------
+        int() : Accepts a sequence of integers as the Measures to be dropped.
+
+        Returns:
+            Container: The same self object with the items removed if any.
+        """
+        finish_position: ra.Position = self.finish()
+        if finish_position is not None:
+
+            measures_list: list[int] = []
+            for single_measure in measures:
+                if isinstance(single_measure, (list, tuple, set)):
+                    for measure in single_measure:
+                        if isinstance(measure, (int, float, Fraction)):
+                            measures_list.append(int(measure))
+                elif isinstance(single_measure, (int, float, Fraction)):
+                    measures_list.append(int(measure))
+            
+            end_measure: int = finish_position % ra.Measure() % int()
+            # Pre processing of the measures_list, to start dropping from the end
+            measures_list = [
+                validated_measure for validated_measure in sorted(set(measures_list), reverse=True)
+                if validated_measure <= end_measure
+            ]
+
+            for single_measure in measures_list:
+                # removes all Elements at the Measure
+                elements_to_remove: list[oe.Element] = [
+                    measure_element for measure_element in self._items
+                    if measure_element == ra.Measure(single_measure)
+                ]
+                self._delete(elements_to_remove, True)
+                # offsets the right side of it to occupy the dropped measure
+                for single_element in self._items:
+                    if single_element > ra.Measure(single_measure):
+                        single_measure -= ra.Measure(1)
+
+        return self
 
 
     def purge(self) -> Self:

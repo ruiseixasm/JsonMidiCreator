@@ -1285,21 +1285,6 @@ class Filter(ContainerProcess):
         return operand.filter(*self._data)
 
 
-class Drop(ContainerProcess):
-    """`Data -> Process -> ContainerProcess -> Drop`
-
-    Removes items based on a given probability of such removal happening.
-
-    Args:
-        probability (float): The probability of an item being removed.
-        chaos (Chaos): The chaotic generation targeted by the probability.
-    """
-    def __init__(self, probability: float | Fraction = 1/16, chaos: 'Chaos' = None):
-        super().__init__((probability, chaos))
-
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.drop(*self._data)
-
 class Operate(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Operate`
 
@@ -1511,6 +1496,21 @@ class Fit(ClipProcess):
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.fit(self._data)
+
+class Drop(ClipProcess):
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Drop`
+
+    Drops from the `Clip` all given `Measure` numbers as parameters.
+    
+    Parameters
+    ----------
+    int() : Accepts a sequence of integers as the Measures to be dropped.
+    """
+    def __init__(self, *measures):
+        super().__init__(measures)
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.drop(*self._data)
 
 class Link(ClipProcess):
     """`Data -> Process -> ContainerProcess -> ClipProcess -> Link`
