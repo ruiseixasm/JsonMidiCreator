@@ -105,7 +105,7 @@ entire_part: Part = Part()
 settings << KeySignature(1)
 chord_progression: Clip = Chord(Channel(2), Tied()) * 4
 chord_progression << Foreach(1, 4, 5)**Degree()
-chord_progression >> Rotate(-1) >> Decompose() >> Plot(False)
+chord_progression >> Rotate(-1) >> Decompose() >> Plot(block=False)
 chord_progression % int() >> Print()
 chord_progression += Rest(Measure(3))   # To occupy the 4th Measure
 chord_progression >> Tie()  # Removes notes

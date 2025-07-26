@@ -44,11 +44,11 @@ from operand_unit import Degree
 single_chord = Chord(1/4) * 1 >> Decompose() >> Stack()
 single_chord /= single_chord[0]
 
-single_chord >> Plot(False)
+single_chord >> Plot(block=False)
 
 third_note = single_chord >> Nth(3)
 third_note /= Duration(2.0)
 third_note /= third_note[0] >> Copy() << Degree(4)
 
-third_note >> Plot(False)
+third_note >> Plot(block=False)
 single_chord >> Plot()

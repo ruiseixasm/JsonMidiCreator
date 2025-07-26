@@ -25,5 +25,5 @@ from JsonMidiCreator import *
 # Global Staff setting up
 settings << Tempo(120)
 
-(Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) >> Plot(True) << Even()**Velocity(50) >> Plot(True)
+(Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) >> Plot() << Even()**Velocity(50) >> Plot()
 

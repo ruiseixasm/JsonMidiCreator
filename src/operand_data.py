@@ -991,11 +991,11 @@ class Plot(ReadOnly):
         c_button (Callable): A function intended to play the plotted clip among other compositions.
         e_button (Callable): A function to be executed by itself without any output required.
     """
-    def __init__(self, block: bool = True, pause: float = 0.0, iterations: int = 0,
+    def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  c_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  e_button: Optional[Callable[['Composition'], Any]] = None):
-        super().__init__((block, pause, iterations, n_button, c_button, e_button))
+        super().__init__((by_channel, block, pause, iterations, n_button, c_button, e_button))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -1005,9 +1005,9 @@ class Plot(ReadOnly):
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._data)
         if isinstance(operand, og.Scale):
-            og.Scale.plot(self._data[0], operand % list())
+            og.Scale.plot(self._data[1], operand % list())
         elif isinstance(operand, ou.KeySignature):
-            og.Scale.plot(self._data[0], operand % list(), operand % ou.Key(), operand % str())
+            og.Scale.plot(self._data[1], operand % list(), operand % ou.Key(), operand % str())
         return operand
 
 

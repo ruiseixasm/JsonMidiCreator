@@ -1621,7 +1621,7 @@ class Composition(Container):
         return self
 
 
-    def plot(self, block: bool = True, pause: float = 0, iterations: int = 0,
+    def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
             e_button: Optional[Callable[['Composition'], Any]] = None) -> Self:
