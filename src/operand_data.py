@@ -1464,6 +1464,36 @@ class Loop(CompositionProcess):
     def _process(self, composition: TypeComposition) -> TypeComposition:
         return composition.loop(*self._data)
 
+class Drop(CompositionProcess):
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> Drop`
+    
+    Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+    Parameters
+    ----------
+    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
+    """
+    def __init__(self, *measures):
+        super().__init__(measures)
+
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand.drop(*self._data)
+
+class Crop(CompositionProcess):
+    """`Data -> Process -> ContainerProcess -> CompositionProcess -> Crop`
+    
+    Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+    Parameters
+    ----------
+    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
+    """
+    def __init__(self, *measures):
+        super().__init__(measures)
+
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand.crop(*self._data)
+
 
 class ClipProcess(CompositionProcess):
     """`Data -> Process -> ContainerProcess -> CompositionProcess -> ClipProcess`
@@ -1496,21 +1526,6 @@ class Fit(ClipProcess):
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.fit(self._data)
-
-class Drop(ClipProcess):
-    """`Data -> Process -> ContainerProcess -> ClipProcess -> Drop`
-
-    Drops from the `Clip` all given `Measure` numbers as parameters.
-    
-    Parameters
-    ----------
-    int() : Accepts a sequence of integers as the Measures to be dropped.
-    """
-    def __init__(self, *measures):
-        super().__init__(measures)
-
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.drop(*self._data)
 
 class Link(ClipProcess):
     """`Data -> Process -> ContainerProcess -> ClipProcess -> Link`

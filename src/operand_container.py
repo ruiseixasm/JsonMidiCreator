@@ -1087,6 +1087,19 @@ class Composition(Container):
                 return super().__mod__(operand)
 
 
+    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+        """
+        Returns the plotlist for a given Position.
+
+        Args:
+            position: The reference Position where the `Composition` starts at.
+
+        Returns:
+            list[dict]: A list with multiple Plot configuration dictionaries.
+        """
+        return []
+
+
     def getSerialization(self) -> dict:
         """
         Returns the serialization in a form of a dictionary of `Clip` parameters.
@@ -1171,17 +1184,32 @@ class Composition(Container):
         return self.empty_copy()
 
 
-    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def drop(self, *measures) -> Self:
         """
-        Returns the plotlist for a given Position.
+        Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
 
-        Args:
-            position: The reference Position where the `Composition` starts at.
+        Parameters
+        ----------
+        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
 
         Returns:
-            list[dict]: A list with multiple Plot configuration dictionaries.
+            Container: The same self object with the items removed if any.
         """
-        return []
+        return self
+
+    def crop(self, *measures) -> Self:
+        """
+        Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+        Parameters
+        ----------
+        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
+
+        Returns:
+            Container: The same self object with the items removed if any.
+        """
+        return self
+
 
 
     _channel_colors = [
@@ -2451,11 +2479,11 @@ class Clip(Composition):  # Just a container of Elements
 
     def drop(self, *measures) -> Self:
         """
-        Drops from the `Clip` all given `Measure` numbers as parameters.
+        Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
 
         Parameters
         ----------
-        int() : Accepts a sequence of integers as the Measures to be dropped.
+        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
 
         Returns:
             Container: The same self object with the items removed if any.
