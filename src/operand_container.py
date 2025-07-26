@@ -1281,101 +1281,202 @@ class Composition(Container):
         # Plot Notes
         if note_channels or not automation_channels:
 
-            self._ax.set_ylabel("Chromatic Keys")
-            # Where the corner Coordinates are defined
-            self._ax.format_coord = lambda x, y: (
-                f"Time = {int(x / clip_tempo * 60 // 60)}'"
-                f"{int(x / clip_tempo * 60 % 60)}''"
-                f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
-                f"Measure = {int(x / beats_per_measure)}, "
-                f"Beat = {int(x % beats_per_measure)}, "
-                f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
-                f"Pitch = {int(y + 0.5)}"
-            )
+            if self._by_channel:
+                self._ax.set_ylabel("Channels")
 
-            note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
+                # Where the corner Coordinates are defined
+                self._ax.format_coord = lambda x, y: (
+                    f"Time = {int(x / clip_tempo * 60 // 60)}'"
+                    f"{int(x / clip_tempo * 60 % 60)}''"
+                    f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
+                    f"Measure = {int(x / beats_per_measure)}, "
+                    f"Beat = {int(x % beats_per_measure)}, "
+                    f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
+                    f"Channel = {int(y + 1)}"
+                )
 
-            if note_plotlist:
+                note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
-                # Updates X-Axis data
-                last_position = max(note["position_off"] for note in note_plotlist)
-                last_position_measures = last_position / beats_per_measure
-                last_position_measure = int(last_position_measures) # Trims extra length
-                if last_position_measure != last_position_measures: # Includes the trimmed length
-                    last_position_measure += 1  # Adds only if the end doesn't coincide
+                if note_plotlist:
 
-                # PITCHES VERTICAL AXIS
+                    # Updates X-Axis data
+                    last_position = max(note["position_off"] for note in note_plotlist)
+                    last_position_measures = last_position / beats_per_measure
+                    last_position_measure = int(last_position_measures) # Trims extra length
+                    if last_position_measure != last_position_measures: # Includes the trimmed length
+                        last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                # Get pitch range
-                min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
-                max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+                    # PITCHES VERTICAL AXIS
 
-                pitch_range: int = max_pitch - min_pitch
-                if pitch_range // 12 < 4:   # less than 4 octaves
-                    middle_c_reference: int = 60    # middle C pitch
-                    extra_octaves_range: int = 4 - pitch_range // 12
-                    for _ in range(extra_octaves_range):
-                        raised_top: int = max_pitch + 12
-                        lowered_bottom: int = min_pitch - 12
-                        if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
-                            max_pitch += 12
-                        else:
-                            min_pitch -= 12
+                    # Get pitch range
+                    min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
+                    max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+
+                    pitch_range: int = max_pitch - min_pitch
+                    if pitch_range // 12 < 4:   # less than 4 octaves
+                        middle_c_reference: int = 60    # middle C pitch
+                        extra_octaves_range: int = 4 - pitch_range // 12
+                        for _ in range(extra_octaves_range):
+                            raised_top: int = max_pitch + 12
+                            lowered_bottom: int = min_pitch - 12
+                            if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
+                                max_pitch += 12
+                            else:
+                                min_pitch -= 12
 
 
-                # Shade black keys
-                for pitch in range(min_pitch, max_pitch + 1):
-                    if o.is_black_key(pitch):
-                        self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                    # Shade black keys
+                    for pitch in range(min_pitch, max_pitch + 1):
+                        if o.is_black_key(pitch):
+                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
-                # Plot notes
-                for channel in note_channels:
-                    channel_color = Clip._channel_colors[channel - 1]
-                    channel_plotlist = [
-                        channel_note for channel_note in note_plotlist
-                        if channel_note["channel"] == channel
-                    ]
+                    # Plot notes
+                    for channel in note_channels:
+                        channel_color = Clip._channel_colors[channel - 1]
+                        channel_plotlist = [
+                            channel_note for channel_note in note_plotlist
+                            if channel_note["channel"] == channel
+                        ]
 
-                    for note in channel_plotlist:
-                        if type(note["self"]) is oe.Rest:
-                            # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                            self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
-                        else:
-                            bar_hatch: str = ''
-                            line_style: str = 'solid'
-                            if isinstance(note["self"], oe.KeyScale):
-                                line_style = 'dashed'
-                            elif isinstance(note["self"], oe.Retrigger):
-                                line_style = 'dotted'
-                            edge_color: str = 'black'
-                            color_alpha: float = max(0.1, note["velocity"] / 127)
-                            if note["velocity"] > 127:
-                                edge_color = 'red'
-                                color_alpha = 1.0
-                            elif note["velocity"] < 0:
-                                edge_color = 'blue'
-                                color_alpha = 1.0
-                            
-                            self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                    height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
+                        for note in channel_plotlist:
+                            if type(note["self"]) is oe.Rest:
+                                # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
+                            else:
+                                bar_hatch: str = ''
+                                line_style: str = 'solid'
+                                if isinstance(note["self"], oe.KeyScale):
+                                    line_style = 'dashed'
+                                elif isinstance(note["self"], oe.Retrigger):
+                                    line_style = 'dotted'
+                                edge_color: str = 'black'
+                                color_alpha: float = max(0.1, note["velocity"] / 127)
+                                if note["velocity"] > 127:
+                                    edge_color = 'red'
+                                    color_alpha = 1.0
+                                elif note["velocity"] < 0:
+                                    edge_color = 'blue'
+                                    color_alpha = 1.0
+                                
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
 
-                            if "middle_pitch" in note:
-                                self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
-                                                color='black', linewidth=0.5, alpha = color_alpha)
-            
+                                if "middle_pitch" in note:
+                                    self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                                    color='black', linewidth=0.5, alpha = color_alpha)
+                
 
-                # Where the VERTICAL axis is defined - Chromatic Keys
-                chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
-                # Set MIDI note ticks with Middle C in bold
-                self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-                y_labels = [
-                    chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
-                    for pitch in range(min_pitch, max_pitch + 1)
-                ]  # Bold Middle C
-                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+                    # Where the VERTICAL axis is defined - Chromatic Keys
+                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                    # Set MIDI note ticks with Middle C in bold
+                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                    y_labels = [
+                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
+                        for pitch in range(min_pitch, max_pitch + 1)
+                    ]  # Bold Middle C
+                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
 
-                self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+
+            else:
+
+                self._ax.set_ylabel("Chromatic Keys")
+                # Where the corner Coordinates are defined
+                self._ax.format_coord = lambda x, y: (
+                    f"Time = {int(x / clip_tempo * 60 // 60)}'"
+                    f"{int(x / clip_tempo * 60 % 60)}''"
+                    f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
+                    f"Measure = {int(x / beats_per_measure)}, "
+                    f"Beat = {int(x % beats_per_measure)}, "
+                    f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
+                    f"Pitch = {int(y + 0.5)}"
+                )
+
+                note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
+
+                if note_plotlist:
+
+                    # Updates X-Axis data
+                    last_position = max(note["position_off"] for note in note_plotlist)
+                    last_position_measures = last_position / beats_per_measure
+                    last_position_measure = int(last_position_measures) # Trims extra length
+                    if last_position_measure != last_position_measures: # Includes the trimmed length
+                        last_position_measure += 1  # Adds only if the end doesn't coincide
+
+                    # PITCHES VERTICAL AXIS
+
+                    # Get pitch range
+                    min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
+                    max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+
+                    pitch_range: int = max_pitch - min_pitch
+                    if pitch_range // 12 < 4:   # less than 4 octaves
+                        middle_c_reference: int = 60    # middle C pitch
+                        extra_octaves_range: int = 4 - pitch_range // 12
+                        for _ in range(extra_octaves_range):
+                            raised_top: int = max_pitch + 12
+                            lowered_bottom: int = min_pitch - 12
+                            if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
+                                max_pitch += 12
+                            else:
+                                min_pitch -= 12
+
+
+                    # Shade black keys
+                    for pitch in range(min_pitch, max_pitch + 1):
+                        if o.is_black_key(pitch):
+                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+
+                    # Plot notes
+                    for channel in note_channels:
+                        channel_color = Clip._channel_colors[channel - 1]
+                        channel_plotlist = [
+                            channel_note for channel_note in note_plotlist
+                            if channel_note["channel"] == channel
+                        ]
+
+                        for note in channel_plotlist:
+                            if type(note["self"]) is oe.Rest:
+                                # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
+                            else:
+                                bar_hatch: str = ''
+                                line_style: str = 'solid'
+                                if isinstance(note["self"], oe.KeyScale):
+                                    line_style = 'dashed'
+                                elif isinstance(note["self"], oe.Retrigger):
+                                    line_style = 'dotted'
+                                edge_color: str = 'black'
+                                color_alpha: float = max(0.1, note["velocity"] / 127)
+                                if note["velocity"] > 127:
+                                    edge_color = 'red'
+                                    color_alpha = 1.0
+                                elif note["velocity"] < 0:
+                                    edge_color = 'blue'
+                                    color_alpha = 1.0
+                                
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
+
+                                if "middle_pitch" in note:
+                                    self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                                    color='black', linewidth=0.5, alpha = color_alpha)
+                
+
+                    # Where the VERTICAL axis is defined - Chromatic Keys
+                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                    # Set MIDI note ticks with Middle C in bold
+                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                    y_labels = [
+                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
+                        for pitch in range(min_pitch, max_pitch + 1)
+                    ]  # Bold Middle C
+                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+
+                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         
         # Plot Automations
@@ -1651,6 +1752,7 @@ class Composition(Container):
         """
         self._iterations: list[Composition] = [ type(self)(self) ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
+        self._by_channel: bool = by_channel
         self._iteration: int = 0
         self._n_function = n_button
         self._c_function = c_button
