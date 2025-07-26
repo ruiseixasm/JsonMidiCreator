@@ -1306,29 +1306,12 @@ class Composition(Container):
                     if last_position_measure != last_position_measures: # Includes the trimmed length
                         last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                    # PITCHES VERTICAL AXIS
-
-                    # Get pitch range
-                    min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
-                    max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
-
-                    pitch_range: int = max_pitch - min_pitch
-                    if pitch_range // 12 < 4:   # less than 4 octaves
-                        middle_c_reference: int = 60    # middle C pitch
-                        extra_octaves_range: int = 4 - pitch_range // 12
-                        for _ in range(extra_octaves_range):
-                            raised_top: int = max_pitch + 12
-                            lowered_bottom: int = min_pitch - 12
-                            if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
-                                max_pitch += 12
-                            else:
-                                min_pitch -= 12
-
+                    # CHANNELS VERTICAL AXIS
 
                     # Shade black keys
-                    for pitch in range(min_pitch, max_pitch + 1):
-                        if o.is_black_key(pitch):
-                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                    for channel in range(16):
+                        if channel % 2 == 1:
+                            self._ax.axhspan(channel - 0.5, channel + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
                     for channel in note_channels:
@@ -1341,7 +1324,7 @@ class Composition(Container):
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
                             else:
                                 bar_hatch: str = ''
@@ -1359,25 +1342,20 @@ class Composition(Container):
                                     edge_color = 'blue'
                                     color_alpha = 1.0
                                 
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
 
                                 if "middle_pitch" in note:
-                                    self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                    self._ax.hlines(y=note["channel"] - 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha = color_alpha)
                 
-
-                    # Where the VERTICAL axis is defined - Chromatic Keys
-                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
-                    # Set MIDI note ticks with Middle C in bold
-                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                    # Set MIDI channel ticks with Middle C in bold
+                    self._ax.set_yticks(range(16))
                     y_labels = [
-                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
-                        for pitch in range(min_pitch, max_pitch + 1)
-                    ]  # Bold Middle C
+                        channel + 1 for channel in range(16)
+                    ]
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-
-                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+                    self._ax.set_ylim(0 - 0.5, 15 + 0.5)  # Ensure all channels fit
 
 
             else:
@@ -1425,9 +1403,9 @@ class Composition(Container):
 
 
                     # Shade black keys
-                    for pitch in range(min_pitch, max_pitch + 1):
-                        if o.is_black_key(pitch):
-                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                    for channel in range(min_pitch, max_pitch + 1):
+                        if o.is_black_key(channel):
+                            self._ax.axhspan(channel - 0.5, channel + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
                     for channel in note_channels:
@@ -1475,7 +1453,6 @@ class Composition(Container):
                         for pitch in range(min_pitch, max_pitch + 1)
                     ]  # Bold Middle C
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-
                     self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
         
