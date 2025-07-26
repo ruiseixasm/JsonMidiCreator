@@ -437,6 +437,16 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__imul__(operand)
+            case list():
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        if self == ra.Measure(int(single_measure)):
+                            self << ra.Measure(index)   # Stacked by measure *
+                            if self._owner_clip is not None:
+                                return self._set_owner_clip._sort_items()
+                            return oc.Clip(self)
+                return oc.Clip()    # Empty Clip, self excluded
+
             case _:
                 self_operand: any = self % operand
                 self_operand *= operand # Generic `self_operand`
@@ -483,6 +493,21 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__itruediv__(operand)
+            case list():
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        if self == ra.Measure(int(single_measure)):
+                            if self._owner_clip is not None:
+                                measure_finish: ra.Position = self._owner_clip._mask(ra.Measure(single_measure))._finish()
+                                if measure_finish is not None:
+                                    self << measure_finish
+                                else:
+                                    self << ra.Position(self, index)    # Stacked by element /
+                                return self._set_owner_clip._sort_items()
+                            self << ra.Position(self, index)    # Stacked by element /
+                            return oc.Clip(self)
+                return oc.Clip()    # Empty Clip, self excluded
+
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
@@ -570,6 +595,16 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
+            case list():
+                for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, (int, float, Fraction)):
+                        if self == ra.Measure(int(single_measure)):
+                            self << ra.Measure(0)   # Side by Side //
+                            if self._owner_clip is not None:
+                                return self._set_owner_clip._sort_items()
+                            return oc.Clip(self)
+                return oc.Clip()    # Empty Clip, self excluded
+
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
