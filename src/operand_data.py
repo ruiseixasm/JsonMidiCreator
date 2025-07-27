@@ -1061,8 +1061,8 @@ class Print(ReadOnly):
     Args:
         formatted (bool): If False prints the `Operand` content in a single line.
     """
-    def __init__(self, formatted: bool = True):
-        super().__init__( 1 if formatted is None else formatted )
+    def __init__(self, serialization: bool = False):
+        super().__init__( False if serialization is None else serialization )
 
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
@@ -1074,10 +1074,9 @@ class Print(ReadOnly):
                     json_formatted_str = json.dumps(json_object, indent=4)
                     print(json_formatted_str)
                 else:
-                    print(operand_serialization)
-            # case tuple():
-            #     return super().__rrshift__(operand)
-            case _: print(operand)
+                    print(operand % str())
+            case _:
+                print(operand)
         return operand
 
 class Copy(ReadOnly):
