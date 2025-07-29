@@ -679,8 +679,7 @@ def test_element_stacking():
     print(f"Position: {four_notes[0] % Position() % Fraction()}")
     assert four_notes[0] % Position() == Beats(4)
 
-    
-test_element_stacking()
+# test_element_stacking()
 
 
 def test_lshift_clip():
@@ -705,7 +704,7 @@ def test_lshift_clip():
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60
-    two_measures << 30  # For a Note int is the Pitch << int
+    two_measures << Pitch(30)
     assert two_measures[0] % Pitch() == 30
     two_measures << Pitch()
     assert two_measures[0] % Pitch() == 60
@@ -955,7 +954,7 @@ def test_clip_operations():
 def test_flip_operation():
 
     four_notes: Clip = Note() / 4
-    four_notes << Iterate(60, 2)**int()
+    four_notes << Iterate(60, 2)**Pitch()
 
     actual_pitch: int = 60
     for single_note in four_notes:

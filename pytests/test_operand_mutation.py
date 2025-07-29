@@ -33,7 +33,7 @@ import sys
 
 def test_mutation_mod():
 
-    four_notes = Note() * 4 << Cycle(1, 3, 4, 5)
+    four_notes = Note() * 4 << Cycle(1, 3, 4, 5)**Pitch()
     # Perform the operation
     mutation = Exchange() * 100 # Position parameter by default
     # four_notes remains the same, just like mutation

@@ -1023,7 +1023,6 @@ class Note(Element):
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case int():             return self._pitch.pitch_int()
             case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
@@ -1273,7 +1272,6 @@ class Note(Element):
                                             self._pitch << operand
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
-            case int():             self._pitch << operand
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
