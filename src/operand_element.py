@@ -212,8 +212,8 @@ class Element(o.Operand):
             return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
-        self_numerator: int = self._get_time_signature()._time_signature._top
-        self_denominator: int = self._get_time_signature()._time_signature._bottom
+        self_numerator: int = self._get_time_signature()._top
+        self_denominator: int = self._get_time_signature()._bottom
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
