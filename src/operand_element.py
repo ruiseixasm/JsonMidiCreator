@@ -957,6 +957,21 @@ class Note(Element):
         self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
 
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._velocity  == other._velocity \
+                    and self._gate      == other._gate \
+                    and self._tied      == other._tied \
+                    and self._pitch     == other._pitch
+            case int():
+                return self._pitch.pitch_int() == other
+            case _:
+                return super().__eq__(other)
+
     def __lt__(self, other: 'o.Operand') -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
@@ -969,10 +984,8 @@ class Note(Element):
                         return super().__lt__(other)
                     return self_pitch < other_pitch
                 return super().__lt__(other)
-            case Element():
-                return super().__lt__(other)
             case _:
-                return self % other < other
+                return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
         other ^= self    # Processes the Frame operand if any exists
@@ -986,10 +999,8 @@ class Note(Element):
                         return super().__gt__(other)
                     return self_pitch > other_pitch
                 return super().__gt__(other)
-            case Element():
-                return super().__gt__(other)
             case _:
-                return self % other > other
+                return super().__gt__(other)
     
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -1024,20 +1035,6 @@ class Note(Element):
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._velocity  == other._velocity \
-                    and self._gate      == other._gate \
-                    and self._tied      == other._tied \
-                    and self._pitch     == other._pitch
-            case int(): # int() for Note concerns Degree
-                return self._pitch._degree_0 == other
-            case _:
-                return super().__eq__(other)
 
 
     def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
