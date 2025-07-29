@@ -123,9 +123,6 @@ class Element(o.Operand):
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
-                    case int():
-                        return ra.Beats(self, self._position_beats) % ra.Measures() % int()
-                    case float():           return float( self._duration_beats )
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
@@ -134,12 +131,10 @@ class Element(o.Operand):
                 return ra.Beats(self, self._position_beats) % operand
             case ra.Duration() | ra.Length() | ra.NoteValue() | ra.TimeValue():
                 return operand.copy( ra.Beats(self, self._duration_beats) )
-            case float():
-                return self % ra.NoteValue() % float()
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
-            case int():
-                return ra.Beats(self, self._position_beats) % ra.Measures() % int()
+            case int():             return self % ra.Measure() % int()
+            case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
@@ -278,12 +273,11 @@ class Element(o.Operand):
 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._position_beats  = operand._data._rational
+                    case ra.Position():     self._position_beats = operand._data._rational
                     case ra.Duration() | ra.Length():
-                        self._duration_beats  = operand._data._rational
+                                            self._duration_beats = operand._data._rational
                     case ou.Channel():      self._channel = operand._data._unit
                     case Fraction():        self._duration_beats = operand._data
-                    case float():           self._duration_beats = ra.Duration(operand._data)._rational
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -291,17 +285,17 @@ class Element(o.Operand):
                 self._duration_beats        = operand._rational
             case ra.NoteValue() | ra.TimeValue():
                 self << ra.Duration(self, operand)
-            case float():
-                self << ra.NoteValue(operand)
             case ra.Position():
                 self._position_beats        = operand._rational
             case ra.TimeUnit():
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()
+            case int():
+                self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
+            case float():
+                self << ra.NoteValue(operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
-            case int():
-                self._position_beats        = ra.Measures(self, operand) % ra.Beats() % Fraction()
             case ou.Channel():
                 self._channel               = operand._unit
             case ou.Enable():
