@@ -2353,6 +2353,8 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 new_elements: list[oe.Element] = []
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
                         clip_measure << ra.Measure(index)   # Stacked by measure *
@@ -2414,6 +2416,8 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 clip_measures: Clip = Clip()
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         clip_measures /= self.mask(ra.Measure(int(single_measure))) # Stacked notes /
                 self._delete(self._items)._append(clip_measures._items)._set_owner_clip()
@@ -2498,6 +2502,8 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 new_elements: list[oe.Element] = []
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
                         clip_measure << ra.Measure(0)   # Side by Side //

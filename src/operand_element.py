@@ -433,6 +433,8 @@ class Element(o.Operand):
                     return oc.Clip(self).__imul__(operand)
             case list():
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         if self == ra.Measure(int(single_measure)):
                             self << ra.Measure(index)   # Stacked by measure *
@@ -489,6 +491,8 @@ class Element(o.Operand):
                     return oc.Clip(self).__itruediv__(operand)
             case list():
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         if self == ra.Measure(int(single_measure)):
                             if self._owner_clip is not None:
@@ -591,6 +595,8 @@ class Element(o.Operand):
                     return oc.Clip(self).__ifloordiv__(operand)
             case list():
                 for index, single_measure in enumerate(operand):
+                    if isinstance(single_measure, ra.Measure):
+                        single_measure = single_measure % int()
                     if isinstance(single_measure, (int, float, Fraction)):
                         if self == ra.Measure(int(single_measure)):
                             self << ra.Measure(0)   # Side by Side //
