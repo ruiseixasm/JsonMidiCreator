@@ -685,44 +685,28 @@ class Container(o.Operand):
             del parameters[data_index] # Like picking up colored balls, pop out
         return self._sort_items()
 
-    def swap(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+    def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
         """
-        Reaffects the given parameter type in a chaotic manner accordingly to a probability.
+        This method swaps a given parameter type between two operands.
 
         Args:
-            probability (Probability): A given probability of swapping.
-            chaos (Chaos): An Chaos object to be used as sorter.
-            parameter (type): The type of parameter being swapped around the items.
+            left_item (any): The first item called the left item.
+            right_item (any): The second item called the right item.
+            parameter (type): The parameters that will be switched between both operands.
 
         Returns:
-            Container: The same self object with the items processed.
+            Container: The same self object with the operands processed.
         """
-        if self.len() > 0:
-            if probability is None or not isinstance(probability, ra.Probability):
-                probability = ra.Probability(1/self.len()**2)
-            if chaos is None or not isinstance(chaos, ch.Chaos):
-                chaos = ch.SinX()
-            
-            parameter_instance = parameter()
-            for element_i in range(self.len()):
-                for element_j in range(self.len()):
-                    
-                    if chaos * 1 % int() \
-                        % probability._rational.denominator < probability._rational.numerator:   # Make the swap
-
-                        if isinstance(parameter_instance, od.Pipe):
-
-                            self._swap(self[element_i], self[element_j])
-                            # temp_element: oe.Element = self[element_i]
-                            # self[element_i] = self[element_j]
-                            # self[element_j] = temp_element
-
-                        else:
-
-                            temp_parameter: any = self[element_i] % parameter_instance
-                            self[element_i] << self[element_j] % parameter_instance
-                            self[element_j] << temp_parameter
-
+        if self.len() > 0 and isinstance(parameter_type, type):
+            if isinstance(left_operand, int):
+                left_operand = self[left_operand]
+            if isinstance(right_operand, int):
+                right_operand = self[right_operand]
+            if isinstance(left_operand, o.Operand) and isinstance(right_operand, o.Operand):
+                parameter_instance = parameter_type()
+                left_parameter: any = left_operand % parameter_instance
+                left_operand << right_operand % parameter_instance
+                right_operand << left_parameter
         return self._sort_items()
 
     def reverse(self) -> Self:

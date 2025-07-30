@@ -1345,17 +1345,17 @@ class Shuffle(ContainerProcess):
 class Swap(ContainerProcess):
     """`Data -> Process -> ContainerProcess -> Swap`
 
-    Reaffects the given parameter type in a chaotic manner accordingly to a probability.
+    This `Process` swaps a given parameter type between two operands.
 
     Args:
-        probability (Probability): A given probability of swapping.
-        chaos (Chaos): An Chaos object to be used as sorter.
-        parameter (type): The type of parameter being swapped around the items.
+        left_item (any): The first item called the left item.
+        right_item (any): The second item called the right item.
+        parameter (type): The parameters that will be switched between both operands.
     """
     from operand_rational import Position
 
-    def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
-        super().__init__((probability, chaos, parameter))
+    def __init__(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = Position):
+        super().__init__((left_operand, right_operand, parameter_type))
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.swap(*self._data)
