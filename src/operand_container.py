@@ -2552,6 +2552,27 @@ class Clip(Composition):  # Just a container of Elements
         return shallow_copy
 
 
+    def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
+        """
+        This method swaps a given parameter type between two operands.
+
+        Args:
+            left_item (any): The first item called the left item.
+            right_item (any): The second item called the right item.
+            parameter (type): The parameters that will be switched between both operands.
+
+        Returns:
+            Container: The same self object with the operands processed.
+        """
+        if self.len() > 0 and isinstance(parameter_type, type):
+            if isinstance(left_operand, of.Frame):
+                left_operand = self[left_operand]
+            if isinstance(right_operand, of.Frame):
+                right_operand = self[right_operand]
+            return super().swap(left_operand, right_operand, parameter_type)
+        return self
+
+
     def drop(self, *measures) -> Self:
         """
         Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
