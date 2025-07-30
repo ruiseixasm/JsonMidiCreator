@@ -197,6 +197,14 @@ class Container(o.Operand):
             case Container():
                 return self.copy()
             case list():
+                if operand: # Non empty list
+                    parameters: list = []
+                    for single_item in self._items:
+                        item_parameter: any = single_item
+                        for single_parameter in operand:
+                            item_parameter = item_parameter % single_parameter
+                        parameters.append( item_parameter )
+                    return parameters
                 return [
                     self.deep_copy(item) for item in self._items
                 ]

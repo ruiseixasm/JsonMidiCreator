@@ -1075,6 +1075,11 @@ class Print(ReadOnly):
                     print(json_formatted_str)
                 else:
                     print(operand % str())
+            case list():
+                for index, value in enumerate(operand):
+                    if isinstance(value, o.Operand):
+                        operand[index] %= str()
+                print(operand)
             case _:
                 print(operand)
         return operand
