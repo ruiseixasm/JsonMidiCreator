@@ -1744,10 +1744,16 @@ class Segment(Generic):
             case ra.Beat():
                 if len(self._segment) < 2:
                     return None
-                return operand.copy(self._segment[1])
+                if len(self._segment) == 2:
+                    return operand.copy(self._segment[1])
+                steps_per_beat: int = int(1 / settings._quantization)
+                return operand.copy(self._segment[2] // steps_per_beat)
             case ra.Step():
-                if len(self._segment) < 3:
+                if len(self._segment) < 2:
                     return None
+                if len(self._segment) == 2:
+                    steps_per_beat: int = int(1 / settings._quantization)
+                    return operand.copy(self._segment[1] * steps_per_beat)
                 return operand.copy(self._segment[2])
             case int():
                 if len(self._segment) < 1:
@@ -1756,9 +1762,19 @@ class Segment(Generic):
             case float():
                 if len(self._segment) < 1:
                     return None
-                if len(self._segment) > 1:
+                if len(self._segment) == 2:
                     return round(self._segment[0] + self._segment[1] / 10, 1)
+                if len(self._segment) == 3:
+                    return round(self._segment[0] + self._segment[2] / 10, 1)
                 return float(self._segment[0])
+            case str():
+                if len(self._segment) < 1:
+                    return ""
+                if len(self._segment) == 1:
+                    return "Measure"
+                if len(self._segment) == 2:
+                    return "Measure.Beat"
+                return "Measure.Step"
             case _:
                 return super().__mod__(operand)
 
@@ -1768,6 +1784,8 @@ class Segment(Generic):
             return True
         match other:
             case Segment():
+                if len(self._segment) == 3:
+                    return self._segment[0] == other._segment[0] and self._segment[2] == other._segment[2]
                 return self._segment == other._segment
             case ra.Measure():
                 if len(self._segment) < 1:
@@ -1776,11 +1794,19 @@ class Segment(Generic):
             case ra.Beat():
                 if len(self._segment) < 2:
                     return True
-                return self._segment[1] == other % int()
+                if len(self._segment) == 2:
+                    return self._segment[1] == other % int()
+                return False
             case ra.Step():
-                if len(self._segment) < 3:
+                if len(self._segment) < 2:
                     return True
-                return self._segment[2] == other % int()
+                if len(self._segment) == 2:
+                    steps_per_beat: int = int(1 / settings._quantization)
+                    step_beat: int = other % int() // steps_per_beat
+                    return self._segment[1] == step_beat
+                if len(self._segment) == 3:
+                    return self._segment[2] == other % int()
+                return False
             case int():
                 if len(self._segment) < 1:
                     return True
@@ -1788,19 +1814,22 @@ class Segment(Generic):
             case float():
                 if len(self._segment) < 1:
                     return True
-                if len(self._segment) > 1:
+                if len(self._segment) == 2:
                     return self._segment[0] == round(other) and self._segment[1] == round((other - round(other)) * 10)
+                if len(self._segment) == 3:
+                    return self._segment[0] == round(other) and self._segment[2] == round((other - round(other)) * 10)
                 return self._segment[0] == round(other)
             case ra.Position():
                 if self._segment:
                     position_segment: list[int] = []
                     if len(self._segment) > 0:
                         position_segment.append( other % ra.Measure() % int() )
-                        if len(self._segment) > 1:
+                        if len(self._segment) == 2:
                             position_segment.append( other % ra.Beat() % int() )
-                            if len(self._segment) > 2:
-                                position_segment.append( other % ra.Step() % int() )
-                    return self._segment == position_segment
+                        elif len(self._segment) == 3:
+                            position_segment.append( 0 )    # No Beat defined
+                            position_segment.append( other % ra.Step() % int() )
+                    return self == Segment(position_segment)
                 else:
                     return True
             case od.Conditional():
@@ -1844,32 +1873,42 @@ class Segment(Generic):
             case ra.Measure():
                 if len(self._segment) > 0:
                     self._segment[0] = operand % int()
+                else:
+                    self._segment.append(operand % int())
             case ra.Beat():
                 if len(self._segment) > 1:
                     self._segment[1] = operand % int()
+                elif len(self._segment) == 1:
+                    self._segment.append(operand % int())
+                elif len(self._segment) == 0:
+                    self._segment.append(0) # Default is Measure 0
+                    self._segment.append(operand % int())
             case ra.Step():
                 if len(self._segment) > 2:
                     self._segment[2] = operand % int()
+                elif len(self._segment) == 2:
+                    self._segment.append(operand % int())
+                elif len(self._segment) == 1:
+                    self._segment.append(0) # Default is Beat 0
+                    self._segment.append(operand % int())
+                elif len(self._segment) == 0:
+                    self._segment.append(0) # Default is Measure 0
+                    self._segment.append(0) # Default is Beat 0
+                    self._segment.append(operand % int())
             case int():
-                if len(self._segment) > 0:
-                    self._segment[0] = operand
+                self << ra.Measure(operand)
             case float():
-                if len(self._segment) > 0:
-                    self._segment[0] = round(operand)
-                    if len(self._segment) > 1:
-                        self._segment[1] = round((operand - self._segment[0]) * 10)
+                self << ra.Measure(round(operand))
+                self << ra.Beat(round((operand - round(operand)) * 10))
             case ra.Position():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
                 if self._segment:
-                    position_segment: list[int] = []
-                    if len(self._segment) > 0:
-                        position_segment.append( operand % ra.Measure() % int() )
-                        if len(self._segment) > 1:
-                            position_segment.append( operand % ra.Beat() % int() )
-                            if len(self._segment) > 2:
-                                position_segment.append( operand % ra.Step() % int() )
-                    self._segment = position_segment
+                    self._segment[0] = operand % ra.Measure() % int()
+                    if len(self._segment) == 2:
+                        self._segment[1] = operand % ra.Beat() % int()
+                    elif len(self._segment) == 3:
+                        self._segment[2] = operand % ra.Step() % int()
             case oe.Element() | oc.Composition():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._get_time_signature()
