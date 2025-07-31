@@ -1738,7 +1738,9 @@ class Segment(Generic):
                     return None
                 return operand.copy(self._segment[2])
             case int():
-                return len(self._segment)
+                if len(self._segment) < 1:
+                    return None
+                return self._segment[0]
             case _:
                 return super().__mod__(operand)
 
@@ -1761,6 +1763,10 @@ class Segment(Generic):
                 if len(self._segment) < 3:
                     return True
                 return self._segment[2] == other % int()
+            case int():
+                if len(self._segment) < 1:
+                    return True
+                return self._segment[0] == other
             case ra.Position():
                 if self._segment:
                     position_segment: list[int] = [ other % ra.Measure() % int() ]
@@ -1815,21 +1821,42 @@ class Segment(Generic):
             case ra.Step():
                 if len(self._segment) > 2:
                     self._segment[2] = operand % int()
+            case int():
+                if len(self._segment) > 0:
+                    self._segment[0] = operand
         return self
     
     def __iadd__(self, operand: any) -> Self:
         match operand:
-            case ra.TimeUnit():
-                self._segment += operand
-                return self
-        return super().__iadd__(operand)
+            case ra.Measure():
+                if len(self._segment) > 0:
+                    self._segment[0] += operand % int()
+            case ra.Beat():
+                if len(self._segment) > 1:
+                    self._segment[1] += operand % int()
+            case ra.Step():
+                if len(self._segment) > 2:
+                    self._segment[2] += operand % int()
+            case int():
+                if len(self._segment) > 0:
+                    self._segment[0] += operand
+        return self
 
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case ra.TimeUnit():
-                self._segment -= operand
-                return self
-        return super().__isub__(operand)
+            case ra.Measure():
+                if len(self._segment) > 0:
+                    self._segment[0] -= operand % int()
+            case ra.Beat():
+                if len(self._segment) > 1:
+                    self._segment[1] -= operand % int()
+            case ra.Step():
+                if len(self._segment) > 2:
+                    self._segment[2] -= operand % int()
+            case int():
+                if len(self._segment) > 0:
+                    self._segment[0] -= operand
+        return self
 
 
 
