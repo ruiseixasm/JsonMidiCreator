@@ -1747,6 +1747,18 @@ class Segment(Generic):
         match other:
             case Segment():
                 return self._segment == other._segment
+            case ra.Measure():
+                if len(self._segment) < 1:
+                    return True
+                return self._segment[0] == other % int()
+            case ra.Beat():
+                if len(self._segment) < 2:
+                    return True
+                return self._segment[1] == other % int()
+            case ra.Step():
+                if len(self._segment) < 3:
+                    return True
+                return self._segment[2] == other % int()
             case od.Conditional():
                 return other == self
             case _:
