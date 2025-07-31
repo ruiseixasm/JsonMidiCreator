@@ -127,7 +127,7 @@ def test_clip_mod():
 # test_clip_mod()
 
 
-def _test_owner_clip():
+def test_owner_clip():
 
     clip_add: Clip = Note() + Note()
     assert clip_add._test_owner_clip()
@@ -140,7 +140,7 @@ def _test_owner_clip():
     assert (clip_add + clip_mul)._test_owner_clip()
     assert (clip_add * clip_mul)._test_owner_clip()
 
-# _test_owner_clip()
+# test_owner_clip()
 
 
 def test_time_signature():
