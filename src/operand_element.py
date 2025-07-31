@@ -500,20 +500,18 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__itruediv__(operand)
             case list():
-                for index, single_measure in enumerate(operand):
-                    if isinstance(single_measure, ra.Measure):
-                        single_measure = single_measure % int()
-                    if isinstance(single_measure, (int, float, Fraction)):
-                        if self == ra.Measure(int(single_measure)):
-                            if self._owner_clip is not None:
-                                measure_finish: ra.Position = self._owner_clip._mask(ra.Measure(single_measure))._finish()
-                                if measure_finish is not None:
-                                    self << measure_finish
-                                else:
-                                    self << ra.Position(self, index)    # Stacked by element /
-                                return self._set_owner_clip._sort_items()
-                            self << ra.Position(self, index)    # Stacked by element /
-                            return oc.Clip(self)
+                segments_list: list[og.Segment] = []
+                for single_segment in operand:
+                    segments_list.append(og.Segment(self, single_segment))
+                for single_segment in segments_list:
+                    if self == single_segment:
+                        if self._owner_clip is not None:
+                            # Starts to cumulate as expected
+                            owner_clip_finish: ra.Position = self._owner_clip.mask(single_segment).finish()
+                            if owner_clip_finish is not None:
+                                self << owner_clip_finish
+                                return self._owner_clip._sort_items()
+                        return oc.Clip(self << ra.Position(Fraction(0)))
                 return oc.Clip()    # Empty Clip, self excluded
 
             case _:
