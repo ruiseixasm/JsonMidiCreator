@@ -1706,7 +1706,7 @@ class Segment(Generic):
 
     Parameters
     ----------
-    list([0]) : The default is the Measure(0), `[0]`, for the first Beat use [0, 0], and for the first Step, use, [0, 0, 0].
+    list([0]) : The default is the `Measure(0)`, `[0]`, for the first Beat use `[0, 0]`, and for the first Step, use, `[0, 0, 0]`.
     """
     def __init__(self, *parameters):
         super().__init__()
