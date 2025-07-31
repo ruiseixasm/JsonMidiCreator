@@ -1711,7 +1711,7 @@ class Segment(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._segment: list[int] = [0]
-        self._time_signature_reference: og.TimeSignature = None
+        self._time_signature_reference: TimeSignature = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
