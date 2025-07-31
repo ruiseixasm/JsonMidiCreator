@@ -1759,6 +1759,16 @@ class Segment(Generic):
                 if len(self._segment) < 3:
                     return True
                 return self._segment[2] == other % int()
+            case ra.Position():
+                if self._segment:
+                    position_segment: list[int] = [ other % ra.Measure() % int() ]
+                    if len(self._segment) > 1:
+                        position_segment.append( other % ra.Beat() % int() )
+                        if len(self._segment) > 2:
+                            position_segment.append( other % ra.Step() % int() )
+                    return self._segment == position_segment
+                else:
+                    return True
             case od.Conditional():
                 return other == self
             case _:
