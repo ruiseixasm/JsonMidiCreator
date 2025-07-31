@@ -1706,11 +1706,11 @@ class Segment(Generic):
 
     Parameters
     ----------
-    list([0]) : The default is the `Measure(0)`, `[0]`, for the first Beat use `[0, 0]`, and for the first Step, use, `[0, 0, 0]`.
+    list([]) : The default is the entire piece, `[]`, for the first Beat use `[0, 0]`, and for the first Step, use, `[0, 0, 0]`.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._segment: list[int] = [0]
+        self._segment: list[int] = []
         self._time_signature_reference: TimeSignature = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
