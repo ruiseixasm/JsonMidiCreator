@@ -1698,6 +1698,120 @@ class Arpeggio(Generic):
         return self
 
 
+class Segment(Generic):
+    """`Generic -> Segment`
+
+    A Segment concerns a single unitary positional section of Time, meaning, a single Measure, a single Beat,
+    or a single Step, where the order is set by Measure, Beat, Step.
+
+    Parameters
+    ----------
+    list([0]) : The default is the Measure(0), `[0]`, for the first Beat use [0, 0], and for the first Step, use,
+    [0, 0, 0].
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._segment: list[int] = [0]
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_element as oe
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case list():                return self._segment
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case list():                return self._segment.copy()
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        match other:
+            case Segment():
+                return self._segment == other._segment
+            case od.Conditional():
+                return other == self
+            case _:
+                return self % other == other
+        return False
+    
+    def __lt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Segment():
+                return len(self._segment) < len(other._segment)
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other < other
+            case _:
+                return super().__lt__(other)
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Segment():
+                return len(self._segment) > len(other._segment)
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other > other
+            case _:
+                return super().__gt__(other)
+        return False
+    
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["segment"] = self.serialize( self._segment )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "segment" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._segment = self.deserialize( serialization["parameters"]["segment"] )
+        return self
+    
+    def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Segment():
+                super().__lshift__(operand)
+                self._segment = operand._segment.copy()
+            case od.Pipe():
+                match operand._data:
+                    case list():            self._segment = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                self._segment = operand.copy()
+        return self
+    
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case ra.TimeUnit():
+                self._segment += operand
+                return self
+        return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case ra.TimeUnit():
+                self._segment -= operand
+                return self
+        return super().__isub__(operand)
+
+
+
 class Settings(Generic):
     """`Generic -> Settings`
 
