@@ -1886,17 +1886,27 @@ class Segment(Generic):
             case ra.Beat():
                 if len(self._segment) > 1:
                     self._segment[1] += operand % int()
+                    beats_per_measure: int = self._get_time_signature()._top
+                    self._segment[0] += self._segment[1] // beats_per_measure
+                    self._segment[1] %= beats_per_measure
             case ra.Step():
                 if len(self._segment) > 2:
                     self._segment[2] += operand % int()
+                    steps_per_beat: int = int(1 / settings._quantization)
+                    beats_per_measure: int = self._get_time_signature()._top
+                    steps_per_measure: int = steps_per_beat * beats_per_measure
+                    self._segment[0] += self._segment[2] // steps_per_measure
+                    self._segment[2] %= steps_per_measure
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] += operand
             case float():
                 if len(self._segment) > 0:
-                    self._segment[0] += round(operand)
-                    if len(self._segment) > 1:
-                        self._segment[1] += round((operand - round(operand)) * 10)
+                    self += ra.Measure(round(operand))
+                    if len(self._segment) == 2:
+                        self += ra.Beat(round((operand - round(operand)) * 10))
+                    elif len(self._segment) == 3:
+                        self += ra.Step(round((operand - round(operand)) * 10))
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -1907,17 +1917,27 @@ class Segment(Generic):
             case ra.Beat():
                 if len(self._segment) > 1:
                     self._segment[1] -= operand % int()
+                    beats_per_measure: int = self._get_time_signature()._top
+                    self._segment[0] -= self._segment[1] // beats_per_measure
+                    self._segment[1] %= beats_per_measure
             case ra.Step():
                 if len(self._segment) > 2:
                     self._segment[2] -= operand % int()
+                    steps_per_beat: int = int(1 / settings._quantization)
+                    beats_per_measure: int = self._get_time_signature()._top
+                    steps_per_measure: int = steps_per_beat * beats_per_measure
+                    self._segment[0] -= self._segment[2] // steps_per_measure
+                    self._segment[2] %= steps_per_measure
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] -= operand
             case float():
                 if len(self._segment) > 0:
-                    self._segment[0] -= round(operand)
-                    if len(self._segment) > 1:
-                        self._segment[1] -= round((operand - round(operand)) * 10)
+                    self -= ra.Measure(round(operand))
+                    if len(self._segment) == 2:
+                        self -= ra.Beat(round((operand - round(operand)) * 10))
+                    elif len(self._segment) == 3:
+                        self -= ra.Step(round((operand - round(operand)) * 10))
         return self
 
 
