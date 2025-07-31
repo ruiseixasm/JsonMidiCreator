@@ -1711,6 +1711,7 @@ class Segment(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._segment: list[int] = [0]
+        self._time_signature_reference: og.TimeSignature = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1817,10 +1818,13 @@ class Segment(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Segment():
                 super().__lshift__(operand)
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
                 self._segment = operand._segment.copy()
             case od.Pipe():
                 match operand._data:
@@ -1847,6 +1851,8 @@ class Segment(Generic):
                     if len(self._segment) > 1:
                         self._segment[1] = round((operand - self._segment[0]) * 10)
             case ra.Position():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
                 if self._segment:
                     position_segment: list[int] = []
                     if len(self._segment) > 0:
@@ -1856,6 +1862,12 @@ class Segment(Generic):
                             if len(self._segment) > 2:
                                 position_segment.append( operand % ra.Step() % int() )
                     self._segment = position_segment
+            case oe.Element() | oc.Composition():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._get_time_signature()
+            case TimeSignature():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand
         return self
     
     def __iadd__(self, operand: any) -> Self:
