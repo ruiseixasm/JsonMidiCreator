@@ -298,10 +298,10 @@ class Element(o.Operand):
             case og.Segment():
                 if operand._segment:
                     self << ra.Measure(operand._segment[0])
-                    if len(operand._segment) > 1:
+                    if len(operand._segment) == 2:
                         self << ra.Beat(operand._segment[1])
-                        if len(operand._segment) > 2:
-                            self << ra.Step(operand._segment[2])
+                    elif len(operand._segment) > 2:
+                        self << ra.Step(operand._segment[2])
             case float():
                 self << ra.NoteValue(operand)
             case Fraction():
