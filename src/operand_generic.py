@@ -1715,7 +1715,6 @@ class Segment(Generic):
             self << single_parameter
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_element as oe
         match operand:
             case self.__class__():
                 return self.copy()
@@ -1793,7 +1792,6 @@ class Segment(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Segment():
