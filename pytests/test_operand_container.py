@@ -1105,3 +1105,17 @@ def test_process_mask():
     assert native_clip == copy_clip
 
 # test_process_mask()
+
+
+def test_segment_swap():
+    two_notes = Note() / 2
+    assert two_notes[0] % Pitch() == two_notes[1] % Pitch()
+    two_notes << Foreach(1, 5)**Degree()
+    assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
+    assert two_notes[0] % Pitch() < two_notes[1] % Pitch()
+
+    two_notes.swap([0, 0], [0, 1], Segment)
+    assert two_notes[0] % Pitch() > two_notes[1] % Pitch()
+
+# test_segment_swap()
+
