@@ -1827,6 +1827,14 @@ class Segment(Generic):
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] = operand
+            case ra.Position():
+                if self._segment:
+                    position_segment: list[int] = [ operand % ra.Measure() % int() ]
+                    if len(self._segment) > 1:
+                        position_segment.append( operand % ra.Beat() % int() )
+                        if len(self._segment) > 2:
+                            position_segment.append( operand % ra.Step() % int() )
+                    return self._segment == position_segment
         return self
     
     def __iadd__(self, operand: any) -> Self:

@@ -134,6 +134,7 @@ class Element(o.Operand):
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
             case Element():         return self.copy()
             case int():             return self % ra.Measure() % int()
+            case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case ou.Enable():       return ou.Enable(self._enabled)
