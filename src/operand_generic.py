@@ -1714,6 +1714,9 @@ class Segment(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def len(self) -> int:
+        return len(self._segment)
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case self.__class__():

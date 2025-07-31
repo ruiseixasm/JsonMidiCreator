@@ -701,10 +701,11 @@ class Container(o.Operand):
         if what == og.Segment:
             left_segment: og.Segment = og.Segment(left)
             right_segment: og.Segment = og.Segment(right)
-            left_mask: Clip = self.mask(left_segment)
-            right_mask: Clip = self.mask(right_segment)
-            left_mask << right_segment
-            right_mask << left_segment
+            if left_segment.len() == right_segment.len():
+                left_mask: Clip = self.mask(left_segment)
+                right_mask: Clip = self.mask(right_segment)
+                left_mask << right_segment
+                right_mask << left_segment
         else:
             if self.len() > 0 and isinstance(what, type):
                 if isinstance(left, int):
