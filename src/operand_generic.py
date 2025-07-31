@@ -1744,6 +1744,12 @@ class Segment(Generic):
                 if len(self._segment) < 1:
                     return None
                 return self._segment[0]
+            case float():
+                if len(self._segment) < 1:
+                    return None
+                if len(self._segment) > 1:
+                    return round(self._segment[0] + self._segment[1] / 10, 1)
+                return float(self._segment[0])
             case _:
                 return super().__mod__(operand)
 
@@ -1770,6 +1776,12 @@ class Segment(Generic):
                 if len(self._segment) < 1:
                     return True
                 return self._segment[0] == other
+            case float():
+                if len(self._segment) < 1:
+                    return True
+                if len(self._segment) > 1:
+                    return self._segment[0] == round(other) and self._segment[1] == round((other - round(other)) * 10)
+                return self._segment[0] == round(other)
             case ra.Position():
                 if self._segment:
                     position_segment: list[int] = [ other % ra.Measure() % int() ]
@@ -1827,6 +1839,11 @@ class Segment(Generic):
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] = operand
+            case float():
+                if len(self._segment) > 0:
+                    self._segment[0] = round(operand)
+                    if len(self._segment) > 1:
+                        self._segment[1] = round((operand - self._segment[0]) * 10)
             case ra.Position():
                 if self._segment:
                     position_segment: list[int] = [ operand % ra.Measure() % int() ]
@@ -1851,6 +1868,11 @@ class Segment(Generic):
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] += operand
+            case float():
+                if len(self._segment) > 0:
+                    self._segment[0] += round(operand)
+                    if len(self._segment) > 1:
+                        self._segment[1] += round((operand - round(operand)) * 10)
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -1867,6 +1889,11 @@ class Segment(Generic):
             case int():
                 if len(self._segment) > 0:
                     self._segment[0] -= operand
+            case float():
+                if len(self._segment) > 0:
+                    self._segment[0] -= round(operand)
+                    if len(self._segment) > 1:
+                        self._segment[1] -= round((operand - round(operand)) * 10)
         return self
 
 
