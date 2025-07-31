@@ -2954,9 +2954,9 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()    # Sorting may be needed
 
 
-    def flip(self) -> Self:
+    def mirror(self) -> Self:
         """
-        Flip is similar to reverse but instead of reversing the elements position it reverses the
+        Mirror is similar to reverse but instead of reversing the elements position it reverses the
         Note's respective Pitch, like vertically mirrored.
 
         Args:
@@ -2995,7 +2995,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def invert(self) -> Self:
         """
-        `invert` is similar to 'flip' but based in a center defined by the first note on which all notes are vertically mirrored.
+        `invert` is similar to 'mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
 
         Args:
             None

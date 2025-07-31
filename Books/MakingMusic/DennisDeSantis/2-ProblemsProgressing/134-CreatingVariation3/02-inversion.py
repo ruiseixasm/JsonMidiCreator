@@ -32,7 +32,7 @@ motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 # motif >> P
 
 # The Inversion (Flipping)
-inverted_motif: Clip = motif / Flip()
+inverted_motif: Clip = motif / Mirror()
 
 motif * inverted_motif % Length() % float() >> Print()
 motif * inverted_motif * 4 >> P

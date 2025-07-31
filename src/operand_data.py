@@ -1753,22 +1753,22 @@ class Smooth(ClipProcess):
         return operand.smooth()
 
 
-class Flip(ClipProcess):
-    """`Data -> Process -> ContainerProcess -> ClipProcess -> Flip`
+class Mirror(ClipProcess):
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Mirror`
 
-    Flip is similar to reverse but instead of reversing the elements position it reverses the
+    Mirror is similar to reverse but instead of reversing the elements position it reverses the
     Note's respective Pitch, like vertically mirrored.
 
     Args:
         None
     """
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.flip()
+        return operand.mirror()
 
 class Invert(ClipProcess):
     """`Data -> Process -> ContainerProcess -> ClipProcess -> Invert`
 
-    `Invert` is similar to 'Flip' but based in a center defined by the first note on which all notes are vertically mirrored.
+    `Invert` is similar to 'Mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
 
     Args:
         None
