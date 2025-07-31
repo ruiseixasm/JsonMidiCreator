@@ -1726,7 +1726,20 @@ class Segment(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case list():                return self._segment.copy()
-            case _:                     return super().__mod__(operand)
+            case ra.Measure():
+                if len(self._segment) < 1:
+                    return None
+                return operand.copy(self._segment[0])
+            case ra.Beat():
+                if len(self._segment) < 2:
+                    return None
+                return operand.copy(self._segment[1])
+            case ra.Step():
+                if len(self._segment) < 3:
+                    return None
+                return operand.copy(self._segment[2])
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
@@ -1793,6 +1806,15 @@ class Segment(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 self._segment = operand.copy()
+            case ra.Measure():
+                if len(self._segment) > 0:
+                    self._segment[0] = operand % int()
+            case ra.Beat():
+                if len(self._segment) > 1:
+                    self._segment[1] = operand % int()
+            case ra.Step():
+                if len(self._segment) > 2:
+                    self._segment[2] = operand % int()
         return self
     
     def __iadd__(self, operand: any) -> Self:
