@@ -1119,3 +1119,10 @@ def test_segment_swap():
 
 # test_segment_swap()
 
+
+def test_segments_div():
+    four_notes = Note() / 4 << Foreach(0, 2, 4, 6)**Semitone()
+    
+
+# test_segments_div()
+

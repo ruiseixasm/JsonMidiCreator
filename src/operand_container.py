@@ -266,6 +266,11 @@ class Container(o.Operand):
                 return other == self
             case od.Conditional():
                 return other == self
+            case of.Frame():
+                for single_item in self._items:
+                    if not single_item == other:
+                        return False
+                return True
         if not isinstance(other, ol.Null):
             return self % other == other
         # When comparing lists containing objects in Python using the == operator,
@@ -277,9 +282,19 @@ class Container(o.Operand):
         return False
 
     def __lt__(self, other: any) -> bool:
+        if isinstance(other, of.Frame):
+            for single_clip in self._items:
+                if not single_clip < other:
+                    return False
+            return True
         return self % other < other
 
     def __gt__(self, other: any) -> bool:
+        if isinstance(other, of.Frame):
+            for single_clip in self._items:
+                if not single_clip > other:
+                    return False
+            return True
         return self % other > other
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -2416,13 +2431,13 @@ class Clip(Composition):  # Just a container of Elements
                 self.__itruediv__(self_repeating)
 
             case list():
-                clip_measures: Clip = Clip()
-                for index, single_measure in enumerate(operand):
-                    if isinstance(single_measure, ra.Measure):
-                        single_measure = single_measure % int()
-                    if isinstance(single_measure, (int, float, Fraction)):
-                        clip_measures /= self.mask(ra.Measure(int(single_measure))) # Stacked notes /
-                self._delete(self._items)._append(clip_measures._items)._set_owner_clip()
+                segments_list: list[og.Segment] = []
+                for single_segment in operand:
+                    segments_list.append(og.Segment(self, single_segment))
+                clip_segments: Clip = Clip()
+                for single_segment in segments_list:
+                    clip_segments /= self.mask(single_segment) # Stacked notes /
+                self._delete(self._items)._append(clip_segments._items)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
@@ -3600,6 +3615,11 @@ class Part(Composition):
                         and self._position_beats == other._position_beats
                 return super().__eq__(other) \
                     and self % ra.Position() == other % ra.Position()
+            case of.Frame():
+                for single_clip in self._items:
+                    if not single_clip == other:
+                        return False
+                return True
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -3614,6 +3634,11 @@ class Part(Composition):
                 if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
                     return self._position_beats < other._position_beats
                 return self % ra.Position() < other % ra.Position()
+            case of.Frame():
+                for single_clip in self._items:
+                    if not single_clip < other:
+                        return False
+                return True
             case _:
                 return self % other < other
     
@@ -3624,6 +3649,11 @@ class Part(Composition):
                 if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
                     return self._position_beats > other._position_beats
                 return self % ra.Position() > other % ra.Position()
+            case of.Frame():
+                for single_clip in self._items:
+                    if not single_clip > other:
+                        return False
+                return True
             case _:
                 return self % other > other
     
