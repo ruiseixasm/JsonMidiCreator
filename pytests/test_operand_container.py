@@ -1126,6 +1126,7 @@ def test_segments_div():
 
     eight_notes = four_notes / [0.0, 0.0, 0.2, 0.1, 0.0, 0.0, 0.2, 0.3]
     assert eight_notes == Foreach(0, 0, 4, 2, 0, 0, 4, 6)**Semitone()
+    assert eight_notes != Foreach(0, 0, 4, 2, 0, 0, 4, 4)**Semitone()
 
 # test_segments_div()
 

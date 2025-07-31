@@ -700,7 +700,7 @@ class Container(o.Operand):
             del parameters[data_index] # Like picking up colored balls, pop out
         return self._sort_items()
 
-    def swap(self, left: Union[o.Operand, list, int], right: Union[o.Operand, list, int], what: type = ra.Position) -> Self:
+    def swap(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = ra.Position) -> Self:
         """
         This method swaps a given parameter type between two operands.
 
