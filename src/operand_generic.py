@@ -1715,6 +1715,14 @@ class Segment(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def _get_time_signature(self, other_time_signature: 'TimeSignature' = None) -> 'TimeSignature':
+        if self._time_signature_reference is None:
+            if isinstance(other_time_signature, TimeSignature):
+                return other_time_signature
+            return settings._time_signature
+        return self._time_signature_reference
+
+
     def len(self) -> int:
         return len(self._segment)
 

@@ -595,12 +595,6 @@ class Convertible(Rational):
         return self._convert_from_beats(self._rational)
 
 
-    def _set_time_signature_reference(self, staff_reference: 'TimeSignature' = None) -> Self:
-        import operand_generic as og
-        if isinstance(staff_reference, og.TimeSignature):
-            self._time_signature_reference = staff_reference
-        return self
-
     def _get_time_signature(self, other_time_signature: 'TimeSignature' = None) -> 'TimeSignature':
         import operand_generic as og
         if self._time_signature_reference is None:
