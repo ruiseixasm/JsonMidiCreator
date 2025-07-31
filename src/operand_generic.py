@@ -1784,11 +1784,13 @@ class Segment(Generic):
                 return self._segment[0] == round(other)
             case ra.Position():
                 if self._segment:
-                    position_segment: list[int] = [ other % ra.Measure() % int() ]
-                    if len(self._segment) > 1:
-                        position_segment.append( other % ra.Beat() % int() )
-                        if len(self._segment) > 2:
-                            position_segment.append( other % ra.Step() % int() )
+                    position_segment: list[int] = []
+                    if len(self._segment) > 0:
+                        position_segment.append( other % ra.Measure() % int() )
+                        if len(self._segment) > 1:
+                            position_segment.append( other % ra.Beat() % int() )
+                            if len(self._segment) > 2:
+                                position_segment.append( other % ra.Step() % int() )
                     return self._segment == position_segment
                 else:
                     return True
@@ -1846,12 +1848,14 @@ class Segment(Generic):
                         self._segment[1] = round((operand - self._segment[0]) * 10)
             case ra.Position():
                 if self._segment:
-                    position_segment: list[int] = [ operand % ra.Measure() % int() ]
-                    if len(self._segment) > 1:
-                        position_segment.append( operand % ra.Beat() % int() )
-                        if len(self._segment) > 2:
-                            position_segment.append( operand % ra.Step() % int() )
-                    return self._segment == position_segment
+                    position_segment: list[int] = []
+                    if len(self._segment) > 0:
+                        position_segment.append( operand % ra.Measure() % int() )
+                        if len(self._segment) > 1:
+                            position_segment.append( operand % ra.Beat() % int() )
+                            if len(self._segment) > 2:
+                                position_segment.append( operand % ra.Step() % int() )
+                    self._segment = position_segment
         return self
     
     def __iadd__(self, operand: any) -> Self:
