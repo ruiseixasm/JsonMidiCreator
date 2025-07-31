@@ -928,20 +928,15 @@ class Position(Measurement):
     def position(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
-    # # Position round type: [...) + 1
-    # def roundMeasures(self) -> Self:
-    #     rounded_position: Position = super().roundMeasures()
-    #     return rounded_position.__iadd__(Measure(1))
-
-    # # Position round type: [...) + 1
-    # def roundBeats(self) -> Self:
-    #     rounded_position: Position = super().roundBeats()
-    #     return rounded_position.__iadd__(Beat(1))
-    
-    # # Position round type: [...) + 1
-    # def roundSteps(self) -> Self:
-    #     rounded_position: Position = super().roundSteps()
-    #     return rounded_position.__iadd__(Step(1))
+    def __eq__(self, other: any) -> bool:
+        import operand_generic as og
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case og.Segment():
+                return other == self
+            case _:
+                return super().__eq__(other)
+        return False
 
 
 class Length(Measurement):
@@ -1551,18 +1546,19 @@ class TimeUnit(Convertible):
 
 
     def __eq__(self, other: any) -> bool:
-        import operand_rational as ra
+        import operand_generic as og
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
                     == other._get_beats(self._time_signature_reference)
+            case og.Segment():
+                return other == self
             case _:
                 return super().__eq__(other)
         return False
 
     def __lt__(self, other: any) -> bool:
-        import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
@@ -1573,7 +1569,6 @@ class TimeUnit(Convertible):
         return False
     
     def __gt__(self, other: any) -> bool:
-        import operand_rational as ra
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():

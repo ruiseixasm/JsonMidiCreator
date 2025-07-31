@@ -1737,6 +1737,8 @@ class Segment(Generic):
                 if len(self._segment) < 3:
                     return None
                 return operand.copy(self._segment[2])
+            case int():
+                return len(self._segment)
             case _:
                 return super().__mod__(operand)
 
@@ -1773,28 +1775,6 @@ class Segment(Generic):
                 return other == self
             case _:
                 return self % other == other
-        return False
-    
-    def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case Segment():
-                return len(self._segment) < len(other._segment)
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other < other
-            case _:
-                return super().__lt__(other)
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case Segment():
-                return len(self._segment) > len(other._segment)
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other > other
-            case _:
-                return super().__gt__(other)
         return False
     
 

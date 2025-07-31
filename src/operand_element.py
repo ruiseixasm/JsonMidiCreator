@@ -152,6 +152,8 @@ class Element(o.Operand):
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats \
                     and self._channel == other._channel
+            case og.Segment():
+                return other == self % ra.Position()
             case od.Conditional():
                 return other == self
             case _:
