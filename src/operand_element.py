@@ -294,6 +294,13 @@ class Element(o.Operand):
                 self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()
             case int():
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
+            case og.Segment():
+                if operand._segment:
+                    self << ra.Measure(operand._segment[0])
+                    if len(operand._segment) > 1:
+                        self << ra.Beat(operand._segment[1])
+                        if len(operand._segment) > 2:
+                            self << ra.Step(operand._segment[2])
             case float():
                 self << ra.NoteValue(operand)
             case Fraction():
