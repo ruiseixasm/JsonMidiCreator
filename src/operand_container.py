@@ -2930,28 +2930,33 @@ class Clip(Composition):  # Just a container of Elements
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
 
-    def switch(self, parameter_type: type = None) -> Self:
+    def flip(self) -> Self:
         """
-        `switch` just switches the given type of parameters with each other elements.
+        `flip` works like `reverse` but it's agnostic about the Measure keeping the elements positional range.
 
         Args:
-            parameter_type (type): The parameter type to switch.
+            None
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        if parameter_type is not None:
-            parameter = parameter_type()
-        else:
-            parameter = og.Pitch()
-        taken_parameters: list = []
-        for single_element in self._items:
-            taken_parameters.insert(0, single_element % parameter)
-        # Sets the reversed parameters
+        position_duration_beats: list[dict[str, Fraction]] = []
         for index, single_element in enumerate(self._items):
-            single_element << taken_parameters[index]
+            position_duration_dict: dict[str, Fraction] = {
+                "duration": single_element._duration_beats
+            }
+            if index == 0:
+                position_duration_dict["position"] = single_element._position_beats
+            else:
+                position_duration_dict["position"] = \
+                    position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
+            position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
 
-        return self._sort_items()    # Sorting may be needed
+        for index, single_element in enumerate(self._items):
+            single_element._position_beats = position_duration_beats[index]["position"]
+            single_element._duration_beats = position_duration_beats[index]["duration"]
+            
+        return self._sort_items()    # Sorting here is only needed because it may be a mask!
 
 
     def mirror(self) -> Self:

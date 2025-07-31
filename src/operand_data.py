@@ -1546,20 +1546,6 @@ class Link(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.link(self._data)
 
-class Switch(ClipProcess):
-    """`Data -> Process -> ContainerProcess -> ClipProcess -> Switch`
-
-    `Switch` just switches the given type of parameters with each other elements.
-
-    Args:
-        None
-    """
-    def __init__(self, parameter_type: type = None):
-        super().__init__(parameter_type)
-
-    def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.switch(self._data)
-
 class Stack(ClipProcess):
     """`Data -> Process -> ContainerProcess -> ClipProcess -> Stack`
 
@@ -1752,6 +1738,17 @@ class Smooth(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.smooth()
 
+
+class Flip(ClipProcess):
+    """`Data -> Process -> ContainerProcess -> ClipProcess -> Flip`
+
+    `Flip` works like `Reverse` but it's agnostic about the Measure keeping the elements positional range.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.flip()
 
 class Mirror(ClipProcess):
     """`Data -> Process -> ContainerProcess -> ClipProcess -> Mirror`
