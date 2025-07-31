@@ -1354,8 +1354,8 @@ class Swap(ContainerProcess):
     """
     from operand_rational import Position
 
-    def __init__(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = Position):
-        super().__init__((left_operand, right_operand, parameter_type))
+    def __init__(self, left: Union[o.Operand, list, int], right: Union[o.Operand, list, int], what: type = Position):
+        super().__init__((left, right, what))
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.swap(*self._data)

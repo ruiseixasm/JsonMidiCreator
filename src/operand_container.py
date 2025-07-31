@@ -685,28 +685,37 @@ class Container(o.Operand):
             del parameters[data_index] # Like picking up colored balls, pop out
         return self._sort_items()
 
-    def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
+    def swap(self, left: Union[o.Operand, list, int], right: Union[o.Operand, list, int], what: type = ra.Position) -> Self:
         """
         This method swaps a given parameter type between two operands.
 
         Args:
-            left_item (any): The first item called the left item.
-            right_item (any): The second item called the right item.
-            parameter (type): The parameters that will be switched between both operands.
+            left (any): The first item or `Segment` data.
+            right (any): The second item or `Segment` data.
+            what (type): The parameter type that will be swapped between both left and right.
 
         Returns:
             Container: The same self object with the operands processed.
         """
-        if self.len() > 0 and isinstance(parameter_type, type):
-            if isinstance(left_operand, int):
-                left_operand = self[left_operand]
-            if isinstance(right_operand, int):
-                right_operand = self[right_operand]
-            if isinstance(left_operand, o.Operand) and isinstance(right_operand, o.Operand):
-                parameter_instance = parameter_type()
-                left_parameter: any = left_operand % parameter_instance
-                left_operand << right_operand % parameter_instance
-                right_operand << left_parameter
+        import operand_generic as og
+        if what == og.Segment:
+            left_segment: og.Segment = og.Segment(left)
+            right_segment: og.Segment = og.Segment(right)
+            left_mask: Clip = self.mask(left_segment)
+            right_mask: Clip = self.mask(right_segment)
+            left_mask << right_segment
+            right_mask << left_segment
+        else:
+            if self.len() > 0 and isinstance(what, type):
+                if isinstance(left, int):
+                    left = self[left]
+                if isinstance(right, int):
+                    right = self[right]
+                if isinstance(left, o.Operand) and isinstance(right, o.Operand):
+                    parameter_instance = what()
+                    left_parameter: any = left % parameter_instance
+                    left << right % parameter_instance
+                    right << left_parameter
         return self._sort_items()
 
     def reverse(self) -> Self:
