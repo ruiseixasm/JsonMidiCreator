@@ -34,6 +34,23 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+# GENERIC HANDY FUNCTIONS
+
+def minutes_to_time_ms(minutes: Fraction) -> float:
+    # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
+    return round(float(minutes * 60_000), 3)
+
+def is_black_key(midi_note: int) -> bool:
+    """Returns True if the given MIDI note is a black key."""
+    black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
+    return (midi_note % 12) in black_keys
+
+def list_mod(list_in: list, modulus: Union[int, float, Fraction] = 2) -> list:
+    list_out: list = []
+    for single_number in list_in:
+        if isinstance(single_number, (int, float, Fraction)):
+            list_out.append(single_number % modulus)
+    return list_out
 
 # GLOBAL FUNCTIONS
 
@@ -159,17 +176,6 @@ def playlist_time_ms(playlist: list[dict]) -> list[dict]:
         single_dict for single_dict in playlist
         if "time_ms" in single_dict
     ]
-
-def minutes_to_time_ms(minutes: Fraction) -> float:
-    # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
-    return round(float(minutes * 60_000), 3)
-
-
-def is_black_key(midi_note: int) -> bool:
-    """Returns True if the given MIDI note is a black key."""
-    black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
-    return (midi_note % 12) in black_keys
-
 
 
 # GLOBAL CLASSES
