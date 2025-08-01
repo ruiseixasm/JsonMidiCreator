@@ -130,22 +130,19 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def reportable_per_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
-        iterations = 1
+    def number_to_int(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> int:
+        iterations: int = 0
         match number:
             case ou.Unit() | ra.Rational():
-                iterations = number % float()
+                iterations = number % int()
             case int() | float() | Fraction():
-                iterations = float(number)
-        fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
-        reportable_iteration: int = round(fractional_part * 10**2)  # It has to be round given the float point error
-        total_iterations: int = round(integer_part)                 # It has to be round given the float point error
-        return reportable_iteration, total_iterations
+                iterations = int(number)
+        return iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         # This results in just int numbers
-        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
+        total_iterations = self.number_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
@@ -255,7 +252,7 @@ class Modulus(Chaos):
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
+        total_iterations = self.number_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
@@ -488,7 +485,7 @@ class Bouncer(Chaos):
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
+        total_iterations = self.number_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
@@ -584,7 +581,7 @@ class SinX(Chaos):
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
+        total_iterations = self.number_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
