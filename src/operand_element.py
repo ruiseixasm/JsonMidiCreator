@@ -449,7 +449,7 @@ class Element(o.Operand):
                     if self == source_segment:
                         self << ra.Measure(target_measure)   # Stacked by measure *
                         if self._owner_clip is not None:
-                            return self._owner_clip._set_owner_clip._sort_items()
+                            return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
 
@@ -601,16 +601,17 @@ class Element(o.Operand):
                     return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
+
             case list():
-                for index, single_measure in enumerate(operand):
-                    if isinstance(single_measure, ra.Measure):
-                        single_measure = single_measure % int()
-                    if isinstance(single_measure, (int, float, Fraction)):
-                        if self == ra.Measure(int(single_measure)):
-                            self << ra.Measure(0)   # Side by Side //
-                            if self._owner_clip is not None:
-                                return self._set_owner_clip._sort_items()
-                            return oc.Clip(self)
+                segments_list: list[og.Segment] = []
+                for single_segment in operand:
+                    segments_list.append(og.Segment(self, single_segment))
+                for source_segment in segments_list:
+                    if self == source_segment:
+                        self << ra.Measure(0)   # Side by Side //
+                        if self._owner_clip is not None:
+                            return self._owner_clip._set_owner_clip()._sort_items()
+                        return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
 
             case _:
