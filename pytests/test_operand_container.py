@@ -1120,7 +1120,7 @@ def test_segment_swap():
 # test_segment_swap()
 
 
-def test_segments_div():
+def test_segment_operations():
     four_notes = Note() / 4 << Foreach(0, 2, 4, 6)**Semitone()
     assert four_notes == Foreach(0, 2, 4, 6)**Semitone()
 
@@ -1128,5 +1128,9 @@ def test_segments_div():
     assert eight_notes == Foreach(0, 0, 4, 2, 0, 0, 4, 6)**Semitone()
     assert eight_notes != Foreach(0, 0, 4, 2, 0, 0, 4, 4)**Semitone()
 
-# test_segments_div()
+    eight_notes = four_notes * [0, 0]   # Repeated the first Measure twice
+    assert eight_notes == Foreach(0, 2, 4, 6)**Semitone()
+
+
+# test_segment_operations()
 

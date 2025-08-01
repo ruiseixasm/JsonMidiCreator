@@ -2369,12 +2369,12 @@ class Clip(Composition):  # Just a container of Elements
 
             case list():
                 new_elements: list[oe.Element] = []
-                for index, single_measure in enumerate(operand):
-                    if isinstance(single_measure, ra.Measure):
-                        single_measure = single_measure % int()
-                    if isinstance(single_measure, (int, float, Fraction)):
-                        clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
-                        clip_measure << ra.Measure(index)   # Stacked by measure *
+                for target_measure, source_measure in enumerate(operand):
+                    if isinstance(source_measure, ra.Measure):
+                        source_measure = source_measure % int()
+                    if isinstance(source_measure, (int, float, Fraction)):
+                        clip_measure: Clip = self.mask(ra.Measure(int(source_measure))).copy()
+                        clip_measure << ra.Measure(target_measure)   # Stacked by measure *
                         new_elements.extend(clip_measure._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
 
