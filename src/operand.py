@@ -46,22 +46,13 @@ def is_black_key(midi_note: int) -> bool:
     return (midi_note % 12) in black_keys
 
 def list_mod(list_in: list, mod: any = 2) -> list:
-    list_out: list = []
-    for item in list_in:
-        list_out.append(item % mod)
-    return list_out
+    return [item % mod for item in list_in]
 
 def list_add(list_in: list, add: any = 1) -> list:
-    list_out: list = []
-    for item in list_in:
-        list_out.append(item + add)
-    return list_out
+    return [item + add for item in list_in]
 
 def list_sub(list_in: list, sub: any = 1) -> list:
-    list_out: list = []
-    for item in list_in:
-        list_out.append(item - sub)
-    return list_out
+    return [item - sub for item in list_in]
 
 def list_max(list_in: list, max: any = 15) -> list:
     list_out: list = []
