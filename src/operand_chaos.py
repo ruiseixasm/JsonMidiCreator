@@ -173,11 +173,6 @@ class Chaos(o.Operand):
             self << self._next_operand.__imul__(number) # __imul__ already includes __or__
         return number   # Has to keep compatibility with Operand __or__ method
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            print(f'{type(self).__name__} {self}')
-        return self
-
     def reset(self, *parameters) -> 'Chaos':
         super().reset(*parameters)
         self._xn << self._x0
