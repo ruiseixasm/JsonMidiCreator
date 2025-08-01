@@ -1133,6 +1133,9 @@ def test_segment_operations():
     assert eight_notes.len() == 8
     assert eight_notes == Foreach(0, 2, 4, 6)**Semitone()
 
+    eight_notes = four_notes // [0, 0]   # Repeated the first Measure twice
+    assert eight_notes.len() == 8
+    assert eight_notes == Foreach(0, 0, 2, 2, 4, 4, 6, 6)**Semitone()
 
 # test_segment_operations()
 

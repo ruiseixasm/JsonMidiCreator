@@ -2451,7 +2451,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
-            case Clip() | list():
+            case Clip():
                 # Equivalent to +=
                 self += operand
 
@@ -2517,14 +2517,14 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(new_elements)
 
             case list():
+                segments_list: list[og.Segment] = []
+                for single_segment in operand:
+                    segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
-                for index, single_measure in enumerate(operand):
-                    if isinstance(single_measure, ra.Measure):
-                        single_measure = single_measure % int()
-                    if isinstance(single_measure, (int, float, Fraction)):
-                        clip_measure: Clip = self.mask(ra.Measure(int(single_measure))).copy()
-                        clip_measure << ra.Measure(0)   # Side by Side //
-                        new_elements.extend(clip_measure._items)
+                for source_segment in segments_list:
+                    segment_clip: Clip = self.mask(source_segment).copy()
+                    segment_clip << ra.Measure(0)   # Side by Side //
+                    new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
 
             case tuple():
