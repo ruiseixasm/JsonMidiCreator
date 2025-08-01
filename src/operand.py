@@ -55,22 +55,10 @@ def list_sub(list_in: list, sub: any = 1) -> list:
     return [item - sub for item in list_in]
 
 def list_max(list_in: list, max: any = 15) -> list:
-    list_out: list = []
-    for item in list_in:
-        if item > max:
-            list_out.append(max)
-        else:
-            list_out.append(item)
-    return list_out
+    return [max if item > max else item for item in list_in]
 
 def list_min(list_in: list, min: any = 15) -> list:
-    list_out: list = []
-    for item in list_in:
-        if item < min:
-            list_out.append(min)
-        else:
-            list_out.append(item)
-    return list_out
+    return [min if item < min else item for item in list_in]
 
 
 # GLOBAL FUNCTIONS
