@@ -337,3 +337,11 @@ def test_dictionary_getter():
 
 # test_dictionary_getter()
 
+
+def test_handy_methods():
+    list_int = [12, 3, 45]
+    assert list_mod(list_int) == [0, 1, 1]
+
+# test_handy_methods()
+
+

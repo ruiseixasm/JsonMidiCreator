@@ -45,12 +45,42 @@ def is_black_key(midi_note: int) -> bool:
     black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
     return (midi_note % 12) in black_keys
 
-def list_mod(list_in: list, modulus: Union[int, float, Fraction] = 2) -> list:
+def list_mod(list_in: list, mod: any = 2) -> list:
     list_out: list = []
-    for single_number in list_in:
-        if isinstance(single_number, (int, float, Fraction)):
-            list_out.append(single_number % modulus)
+    for item in list_in:
+        list_out.append(item % mod)
     return list_out
+
+def list_add(list_in: list, add: any = 1) -> list:
+    list_out: list = []
+    for item in list_in:
+        list_out.append(item + add)
+    return list_out
+
+def list_sub(list_in: list, sub: any = 1) -> list:
+    list_out: list = []
+    for item in list_in:
+        list_out.append(item - sub)
+    return list_out
+
+def list_max(list_in: list, max: any = 15) -> list:
+    list_out: list = []
+    for item in list_in:
+        if item > max:
+            list_out.append(max)
+        else:
+            list_out.append(item)
+    return list_out
+
+def list_min(list_in: list, min: any = 15) -> list:
+    list_out: list = []
+    for item in list_in:
+        if item < min:
+            list_out.append(min)
+        else:
+            list_out.append(item)
+    return list_out
+
 
 # GLOBAL FUNCTIONS
 
