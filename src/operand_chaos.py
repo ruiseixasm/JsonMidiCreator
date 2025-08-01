@@ -59,13 +59,22 @@ class Chaos(o.Operand):
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
-                    case int() | float():       return self._xn % (operand._data)
+                    case int() | float():       return self._xn % operand._data
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Chaos():               return self.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():       return self._xn % operand
+            case list():
+                list_out: list = []
+                for number in operand:
+                    if isinstance(number, (int, float, Fraction)):
+                        self.__imul__(int(number))
+                    if isinstance(number, (ou.Unit, ra.Rational)):
+                        self.__imul__(number % int())
+                    list_out.append(self._xn % operand)
+                return list_out
             case _:                     return super().__mod__(operand)
 
     def __str__(self) -> str:
@@ -135,6 +144,7 @@ class Chaos(o.Operand):
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
+        # This results in just int numbers
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
