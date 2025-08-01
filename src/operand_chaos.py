@@ -148,9 +148,7 @@ class Chaos(o.Operand):
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(total_iterations):
-                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
-                    self.report(number)
+            for _ in range(total_iterations):
                 self._index += 1    # keeps track of each iteration
         return self
     
@@ -265,11 +263,9 @@ class Modulus(Chaos):
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(total_iterations):
+            for _ in range(total_iterations):
                 self._xn += self._steps
                 self._xn << (self._xn % float()) % float(self._cycle)
-                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
-                    self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -500,7 +496,7 @@ class Bouncer(Chaos):
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(total_iterations):
+            for _ in range(total_iterations):
                 for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
                     new_position = direction_data[0] + direction_data[1]
                     if new_position < 0:
@@ -510,8 +506,6 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
-                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
-                    self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -598,10 +592,8 @@ class SinX(Chaos):
         reportable_iteration, total_iterations = self.reportable_per_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(total_iterations):
+            for _ in range(total_iterations):
                 self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-                if reportable_iteration > 0 and actual_iteration % reportable_iteration == 0:
-                    self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
