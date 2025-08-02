@@ -330,6 +330,10 @@ class Operand:
             list_size += 1
         return list_size
 
+    def get(self, operand: T) -> T:
+        """Applies `%` on the operand returning the same type operand"""
+        return self.__mod__(operand)
+
     def __mod__(self, operand: T) -> T:
         """
         The % symbol is used to extract a Parameter, each Operand
