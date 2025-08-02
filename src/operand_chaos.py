@@ -73,9 +73,7 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():
-                print(f"Xn: {self._xn % int()}")
-                # self.__imul__(operand)  # Numbers triggers iterations
-                print(f"Xn: {self._xn % int()}")
+                self.__imul__(operand)  # Numbers triggers iterations
                 return self._xn % operand
             case list():
                 list_out: list = []
@@ -141,16 +139,21 @@ class Chaos(o.Operand):
         return self
 
     def iterate(self, times: int = 0) -> Self:
+        self._initiated = True
         for _ in range(times):
-            self._initiated = True
             # INSERT CODE HERE
             self._index += 1    # keeps track of each iteration
         return self
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
+        number ^= self # Extracts the Frame operand first
         total_iterations = self.number_to_int(number)
-        return self.iterate(total_iterations)
+        if total_iterations > 0:
+            if isinstance(self._next_operand, Chaos):
+                # iterations are only done on tailed Chaos operands
+                self << self._next_operand.iterate(total_iterations)
+            return self.iterate(total_iterations)
+        return self
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
@@ -165,13 +168,6 @@ class Chaos(o.Operand):
             case Chaos():       self._next_operand = operand
             case _:             self._next_operand = None
         return self
-
-    def _tail_imul(self, number: o.T) -> o.T:
-        number ^= self # Extracts the Frame operand first
-        if self._next_operand:
-            # iteration is only done on tailed chaos operands and never on self
-            self << self._next_operand.__imul__(number) # __imul__ already includes __or__
-        return number   # Has to keep compatibility with Operand __or__ method
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
@@ -254,8 +250,8 @@ class Modulus(Chaos):
         return self
 
     def iterate(self, times: int = 0) -> Self:
+        self._initiated = True
         for _ in range(times):
-            self._initiated = True
             self._xn += self._steps
             self._xn << (self._xn % float()) % float(self._period)
             self._index += 1    # keeps track of each iteration
@@ -485,8 +481,8 @@ class Bouncer(Chaos):
         return self
 
     def iterate(self, times: int = 0) -> Self:
+        self._initiated = True
         for _ in range(times):
-            self._initiated = True
             for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
                 new_position = direction_data[0] + direction_data[1]
                 if new_position < 0:
@@ -578,8 +574,8 @@ class SinX(Chaos):
         return self
 
     def iterate(self, times: int = 0) -> Self:
+        self._initiated = True
         for _ in range(times):
-            self._initiated = True
             self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
             self._index += 1    # keeps track of each iteration
         return self
