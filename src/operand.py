@@ -467,7 +467,7 @@ class Operand:
         
         return self
        
-    def left(self, operand: any) -> Self:
+    def set(self, operand: any) -> Self:
         """Applies `<<` on the operand while keeping self"""
         return self.__lshift__(operand)
 
@@ -485,6 +485,10 @@ class Operand:
             self << operand % self
         return self
     
+    def left(self, operand: any) -> Self:
+        """Applies `<<=` on the operand while keeping self"""
+        return self.__ilshift__(operand)
+
     def __ilshift__(self, operand: any) -> Self:
         import operand_data as od
         return self << od.Pipe( operand )
