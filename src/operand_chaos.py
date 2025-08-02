@@ -50,6 +50,14 @@ class Chaos(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def number_to_int(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> int:
+        match number:
+            case ou.Unit() | ra.Rational():
+                return number % int()
+            case int() | float() | Fraction():
+                return int(number)
+        return 0
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case self.__class__():
@@ -132,17 +140,10 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def number_to_int(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> int:
-        match number:
-            case ou.Unit() | ra.Rational():
-                return number % int()
-            case int() | float() | Fraction():
-                return int(number)
-        return 0
-
     def iterate(self, times: int = 0) -> Self:
         for _ in range(times):
             self._initiated = True
+            # INSERT CODE HERE
             self._index += 1    # keeps track of each iteration
         return self
 
@@ -252,16 +253,14 @@ class Modulus(Chaos):
         self._xn << (self._xn % float()) % float(self._period)
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        total_iterations = self.number_to_int(number)
-        if total_iterations > 0:
+    def iterate(self, times: int = 0) -> Self:
+        for _ in range(times):
             self._initiated = True
-            for _ in range(total_iterations):
-                self._xn += self._steps
-                self._xn << (self._xn % float()) % float(self._period)
-                self._index += 1    # keeps track of each iteration
+            self._xn += self._steps
+            self._xn << (self._xn % float()) % float(self._period)
+            self._index += 1    # keeps track of each iteration
         return self
+
 
 class Flipper(Modulus):
     """`Chaos -> Modulus -> Flipper`
@@ -485,22 +484,19 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        total_iterations = self.number_to_int(number)
-        if total_iterations > 0:
+    def iterate(self, times: int = 0) -> Self:
+        for _ in range(times):
             self._initiated = True
-            for _ in range(total_iterations):
-                for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
-                    new_position = direction_data[0] + direction_data[1]
-                    if new_position < 0:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = new_position * -1 % direction_data[2]
-                    elif new_position >= direction_data[2]:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = direction_data[2] - new_position % direction_data[2]
-                    direction_data[0] << new_position
-                self._index += 1    # keeps track of each iteration
+            for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
+                new_position = direction_data[0] + direction_data[1]
+                if new_position < 0:
+                    direction_data[1] << direction_data[1] * -1 # flips direction
+                    new_position = new_position * -1 % direction_data[2]
+                elif new_position >= direction_data[2]:
+                    direction_data[1] << direction_data[1] * -1 # flips direction
+                    new_position = direction_data[2] - new_position % direction_data[2]
+                direction_data[0] << new_position
+            self._index += 1    # keeps track of each iteration
         return self
 
     def __str__(self) -> str:
@@ -581,14 +577,11 @@ class SinX(Chaos):
             case _: super().__lshift__(operand)
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        total_iterations = self.number_to_int(number)
-        if total_iterations > 0:
+    def iterate(self, times: int = 0) -> Self:
+        for _ in range(times):
             self._initiated = True
-            for _ in range(total_iterations):
-                self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-                self._index += 1    # keeps track of each iteration
+            self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
+            self._index += 1    # keeps track of each iteration
         return self
 
 
