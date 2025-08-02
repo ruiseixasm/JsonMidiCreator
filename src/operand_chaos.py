@@ -65,7 +65,9 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():
+                print(f"Xn: {self._xn % int()}")
                 # self.__imul__(operand)  # Numbers triggers iterations
+                print(f"Xn: {self._xn % int()}")
                 return self._xn % operand
             case list():
                 list_out: list = []
@@ -138,15 +140,16 @@ class Chaos(o.Operand):
                 return int(number)
         return 0
 
+    def iterate(self, times: int = 0) -> Self:
+        for _ in range(times):
+            self._initiated = True
+            self._index += 1    # keeps track of each iteration
+        return self
+
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
-        # This results in just int numbers
         total_iterations = self.number_to_int(number)
-        if total_iterations > 0:
-            self._initiated = True
-            for _ in range(total_iterations):
-                self._index += 1    # keeps track of each iteration
-        return self
+        return self.iterate(total_iterations)
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
