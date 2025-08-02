@@ -66,7 +66,7 @@ def list_div(list_in: list, div: any = 1) -> list:
 def list_max(list_in: list, max: any = 15) -> list:
     return [max if item > max else item for item in list_in]
 
-def list_min(list_in: list, min: any = 15) -> list:
+def list_min(list_in: list, min: any = 0) -> list:
     return [min if item < min else item for item in list_in]
 
 
