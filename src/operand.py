@@ -80,11 +80,24 @@ def list_int(list_in: list) -> list:
             list_out.append(number)
     return list_out
 
-def list_items(items: list, indexes: list[int]) -> list:
+def list_get(items: list, indexes: list[int]) -> list:
     list_out: list[int] = []
     total_items: int = len(items)
     for single_index in indexes:
         list_out.append(items[single_index % total_items])
+    return list_out
+
+def list_pick(items: list, indexes: list[int]) -> list:
+    list_out: list[int] = []
+    available_items: list = items.copy()
+    total_items: int = len(items)
+    for picked_items, single_index in enumerate(indexes):
+        remaining_items: int = total_items - picked_items
+        if remaining_items > 0:
+            pick_index: int = single_index % remaining_items
+            list_out.append( available_items.pop(pick_index) )
+        else:
+            break
     return list_out
 
 

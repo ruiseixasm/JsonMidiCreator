@@ -105,8 +105,8 @@ def test_list_chaos():
     assert sin_x_2 == sin_x_1
     assert four_indexes_2 == four_indexes_1
 
-    note_values_1 = list_items(note_values, four_indexes_1)
-    note_values_2 = list_items(note_values, four_indexes_2)
+    note_values_1 = list_get(note_values, four_indexes_1)
+    note_values_2 = list_get(note_values, four_indexes_2)
     assert note_values_2 == note_values_1
 
 # test_list_chaos()
