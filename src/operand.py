@@ -106,8 +106,11 @@ def list_trim(items: list, at: any) -> list:
     if total_items > 0 and at > 0:
         next_position: any = items[0] * 0
         for item_index in range(total_items):
-            list_out.append(items[item_index % total_items])
-    
+            list_out.append(items[item_index])
+            next_position += list_out[item_index]
+            if not next_position < at:
+                list_out[item_index] -= next_position - at
+                break
     return list_out
 
 
