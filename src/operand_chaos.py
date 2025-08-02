@@ -59,13 +59,13 @@ class Chaos(o.Operand):
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
-                    case int() | float():       return self._xn % operand._data
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Chaos():               return self.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
-            case int() | float():       return self._xn % operand
+            case int() | float():
+                return self._xn % operand
             case list():
                 list_out: list = []
                 for number in operand:
@@ -188,7 +188,7 @@ class Modulus(Chaos):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._cycle: Fraction   = ra.Period(12)._rational
+        self._period: Fraction  = ra.Period(12)._rational
         self._steps: Fraction   = ra.Steps(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -197,24 +197,24 @@ class Modulus(Chaos):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ra.Period():            return operand._data << self._cycle
+                    case ra.Period():           return operand._data << self._period
                     case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
-            case ra.Period():            return ra.Period(self._cycle)
-            case ra.Steps():            return ra.Steps(self._cycle)
+            case ra.Period():           return ra.Period(self._period)
+            case ra.Steps():            return ra.Steps(self._period)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._cycle == other._cycle and self._steps == other._steps
+                    and self._period == other._period and self._steps == other._steps
             case _:
                 return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["cycle"]    = self.serialize( self._cycle )
+        serialization["parameters"]["period"]   = self.serialize( self._period )
         serialization["parameters"]["steps"]    = self.serialize( self._steps )
         return serialization
 
@@ -222,11 +222,11 @@ class Modulus(Chaos):
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "cycle" in serialization["parameters"] and "steps" in serialization["parameters"]):
+            "period" in serialization["parameters"] and "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._cycle = self.deserialize( serialization["parameters"]["cycle"] )
-            self._steps = self.deserialize( serialization["parameters"]["steps"] )
+            self._period    = self.deserialize( serialization["parameters"]["period"] )
+            self._steps     = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -234,19 +234,19 @@ class Modulus(Chaos):
         match operand:
             case Modulus():
                 super().__lshift__(operand)
-                self._cycle     = operand._cycle
+                self._period     = operand._period
                 self._steps     = operand._steps
             case od.Pipe():
                 match operand._data:
-                    case ra.Period():            self._cycle = operand._data._rational
+                    case ra.Period():           self._period = operand._data._rational
                     case ra.Steps():            self._steps = operand._data._rational
                     case _:                     super().__lshift__(operand)
-            case ra.Period():       self._cycle = operand._rational
+            case ra.Period():      self._period = operand._rational
             case ra.Steps():       self._steps = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
-        self._xn << (self._xn % float()) % float(self._cycle)
+        self._xn << (self._xn % float()) % float(self._period)
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
@@ -256,7 +256,7 @@ class Modulus(Chaos):
             self._initiated = True
             for _ in range(total_iterations):
                 self._xn += self._steps
-                self._xn << (self._xn % float()) % float(self._cycle)
+                self._xn << (self._xn % float()) % float(self._period)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -277,7 +277,7 @@ class Flipper(Modulus):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._cycle             = ra.Period(2)._rational
+        self._period             = ra.Period(2)._rational
         self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -347,8 +347,8 @@ class Counter(Modulus):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
                                         # These are math operations, NOT extractions with //
-            case int():                 return super().__mod__(int()) // int(self._cycle)
-            case float():               return super().__mod__(float()) // float(self._cycle)
+            case int():                 return super().__mod__(int()) // int(self._period)
+            case float():               return super().__mod__(float()) // float(self._period)
             case _:
                 return super().__mod__(operand)
 
