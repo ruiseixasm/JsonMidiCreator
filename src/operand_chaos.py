@@ -73,12 +73,12 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 return self._xn % operand
             case list():
                 list_out: list = []
                 for number in operand:
-                    self.__imul__(number)  # Numbers triggers iterations
+                    self.__imul__(number)  # Numbers trigger iterations
                     list_out.append(self._xn % number)
                 return list_out
             case _:                     return super().__mod__(operand)
@@ -108,8 +108,8 @@ class Chaos(o.Operand):
             "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._xn    = self.deserialize( serialization["parameters"]["xn"] )
-            self._x0    = self.deserialize( serialization["parameters"]["x0"] )
+            self._xn = self.deserialize( serialization["parameters"]["xn"] )
+            self._x0 = self.deserialize( serialization["parameters"]["x0"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -128,7 +128,7 @@ class Chaos(o.Operand):
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 self._xn << operand
                 self._x0 << operand
             case tuple():
@@ -286,10 +286,10 @@ class Flipper(Modulus):
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
             case int():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 return 0 if super().__mod__(int()) < int(self._split) else 1
             case float():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
             case _:                     return super().__mod__(operand)
 
@@ -347,10 +347,10 @@ class Counter(Modulus):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case int():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 return super().__mod__(int()) // int(self._period)
             case float():
-                self.__imul__(operand)  # Numbers triggers iterations
+                self.__imul__(operand)  # Numbers trigger iterations
                 return super().__mod__(float()) // float(self._period)
             case _:
                 return super().__mod__(operand)
@@ -402,16 +402,11 @@ class Bouncer(Chaos):
             case ra.Xn():               return self._xn.copy()
             case ra.Yn():               return self._yn.copy()
             case int() | float():
-                self_tuple = self % tuple()
-                hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
+                self.__imul__(operand)  # Numbers trigger iterations
+                hypotenuse = math.hypot(self._xn % float(), self._yn % float())
                 if isinstance(operand, int):
                     return int(hypotenuse)
                 return hypotenuse
-            case tuple():
-                self.__imul__(operand)  # Numbers triggers iterations
-                self_x_float = self._xn % float()
-                self_y_float = self._yn % float()
-                return (self_x_float, self_y_float)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
