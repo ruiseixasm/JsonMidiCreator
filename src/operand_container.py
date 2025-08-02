@@ -768,31 +768,32 @@ class Container(o.Operand):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
         return self._sort_items()
 
-    def rotate(self, offset: int = 1, parameter: type = ra.Position) -> Self:
+    def rotate(self, left: int = 1, parameter: type = ra.Position) -> Self:
         """
-        Rotates a given parameter by a given offset, by other words,
+        Rotates a given parameter by a given left amount, by other words,
         does a displacement for each Element in the Container list of
-        a chosen parameter by the offset amount.
+        a chosen parameter by the given left amount. Counterclockwise.
 
         Args:
-            a (int): The offset amount of the list index, displacement.
-            b (type): The type of parameter being displaced, rotated.
+            left (int): The left amount of the list index, displacement.
+            parameter (type): The type of parameter being displaced, rotated.
 
         Returns:
             Container: The self object with the chosen parameter displaced.
         """
-        parameters: list = []
         parameter_instance = parameter()
         if isinstance(parameter_instance, od.Pipe):
+            items: list = []
             for _ in len(self._items):
-                data_index: int = offset % len(self._items)
-                parameters.append(self._items[data_index])   # No need to copy
-                offset += 1
+                item_index: int = left % len(self._items)
+                items.append(self._items[item_index])   # No need to copy
+                left += 1
             # Remove previous Elements from the Container stack
             self._delete(self._items, True) # deletes by id, safer
             # Finally adds the decomposed elements to the Container stack
-            self._append(parameters)
+            self._append(items)
         else:
+            parameters: list = []
             for operand in self:
                 if isinstance(operand, o.Operand):
                     parameters.append( operand % parameter_instance )
@@ -800,8 +801,8 @@ class Container(o.Operand):
                     parameters.append( ol.Null() )
             for operand in self:
                 if isinstance(operand, o.Operand):
-                    operand << parameters[ offset % len(parameters) ]
-                offset += 1
+                    operand << parameters[ left % len(parameters) ]
+                left += 1
         return self._sort_items()
 
 

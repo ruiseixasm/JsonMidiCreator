@@ -129,6 +129,13 @@ def list_snap(items: list, on: any) -> list:
     list_out = list_extend(list_out, on)
     return list_out
 
+def list_rotate(items: list, left: int = 1) -> list:
+    list_out: list = []
+    total_items: int = len(items)
+    for item_index in range(total_items):
+        list_out.append(items[(item_index + left) % total_items])
+    return list_out
+
 
 # GLOBAL FUNCTIONS
 

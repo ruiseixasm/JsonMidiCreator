@@ -350,6 +350,8 @@ def test_handy_methods():
     list_float = [1/4, 1/8, 1/8]
     assert list_extend(list_float, 1/1) == [1/4, 1/8, 5/8]
 
+    assert list_rotate(list_int, 1) == [3, 45, 12]
+
 # test_handy_methods()
 
 
