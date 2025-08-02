@@ -78,8 +78,7 @@ class Chaos(o.Operand):
             case list():
                 list_out: list = []
                 for number in operand:
-                    self.__imul__(number)  # Numbers trigger iterations
-                    list_out.append(self._xn % number)
+                    list_out.append(self % number)  # Implicit iterations
                 return list_out
             case _:                     return super().__mod__(operand)
 
