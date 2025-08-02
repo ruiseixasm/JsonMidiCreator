@@ -131,13 +131,12 @@ class Chaos(o.Operand):
         return self
 
     def number_to_int(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> int:
-        iterations: int = 0
         match number:
             case ou.Unit() | ra.Rational():
-                iterations = number % int()
+                return number % int()
             case int() | float() | Fraction():
-                iterations = int(number)
-        return iterations
+                return int(number)
+        return 0
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
