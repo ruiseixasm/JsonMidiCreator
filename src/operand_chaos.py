@@ -123,8 +123,8 @@ class Chaos(o.Operand):
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float():
-                                            self._xn << operand
-                                            self._x0 << operand
+                self._xn << operand
+                self._x0 << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -289,8 +289,10 @@ class Flipper(Modulus):
                     case ra.Split():            return self._split
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
-            case int():                 return 0 if super().__mod__(int()) < int(self._split) else 1
-            case float():               return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
+            case int():
+                return 0 if super().__mod__(int()) < int(self._split) else 1
+            case float():
+                return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -391,16 +393,6 @@ class Bouncer(Chaos):
                     case ra.dY():               return self._dy
                     case ra.Xn():               return self._xn
                     case ra.Yn():               return self._yn
-                    case int() | float():
-                        self_tuple = self % od.Pipe( tuple() )
-                        hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
-                        if isinstance(operand, int):
-                            return int(hypotenuse)
-                        return hypotenuse
-                    case tuple():
-                        self_x_float = self._xn % float()
-                        self_y_float = self._yn % float()
-                        return (self_x_float, self_y_float)
                     case _:                     return super().__mod__(operand)
             case ra.Width():            return self._width.copy()
             case ra.Height():           return self._height.copy()
@@ -408,8 +400,16 @@ class Bouncer(Chaos):
             case ra.dY():               return self._dy.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.Yn():               return self._yn.copy()
-            case int() | float() | tuple():
-                                        return self % od.Pipe( operand )
+            case int() | float():
+                self_tuple = self % od.Pipe( tuple() )
+                hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
+                if isinstance(operand, int):
+                    return int(hypotenuse)
+                return hypotenuse
+            case tuple():
+                self_x_float = self._xn % float()
+                self_y_float = self._yn % float()
+                return (self_x_float, self_y_float)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
