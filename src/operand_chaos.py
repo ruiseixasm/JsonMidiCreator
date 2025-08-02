@@ -374,13 +374,14 @@ class Bouncer(Chaos):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._width: ra.Width           = ra.Width(16)
-        self._height: ra.Height         = ra.Height(9)
-        self._dx: ra.dX                 = ra.dX(0.555)
-        self._dy: ra.dY                 = ra.dY(0.555)
-        self._xn: ra.Xn                 = ra.Xn(self._width / 2 % Fraction())
-        self._yn: ra.Yn                 = ra.Yn(self._height / 2 % Fraction())
-        self._set_xy: tuple             = (self._xn.copy(), self._yn.copy())
+        self._width: ra.Width   = ra.Width(16)
+        self._height: ra.Height = ra.Height(9)
+        self._dx: ra.dX         = ra.dX(0.555)
+        self._dy: ra.dY         = ra.dY(0.555)
+        self._xn                = ra.Xn(self._width / 2 % Fraction())
+        self._x0                = ra.X0(self._xn)
+        self._yn: ra.Yn         = ra.Yn(self._height / 2 % Fraction())
+        self._y0: ra.Y0         = ra.Y0(self._yn)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -393,14 +394,18 @@ class Bouncer(Chaos):
                     case ra.dX():               return self._dx
                     case ra.dY():               return self._dy
                     case ra.Xn():               return self._xn
+                    case ra.X0():               return self._x0
                     case ra.Yn():               return self._yn
+                    case ra.Y0():               return self._y0
                     case _:                     return super().__mod__(operand)
             case ra.Width():            return self._width.copy()
             case ra.Height():           return self._height.copy()
             case ra.dX():               return self._dx.copy()
             case ra.dY():               return self._dy.copy()
             case ra.Xn():               return self._xn.copy()
+            case ra.X0():               return self._x0.copy()
             case ra.Yn():               return self._yn.copy()
+            case ra.Y0():               return self._y0.copy()
             case int() | float():
                 self.__imul__(operand)  # Numbers trigger iterations
                 hypotenuse = math.hypot(self._xn % float(), self._yn % float())
@@ -418,13 +423,14 @@ class Bouncer(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["width"]        = self.serialize( self._width )
-        serialization["parameters"]["height"]       = self.serialize( self._height )
-        serialization["parameters"]["dx"]           = self.serialize( self._dx )
-        serialization["parameters"]["dy"]           = self.serialize( self._dy )
-        serialization["parameters"]["xn"]           = self.serialize( self._xn )
-        serialization["parameters"]["yn"]           = self.serialize( self._yn )
-        serialization["parameters"]["set_xy"]       = self.serialize( self._set_xy )
+        serialization["parameters"]["width"]    = self.serialize( self._width )
+        serialization["parameters"]["height"]   = self.serialize( self._height )
+        serialization["parameters"]["dx"]       = self.serialize( self._dx )
+        serialization["parameters"]["dy"]       = self.serialize( self._dy )
+        serialization["parameters"]["xn"]       = self.serialize( self._xn )
+        serialization["parameters"]["x0"]       = self.serialize( self._x0 )
+        serialization["parameters"]["yn"]       = self.serialize( self._yn )
+        serialization["parameters"]["y0"]       = self.serialize( self._y0 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -432,17 +438,18 @@ class Bouncer(Chaos):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
-            "dy" in serialization["parameters"] and "xn" in serialization["parameters"] and "yn" in serialization["parameters"] and
-            "set_xy" in serialization["parameters"]):
+            "dy" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"] and 
+            "yn" in serialization["parameters"] and "y0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._width             = self.deserialize( serialization["parameters"]["width"] )
-            self._height            = self.deserialize( serialization["parameters"]["height"] )
-            self._dx                = self.deserialize( serialization["parameters"]["dx"] )
-            self._dy                = self.deserialize( serialization["parameters"]["dy"] )
-            self._xn                = self.deserialize( serialization["parameters"]["xn"] )
-            self._yn                = self.deserialize( serialization["parameters"]["yn"] )
-            self._set_xy            = tuple(self.deserialize( serialization["parameters"]["set_xy"] ))
+            self._width     = self.deserialize( serialization["parameters"]["width"] )
+            self._height    = self.deserialize( serialization["parameters"]["height"] )
+            self._dx        = self.deserialize( serialization["parameters"]["dx"] )
+            self._dy        = self.deserialize( serialization["parameters"]["dy"] )
+            self._xn        = self.deserialize( serialization["parameters"]["xn"] )
+            self._x0        = self.deserialize( serialization["parameters"]["x0"] )
+            self._yn        = self.deserialize( serialization["parameters"]["yn"] )
+            self._y0        = self.deserialize( serialization["parameters"]["y0"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -450,31 +457,35 @@ class Bouncer(Chaos):
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
-                self._width         << operand._width
-                self._height        << operand._height
-                self._dx            << operand._dx
-                self._dy            << operand._dy
-                self._xn            << operand._xn
-                self._yn            << operand._yn
-                set_x               = operand._set_xy[0].copy()
-                set_y               = operand._set_xy[1].copy()
-                self._set_xy        = (set_x, set_y)
+                self._width     << operand._width
+                self._height    << operand._height
+                self._dx        << operand._dx
+                self._dy        << operand._dy
+                self._xn        << operand._xn
+                self._x0        << operand._x0
+                self._yn        << operand._yn
+                self._y0        << operand._y0
             case od.Pipe():
                 match operand._data:
-                    case ra.Width():                self._width = operand._data
-                    case ra.Height():               self._height = operand._data
-                    case ra.dX():                   self._dx = operand._data
-                    case ra.dY():                   self._dy = operand._data
-                    case ra.Xn():                   self._xn = operand._data
-                    case ra.Yn():                   self._yn = operand._data
-                    case _:                         super().__lshift__(operand)
-            case ra.Width():                self._width << operand
-            case ra.Height():               self._height << operand
-            case ra.dX():                   self._dx << operand
-            case ra.dY():                   self._dy << operand
-            case ra.Xn():                   self._xn << operand
-            case ra.Yn():                   self._yn << operand
+                    case ra.Width():    self._width = operand._data
+                    case ra.Height():   self._height = operand._data
+                    case ra.dX():       self._dx = operand._data
+                    case ra.dY():       self._dy = operand._data
+                    case ra.Xn():       self._xn = operand._data
+                    case ra.X0():       self._x0 = operand._data
+                    case ra.Yn():       self._yn = operand._data
+                    case ra.Y0():       self._y0 = operand._data
+                    case _:             super().__lshift__(operand)
+            case ra.Width():    self._width << operand
+            case ra.Height():   self._height << operand
+            case ra.dX():       self._dx << operand
+            case ra.dY():       self._dy << operand
+            case ra.Xn():       self._xn << operand
+            case ra.X0():       self._x0 << operand
+            case ra.Yn():       self._yn << operand
+            case ra.Y0():       self._y0 << operand
             case _: super().__lshift__(operand)
+        # Final needed modulation
         self._xn << (self._xn % float()) % (self._width % float())
         self._yn << (self._yn % float()) % (self._height % float())
         return self
@@ -499,8 +510,8 @@ class Bouncer(Chaos):
     
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        self._xn        << self._set_xy[0]
-        self._yn        << self._set_xy[1]
+        self._xn    << self._x0
+        self._yn    << self._y0
         return self
 
 class SinX(Chaos):
