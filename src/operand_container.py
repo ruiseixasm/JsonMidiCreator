@@ -2181,6 +2181,14 @@ class Clip(Composition):  # Just a container of Elements
                     case og.TimeSignature() | og.TimeSignature():
                         self._time_signature << operand._data
 
+                    case list():
+                        # Remove previous Elements from the Container stack
+                        self._delete(self._items, True) # deletes by id, safer
+                        # Finally adds the decomposed elements to the Container stack
+                        self._append( operand._data )
+                        # for item in operand._data:
+                        #     self._append([ item ])
+
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         if self.len() == clip_get.len() and len(clip_get._get) > 0:
@@ -2215,7 +2223,10 @@ class Clip(Composition):  # Just a container of Elements
 
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
-                    self._items = [item.copy() for item in operand]
+                    # Remove previous Elements from the Container stack
+                    self._delete(self._items, True) # deletes by id, safer
+                    # Finally adds the decomposed elements to the Container stack
+                    self._append( self.deep_copy(operand) )
                 else:   # Not for me
                     for item in self._items:
                         item << operand

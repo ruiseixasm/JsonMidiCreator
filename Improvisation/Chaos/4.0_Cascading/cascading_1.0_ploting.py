@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 chaos = SinX(340)
-many_notes = Note() / 8 << Foreach(1/1, 1/2, 1/4, 1/4, 1/8, 1/8, 1/16, 1/16)
+many_notes = Note() / 8 << Foreach(1/2, 1/4, 1/4, 1/8, 1/8, 1/16 * 3/2, 1/16, 1/16)
 durations_list = list_get(many_notes.stack() % list(), Duration())
 
 def iteration(clip: Clip) -> Clip:
