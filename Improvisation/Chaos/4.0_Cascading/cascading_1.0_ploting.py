@@ -22,8 +22,8 @@ durations_list = list_get(many_notes.stack() % list(), Duration())
 def iteration(clip: Clip) -> Clip:
     picked_durations = list_pick(durations_list, chaos % [2, 4, 4, 2, 1, 0, 3])
     clip_notes = clip % list()
-    clip << list_set(clip_notes, picked_durations)
-    return clip.stack()
+    clip <<= list_set(clip_notes, picked_durations)
+    return clip.quantize().stack()
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2
 def composition(clip: Clip) -> Composition:

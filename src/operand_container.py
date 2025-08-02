@@ -2182,12 +2182,14 @@ class Clip(Composition):  # Just a container of Elements
                         self._time_signature << operand._data
 
                     case list():
-                        # Remove previous Elements from the Container stack
-                        self._delete(self._items, True) # deletes by id, safer
-                        # Finally adds the decomposed elements to the Container stack
-                        self._append( operand._data )
-                        # for item in operand._data:
-                        #     self._append([ item ])
+                        if all(isinstance(item, oe.Element) for item in operand):
+                            # Remove previous Elements from the Container stack
+                            self._delete(self._items, True) # deletes by id, safer
+                            # Finally adds the decomposed elements to the Container stack
+                            self._append( operand._data )
+                        else:   # Not for me
+                            for item in self._items:
+                                item <<= operand
 
                     case ClipGet():
                         clip_get: ClipGet = operand._data
