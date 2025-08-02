@@ -20,7 +20,8 @@ many_notes = Note() / 8 << Foreach(1/1, 1/2, 1/4, 1/4, 1/8, 1/8, 1/16, 1/16)
 many_notes_list = many_notes.stack() % list()
 
 def iteration(clip: Clip) -> Clip:
-    clip << list_pick(many_notes_list, chaos % [2, 4, 4, 2, 1, 0, 3])
+    picked_notes = list_pick(many_notes_list, chaos % [2, 4, 4, 2, 1, 0, 3])
+    clip << picked_notes
     return clip.stack()
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2
