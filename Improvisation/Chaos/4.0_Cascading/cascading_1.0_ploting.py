@@ -16,29 +16,15 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 chaos = SinX(340)
+many_notes = Note() / 8 << Foreach(1/1, 1/2, 1/4, 1/4, 1/8, 1/8, 1/16, 1/16)
+many_notes_list = many_notes.stack() % list()
 
-def new_clip(clip: Clip) -> Clip:
-    clip << Input(chaos)**Choice(60, 70, 80, 90, 100)**Velocity()
-    return clip
+def iteration(clip: Clip) -> Clip:
+    clip << list_pick(many_notes_list, chaos % [2, 4, 4, 2, 1, 0, 3])
+    return clip.stack()
 
-ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
-snare_part = Part(ghost_notes)
-
+snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2
 def composition(clip: Clip) -> Composition:
-    one_measure = clip >> Or(Measure(0), Measure(1))
-    # Automatically sorted by position
-    interrupted_clip = one_measure + Measures(4) + one_measure
-    return snare_part + interrupted_clip
+    return snare + clip
 
-four_notes = Note() * 4
-# four_notes >> Plot(False)
-
-four_notes << Key("A")
-# four_notes >> Plot()
-
-(Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 \
-    >> Plot(iterations=10, n_button=new_clip, c_button=composition)
-
-# (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot()
-
-
+many_notes >> Plot(iterations=10, n_button=iteration, c_button=composition)
