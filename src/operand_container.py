@@ -1256,9 +1256,9 @@ class Composition(Container):
         self._ax.clear()
 
         # Chart title (TITLE)
-        self._ax.set_title(f"Iteration {self._iteration} of {
-            len(self._iterations) - 1 if len(self._iterations) > 1 else 0
-        }{" - " + self._title if self._title != "" else ""}")
+        self._ax.set_title(f"{self._title + " - " if self._title != "" else ""}"
+                           f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0
+        }")
 
 
         # Horizontal X-Axis, Time related (COMMON)
