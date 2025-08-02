@@ -90,3 +90,23 @@ def test_chained_chaos():
 # test_chained_chaos()
 
 
+def test_list_chaos():
+    note_values: list[float] = [1/2, 1/4, 1/8, 1/16]
+    four_indexes_1: list[int] = []
+    sin_x_1 = SinX()
+    sin_x_2 = SinX()
+    assert sin_x_2 == sin_x_1
+
+    for _ in range(4):
+        four_indexes_1.append(sin_x_1 % 1)
+    assert sin_x_2 != sin_x_1
+
+    four_indexes_2: list[int] = sin_x_2 % [1, 1, 1, 1]
+    assert sin_x_2 == sin_x_1
+    assert four_indexes_2 == four_indexes_1
+
+    note_values_1 = list_items(note_values, four_indexes_1)
+    note_values_2 = list_items(note_values, four_indexes_2)
+    assert note_values_2 == note_values_1
+
+# test_list_chaos()

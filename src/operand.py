@@ -80,7 +80,7 @@ def list_int(list_in: list) -> list:
             list_out.append(number)
     return list_out
 
-def list_items(items: list, indexes: list) -> list:
+def list_items(items: list, indexes: list[int]) -> list:
     list_out: list[int] = []
     total_items: int = len(items)
     for single_index in indexes:
