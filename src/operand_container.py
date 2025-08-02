@@ -1880,6 +1880,15 @@ class Clip(Composition):  # Just a container of Elements
                 return index
         return None
 
+    def _index_from_element(self, element: oe.Element) -> int:
+        """
+        Read Only method
+        """
+        for index, single_element in enumerate(self._items):
+            if single_element is element:
+                return index
+        return None
+
     def __getitem__(self, index: int | of.Frame) -> 'oe.Element':
         """
         Read Only method
@@ -2257,7 +2266,7 @@ class Clip(Composition):  # Just a container of Elements
     
     def __irshift__(self, operand) -> Self:
         match operand:
-            case oe.Element():
+            case oe.Element():  # Element wapping
                 for single_element in self._items:
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
                 return self
