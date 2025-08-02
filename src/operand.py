@@ -113,6 +113,17 @@ def list_trim(items: list, at: any) -> list:
                 break
     return list_out
 
+def list_extend(items: list, to: any) -> list:
+    list_out: list = items.copy()
+    total_items: int = len(items)
+    if total_items > 0 and to > 0:
+        total_extent: any = items[0] * 0
+        for item_index in range(total_items):
+            total_extent += items[item_index]
+        if total_extent < to:
+            list_out[-1] += to - total_extent
+    return list_out
+
 
 # GLOBAL FUNCTIONS
 
