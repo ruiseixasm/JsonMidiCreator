@@ -17,11 +17,12 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 chaos = SinX(340)
 many_notes = Note() / 8 << Foreach(1/1, 1/2, 1/4, 1/4, 1/8, 1/8, 1/16, 1/16)
-many_notes_list = many_notes.stack() % list()
+durations_list = list_get(many_notes.stack() % list(), Duration())
 
 def iteration(clip: Clip) -> Clip:
-    picked_notes = list_pick(many_notes_list, chaos % [2, 4, 4, 2, 1, 0, 3])
-    clip << picked_notes
+    picked_durations = list_pick(durations_list, chaos % [2, 4, 4, 2, 1, 0, 3])
+    clip_notes = clip % list()
+    clip << list_set(clip_notes, picked_durations)
     return clip.stack()
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2

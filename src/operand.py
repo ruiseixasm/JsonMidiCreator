@@ -82,7 +82,7 @@ def list_int(list_in: list) -> list:
             list_out.append(number)
     return list_out
 
-def list_get(items: list, indexes: list[int]) -> list:
+def list_choose(items: list, indexes: list[int]) -> list:
     list_out: list = []
     total_items: int = len(items)
     for single_index in indexes:
@@ -137,6 +137,28 @@ def list_rotate(items: list, left: int = 1) -> list:
         return []
     left %= len(items)  # Normalize rotation amount
     return items[left:] + items[:left]
+
+def list_get(operands: list['Operand'], parameters: any) -> list:
+    list_parameters: list = []
+    if isinstance(parameters, list):
+        total_parameters: int = len(parameters)
+        for index, single_operand in enumerate(operands):
+            list_parameters.append(single_operand % parameters[index % total_parameters])
+    else:
+        for single_operand in operands:
+            list_parameters.append(single_operand % parameters)
+    return list_parameters
+
+def list_set(operands: list['Operand'], parameters: any) -> list:
+    list_set_operands: list = Operand.deep_copy(operands)
+    if isinstance(parameters, list):
+        total_parameters: int = len(parameters)
+        for index, single_operand in enumerate(list_set_operands):
+            single_operand << parameters[index % total_parameters]
+    else:
+        for single_operand in list_set_operands:
+            single_operand << parameters
+    return list_set_operands
 
 
 # GLOBAL FUNCTIONS
