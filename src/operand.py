@@ -130,11 +130,11 @@ def list_snap(items: list, on: any) -> list:
     return list_out
 
 def list_rotate(items: list, left: int = 1) -> list:
-    list_out: list = []
-    total_items: int = len(items)
-    for item_index in range(total_items):
-        list_out.append(items[(item_index + left) % total_items])
-    return list_out
+    """Rotate list left by given number of positions (positive for left, negative for right)."""
+    if not items:  # Handle empty list case
+        return []
+    left %= len(items)  # Normalize rotation amount
+    return items[left:] + items[:left]
 
 
 # GLOBAL FUNCTIONS
