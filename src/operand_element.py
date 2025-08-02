@@ -331,11 +331,13 @@ class Element(o.Operand):
     def __irshift__(self, operand: o.T) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():  # Element wapping
+            case Element():  # Element wapping (wrap)
                 wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
                 if self._owner_clip is not None:
                     self._owner_clip._replace(self, wrapped_self)
                 return wrapped_self
+            case list():
+                pass
         return super().__irshift__(operand)
 
 

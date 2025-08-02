@@ -2266,10 +2266,15 @@ class Clip(Composition):  # Just a container of Elements
     
     def __irshift__(self, operand) -> Self:
         match operand:
-            case oe.Element():  # Element wapping
+            case oe.Element():  # Element wapping (wrap)
                 for single_element in self._items:
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
                 return self
+            case list():
+                total_wrappers: int = len(operand)
+                for index, single_element in enumerate(self._items):
+                    wrapper: oe.Element = operand[index % total_wrappers]
+                    single_element.__irshift__(wrapper)
         return super().__irshift__(operand)
 
 
