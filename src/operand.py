@@ -467,6 +467,10 @@ class Operand:
         
         return self
        
+    def left(self, operand: any) -> Self:
+        """Applies `<<` on the operand while keeping self"""
+        return self.__lshift__(operand)
+
     def __lshift__(self, operand: any) -> Self:
         import operand_generic as og
         # Don't do the line bellow, already done on sub class call
@@ -521,6 +525,10 @@ class Operand:
     def __rshift__(self, operand: any) -> Self:
         return self.copy().__irshift__(operand)
 
+    def right(self, operand: any) -> Self:
+        """Applies `>>=` on the operand while keeping self"""
+        return self.__irshift__(operand)
+
     # self is the pusher
     def __irshift__(self, operand: any) -> Self:
         if isinstance(operand, tuple):
@@ -566,6 +574,27 @@ class Operand:
         import operand_label as ol
         return ol.Null()
 
+    # Single word callers
+
+    def add(self, operand: any) -> Self:
+        """Applies `+=` with the operand while keeping self"""
+        return self.__iadd__(operand)
+
+    def sub(self, operand: any) -> Self:
+        """Applies `-=` with the operand while keeping self"""
+        return self.__isub__(operand)
+
+    def mul(self, operand: any) -> Self:
+        """Applies `*=` with the operand while keeping self"""
+        return self.__imul__(operand)
+
+    def div(self, operand: any) -> Self:
+        """Applies `/=` with the operand while keeping self"""
+        return self.__itruediv__(operand)
+
+    def floor(self, operand: any) -> Self:
+        """Applies `//=` with the operand while keeping self"""
+        return self.__ifloordiv__(operand)
 
     def __iadd__(self, operand: any) -> Self:
         return self

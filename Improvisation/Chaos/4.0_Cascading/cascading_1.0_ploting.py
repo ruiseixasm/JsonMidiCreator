@@ -23,9 +23,9 @@ def iteration(clip: Clip) -> Clip:
     picked_durations = list_pick(durations_list, chaos % [2, 4, 4, 2, 1, 0, 3])
     clip_notes = clip % list()
     clip <<= list_set(clip_notes, picked_durations)
-    return clip.stack().quantize().link()
+    return clip.stack().quantize().mul([0]).link().mul(4)
 
-snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2
+snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
 def composition(clip: Clip) -> Composition:
     return snare + clip
 
