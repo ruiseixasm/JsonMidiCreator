@@ -98,7 +98,7 @@ class Chaos(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Chaos':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
@@ -169,7 +169,7 @@ class Chaos(o.Operand):
             self << self._next_operand.__imul__(number) # __imul__ already includes __or__
         return number   # Has to keep compatibility with Operand __or__ method
 
-    def reset(self, *parameters) -> 'Chaos':
+    def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self._xn << self._x0
         return self
@@ -220,7 +220,7 @@ class Modulus(Chaos):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Modulus':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "period" in serialization["parameters"] and "steps" in serialization["parameters"]):
 
@@ -249,7 +249,7 @@ class Modulus(Chaos):
         self._xn << (self._xn % float()) % float(self._period)
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
@@ -308,7 +308,7 @@ class Flipper(Modulus):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "split" in serialization["parameters"]):
 
@@ -432,7 +432,7 @@ class Bouncer(Chaos):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Modulus':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
             "dy" in serialization["parameters"] and "xn" in serialization["parameters"] and "yn" in serialization["parameters"] and
@@ -482,7 +482,7 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
@@ -503,7 +503,7 @@ class Bouncer(Chaos):
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
     
-    def reset(self, *parameters) -> 'Bouncer':
+    def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self._xn        << self._set_xy[0]
         self._yn        << self._set_xy[1]
@@ -546,17 +546,17 @@ class SinX(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["lambda"]   = self.serialize( self._lambda )
+        serialization["parameters"]["lambda"] = self.serialize( self._lambda )
         return serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Modulus':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "lambda" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._lambda            = self.deserialize( serialization["parameters"]["lambda"] )
+            self._lambda = self.deserialize( serialization["parameters"]["lambda"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -578,7 +578,7 @@ class SinX(Chaos):
             case _: super().__lshift__(operand)
         return self
 
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         number = self._tail_imul(number)    # Processes the tailed self operands or the Frame operand if any exists
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
