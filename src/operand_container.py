@@ -2272,9 +2272,10 @@ class Clip(Composition):  # Just a container of Elements
                 return self
             case list():
                 total_wrappers: int = len(operand)
-                for index, single_element in enumerate(self._items):
-                    wrapper: oe.Element = operand[index % total_wrappers]
-                    single_element.__irshift__(wrapper)
+                if total_wrappers > 0:
+                    for index, single_element in enumerate(self._items):
+                        wrapper: oe.Element = operand[index % total_wrappers]
+                        single_element.__irshift__(wrapper)
         return super().__irshift__(operand)
 
 
