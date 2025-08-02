@@ -69,6 +69,17 @@ def list_max(list_in: list, max: any = 15) -> list:
 def list_min(list_in: list, min: any = 0) -> list:
     return [min if item < min else item for item in list_in]
 
+def list_int(list_in: list) -> list:
+    list_out: list[int] = []
+    for number in list_in:
+        if isinstance(number, (float, Fraction)):
+            list_out.append(int(number))
+        elif isinstance(number, Operand):
+            list_out.append(number % int())
+        else:   # Must be an integer
+            list_out.append(number)
+    return list_out
+
 
 # GLOBAL FUNCTIONS
 
