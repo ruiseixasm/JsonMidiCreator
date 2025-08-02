@@ -1255,9 +1255,10 @@ class Composition(Container):
         """
         self._ax.clear()
 
+        # Chart title (TITLE)
         self._ax.set_title(f"Iteration {self._iteration} of {
             len(self._iterations) - 1 if len(self._iterations) > 1 else 0
-        }")
+        }{" - " + self._title if self._title != "" else ""}")
 
 
         # Horizontal X-Axis, Time related (COMMON)
@@ -1729,7 +1730,7 @@ class Composition(Container):
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            e_button: Optional[Callable[['Composition'], Any]] = None) -> Self:
+            e_button: Optional[Callable[['Composition'], Any]] = None, title: str = "") -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1752,6 +1753,7 @@ class Composition(Container):
         self._n_function = n_button
         self._c_function = c_button
         self._e_function = e_button
+        self._title: str = title
 
         if callable(self._n_function) \
                 and isinstance(iterations, int) and iterations > 0:

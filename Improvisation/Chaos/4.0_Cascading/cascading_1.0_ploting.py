@@ -29,4 +29,4 @@ snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 2
 def composition(clip: Clip) -> Composition:
     return snare + clip
 
-many_notes >> Plot(iterations=10, n_button=iteration, c_button=composition)
+many_notes >> Plot(iterations=10, n_button=iteration, c_button=composition, title="Note Durations")
