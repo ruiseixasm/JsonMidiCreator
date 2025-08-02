@@ -124,6 +124,11 @@ def list_extend(items: list, to: any) -> list:
             list_out[-1] += to - total_extent
     return list_out
 
+def list_snap(items: list, on: any) -> list:
+    list_out: list = list_trim(items, on)
+    list_out = list_extend(list_out, on)
+    return list_out
+
 
 # GLOBAL FUNCTIONS
 
