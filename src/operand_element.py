@@ -337,7 +337,14 @@ class Element(o.Operand):
                     self._owner_clip._replace(self, wrapped_self)
                 return wrapped_self
             case list():
-                pass
+                total_wrappers: int = len(operand)
+                if total_wrappers > 0:
+                    if self._owner_clip is not None:
+                        self_index: int = self._owner_clip._index_from_element(self)
+                        return self.__irshift__(operand[self_index % total_wrappers])
+                    else:
+                        return self.__irshift__(operand[0])
+                return self
         return super().__irshift__(operand)
 
 

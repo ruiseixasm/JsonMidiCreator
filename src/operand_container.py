@@ -2276,6 +2276,7 @@ class Clip(Composition):  # Just a container of Elements
                     for index, single_element in enumerate(self._items):
                         wrapper: oe.Element = operand[index % total_wrappers]
                         single_element.__irshift__(wrapper)
+                return self
         return super().__irshift__(operand)
 
 
