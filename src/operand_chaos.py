@@ -78,11 +78,8 @@ class Chaos(o.Operand):
             case list():
                 list_out: list = []
                 for number in operand:
-                    if isinstance(number, (int, float, Fraction)):
-                        self.__imul__(int(number))
-                    if isinstance(number, (ou.Unit, ra.Rational)):
-                        self.__imul__(number % int())
-                    list_out.append(self._xn % operand)
+                    self.__imul__(number)  # Numbers triggers iterations
+                    list_out.append(self._xn % number)
                 return list_out
             case _:                     return super().__mod__(operand)
 
