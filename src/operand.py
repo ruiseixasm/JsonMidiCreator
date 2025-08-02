@@ -48,11 +48,20 @@ def is_black_key(midi_note: int) -> bool:
 def list_mod(list_in: list, mod: any = 2) -> list:
     return [item % mod for item in list_in]
 
-def list_add(list_in: list, add: any = 1) -> list:
+def list_floor(list_in: list, floor: any = 12) -> list:
+    return [item // floor for item in list_in]
+
+def list_add(list_in: list, add: any = 0) -> list:
     return [item + add for item in list_in]
 
-def list_sub(list_in: list, sub: any = 1) -> list:
+def list_sub(list_in: list, sub: any = 0) -> list:
     return [item - sub for item in list_in]
+
+def list_mul(list_in: list, mul: any = 1) -> list:
+    return [item * mul for item in list_in]
+
+def list_div(list_in: list, div: any = 1) -> list:
+    return [item / div for item in list_in]
 
 def list_max(list_in: list, max: any = 15) -> list:
     return [max if item > max else item for item in list_in]
