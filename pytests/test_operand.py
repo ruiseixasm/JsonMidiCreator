@@ -342,6 +342,14 @@ def test_handy_methods():
     list_int = [12, 3, 45]
     assert list_mod(list_int) == [0, 1, 1]
 
+    assert list_trim(list_int, 20) == [12, 3, 5]
+    list_float = [1/4, 1/8, 1/2]
+    assert list_trim(list_float, 3/4) == [1/4, 1/8, 3/8]
+
+    assert list_extend(list_int, 100) == [12, 3, 85]
+    list_float = [1/4, 1/8, 1/8]
+    assert list_extend(list_float, 1/1) == [1/4, 1/8, 5/8]
+
 # test_handy_methods()
 
 
