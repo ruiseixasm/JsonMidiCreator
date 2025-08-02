@@ -131,6 +131,7 @@ class Chaos(o.Operand):
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float():
+                self.__imul__(operand)  # Numbers triggers iterations
                 self._xn << operand
                 self._x0 << operand
             case tuple():
@@ -288,8 +289,10 @@ class Flipper(Modulus):
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
             case int():
+                self.__imul__(operand)  # Numbers triggers iterations
                 return 0 if super().__mod__(int()) < int(self._split) else 1
             case float():
+                self.__imul__(operand)  # Numbers triggers iterations
                 return 0.0 if super().__mod__(float()) < float(self._split) else 1.0
             case _:                     return super().__mod__(operand)
 
@@ -346,9 +349,12 @@ class Counter(Modulus):
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-                                        # These are math operations, NOT extractions with //
-            case int():                 return super().__mod__(int()) // int(self._period)
-            case float():               return super().__mod__(float()) // float(self._period)
+            case int():
+                self.__imul__(operand)  # Numbers triggers iterations
+                return super().__mod__(int()) // int(self._period)
+            case float():
+                self.__imul__(operand)  # Numbers triggers iterations
+                return super().__mod__(float()) // float(self._period)
             case _:
                 return super().__mod__(operand)
 
@@ -399,12 +405,13 @@ class Bouncer(Chaos):
             case ra.Xn():               return self._xn.copy()
             case ra.Yn():               return self._yn.copy()
             case int() | float():
-                self_tuple = self % od.Pipe( tuple() )
+                self_tuple = self % tuple()
                 hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
                 if isinstance(operand, int):
                     return int(hypotenuse)
                 return hypotenuse
             case tuple():
+                self.__imul__(operand)  # Numbers triggers iterations
                 self_x_float = self._xn % float()
                 self_y_float = self._yn % float()
                 return (self_x_float, self_y_float)
