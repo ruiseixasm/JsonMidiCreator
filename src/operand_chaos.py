@@ -65,6 +65,7 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():
+                # self.__imul__(operand)  # Numbers triggers iterations
                 return self._xn % operand
             case list():
                 list_out: list = []
@@ -84,8 +85,7 @@ class Chaos(o.Operand):
         if other.__class__ == o.Operand:
             return True
         if type(self) == type(other):
-            return  self._xn == other._xn \
-                and self._x0 == other._x0
+            return self._xn == other._xn    # Only the actual result matters, NOT the x0
         if isinstance(other, od.Conditional):
             return other == self
         return False
