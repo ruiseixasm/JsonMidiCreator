@@ -46,6 +46,7 @@ class Chaos(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._tamer: ot.Tamer           = None
         self._xn: ra.Xn                 = ra.Xn()
         self._x0: ra.X0                 = ra.X0(self._xn)
         for single_parameter in parameters: # Faster than passing a tuple
@@ -66,11 +67,13 @@ class Chaos(o.Operand):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
+                    case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Chaos():               return self.copy()
+            case ot.Tamer():            return self.deep_copy(self._tamer)
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float():
@@ -97,6 +100,7 @@ class Chaos(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["tamer"] = self.serialize( self._tamer )
         serialization["parameters"]["xn"] = self.serialize( self._xn )
         serialization["parameters"]["x0"] = self.serialize( self._x0 )
         return serialization
@@ -105,9 +109,10 @@ class Chaos(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
+            "tamer" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._tamer = self.deserialize( serialization["parameters"]["tamer"] )
             self._xn = self.deserialize( serialization["parameters"]["xn"] )
             self._x0 = self.deserialize( serialization["parameters"]["x0"] )
         return self
@@ -117,14 +122,18 @@ class Chaos(o.Operand):
         match operand:
             case Chaos():
                 super().__lshift__(operand)
+                self._tamer         = self.deep_copy(operand._tamer)
                 self._xn            << operand._xn
                 self._x0            << operand._x0
             case od.Pipe():
                 match operand._data:
+                    case ot.Tamer():                self._tamer = operand._data
                     case ra.Xn():                   self._xn = operand._data
                     case ra.X0():                   self._x0 = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ot.Tamer():                self._tamer = operand.copy()
+            case None:                      self._tamer = None
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float():
