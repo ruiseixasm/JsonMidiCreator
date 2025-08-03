@@ -453,15 +453,8 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
-        if not isinstance(serialization, dict):
-            return None
-        
-        self._next_operand = None
-        if "next_operand" in serialization and isinstance(serialization["next_operand"], dict):
-            pass
-        else:
-            return None # Unable to recreate any Operand object from serialization !!
-        
+        if "next_operand" in serialization:
+            self._next_operand = self.deserialize(serialization["next_operand"])
         return self
        
     def set(self, operand: any) -> Self:
