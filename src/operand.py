@@ -446,7 +446,8 @@ class Operand:
             next_operand = self._next_operand.getSerialization()
         return { 
             "class": type(self).__name__,
-            "parameters": {}
+            "parameters": {},
+            "next_operand": next_operand
         }
 
     # CHAINABLE OPERATIONS
@@ -467,6 +468,11 @@ class Operand:
                     return operand_instance.loadSerialization(serialization)
                 elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
                     logging.warning("Find class didn't found any class!")
+
+            self._next_operand = None
+            if "next_operand" in serialization and isinstance(serialization["next_operand"], dict):
+                pass
+
             return None # Unable to recreate any Operand object from serialization !!
         
         return self
