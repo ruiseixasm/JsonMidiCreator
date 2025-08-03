@@ -318,7 +318,7 @@ class Serialization(Data):
             case o.Operand():
                 self._data = serialization.copy()
             case dict():
-                self._data = o.Operand().loadSerialization(serialization)
+                self._data = self.deserialize(serialization)
             case _:
                 self._data = ol.Null()  # Contrary to None, ol.Null allows .copy() of itself
 
@@ -403,7 +403,7 @@ class Serialization(Data):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Serialization':
-        self._data = o.Operand().loadSerialization(serialization)
+        self._data = self.deserialize(serialization)
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -417,11 +417,11 @@ class Serialization(Data):
                     case o.Operand():
                         self._data = operand._data
                     case dict():
-                        self._data = o.Operand().loadSerialization(operand._data)
+                        self._data = self.deserialize(operand._data)
             case o.Operand():   # DON'T REMOVE THIS STEP !!
                 self._data = operand.copy()
             case dict():
-                self._data = o.Operand().loadSerialization(operand)
+                self._data = self.deserialize(operand)
         return self
 
     def __rrshift__(self, operand: o.T) -> o.T:
@@ -455,7 +455,7 @@ class Load(Serialization):
         if isinstance(filename, str):
             operand_data = self.load_operand_data(filename)
             if operand_data:
-                return o.Operand().loadSerialization(operand_data)    # Must convert to an Operand
+                return self.deserialize(operand_data)   # Must convert to an Operand
             return None
 
     @staticmethod

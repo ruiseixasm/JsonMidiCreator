@@ -453,10 +453,10 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
+        if not isinstance(serialization, dict):
+            return None
         if type(self) == Operand:   # Means unknown instantiation from random dict class name
-            if not isinstance(serialization, dict): # Non serializable data shall be returned as is
-                return serialization
-            if "class" in serialization and "parameters" in serialization:
+            if "class" in serialization and "parameters" in serialization and "next_operand" in serialization:
 
                 operand_name = serialization["class"]
                 operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
@@ -713,8 +713,20 @@ class Operand:
     def deserialize(data: any) -> any:
         match data:
             case dict():
-                if "class" in data and "parameters" in data:
-                    return Operand().loadSerialization(data)
+                if "class" in data and "parameters" in data and "next_operand" in data:
+
+                    operand_name = data["class"]
+                    operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
+                    if operand_class:
+                        operand_instance: Operand = operand_class()
+                        if operand_class == Operand:    # avoids infinite recursion
+                            return operand_instance
+                        # Needs to load from the Operand perspective
+                        return operand_instance.loadSerialization(data)
+                    elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+                        logging.warning("Find class didn't found any class!")
+                    return None
+                
                 deserialized_dict: dict = {}
                 for key, value in data.items(): # Makes sure it processes Operands in dict
                     # Recursively copy each deserialized value
