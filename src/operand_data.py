@@ -994,7 +994,7 @@ class Plot(ReadOnly):
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Composition'], Any]] = None, title: str = ""):
+                 e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = ""):
         super().__init__((by_channel, block, pause, iterations, n_button, c_button, e_button, title))
 
     def __rrshift__(self, operand: o.T) -> o.T:

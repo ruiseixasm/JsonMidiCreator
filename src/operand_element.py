@@ -633,7 +633,7 @@ class Element(o.Operand):
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            e_button: Optional[Callable[['Composition'], Any]] = None, title: str = "") -> Self:
+            e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = "") -> Self:
         import operand_container as oc
         oc.Clip(self).plot(by_channel, block, pause, iterations, n_button, c_button, e_button)
         return self

@@ -1593,9 +1593,9 @@ class Composition(Container):
 
     def _run_play(self, even = None) -> Self:
         import threading
-        last_iteration: Clip = self._iterations[self._iteration]
-        threading.Thread(target=od.Play.play, args=(last_iteration,)).start()
-        # last_iteration >> od.Play()
+        iteration_clip: Clip = self._iterations[self._iteration]
+        threading.Thread(target=od.Play.play, args=(iteration_clip,)).start()
+        # iteration_clip >> od.Play()
         return self
 
     def _run_first(self, even = None) -> Self:
@@ -1647,16 +1647,16 @@ class Composition(Container):
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
             iteration: int = self._iteration
-            last_iteration: Clip = self._iterations[-1]
-            new_clip: Clip = self._n_function(last_iteration.copy())
+            iteration_clip: Clip = self._iterations[-1]
+            new_clip: Clip = self._n_function(iteration_clip.copy())
             if isinstance(new_clip, Clip):
                 self._iteration = len(self._iterations)
                 plotlist: list[dict] = new_clip.getPlotlist()
                 self._iterations.append(new_clip)
                 self._plot_lists.append(plotlist)
                 self._plot_elements(plotlist)
-            # Updates the last_iteration data and plot just in case
-            self._update_iteration(iteration, last_iteration.getPlotlist())
+            # Updates the iteration_clip data and plot just in case
+            self._update_iteration(iteration, iteration_clip.getPlotlist())
             self._enable_button(self._previous_button)
             self._disable_button(self._next_button)
         return self
@@ -1664,21 +1664,21 @@ class Composition(Container):
     def _run_composition(self, even = None) -> Self:
         import threading
         if callable(self._c_function):
-            last_iteration: Clip = self._iterations[self._iteration]
-            composition: Composition = self._c_function(last_iteration)
+            iteration_clip: Clip = self._iterations[self._iteration]
+            composition: Composition = self._c_function(iteration_clip)
             if isinstance(composition, Composition):
                 threading.Thread(target=od.Play.play, args=(composition,)).start()
                 # composition >> od.Play()
-            # Updates the last_iteration data and plot just in case
-            self._update_iteration(self._iteration, last_iteration.getPlotlist())
+            # Updates the iteration_clip data and plot just in case
+            self._update_iteration(self._iteration, iteration_clip.getPlotlist())
         return self
 
     def _run_execute(self, even = None) -> Self:
         if callable(self._e_function):
-            last_iteration: Clip = self._iterations[self._iteration]
-            self._e_function(last_iteration)
-            # Updates the last_iteration data and plot just in case
-            self._update_iteration(self._iteration, last_iteration.getPlotlist())
+            iteration_clip: Clip = self._iterations[self._iteration]
+            self._e_function(iteration_clip, self._iteration)
+            # Updates the iteration_clip data and plot just in case
+            self._update_iteration(self._iteration, iteration_clip.getPlotlist())
         return self
 
     @staticmethod
@@ -1730,7 +1730,7 @@ class Composition(Container):
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
             c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            e_button: Optional[Callable[['Composition'], Any]] = None, title: str = "") -> Self:
+            e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = "") -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1758,8 +1758,8 @@ class Composition(Container):
         if callable(self._n_function) \
                 and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
-                last_iteration: Composition = self._iterations[-1]
-                new_iteration: Composition = self._n_function(last_iteration.copy())
+                iteration_clip: Composition = self._iterations[-1]
+                new_iteration: Composition = self._n_function(iteration_clip.copy())
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
