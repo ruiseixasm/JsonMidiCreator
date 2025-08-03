@@ -76,7 +76,7 @@ class Chaos(o.Operand):
             case ot.Tamer():            return self.deep_copy(self._tamer)
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
-            case int() | float():
+            case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
                 return self._xn % operand
             case list():
@@ -136,7 +136,7 @@ class Chaos(o.Operand):
             case None:                      self._tamer = None
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
-            case int() | float():
+            case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
                 self._xn << operand
                 self._x0 << operand
@@ -294,6 +294,9 @@ class Flipper(Modulus):
                     case ra.Split():            return self._split
                     case _:                     return super().__mod__(operand)
             case ra.Split():            return self._split.copy()
+            case Fraction():
+                self.__imul__(operand)  # Numbers trigger iterations
+                return Fraction(0) if super().__mod__(Fraction()) < self._split else Fraction(1)
             case int():
                 self.__imul__(operand)  # Numbers trigger iterations
                 return 0 if super().__mod__(int()) < int(self._split) else 1
@@ -355,6 +358,9 @@ class Counter(Modulus):
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case Fraction():
+                self.__imul__(operand)  # Numbers trigger iterations
+                return super().__mod__(Fraction()) // self._period
             case int():
                 self.__imul__(operand)  # Numbers trigger iterations
                 return super().__mod__(int()) // int(self._period)
@@ -415,11 +421,13 @@ class Bouncer(Chaos):
             case ra.X0():               return self._x0.copy()
             case ra.Yn():               return self._yn.copy()
             case ra.Y0():               return self._y0.copy()
-            case int() | float():
+            case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
                 hypotenuse = math.hypot(self._xn % float(), self._yn % float())
                 if isinstance(operand, int):
                     return int(hypotenuse)
+                if isinstance(operand, Fraction):
+                    return Fraction(hypotenuse)
                 return hypotenuse
             case _:                     return super().__mod__(operand)
 
