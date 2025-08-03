@@ -169,7 +169,7 @@ class Chaos(o.Operand):
                     # iterations are only done on tailed Chaos operands
                     self << self._next_operand.iterate(total_iterations)
                 self.iterate(total_iterations)
-                number, tamed = self.tame(self % Fraction())
+                _, tamed = self.tame(self % Fraction())
                 # self << number
         return self
     
