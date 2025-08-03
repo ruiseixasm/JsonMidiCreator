@@ -58,8 +58,15 @@ class Tamer(o.Operand):
             case _:             self._next_operand = None
         return self
 
-class Stepwise(Tamer):
-    """`Tamer -> Stepwise`
+class Validator(Tamer):
+    """`Tamer -> Validator`
+
+    A `Validator` is a read-only `Tamer` that just verifies that the submitted number conforms.
+    """
+    pass
+
+class Stepwise(Validator):
+    """`Tamer -> Validator -> Stepwise`
 
     This `Stepwise` checks if the successive numbers have a distance less or equal to 0 to the previous one.
     """
@@ -81,3 +88,57 @@ class Stepwise(Tamer):
                     self._last_number = int(number)
         return number, validation
 
+
+class Manipulator(Tamer):
+    """`Tamer -> Manipulator`
+
+    A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted number manipulates
+    the given number to other Tamer operands.
+    """
+    pass
+
+class Modulo(Manipulator):
+    """`Tamer -> Validator -> Modulo`
+
+    This `Modulo` does the module by a given value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._module: Fraction = Fraction(8)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            number %= self._module
+        return number, validation
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case Fraction():            return self._module
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case Fraction():            return self._module
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Modulo():
+                super().__lshift__(operand)
+                self._module        = operand._module
+            case od.Pipe():
+                match operand._data:
+                    case Fraction():                self._module = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Fraction():                self._module = operand
+        return self
