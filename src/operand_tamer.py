@@ -43,7 +43,7 @@ class Tamer(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: int | float | Fraction) -> tuple[int | float | Fraction, bool]:
+    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
             number, validation = self._next_operand.tame(number)
             if not validation:
@@ -72,18 +72,20 @@ class Stepwise(Validator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._last_number: int | float | Fraction = None
+        self._last_number: int = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: int | float | Fraction) -> tuple[int | float | Fraction, bool]:
+    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
         number, validation = super().tame(number)
         if validation:
             if self._last_number is None:
-                self._last_number = number
+                self._last_number = int(number)
             else:
-                if abs(number - self._last_number) > 1:
+                if abs(int(number) - self._last_number) > 1:
                     return number, False    # Breaks the chain
+                else:
+                    self._last_number = int(number)
         return number, validation
 
 
