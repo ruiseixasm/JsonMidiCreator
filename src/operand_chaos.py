@@ -61,10 +61,10 @@ class Chaos(o.Operand):
                 return int(number)
         return 0
 
-    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+    def tame(self, number: Fraction) -> bool:
         if self._tamer is not None:
-            return self._tamer.tame(number)
-        return number, True
+            return self._tamer.tame(number)[1]
+        return True
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -169,8 +169,7 @@ class Chaos(o.Operand):
                     # iterations are only done on tailed Chaos operands
                     self << self._next_operand.iterate(total_iterations)
                 self.iterate(total_iterations)
-                _, tamed = self.tame(self % Fraction())
-                # self << number
+                tamed = self.tame(self % Fraction())
         return self
     
     # self is the pusher

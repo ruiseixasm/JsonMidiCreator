@@ -58,17 +58,10 @@ class Tamer(o.Operand):
             case _:             self._next_operand = None
         return self
 
-class Validator(Tamer):
-    """`Tamer -> Validator`
+class Stepwise(Tamer):
+    """`Tamer -> Stepwise`
 
-    A `Validator` is a read-only `Tamer` that just verifies that the submitted number conforms.
-    """
-    pass
-
-class Stepwise(Validator):
-    """`Tamer -> Validator -> Stepwise`
-
-    This `Validator` checks if the successive numbers have a distance less or equal to 0 to the previous one.
+    This `Stepwise` checks if the successive numbers have a distance less or equal to 0 to the previous one.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -88,11 +81,3 @@ class Stepwise(Validator):
                     self._last_number = int(number)
         return number, validation
 
-
-class Manipulator(Tamer):
-    """`Tamer -> Manipulator`
-
-    A `Manipulator` is a read-write `Tamer` that beside verifying a submitted number it's also
-    able to manipulate that number in order to conform.
-    """
-    pass
