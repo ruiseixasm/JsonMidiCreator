@@ -455,24 +455,11 @@ class Operand:
     def loadSerialization(self, serialization: dict) -> Self:
         if not isinstance(serialization, dict):
             return None
-        if type(self) == Operand:   # Means unknown instantiation from random dict class name
-            if "class" in serialization and "parameters" in serialization and "next_operand" in serialization:
-
-                operand_name = serialization["class"]
-                operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
-                if operand_class:
-                    operand_instance: Operand = operand_class()
-                    if operand_class == Operand:    # avoids infinite recursion
-                        return operand_instance
-                    
-                    return operand_instance.loadSerialization(serialization)
-                elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
-                    logging.warning("Find class didn't found any class!")
-
-            self._next_operand = None
-            if "next_operand" in serialization and isinstance(serialization["next_operand"], dict):
-                pass
-
+        
+        self._next_operand = None
+        if "next_operand" in serialization and isinstance(serialization["next_operand"], dict):
+            pass
+        else:
             return None # Unable to recreate any Operand object from serialization !!
         
         return self
@@ -716,13 +703,10 @@ class Operand:
                 if "class" in data and "parameters" in data and "next_operand" in data:
 
                     operand_name = data["class"]
-                    operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
+                    operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call
                     if operand_class:
-                        operand_instance: Operand = operand_class()
-                        if operand_class == Operand:    # avoids infinite recursion
-                            return operand_instance
-                        # Needs to load from the Operand perspective
-                        return operand_instance.loadSerialization(data)
+                        # Now able to load from the Operand perspective
+                        return operand_class().loadSerialization(data)
                     elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
                         logging.warning("Find class didn't found any class!")
                     return None
