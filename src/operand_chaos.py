@@ -170,6 +170,7 @@ class Chaos(o.Operand):
                     self << self._next_operand.iterate(total_iterations)
                 self.iterate(total_iterations)
                 tamed = self.tame(self % Fraction())
+                count_down -= 1
         return self
     
     # self is the pusher
