@@ -47,6 +47,7 @@ class Chaos(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._tamer: ot.Tamer           = None
+        self._max_iterations: int       = 1000
         self._xn: ra.Xn                 = ra.Xn()
         self._x0: ra.X0                 = ra.X0(self._xn)
         for single_parameter in parameters: # Faster than passing a tuple
