@@ -162,10 +162,15 @@ class Chaos(o.Operand):
         number ^= self # Extracts the Frame operand first
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
-            if isinstance(self._next_operand, Chaos):
-                # iterations are only done on tailed Chaos operands
-                self << self._next_operand.iterate(total_iterations)
-            return self.iterate(total_iterations)
+            tamed: bool = False
+            count_down: int = self._max_iterations
+            while not tamed and count_down > 0:
+                if isinstance(self._next_operand, Chaos):
+                    # iterations are only done on tailed Chaos operands
+                    self << self._next_operand.iterate(total_iterations)
+                self.iterate(total_iterations)
+                number, tamed = self.tame(self % Fraction())
+                # self << number
         return self
     
     # self is the pusher
