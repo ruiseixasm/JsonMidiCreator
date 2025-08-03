@@ -61,6 +61,11 @@ class Chaos(o.Operand):
                 return int(number)
         return 0
 
+    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+        if self._tamer is not None:
+            return self._tamer.tame(number)
+        return number, True
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case self.__class__():
