@@ -207,7 +207,7 @@ class Motion(Validator):
     
     def next(self, number: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._last_number = number
+        self._last_number = int(number)
         return super().next(number)
         
 class Conjunct(Motion):
