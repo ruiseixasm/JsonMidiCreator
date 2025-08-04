@@ -435,6 +435,8 @@ class Modulo(Manipulator):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Fraction():            return self._module
+            case int():                 return int(self._module)
+            case float():               return float(self._module)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -451,4 +453,5 @@ class Modulo(Manipulator):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._module = operand
+            case int() | float():           self._module = Fraction(operand)
         return self
