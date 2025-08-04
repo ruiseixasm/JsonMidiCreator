@@ -68,6 +68,19 @@ class Tamer(o.Operand):
                 return number, False    # Breaks the chain
         return number, True
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case list():                return self._enabled_indexes
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case list():                return self._enabled_indexes.copy()
+            case _:                     return super().__mod__(operand)
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["enabled_indexes"] = self.serialize( self._enabled_indexes )
