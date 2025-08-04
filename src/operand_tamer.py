@@ -125,6 +125,108 @@ class Tamer(o.Operand):
             case _:             self._next_operand = None
         return self
 
+class Parallel(Tamer):
+    """`Tamer -> Parallel`
+
+    Because `Tamer` operands work in series, a `Parallel` operand is able to place them \
+        in parallel, meaning, they are processed in a `or` fashion.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    list([Tamer()]) : A list of tamers that set the `Tamer` operands in parallel.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._tamers: list[Tamer] = []
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def enabled(self) -> bool:
+        """Returns True if current index is within enabled range."""
+        indexes_len: int = len(self._tamers)
+        match indexes_len:
+            case 1:
+                return self._index >= self._tamers[0]
+            case 2:
+                return self._index < self._tamers[1] \
+                   and self._index >= self._tamers[0]
+        return True
+
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        if self._next_operand is not None:
+            number, validation = self._next_operand.tame(number)
+            if not validation:
+                return number, False    # Breaks the chain
+        return number, True
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case list():
+                        if all(isinstance(item, Tamer) for item in operand._data):
+                            return self._tamers
+                        else:   # Not for me
+                            return super().__mod__(operand)
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case list():
+                if all(isinstance(item, Tamer) for item in operand):
+                    return self.deep_copy(self._tamers)
+                else:   # Not for me
+                    return super().__mod__(operand)
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["tamers"] = self.serialize( self._tamers )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "tamers" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._tamers = self.deserialize( serialization["parameters"]["tamers"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Tamer():
+                super().__lshift__(operand)
+                self._tamers = self.deep_copy(operand._tamers)
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        if all(isinstance(item, Tamer) for item in operand._data):
+                            self._tamers = operand._data
+                        else:   # Not for me
+                            super().__lshift__(operand)
+            case list():
+                if all(isinstance(item, Tamer) for item in operand):
+                    self._tamers = self.deep_copy(operand)
+                else:   # Not for me
+                    super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def next(self, number: Fraction) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        if self._next_operand is not None:
+            self._next_operand.next(number)
+        self._index += 1
+        return self
+        
 
 class Validator(Tamer):
     """`Tamer -> Validator`
