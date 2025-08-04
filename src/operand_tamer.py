@@ -112,10 +112,10 @@ class Tamer(o.Operand):
                 super().__lshift__(operand)
         return self
 
-    def validate(self, number: Fraction) -> Self:
+    def next(self, number: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._next_operand is not None:
-            self._next_operand.validate(number)
+            self._next_operand.next(number)
         self._index += 1
         return self
         
@@ -205,10 +205,10 @@ class Motion(Validator):
         self._last_number = None
         return super().reset(*parameters)
     
-    def validate(self, number: Fraction) -> Self:
+    def next(self, number: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._last_number = number
-        return super().validate(number)
+        return super().next(number)
         
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
@@ -229,7 +229,7 @@ class Conjunct(Motion):
                     and abs(int(number) - self._last_number) > 1:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Stepwise(Motion):
@@ -251,7 +251,7 @@ class Stepwise(Motion):
                     and abs(int(number) - self._last_number) != 1:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Skipwise(Motion):
@@ -273,7 +273,7 @@ class Skipwise(Motion):
                     and abs(int(number) - self._last_number) != 2:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Disjunct(Motion):
@@ -295,7 +295,7 @@ class Disjunct(Motion):
                     and abs(int(number) - self._last_number) < 1:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Leaping(Motion):
@@ -317,7 +317,7 @@ class Leaping(Motion):
                     and abs(int(number) - self._last_number) < 3:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Ascending(Motion):
@@ -339,7 +339,7 @@ class Ascending(Motion):
                     and not int(number) > self._last_number:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 class Descending(Motion):
@@ -361,7 +361,7 @@ class Descending(Motion):
                     and not int(number) < self._last_number:
                     return number, False    # Breaks the chain
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
 
@@ -402,7 +402,7 @@ class Modulo(Manipulator):
             if self.enabled():
                 number %= self._module
             if from_chaos:
-                self.validate(number)
+                self.next(number)
         return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:
