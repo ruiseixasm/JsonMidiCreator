@@ -367,6 +367,10 @@ class Probability(Rational):
     """`Rational -> Probability`"""
     pass
 
+class Strictness(Rational):
+    """`Rational -> Strictness`"""
+    pass
+
 
 class Tempo(Rational):
     """`Rational -> Tempo`

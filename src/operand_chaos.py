@@ -63,7 +63,9 @@ class Chaos(o.Operand):
         return 0
 
     def tame(self, number: Fraction) -> bool:
-        return self._tamer.tame(number, True)[1]
+        # Makes sure it's a Rational first
+        rational: Fraction = ra.Rational(number) % Fraction()
+        return self._tamer.tame(rational, True)[1]
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:

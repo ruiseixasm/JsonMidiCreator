@@ -61,12 +61,12 @@ class Tamer(o.Operand):
                    and self._index >= self._enabled_indexes[0]
         return True
 
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
-            number, validation = self._next_operand.tame(number)
+            rational, validation = self._next_operand.tame(rational)
             if not validation:
-                return number, False    # Breaks the chain
-        return number, True
+                return rational, False    # Breaks the chain
+        return rational, True
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -112,10 +112,10 @@ class Tamer(o.Operand):
                 super().__lshift__(operand)
         return self
 
-    def next(self, number: Fraction) -> Self:
+    def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._next_operand is not None:
-            self._next_operand.next(number)
+            self._next_operand.next(rational)
         self._index += 1
         return self
         
@@ -155,20 +155,20 @@ class Parallel(Tamer):
                    and self._index >= self._enabled_indexes[0]
         return True
 
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and self._tamers:
                 parallel_validation: bool = False
                 for single_tamer in self._tamers:
-                    number, single_validation = single_tamer.tame(number)
+                    rational, single_validation = single_tamer.tame(rational)
                     if single_validation:
                         parallel_validation = True
                 if not parallel_validation:
-                    return number, False    # Breaks the chain
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -233,17 +233,17 @@ class Parallel(Tamer):
             single_tamer.reset()
         return super().reset(*parameters)
     
-    def next(self, number: Fraction) -> Self:
+    def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         for single_tamer in self._tamers:
-            single_tamer.next(number)
-        return super().next(number)
+            single_tamer.next(rational)
+        return super().next(rational)
         
 
 class Validator(Tamer):
     """`Tamer -> Validator`
 
-    A `Validator` is a read-only `Tamer` that just verifies that the submitted number conforms.
+    A `Validator` is a read-only `Tamer` that just verifies that the submitted rational conforms.
 
     Parameters
     ----------
@@ -256,7 +256,7 @@ class Validator(Tamer):
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
 
-    A `Motion` validates the distance between integers given by the received number.
+    A `Motion` validates the distance between integers given by the received rational.
     It should be used together with a `Modulo` to avoid unmeet tries.
 
     Parameters
@@ -319,10 +319,10 @@ class Motion(Validator):
         self._last_number = None
         return super().reset(*parameters)
     
-    def next(self, number: Fraction) -> Self:
+    def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._last_number = int(number)
-        return super().next(number)
+        self._last_number = int(rational)
+        return super().next(rational)
         
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
@@ -335,16 +335,16 @@ class Conjunct(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and abs(int(number) - self._last_number) > 1:
-                    return number, False    # Breaks the chain
+                    and abs(int(rational) - self._last_number) > 1:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Stepwise(Motion):
     """`Tamer -> Validator -> Motion -> Stepwise`
@@ -357,16 +357,16 @@ class Stepwise(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and abs(int(number) - self._last_number) != 1:
-                    return number, False    # Breaks the chain
+                    and abs(int(rational) - self._last_number) != 1:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Skipwise(Motion):
     """`Tamer -> Validator -> Motion -> Skipwise`
@@ -379,16 +379,16 @@ class Skipwise(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and abs(int(number) - self._last_number) != 2:
-                    return number, False    # Breaks the chain
+                    and abs(int(rational) - self._last_number) != 2:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Disjunct(Motion):
     """`Tamer -> Validator -> Motion -> Disjunct`
@@ -401,16 +401,16 @@ class Disjunct(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and abs(int(number) - self._last_number) < 1:
-                    return number, False    # Breaks the chain
+                    and abs(int(rational) - self._last_number) < 1:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Leaping(Motion):
     """`Tamer -> Validator -> Motion -> Leaping`
@@ -423,21 +423,21 @@ class Leaping(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and abs(int(number) - self._last_number) < 3:
-                    return number, False    # Breaks the chain
+                    and abs(int(rational) - self._last_number) < 3:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Ascending(Motion):
     """`Tamer -> Validator -> Motion -> Ascending`
 
-    This `Ascending` checks if the successive number is greater than the previous one.
+    This `Ascending` checks if the successive rational is greater than the previous one.
 
     Parameters
     ----------
@@ -445,21 +445,21 @@ class Ascending(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and not int(number) > self._last_number:
-                    return number, False    # Breaks the chain
+                    and not int(rational) > self._last_number:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 class Descending(Motion):
     """`Tamer -> Validator -> Motion -> Descending`
 
-    This `Descending` checks if the successive number is less than the previous one.
+    This `Descending` checks if the successive rational is less than the previous one.
 
     Parameters
     ----------
@@ -467,23 +467,23 @@ class Descending(Motion):
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
     """
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
                 if self._last_number is not None \
-                    and not int(number) < self._last_number:
-                    return number, False    # Breaks the chain
+                    and not int(rational) < self._last_number:
+                    return rational, False    # Breaks the chain
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
 
 class Manipulator(Tamer):
     """`Tamer -> Manipulator`
 
-    A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted number manipulates
-    the given number to other Tamer operands.
+    A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted rational manipulates
+    the given rational to other Tamer operands.
 
     Parameters
     ----------
@@ -510,14 +510,14 @@ class Modulo(Manipulator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        number, validation = super().tame(number)
+    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                number %= self._module
+                rational %= self._module
             if from_chaos:
-                self.next(number)
-        return number, validation
+                self.next(rational)
+        return rational, validation
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
