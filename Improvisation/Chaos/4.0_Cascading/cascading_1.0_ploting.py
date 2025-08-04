@@ -33,7 +33,7 @@ rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm, c_button=compo
 
 
 
-chaos_2 = SinX(340, Melodic()**Modulo(7))
+chaos_2 = SinX(340, Conjunct()**Modulo(7))
 def tonality(clip: Clip) -> Clip:
     chaos_2.access(Tamer()).reset()
     multiple_degrees = list_mod(chaos_2 % [2, 4, 4, 2, 1, 0, 3], 7)

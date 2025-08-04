@@ -144,10 +144,10 @@ class Motion(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-class Melodic(Motion):
-    """`Tamer -> Validator -> Motion -> Melodic`
+class Conjunct(Motion):
+    """`Tamer -> Validator -> Motion -> Conjunct`
 
-    This `Melodic` checks if the successive numbers have a distance less or equal to 1 to the previous one.
+    This `Conjunct` checks if the successive numbers have a distance less or equal to 1 to the previous one.
 
     Parameters
     ----------
@@ -270,6 +270,58 @@ class Leaping(Motion):
                         return number, False    # Breaks the chain
                     else:
                         self._last_number = int(number)
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
+class Ascending(Motion):
+    """`Tamer -> Validator -> Motion -> Ascending`
+
+    This `Ascending` checks if the successive number is greater than the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if int(number) > self._last_number:
+                        self._last_number = int(number)
+                    else:
+                        return number, False    # Breaks the chain
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
+class Descending(Motion):
+    """`Tamer -> Validator -> Motion -> Descending`
+
+    This `Descending` checks if the successive number is less than the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if int(number) < self._last_number:
+                        self._last_number = int(number)
+                    else:
+                        return number, False    # Breaks the chain
             if from_chaos:
                 self.index_increment()
         return number, validation
