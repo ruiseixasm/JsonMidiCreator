@@ -38,10 +38,10 @@ def tonality(clip: Clip) -> Clip:
     chaos_2.access(Tamer()).reset() # Resets tamer only
     chaos_data = chaos_2 % [2, 4, 4, 2, 1, 0, 3]
     multiple_degrees = list_mod(chaos_data, 7)
-    clip *= [0] # Just the first Measure
-    clip << Octave(4) << Degree(-1)
-    clip += Foreach(*multiple_degrees)**Degree()
-    return clip * 4
+    # One can simple ignore the clip and work on the original clip
+    new_clip = rhythm_notes * [0] # Just the first Measure
+    new_clip += Foreach(*multiple_degrees)**Degree()
+    return new_clip * 4
 
 phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
 
