@@ -35,9 +35,9 @@ rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm, c_button=compo
 
 chaos_2 = SinX(340, Stepwise()**Modulo(7))
 def tonality(clip: Clip) -> Clip:
-    multiple_degrees = chaos_2 % [2, 4, 4, 2, 1, 0, 3]
-    clip << Foreach(*multiple_degrees)**Degree()
+    multiple_degrees = list_mod(chaos_2 % [2, 4, 4, 2, 1, 0, 3], 7)
+    clip << Foreach(multiple_degrees)**Degree()
     return clip.mul(4)
 
-# phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
+phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
 
