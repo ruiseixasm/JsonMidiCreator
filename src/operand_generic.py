@@ -701,8 +701,8 @@ class Pitch(Generic):
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 previous_degree_0: int = self._degree_0 % 7
                 if operand < 0:
+                    self._tonic_key = self._key_signature.get_tonic_key()
                     self._degree_0 = 0  # Resets the degree to I
-                    self._degree_0 -= previous_degree_0
                     self._sharp = 0
                     self._natural = False
                 elif operand < 1:
@@ -720,6 +720,7 @@ class Pitch(Generic):
                 self._transposition = 0
                 self._sharp = 0
                 self._natural = False
+                self.match_octave(False)    # Keep actual octave (False)
 
             case ou.Transposition():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps

@@ -40,8 +40,9 @@ def tonality(clip: Clip) -> Clip:
     multiple_degrees = list_mod(chaos_data, 7)
     clip *= [0] # Just the first Measure
     clip << Octave(4) << Degree(-1)
+    clip_copy = clip.copy()
     clip += Foreach(*multiple_degrees)**Degree()
-    return clip * 4
+    return clip * 4 * clip_copy
 
 phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
 
