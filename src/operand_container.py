@@ -1755,8 +1755,7 @@ class Composition(Container):
         self._e_function = e_button
         self._title: str = title
 
-        if callable(self._n_function) \
-                and isinstance(iterations, int) and iterations > 0:
+        if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
                 iteration_clip: Composition = self._iterations[-1]
                 new_iteration: Composition = self._n_function(iteration_clip.copy())
