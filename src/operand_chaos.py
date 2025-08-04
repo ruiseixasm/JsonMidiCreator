@@ -41,13 +41,13 @@ class Chaos(o.Operand):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._tamer: ot.Tamer           = None
+        self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
         self._xn: ra.Xn                 = ra.Xn()
         self._x0: ra.X0                 = ra.X0(self._xn)
@@ -63,9 +63,7 @@ class Chaos(o.Operand):
         return 0
 
     def tame(self, number: Fraction) -> bool:
-        if self._tamer is not None:
-            return self._tamer.tame(number, True)[1]
-        return True
+        return self._tamer.tame(number, True)[1]
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -80,7 +78,7 @@ class Chaos(o.Operand):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Chaos():               return self.copy()
-            case ot.Tamer():            return self.deep_copy(self._tamer)
+            case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
@@ -129,7 +127,7 @@ class Chaos(o.Operand):
         match operand:
             case Chaos():
                 super().__lshift__(operand)
-                self._tamer         = self.deep_copy(operand._tamer)
+                self._tamer         = operand._tamer.copy()
                 self._xn            << operand._xn
                 self._x0            << operand._x0
             case od.Pipe():
@@ -140,7 +138,6 @@ class Chaos(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Tamer():                self._tamer = operand.copy()
-            case None:                      self._tamer = None
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float() | Fraction():
@@ -190,8 +187,7 @@ class Chaos(o.Operand):
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        if self._tamer is not Note:
-            self._tamer.reset()
+        self._tamer.reset()
         self._xn << self._x0
         return self
 
@@ -202,7 +198,7 @@ class Modulus(Chaos):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -289,7 +285,7 @@ class Flipper(Modulus):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(2) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -367,7 +363,7 @@ class Counter(Modulus):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -397,7 +393,7 @@ class Bouncer(Chaos):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Width(16) : Horizontal size of the "screen".
     Height(9) : Vertical size of the "screen".
     dX(0.555) : The incremental value for the horizontal position.
@@ -556,7 +552,7 @@ class SinX(Chaos):
 
     Parameters
     ----------
-    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(2), int, float : The resultant value of each iteration.
     X0(Xn(2)) : The starting value of all iterations possible to reset to.
     Lambda(77.238537) : Sets the lambda constant of the formula `Xn + Lambda * Sin(Xn)`.
@@ -605,7 +601,7 @@ class SinX(Chaos):
         match operand:
             case SinX():
                 super().__lshift__(operand)
-                self._lambda            << operand._lambda
+                self._lambda << operand._lambda
             case od.Pipe():
                 match operand._data:
                     case ra.Lambda():               self._lambda = operand._data

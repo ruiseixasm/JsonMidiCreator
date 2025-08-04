@@ -1658,9 +1658,9 @@ class Arpeggio(Generic):
             case Arpeggio():
                 super().__lshift__(operand)
                 self._order                 = operand._order
-                self._duration_beats    = operand._duration_beats
+                self._duration_beats        = operand._duration_beats
                 self._swing                 = operand._swing
-                self._chaos                 << operand._chaos
+                self._chaos                 = operand._chaos.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Order():                self._order = operand._data._unit
