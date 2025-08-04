@@ -157,6 +157,50 @@ class Motion(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case int():                 return self._last_number
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case int():                 return self._last_number
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["last_number"] = self.serialize( self._last_number )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "last_number" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._last_number = self.deserialize( serialization["parameters"]["last_number"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Motion():
+                super().__lshift__(operand)
+                self._last_number = operand._last_number
+            case od.Pipe():
+                match operand._data:
+                    case int():
+                        self._last_number = operand._data
+            case int():
+                self._last_number = operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
 
