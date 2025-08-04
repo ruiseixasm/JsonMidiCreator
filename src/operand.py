@@ -462,14 +462,21 @@ class Operand:
         return self.__lshift__(operand)
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_data as od
         # Don't do the line bellow, already done on sub class call
         # operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(operand, Operand):
-            self._initiated = operand._initiated
-            self._index = operand._index
-            self._set = False   # by default a new copy of data unsets the Operand
-            # COPY THE SELF OPERANDS RECURSIVELY
-            self._next_operand = self.deep_copy(operand._next_operand)
+        match operand:
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Operand():
+                self._initiated = operand._initiated
+                self._index = operand._index
+                self._set = False   # by default a new copy of data unsets the Operand
+                # COPY THE SELF OPERANDS RECURSIVELY
+                self._next_operand = self.deep_copy(operand._next_operand)
+            case tuple():
+                for single_parameter in operand:
+                    self.__lshift__(single_parameter)
         return self
     
     def left(self, operand: any) -> Self:

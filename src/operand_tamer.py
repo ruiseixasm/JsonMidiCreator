@@ -40,23 +40,65 @@ class Tamer(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._next_operand: Tamer = None
+        self._enabled_indexes: list[int] = []
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+    def enabled(self) -> bool:
+        """Returns True if current index is within enabled range."""
+        indexes_len: int = len(self._enabled_indexes)
+        match indexes_len:
+            case 1:
+                return self._index >= self._enabled_indexes[0]
+            case 2:
+                return self._index < self._enabled_indexes[1] \
+                   and self._index >= self._enabled_indexes[0]
+        return True
+
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
             number, validation = self._next_operand.tame(number)
             if not validation:
                 return number, False    # Breaks the chain
         return number, True
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["enabled_indexes"] = self.serialize( self._enabled_indexes )
+        return serialization
+
     # CHAINABLE OPERATIONS
 
-    def index_increment(self) -> Self:
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "enabled_indexes" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._enabled_indexes = self.deserialize( serialization["parameters"]["enabled_indexes"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Tamer():
+                super().__lshift__(operand)
+                self._enabled_indexes = operand._enabled_indexes.copy()
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._enabled_indexes = operand._data
+            case list():
+                self._enabled_indexes = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def index_increment(self, from_chaos: bool = False) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        if self._next_operand is not None:
-            self._next_operand.index_increment()
-        self._index += 1
+        if from_chaos:
+            if self._next_operand is not None:
+                self._next_operand.index_increment()
+            self._index += 1
         return self
         
     def __pow__(self, tamer: 'Tamer') -> Self:
@@ -84,17 +126,18 @@ class Stepwise(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         number, validation = super().tame(number)
         if validation:
-            if self._last_number is None:
-                self._last_number = int(number)
-            else:
-                if abs(int(number) - self._last_number) > 1:
-                    return number, False    # Breaks the chain
-                else:
+            if self.enabled():
+                if self._last_number is None:
                     self._last_number = int(number)
-            self.index_increment()
+                else:
+                    if abs(int(number) - self._last_number) > 1:
+                        return number, False    # Breaks the chain
+                    else:
+                        self._last_number = int(number)
+            self.index_increment(from_chaos)
         return number, validation
 
 
@@ -117,11 +160,11 @@ class Modulo(Manipulator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, number: Fraction) -> tuple[Fraction, bool]:
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         number, validation = super().tame(number)
         if validation:
             number %= self._module
-            self.index_increment()
+            self.index_increment(from_chaos)()
         return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:

@@ -63,7 +63,7 @@ class Chaos(o.Operand):
 
     def tame(self, number: Fraction) -> bool:
         if self._tamer is not None:
-            return self._tamer.tame(number)[1]
+            return self._tamer.tame(number, True)[1]
         return True
 
     def __mod__(self, operand: o.T) -> o.T:
