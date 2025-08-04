@@ -97,7 +97,7 @@ class Tamer(o.Operand):
         """Only called by the first link of the chain if all links are validated"""
         if from_chaos:
             if self._next_operand is not None:
-                self._next_operand.index_increment()
+                self._next_operand.index_increment(from_chaos)
             self._index += 1
         return self
         
