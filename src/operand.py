@@ -353,8 +353,13 @@ class Operand:
         return list_size
 
     def get(self, operand: T) -> T:
-        """Applies `%` on the operand returning the same type operand"""
+        """Applies `% operand` returning the same type operand"""
         return self.__mod__(operand)
+
+    def access(self, operand: T) -> T:
+        """Applies `% Pipe(operand)` returning the same the operand directly"""
+        import operand_data as od
+        return self.__mod__(od.Pipe(operand))
 
     def __mod__(self, operand: T) -> T:
         """

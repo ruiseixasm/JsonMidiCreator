@@ -190,6 +190,8 @@ class Chaos(o.Operand):
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
+        if self._tamer is not Note:
+            self._tamer.reset()
         self._xn << self._x0
         return self
 
