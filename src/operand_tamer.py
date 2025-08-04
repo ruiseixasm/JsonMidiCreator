@@ -144,10 +144,10 @@ class Motion(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-class Stepwise(Motion):
-    """`Tamer -> Validator -> Motion -> Stepwise`
+class Melodic(Motion):
+    """`Tamer -> Validator -> Motion -> Melodic`
 
-    This `Stepwise` checks if the successive numbers have a distance less or equal to 0 to the previous one.
+    This `Melodic` checks if the successive numbers have a distance less or equal to 1 to the previous one.
 
     Parameters
     ----------
@@ -163,6 +163,32 @@ class Stepwise(Motion):
                     self._last_number = int(number)
                 else:
                     if abs(int(number) - self._last_number) > 1:
+                        return number, False    # Breaks the chain
+                    else:
+                        self._last_number = int(number)
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
+class Stepwise(Motion):
+    """`Tamer -> Validator -> Motion -> Stepwise`
+
+    This `Stepwise` checks if the successive numbers have a distance of 1 to the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if abs(int(number) - self._last_number) != 1:
                         return number, False    # Breaks the chain
                     else:
                         self._last_number = int(number)
@@ -189,6 +215,58 @@ class Skipwise(Motion):
                     self._last_number = int(number)
                 else:
                     if abs(int(number) - self._last_number) != 2:
+                        return number, False    # Breaks the chain
+                    else:
+                        self._last_number = int(number)
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
+class Disjunct(Motion):
+    """`Tamer -> Validator -> Motion -> Disjunct`
+
+    This `Disjunct` checks if the successive numbers have a distance equal to 2 or greater relative to the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if abs(int(number) - self._last_number) < 2:
+                        return number, False    # Breaks the chain
+                    else:
+                        self._last_number = int(number)
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
+class Leaping(Motion):
+    """`Tamer -> Validator -> Motion -> Leaping`
+
+    This `Leaping` checks if the successive numbers have a distance equal to 3 or greater relative to the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if abs(int(number) - self._last_number) < 3:
                         return number, False    # Breaks the chain
                     else:
                         self._last_number = int(number)
