@@ -41,6 +41,7 @@ class Chaos(o.Operand):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     """
@@ -199,6 +200,7 @@ class Modulus(Chaos):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -285,6 +287,7 @@ class Flipper(Modulus):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(2) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -362,6 +365,7 @@ class Counter(Modulus):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
@@ -391,6 +395,7 @@ class Bouncer(Chaos):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Width(16) : Horizontal size of the "screen".
     Height(9) : Vertical size of the "screen".
     dX(0.555) : The incremental value for the horizontal position.
@@ -549,6 +554,7 @@ class SinX(Chaos):
 
     Parameters
     ----------
+    (None), Tamer : The Tamer that adds criteria to the validation of each final result.
     Xn(2), int, float : The resultant value of each iteration.
     X0(Xn(2)) : The starting value of all iterations possible to reset to.
     Lambda(77.238537) : Sets the lambda constant of the formula `Xn + Lambda * Sin(Xn)`.
