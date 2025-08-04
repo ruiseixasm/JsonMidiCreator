@@ -93,12 +93,11 @@ class Tamer(o.Operand):
                 super().__lshift__(operand)
         return self
 
-    def index_increment(self, from_chaos: bool = False) -> Self:
+    def index_increment(self) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        if from_chaos:
-            if self._next_operand is not None:
-                self._next_operand.index_increment(from_chaos)
-            self._index += 1
+        if self._next_operand is not None:
+            self._next_operand.index_increment()
+        self._index += 1
         return self
         
     def __pow__(self, tamer: 'Tamer') -> Self:
@@ -137,7 +136,8 @@ class Stepwise(Validator):
                         return number, False    # Breaks the chain
                     else:
                         self._last_number = int(number)
-            self.index_increment(from_chaos)
+            if from_chaos:
+                self.index_increment()
         return number, validation
 
 
@@ -163,8 +163,10 @@ class Modulo(Manipulator):
     def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         number, validation = super().tame(number)
         if validation:
-            number %= self._module
-            self.index_increment(from_chaos)()
+            if self.enabled():
+                number %= self._module
+            if from_chaos:
+                self.index_increment()
         return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:
