@@ -112,10 +112,10 @@ class Tamer(o.Operand):
                 super().__lshift__(operand)
         return self
 
-    def index_increment(self) -> Self:
+    def validate(self, number: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._next_operand is not None:
-            self._next_operand.index_increment()
+            self._next_operand.validate(number)
         self._index += 1
         return self
         
@@ -201,6 +201,16 @@ class Motion(Validator):
                 super().__lshift__(operand)
         return self
 
+    def reset(self, *parameters) -> Self:
+        self._last_number = None
+        return super().reset(*parameters)
+    
+    def validate(self, number: Fraction) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        super().validate(number)
+        self._last_number = number
+        return self
+        
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
 
@@ -216,15 +226,11 @@ class Conjunct(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if abs(int(number) - self._last_number) > 1:
-                        return number, False    # Breaks the chain
-                    else:
-                        self._last_number = int(number)
+                if self._last_number is not None \
+                    and abs(int(number) - self._last_number) > 1:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Stepwise(Motion):
@@ -242,15 +248,11 @@ class Stepwise(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if abs(int(number) - self._last_number) != 1:
-                        return number, False    # Breaks the chain
-                    else:
-                        self._last_number = int(number)
+                if self._last_number is not None \
+                    and abs(int(number) - self._last_number) != 1:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Skipwise(Motion):
@@ -268,15 +270,11 @@ class Skipwise(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if abs(int(number) - self._last_number) != 2:
-                        return number, False    # Breaks the chain
-                    else:
-                        self._last_number = int(number)
+                if self._last_number is not None \
+                    and abs(int(number) - self._last_number) != 2:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Disjunct(Motion):
@@ -294,15 +292,11 @@ class Disjunct(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if abs(int(number) - self._last_number) < 2:
-                        return number, False    # Breaks the chain
-                    else:
-                        self._last_number = int(number)
+                if self._last_number is not None \
+                    and abs(int(number) - self._last_number) < 1:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Leaping(Motion):
@@ -320,15 +314,11 @@ class Leaping(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if abs(int(number) - self._last_number) < 3:
-                        return number, False    # Breaks the chain
-                    else:
-                        self._last_number = int(number)
+                if self._last_number is not None \
+                    and abs(int(number) - self._last_number) < 3:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Ascending(Motion):
@@ -346,15 +336,11 @@ class Ascending(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if int(number) > self._last_number:
-                        self._last_number = int(number)
-                    else:
-                        return number, False    # Breaks the chain
+                if self._last_number is not None \
+                    and not int(number) > self._last_number:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 class Descending(Motion):
@@ -372,15 +358,11 @@ class Descending(Motion):
         number, validation = super().tame(number)
         if validation:
             if self.enabled():
-                if self._last_number is None:
-                    self._last_number = int(number)
-                else:
-                    if int(number) < self._last_number:
-                        self._last_number = int(number)
-                    else:
-                        return number, False    # Breaks the chain
+                if self._last_number is not None \
+                    and not int(number) < self._last_number:
+                    return number, False    # Breaks the chain
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
 
@@ -421,7 +403,7 @@ class Modulo(Manipulator):
             if self.enabled():
                 number %= self._module
             if from_chaos:
-                self.index_increment()
+                self.validate(number)
         return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:
