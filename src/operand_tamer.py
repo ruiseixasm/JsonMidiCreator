@@ -140,27 +140,35 @@ class Parallel(Tamer):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._tamers: list[Tamer] = []
+        self._tamers: list[Tamer] = [Tamer()]
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def enabled(self) -> bool:
         """Returns True if current index is within enabled range."""
-        indexes_len: int = len(self._tamers)
+        indexes_len: int = len(self._enabled_indexes)
         match indexes_len:
             case 1:
-                return self._index >= self._tamers[0]
+                return self._index >= self._enabled_indexes[0]
             case 2:
-                return self._index < self._tamers[1] \
-                   and self._index >= self._tamers[0]
+                return self._index < self._enabled_indexes[1] \
+                   and self._index >= self._enabled_indexes[0]
         return True
 
     def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
-        if self._next_operand is not None:
-            number, validation = self._next_operand.tame(number)
-            if not validation:
-                return number, False    # Breaks the chain
-        return number, True
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled() and self._tamers:
+                parallel_validation: bool = False
+                for single_tamer in self._tamers:
+                    number, single_validation = single_tamer.tame(number)
+                    if single_validation:
+                        parallel_validation = True
+                if not parallel_validation:
+                    return number, False    # Breaks the chain
+            if from_chaos:
+                self.next(number)
+        return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -220,12 +228,16 @@ class Parallel(Tamer):
                 super().__lshift__(operand)
         return self
 
+    def reset(self, *parameters) -> Self:
+        for single_tamer in self._tamers:
+            single_tamer.reset()
+        return super().reset(*parameters)
+    
     def next(self, number: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        if self._next_operand is not None:
-            self._next_operand.next(number)
-        self._index += 1
-        return self
+        for single_tamer in self._tamers:
+            single_tamer.next(number)
+        return super().next(number)
         
 
 class Validator(Tamer):
