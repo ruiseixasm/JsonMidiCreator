@@ -52,11 +52,19 @@ class Tamer(o.Operand):
 
     # CHAINABLE OPERATIONS
 
+    def index_increment(self) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        if self._next_operand is not None:
+            self._next_operand.index_increment()
+        self._index += 1
+        return self
+        
     def __pow__(self, tamer: 'Tamer') -> Self:
         match tamer:
             case Tamer():       self._next_operand = tamer
             case _:             self._next_operand = None
         return self
+
 
 class Validator(Tamer):
     """`Tamer -> Validator`
@@ -86,6 +94,7 @@ class Stepwise(Validator):
                     return number, False    # Breaks the chain
                 else:
                     self._last_number = int(number)
+            self.index_increment()
         return number, validation
 
 
@@ -112,6 +121,7 @@ class Modulo(Manipulator):
         number, validation = super().tame(number)
         if validation:
             number %= self._module
+            self.index_increment()
         return number, validation
 
     def __mod__(self, operand: o.T) -> o.T:
