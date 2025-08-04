@@ -15,12 +15,12 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-chaos = SinX(340)
+chaos_1 = SinX(340)
 many_notes = Note() / 8 << Foreach(1/2, 1/4, 1/4, 1/8, 1/8, 1/16 * 3/2, 1/16, 1/16)
 durations_list = list_get(many_notes.stack() % list(), Duration())
 
-def iteration(clip: Clip) -> Clip:
-    picked_durations = list_pick(durations_list, chaos % [2, 4, 4, 2, 1, 0, 3])
+def rhythm(clip: Clip) -> Clip:
+    picked_durations = list_pick(durations_list, chaos_1 % [2, 4, 4, 2, 1, 0, 3])
     clip_notes = clip % list()
     clip <<= list_set(clip_notes, picked_durations)
     return clip.stack().quantize().mul([0]).link().mul(4)
@@ -29,4 +29,15 @@ snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
 def composition(clip: Clip) -> Composition:
     return snare + clip
 
-many_notes >> Plot(iterations=10, n_button=iteration, c_button=composition, title="Note Durations")
+rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm, c_button=composition, title="Note Durations")
+
+
+
+chaos_2 = SinX(340, Stepwise()**Modulo(7))
+def tonality(clip: Clip) -> Clip:
+    multiple_degrees = chaos_2 % [2, 4, 4, 2, 1, 0, 3]
+    clip << Foreach(*multiple_degrees)**Degree()
+    return clip.mul(4)
+
+# phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
+
