@@ -1624,7 +1624,7 @@ class Arpeggio(Generic):
             return False
         if isinstance(other, Arpeggio):
             return  self._order                 == other._order \
-                and self._duration_beats    == other._duration_beats \
+                and self._duration_beats        == other._duration_beats \
                 and self._chaos                 == other._chaos
         if isinstance(other, od.Conditional):
             return other == self
@@ -1647,7 +1647,7 @@ class Arpeggio(Generic):
 
             super().loadSerialization(serialization)
             self._order                 = self.deserialize( serialization["parameters"]["order"] )
-            self._duration_beats    = self.deserialize( serialization["parameters"]["duration"] )
+            self._duration_beats        = self.deserialize( serialization["parameters"]["duration"] )
             self._swing                 = self.deserialize( serialization["parameters"]["swing"] )
             self._chaos                 = self.deserialize( serialization["parameters"]["chaos"] )
         return self
