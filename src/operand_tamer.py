@@ -36,6 +36,12 @@ class Tamer(o.Operand):
 
     Because `Chaos` returns numbers that fit no specific criteria, `Tamer` makes sure a criteria is
     met with validation or manipulation dependant of the tamer.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -111,13 +117,26 @@ class Validator(Tamer):
     """`Tamer -> Validator`
 
     A `Validator` is a read-only `Tamer` that just verifies that the submitted number conforms.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
     """
     pass
 
-class Stepwise(Validator):
-    """`Tamer -> Validator -> Stepwise`
+class Motion(Validator):
+    """`Tamer -> Validator -> Motion`
 
-    This `Stepwise` checks if the successive numbers have a distance less or equal to 0 to the previous one.
+    A `Motion` validates the distance between integers given by the received number.
+    It should be used together with a `Modulo` to avoid unmeet tries.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -125,6 +144,17 @@ class Stepwise(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+class Stepwise(Motion):
+    """`Tamer -> Validator -> Motion -> Stepwise`
+
+    This `Stepwise` checks if the successive numbers have a distance less or equal to 0 to the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
     def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         number, validation = super().tame(number)
         if validation:
@@ -140,12 +170,44 @@ class Stepwise(Validator):
                 self.index_increment()
         return number, validation
 
+class Skipwise(Motion):
+    """`Tamer -> Validator -> Motion -> Skipwise`
+
+    This `Skipwise` checks if the successive numbers have a distance equal to 2 relative to the previous one.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
+    """
+    def tame(self, number: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+        number, validation = super().tame(number)
+        if validation:
+            if self.enabled():
+                if self._last_number is None:
+                    self._last_number = int(number)
+                else:
+                    if abs(int(number) - self._last_number) != 2:
+                        return number, False    # Breaks the chain
+                    else:
+                        self._last_number = int(number)
+            if from_chaos:
+                self.index_increment()
+        return number, validation
+
 
 class Manipulator(Tamer):
     """`Tamer -> Manipulator`
 
     A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted number manipulates
     the given number to other Tamer operands.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
     """
     pass
 
@@ -153,6 +215,12 @@ class Modulo(Manipulator):
     """`Tamer -> Validator -> Modulo`
 
     This `Modulo` does the module by a given value.
+
+    Parameters
+    ----------
+    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
+    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
+    of `[]` means always enabled.
     """
     def __init__(self, *parameters):
         super().__init__()
