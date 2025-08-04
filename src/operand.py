@@ -82,6 +82,28 @@ def list_int(list_in: list) -> list:
             list_out.append(number)
     return list_out
 
+def list_float(list_in: list) -> list:
+    list_out: list[float] = []
+    for number in list_in:
+        if isinstance(number, (int, Fraction)):
+            list_out.append(float(number))
+        elif isinstance(number, Operand):
+            list_out.append(number % float())
+        else:   # Must be a float
+            list_out.append(number)
+    return list_out
+
+def list_round(list_in: list, ndigits: int = 0) -> list:
+    list_out: list[float] = []
+    for number in list_in:
+        if isinstance(number, (int, float, Fraction)):
+            list_out.append(round(number, ndigits))
+        elif isinstance(number, Operand):
+            list_out.append(number.copy(round(number % Fraction(), ndigits)))
+        else:   # Must be a floatAppends whatever
+            list_out.append(number)
+    return list_out
+
 def list_choose(items: list, indexes: list[int]) -> list:
     list_out: list = []
     total_items: int = len(items)
