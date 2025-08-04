@@ -604,10 +604,7 @@ class Foreach(Left):
     def __init__(self, *parameters):
         validated_parameters: list = []
         for param in parameters:
-            if isinstance(param, (range, list, tuple)):
-                validated_parameters.extend(param)
-            else:
-                validated_parameters.append(param)
+            validated_parameters.append(param)
         super().__init__(*validated_parameters)
 
     def __ixor__(self, input: o.T) -> o.T:

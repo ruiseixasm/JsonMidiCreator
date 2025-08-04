@@ -737,6 +737,7 @@ class Degree(PitchParameter):
     """`Unit -> PitchParameter -> Degree`
 
     A Degree() represents its relation with a Tonic key on a scale and respective Progressions.
+    Note that `Degree(-1)` sets the `Pitch` to its Tonic key accordingly to its `Keysignature`.
     
     Parameters
     ----------

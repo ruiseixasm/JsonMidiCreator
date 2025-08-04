@@ -703,13 +703,12 @@ class Pitch(Generic):
                 if operand < 0:
                     self._degree_0 = 0  # Resets the degree to I
                     self._degree_0 -= previous_degree_0
-                    self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
                     self._sharp = 0
                     self._natural = False
                 elif operand < 1:
                     # Changes only the chromatic transposition
                     self._degree_0 = round(self._degree_0) + operand % float()
-                else:
+                else:   # operand >= 1
                     new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
                     self._degree_0 += new_degree_0 - previous_degree_0
                 # There is still the need to match the Octave for the existing transpositions
@@ -718,7 +717,6 @@ class Pitch(Generic):
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature.get_tonic_key()
                 self._degree_0 = 0  # Resets the degree to I
-                self._octave_0 = 5  # Based 0 octave, so, 5 means 4th octave
                 self._transposition = 0
                 self._sharp = 0
                 self._natural = False
