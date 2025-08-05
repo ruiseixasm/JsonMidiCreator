@@ -655,7 +655,7 @@ class Element(o.Operand):
         oc.Clip(self).plot(by_channel, block, pause, iterations, n_button, c_button, e_button)
         return self
 
-    def call(self, iterations: int = 0, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
+    def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
         """
         `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
             a given iteration was already chosen bypassing this way the process of plotting.

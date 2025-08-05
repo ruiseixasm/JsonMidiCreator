@@ -1023,7 +1023,7 @@ class Call(ReadOnly):
             this is dependent on a n_button being given.
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
     """
-    def __init__(self, iterations: int = 0, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
+    def __init__(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
         super().__init__((iterations, n_button))
 
     def __rrshift__(self, operand: o.T) -> o.T:
