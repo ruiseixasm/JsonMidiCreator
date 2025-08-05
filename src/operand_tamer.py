@@ -39,29 +39,33 @@ class Tamer(o.Operand):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def __init__(self, *parameters):
         super().__init__()
         self._next_operand: Tamer = None
-        self._enabled_indexes: list[int] = []
+        self._enabled_indexes: list[float | int] = []
         self._strictness: Fraction = Fraction(1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def enabled(self) -> bool:
         """Returns True if current index is within enabled range."""
-        indexes_len: int = len(self._enabled_indexes)
-        match indexes_len:
-            case 1:
-                return self._index >= self._enabled_indexes[0]
-            case 2:
-                return self._index < self._enabled_indexes[1] \
-                   and self._index >= self._enabled_indexes[0]
+        if all(isinstance(index, float) for index in self._enabled_indexes):
+            indexes_len: int = len(self._enabled_indexes)
+            match indexes_len:
+                case 1:
+                    return self._index >= self._enabled_indexes[0]
+                case 2:
+                    return self._index < self._enabled_indexes[1] \
+                    and self._index >= self._enabled_indexes[0]
+        elif all(isinstance(index, int) for index in self._enabled_indexes):
+            return self._index in self._enabled_indexes
         return True
     
     def from_tail(self) -> int:
@@ -160,9 +164,10 @@ class Parallel(Tamer):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     list([Tamer()]) : A list of tamers that set the `Tamer` operands in parallel.
@@ -172,17 +177,6 @@ class Parallel(Tamer):
         self._tamers: list[Tamer] = [Tamer()]
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
-    def enabled(self) -> bool:
-        """Returns True if current index is within enabled range."""
-        indexes_len: int = len(self._enabled_indexes)
-        match indexes_len:
-            case 1:
-                return self._index >= self._enabled_indexes[0]
-            case 2:
-                return self._index < self._enabled_indexes[1] \
-                   and self._index >= self._enabled_indexes[0]
-        return True
 
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
@@ -276,9 +270,10 @@ class Validator(Tamer):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -364,9 +359,10 @@ class Conjunct(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -388,9 +384,10 @@ class Stepwise(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -412,9 +409,10 @@ class Skipwise(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -436,9 +434,10 @@ class Disjunct(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -460,9 +459,10 @@ class Leaping(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -484,9 +484,10 @@ class Ascending(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -508,9 +509,10 @@ class Descending(Motion):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -534,9 +536,10 @@ class Manipulator(Tamer):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -549,9 +552,10 @@ class Modulo(Manipulator):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
     Strictness(1) : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(8) : Sets the Module to be done on the inputted rational.
