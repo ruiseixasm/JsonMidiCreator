@@ -1746,7 +1746,7 @@ class Composition(Container):
             title (str): A title to give to the chart in order to identify it.
 
         Returns:
-            Composition: Returns the presently plotted clip.
+            Composition: Returns the presently plotted composition.
         """
         self._iterations: list[Composition] = [ type(self)(self) ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
@@ -1847,7 +1847,8 @@ class Composition(Container):
 
 def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
         """
-        Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
+        `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
+            a given iteration was already chosen bypassing this way the process of plotting.
 
         Args:
             iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
@@ -1855,7 +1856,7 @@ def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'],
             n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
 
         Returns:
-            Composition: Returns the presently plotted clip.
+            Composition: Returns the presently plotted composition.
         """
         iterated_composition: Composition = type(self)(self)
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
