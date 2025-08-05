@@ -63,6 +63,10 @@ class Tamer(o.Operand):
                 return self._index < self._enabled_indexes[1] \
                    and self._index >= self._enabled_indexes[0]
         return True
+    
+    def slack(self, rational: Fraction) -> bool:
+        """Returns True to skip the respective tamer, meaning, gives some slack."""
+        return rational % Fraction(1) > self._strictness
 
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
@@ -154,6 +158,8 @@ class Parallel(Tamer):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     list([Tamer()]) : A list of tamers that set the `Tamer` operands in parallel.
     """
     def __init__(self, *parameters):
@@ -176,7 +182,7 @@ class Parallel(Tamer):
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled() and self._tamers:
+            if self.enabled() and not self.slack(rational) and self._tamers:
                 parallel_validation: bool = False
                 for single_tamer in self._tamers:
                     rational, single_validation = single_tamer.tame(rational)
@@ -268,6 +274,8 @@ class Validator(Tamer):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     pass
 
@@ -282,6 +290,8 @@ class Motion(Validator):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -352,11 +362,13 @@ class Conjunct(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) > 1:
                     return rational, False    # Breaks the chain
@@ -374,11 +386,13 @@ class Stepwise(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) != 1:
                     return rational, False    # Breaks the chain
@@ -396,11 +410,13 @@ class Skipwise(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) != 2:
                     return rational, False    # Breaks the chain
@@ -418,11 +434,13 @@ class Disjunct(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) < 1:
                     return rational, False    # Breaks the chain
@@ -440,11 +458,13 @@ class Leaping(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) < 3:
                     return rational, False    # Breaks the chain
@@ -462,11 +482,13 @@ class Ascending(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and not int(rational) > self._last_integer:
                     return rational, False    # Breaks the chain
@@ -484,11 +506,13 @@ class Descending(Motion):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and not int(rational) < self._last_integer:
                     return rational, False    # Breaks the chain
@@ -508,6 +532,8 @@ class Manipulator(Tamer):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     pass
 
@@ -521,6 +547,9 @@ class Modulo(Manipulator):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1) : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(8) : Sets the Module to be done on the inputted rational.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -531,7 +560,7 @@ class Modulo(Manipulator):
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if self.enabled():
+            if self.enabled() and not self.slack(rational):
                 rational %= self._module
             if from_chaos:
                 self.next(rational)

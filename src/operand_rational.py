@@ -368,8 +368,17 @@ class Probability(Rational):
     pass
 
 class Strictness(Rational):
-    """`Rational -> Strictness`"""
-    pass
+    """
+    `Rational -> Strictness`
+
+    To be used with a `Tamer` to set the probability of no slack, meaning, the probability of being processed, enforced.
+    
+    Parameters
+    ----------
+    Fraction(1), int(), float() : A number from 0 to 1 as a probability of no slack.
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
 
 
 class Tempo(Rational):
