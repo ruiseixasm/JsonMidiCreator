@@ -983,13 +983,15 @@ class Plot(ReadOnly):
     Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
 
     Args:
+        by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
         block (bool): Suspends the program until the chart is closed.
         pause (float): Sets a time in seconds before the chart is closed automatically.
         iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
             this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
+        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
         c_button (Callable): A function intended to play the plotted clip among other compositions.
         e_button (Callable): A function to be executed by itself without any output required.
+        title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
@@ -1013,16 +1015,13 @@ class Plot(ReadOnly):
 class Call(ReadOnly):
     """`Data -> Process -> ReadOnly -> Call`
 
-    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+    `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
+        a given iteration was already chosen bypassing this way the process of plotting.
 
     Args:
-        block (bool): Suspends the program until the chart is closed.
-        pause (float): Sets a time in seconds before the chart is closed automatically.
         iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
             this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Clip to be used to generate a new iteration.
-        c_button (Callable): A function intended to play the plotted clip among other compositions.
-        e_button (Callable): A function to be executed by itself without any output required.
+        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,

@@ -1735,7 +1735,7 @@ class Composition(Container):
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
         Args:
-            by_channel: Allows the visualisation in a Drim Machine alike instead of by Pitch.
+            by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
             block (bool): Suspends the program until the chart is closed.
             pause (float): Sets a time in seconds before the chart is closed automatically.
             iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
