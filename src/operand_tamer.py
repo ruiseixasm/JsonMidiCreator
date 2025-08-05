@@ -42,11 +42,14 @@ class Tamer(o.Operand):
     list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
     `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
     of `[]` means always enabled.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def __init__(self, *parameters):
         super().__init__()
         self._next_operand: Tamer = None
         self._enabled_indexes: list[int] = []
+        self._strictness: Fraction = Fraction(1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -76,24 +79,30 @@ class Tamer(o.Operand):
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case list():                return self._enabled_indexes
+                    case ra.Strictness():       return operand._data << od.Pipe(self._strictness)
+                    case Fraction():            return self._strictness
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case list():                return self._enabled_indexes.copy()
+            case ra.Strictness():       return operand.copy(od.Pipe(self._strictness))
+            case Fraction():            return self._strictness
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["enabled_indexes"] = self.serialize( self._enabled_indexes )
+        serialization["parameters"]["enabled_indexes"]  = self.serialize( self._enabled_indexes )
+        serialization["parameters"]["strictness"]       = self.serialize( self._strictness )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled_indexes" in serialization["parameters"]):
+            "enabled_indexes" in serialization["parameters"] and "strictness" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._enabled_indexes = self.deserialize( serialization["parameters"]["enabled_indexes"] )
+            self._enabled_indexes   = self.deserialize( serialization["parameters"]["enabled_indexes"] )
+            self._strictness        = self.deserialize( serialization["parameters"]["strictness"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -101,13 +110,22 @@ class Tamer(o.Operand):
         match operand:
             case Tamer():
                 super().__lshift__(operand)
-                self._enabled_indexes = operand._enabled_indexes.copy()
+                self._enabled_indexes   = operand._enabled_indexes.copy()
+                self._strictness        = operand._strictness
             case od.Pipe():
                 match operand._data:
                     case list():
                         self._enabled_indexes = operand._data
+                    case ra.Strictness():
+                        self._strictness = operand._data._rational
+                    case Fraction():
+                        self._strictness = operand._data
             case list():
                 self._enabled_indexes = operand.copy()
+            case ra.Strictness():
+                self._strictness = operand._rational
+            case Fraction():
+                self._strictness = operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -267,7 +285,7 @@ class Motion(Validator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._last_number: int = None
+        self._last_integer: int = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -278,15 +296,15 @@ class Motion(Validator):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
-                    case int():                 return self._last_number
+                    case int():                 return self._last_integer
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case int():                 return self._last_number
+            case int():                 return self._last_integer
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["last_number"] = self.serialize( self._last_number )
+        serialization["parameters"]["last_number"] = self.serialize( self._last_integer )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -296,7 +314,7 @@ class Motion(Validator):
             "last_number" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._last_number = self.deserialize( serialization["parameters"]["last_number"] )
+            self._last_integer = self.deserialize( serialization["parameters"]["last_number"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -304,24 +322,24 @@ class Motion(Validator):
         match operand:
             case Motion():
                 super().__lshift__(operand)
-                self._last_number = operand._last_number
+                self._last_integer = operand._last_integer
             case od.Pipe():
                 match operand._data:
                     case int():
-                        self._last_number = operand._data
+                        self._last_integer = operand._data
             case int():
-                self._last_number = operand
+                self._last_integer = operand
             case _:
                 super().__lshift__(operand)
         return self
 
     def reset(self, *parameters) -> Self:
-        self._last_number = None
+        self._last_integer = None
         return super().reset(*parameters)
     
     def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._last_number = int(rational)
+        self._last_integer = int(rational)
         return super().next(rational)
         
 class Conjunct(Motion):
@@ -339,8 +357,8 @@ class Conjunct(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and abs(int(rational) - self._last_number) > 1:
+                if self._last_integer is not None \
+                    and abs(int(rational) - self._last_integer) > 1:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -361,8 +379,8 @@ class Stepwise(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and abs(int(rational) - self._last_number) != 1:
+                if self._last_integer is not None \
+                    and abs(int(rational) - self._last_integer) != 1:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -383,8 +401,8 @@ class Skipwise(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and abs(int(rational) - self._last_number) != 2:
+                if self._last_integer is not None \
+                    and abs(int(rational) - self._last_integer) != 2:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -405,8 +423,8 @@ class Disjunct(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and abs(int(rational) - self._last_number) < 1:
+                if self._last_integer is not None \
+                    and abs(int(rational) - self._last_integer) < 1:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -427,8 +445,8 @@ class Leaping(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and abs(int(rational) - self._last_number) < 3:
+                if self._last_integer is not None \
+                    and abs(int(rational) - self._last_integer) < 3:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -449,8 +467,8 @@ class Ascending(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and not int(rational) > self._last_number:
+                if self._last_integer is not None \
+                    and not int(rational) > self._last_integer:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
@@ -471,8 +489,8 @@ class Descending(Motion):
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled():
-                if self._last_number is not None \
-                    and not int(rational) < self._last_number:
+                if self._last_integer is not None \
+                    and not int(rational) < self._last_integer:
                     return rational, False    # Breaks the chain
             if from_chaos:
                 self.next(rational)
