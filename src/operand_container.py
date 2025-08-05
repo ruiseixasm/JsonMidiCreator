@@ -1735,6 +1735,7 @@ class Composition(Container):
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
         Args:
+            by_channel: Allows the visualisation in a Drim Machine alike instead of by Pitch.
             block (bool): Suspends the program until the chart is closed.
             pause (float): Sets a time in seconds before the chart is closed automatically.
             iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
@@ -1742,6 +1743,7 @@ class Composition(Container):
             n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
             c_button (Callable): A function intended to play the plotted clip among other compositions.
             e_button (Callable): A function to be executed by itself without any output required.
+            title (str): A title to give to the chart in order to identify it.
 
         Returns:
             Composition: Returns the presently plotted clip.
@@ -1842,6 +1844,25 @@ class Composition(Container):
         #     plt.pause(0.1)  # Pause to allow GUI event processing
 
         return self._iterations[self._iteration]
+
+def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
+        """
+        Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
+
+        Args:
+            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+                this is dependent on a n_button being given.
+            n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
+
+        Returns:
+            Composition: Returns the presently plotted clip.
+        """
+        iterated_composition: Composition = type(self)(self)
+        if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
+            for _ in range(iterations):
+                iterated_composition = self._n_function(iterated_composition)
+        return iterated_composition
+
 
 
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
