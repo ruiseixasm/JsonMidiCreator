@@ -1023,23 +1023,14 @@ class Call(ReadOnly):
             this is dependent on a n_button being given.
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
     """
-    def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = ""):
-        super().__init__((by_channel, block, pause, iterations, n_button, c_button, e_button, title))
+    def __init__(self, iterations: int = 0, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
+        super().__init__((iterations, n_button))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         import operand_element as oe
-        import operand_generic as og
-        import operand_unit as ou
         if isinstance(operand, (oc.Composition, oe.Element)):
-            return operand.plot(*self._data)
-        if isinstance(operand, og.Scale):
-            og.Scale.plot(self._data[1], operand % list())
-        elif isinstance(operand, ou.KeySignature):
-            og.Scale.plot(self._data[1], operand % list(), operand % ou.Key(), operand % str())
+            return operand.call(*self._data)
         return operand
 
 

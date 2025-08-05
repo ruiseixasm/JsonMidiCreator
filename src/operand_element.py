@@ -655,6 +655,23 @@ class Element(o.Operand):
         oc.Clip(self).plot(by_channel, block, pause, iterations, n_button, c_button, e_button)
         return self
 
+    def call(self, iterations: int = 0, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
+        """
+        `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
+            a given iteration was already chosen bypassing this way the process of plotting.
+
+        Args:
+            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+                this is dependent on a n_button being given.
+            n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
+
+        Returns:
+            Element: Returns the presently plotted element.
+        """
+        import operand_container as oc
+        oc.Clip(self).call(iterations, n_button)
+        return self
+
 
 class Clock(Element):
     """`Element -> Clock`
