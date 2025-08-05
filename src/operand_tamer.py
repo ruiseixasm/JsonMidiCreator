@@ -64,9 +64,14 @@ class Tamer(o.Operand):
                    and self._index >= self._enabled_indexes[0]
         return True
     
+    def from_tail(self) -> int:
+        if self._next_operand is None:
+            return 1
+        return self._next_operand.from_tail() + 1
+
     def slack(self, rational: Fraction) -> bool:
         """Returns True to skip the respective tamer, meaning, gives some slack."""
-        return rational % Fraction(1) > self._strictness
+        return rational * self.from_tail() % Fraction(1) > self._strictness
 
     def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
