@@ -182,6 +182,9 @@ def list_set(operands: list['Operand'], parameters: any) -> list:
             single_operand << parameters
     return list_set_operands
 
+def list_range(range_in: range) -> list:
+    return list(range_in)
+
 
 # GLOBAL FUNCTIONS
 
