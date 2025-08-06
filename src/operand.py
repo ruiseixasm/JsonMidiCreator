@@ -133,13 +133,13 @@ def list_deplete(items: list, amount: list[int], indexes: list[int]) -> list:
         if available_items and available_amounts:
             if available_amounts[single_index % len(available_amounts)] > 1:
                 available_amounts[single_index % len(available_amounts)] -= 1
-                list_out.append( available_items[single_index % len(items)] )
+                list_out.append( available_items[single_index % len(available_items)] )
             elif available_amounts[single_index % len(available_amounts)] == 1:
                 available_amounts.pop(single_index % len(available_amounts))
-                list_out.append( available_items.pop(single_index % len(items)) )
+                list_out.append( available_items.pop(single_index % len(available_items)) )
             else:
                 available_amounts.pop(single_index % len(available_amounts))
-                available_items.pop(single_index % len(items))
+                available_items.pop(single_index % len(available_items))
         else:
             break
     return list_out
