@@ -671,7 +671,10 @@ class Pitch(Generic):
                 self._octave_0 = operand._unit + 1
 
             case ou.TonicKey():    # Must come before than Key()
-                self._tonic_key = operand._unit % 24
+                if operand._unit < 0:
+                    self._tonic_key = self._key_signature % ou.Key() % int()
+                else:
+                    self._tonic_key = operand._unit % 24
             case ou.RootKey():
                 degree, semitone = self.key_degree_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -698,7 +701,7 @@ class Pitch(Generic):
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
                 previous_degree_0: int = self._degree_0 % 7
                 if operand < 0:
-                    self._tonic_key = self._key_signature.get_tonic_key()
+                    self._tonic_key = self._key_signature % ou.Key() % int()
                     self._degree_0 = 0  # Resets the degree to I
                     self._sharp = 0
                     self._natural = False
@@ -712,7 +715,7 @@ class Pitch(Generic):
                 self.match_octave(False)    # Keep actual octave (False)
             
             case None:  # Works as a reset
-                self._tonic_key = self._key_signature.get_tonic_key()
+                self._tonic_key = self._key_signature % ou.Key() % int()
                 self._degree_0 = 0  # Resets the degree to I
                 self._transposition = 0
                 self._sharp = 0
@@ -1232,7 +1235,7 @@ class Scale(Generic):
             case list():                return self._scale.copy()
             case str():                 return self.get_scale_name(self.modulation(None))
             case int():                 return self.get_scale_number(self.modulation(None))
-            case ou.TonicKey():            return ou.TonicKey( Scale.get_tonic_key(self._scale) )
+            case ou.TonicKey():         return ou.TonicKey( Scale.get_tonic_key(self._scale) )
             case ou.Key():              return ou.Key( Scale.get_tonic_key(self._scale) )
             case float():               return float( Scale.get_tonic_key(self._scale) )
             case _:                     return super().__mod__(operand)
