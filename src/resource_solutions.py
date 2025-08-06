@@ -60,7 +60,7 @@ class RS_Solutions:
             return composition
     
         if iterations < 0:
-            self._composition >>= self._plot.set_iterations(iterations).set_n_button(iterate)
+            self._composition >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
         else:
             self._composition >>= og.Call(iterations, iterate)
 

@@ -104,6 +104,7 @@ def list_round(list_in: list, ndigits: int = 0) -> list:
             list_out.append(number)
     return list_out
 
+
 def list_choose(items: list, indexes: list[int]) -> list:
     list_out: list = []
     total_items: int = len(items)
@@ -123,6 +124,26 @@ def list_pick(items: list, indexes: list[int]) -> list:
         else:
             break
     return list_out
+
+def list_deplete(items: list, amount: list[int], indexes: list[int]) -> list:
+    list_out: list = []
+    available_items: list = Operand.deep_copy(items)
+    available_amounts: list = Operand.deep_copy(amount)
+    for single_index in indexes:
+        if available_items and available_amounts:
+            if available_amounts[single_index % len(available_amounts)] > 1:
+                available_amounts[single_index % len(available_amounts)] -= 1
+                list_out.append( available_items[single_index % len(items)] )
+            elif available_amounts[single_index % len(available_amounts)] == 1:
+                available_amounts.pop(single_index % len(available_amounts))
+                list_out.append( available_items.pop(single_index % len(items)) )
+            else:
+                available_amounts.pop(single_index % len(available_amounts))
+                available_items.pop(single_index % len(items))
+        else:
+            break
+    return list_out
+
 
 def list_trim(items: list, at: any) -> list:
     list_out: list = []
