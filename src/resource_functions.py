@@ -36,7 +36,7 @@ import operand_tamer as ot
 import operand_chaos as ch
 
 
-class F_Function:
+class RF_Function:
     def get_iterate_function(self) -> Callable[['oc.Composition'], 'oc.Composition']:
         return lambda composition: self.iterate(composition)
     
@@ -44,10 +44,10 @@ class F_Function:
         return composition
 
 
-class F_Rhythm(F_Function):
+class RF_Rhythm(RF_Function):
     pass
 
-class F_Rhythm_Fast_Quantized(F_Rhythm):
+class RF_Rhythm_Fast_Quantized(RF_Rhythm):
     def __init__(self,
                  durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
                  choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
@@ -66,6 +66,6 @@ class F_Rhythm_Fast_Quantized(F_Rhythm):
         return clip
 
 
-class F_Pitch(F_Function):
+class RF_Pitch(RF_Function):
     pass
 

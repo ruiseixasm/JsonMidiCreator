@@ -27,7 +27,7 @@ def composition(clip: Clip) -> Composition:
 SOLUTION = 0
 
 many_notes = Note() / 8
-rhythm_function = F_Rhythm_Fast_Quantized().get_iterate_function()
+rhythm_function = RF_Rhythm_Fast_Quantized().get_iterate_function()
 
 if iterations[SOLUTION] < 0:
     rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm_function, c_button=composition, title="Note Durations")
