@@ -28,7 +28,7 @@ finish_time = time.time()
 print(f"Loading time (ms): {(finish_time - start_time) * 1000}")
 
 c.profiling_timer.call_timer_a()
-pattern = P_Patterns.four_on_the_floor(Channel(10))
+pattern = RP_Patterns.four_on_the_floor(Channel(10))
 c.profiling_timer.call_timer_b()
 
 pattern >> Play(True)
