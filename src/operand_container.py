@@ -1743,12 +1743,13 @@ class Composition(Container):
         self._title: str = title
 
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
-            for _ in range(iterations):
-                iteration_clip: Composition = self._iterations[-1]
-                new_iteration: Composition = self._n_function(iteration_clip.copy())
-                plotlist: list[dict] = new_iteration.getPlotlist()
-                self._iterations.append(new_iteration)
-                self._plot_lists.append(plotlist)
+            for i in range(iterations):
+                previous_composition: Composition = self._iterations[i]
+                new_composition: Composition = self._n_function(previous_composition.copy())
+                new_plotlist: list[dict] = new_composition.getPlotlist()
+                self._iterations.append(new_composition)
+                self._plot_lists.append(new_plotlist)
+                self._iteration += 1
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
@@ -1757,7 +1758,7 @@ class Composition(Container):
         # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
 
-        self._plot_elements(self._plot_lists[0])
+        self._plot_elements(self._plot_lists[self._iteration])
 
         # Where the padding is set
         plt.tight_layout()
@@ -1796,10 +1797,10 @@ class Composition(Container):
         execute_button.on_clicked(self._run_execute)
 
         # Previous Button Widget
-        self._disable_button(self._previous_button)
-        if len(self._iterations) == 1:
-            # Next Button Widget
-            self._disable_button(self._next_button)
+        if len(self._iterations) == 0:
+            self._disable_button(self._previous_button)
+        # Next Button Widget
+        self._disable_button(self._next_button)
 
         if not callable(self._n_function):
             # New Button Widget
@@ -1821,12 +1822,6 @@ class Composition(Container):
             plt.pause(pause)
         else:
             plt.show(block=False)
-
-
-        # plt.show(block=False)
-        # # Keep script alive while plots are open
-        # while plt.get_fignums():  # Check if any figure is open
-        #     plt.pause(0.1)  # Pause to allow GUI event processing
 
         return self._iterations[self._iteration]
 
