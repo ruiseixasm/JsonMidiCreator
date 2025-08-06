@@ -174,7 +174,7 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         self._key_signature: ou.KeySignature \
                                         = settings % ou.KeySignature()
-        self._tonic_key: int            = settings % ou.Key() % int()
+        self._tonic_key: int            = settings % ou.Key() % int() % 24
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition

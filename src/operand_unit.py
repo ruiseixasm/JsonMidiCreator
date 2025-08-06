@@ -593,12 +593,6 @@ class Key(PitchParameter):
                     case _:
                         return super().__mod__(operand)
 
-            case int():
-                return self._unit % 24
-
-            case float():
-                return float(self._unit % 48)
-
             case str():
                 return Key._keys[self._unit % 48]
 
@@ -613,7 +607,8 @@ class Key(PitchParameter):
                     return Flat(self._accidentals[self._unit % 48] * -1)
                 return Flat(0)
 
-            case _:                 return super().__mod__(operand)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         import operand_generic as og
@@ -647,12 +642,6 @@ class Key(PitchParameter):
                         self._unit = self.getStringToNumber(operand._data) % 48
                     case _:
                         super().__lshift__(operand)
-          
-
-            case int():
-                self._unit = operand % 24
-            case float():
-                self._unit = int(operand) % 48
 
             case str():
                 self_unit: int = self.getStringToNumber(operand)
