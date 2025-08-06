@@ -37,10 +37,9 @@ import operand_chaos as ch
 
 
 class RS_Solutions:
-    def __init__(self, composition: oc.Composition, plot : og.Plot = og.Plot(), call: og.Call = og.Call()):
+    def __init__(self, composition: oc.Composition, plot : og.Plot = og.Plot()):
         self._composition: oc.Composition = composition
         self._plot: og.Plot = plot
-        self._call: og.Call = call
          
     def solution(self) -> 'oc.Composition':
         return self._composition
@@ -63,7 +62,7 @@ class RS_Solutions:
         if iterations < 0:
             self._composition >>= self._plot.set_iterations(iterations).set_n_button(iterate)
         else:
-            self._composition >>= self._call.set_iterations(iterations).set_n_button(iterate)
+            self._composition >>= og.Call(iterations, iterate)
 
         return self
 
