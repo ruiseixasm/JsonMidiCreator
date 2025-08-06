@@ -36,7 +36,7 @@ import operand_tamer as ot
 import operand_chaos as ch
 
 
-class S_Solutions:
+class RS_Solutions:
     def __init__(self, composition: oc.Composition):
         self._composition: oc.Composition = composition
          
