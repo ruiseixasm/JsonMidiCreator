@@ -29,14 +29,9 @@ eight_notes[6] % Length() % Fraction() >> Print()
 # Processing Degrees
 chooser = Input(SinX() * 100)
 degrees = Choice(1, 3, 5, 6, -1, -7, (5, Octave(3)))
-pattern = UpDown([0, 1, 1, -1], Degree)
 
 for iteration in range(1000):
     eight_notes << chooser**degrees
-    if eight_notes.mask(Nth(1, 2, 3, 4)) == pattern:
-        print(f"Iteration: {iteration}.")
-        eight_notes >> P
-        R() >> P
 
 
 

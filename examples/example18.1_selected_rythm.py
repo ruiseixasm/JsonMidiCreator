@@ -33,18 +33,14 @@ mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 
 duration_mutation = Exchange(Duration) * 22
 duration_mutation << rhythmic_notes
-length_condition = Condition(Length(1.0))
-minimum_notes = Least(8)
-total_plays = Before(12)
 final_clip = Clip()
-first_clip = Before(1)
 original_clip = mutated_clip.copy() - Octave()
 
 for _ in range(400):
     mutated_clip <<= duration_mutation
     original_clip += mutated_clip
-    original_clip >> first_clip >> MidiExport("Midi/18.1_first_clip.mid")
-    final_clip *= mutated_clip.copy().stack().trim().link() >> minimum_notes >> length_condition >> total_plays
+    original_clip >> MidiExport("Midi/18.1_first_clip.mid")
+    final_clip *= mutated_clip.copy().stack().trim().link()
 
 final_clip % Length() % float() >> Print()
 final_clip >> MidiExport("Midi/18.1_chaotic_rhythm_3.mid")

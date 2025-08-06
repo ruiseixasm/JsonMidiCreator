@@ -33,9 +33,6 @@ mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 
 duration_mutation = Exchange(Duration) * 22
 duration_mutation << rhythmic_notes
-length_condition = Condition(Length(Steps(4)))
-minimum_notes = Least(2)
-total_plays = Before(12)
 
 final_clip = mutated_clip.copy().cut(Position(0), Position(Steps(12)))
 final_clip % Length() % Beats() % float() >> Print()
@@ -45,7 +42,7 @@ division = Division()
 
 for _ in range(400):
     mutated_clip <<= duration_mutation
-    division += mutated_clip.copy().stack().link().trim(Length(Steps(4))) >> minimum_notes >> length_condition >> total_plays
+    division += mutated_clip.copy().stack().link().trim(Length(Steps(4)))
 
 final_clip <<= division
 final_clip % Length() % float() >> Print()

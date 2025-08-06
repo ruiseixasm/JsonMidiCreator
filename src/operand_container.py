@@ -258,12 +258,9 @@ class Container(o.Operand):
         return last_item
 
     def __eq__(self, other: any) -> bool:
-        import operand_selection as os
         match other:
             case Container():
                 return self._items == other._items
-            case os.Selection():
-                return other == self
             case od.Conditional():
                 return other == self
             case of.Frame():
@@ -382,7 +379,6 @@ class Container(o.Operand):
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
-        import operand_selection as os
         match operand:
             case Container():
                 return self + operand   # Implicit copy of self
@@ -392,14 +388,13 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-        if not isinstance(operand, (tuple, os.Selection)):
+        if not isinstance(operand, tuple):
             return self.mask(operand)
         return super().__irshift__(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
         import operand_mutation as om
-        import operand_selection as os
         match operand:
             case Container():
                 self += operand
@@ -410,7 +405,7 @@ class Container(o.Operand):
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
-        if not isinstance(operand, (tuple, os.Selection)):
+        if not isinstance(operand, tuple):
             return self.mask(operand)
         return super().__irshift__(operand)
 
@@ -480,7 +475,6 @@ class Container(o.Operand):
 
     # multiply with a scalar 
     def __imul__(self, operand: any) -> Self:
-        import operand_selection as os
         match operand:
             case Container():
                 pass
@@ -503,9 +497,6 @@ class Container(o.Operand):
                     self._append(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._items, True)
-            case os.Selection():
-                if operand != self:
                     self._delete(self._items, True)
             case ch.Chaos():
                 return self.shuffle(operand.copy())
@@ -2376,7 +2367,6 @@ class Clip(Composition):  # Just a container of Elements
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
         import operand_mutation as om
-        import operand_selection as os
         match operand:
             case Clip():
                 right_clip: Clip = Clip(operand)._set_owner_clip(self)
@@ -2416,10 +2406,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case om.Mutation():
                 return operand.copy().mutate(self)
-
-            case os.Selection():
-                if operand != self:
-                    self._items = []
 
             case list():
                 segments_list: list[og.Segment] = []
@@ -4851,7 +4837,6 @@ class ClipGet(Container):
 
     # multiply with a scalar 
     def __imul__(self, operand: any) -> Self:
-        import operand_selection as os
         match operand:
             case Container():
                 pass
@@ -4874,9 +4859,6 @@ class ClipGet(Container):
                     self._append(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._items, True)
-            case os.Selection():
-                if operand != self:
                     self._delete(self._items, True)
             case ch.Chaos():
                 return self.shuffle(operand.copy())
