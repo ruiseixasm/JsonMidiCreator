@@ -1797,7 +1797,7 @@ class Composition(Container):
         execute_button.on_clicked(self._run_execute)
 
         # Previous Button Widget
-        if len(self._iterations) == 0:
+        if self._iteration == 0:
             self._disable_button(self._previous_button)
         # Next Button Widget
         self._disable_button(self._next_button)
