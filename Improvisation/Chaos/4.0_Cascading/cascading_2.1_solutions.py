@@ -20,8 +20,8 @@ snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
 def composition(clip: Clip) -> Composition:
     return snare + clip
 
-many_notes = Note() / 8
-rhythm_solution = RS_Solutions(many_notes)
+seed_notes = Note() / 8
+rhythm_solution = RS_Clip(seed_notes)
 
 phrase_notes = rhythm_solution.rhythm_fast_quantized(7).tonality_conjunct_but_slacked(3).solution()
 phrase_notes >> Plot()

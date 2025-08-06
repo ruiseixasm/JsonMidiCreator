@@ -45,6 +45,15 @@ class RS_Solutions:
         return self._seed
     
 
+class RS_Clip(RS_Solutions):
+    def __init__(self, seed: oc.Clip, plot : og.Plot = og.Plot()):
+        super().__init__(seed, plot)
+        self._seed: oc.Clip = seed
+         
+    def solution(self) -> 'oc.Clip':
+        return self._seed
+    
+
     def rhythm_fast_quantized(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
@@ -95,5 +104,4 @@ class RS_Solutions:
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340, ot.Conjunct(ra.Strictness(0.75))**ot.Modulo(7))) -> Self:
         return self.tonality_conjunct(iterations, choices, chaos)
-
 
