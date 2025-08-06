@@ -463,10 +463,6 @@ class Load(Serialization):
         return {} if filename is None else c.loadJsonMidiCreator(filename)
 
 
-if TYPE_CHECKING:
-    from operand_rational import Position
-    from operand_generic import Staff
-
 class Playlist(Data):
     """`Data -> Playlist`
 
