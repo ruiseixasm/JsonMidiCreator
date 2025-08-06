@@ -673,6 +673,7 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
+                    self.match_octave(False)    # Keep actual octave (meaning False)
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():

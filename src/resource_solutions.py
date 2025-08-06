@@ -113,7 +113,7 @@ class RS_Clip(RS_Solutions):
                 chaos_data = chaos % 1  # One iteration
                 key_signature: ou.KeySignature = ou.KeySignature(chaos_data)
                 new_clip = self._seed * [0] # Just the first Measure
-                new_clip << key_signature
+                new_clip << key_signature << ou.TonicKey(-1)
                 return new_clip * 4
             return composition
     
