@@ -30,8 +30,9 @@ from operand_tamer import *
 from operand_chaos import *
 from operand_mutation import *
 from operand_selection import *
-from devices import *
-from presets import *
+from resource_devices import *
+from resource_functions import *
+from resource_presets import *
 
 
 # Determine the operating system
