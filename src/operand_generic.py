@@ -2368,6 +2368,7 @@ class Print(ReadOnly):
         super().__init__( False if serialization is None else serialization )
 
     def __rrshift__(self, operand: o.T) -> o.T:
+        import json
         match operand:
             case o.Operand():
                 operand_serialization = operand.getSerialization()
