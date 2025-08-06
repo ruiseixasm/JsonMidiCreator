@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings % Devices() % list() >> Print()
-settings += D_Blofeld.device
+settings += RD_Blofeld.device
 settings % Devices() % list() >> Print()
 
 
@@ -30,17 +30,17 @@ long_note_c = Note(4/1)
 
 print("1st LOOP")
 
-level_cc = ControlChange(D_Blofeld.midi_cc["FILTER 1"]["Cutoff"]) * 16 << Iterate(step=1000)
+level_cc = ControlChange(RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"]) * 16 << Iterate(step=1000)
 level_cc * 4 + long_note_c >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", D_Blofeld.midi_cc["FILTER 1"]["Cutoff"])
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"])
 automation_cc * 4 + long_note_c >> P
 
 print("3rd LOOP")
 
-automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", D_Blofeld.midi_cc["FILTER 1"]["Cutoff"], False)
+automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"], False)
 automation_cc * 4 + long_note_c >> P
 
 print("4th LOOP")
@@ -50,6 +50,6 @@ automation_pitch * 4 + long_note_c >> P
 
 
 
-settings -= D_Blofeld.device
+settings -= RD_Blofeld.device
 settings % Devices() % list() >> Print()
 

@@ -20,12 +20,12 @@ settings << ClockStopModes("Total")
 
 
 settings % Devices() % list() >> Print()
-settings += D_Digitakt.device
+settings += RD_Digitakt.device
 settings % Devices() % list() >> Print()
 
 # Send Clock signal to the Digitakt
 settings % ClockedDevices() % list() >> Print()
-settings << ClockedDevices(D_Digitakt.device)
+settings << ClockedDevices(RD_Digitakt.device)
 # defaults << ClockedDevices("loopMIDI")
 settings % ClockedDevices() % list() >> Print()
 
@@ -53,6 +53,6 @@ settings << ClockedDevices("loopMIDI", "Virtual")
 # Now overlaying distinct Devices with no removal
 half_measure_element >> Play(1) >> Export("json/_Export_11.1_two_devices.json")
 
-settings -= D_Digitakt.device
+settings -= RD_Digitakt.device
 settings % Devices() % list() >> Print()
 

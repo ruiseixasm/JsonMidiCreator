@@ -16,12 +16,12 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings % Devices() % list() >> Print()
-settings += D_Digitakt.device
+settings += RD_Digitakt.device
 settings % Devices() % list() >> Print()
 
 # Send Clock signal to the Digitakt
 settings % ClockedDevices() % list() >> Print()
-settings << ClockedDevices(D_Digitakt.device)
+settings << ClockedDevices(RD_Digitakt.device)
 settings % ClockedDevices() % list() >> Print()
 
 # Processing Degrees
@@ -33,26 +33,26 @@ settings << Tempo(120)
 
 print("1st LOOP")
 
-level_cc = ControlChange(D_Digitakt.kick, D_Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
+level_cc = ControlChange(RD_Digitakt.kick, RD_Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
 level_cc * 4 >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", D_Digitakt.midi_cc["TRACK"]["Level"]) << D_Digitakt.kick
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Digitakt.midi_cc["TRACK"]["Level"]) << RD_Digitakt.kick
 automation_cc * 4 >> P
 
 print("3rd LOOP")
 
-automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", D_Digitakt.midi_cc["TRACK"]["Level"], False) << D_Digitakt.kick
+automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", RD_Digitakt.midi_cc["TRACK"]["Level"], False) << RD_Digitakt.kick
 automation_cc * 4 >> P
 
 print("4th LOOP")
 
-automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None) << D_Digitakt.cymbal
+automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None) << RD_Digitakt.cymbal
 automation_pitch * 4 >> P
 
 
 
-settings -= D_Digitakt.device
+settings -= RD_Digitakt.device
 settings % Devices() % list() >> Print()
 

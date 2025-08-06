@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings % Devices() % list() >> Print()
-settings += D_Blofeld.device
+settings += RD_Blofeld.device
 settings % Devices() % list() >> Print()
 
 
@@ -30,16 +30,16 @@ long_note_c = Note(4/1)
 
 print("1st LOOP")
 
-level_cc = ControlChange(D_Blofeld.midi_cc["EFFECTS"]["Mix 1"]) * 16 << Iterate(step=1000)
+level_cc = ControlChange(RD_Blofeld.midi_cc["EFFECTS"]["Mix 1"]) * 16 << Iterate(step=1000)
 level_cc * 4 + long_note_c >> P
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", D_Blofeld.midi_cc["EFFECTS"]["Mix 2"])
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["EFFECTS"]["Mix 2"])
 automation_cc * 4 + long_note_c >> P
 
 
 
-settings -= D_Blofeld.device
+settings -= RD_Blofeld.device
 settings % Devices() % list() >> Print()
 

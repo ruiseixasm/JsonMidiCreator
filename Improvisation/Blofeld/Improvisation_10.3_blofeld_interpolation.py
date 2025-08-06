@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings % Devices() % list() >> Print()
-settings += D_Blofeld.device
+settings += RD_Blofeld.device
 settings % Devices() % list() >> Print()
 
 
@@ -30,7 +30,7 @@ long_note_c = Note(1/1)
 
 print("1st LOOP")
 
-level_cc = ControlChange(D_Blofeld.midi_cc["EFFECTS"]["Mix 1"]) / 2 << Cycle(10, 90)
+level_cc = ControlChange(RD_Blofeld.midi_cc["EFFECTS"]["Mix 1"]) / 2 << Cycle(10, 90)
 level_cc[1] += Measures(level_cc, 1) - Step(1)
 level_cc >> Interpolate() >> Plot()
 (level_cc + long_note_c) * 8 >> P
@@ -41,6 +41,6 @@ print("2nd LOOP")
 
 
 
-settings -= D_Blofeld.device
+settings -= RD_Blofeld.device
 settings % Devices() % list() >> Print()
 

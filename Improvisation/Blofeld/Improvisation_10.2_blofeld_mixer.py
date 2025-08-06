@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings % Devices() % list() >> Print()
-settings += D_Blofeld.device
+settings += RD_Blofeld.device
 settings % Devices() % list() >> Print()
 
 
@@ -30,7 +30,7 @@ long_note_c = Note(1/1) * 4
 
 print("1st LOOP")
 
-measure_cc = ControlChange(D_Blofeld.midi_cc["MIXER COMMON"]["Pan"]) * 16
+measure_cc = ControlChange(RD_Blofeld.midi_cc["MIXER COMMON"]["Pan"]) * 16
 level_cc = measure_cc * 1 << Iterate(7*16, -7)
 level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(0, 7)
@@ -40,11 +40,11 @@ level_cc >> Export("json/_Export_improvisation_10.2.json") >> Plot()
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", D_Blofeld.midi_cc["MIXER COMMON"]["Volume"]) >> Plot()
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["MIXER COMMON"]["Volume"]) >> Plot()
 (automation_cc * 4 + long_note_c) * 2 >> P
 
 
 
-settings -= D_Blofeld.device
+settings -= RD_Blofeld.device
 settings % Devices() % list() >> Print()
 

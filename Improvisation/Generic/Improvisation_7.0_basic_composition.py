@@ -23,8 +23,8 @@ settings << ClockedDevices("Digitakt", "Blofeld", "Virtual")
 settings += Device("Digitakt")
 
 # Four Measures clips for Pattern Change
-pattern_change_1 = Clip(ProgramChange(2, D_Digitakt.auto_channel), Measures(3.5))   # Sets the NEXT pattern
-pattern_change_2 = Clip(ProgramChange(1, D_Digitakt.auto_channel), Measures(3.5))   # Returns to the Original pattern
+pattern_change_1 = Clip(ProgramChange(2, RD_Digitakt.auto_channel), Measures(3.5))   # Sets the NEXT pattern
+pattern_change_2 = Clip(ProgramChange(1, RD_Digitakt.auto_channel), Measures(3.5))   # Returns to the Original pattern
 
 # virtual_pattern_change = pattern_change_1 * pattern_change_2 << Device("Virtual")
 # virtual_pattern_change = pattern_change_1 * pattern_change_2 << Device("Virtual")

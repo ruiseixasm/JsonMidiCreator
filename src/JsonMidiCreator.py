@@ -32,6 +32,7 @@ from operand_mutation import *
 from operand_selection import *
 from resource_devices import *
 from resource_functions import *
+from resource_solutions import *
 from resource_presets import *
 
 
