@@ -154,9 +154,6 @@ class TimeSignature(Generic):
         return self
 
 
-if TYPE_CHECKING:
-    from operand_element import Element
-
 class Pitch(Generic):
     """`Generic -> Pitch`
 
@@ -1978,6 +1975,1222 @@ class Segment(Generic):
                         self -= ra.Step(round((operand - round(operand)) * 10))
         return self
 
+
+
+if TYPE_CHECKING:
+    from operand_element import Note
+    from operand_chaos import Chaos
+    from operand_rational import Length
+    from operand_container import Container, Composition, Clip
+
+class Process(Generic):
+    """`Generic -> Process`
+
+    A process is no more than a call of a `Container` method, so, in nature a `Process` is a
+    read only `Operand` without mutable parameters. Intended to be used in a chained `>>` sequence of operators.
+
+    Parameters
+    ----------
+    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+
+    Returns:
+        Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
+    """
+    def __init__(self, parameters: any = None):
+        super().__init__()
+        self._parameters = self.deep_copy(parameters)
+
+    @staticmethod
+    def _clocked_playlist(operand: o.T) -> list[dict]:
+        import operand_element as oe
+        import operand_container as oc
+
+        playlist: list[dict] = []
+
+        match operand:
+            case oc.Composition() | oe.Element():
+                # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
+                clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
+                default_clock: oe.Clock = settings % oe.Clock()
+                default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
+                playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
+                playlist.extend( operand.getPlaylist() )    # Operand Playlist
+            case od.Playlist():
+
+                operand_playlist = operand.getPlaylist()
+                playlist_time_ms: list[dict] = [
+                    dict_time_ms for dict_time_ms in operand_playlist
+                    if "time_ms" in dict_time_ms
+                ]
+
+                if playlist_time_ms:
+                    last_time_ms: float = \
+                        sorted(playlist_time_ms, key=lambda x: x['time_ms'])[-1]["time_ms"]
+                    # By default, time classes use the defaults Staff
+                    single_measure_beats: ra.Beats = ra.Measures(1) % ra.Beats()
+                    single_measure_minutes: Fraction = settings.beats_to_minutes( single_measure_beats._rational )
+                    single_measure_ms: float = o.minutes_to_time_ms( single_measure_minutes )
+                    total_measures: int = last_time_ms // single_measure_ms
+                    if last_time_ms > int(last_time_ms):
+                        total_measures += 1
+                    # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
+                    default_clock: oe.Clock = settings % oe.Clock() << ra.Length(total_measures)
+                    playlist.extend( default_clock.getPlaylist( time_signature = settings._time_signature ) )  # Clock Playlist
+                    playlist.extend( operand_playlist ) # Operand Playlist
+
+        return playlist
+
+
+class ReadOnly(Process):
+    """`Generic -> Process -> ReadOnly`
+
+    A ReadOnly process is one that results in no change of the subject `Operand`.
+
+    Parameters
+    ----------
+    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+
+    Returns:
+        Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
+    """
+    pass
+
+
+class RightShift(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> RightShift`
+
+    Applies the `>>` operation if process is `True`.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
+    bool(True) : By default, the the give `Operand` is targeted with `>>`.
+    """
+    def __init__(self, operand: o.Operand = None, process: bool = True):
+        super().__init__()
+        self._parameters = operand    # needs to keep the original reference (no copy)
+        self._process: bool = process
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                return self._parameters.__rshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+    
+class SideEffect(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> SideEffect`
+
+    This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
+    data in the respective self data without changing the respective chained data sequence.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected inside the chained `>>` sequence.
+    """
+    def __init__(self, operand: o.Operand = None, process: bool = True):
+        super().__init__()
+        self._parameters = operand    # needs to keep the original reference (no copy)
+        self._process: bool = process
+
+class LeftShift(SideEffect):
+    """`Generic -> Process -> ReadOnly -> SideEffect -> LeftShift`
+
+    Applies the `<<` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__lshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class RightShift(SideEffect):
+    """`Generic -> Process -> ReadOnly -> SideEffect -> RightShift`
+
+    Applies the `>>` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__rshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IAdd(SideEffect):    # i stands for "inplace"
+    """`Generic -> Process -> ReadOnly -> SideEffect -> IAdd`
+
+    Applies the `+=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__iadd__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class ISub(SideEffect):
+    """`Generic -> Process -> ReadOnly -> SideEffect -> ISub`
+
+    Applies the `-=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__isub__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IMul(SideEffect):
+    """`Generic -> Process -> ReadOnly -> SideEffect -> IMul`
+
+    Applies the `*=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__imul__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IDiv(SideEffect):
+    """`Generic -> Process -> ReadOnly -> SideEffect -> IDiv`
+
+    Applies the `/=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process:
+                self._parameters.__itruediv__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+
+class Save(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Save`
+
+    Saves all parameters' `Serialization` of a given `Operand` into a file.
+
+    Parameters
+    ----------
+    str("json/_Save_jsonMidiCreator.json") : The filename of the Operand's serialization data.
+    """
+    def __init__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
+        super().__init__(filename)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiCreator(operand.getSerialization(), self._parameters)
+            return operand
+        return super().__rrshift__(operand)
+
+class Export(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Export`
+
+    Exports a file playable by the `JsonMidiPlayer` program.
+
+    Parameters
+    ----------
+    str("json/_Export_jsonMidiPlayer.json") : The filename of the JsonMidiPlayer playable file.
+    """
+    def __init__(self, filename: str = "json/_Export_jsonMidiPlayer.json"):
+        super().__init__(filename)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        match operand:
+            case o.Operand():
+                playlist: list[dict] = self._clocked_playlist(operand)
+                c.saveJsonMidiPlay(playlist, self._parameters)
+                return operand
+            case _:
+                return super().__rrshift__(operand)
+
+class MidiExport(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> MidiExport`
+
+    Exports a file playable by a Midi player.
+
+    Parameters
+    ----------
+    str("midi/_MidiExport_song.mid") : The filename of the Midi playable file.
+    """
+    def __init__(self, filename: str = "midi/_MidiExport_song.mid"):
+        super().__init__(filename)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            c.saveMidiFile(operand.getMidilist(), self._parameters)
+            return operand
+        return super().__rrshift__(operand)
+
+
+class Plot(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Plot`
+
+    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+
+    Args:
+        by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
+        block (bool): Suspends the program until the chart is closed.
+        pause (float): Sets a time in seconds before the chart is closed automatically.
+        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+            this is dependent on a n_button being given.
+        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
+        c_button (Callable): A function intended to play the plotted clip among other compositions.
+        e_button (Callable): A function to be executed by itself without any output required.
+        title (str): A title to give to the chart in order to identify it.
+    """
+    def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
+                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
+                 e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = ""):
+        super().__init__((by_channel, block, pause, iterations, n_button, c_button, e_button, title))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        import operand_element as oe
+        import operand_generic as og
+        import operand_unit as ou
+        if isinstance(operand, (oc.Composition, oe.Element)):
+            return operand.plot(*self._parameters)
+        if isinstance(operand, Scale):
+            Scale.plot(self._parameters[1], operand % list())
+        elif isinstance(operand, ou.KeySignature):
+            Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+        return operand
+
+class Call(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Call`
+
+    `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
+        a given iteration was already chosen bypassing this way the process of plotting.
+
+    Args:
+        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+            this is dependent on a n_button being given.
+        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
+    """
+    def __init__(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
+        super().__init__((iterations, n_button))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        import operand_element as oe
+        if isinstance(operand, (oc.Composition, oe.Element)):
+            return operand.call(*self._parameters)
+        return operand
+
+
+class Play(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Play`
+
+    Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
+
+    Args:
+        verbose (bool): Defines the `verbose` mode of the playing.
+        plot (bool): Plots a chart before playing it.
+        block (bool): Blocks the Plot until is closed and then plays the plotted content.
+    """
+    def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
+        super().__init__((verbose, plot, block))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import threading
+        import operand_container as oc
+        import operand_element as oe
+        match operand:
+            case oc.Composition() | oe.Element() | od.Playlist():
+                if isinstance(operand, oe.Element) or len(operand % od.Pipe(list())) > 0:
+                    playlist: list[dict] = self._clocked_playlist(operand)
+                    if self._parameters[1] and self._parameters[2]:
+                        # Start the function in a new process
+                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))
+                        process.start()
+                        operand >> Plot(self._parameters[2])
+                    else:
+                        if self._parameters[1] and not self._parameters[2]:
+                            operand >> Plot(self._parameters[2])
+                        c.jsonMidiPlay(playlist, self._parameters[0])
+                else:
+                    print(f"Warning: Trying to play an **empty** list!")
+                return operand
+            case _:
+                return super().__rrshift__(operand)
+    
+    @staticmethod
+    def play(operand: o.T) -> o.T:
+        return Play().__rrshift__(operand)
+
+
+class Print(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Print`
+
+    Prints the Operand's parameters in a JSON alike layout if it's an `Operand` being given,
+    otherwise prints directly like the common `print` function.
+
+    Args:
+        formatted (bool): If False prints the `Operand` content in a single line.
+    """
+    def __init__(self, serialization: bool = False):
+        super().__init__( False if serialization is None else serialization )
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        match operand:
+            case o.Operand():
+                operand_serialization = operand.getSerialization()
+                if self._parameters:
+                    serialized_json_str = json.dumps(operand_serialization)
+                    json_object = json.loads(serialized_json_str)
+                    json_formatted_str = json.dumps(json_object, indent=4)
+                    print(json_formatted_str)
+                else:
+                    print(operand % str())
+            case list():
+                for index, value in enumerate(operand):
+                    if isinstance(value, o.Operand):
+                        operand[index] %= str()
+                print(operand)
+            case _:
+                print(operand)
+        return operand
+
+class Copy(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Copy`
+
+    Creates and returns a copy of the left side `>>` operand.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the copied `Operand`.
+
+    Returns:
+        Operand: Returns a copy of the left side `>>` operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.copy(*self._parameters)
+        return super().__rrshift__(operand)
+
+class Reset(Process):
+    """`Generic -> Process -> Reset`
+
+    Does a reset of the Operand's original parameters and its volatile ones.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the reset `Operand`.
+
+    Returns:
+        Operand: Returns the same reset operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.reset(*self._parameters)
+        return super().__rrshift__(operand)
+
+class Clear(Process):
+    """`Generic -> Process -> Clear`
+
+    Besides doing a reset of the Operand's slate parameters and its volatile ones,
+    sets the default parameters associated with an empty Operand (blank slate).
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the cleared `Operand`.
+
+    Returns:
+        Operand: Returns the same cleared operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.clear(*self._parameters)
+        return super().__rrshift__(operand)
+
+
+class ScaleProcess(Process):
+    """`Generic -> Process -> ScaleProcess`
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        if isinstance(operand, Scale):
+            return self.__irrshift__(operand.copy())
+        return super().__rrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        if isinstance(operand, Scale):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Scale`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+
+class Modulate(ScaleProcess):    # Modal Modulation
+    """`Generic -> Process -> ScaleProcess -> Modulate`
+
+    Modulate() is used to modulate the self Scale or Scale.
+    
+    Parameters
+    ----------
+    int(1) : Modulate a given Scale to 1 ("1st") as the default mode.
+    """
+    def __init__(self, mode: int | str = 1):
+        import operand_unit as ou
+        unit = ou.Mode(mode)._unit
+        super().__init__(unit)
+
+    # CHAINABLE OPERATIONS
+
+    def _process(self, operand: 'Scale') -> 'Scale':
+        return operand.modulate(self._parameters)
+
+class Transpose(ScaleProcess):    # Chromatic Transposition
+    """`Generic -> Process -> ScaleProcess -> Transpose`
+
+    Transpose() is used to rotate a scale by semitones.
+    
+    Parameters
+    ----------
+    int(7) : Transpose a given Scale by 7 semitones as the default.
+    """
+    def __init__(self, semitones: int = 7):
+        super().__init__(semitones)
+
+    # CHAINABLE OPERATIONS
+
+    def _process(self, operand: 'Scale') -> 'Scale':
+        return operand.transpose(self._parameters)
+
+
+class ContainerProcess(Process):
+    """`Generic -> Process -> ContainerProcess`
+
+    Processes applicable exclusively to `Container` operands.
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            if operand.is_a_mask(): # Mask retains the original Container
+                return self.__irrshift__(operand)
+            return self.__irrshift__(operand.copy())
+        print(f"Warning: Operand is NOT a `Container`!")
+        return operand
+
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Container`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+
+class Sort(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Sort`
+
+    Sorts the contained items by a given parameter type.
+
+    Args:
+        parameter (type): Defines the given parameter type to sort by.
+        reverse (bool): Reverses the sorting if `True`.
+    """
+    from operand_rational import Position
+
+    def __init__(self, parameter: type = Position, reverse: bool = False):
+        super().__init__((parameter, reverse))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.sort(*self._parameters)
+
+
+class Mask(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Mask`
+
+    Masks the items that meet the conditions (equal to). Masks can't be copied!
+
+    Args:
+        condition (Any): Sets a condition to be compared with `==` operator.
+    """
+    def __init__(self, *conditions):
+        super().__init__(conditions)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return self.__irrshift__(operand)   # Special case, NO copy
+        print(f"Warning: Operand is NOT a `Container`!")
+        return operand
+    
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.mask(*self._parameters)
+
+class Filter(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Filter`
+
+    A Filter selects the items that meet the conditions (equal to).
+    Filters remain as `Containers` and thus they **can** be copied!
+
+    Args:
+        condition (Any): Sets a condition to be compared with `==` operator.
+    """
+    def __init__(self, *conditions):
+        super().__init__(conditions)
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.filter(*self._parameters)
+
+
+class Operate(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Operate`
+
+    Allows the setting of a specific operator as operation with a str as operator symbol.
+
+    Args:
+        operand (Any): `Operand` that is the source of the operation.
+        operator (str): The operator `op` that becomes processed as `self op operand`.
+    """
+    def __init__(self, operand: Any = None, operator: str = "<<"):
+        super().__init__((operand, operator))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.operate(*self._parameters)
+
+
+class Transform(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Transform`
+
+    Transforms each item by wrapping it with the new operand type given.
+
+    Args:
+        operand_type (type): The type of `Operand` by which each item will be transformed into.
+    """
+    def __init__(self, operand_type: type = 'Note'):
+        super().__init__(operand_type)
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.transform(self._parameters)
+
+
+class Shuffle(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Shuffle`
+
+    Reaffects the given parameter type in a chaotic manner.
+
+    Args:
+        chaos (Chaos): An Chaos object to be used as sorter.
+        parameter (type): The type of parameter being swapped around the items.
+    """
+    from operand_rational import Position
+
+    def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
+        super().__init__((chaos, parameter))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.shuffle(*self._parameters)
+
+class Swap(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Swap`
+
+    This `Process` swaps a given parameter type between two operands.
+
+    Args:
+        left_item (any): The first item called the left item.
+        right_item (any): The second item called the right item.
+        parameter (type): The parameters that will be switched between both operands.
+    """
+    from operand_rational import Position
+
+    def __init__(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = Position):
+        super().__init__((left, right, what))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.swap(*self._parameters)
+
+class Reverse(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Reverse`
+
+    Reverses the self list of items.
+
+    Args:
+        None
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.reverse(self._parameters)
+
+class Recur(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Recur`
+
+    Calls the function on the successive items in a Xn+1 = Xn fashion (recursive),
+    where n is the previous element and n+1 the next one.
+
+    Args:
+        recursion (Callable): recursive function.
+        parameter (type): The type of parameter being processed by the recursive function.
+    """
+    from operand_rational import Duration
+
+    def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
+        super().__init__((recursion, parameter))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.recur(*self._parameters)
+
+class Rotate(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Rotate`
+
+    Rotates a given parameter by a given offset, by other words,
+    does a displacement for each Element in the Container list of
+    a chosen parameter by the offset amount.
+
+    Args:
+        a (int): The offset amount of the list index, displacement.
+        b (type): The type of parameter being displaced, rotated.
+    """
+    from operand_rational import Position
+
+    def __init__(self, offset: int = 1, parameter: type = Position):
+        super().__init__((offset, parameter))
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.rotate(*self._parameters)
+
+class Erase(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Erase`
+
+    Erases all the given items in the present container and propagates the deletion
+    of the same items for the containers above.
+
+    Args:
+        *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
+    """
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.erase(*self._parameters)
+
+class Upper(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Upper`
+
+    Returns self or the upper container if existent up to the last one if no argument is given, or,
+    up to the one above the level given.
+
+    Args:
+        level: The level at which the upper container is returned.
+    """
+    def __init__(self, level: int = None):
+        super().__init__(level)
+
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.upper(self._parameters)
+
+
+TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
+
+class CompositionProcess(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess`
+
+    Processes applicable to any `Composition`.
+    """
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand
+
+class Loop(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Loop`
+
+    Creates a loop from the Composition from the given `Position` with a given `Length`.
+
+    Args:
+        position (Position): The given `Position` where the loop starts at.
+        length (Length): The `Length` of the loop.
+    """
+    def __init__(self, position = 0, length = 4):
+        super().__init__((position, length))
+
+    def _process(self, composition: TypeComposition) -> TypeComposition:
+        return composition.loop(*self._parameters)
+
+class Drop(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Drop`
+    
+    Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+    Parameters
+    ----------
+    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
+    """
+    def __init__(self, *measures):
+        super().__init__(measures)
+
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand.drop(*self._parameters)
+
+class Crop(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Crop`
+    
+    Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
+
+    Parameters
+    ----------
+    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
+    """
+    def __init__(self, *measures):
+        super().__init__(measures)
+
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand.crop(*self._parameters)
+
+
+class ClipProcess(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> ClipProcess`
+
+    Processes applicable exclusively to `Clip` operands.
+    """
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Clip`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+
+class Fit(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fit`
+
+    Fits the entire clip in a given length.
+
+    Args:
+        length (Length): A length in which the clip must fit.
+    """
+    from operand_rational import Length
+
+    def __init__(self, length: 'Length' = None):
+        super().__init__(length)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit(self._parameters)
+
+class Link(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
+
+    Adjusts the duration/length of each `Element` to connect to the start of the next element.
+    For the last element in the clip, this is extended up to the end of the `Measure`.
+
+    Args:
+        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.link(self._parameters)
+
+class Stack(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stack`
+
+    Moves each Element to start at the finish position of the previous one.
+    If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
+
+    Args:
+        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+    """
+    def __init__(self, ignore_empty_measures: bool = True):
+        super().__init__(ignore_empty_measures)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.stack(self._parameters)
+
+class Quantize(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Quantize`
+
+    Quantizes a `Clip` by a given amount from 0.0 to 1.0.
+
+    Args:
+        amount (float): The amount of quantization to apply from 0.0 to 1.0.
+    """
+    def __init__(self, amount: float = 1.0):
+        super().__init__(amount)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.quantize(self._parameters)
+
+
+class Decompose(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Decompose`
+
+    Transform each element in its component elements if it's a composed element,
+    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.decompose()
+
+
+class Arpeggiate(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Arpeggiate`
+
+    Distributes each element accordingly to the configured arpeggio by the parameters given.
+
+    Args:
+        parameters: Parameters that will be passed to the `Arpeggio` operand.
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.arpeggiate(self._parameters)
+
+
+class Purge(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Purge`
+
+    With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
+
+    Args:
+        None.
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.purge()
+
+
+class Stepper(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stepper`
+
+    Sets the steps in a Drum Machine for a given `Note`.
+
+    Args:
+        pattern (str): A string where the 1s in it set where the triggered steps are.
+        note (Any): A note or any respective parameter that sets each note.
+    """
+    def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
+        super().__init__((pattern, note))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.stepper(*self._parameters)
+
+class Automate(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Automate`
+
+    Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
+
+    Args:
+        values (list[int]): The automation values at the triggered steps.
+        pattern (str): A string where the 1s in it are where the triggered midi messages are.
+        automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
+        the last one being the default.
+        interpolate (bool): Does an interpolation per `Step` between the multiple triggered steps.
+    """
+    def __init__(self, values: list[int] = [100, 70, 30, 100],
+                 pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
+        super().__init__((values, pattern, automation, interpolate))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.automate(*self._parameters)
+
+class Interpolate(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Interpolate`
+
+    Interpolates the multiple values of a given `Automation` element by `Channel`.
+
+    Args:
+        None.
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.interpolate()
+
+class Oscillate(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Oscillate`
+
+    Applies for each item element the value at the given position given by the oscillator function at
+    that same position.
+
+    Args:
+        amplitude (int): Amplitude of the wave.
+        wavelength (float): The length of the wave in note value.
+        offset (int): Sets the horizontal axis of the wave.
+        phase (int): Sets the starting degree of the wave.
+        parameter (type): The parameter used as the one being automated by the wave.
+    """
+    def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
+                 parameter: type = None):
+        super().__init__((amplitude, wavelength, offset, phase, parameter))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.oscillate(*self._parameters)
+
+
+class Tie(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Tie`
+
+    Extends the `Note` elements as tied when applicable.
+    Works only on Notes, and NOT on its derived elements, as `Chord`,
+    do `Decompose` if needed to transform a `Chord` into Notes.
+
+    Args:
+        decompose (bool): If `True`, decomposes elements derived from `Note` first.
+    """
+    def __init__(self, decompose: bool = True):
+        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.tie(*self._parameters)
+
+class Join(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Join`
+
+    Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
+
+    Args:
+        decompose (bool): If `True`, decomposes elements derived from `Note` first.
+    """
+    def __init__(self, decompose: bool = True):
+        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.join(*self._parameters)
+
+
+class Slur(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Slur`
+
+    Changes the note `Gate` in order to crate a small overlap.
+
+    Args:
+        gate (float): Can be given a different gate from 1.05, de default.
+    """
+    def __init__(self, gate: float = 1.05):
+        super().__init__(gate)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.slur(self._parameters)
+
+class Smooth(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Smooth`
+
+    Adjusts the `Note` octave to have the closest pitch to the previous one.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.smooth()
+
+
+class Flip(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Flip`
+
+    `Flip` works like `Reverse` but it's agnostic about the Measure keeping the elements positional range.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.flip()
+
+class Mirror(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Mirror`
+
+    Mirror is similar to reverse but instead of reversing the elements position it reverses the
+    Note's respective Pitch, like vertically mirrored.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.mirror()
+
+class Invert(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Invert`
+
+    `Invert` is similar to 'Mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.invert()
+
+
+class Snap(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Snap`
+
+    For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
+
+    Args:
+        up (bool): By default it snaps to the closest bellow pitch, but if set as True, \
+            it will snap to the closest above pitch instead.
+    """
+    def __init__(self, up: bool = False):
+        super().__init__(up)
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.snap(self._parameters)
+
+class Extend(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Extend`
+
+    Extends (stretches) the given clip along a given length.
+
+    Args:
+        length (Length): The length along which the clip will be extended (stretched).
+    """
+    def __init__(self, length: 'Length' = None):
+        super().__init__( length )
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.extend(self._parameters)
+
+class Trim(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Trim`
+
+    Trims the given clip at a given length.
+
+    Args:
+        length (Length): The length of the clip that will be trimmed.
+    """
+    def __init__(self, length: 'Length' = None):
+        super().__init__( length )
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.trim(self._parameters)
+
+class Cut(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Cut`
+
+    Cuts (removes) the section of the clip from the start to the finish positions.
+
+    Args:
+        start (Position): Starting position of the section to be cut.
+        finish (Position): Finish position of the section to be cut.
+    """
+    from operand_rational import Position
+
+    def __init__(self, start: Position = None, finish: Position = None):
+        super().__init__((start, finish))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.cut(*self._parameters)
+
+class Select(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Select`
+
+    Selects the section of the clip that will be preserved.
+
+    Args:
+        start (Position): Starting position of the section to be selected.
+        finish (Position): Finish position of the section to be selected.
+    """
+    from operand_rational import Position
+
+    def __init__(self, start: Position = None, finish: Position = None):
+        super().__init__((start, finish))
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.select(*self._parameters)
+
+class Monofy(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Monofy`
+
+    Cuts out any part of an element Duration that overlaps with the next element.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.monofy()
+
+class Fill(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fill`
+
+    Adds up Rests to empty spaces (lengths) in a staff for each Measure.
+
+    Args:
+        None
+    """
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.fill()
+
+
+class PartProcess(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> PartProcess`
+
+    Processes applicable exclusively to `Part` operands.
+    """
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Part):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Part`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+
+class SongProcess(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> SongProcess`
+
+    Processes applicable exclusively to `Song` operands.
+    """
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Song):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT a `Song`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand
+    
 
 
 class Settings(Generic):

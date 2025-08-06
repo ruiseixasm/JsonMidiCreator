@@ -388,7 +388,7 @@ class Container(o.Operand):
                 return self + operand   # Implicit copy of self
             case om.Mutation():
                 return operand.mutate(self.copy())
-            case od.Process():
+            case og.Process():
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
@@ -406,7 +406,7 @@ class Container(o.Operand):
                 return self
             case om.Mutation():
                 return operand.mutate(self)
-            case od.Process():
+            case og.Process():
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
@@ -1594,8 +1594,8 @@ class Composition(Container):
     def _run_play(self, even = None) -> Self:
         import threading
         iteration_clip: Clip = self._iterations[self._iteration]
-        threading.Thread(target=od.Play.play, args=(iteration_clip,)).start()
-        # iteration_clip >> od.Play()
+        threading.Thread(target=og.Play.play, args=(iteration_clip,)).start()
+        # iteration_clip >> og.Play()
         return self
 
     def _run_first(self, even = None) -> Self:
@@ -1667,8 +1667,8 @@ class Composition(Container):
             iteration_clip: Clip = self._iterations[self._iteration]
             composition: Composition = self._c_function(iteration_clip)
             if isinstance(composition, Composition):
-                threading.Thread(target=od.Play.play, args=(composition,)).start()
-                # composition >> od.Play()
+                threading.Thread(target=og.Play.play, args=(composition,)).start()
+                # composition >> og.Play()
             # Updates the iteration_clip data and plot just in case
             self._update_iteration(self._iteration, iteration_clip.getPlotlist())
         return self
