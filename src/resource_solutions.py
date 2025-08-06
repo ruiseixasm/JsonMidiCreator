@@ -66,3 +66,34 @@ class RS_Solutions:
 
         return self
 
+
+    def tonality_conjunct(self,
+            iterations: int = 1,
+            choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
+            chaos: ch.Chaos = ch.SinX(340, ot.Conjunct()**ot.Modulo(7))) -> Self:
+        
+        def iterate(composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                chaos._tamer.reset()   # Tamer needs to be reset
+                chaos_data = chaos % choices
+                multiple_degrees = o.list_mod(chaos_data, 7)
+                # One can simple ignore the clip and work on the original clip
+                new_clip = self._composition * [0] # Just the first Measure
+                new_clip += of.Foreach(*multiple_degrees)**ou.Degree()
+                return new_clip * 4
+            return composition
+    
+        if iterations < 0:
+            self._composition >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
+        else:
+            self._composition >>= og.Call(iterations, iterate)
+
+        return self
+
+    def tonality_conjunct_but_slacked(self,
+            iterations: int = 1,
+            choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
+            chaos: ch.Chaos = ch.SinX(340, ot.Conjunct(ra.Strictness(0.75))**ot.Modulo(7))) -> Self:
+        return self.tonality_conjunct(iterations, choices, chaos)
+
+
