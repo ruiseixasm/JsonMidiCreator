@@ -378,12 +378,9 @@ class Container(o.Operand):
 
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
-        import operand_mutation as om
         match operand:
             case Container():
                 return self + operand   # Implicit copy of self
-            case om.Mutation():
-                return operand.mutate(self.copy())
             case og.Process():
                 return operand.__rrshift__(self)
             case ch.Chaos():
@@ -394,13 +391,10 @@ class Container(o.Operand):
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
-        import operand_mutation as om
         match operand:
             case Container():
                 self += operand
                 return self
-            case om.Mutation():
-                return operand.mutate(self)
             case og.Process():
                 return operand.__irrshift__(self)
             case ch.Chaos():
@@ -2178,7 +2172,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_mutation as om
         match operand:
             case Clip():
                 super().__lshift__(operand)
@@ -2190,7 +2183,6 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case og.TimeSignature():        self._time_signature = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case om.Mutation():     operand._data.mutate(self)
 
                     # All possible TimeSignature parameters enter here
                     case og.TimeSignature() | og.TimeSignature():
@@ -2256,9 +2248,6 @@ class Clip(Composition):  # Just a container of Elements
                     for item in self._items:
                         item << operand
 
-            case om.Mutation():
-                operand.copy().mutate(self)
-            
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -2366,7 +2355,6 @@ class Clip(Composition):  # Just a container of Elements
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
-        import operand_mutation as om
         match operand:
             case Clip():
                 right_clip: Clip = Clip(operand)._set_owner_clip(self)
@@ -2403,9 +2391,6 @@ class Clip(Composition):  # Just a container of Elements
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 self.__imul__(self_repeating)
-
-            case om.Mutation():
-                return operand.copy().mutate(self)
 
             case list():
                 segments_list: list[og.Segment] = []

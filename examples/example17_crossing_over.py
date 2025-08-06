@@ -48,7 +48,3 @@ performers = od.Performers(
         Input(Rest())**PassThrough(Play()), # Plays a single Rest at the end,
         Foreach()**Get(Position())**SendTo(Print())  # To see what's data is being changed
     )
-crossing_over = Crossover(clip, sequences, performers)
-
-final_mutation = crossing_over * 40 * 8.37
-# final_mutation >> Print()

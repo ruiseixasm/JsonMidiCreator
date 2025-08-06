@@ -31,13 +31,10 @@ rhythmic_notes = Note() * 8 * 8 << Foreach(whole, dotted_half, half, dotted_quar
 mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
-duration_mutation = Exchange(Duration) * 22
-duration_mutation << rhythmic_notes
 final_clip = Clip()
 original_clip = mutated_clip.copy() - Octave()
 
 for _ in range(400):
-    mutated_clip <<= duration_mutation
     original_clip += mutated_clip
     original_clip >> MidiExport("Midi/18.1_first_clip.mid")
     final_clip *= mutated_clip.copy().stack().trim().link()

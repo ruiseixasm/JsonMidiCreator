@@ -31,14 +31,9 @@ rhythmic_notes = Note() * 8 * 8 << Foreach(whole, dotted_half, half, dotted_quar
 mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
-duration_mutation = Exchange(Duration) * 22
-duration_mutation << rhythmic_notes
 
 for _ in range(400):
-    mutated_clip <<= duration_mutation
     processed_clip: Clip = mutated_clip.copy().stack().trim().link()
     processed_clip % Length() % float() >> Print()
     processed_clip >> Play()
-
-
 
