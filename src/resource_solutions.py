@@ -40,7 +40,14 @@ class RS_Solutions:
     def __init__(self, seed: oc.Composition, plot : og.Plot = og.Plot()):
         self._seed: oc.Composition = seed
         self._plot: og.Plot = plot
-         
+
+    def iterate(self, iterations, n_button) -> Self:
+        if iterations < 0:
+            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(n_button)
+        else:
+            self._seed >>= og.Call(iterations, n_button)
+        return self
+
     def solution(self) -> 'oc.Composition':
         return self._seed
     
@@ -60,7 +67,7 @@ class RS_Clip(RS_Solutions):
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340)) -> Self:
         
-        def iterate(composition: 'oc.Composition') -> 'oc.Composition':
+        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 picked_durations = o.list_choose(durations, chaos % choices)
@@ -68,12 +75,7 @@ class RS_Clip(RS_Solutions):
                 return composition.stack().quantize().mul([0]).link().mul(4)
             return composition
     
-        if iterations < 0:
-            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
-        else:
-            self._seed >>= og.Call(iterations, iterate)
-
-        return self
+        return self.iterate(iterations, n_button)
 
 
     def tonality_conjunct(self,
@@ -81,7 +83,7 @@ class RS_Clip(RS_Solutions):
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340, ot.Conjunct()**ot.Modulo(7))) -> Self:
         
-        def iterate(composition: 'oc.Composition') -> 'oc.Composition':
+        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 chaos_data = chaos % choices
@@ -91,12 +93,8 @@ class RS_Clip(RS_Solutions):
                 return new_clip * 4
             return composition
     
-        if iterations < 0:
-            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
-        else:
-            self._seed >>= og.Call(iterations, iterate)
+        return self.iterate(iterations, n_button)
 
-        return self
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
@@ -109,7 +107,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             chaos: ch.Chaos = ch.Modulus(0, ra.Period(8))) -> Self:
         
-        def iterate(composition: 'oc.Composition') -> 'oc.Composition':
+        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 chaos_data = chaos % 1  # One iteration
@@ -119,12 +117,7 @@ class RS_Clip(RS_Solutions):
                 return new_clip * 4
             return composition
     
-        if iterations < 0:
-            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
-        else:
-            self._seed >>= og.Call(iterations, iterate)
-
-        return self
+        return self.iterate(iterations, n_button)
 
 
 class RS_Part(RS_Solutions):
