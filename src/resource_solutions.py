@@ -37,27 +37,33 @@ import operand_chaos as ch
 
 
 class RS_Solutions:
-    def __init__(self, composition: oc.Composition):
+    def __init__(self, composition: oc.Composition, plot : og.Plot = og.Plot(), call: og.Call = og.Call()):
         self._composition: oc.Composition = composition
+        self._plot: og.Plot = plot
+        self._call: og.Call = call
          
-    def get_iterate_function(self) -> Callable[['oc.Composition'], 'oc.Composition']:
-        return lambda composition: self.iterate(composition)
+    def solution(self) -> 'oc.Composition':
+        return self._composition
     
-    def iterate(self, composition: 'oc.Composition') -> 'oc.Composition':
-        return composition
-    
+
     def rhythm_fast_quantized(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340)) -> Self:
         
-        if isinstance(self._composition, oc.Clip):
-
-            chaos._tamer.reset()   # Tamer needs to be reset
-            picked_durations = o.list_choose(durations, self.chaos % choices)
-            self._composition << of.Foreach(*picked_durations)**ra.NoteValue()
-            self._composition.stack().quantize().mul([0]).link().mul(4)
+        def iterate(composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                chaos._tamer.reset()   # Tamer needs to be reset
+                picked_durations = o.list_choose(durations, chaos % choices)
+                composition << of.Foreach(*picked_durations)**ra.NoteValue()
+                return composition.stack().quantize().mul([0]).link().mul(4)
+            return composition
+    
+        if iterations < 0:
+            self._composition >>= self._plot.set_iterations(iterations).set_n_button(iterate)
+        else:
+            self._composition >>= self._call.set_iterations(iterations).set_n_button(iterate)
 
         return self
 

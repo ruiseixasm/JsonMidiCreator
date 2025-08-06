@@ -2053,7 +2053,8 @@ class ReadOnly(Process):
     Returns:
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
-    pass
+    def __irrshift__(self, operand: o.T) -> o.T:
+        return self.__rrshift__(operand)
 
 
 class RightShift(ReadOnly):
@@ -2277,7 +2278,7 @@ class Plot(ReadOnly):
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  c_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = ""):
-        super().__init__((by_channel, block, pause, iterations, n_button, c_button, e_button, title))
+        super().__init__([by_channel, block, pause, iterations, n_button, c_button, e_button, title])
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -2292,6 +2293,19 @@ class Plot(ReadOnly):
             Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
         return operand
 
+    def set_iterations(self, iterations: int) -> Self:
+        if not isinstance(iterations, int) or iterations < 0:
+            return self
+        self._parameters[3] = iterations
+        return self
+
+    def set_n_button(self, function: Callable[['Composition'], 'Composition']) -> Self:
+        if not callable(function):
+            return self
+        self._parameters[4] = function
+        return self
+
+
 class Call(ReadOnly):
     """`Generic -> Process -> ReadOnly -> Call`
 
@@ -2304,7 +2318,7 @@ class Call(ReadOnly):
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
     """
     def __init__(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
-        super().__init__((iterations, n_button))
+        super().__init__([iterations, n_button])
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -2312,6 +2326,18 @@ class Call(ReadOnly):
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.call(*self._parameters)
         return operand
+
+    def set_iterations(self, iterations: int) -> Self:
+        if not isinstance(iterations, int) or iterations < 0:
+            return self
+        self._parameters[0] = iterations
+        return self
+
+    def set_n_button(self, function: Callable[['Composition'], 'Composition']) -> Self:
+        if not callable(function):
+            return self
+        self._parameters[1] = function
+        return self
 
 
 class Play(ReadOnly):
