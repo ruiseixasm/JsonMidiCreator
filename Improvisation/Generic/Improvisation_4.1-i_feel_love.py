@@ -30,7 +30,7 @@ first_notes % KeySignature() % str() >> Print()
 
 
 # C - G - Bb | C minor
-first_notes << Cycle("C", "G", "B")**Key()
+first_notes << Once("C", "G", "B")**Key()
 first_notes[0] % Degree() % int() >> Print()
 first_notes[1] % Degree() % int() >> Print()
 first_notes[2] % Degree() % int() >> Print()

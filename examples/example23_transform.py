@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-notes = Note() * 4 << Cycle(1, 4, 5, 1)**Degree()
+notes = Note() * 4 << Once(1, 4, 5, 1)**Degree()
 notes >> Play()
 
 notes.copy() >> Transform(Chord) >> Play()

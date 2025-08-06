@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-modulus = Modulus(Period(7))   # Works like a cyclic picker
+modulus = Cycle(Period(7))   # Works like a cyclic picker
 flipper = Flipper(Period(7), Split(3))   # Works like a cyclic picker
 
 def new_clip(clip: Clip) -> Clip:

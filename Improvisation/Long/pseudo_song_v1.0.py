@@ -39,7 +39,7 @@ total_measures: int = settings.convert_time_to_measures(seconds=40)
 print(total_measures)
 
 triad = Chord() * 4
-triad << 0.9 << Cycle(1, 5, 4, 7)**Degree()
+triad << 0.9 << Once(1, 5, 4, 7)**Degree()
 # triad << Parameters(Length(6))
 triad *= Rest(2.0)
 triad % Length() % Fraction() >> Print()

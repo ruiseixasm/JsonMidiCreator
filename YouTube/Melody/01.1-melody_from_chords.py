@@ -32,7 +32,7 @@ device_list >> Print()
 settings << Device(device_list)
 settings << TimeSignature(3, 4) << Tempo(90)
 
-chords = Chord() * 4 << Cycle("I", "IV", "V", "I")**Degree()
+chords = Chord() * 4 << Once("I", "IV", "V", "I")**Degree()
 # chords >> Play()
 
 chord_notes_i = Chord(Degree("I")) % Clip()

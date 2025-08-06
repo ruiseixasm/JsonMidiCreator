@@ -615,10 +615,11 @@ class Foreach(Left):
             return super().__ixor__(input)
         return ol.Null()
 
-class Cycle(Foreach):
-    """`Frame -> Left -> Foreach -> Cycle`
+class Once(Foreach):
+    """`Frame -> Left -> Foreach -> Once`
 
-    A `Cycle` is a Foreach that cycles through a set of items but doesn't return to the first one when it reaches the end of it.
+    A `Once` is a Foreach that loops through a set of items only once, not returning to the first one \
+        when it reaches the last one.
 
     Parameters
     ----------

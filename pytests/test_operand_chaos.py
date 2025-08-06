@@ -53,7 +53,7 @@ def test_sinx_mod():
 
 def test_modulus():
 
-    modulus = Modulus(Period(4))
+    modulus = Cycle(Period(4))
 
     assert modulus * 0 % int() == 0
     assert modulus * 1 % int() == 1
@@ -72,14 +72,14 @@ def test_modulus():
 
 def test_chained_chaos():
 
-    modulus_sinx = Modulus()**SinX()
+    modulus_sinx = Cycle()**SinX()
     modulus_sinx *= 2.01
 
     modulus_sinx % int() >> Print()
     assert modulus_sinx % int() < 12
 
     sinx = SinX()
-    modulus = Modulus()
+    modulus = Cycle()
     assert modulus != modulus_sinx
 
     sinx *= 2.01

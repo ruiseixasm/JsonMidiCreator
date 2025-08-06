@@ -105,7 +105,7 @@ class RS_Clip(RS_Solutions):
 
     def sweep_sharps(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Modulus(0, ra.Period(8))) -> Self:
+            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8))) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):

@@ -22,7 +22,7 @@ settings << Tempo(120)
 
 # C - G - A# | A minor with Tonic C
 KeyScale(Scale("minor"), TonicKey("C"), 2.0) >> P
-first_notes = Note("C", 1/8) * 3 << Minor() << Cycle("C", "G", "A")**Key() << Duration(1/16)
+first_notes = Note("C", 1/8) * 3 << Minor() << Once("C", "G", "A")**Key() << Duration(1/16)
 first_notes[0] % Degree() % int() >> Print()
 first_notes[1] % Degree() % int() >> Print()
 first_notes[2] % Degree() % int() >> Print()

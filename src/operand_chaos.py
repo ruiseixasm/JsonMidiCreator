@@ -193,17 +193,17 @@ class Chaos(o.Operand):
         self._xn << self._x0
         return self
 
-class Modulus(Chaos):
-    """`Chaos -> Modulus`
+class Cycle(Chaos):
+    """`Chaos -> Cycle`
 
-    Increments the Xn by each step and its return is the remainder of the given cycle.
+    Increments the `Xn` by each step and its return is the remainder of the given `Period`.
 
     Parameters
     ----------
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Period(12) : The cyclic value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
@@ -252,7 +252,7 @@ class Modulus(Chaos):
     def __lshift__(self, operand: any) -> Self:
         operand ^= self    # Processes the Frame operand if any exists
         match operand:
-            case Modulus():
+            case Cycle():
                 super().__lshift__(operand)
                 self._period     = operand._period
                 self._steps     = operand._steps
@@ -278,7 +278,7 @@ class Modulus(Chaos):
         return self
 
 
-class Flipper(Modulus):
+class Flipper(Cycle):
     """`Chaos -> Modulus -> Flipper`
 
     The Xn alternates like left and right, where left is 0 and right is 1.
@@ -357,7 +357,7 @@ class Flipper(Modulus):
                 super().__lshift__(operand)
         return self
 
-class Counter(Modulus):
+class Counter(Cycle):
     """`Chaos -> Modulus -> Counter`
 
     The Xn represents the total number of completed cycles.

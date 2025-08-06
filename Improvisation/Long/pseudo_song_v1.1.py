@@ -39,7 +39,7 @@ total_measures: int = settings.convert_time_to_measures(seconds=40)
 print(total_measures)
 
 
-four_notes = Note(1/8) * 4 << Cycle(100, 80, 80, 90)**Velocity()
+four_notes = Note(1/8) * 4 << Once(100, 80, 80, 90)**Velocity()
 four_notes *= Duration(0.8)
 four_notes /= Rest(1/2)
 
