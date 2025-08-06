@@ -37,12 +37,12 @@ import operand_chaos as ch
 
 
 class RS_Solutions:
-    def __init__(self, composition: oc.Composition, plot : og.Plot = og.Plot()):
-        self._composition: oc.Composition = composition
+    def __init__(self, seed: oc.Composition, plot : og.Plot = og.Plot()):
+        self._seed: oc.Composition = seed
         self._plot: og.Plot = plot
          
     def solution(self) -> 'oc.Composition':
-        return self._composition
+        return self._seed
     
 
     def rhythm_fast_quantized(self,
@@ -60,9 +60,9 @@ class RS_Solutions:
             return composition
     
         if iterations < 0:
-            self._composition >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
+            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
         else:
-            self._composition >>= og.Call(iterations, iterate)
+            self._seed >>= og.Call(iterations, iterate)
 
         return self
 
@@ -78,15 +78,15 @@ class RS_Solutions:
                 chaos_data = chaos % choices
                 multiple_degrees = o.list_mod(chaos_data, 7)
                 # One can simple ignore the clip and work on the original clip
-                new_clip = self._composition * [0] # Just the first Measure
+                new_clip = self._seed * [0] # Just the first Measure
                 new_clip += of.Foreach(*multiple_degrees)**ou.Degree()
                 return new_clip * 4
             return composition
     
         if iterations < 0:
-            self._composition >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
+            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(iterate)
         else:
-            self._composition >>= og.Call(iterations, iterate)
+            self._seed >>= og.Call(iterations, iterate)
 
         return self
 

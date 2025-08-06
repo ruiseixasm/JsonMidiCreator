@@ -21,7 +21,7 @@ def composition(clip: Clip) -> Composition:
     return snare + clip
 
 many_notes = Note() / 8
-rhythm_solution = RS_Solutions(many_notes, Plot(c_button=composition, title="Note Durations"))
+rhythm_solution = RS_Solutions(many_notes)
 
 phrase_notes = rhythm_solution.rhythm_fast_quantized(7).tonality_conjunct_but_slacked(3).solution()
 phrase_notes >> Plot()
