@@ -1003,10 +1003,7 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
-    def has(self, operand: o.Operand) -> bool:
-        for single_operand in self._items:
-            if single_operand is operand:
-                return True
+    def has_element(self, element: oe.Element) -> bool:
         return False
 
     # Ignores the self Length
@@ -1977,6 +1974,12 @@ class Clip(Composition):  # Just a container of Elements
                 return False
         return True
 
+
+    def has_element(self, element: oe.Element) -> bool:
+        for single_element in self._items:
+            if single_element is element:
+                return True
+        return False
 
     # Ignores the self Length
     def start(self) -> 'ra.Position':
@@ -3627,6 +3630,13 @@ class Part(Composition):
         return self
 
 
+    def has_element(self, element: oe.Element) -> bool:
+        for single_clip in self._items:
+            for single_element in single_clip._items:
+                if single_element is element:
+                    return True
+        return False
+
     def len(self, just_clips: bool = False) -> int:
         """
         Returns the total number of items.
@@ -4223,6 +4233,14 @@ class Song(Composition):
                 return False
         return True
 
+
+    def has_element(self, element: oe.Element) -> bool:
+        for single_part in self._items:
+            for single_clip in single_part._items:
+                for single_element in single_clip._items:
+                    if single_element is element:
+                        return True
+        return False
 
     def start(self) -> ra.Position:
         """
