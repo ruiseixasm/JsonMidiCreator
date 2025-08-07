@@ -344,6 +344,7 @@ class Container(o.Operand):
 
                 if not (self.is_a_mask() or operand.is_a_mask()):
                     self._items = self.deep_copy(operand._items)
+
                 elif self.is_a_mask() and operand.is_a_mask():
                     self_root: Container = self.root()
                     operand_root: Container = operand.root()
@@ -353,12 +354,22 @@ class Container(o.Operand):
                         self_root._items[index] for index, root_item in enumerate(operand_root._items)
                         if id(root_item) in masked_ids
                     ]
+
                 elif self.is_a_mask():
                     self._root_container = self # Not a mask anymore
                     self._items = self.deep_copy(operand._items)
+
                 else:   # operand.is_a_mask()
+                    # I must become a mask too
+                    self_root: Container = self.empty_copy()
+                    self._root_container = self_root
                     operand_root: Container = operand.root()
-                    self._items = self.deep_copy(operand_root._items)
+                    self_root._items = self.deep_copy(operand_root._items)
+                    masked_ids: set[int] = {id(masked_item) for masked_item in operand._items}
+                    self._items = [
+                        self_root._items[index] for index, root_item in enumerate(operand_root._items)
+                        if id(root_item) in masked_ids
+                    ]
 
             case od.Pipe():
                 match operand._data:
@@ -589,10 +600,14 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with an empty list of items.
         """
-        empty_copy: Container = self.__class__()
+        empty_root: Container = self.__class__()
         for single_parameter in parameters:
-            empty_copy << single_parameter
-        return empty_copy
+            empty_root << single_parameter
+        # if self.is_a_mask():
+        #     empty_mask: Container = self.__class__()
+        #     empty_mask._root_container = empty_root
+        #     return empty_mask
+        return empty_root
 
     # A shallow copy isn't the same as a mask!
     def shallow_copy(self, *parameters) -> Self:
@@ -2624,9 +2639,11 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_copy._time_signature      << self._time_signature
-        empty_copy._midi_track          << self._midi_track
-        empty_copy._length_beats        = self._length_beats
+        empty_root: Clip                = empty_copy.root()
+        self_root: Clip                 = self.root()
+        empty_root._time_signature      << self_root._time_signature
+        empty_root._midi_track          << self_root._midi_track
+        empty_root._length_beats        = self_root._length_beats
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
