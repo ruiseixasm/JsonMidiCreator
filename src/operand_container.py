@@ -347,10 +347,10 @@ class Container(o.Operand):
                     self_root: Container = self.root()
                     operand_root: Container = operand.root()
                     self_root._items = self.deep_copy(operand_root._items)
-                    masked_ids: set[int] = {id(masked_item) for masked_item in operand._items}
+                    unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
                         self_root._items[index] for index, root_item in enumerate(operand_root._items)
-                        if id(root_item) in masked_ids
+                        if id(root_item) in unmasked_ids
                     ]
 
                 elif self.is_a_mask():
@@ -362,10 +362,10 @@ class Container(o.Operand):
                     self._root_container = self_root
                     operand_root: Container = operand.root()
                     self_root._items = self.deep_copy(operand_root._items)
-                    masked_ids: set[int] = {id(masked_item) for masked_item in operand._items}
+                    unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
                         self_root._items[index] for index, root_item in enumerate(operand_root._items)
-                        if id(root_item) in masked_ids
+                        if id(root_item) in unmasked_ids
                     ]
 
             case od.Pipe():
