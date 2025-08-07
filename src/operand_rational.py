@@ -257,13 +257,15 @@ class Rational(o.Operand):
 class HiPrecision(Rational):
     """`Rational -> HiPrecision`
 
-    HiPrecision `Rational`s have no limit on the denominator, so, they represent the highest
-    `Fraction` precision than the usual 1_000_000.
+    A HiPrecision `Rational` has a limit on the denominator 10x the default, \
+        so, it represents an higher `Fraction` precision than the usual 1_000_000.
 
     Parameters
     ----------
     Fraction(0) : Like the typical `Rational` but with high precision instead.
     """
+    # Avoid any precision higher than `10_000_000` or `Chaos` subclasses will start
+    #   returning inconsistent values among distinct OS!
     _limit_denominator: int = 10_000_000 # overrides default limit_denominator
 
 class Index(HiPrecision):
