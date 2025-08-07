@@ -378,7 +378,7 @@ class Container(o.Operand):
                         # for item in operand._data:
                         #     self._append([ item ])
             case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
+                self._root_container.loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
@@ -1203,11 +1203,11 @@ class Composition(Container):
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
-                self._length_beats = operand._rational
-                if self._length_beats < 0:
-                    self._length_beats = None
+                self._root_container._length_beats = operand._rational
+                if self._root_container._length_beats < 0:
+                    self._root_container._length_beats = None
             case None:
-                self._length_beats = None
+                self._root_container._length_beats = None
 
             case _:
                 super().__lshift__(operand)
@@ -2228,18 +2228,18 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._time_signature    << operand._time_signature
-                self._midi_track        << operand._midi_track
-                self._set_owner_clip()
+                self._root_container._time_signature    << operand._root_container._time_signature
+                self._root_container._midi_track        << operand._root_container._midi_track
+                self._root_container._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        self._time_signature = operand._data
-                    case ou.MidiTrack():    self._midi_track = operand._data
+                    case og.TimeSignature():        self._root_container._time_signature = operand._data
+                    case ou.MidiTrack():            self._root_container._midi_track = operand._data
 
                     # All possible TimeSignature parameters enter here
                     case og.TimeSignature() | og.TimeSignature():
-                        self._time_signature << operand._data
+                        self._root_container._time_signature << operand._data
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand):
@@ -2268,19 +2268,19 @@ class Clip(Composition):  # Just a container of Elements
                         super().__lshift__(operand)
 
             case ra.Length():
-                self._length_beats = operand._rational
-                if self._length_beats < 0:
-                    self._length_beats = None
+                self._root_container._length_beats = operand._rational
+                if self._root_container._length_beats < 0:
+                    self._root_container._length_beats = None
             case None:
-                self._length_beats = None
+                self._root_container._length_beats = None
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
-                self._midi_track << operand
+                self._root_container._midi_track << operand
             case og.TimeSignature() | og.TimeSignature():
-                self._time_signature << operand  # TimeSignature has no clock!
+                self._root_container._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
+                self._root_container.loadSerialization( operand.getSerialization() )
 
             case oe.Element():
                 self += operand
@@ -2309,7 +2309,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self._time_signature << operand._time_signature
+                self._root_container._time_signature << operand._root_container._time_signature
 
             case ClipGet():
                 clip_get: ClipGet = operand
@@ -3955,16 +3955,16 @@ class Part(Composition):
             case Part():
                 super().__lshift__(operand)
                 # No conversion is done, beat values are directly copied (Same for Element)
-                self._position_beats    = operand._position_beats
-                self._name              = operand._name
+                self._root_container._position_beats    = operand._root_container._position_beats
+                self._root_container._name              = operand._root_container._name
                 # Because a Part is also defined by the Owner Song, this also needs to be copied!
                 if self._owner_song is None:   # << and copy operation doesn't override ownership
                     self._owner_song    = operand._owner_song
                 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._position_beats = operand._data._rational
-                    case str():             self._name = operand._data
+                    case ra.Position():     self._root_container._position_beats = operand._data._rational
+                    case str():             self._root_container._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -3975,7 +3975,7 @@ class Part(Composition):
                         super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                self._position_beats = operand % ra.Position(self) % Fraction()
+                self._root_container._position_beats = operand % ra.Position(self) % Fraction()
 
             case Clip():
                 self.__iadd__(operand)
@@ -3984,7 +3984,7 @@ class Part(Composition):
                 self += operand
 
             case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
+                self._root_container.loadSerialization( operand.getSerialization() )
             case list():
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
@@ -4001,7 +4001,7 @@ class Part(Composition):
                         item << operand
 
             case str():
-                self._name = operand
+                self._root_container._name = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -4502,13 +4502,13 @@ class Song(Composition):
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self._time_signature << operand._time_signature
-                self._set_owner_song()
+                self._root_container._time_signature << operand._root_container._time_signature
+                self._root_container._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
-                        self._time_signature = operand._data
+                        self._root_container._time_signature = operand._data
                     case list():
                         if all(isinstance(item, Part) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -4523,9 +4523,9 @@ class Song(Composition):
                 self += operand
 
             case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
+                self._root_container.loadSerialization( operand.getSerialization() )
             case og.TimeSignature() | og.TimeSignature():
-                self._time_signature << operand
+                self._root_container._time_signature << operand
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]
