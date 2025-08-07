@@ -339,24 +339,23 @@ class Container(o.Operand):
             case Container():
                 super().__lshift__(operand)
                 # Starts by deleting all items and replace them with a Shallow copy
-                self_handler: Container     = self
                 operand_handler: Container  = operand
-                self_handler._items         = operand_handler._items.copy()
+                self_handler: Container     = self
+                self_handler._items         = operand_handler._items.copy() # In order to be identified by id
                 while operand_handler.is_a_mask():    # Does a shallow copy
                     operand_handler         = operand_handler._upper_container
                     self_handler            = operand_handler.shallow_copy()
-                # Resets handlers to the top again
-                self_handler                = self
-                operand_handler             = operand
                 # replaces NON distinct items from operand with copies in a single run from top down
-                for item_index, self_item in enumerate(self_handler._items):
-                    if self_item is operand_handler._items[item_index]:
-                        self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
+                self._delete(self._items, True) # deletes by id, safer
+                self._append(self.deep_copy(operand._items))
+                # Resets handlers to the top again
+                operand_handler             = operand
+                self_handler                = self
                 while operand_handler.is_a_mask():    # Does the final copy
                     operand_handler         = operand_handler._upper_container
                     self_handler            = self_handler._upper_container
                     for item_index, self_item in enumerate(self_handler._items):
-                        if self_item is operand_handler._items[item_index]:
+                        if self_item is operand_handler._items[item_index]: # Only yet non copied can be copied
                             self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
                             
             case od.Pipe():
