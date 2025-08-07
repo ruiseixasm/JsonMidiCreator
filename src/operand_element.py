@@ -333,13 +333,13 @@ class Element(o.Operand):
         match operand:
             case Element():  # Element wapping (wrap)
                 wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:        # Owner clip is always the root container
                     self._owner_clip._replace(self, wrapped_self)
                 return wrapped_self
             case list():
                 total_wrappers: int = len(operand)
                 if total_wrappers > 0:
-                    if self._owner_clip is not None:
+                    if self._owner_clip is not None:    # Owner clip is always the root container
                         self_index: int = self._owner_clip._index_from_element(self)
                         return self.__irshift__(operand[self_index % total_wrappers])
                     else:
@@ -423,7 +423,7 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     if operand > 1:
                         for next_element_i in range(1, operand):
@@ -438,7 +438,7 @@ class Element(o.Operand):
                             new_clip.__imul__(self)
                     return new_clip
             case ra.TimeValue() | ra.TimeUnit():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     operand_value: Fraction = operand % Fraction()
                     self_repeating = int( operand_value / ra.Measures(self._owner_clip, 1) )
@@ -456,8 +456,8 @@ class Element(o.Operand):
                     segments_list.append(og.Segment(self, single_segment))
                 for target_measure, source_segment in enumerate(segments_list):
                     if self == source_segment:
-                        self << ra.Measure(target_measure)   # Stacked by measure *
-                        if self._owner_clip is not None:
+                        self << ra.Measure(target_measure)  # Stacked by measure *
+                        if self._owner_clip is not None:    # Owner clip is always the root container
                             return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
@@ -478,7 +478,7 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     if operand > 1:
                         for next_element_i in range(1, operand):
@@ -494,7 +494,7 @@ class Element(o.Operand):
                             new_clip.__itruediv__(self)
                     return new_clip
             case ra.TimeUnit():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     self_duration: Fraction = self._duration_beats
                     if self_duration > 0:
@@ -514,7 +514,7 @@ class Element(o.Operand):
                     segments_list.append(og.Segment(self, single_segment))
                 for single_segment in segments_list:
                     if self == single_segment:
-                        if self._owner_clip is not None:
+                        if self._owner_clip is not None:    # Owner clip is always the root container
                             # Starts to cumulate as expected
                             owner_clip_finish: ra.Position = self._owner_clip.mask(single_segment).finish()
                             if owner_clip_finish is not None:
@@ -541,7 +541,7 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int(): # This results in a simple repeat of elements
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     if operand > 1:
                         element_clip: oc.Clip = self._owner_clip
                         new_elements: list[Element] = []
@@ -558,7 +558,7 @@ class Element(o.Operand):
                     return new_clip
             # Divides the `Duration` by the given `Length` amount as denominator
             case ra.Length() | ra.Duration():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     total_segments: int = operand % int()   # Extracts the original imputed integer
                     if total_segments > 1:
@@ -572,7 +572,7 @@ class Element(o.Operand):
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
             case ra.NoteValue() | ra.TimeValue():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats
                     segment_duration: Fraction = ra.Duration(self, operand)._rational
@@ -593,7 +593,7 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             case ra.Position() | ra.TimeUnit():
-                if self._owner_clip is not None:
+                if self._owner_clip is not None:    # Owner clip is always the root container
                     new_elements: list[Element] = []
                     left_start: Fraction = self._position_beats
                     split_position: Fraction = ra.Position(self, left_start, operand)._rational
@@ -618,7 +618,7 @@ class Element(o.Operand):
                 for source_segment in segments_list:
                     if self == source_segment:
                         self << ra.Measure(0)   # Side by Side //
-                        if self._owner_clip is not None:
+                        if self._owner_clip is not None:    # Owner clip is always the root container
                             return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
