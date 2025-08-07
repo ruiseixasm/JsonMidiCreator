@@ -3942,7 +3942,7 @@ class Part(Composition):
                     case str():             self._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
-                            self._items = [item.copy() for item in operand._data]
+                            self._items = [item for item in operand._data]
                         else:   # Not for me
                             for item in self._items:
                                 item << operand._data
@@ -4486,7 +4486,7 @@ class Song(Composition):
                         self._time_signature = operand._data
                     case list():
                         if all(isinstance(item, Part) for item in operand._data):
-                            self._items = [item.copy() for item in operand._data]
+                            self._items = [item for item in operand._data]
                             self._set_owner_song()
                         else:   # Not for me
                             for item in self._items:
