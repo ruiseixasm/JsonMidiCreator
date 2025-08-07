@@ -69,7 +69,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._root_container: Container = self
+        self._root_container: Self = self
         for single_operand in operands:
             self << single_operand
         
@@ -986,6 +986,7 @@ class Composition(Container):
     """
     def __init__(self, *operands):
         super().__init__()
+        self._root_container: Composition = self
         # Song sets the TimeSignature, this is just a reference
         self._time_signature: og.TimeSignature  = og.settings._time_signature
         self._length_beats: Fraction            = None
@@ -1915,6 +1916,7 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
+        self._root_container: Clip = self
         self._time_signature: og.TimeSignature           = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
@@ -3628,6 +3630,7 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
+        self._root_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
         self._name: str = "Part"
@@ -4235,6 +4238,7 @@ class Song(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
+        self._root_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
         for single_operand in operands:
