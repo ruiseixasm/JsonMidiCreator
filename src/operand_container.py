@@ -360,7 +360,7 @@ class Container(o.Operand):
                             if self_item is operand_handler._items[item_index]: # Only yet non copied can be copied
                                 self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
 
-                else:   # Optimization, because most of the times operand isn't a mask
+                else:   # Optimization, because most of the time operand isn't a mask
                     self._items = self.deep_copy(operand._items)
                             
             case od.Pipe():
