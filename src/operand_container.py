@@ -2078,8 +2078,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._time_signature
-                    case ou.MidiTrack():    return self._midi_track
+                    case og.TimeSignature():        return self._root_container._time_signature
+                    case ou.MidiTrack():            return self._root_container._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         for single_element in self._items:
@@ -2090,13 +2090,13 @@ class Clip(Composition):  # Just a container of Elements
                         return clip_get
                     case _:                 return super().__mod__(operand)
             case og.TimeSignature():        return self._time_signature.copy()
-            case ou.MidiTrack():    return self._midi_track.copy()
+            case ou.MidiTrack():    return self._root_container._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
-                return self._midi_track % operand
+                return self._root_container._midi_track % operand
             case og.TimeSignature() | og.TimeSignature():
-                return self._time_signature % operand
-            case Part():            return Part(self._time_signature, self)
-            case Song():            return Song(self._time_signature, self)
+                return self._root_container._time_signature % operand
+            case Part():            return Part(self._root_container._time_signature, self._root_container)
+            case Song():            return Song(self._root_container._time_signature, self._root_container)
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._items:
@@ -3847,14 +3847,14 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << ra.Position(self, self._position_beats)
+                        return operand._data << ra.Position(self._root_container, self._root_container._position_beats)
                     case str():
                         return self._name
                     case _:                 return super().__mod__(operand)
             case ra.Position():
-                return operand.copy( ra.Position(self, self._position_beats) )
+                return operand.copy( ra.Position(self._root_container, self._root_container._position_beats) )
             case str():
-                return self._name
+                return self._root_container._name
             case od.Names():
                 all_names: list[str] = []
                 for single_item in self._items:
@@ -4407,11 +4407,11 @@ class Song(Composition):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._time_signature
-                    case _:                 return super().__mod__(operand)
-            case og.TimeSignature():        return self._time_signature.copy()
+                    case og.TimeSignature():        return self._root_container._time_signature
+                    case _:                         return super().__mod__(operand)
+            case og.TimeSignature():        return self._root_container._time_signature.copy()
             case og.TimeSignature() | og.TimeSignature():
-                return self._time_signature % operand
+                return self._root_container._time_signature % operand
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
