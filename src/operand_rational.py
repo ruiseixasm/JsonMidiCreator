@@ -264,61 +264,61 @@ class HiPrecision(Rational):
     ----------
     Fraction(0) : Like the typical `Rational` but with high precision instead.
     """
-    _limit_denominator: int = 0 # overrides default limit_denominator
+    _limit_denominator: int = 100_000_000 # overrides default limit_denominator
 
-class Index(Rational):
+class Index(HiPrecision):
     """`Rational -> HiPrecision -> Index`"""
     pass
 
-class Split(Rational):
+class Split(HiPrecision):
     """`Rational -> HiPrecision -> Split`"""
     pass
 
-class Width(Rational):
+class Width(HiPrecision):
     """`Rational -> HiPrecision -> Width`"""
     pass
 
-class Height(Rational):
+class Height(HiPrecision):
     """`Rational -> HiPrecision -> Height`"""
     pass
 
-class dX(Rational):
+class dX(HiPrecision):
     """`Rational -> HiPrecision -> dX`"""
     pass
 
-class dY(Rational):
+class dY(HiPrecision):
     """`Rational -> HiPrecision -> dY`"""
     pass
 
-class dZ(Rational):
+class dZ(HiPrecision):
     """`Rational -> HiPrecision -> dZ`"""
     pass
 
-class X0(Rational):
+class X0(HiPrecision):
     """`Rational -> HiPrecision -> X0`"""
     pass
 
-class Xn(Rational):
+class Xn(HiPrecision):
     """`Rational -> HiPrecision -> Xn`"""
     pass
 
-class Y0(Rational):
+class Y0(HiPrecision):
     """`Rational -> HiPrecision -> Y0`"""
     pass
 
-class Yn(Rational):
+class Yn(HiPrecision):
     """`Rational -> HiPrecision -> Yn`"""
     pass
 
-class Z0(Rational):
+class Z0(HiPrecision):
     """`Rational -> HiPrecision -> Z0`"""
     pass
 
-class Zn(Rational):
+class Zn(HiPrecision):
     """`Rational -> HiPrecision -> Zn`"""
     pass
 
-class Lambda(Rational):
+class Lambda(HiPrecision):
     """`Rational -> HiPrecision -> Lambda`"""
     pass
 
