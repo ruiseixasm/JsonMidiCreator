@@ -1003,7 +1003,7 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
-    def has_element(self, element: oe.Element) -> bool:
+    def masked_element(self, element: oe.Element) -> bool:
         return False
 
     # Ignores the self Length
@@ -1975,10 +1975,12 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-    def has_element(self, element: oe.Element) -> bool:
-        for single_element in self._items:
-            if single_element is element:
-                return True
+    def masked_element(self, element: oe.Element) -> bool:
+        if self.is_a_mask():
+            for single_element in self._items:
+                if single_element is element:
+                    return False
+            return True
         return False
 
     # Ignores the self Length
@@ -3630,11 +3632,13 @@ class Part(Composition):
         return self
 
 
-    def has_element(self, element: oe.Element) -> bool:
-        for single_clip in self._items:
-            for single_element in single_clip._items:
-                if single_element is element:
-                    return True
+    def masked_element(self, element: oe.Element) -> bool:
+        if self.is_a_mask():
+            for single_clip in self._items:
+                for single_element in single_clip._items:
+                    if single_element is element:
+                        return False
+            return True
         return False
 
     def len(self, just_clips: bool = False) -> int:
@@ -4234,12 +4238,14 @@ class Song(Composition):
         return True
 
 
-    def has_element(self, element: oe.Element) -> bool:
-        for single_part in self._items:
-            for single_clip in single_part._items:
-                for single_element in single_clip._items:
-                    if single_element is element:
-                        return True
+    def masked_element(self, element: oe.Element) -> bool:
+        if self.is_a_mask():
+            for single_part in self._items:
+                for single_clip in single_part._items:
+                    for single_element in single_clip._items:
+                        if single_element is element:
+                            return False
+            return True
         return False
 
     def start(self) -> ra.Position:
