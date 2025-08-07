@@ -102,20 +102,23 @@ class Container(o.Operand):
                 if single_item is before_item:
                     insert_at = index       # Before the item
                     break
-        self._items = self._items[:insert_at] + items + self._items[insert_at:]
+        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
+        inexistent_items: list = [inexistent_item for inexistent_item in items if id(inexistent_item) not in existing_ids]
+        self._items = self._items[:insert_at] + inexistent_items + self._items[insert_at:]
         return self
 
     def _append(self, items: list, after_item: any = None) -> Self:
-        if self is not self._root_container:
+        if self.is_a_mask():
             self._root_container._append(items, after_item)
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
-                # if single_item == after_item:
                 if single_item is after_item:
                     append_at = index + 1   # After the item
                     break
-        self._items = self._items[:append_at] + items + self._items[append_at:]
+        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
+        inexistent_items: list = [inexistent_item for inexistent_item in items if id(inexistent_item) not in existing_ids]
+        self._items = self._items[:append_at] + inexistent_items + self._items[append_at:]
         return self
 
     def _delete(self, items: list, by_id: bool = False) -> Self:
@@ -338,32 +341,25 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
-                if operand.is_a_mask():
 
-                    # Starts by deleting all items and replace them with a Shallow copy
-                    operand_handler: Container  = operand
-                    self_handler: Container     = self
-                    self_handler._items         = operand_handler._items.copy() # In order to be identified by id
-                    while operand_handler.is_a_mask():    # Does a shallow copy
-                        operand_handler         = operand_handler._root_container
-                        self_handler            = operand_handler.shallow_copy()
-                    # replaces NON distinct items from operand with copies in a single run from top down
-                    self._delete(self._items, True) # deletes by id, safer
-                    self._append(self.deep_copy(operand._items))
-                    # Resets handlers to the top again
-                    operand_handler             = operand
-                    self_handler                = self
-                    while operand_handler.is_a_mask():    # Does the final copy
-                        operand_handler         = operand_handler._root_container
-                        self_handler            = self_handler._root_container
-                        for item_index, self_item in enumerate(self_handler._items):
-                            if self_item is operand_handler._items[item_index]: # Only still not copied can be copied
-                                self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
-
-                else:   # Optimization, because most of the time operand isn't a mask
-                    self._root_container = self    # self obviously loses its state as mask if one
+                if not (self.is_a_mask() or operand.is_a_mask()):
                     self._items = self.deep_copy(operand._items)
-                            
+                elif self.is_a_mask() and operand.is_a_mask():
+                    self_root: Container = self.root()
+                    operand_root: Container = operand.root()
+                    self_root._items = self.deep_copy(operand_root._items)
+                    masked_ids: set[int] = {id(masked_item) for masked_item in operand._items}
+                    self._items = [
+                        self_root._items[index] for index, root_item in enumerate(operand_root._items)
+                        if id(root_item) in masked_ids
+                    ]
+                elif self.is_a_mask():
+                    self._root_container = self # Not a mask anymore
+                    self._items = self.deep_copy(operand._items)
+                else:   # operand.is_a_mask()
+                    operand_root: Container = operand.root()
+                    self._items = self.deep_copy(operand_root._items)
+
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -2405,27 +2401,30 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                root_clip: Clip = operand.root()
-                clip_mask: Clip = Clip(operand)._set_owner_clip(self)
-                right_position: ra.Position = clip_mask.start()
+                operand_copy: Clip = operand.copy()._set_owner_clip(self)
+                operand_root: Clip = operand_copy.root()
+                operand_position: ra.Position = operand_root.start()
 
-                if right_position is not None:
+                if operand_position is not None:
 
-                    left_length: ra.Length = self % ra.Length()
-                    right_position = right_position.roundMeasures()
-                    position_offset: ra.Position = right_position - left_length
-                    clip_mask -= position_offset   # Does a position offset
+                    self_root: Clip = self.root()
+                    self_length: ra.Length = self_root % ra.Length()
+                    operand_position = operand_position.roundMeasures()
+                    position_offset: ra.Position = operand_position - self_length
+                    operand_root -= position_offset   # Does a position offset
                     
-                    self._append(clip_mask._items) # Propagates upwards in the stack
-                    if self._length_beats is not None:
-                        self._length_beats += (clip_mask % ra.Length())._rational
+                    self_root._append(operand_root._items) # Propagates upwards in the stack
+                    if self_root._length_beats is not None:
+                        self_root._length_beats += (operand_copy % ra.Length())._rational
+                    if self.is_a_mask() and operand_copy.is_a_mask():
+                        self._append(operand_copy._items)
 
             case oe.Element():
                 self.__imul__(Clip(operand))
 
             case int():
                 if operand > 1:
-                    single_self_copy: Clip = self.shallow_copy()
+                    single_self_copy: Clip = self.copy()
                     for _ in range(operand - 1):
                         self.__imul__(single_self_copy)
                 elif operand == 0:
