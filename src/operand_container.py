@@ -361,6 +361,7 @@ class Container(o.Operand):
                                 self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
 
                 else:   # Optimization, because most of the time operand isn't a mask
+                    self._upper_container = self    # self obviously loses its state as mask if one
                     self._items = self.deep_copy(operand._items)
                             
             case od.Pipe():
