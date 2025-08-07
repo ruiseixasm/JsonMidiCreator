@@ -1971,12 +1971,13 @@ class Clip(Composition):  # Just a container of Elements
         Allows the setting of a distinct `Clip` in the contained Elements for a transition process
         with a shallow `Clip`.
         """
+        root_clip: Clip = self.root()   # Only a root Clip can own Elements
         if owner_clip is None:
-            for single_element in self._items:
-                single_element._set_owner_clip(self)
+            for single_element in root_clip._items:
+                single_element._set_owner_clip(root_clip)
         elif isinstance(owner_clip, Clip):
-            self._time_signature << owner_clip._time_signature    # Does a parameters copy
-            for single_element in self._items:
+            root_clip._time_signature << owner_clip._time_signature    # Does a parameters copy
+            for single_element in root_clip._items:
                 single_element._set_owner_clip(owner_clip)
         return self
 
@@ -2404,20 +2405,20 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.root()
-                right_clip: Clip = Clip(operand)._set_owner_clip(self)
-                right_position: ra.Position = right_clip.start()
+                root_clip: Clip = operand.root()
+                clip_mask: Clip = Clip(operand)._set_owner_clip(self)
+                right_position: ra.Position = clip_mask.start()
 
                 if right_position is not None:
 
                     left_length: ra.Length = self % ra.Length()
                     right_position = right_position.roundMeasures()
                     position_offset: ra.Position = right_position - left_length
-                    right_clip -= position_offset   # Does a position offset
+                    clip_mask -= position_offset   # Does a position offset
                     
-                    self._append(right_clip._items) # Propagates upwards in the stack
+                    self._append(clip_mask._items) # Propagates upwards in the stack
                     if self._length_beats is not None:
-                        self._length_beats += (right_clip % ra.Length())._rational
+                        self._length_beats += (clip_mask % ra.Length())._rational
 
             case oe.Element():
                 self.__imul__(Clip(operand))
