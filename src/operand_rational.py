@@ -264,7 +264,7 @@ class HiPrecision(Rational):
     ----------
     Fraction(0) : Like the typical `Rational` but with high precision instead.
     """
-    _limit_denominator: int = 100_000_000 # overrides default limit_denominator
+    _limit_denominator: int = 10_000_000 # overrides default limit_denominator
 
 class Index(HiPrecision):
     """`Rational -> HiPrecision -> Index`"""
