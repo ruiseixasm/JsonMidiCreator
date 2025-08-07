@@ -258,7 +258,7 @@ class HiPrecision(Rational):
     """`Rational -> HiPrecision`
 
     A HiPrecision `Rational` has a limit on the denominator 10x the default, \
-        so, it represents an higher `Fraction` precision than the usual 1_000_000.
+        so, it represents an higher `Fraction` precision than the usual `1_000_000`.
 
     Parameters
     ----------
