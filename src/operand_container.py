@@ -2230,6 +2230,7 @@ class Clip(Composition):  # Just a container of Elements
                             self._delete(self._items, True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
                             self._append( operand._data )
+                            self._set_owner_clip()
                         else:   # Not for me
                             for item in self._items:
                                 item <<= operand
@@ -2246,7 +2247,8 @@ class Clip(Composition):  # Just a container of Elements
                                     element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
                                 self._items[element_i] <<= element_parameter
 
-                    case _:                 super().__lshift__(operand)
+                    case _:
+                        super().__lshift__(operand)
 
             case ra.Length():
                 self._length_beats = operand._rational
@@ -2272,6 +2274,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._delete(self._items, True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
                     self._append( self.deep_copy(operand) )
+                    self._set_owner_clip()
                 else:   # Not for me
                     for item in self._items:
                         item << operand
@@ -3937,7 +3940,14 @@ class Part(Composition):
                 match operand._data:
                     case ra.Position():     self._position_beats = operand._data._rational
                     case str():             self._name = operand._data
-                    case _:                 super().__lshift__(operand)
+                    case list():
+                        if all(isinstance(item, Clip) for item in operand._data):
+                            self._items = [item.copy() for item in operand._data]
+                        else:   # Not for me
+                            for item in self._items:
+                                item << operand._data
+                    case _:
+                        super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self._position_beats = operand % ra.Position(self) % Fraction()
@@ -4472,8 +4482,17 @@ class Song(Composition):
 
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        self._time_signature = operand._data
-                    case _:                 super().__lshift__(operand)
+                    case og.TimeSignature():
+                        self._time_signature = operand._data
+                    case list():
+                        if all(isinstance(item, Part) for item in operand._data):
+                            self._items = [item.copy() for item in operand._data]
+                            self._set_owner_song()
+                        else:   # Not for me
+                            for item in self._items:
+                                item << operand._data
+                    case _:
+                        super().__lshift__(operand)
 
             case Part() | Clip() | oe.Element():
                 self += operand
@@ -4485,6 +4504,7 @@ class Song(Composition):
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]
+                    self._set_owner_song()
                 else:   # Not for me
                     for item in self._items:
                         item << operand
