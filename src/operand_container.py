@@ -357,7 +357,7 @@ class Container(o.Operand):
                         operand_handler         = operand_handler._upper_container
                         self_handler            = self_handler._upper_container
                         for item_index, self_item in enumerate(self_handler._items):
-                            if self_item is operand_handler._items[item_index]: # Only yet non copied can be copied
+                            if self_item is operand_handler._items[item_index]: # Only still not copied can be copied
                                 self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
 
                 else:   # Optimization, because most of the time operand isn't a mask
