@@ -338,12 +338,27 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
-                if operand.is_a_mask(): # Intended to be an integral copy
-                    self._upper_container = operand._upper_container.copy()
-                # Remove previous Elements from the Container stack
-                self._delete(self._items, True) # deletes by id, safer
-                # Finally adds the decomposed elements to the Container stack
-                self._append( self.deep_copy(operand._items) )
+                # Starts by deleting all items and replace them with a Shallow copy
+                self_handler: Container     = self
+                operand_handler: Container  = operand
+                self_handler._items         = operand_handler._items.copy()
+                while operand_handler.is_a_mask():    # Does a shallow copy
+                    operand_handler         = operand_handler._upper_container
+                    self_handler            = operand_handler.shallow_copy()
+                # Resets handlers to the top again
+                self_handler                = self
+                operand_handler             = operand
+                # replaces NON distinct items from operand with copies in a single run from top down
+                for item_index, self_item in enumerate(self_handler._items):
+                    if self_item is operand_handler._items[item_index]:
+                        self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
+                while operand_handler.is_a_mask():    # Does the final copy
+                    operand_handler         = operand_handler._upper_container
+                    self_handler            = self_handler._upper_container
+                    for item_index, self_item in enumerate(self_handler._items):
+                        if self_item is operand_handler._items[item_index]:
+                            self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
+                            
             case od.Pipe():
                 match operand._data:
                     case list():
