@@ -793,7 +793,7 @@ class Container(o.Operand):
 
     def mask(self, *conditions) -> Self:
         """
-        Masks the items that meet the conditions (equal to). Masks can't be copied!
+        Masks the items that meet the conditions (equal to). No implicit copies.
 
         Conditions
         ----------
@@ -814,6 +814,22 @@ class Container(o.Operand):
             else:
                 shallow_copy._items = [item for item in shallow_copy._items if item == single_condition]
         return shallow_copy
+
+    def unmask(self) -> Self:
+        """
+        Removes any mask of the `Container` returning the root `Container`.
+
+        Args:
+            None
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        root_container: Container = self
+        while root_container.is_a_mask():
+            root_container = root_container._upper_container
+        return root_container
+
 
     def filter(self, *conditions) -> Self:
         """

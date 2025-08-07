@@ -2583,7 +2583,7 @@ class Sort(ContainerProcess):
 class Mask(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Mask`
 
-    Masks the items that meet the conditions (equal to). Masks can't be copied!
+    Masks the items that meet the conditions (equal to). No implicit copies.
 
     Args:
         condition (Any): Sets a condition to be compared with `==` operator.
@@ -2600,6 +2600,28 @@ class Mask(ContainerProcess):
     
     def _process(self, operand: 'Container') -> 'Container':
         return operand.mask(*self._parameters)
+
+class Unmask(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Unmask`
+
+    Removes any mask of the `Container` returning the root `Container`.
+
+    Args:
+        None
+    """
+    def __init__(self, *conditions):
+        super().__init__()
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return self.__irrshift__(operand)   # Special case, NO copy
+        print(f"Warning: Operand is NOT a `Container`!")
+        return operand
+    
+    def _process(self, operand: 'Container') -> 'Container':
+        return operand.unmask()
+
 
 class Filter(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Filter`
