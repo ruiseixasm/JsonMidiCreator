@@ -359,8 +359,7 @@ class Container(o.Operand):
                     self._root_container = self # Not a mask anymore
                     self._items = self.deep_copy(operand._items)
 
-                else:   # operand.is_a_mask()
-                    # I must become a mask too
+                else:   # operand.is_a_mask(), so, self shall become a mask too
                     self_root: Container = self.empty_copy()
                     self._root_container = self_root
                     operand_root: Container = operand.root()
