@@ -827,10 +827,9 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        root_container: Container = self
-        while root_container.is_a_mask():
-            root_container = root_container._upper_container
-        return root_container
+        if self.is_a_mask():
+            return self._upper_container.unmask()
+        return self
 
 
     def filter(self, *conditions) -> Self:

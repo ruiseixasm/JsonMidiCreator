@@ -72,7 +72,7 @@ class RS_Clip(RS_Solutions):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 picked_durations = o.list_choose(durations, chaos % choices)
                 composition << of.Foreach(*picked_durations)**ra.NoteValue()
-                return composition.stack().quantize().mul([0]).link().mul(4)
+                return composition.unmask().stack().quantize().mul([0]).link().mul(4)
             return composition
     
         return self.iterate(iterations, n_button)
@@ -88,7 +88,7 @@ class RS_Clip(RS_Solutions):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 chaos_data = chaos % choices
                 multiple_degrees = o.list_mod(chaos_data, 7)
-                new_clip = self._seed * [0] # Just the first Measure
+                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
                 new_clip += of.Foreach(*multiple_degrees)**ou.Degree()
                 return new_clip * 4
             return composition
@@ -112,7 +112,7 @@ class RS_Clip(RS_Solutions):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 chaos_data = chaos % 1  # One iteration
                 key_signature: ou.KeySignature = ou.KeySignature(chaos_data)
-                new_clip = self._seed * [0] # Just the first Measure
+                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
                 new_clip << key_signature << ou.TonicKey(-1)
                 return new_clip * 4
             return composition
