@@ -217,7 +217,7 @@ class Container(o.Operand):
 
     def len(self) -> int:
         """
-        Returns the total number of items.
+        Returns the total number of items.def erase
 
         Args:
             None
@@ -338,6 +338,8 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
+                if operand.is_a_mask(): # Intended to be an integral copy
+                    self._upper_container = operand._upper_container.copy()
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
