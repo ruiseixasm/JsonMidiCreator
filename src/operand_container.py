@@ -825,7 +825,7 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        shallow_copy: Container = self.unmask().shallow_copy()  # Can't stack masks!
+        shallow_copy: Container = self.root().shallow_copy()  # Can't stack masks!
         # This shallow copy is a mask, so it chains upper containers
         shallow_copy._root_container = self
         for single_condition in conditions:
@@ -837,9 +837,9 @@ class Container(o.Operand):
                 shallow_copy._items = [item for item in shallow_copy._items if item == single_condition]
         return shallow_copy
 
-    def unmask(self) -> Self:
+    def root(self) -> Self:
         """
-        Removes any mask of the `Container` returning the root `Container`.
+        Returns the root `Container` of a mask or self if already the root `Container`.
 
         Args:
             None
@@ -848,7 +848,7 @@ class Container(o.Operand):
             Container: The same self object with the items processed.
         """
         if self.is_a_mask():
-            return self._root_container.unmask()
+            return self._root_container.root()
         return self
 
 
@@ -867,12 +867,12 @@ class Container(o.Operand):
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 self._items = [
-                    item for item in self.unmask()._items
+                    item for item in self.root()._items
                     if any(item == cond_item for cond_item in single_condition)
                 ]
             else:
                 self._items = [
-                    item for item in self.unmask()._items
+                    item for item in self.root()._items
                     if item == single_condition
                     ]
         return self
@@ -2351,7 +2351,7 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                self += operand.unmask()._items
+                self += operand.root()._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -2383,7 +2383,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self.unmask()._delete(operand._items)
+                return self.root()._delete(operand._items)
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -2406,7 +2406,7 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.unmask()
+                operand = operand.root()
                 right_clip: Clip = Clip(operand)._set_owner_clip(self)
                 right_position: ra.Position = right_clip.start()
 
@@ -2448,7 +2448,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
-                    segment_clip: Clip = self.unmask().copy().filter(source_segment)
+                    segment_clip: Clip = self.root().copy().filter(source_segment)
                     segment_clip << ra.Measure(target_measure)   # Stacked by measure *
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -2469,7 +2469,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.unmask()
+                operand = operand.root()
                 left_end_position: ra.Position = self.finish()
                 if left_end_position is None:
                     left_end_position = ra.Position(self)
@@ -2512,7 +2512,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 clip_segments: Clip = Clip()
                 for single_segment in segments_list:
-                    clip_segments /= self.unmask().copy().filter(single_segment) # Stacked notes /
+                    clip_segments /= self.root().copy().filter(single_segment) # Stacked notes /
                 self._delete(self._items)._append(clip_segments._items)._set_owner_clip()
 
             case tuple():
@@ -2528,7 +2528,7 @@ class Clip(Composition):  # Just a container of Elements
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.unmask()
+                operand = operand.root()
                 # Equivalent to +=
                 self += operand
 
@@ -2599,7 +2599,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
                 for source_segment in segments_list:
-                    segment_clip: Clip = self.unmask().copy().filter(source_segment)
+                    segment_clip: Clip = self.root().copy().filter(source_segment)
                     segment_clip << ra.Measure(0)   # Side by Side //
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -3595,8 +3595,8 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_left: Clip     = self.unmask().copy().filter(of.Less(position))
-        self_right: Clip    = self.unmask().copy().filter(of.GreaterOrEqual(position))
+        self_left: Clip     = self.root().copy().filter(of.Less(position))
+        self_right: Clip    = self.root().copy().filter(of.GreaterOrEqual(position))
         return self_left, self_right
     
 
