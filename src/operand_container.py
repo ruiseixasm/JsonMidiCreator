@@ -825,7 +825,7 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        shallow_copy: Container = self.shallow_copy()
+        shallow_copy: Container = self.unmask().shallow_copy()  # Can't stack masks!
         # This shallow copy is a mask, so it chains upper containers
         shallow_copy._upper_container = self
         for single_condition in conditions:
@@ -2646,7 +2646,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        shallow_copy._time_signature             = self._time_signature   
+        shallow_copy._time_signature    = self._time_signature   
         shallow_copy._midi_track        = self._midi_track
         shallow_copy._length_beats      = self._length_beats
         for single_parameter in parameters:
