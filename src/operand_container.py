@@ -69,7 +69,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._upper_container: Container = self
+        self._root_container: Container = self
         for single_operand in operands:
             self << single_operand
         
@@ -93,8 +93,8 @@ class Container(o.Operand):
             raise StopIteration
 
     def _insert(self, items: list, before_item: any = None) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._insert(items, before_item)
+        if self is not self._root_container:
+            self._root_container._insert(items, before_item)
         insert_at: int = 0                  # By default works as insert
         if before_item is not None:
             for index, single_item in enumerate(self._items):
@@ -106,8 +106,8 @@ class Container(o.Operand):
         return self
 
     def _append(self, items: list, after_item: any = None) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._append(items, after_item)
+        if self is not self._root_container:
+            self._root_container._append(items, after_item)
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
@@ -119,8 +119,8 @@ class Container(o.Operand):
         return self
 
     def _delete(self, items: list, by_id: bool = False) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._delete(items)
+        if self is not self._root_container:
+            self._root_container._delete(items)
         if by_id:
             # removes by id instead
             self._items = [
@@ -136,16 +136,16 @@ class Container(o.Operand):
         return self
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._replace(old_item, new_item)
+        if self is not self._root_container:
+            self._root_container._replace(old_item, new_item)
         for index, item in enumerate(self._items):
             if old_item is item:
                 self._items[index] = new_item
         return self
 
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._swap(left_item, right_item)
+        if self is not self._root_container:
+            self._root_container._swap(left_item, right_item)
         left_index: int = None
         for index, item in enumerate(self._items):
             if left_item is item:
@@ -162,8 +162,8 @@ class Container(o.Operand):
 
 
     def _sort_items(self) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._sort_items()
+        if self is not self._root_container:
+            self._root_container._sort_items()
         # This works with a list method sort
         self._items.sort()  # Operands implement __lt__ and __gt__
         return self
@@ -345,7 +345,7 @@ class Container(o.Operand):
                     self_handler: Container     = self
                     self_handler._items         = operand_handler._items.copy() # In order to be identified by id
                     while operand_handler.is_a_mask():    # Does a shallow copy
-                        operand_handler         = operand_handler._upper_container
+                        operand_handler         = operand_handler._root_container
                         self_handler            = operand_handler.shallow_copy()
                     # replaces NON distinct items from operand with copies in a single run from top down
                     self._delete(self._items, True) # deletes by id, safer
@@ -354,14 +354,14 @@ class Container(o.Operand):
                     operand_handler             = operand
                     self_handler                = self
                     while operand_handler.is_a_mask():    # Does the final copy
-                        operand_handler         = operand_handler._upper_container
-                        self_handler            = self_handler._upper_container
+                        operand_handler         = operand_handler._root_container
+                        self_handler            = self_handler._root_container
                         for item_index, self_item in enumerate(self_handler._items):
                             if self_item is operand_handler._items[item_index]: # Only still not copied can be copied
                                 self_handler._replace(self_item, self_handler.deep_copy(self_item)) # Replaces top down
 
                 else:   # Optimization, because most of the time operand isn't a mask
-                    self._upper_container = self    # self obviously loses its state as mask if one
+                    self._root_container = self    # self obviously loses its state as mask if one
                     self._items = self.deep_copy(operand._items)
                             
             case od.Pipe():
@@ -643,7 +643,7 @@ class Container(o.Operand):
         return self
 
     def is_a_mask(self) -> bool:
-        return self._upper_container is not self
+        return self._root_container is not self
     
     def upper(self, level: int = None) -> Self:
         """
@@ -656,14 +656,14 @@ class Container(o.Operand):
         Returns:
             Clip: Returns the upper container if existent or self otherwise.
         """
-        if self._upper_container is self:
+        if self._root_container is self:
             return self
         if isinstance(level, int):
             if level > 0:
                 level -= 1
             else:
                 return self
-        return self._upper_container.upper(level)
+        return self._root_container.upper(level)
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
@@ -827,7 +827,7 @@ class Container(o.Operand):
         """
         shallow_copy: Container = self.unmask().shallow_copy()  # Can't stack masks!
         # This shallow copy is a mask, so it chains upper containers
-        shallow_copy._upper_container = self
+        shallow_copy._root_container = self
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 shallow_copy._items = [
@@ -848,7 +848,7 @@ class Container(o.Operand):
             Container: The same self object with the items processed.
         """
         if self.is_a_mask():
-            return self._upper_container.unmask()
+            return self._root_container.unmask()
         return self
 
 
