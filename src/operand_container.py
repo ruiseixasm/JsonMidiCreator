@@ -338,7 +338,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
-
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
@@ -616,13 +615,10 @@ class Container(o.Operand):
             Clip: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        if self is not self._upper_container:
-            self._upper_container.clear()
-        self._items = []
+        self._delete(self._items, True)
         for single_parameter in parameters:
             self << single_parameter
         return self
-
 
     def is_a_mask(self) -> bool:
         return self._upper_container is not self
