@@ -1003,6 +1003,11 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
+    def has(self, operand: o.Operand) -> bool:
+        for single_operand in self._items:
+            if single_operand is operand:
+                return True
+        return False
 
     # Ignores the self Length
     def start(self) -> 'ra.Position':
