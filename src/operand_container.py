@@ -165,10 +165,8 @@ class Container(o.Operand):
 
 
     def _sort_items(self) -> Self:
-        if self is not self._root_container:
-            self._root_container._sort_items()
         # This works with a list method sort
-        self._items.sort()  # Operands implement __lt__ and __gt__
+        self._root_container._items.sort()  # Operands implement __lt__ and __gt__
         return self
 
 
