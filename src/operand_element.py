@@ -195,7 +195,9 @@ class Element(o.Operand):
         return ra.Position(self, self._position_beats + self._duration_beats)
 
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         return []
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -939,7 +941,9 @@ class Rest(Element):
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1089,7 +1093,9 @@ class Note(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1448,10 +1454,12 @@ class KeyScale(Note):
         return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
     
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
         # Makes sure the self is correctly set
@@ -1890,10 +1898,12 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
             plot_dict["note"]["self"] = self
@@ -2104,10 +2114,12 @@ class Tuplet(Element):
             self_iteration += 1
         return tuplet_elements
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
             plot_dict["note"]["self"] = self
@@ -2261,7 +2273,9 @@ class Automation(Element):
     def _get_msb_value(self) -> int:
         return self._value
 
-    def getPlotlist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] = set()) -> list[dict]:
         if not self._enabled:
             return []
         

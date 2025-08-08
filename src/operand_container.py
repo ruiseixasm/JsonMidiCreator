@@ -2109,7 +2109,7 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = Fraction(0), masked_element_ids: set[int] = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -3869,7 +3869,7 @@ class Part(Composition):
                 return super().__mod__(operand)
 
 
-    def getPlotlist(self) -> list[dict]:
+    def getPlotlist(self, masked_element_ids: set[int] = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
