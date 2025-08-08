@@ -324,6 +324,10 @@ class Lambda(HiPrecision):
     """`Rational -> HiPrecision -> Lambda`"""
     pass
 
+class Period(HiPrecision):
+    """`Rational -> HiPrecision -> Period`"""
+    pass
+
 
 class Amount(Rational):
     """`Rational -> Amount`"""
@@ -1818,9 +1822,5 @@ class Swing(Rational):
 
 class Gate(Rational):
     """`Rational -> Gate`"""
-    pass
-
-class Period(Rational):
-    """`Rational -> Period`"""
     pass
 
