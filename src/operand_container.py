@@ -2138,13 +2138,13 @@ class Clip(Composition):  # Just a container of Elements
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             return {
-                    id(masked_item) for masked_item in self._root_container._items
-                    if id(masked_item) not in unmasked_ids
-                }
+                id(masked_item) for masked_item in self._root_container._items
+                if id(masked_item) not in unmasked_ids
+            }
         return set()
 
 
-    def getPlotlist(self, position_beats: Fraction = Fraction(0), masked_element_ids: set[int] = set()) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = Fraction(0), masked_element_ids: set[int] | None = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -2162,12 +2162,17 @@ class Clip(Composition):  # Just a container of Elements
             "automation":   set()
         }
 
+        if masked_element_ids is None:
+            masked_element_ids = set()
+            
         masked_element_ids.update(self.get_masked_element_ids())
 
         self_plotlist.extend(
             single_playlist
                 for single_element in self._root_container._items
-                for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, channels, masked_element_ids)
+                    for single_playlist in single_element.getPlotlist(
+                        self._root_container._midi_track, position_beats, channels, masked_element_ids
+                    )
         )
         # sorted(set) returns the sorted list from set
         # list_none = list(set).sort() doesn't return anything but None !
@@ -3918,13 +3923,13 @@ class Part(Composition):
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             for masked_clip in self._root_container._items:
                 masked_element_ids.update({
-                        id(masked_item) for masked_item in masked_clip._items
-                        if id(masked_item) not in unmasked_ids
-                    })
+                    id(masked_item) for masked_item in masked_clip._items
+                    if id(masked_item) not in unmasked_ids
+                })
         return masked_element_ids
 
 
-    def getPlotlist(self, masked_element_ids: set[int] = set()) -> list[dict]:
+    def getPlotlist(self, masked_element_ids: set[int] | None = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -3933,6 +3938,9 @@ class Part(Composition):
         """
         plot_list: list = []
         
+        if masked_element_ids is None:
+            masked_element_ids = set()
+            
         masked_element_ids.update(self.get_masked_element_ids())
 
         for single_clip in self._root_container._items:
@@ -4492,9 +4500,9 @@ class Song(Composition):
             for masked_part in self._root_container._items:
                 for masked_clip in masked_part._root_container._items:
                     masked_element_ids.update({
-                            id(masked_item) for masked_item in masked_clip._items
-                            if id(masked_item) not in unmasked_ids
-                        })
+                        id(masked_item) for masked_item in masked_clip._items
+                        if id(masked_item) not in unmasked_ids
+                    })
         return masked_element_ids
 
 
