@@ -2498,12 +2498,18 @@ class Clip(Composition):  # Just a container of Elements
                 segments_list: list[og.Segment] = []
                 for single_segment in operand:
                     segments_list.append(og.Segment(self._base_container, single_segment))
-                new_elements: list[oe.Element] = []
+                base_elements: list[oe.Element] = []
+                mask_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
-                    base_segment: Clip = self._base_container.copy().filter(source_segment)
-                    base_segment << ra.Measure(target_measure)   # Stacked by measure *
-                    new_elements.extend(base_segment._items)
-                self._delete()._append(new_elements)._set_owner_clip()
+                    # Preserves masked elements by id in base and mask containers
+                    self_segment: Clip = self.copy().filter(source_segment)
+                    self_segment._base_container << ra.Measure(target_measure)   # Stacked by measure *
+                    base_elements.extend(self_segment._base_container._items)
+                    mask_elements.extend(self_segment._items)
+                self._delete()
+                self._base_container._items = base_elements
+                self._items = mask_elements
+                self._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
