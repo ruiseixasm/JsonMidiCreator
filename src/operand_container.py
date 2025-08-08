@@ -833,17 +833,17 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        shallow_copy: Container = self.root().shallow_copy()  # Can't stack masks!
+        root_mask: Container = self._root_container.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
-        shallow_copy._root_container = self
+        root_mask._root_container = self._root_container
         for single_condition in conditions:
             if isinstance(single_condition, Container):
-                shallow_copy._items = [
-                    item for item in shallow_copy._items if any(item == cond_item for cond_item in single_condition)
+                root_mask._items = [
+                    item for item in root_mask._items if any(item == cond_item for cond_item in single_condition)
                 ]
             else:
-                shallow_copy._items = [item for item in shallow_copy._items if item == single_condition]
-        return shallow_copy
+                root_mask._items = [item for item in root_mask._items if item == single_condition]
+        return root_mask
 
     def root(self) -> Self:
         """
@@ -1395,7 +1395,7 @@ class Composition(Container):
                                 elif isinstance(note["self"], oe.Retrigger):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
-                                color_alpha: float = max(0.2, note["velocity"] / 127)
+                                color_alpha: float = 0.3 + 0.7 * (note["velocity"] / 127)
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
@@ -1404,7 +1404,7 @@ class Composition(Container):
                                     color_alpha = 1.0
 
                                 if note["masked"]:
-                                    color_alpha = 0.1
+                                    color_alpha = 0.2
                                 
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1492,7 +1492,7 @@ class Composition(Container):
                                 elif isinstance(note["self"], oe.Retrigger):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
-                                color_alpha: float = max(0.1, note["velocity"] / 127)
+                                color_alpha: float = 0.3 + 0.7 * (note["velocity"] / 127)
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
@@ -1501,7 +1501,7 @@ class Composition(Container):
                                     color_alpha = 1.0
                                 
                                 if note["masked"]:
-                                    color_alpha = 0.1
+                                    color_alpha = 0.2
                                 
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1586,7 +1586,7 @@ class Composition(Container):
                         self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
                         
                         if automation["masked"]:
-                            color_alpha = 0.1
+                            color_alpha = 0.2
                         else:
                             color_alpha = 1.0
                                 
