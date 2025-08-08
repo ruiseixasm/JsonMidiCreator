@@ -221,7 +221,7 @@ class Cycle(Chaos):
                     case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
             case ra.Period():           return ra.Period(self._period)
-            case ra.Steps():            return ra.Steps(self._period)
+            case ra.Steps():            return ra.Steps(self._steps)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -261,19 +261,19 @@ class Cycle(Chaos):
                     case ra.Period():           self._period = operand._data._rational
                     case ra.Steps():            self._steps = operand._data._rational
                     case _:                     super().__lshift__(operand)
-            case ra.Period():      self._period = operand._rational
-            case ra.Steps():       self._steps = operand._rational
+            case ra.Period():       self._period = operand._rational
+            case ra.Steps():        self._steps = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
-        self._xn << (self._xn % float()) % float(self._period)
+        self._xn << self._xn % Fraction() % self._period
         return self
 
     def iterate(self, times: int = 0) -> Self:
         self._initiated = True
         for _ in range(times):
             self._xn += self._steps
-            self._xn << (self._xn % float()) % float(self._period)
+            self._xn << self._xn % Fraction() % self._period
             self._index += 1    # keeps track of each iteration
         return self
 

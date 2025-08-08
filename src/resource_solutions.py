@@ -41,6 +41,9 @@ class RS_Solutions:
         self._seed: oc.Composition = seed
         self._plot: og.Plot = plot
 
+    def solution(self) -> 'oc.Composition':
+        return self._seed
+    
     def mask(self, *conditions) -> Self:
         self._seed = self._seed.mask(*conditions)
         return self
@@ -57,9 +60,6 @@ class RS_Solutions:
             self._seed >>= og.Call(iterations, n_button)
         return self
 
-    def solution(self) -> 'oc.Composition':
-        return self._seed
-    
 
 class RS_Clip(RS_Solutions):
     def __init__(self, seed: oc.Clip, plot : og.Plot = og.Plot(title="Clip Solutions")):
@@ -92,15 +92,14 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.SinX(340, ot.Conjunct()**ot.Modulo(7))) -> Self:
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7))**ch.SinX(340, ot.Conjunct()**ot.Modulo(7))) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 chaos._tamer.reset()    # Tamer needs to be reset
-                chaos_data = chaos % choices
-                multiple_degrees = o.list_mod(chaos_data, 7)
+                final_degrees = chaos % choices
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip += of.Foreach(*multiple_degrees)**ou.Degree()
+                new_clip += of.Foreach(*final_degrees)**ou.Degree()
                 return new_clip * 4
             return composition
     

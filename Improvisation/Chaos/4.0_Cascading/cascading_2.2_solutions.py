@@ -28,6 +28,6 @@ phrase_notes = clip_solution.rhythm_fast_quantized(7).mask(Beat(0)) \
 # phrase_notes >> Plot()
 
 key_signatures = RS_Clip(phrase_notes)
-phrase_notes = key_signatures.sweep_sharps(-7).solution()
+phrase_notes = key_signatures.sweep_sharps(7).solution()
 # phrase_notes >> Plot()
 
