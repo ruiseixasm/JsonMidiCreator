@@ -254,10 +254,10 @@ class Rational(o.Operand):
                     self._rational /= value._unit
         return self
 
-class HiPrecision(Rational):
-    """`Rational -> HiPrecision`
+class HighPrecision(Rational):
+    """`Rational -> HighPrecision`
 
-    A HiPrecision `Rational` has a limit on the denominator 10x the default, \
+    A HighPrecision `Rational` has a limit on the denominator 10x the default, \
         so, it represents an higher `Fraction` precision than the usual `1_000_000`.
 
     Parameters
@@ -268,63 +268,63 @@ class HiPrecision(Rational):
     #   returning inconsistent values among distinct OS!
     _limit_denominator: int = 10_000_000 # overrides default limit_denominator
 
-class Index(HiPrecision):
+class Index(HighPrecision):
     """`Rational -> HiPrecision -> Index`"""
     pass
 
-class Split(HiPrecision):
+class Split(HighPrecision):
     """`Rational -> HiPrecision -> Split`"""
     pass
 
-class Width(HiPrecision):
+class Width(HighPrecision):
     """`Rational -> HiPrecision -> Width`"""
     pass
 
-class Height(HiPrecision):
+class Height(HighPrecision):
     """`Rational -> HiPrecision -> Height`"""
     pass
 
-class dX(HiPrecision):
+class dX(HighPrecision):
     """`Rational -> HiPrecision -> dX`"""
     pass
 
-class dY(HiPrecision):
+class dY(HighPrecision):
     """`Rational -> HiPrecision -> dY`"""
     pass
 
-class dZ(HiPrecision):
+class dZ(HighPrecision):
     """`Rational -> HiPrecision -> dZ`"""
     pass
 
-class X0(HiPrecision):
+class X0(HighPrecision):
     """`Rational -> HiPrecision -> X0`"""
     pass
 
-class Xn(HiPrecision):
+class Xn(HighPrecision):
     """`Rational -> HiPrecision -> Xn`"""
     pass
 
-class Y0(HiPrecision):
+class Y0(HighPrecision):
     """`Rational -> HiPrecision -> Y0`"""
     pass
 
-class Yn(HiPrecision):
+class Yn(HighPrecision):
     """`Rational -> HiPrecision -> Yn`"""
     pass
 
-class Z0(HiPrecision):
+class Z0(HighPrecision):
     """`Rational -> HiPrecision -> Z0`"""
     pass
 
-class Zn(HiPrecision):
+class Zn(HighPrecision):
     """`Rational -> HiPrecision -> Zn`"""
     pass
 
-class Lambda(HiPrecision):
+class Lambda(HighPrecision):
     """`Rational -> HiPrecision -> Lambda`"""
     pass
 
-class Period(HiPrecision):
+class Period(HighPrecision):
     """`Rational -> HiPrecision -> Period`"""
     pass
 
