@@ -4331,12 +4331,12 @@ class Song(Composition):
         with a shallow `Song`.
         """
         if owner_song is None:
-            for single_part in self._items:
-                single_part._set_owner_song(self)
+            for single_part in self._base_container._items:
+                single_part._set_owner_song(self._base_container)
         elif isinstance(owner_song, Song):
-            self._time_signature << owner_song._time_signature    # Does a parameters copy
-            for single_part in self._items:
-                single_part._set_owner_song(owner_song)
+            self._base_container._time_signature << owner_song._base_container._time_signature    # Does a parameters copy
+            for single_part in self._base_container._items:
+                single_part._set_owner_song(owner_song._base_container)
         return self
 
 
