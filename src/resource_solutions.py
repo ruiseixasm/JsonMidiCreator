@@ -109,7 +109,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX()) -> Self:
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX()) -> Self:
         return self.tonality_conjunct(iterations, choices, chaos)
 
 

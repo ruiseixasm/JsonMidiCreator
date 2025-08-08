@@ -168,7 +168,7 @@ class Chaos(o.Operand):
             while not tamed and count_down > 0:
                 if isinstance(self._next_operand, Chaos):
                     # iterations are only done on tailed Chaos operands
-                    self << self._next_operand.iterate(total_iterations)
+                    self << self._next_operand.iterate(total_iterations) % Fraction()
                 self.iterate(total_iterations)
                 tamed = self.tame(self % Fraction())
                 count_down -= 1
