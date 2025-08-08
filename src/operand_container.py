@@ -344,8 +344,8 @@ class Container(o.Operand):
                     self._items = self.deep_copy(operand._items)
 
                 elif self.is_a_mask() and operand.is_a_mask():
-                    self_base: Container = self.base()
-                    operand_base: Container = operand.base()
+                    self_base: Container = self._base_container
+                    operand_base: Container = operand._base_container
                     self_base._items = self.deep_copy(operand_base._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
@@ -360,7 +360,7 @@ class Container(o.Operand):
                 else:   # operand.is_a_mask(), so, self shall become a mask too
                     self_base: Container = self.empty_copy()
                     self._base_container = self_base
-                    operand_base: Container = operand.base()
+                    operand_base: Container = operand._base_container
                     self_base._items = self.deep_copy(operand_base._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
@@ -847,12 +847,12 @@ class Container(o.Operand):
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 self._items = [
-                    item for item in self.base()._items
+                    item for item in self._base_container._items
                     if any(item == cond_item for cond_item in single_condition)
                 ]
             else:
                 self._items = [
-                    item for item in self.base()._items
+                    item for item in self._base_container._items
                     if item == single_condition
                     ]
         return self
@@ -2373,7 +2373,7 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                self += operand.base()._items
+                self += operand._base_container._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -2405,7 +2405,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self.base()._delete(operand._items)
+                return self._base_container._delete(operand._items)
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -2470,10 +2470,10 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 segments_list: list[og.Segment] = []
                 for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
+                    segments_list.append(og.Segment(self._base_container, single_segment))
                 new_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
-                    segment_clip: Clip = self.base().copy().filter(source_segment)
+                    segment_clip: Clip = self._base_container.copy().filter(source_segment)
                     segment_clip << ra.Measure(target_measure)   # Stacked by measure *
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -2494,7 +2494,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.base()
+                operand = operand._base_container
                 left_end_position: ra.Position = self.finish()
                 if left_end_position is None:
                     left_end_position = ra.Position(self)
@@ -2537,7 +2537,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 clip_segments: Clip = Clip()
                 for single_segment in segments_list:
-                    clip_segments /= self.base().copy().filter(single_segment) # Stacked notes /
+                    clip_segments /= self._base_container.copy().filter(single_segment) # Stacked notes /
                 self._delete(self._items)._append(clip_segments._items)._set_owner_clip()
 
             case tuple():
@@ -2553,7 +2553,7 @@ class Clip(Composition):  # Just a container of Elements
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.base()
+                operand = operand._base_container
                 # Equivalent to +=
                 self += operand
 
@@ -2624,7 +2624,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
                 for source_segment in segments_list:
-                    segment_clip: Clip = self.base().copy().filter(source_segment)
+                    segment_clip: Clip = self._base_container.copy().filter(source_segment)
                     segment_clip << ra.Measure(0)   # Side by Side //
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -3622,8 +3622,8 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_left: Clip     = self.base().copy().filter(of.Less(position))
-        self_right: Clip    = self.base().copy().filter(of.GreaterOrEqual(position))
+        self_left: Clip     = self.copy().filter(of.Less(position))
+        self_right: Clip    = self.copy().filter(of.GreaterOrEqual(position))
         return self_left, self_right
     
 
