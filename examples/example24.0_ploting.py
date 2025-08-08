@@ -33,7 +33,12 @@ four_notes << Key("A")
 
 # (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 >> Plot(clip_function=process_clip)
 
-(Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot(block=False)
+# (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << Tied()) >> Plot(block=False)
 
-settings % KeySignature() >> Plot()
+# settings % KeySignature() >> Plot(block=False)
+
+
+eight_notes = Note() / 8 << Foreach(1, 4, 3, 6, 2, 7, 3)**Degree()
+eight_notes.mask(Segment([1,1])) >> Plot(block=False)
+eight_notes >> Plot()
 
