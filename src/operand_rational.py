@@ -254,78 +254,68 @@ class Rational(o.Operand):
                     self._rational /= value._unit
         return self
 
-class HighPrecision(Rational):
-    """`Rational -> HighPrecision`
+class ChaosParameters(Rational):
+    """Sets the precision that avoids `Chaos` returning inconsistent values among distinct OS!"""
+    _limit_denominator: int = 1_000_000 # overrides default limit_denominator
 
-    A HighPrecision `Rational` has a limit on the denominator 10x the default, \
-        so, it represents an higher `Fraction` precision than the usual `1_000_000`.
-
-    Parameters
-    ----------
-    Fraction(0) : Like the typical `Rational` but with high precision instead.
-    """
-    # Avoid any precision higher than `10_000_000` or `Chaos` subclasses will start
-    #   returning inconsistent values among distinct OS!
-    _limit_denominator: int = 10_000_000 # overrides default limit_denominator
-
-class Index(HighPrecision):
-    """`Rational -> HighPrecision -> Index`"""
+class Index(ChaosParameters):
+    """`Rational -> ChaosParameters -> Index`"""
     pass
 
-class Split(HighPrecision):
-    """`Rational -> HighPrecision -> Split`"""
+class Split(ChaosParameters):
+    """`Rational -> ChaosParameters -> Split`"""
     pass
 
-class Width(HighPrecision):
-    """`Rational -> HighPrecision -> Width`"""
+class Width(ChaosParameters):
+    """`Rational -> ChaosParameters -> Width`"""
     pass
 
-class Height(HighPrecision):
-    """`Rational -> HighPrecision -> Height`"""
+class Height(ChaosParameters):
+    """`Rational -> ChaosParameters -> Height`"""
     pass
 
-class dX(HighPrecision):
-    """`Rational -> HighPrecision -> dX`"""
+class dX(ChaosParameters):
+    """`Rational -> ChaosParameters -> dX`"""
     pass
 
-class dY(HighPrecision):
-    """`Rational -> HighPrecision -> dY`"""
+class dY(ChaosParameters):
+    """`Rational -> ChaosParameters -> dY`"""
     pass
 
-class dZ(HighPrecision):
-    """`Rational -> HighPrecision -> dZ`"""
+class dZ(ChaosParameters):
+    """`Rational -> ChaosParameters -> dZ`"""
     pass
 
-class X0(HighPrecision):
-    """`Rational -> HighPrecision -> X0`"""
+class X0(ChaosParameters):
+    """`Rational -> ChaosParameters -> X0`"""
     pass
 
-class Xn(HighPrecision):
-    """`Rational -> HighPrecision -> Xn`"""
+class Xn(ChaosParameters):
+    """`Rational -> ChaosParameters -> Xn`"""
     pass
 
-class Y0(HighPrecision):
-    """`Rational -> HighPrecision -> Y0`"""
+class Y0(ChaosParameters):
+    """`Rational -> ChaosParameters -> Y0`"""
     pass
 
-class Yn(HighPrecision):
-    """`Rational -> HighPrecision -> Yn`"""
+class Yn(ChaosParameters):
+    """`Rational -> ChaosParameters -> Yn`"""
     pass
 
-class Z0(HighPrecision):
-    """`Rational -> HighPrecision -> Z0`"""
+class Z0(ChaosParameters):
+    """`Rational -> ChaosParameters -> Z0`"""
     pass
 
-class Zn(HighPrecision):
-    """`Rational -> HighPrecision -> Zn`"""
+class Zn(ChaosParameters):
+    """`Rational -> ChaosParameters -> Zn`"""
     pass
 
-class Lambda(HighPrecision):
-    """`Rational -> HighPrecision -> Lambda`"""
+class Lambda(ChaosParameters):
+    """`Rational -> ChaosParameters -> Lambda`"""
     pass
 
-class Period(HighPrecision):
-    """`Rational -> HighPrecision -> Period`"""
+class Period(ChaosParameters):
+    """`Rational -> ChaosParameters -> Period`"""
     pass
 
 
