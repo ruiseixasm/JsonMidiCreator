@@ -2495,9 +2495,9 @@ class Clip(Composition):  # Just a container of Elements
                 self.__imul__(self_repeating)
 
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self._base_container, single_segment))
+                segments_list: list[og.Segment] = [
+                    og.Segment(self._base_container, single_segment) for single_segment in operand
+                ]
                 base_elements: list[oe.Element] = []
                 mask_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
@@ -2527,7 +2527,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand._base_container
+                operand: Clip = operand._base_container
                 left_end_position: ra.Position = self.finish()
                 if left_end_position is None:
                     left_end_position = ra.Position(self)
@@ -2565,13 +2565,15 @@ class Clip(Composition):  # Just a container of Elements
                 self.__itruediv__(self_repeating)
 
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
+                segments_list: list[og.Segment] = [
+                    og.Segment(self._base_container, single_segment) for single_segment in operand
+                ]
                 clip_segments: Clip = Clip()
                 for single_segment in segments_list:
-                    clip_segments /= self._base_container.copy().filter(single_segment) # Stacked notes /
-                self._delete(self._items)._append(clip_segments._items)._set_owner_clip()
+                    clip_segments /= self.copy().filter(single_segment) # Stacked notes /
+                self._delete()
+                self /= clip_segments
+                self._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
@@ -2652,15 +2654,21 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(new_elements)
 
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
-                new_elements: list[oe.Element] = []
-                for source_segment in segments_list:
-                    segment_clip: Clip = self._base_container.copy().filter(source_segment)
-                    segment_clip << ra.Measure(0)   # Side by Side //
-                    new_elements.extend(segment_clip._items)
-                self._delete(self._items)._append(new_elements)._set_owner_clip()
+                segments_list: list[og.Segment] = [
+                    og.Segment(self._base_container, single_segment) for single_segment in operand
+                ]
+                base_elements: list[oe.Element] = []
+                mask_elements: list[oe.Element] = []
+                for _, source_segment in enumerate(segments_list):
+                    # Preserves masked elements by id in base and mask containers
+                    self_segment: Clip = self.copy().filter(source_segment)
+                    self_segment._base_container << ra.Measure(0)   # Side by Side
+                    base_elements.extend(self_segment._base_container._items)
+                    mask_elements.extend(self_segment._items)
+                self._delete()
+                self._base_container._items = base_elements
+                self._items = mask_elements
+                self._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
