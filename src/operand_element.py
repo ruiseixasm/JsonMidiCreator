@@ -966,6 +966,7 @@ class Rest(Element):
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
                     "channel": self._channel,
+                    "masked": id(self) in masked_element_ids,
                     "self": self
                 }
             }
@@ -1120,6 +1121,7 @@ class Note(Element):
                     "pitch": pitch_int,
                     "velocity": self._velocity,
                     "channel": self._channel,
+                    "masked": id(self) in masked_element_ids,
                     "self": self
                 }
             }
@@ -2293,6 +2295,7 @@ class Automation(Element):
                     "position": position_on,
                     "value": self._get_msb_value(),
                     "channel": self._channel,
+                    "masked": id(self) in masked_element_ids,
                     "self": self
                 }
             }
