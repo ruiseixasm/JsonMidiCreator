@@ -269,63 +269,63 @@ class HighPrecision(Rational):
     _limit_denominator: int = 10_000_000 # overrides default limit_denominator
 
 class Index(HighPrecision):
-    """`Rational -> HiPrecision -> Index`"""
+    """`Rational -> HighPrecision -> Index`"""
     pass
 
 class Split(HighPrecision):
-    """`Rational -> HiPrecision -> Split`"""
+    """`Rational -> HighPrecision -> Split`"""
     pass
 
 class Width(HighPrecision):
-    """`Rational -> HiPrecision -> Width`"""
+    """`Rational -> HighPrecision -> Width`"""
     pass
 
 class Height(HighPrecision):
-    """`Rational -> HiPrecision -> Height`"""
+    """`Rational -> HighPrecision -> Height`"""
     pass
 
 class dX(HighPrecision):
-    """`Rational -> HiPrecision -> dX`"""
+    """`Rational -> HighPrecision -> dX`"""
     pass
 
 class dY(HighPrecision):
-    """`Rational -> HiPrecision -> dY`"""
+    """`Rational -> HighPrecision -> dY`"""
     pass
 
 class dZ(HighPrecision):
-    """`Rational -> HiPrecision -> dZ`"""
+    """`Rational -> HighPrecision -> dZ`"""
     pass
 
 class X0(HighPrecision):
-    """`Rational -> HiPrecision -> X0`"""
+    """`Rational -> HighPrecision -> X0`"""
     pass
 
 class Xn(HighPrecision):
-    """`Rational -> HiPrecision -> Xn`"""
+    """`Rational -> HighPrecision -> Xn`"""
     pass
 
 class Y0(HighPrecision):
-    """`Rational -> HiPrecision -> Y0`"""
+    """`Rational -> HighPrecision -> Y0`"""
     pass
 
 class Yn(HighPrecision):
-    """`Rational -> HiPrecision -> Yn`"""
+    """`Rational -> HighPrecision -> Yn`"""
     pass
 
 class Z0(HighPrecision):
-    """`Rational -> HiPrecision -> Z0`"""
+    """`Rational -> HighPrecision -> Z0`"""
     pass
 
 class Zn(HighPrecision):
-    """`Rational -> HiPrecision -> Zn`"""
+    """`Rational -> HighPrecision -> Zn`"""
     pass
 
 class Lambda(HighPrecision):
-    """`Rational -> HiPrecision -> Lambda`"""
+    """`Rational -> HighPrecision -> Lambda`"""
     pass
 
 class Period(HighPrecision):
-    """`Rational -> HiPrecision -> Period`"""
+    """`Rational -> HighPrecision -> Period`"""
     pass
 
 
