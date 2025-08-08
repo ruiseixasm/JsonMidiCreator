@@ -190,7 +190,7 @@ class Chaos(o.Operand):
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        self._tamer.reset()
+        self.reset_tamers()
         self._xn << self._x0
         return self
 
