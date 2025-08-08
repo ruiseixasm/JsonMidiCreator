@@ -2003,14 +2003,13 @@ class Clip(Composition):  # Just a container of Elements
         Allows the setting of a distinct `Clip` in the contained Elements for a transition process
         with a shallow `Clip`.
         """
-        root_clip: Clip = self.base()   # Only a root Clip can own Elements
         if owner_clip is None:
-            for single_element in root_clip._items:
-                single_element._set_owner_clip(root_clip)
+            for single_element in self._base_container._items:
+                single_element._set_owner_clip(self._base_container)
         elif isinstance(owner_clip, Clip):
-            root_clip._time_signature << owner_clip._time_signature    # Does a parameters copy
-            for single_element in root_clip._items:
-                single_element._set_owner_clip(owner_clip)
+            self._base_container._time_signature << owner_clip._time_signature    # Does a parameters copy
+            for single_element in self._base_container._items:
+                single_element._set_owner_clip(owner_clip._base_container)
         return self
 
 
@@ -2025,8 +2024,8 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _test_owner_clip(self) -> bool:
-        for single_element in self:
-            if not self.is_a_mask() and single_element._owner_clip is not self:
+        for single_element in self._items:
+            if single_element._owner_clip is not self._base_container:
                 return False
         return True
 
@@ -2458,7 +2457,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                operand_root: Clip = operand_copy.base()
+                operand_root: Clip = operand_copy._base_container
                 operand_position: ra.Position = operand_root.start()
 
                 if operand_position is not None:
