@@ -27,7 +27,7 @@ def composition(clip: Clip) -> Composition:
 SOLUTION = 0
 
 many_notes = Note() / 8
-rhythm_solution = RS_Solutions(many_notes, Plot(c_button=composition, title="Note Durations"))
+rhythm_solution = RS_Clip(many_notes, Plot(c_button=composition, title="Note Durations"))
 
 rhythm_notes = rhythm_solution.rhythm_fast_quantized(iterations[SOLUTION]).solution()
 

@@ -40,13 +40,14 @@ class RS_Solutions:
     def __init__(self, seed: oc.Composition, plot : og.Plot = og.Plot()):
         self._seed: oc.Composition = seed
         self._plot: og.Plot = plot
-        self._mask: tuple = tuple()
 
-    def mask(self, *conditions):
-        self._mask = conditions
+    def mask(self, *conditions) -> Self:
+        self._seed = self._seed.mask(*conditions)
+        return self
 
-    def unmask(self):
-        self._mask = tuple()
+    def base(self):
+        self._seed = self._seed.base()
+        return self
 
 
     def iterate(self, iterations, n_button) -> Self:
@@ -79,8 +80,8 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 picked_durations = o.list_choose(durations, chaos % choices)
-                composition.mask(*self._mask) << of.Foreach(*picked_durations)**ra.NoteValue()
-                return composition.base().stack().quantize().mul([0]).link().mul(4)
+                composition << of.Foreach(*picked_durations)**ra.NoteValue()
+                return composition.stack().quantize().mul([0]).link().mul(4)
             return composition
     
         return self.iterate(iterations, n_button)
@@ -97,8 +98,8 @@ class RS_Clip(RS_Solutions):
                 chaos_data = chaos % choices
                 multiple_degrees = o.list_mod(chaos_data, 7)
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip.mask(*self._mask) + of.Foreach(*multiple_degrees)**ou.Degree()
-                return new_clip.base() * 4
+                new_clip += of.Foreach(*multiple_degrees)**ou.Degree()
+                return new_clip * 4
             return composition
     
         return self.iterate(iterations, n_button)
@@ -121,8 +122,8 @@ class RS_Clip(RS_Solutions):
                 chaos_data = chaos % 1  # One iteration
                 key_signature: ou.KeySignature = ou.KeySignature(chaos_data)
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip.mask(*self._mask) << key_signature << ou.TonicKey(-1)
-                return new_clip.base() * 4
+                new_clip << key_signature << ou.TonicKey(-1)
+                return new_clip * 4
             return composition
     
         return self.iterate(iterations, n_button)
