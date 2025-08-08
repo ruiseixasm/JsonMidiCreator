@@ -78,7 +78,7 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos._tamer.reset()    # Tamer needs to be reset
+                chaos.reset_tamers()    # Tamer needs to be reset
                 picked_durations = o.list_choose(durations, chaos % choices)
                 composition << of.Foreach(*picked_durations)**ra.NoteValue()
                 # These operations shall be done on the base (single Measure)
@@ -92,11 +92,11 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7))**ch.SinX(340, ot.Conjunct()**ot.Modulo(7))) -> Self:
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX()) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos._tamer.reset()    # Tamer needs to be reset
+                chaos.reset_tamers()    # Tamer needs to be reset
                 final_degrees = chaos % choices
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure
                 new_clip += of.Foreach(*final_degrees)**ou.Degree()
@@ -109,7 +109,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.SinX(340, ot.Conjunct(ra.Strictness(0.75))**ot.Modulo(7))) -> Self:
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX()) -> Self:
         return self.tonality_conjunct(iterations, choices, chaos)
 
 
@@ -119,7 +119,7 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos._tamer.reset()    # Tamer needs to be reset
+                chaos.reset_tamers()    # Tamer needs to be reset
                 chaos_data = chaos % 1  # One iteration
                 key_signature: ou.KeySignature = ou.KeySignature(chaos_data)
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure

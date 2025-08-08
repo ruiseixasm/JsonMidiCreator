@@ -47,6 +47,7 @@ class Chaos(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._next_operand: Chaos       = None
         self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
         self._xn: ra.Xn                 = ra.Xn()
@@ -191,6 +192,13 @@ class Chaos(o.Operand):
         super().reset(*parameters)
         self._tamer.reset()
         self._xn << self._x0
+        return self
+
+    def reset_tamers(self) -> Self:
+        # Reset Tamers recursively
+        if isinstance(self._next_operand, Chaos):
+            self._next_operand.reset_tamers()
+        self._tamer.reset()
         return self
 
 class Cycle(Chaos):
