@@ -2601,10 +2601,10 @@ class Mask(ContainerProcess):
     def _process(self, operand: 'Container') -> 'Container':
         return operand.mask(*self._parameters)
 
-class Root(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Root`
+class Base(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Base`
 
-    Returns the root `Container` of a mask or self if already the root `Container`.
+    Returns the base `Container` of a mask or self if already the base `Container`.
 
     Args:
         None
@@ -2620,7 +2620,7 @@ class Root(ContainerProcess):
         return operand
     
     def _process(self, operand: 'Container') -> 'Container':
-        return operand.root()
+        return operand.base()
 
 
 class Filter(ContainerProcess):

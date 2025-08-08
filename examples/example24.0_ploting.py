@@ -40,5 +40,5 @@ four_notes << Key("A")
 
 eight_notes = Note() / 8 << Foreach(1, 4, 3, 6, 2, 7, 3)**Degree()
 eight_notes.mask(Segment([1,1])) >> Plot(block=False, title="Mask")
-eight_notes >> Plot(title="Root")
+eight_notes >> Plot(title="Base")
 

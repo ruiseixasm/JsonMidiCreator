@@ -69,7 +69,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._root_container: Self = self
+        self._base_container: Self = self
         for single_operand in operands:
             self << single_operand
         
@@ -93,8 +93,8 @@ class Container(o.Operand):
             raise StopIteration
 
     def _insert(self, items: list, before_item: any = None) -> Self:
-        if self is not self._root_container:
-            self._root_container._insert(items, before_item)
+        if self is not self._base_container:
+            self._base_container._insert(items, before_item)
         insert_at: int = 0                  # By default works as insert
         if before_item is not None:
             for index, single_item in enumerate(self._items):
@@ -109,7 +109,7 @@ class Container(o.Operand):
 
     def _append(self, items: list, after_item: any = None) -> Self:
         if self.is_a_mask():
-            self._root_container._append(items, after_item)
+            self._base_container._append(items, after_item)
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
@@ -122,8 +122,8 @@ class Container(o.Operand):
         return self
 
     def _delete(self, items: list, by_id: bool = False) -> Self:
-        if self is not self._root_container:
-            self._root_container._delete(items)
+        if self is not self._base_container:
+            self._base_container._delete(items)
         if by_id:
             # removes by id instead
             self._items = [
@@ -139,16 +139,16 @@ class Container(o.Operand):
         return self
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
-        if self is not self._root_container:
-            self._root_container._replace(old_item, new_item)
+        if self is not self._base_container:
+            self._base_container._replace(old_item, new_item)
         for index, item in enumerate(self._items):
             if old_item is item:
                 self._items[index] = new_item
         return self
 
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
-        if self is not self._root_container:
-            self._root_container._swap(left_item, right_item)
+        if self is not self._base_container:
+            self._base_container._swap(left_item, right_item)
         left_index: int = None
         for index, item in enumerate(self._items):
             if left_item is item:
@@ -166,7 +166,7 @@ class Container(o.Operand):
 
     def _sort_items(self) -> Self:
         # This works with a list method sort
-        self._root_container._items.sort()  # Operands implement __lt__ and __gt__
+        self._base_container._items.sort()  # Operands implement __lt__ and __gt__
         return self
 
 
@@ -344,8 +344,8 @@ class Container(o.Operand):
                     self._items = self.deep_copy(operand._items)
 
                 elif self.is_a_mask() and operand.is_a_mask():
-                    self_root: Container = self.root()
-                    operand_root: Container = operand.root()
+                    self_root: Container = self.base()
+                    operand_root: Container = operand.base()
                     self_root._items = self.deep_copy(operand_root._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
@@ -354,13 +354,13 @@ class Container(o.Operand):
                     ]
 
                 elif self.is_a_mask():
-                    self._root_container = self # Not a mask anymore
+                    self._base_container = self # Not a mask anymore
                     self._items = self.deep_copy(operand._items)
 
                 else:   # operand.is_a_mask(), so, self shall become a mask too
                     self_root: Container = self.empty_copy()
-                    self._root_container = self_root
-                    operand_root: Container = operand.root()
+                    self._base_container = self_root
+                    operand_root: Container = operand.base()
                     self_root._items = self.deep_copy(operand_root._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
@@ -378,7 +378,7 @@ class Container(o.Operand):
                         # for item in operand._data:
                         #     self._append([ item ])
             case od.Serialization():
-                self._root_container.loadSerialization( operand.getSerialization() )
+                self._base_container.loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
@@ -597,12 +597,12 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with an empty list of items.
         """
-        empty_root: Container = self._root_container.__class__()
+        empty_root: Container = self._base_container.__class__()
         for single_parameter in parameters: # Parameters should be set on the root
             empty_root << single_parameter
         if self.is_a_mask():
             empty_mask: Container = self.__class__()
-            empty_mask._root_container = empty_root
+            empty_mask._base_container = empty_root
             return empty_mask
         return empty_root
 
@@ -622,9 +622,9 @@ class Container(o.Operand):
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters: # Parameters should be set on the root
-            shallow_copy._root_container << single_parameter
+            shallow_copy._base_container << single_parameter
         if shallow_copy.is_a_mask():
-            shallow_copy._root_container._items = self._root_container._items.copy()
+            shallow_copy._base_container._items = self._base_container._items.copy()
         return shallow_copy
     
 
@@ -653,7 +653,7 @@ class Container(o.Operand):
         return self
 
     def is_a_mask(self) -> bool:
-        return self._root_container is not self
+        return self._base_container is not self
     
     def upper(self, level: int = None) -> Self:
         """
@@ -666,14 +666,14 @@ class Container(o.Operand):
         Returns:
             Clip: Returns the upper container if existent or self otherwise.
         """
-        if self._root_container is self:
+        if self._base_container is self:
             return self
         if isinstance(level, int):
             if level > 0:
                 level -= 1
             else:
                 return self
-        return self._root_container.upper(level)
+        return self._base_container.upper(level)
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
@@ -835,9 +835,9 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        root_mask: Container = self._root_container.shallow_copy()
+        root_mask: Container = self._base_container.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
-        root_mask._root_container = self._root_container
+        root_mask._base_container = self._base_container
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 root_mask._items = [
@@ -847,9 +847,9 @@ class Container(o.Operand):
                 root_mask._items = [item for item in root_mask._items if item == single_condition]
         return root_mask
 
-    def root(self) -> Self:
+    def base(self) -> Self:
         """
-        Returns the root `Container` of a mask or self if already the root `Container`.
+        Returns the base `Container` of a mask or self if already the base `Container`.
 
         Args:
             None
@@ -857,7 +857,7 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        return self._root_container
+        return self._base_container
 
 
     def filter(self, *conditions) -> Self:
@@ -875,12 +875,12 @@ class Container(o.Operand):
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 self._items = [
-                    item for item in self.root()._items
+                    item for item in self.base()._items
                     if any(item == cond_item for cond_item in single_condition)
                 ]
             else:
                 self._items = [
-                    item for item in self.root()._items
+                    item for item in self.base()._items
                     if item == single_condition
                     ]
         return self
@@ -2003,7 +2003,7 @@ class Clip(Composition):  # Just a container of Elements
         Allows the setting of a distinct `Clip` in the contained Elements for a transition process
         with a shallow `Clip`.
         """
-        root_clip: Clip = self.root()   # Only a root Clip can own Elements
+        root_clip: Clip = self.base()   # Only a root Clip can own Elements
         if owner_clip is None:
             for single_element in root_clip._items:
                 single_element._set_owner_clip(root_clip)
@@ -2402,7 +2402,7 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                self += operand.root()._items
+                self += operand.base()._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -2434,7 +2434,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self.root()._delete(operand._items)
+                return self.base()._delete(operand._items)
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -2458,12 +2458,12 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                operand_root: Clip = operand_copy.root()
+                operand_root: Clip = operand_copy.base()
                 operand_position: ra.Position = operand_root.start()
 
                 if operand_position is not None:
 
-                    self_root: Clip = self.root()
+                    self_root: Clip = self.base()
                     self_length: ra.Length = self_root % ra.Length()
                     operand_position = operand_position.roundMeasures()
                     position_offset: ra.Position = operand_position - self_length
@@ -2502,7 +2502,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
-                    segment_clip: Clip = self.root().copy().filter(source_segment)
+                    segment_clip: Clip = self.base().copy().filter(source_segment)
                     segment_clip << ra.Measure(target_measure)   # Stacked by measure *
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -2523,7 +2523,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.root()
+                operand = operand.base()
                 left_end_position: ra.Position = self.finish()
                 if left_end_position is None:
                     left_end_position = ra.Position(self)
@@ -2566,7 +2566,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 clip_segments: Clip = Clip()
                 for single_segment in segments_list:
-                    clip_segments /= self.root().copy().filter(single_segment) # Stacked notes /
+                    clip_segments /= self.base().copy().filter(single_segment) # Stacked notes /
                 self._delete(self._items)._append(clip_segments._items)._set_owner_clip()
 
             case tuple():
@@ -2582,7 +2582,7 @@ class Clip(Composition):  # Just a container of Elements
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand = operand.root()
+                operand = operand.base()
                 # Equivalent to +=
                 self += operand
 
@@ -2653,7 +2653,7 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self, single_segment))
                 new_elements: list[oe.Element] = []
                 for source_segment in segments_list:
-                    segment_clip: Clip = self.root().copy().filter(source_segment)
+                    segment_clip: Clip = self.base().copy().filter(source_segment)
                     segment_clip << ra.Measure(0)   # Side by Side //
                     new_elements.extend(segment_clip._items)
                 self._delete(self._items)._append(new_elements)._set_owner_clip()
@@ -3651,8 +3651,8 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_left: Clip     = self.root().copy().filter(of.Less(position))
-        self_right: Clip    = self.root().copy().filter(of.GreaterOrEqual(position))
+        self_left: Clip     = self.base().copy().filter(of.Less(position))
+        self_right: Clip    = self.base().copy().filter(of.GreaterOrEqual(position))
         return self_left, self_right
     
 
