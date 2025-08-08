@@ -344,12 +344,12 @@ class Container(o.Operand):
                     self._items = self.deep_copy(operand._items)
 
                 elif self.is_a_mask() and operand.is_a_mask():
-                    self_root: Container = self.base()
-                    operand_root: Container = operand.base()
-                    self_root._items = self.deep_copy(operand_root._items)
+                    self_base: Container = self.base()
+                    operand_base: Container = operand.base()
+                    self_base._items = self.deep_copy(operand_base._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
-                        self_root._items[index] for index, root_item in enumerate(operand_root._items)
+                        self_base._items[index] for index, root_item in enumerate(operand_base._items)
                         if id(root_item) in unmasked_ids
                     ]
 
@@ -358,13 +358,13 @@ class Container(o.Operand):
                     self._items = self.deep_copy(operand._items)
 
                 else:   # operand.is_a_mask(), so, self shall become a mask too
-                    self_root: Container = self.empty_copy()
-                    self._base_container = self_root
-                    operand_root: Container = operand.base()
-                    self_root._items = self.deep_copy(operand_root._items)
+                    self_base: Container = self.empty_copy()
+                    self._base_container = self_base
+                    operand_base: Container = operand.base()
+                    self_base._items = self.deep_copy(operand_base._items)
                     unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
                     self._items = [
-                        self_root._items[index] for index, root_item in enumerate(operand_root._items)
+                        self_base._items[index] for index, root_item in enumerate(operand_base._items)
                         if id(root_item) in unmasked_ids
                     ]
 
@@ -517,7 +517,7 @@ class Container(o.Operand):
                     self._append(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
             case ch.Chaos():
                 return self.shuffle(operand.copy())
             case tuple():
@@ -559,34 +559,6 @@ class Container(o.Operand):
         return self
 
 
-    # Masks DON'T do copy on basic operations !!
-
-    def __add__(self, operand: any) -> Self:
-        if self.is_a_mask():
-            return self.__iadd__(operand)
-        return self.copy().__iadd__(operand)
-    
-    def __sub__(self, operand: any) -> Self:
-        if self.is_a_mask():
-            return self.__isub__(operand)
-        return self.copy().__isub__(operand)
-    
-    def __mul__(self, operand: any) -> Self:
-        if self.is_a_mask():
-            return self.__imul__(operand)
-        return self.copy().__imul__(operand)
-    
-    def __truediv__(self, operand: any) -> Self:
-        if self.is_a_mask():
-            return self.__itruediv__(operand)
-        return self.copy().__itruediv__(operand)
-    
-    def __floordiv__(self, operand: any) -> Self:
-        if self.is_a_mask():
-            return self.__ifloordiv__(operand)
-        return self.copy().__ifloordiv__(operand)
-    
-
     def empty_copy(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
@@ -597,14 +569,14 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with an empty list of items.
         """
-        empty_root: Container = self._base_container.__class__()
+        empty_base: Container = self._base_container.__class__()
         for single_parameter in parameters: # Parameters should be set on the base container
-            empty_root << single_parameter
+            empty_base << single_parameter
         if self.is_a_mask():
             empty_mask: Container = self.__class__()
-            empty_mask._base_container = empty_root
+            empty_mask._base_container = empty_base
             return empty_mask
-        return empty_root
+        return empty_base
 
     # A shallow copy isn't the same as a mask!
     def shallow_copy(self, *parameters) -> Self:
@@ -2457,20 +2429,20 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                operand_root: Clip = operand_copy._base_container
-                operand_position: ra.Position = operand_root.start()
+                operand_base: Clip = operand_copy._base_container
+                operand_position: ra.Position = operand_base.start()
 
                 if operand_position is not None:
 
-                    self_root: Clip = self.base()
-                    self_length: ra.Length = self_root % ra.Length()
+                    self_base: Clip = self._base_container
+                    self_length: ra.Length = self_base % ra.Length()
                     operand_position = operand_position.roundMeasures()
                     position_offset: ra.Position = operand_position - self_length
-                    operand_root -= position_offset   # Does a position offset
+                    operand_base -= position_offset   # Does a position offset
                     
-                    self_root._append(operand_root._items) # Propagates upwards in the stack
-                    if self_root._length_beats is not None:
-                        self_root._length_beats += (operand_copy % ra.Length())._rational
+                    self_base._append(operand_base._items) # Propagates upwards in the stack
+                    if self_base._length_beats is not None:
+                        self_base._length_beats += (operand_copy % ra.Length())._rational
                     if self.is_a_mask() and operand_copy.is_a_mask():
                         self._append(operand_copy._items)
 
@@ -2483,7 +2455,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
                     
 
             case ra.TimeValue() | ra.TimeUnit():
@@ -2549,7 +2521,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
 
             case ra.TimeUnit():
                 self_repeating: int = 0
@@ -2594,7 +2566,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:   # Must be empty
-                    self._items = []  # Just to keep the self object
+                    self._delete(self._base_container._items, True)
             # Divides the `Duration` by the given `Length` amount as denominator
             case ra.Length() | ra.Duration():
                 total_segments: int = operand % int()   # Extracts the original imputed integer
@@ -2679,13 +2651,13 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_root: Clip                = empty_copy._base_container
-        self_root: Clip                 = self._base_container
-        empty_root._time_signature      << self_root._time_signature
-        empty_root._midi_track          << self_root._midi_track
-        empty_root._length_beats        = self_root._length_beats
+        empty_base: Clip                = empty_copy._base_container
+        self_base: Clip                 = self._base_container
+        empty_base._time_signature      << self_base._time_signature
+        empty_base._midi_track          << self_base._midi_track
+        empty_base._length_beats        = self_base._length_beats
         for single_parameter in parameters: # Parameters should be set on the base container
-            empty_root << single_parameter
+            empty_base << single_parameter
         return empty_copy
     
     def shallow_copy(self, *parameters) -> Self:
@@ -4166,7 +4138,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
 
             case tuple():
                 for single_operand in operand:
@@ -4211,7 +4183,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
                     
             case tuple():
                 for single_operand in operand:
@@ -4240,7 +4212,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
 
             case tuple():
                 for single_operand in operand:
@@ -4732,7 +4704,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
                 
             case tuple():
                 for single_operand in operand:
@@ -4777,7 +4749,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
                     
             case tuple():
                 for single_operand in operand:
@@ -4809,7 +4781,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
 
             case tuple():
                 for single_operand in operand:
@@ -5034,7 +5006,7 @@ class ClipGet(Container):
                     self._append(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._items, True)
+                    self._delete(self._base_container._items, True)
             case ch.Chaos():
                 return self.shuffle(operand.copy())
             case tuple():

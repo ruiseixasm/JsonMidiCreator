@@ -559,8 +559,10 @@ def test_mul_clip():
     # Test empty Clip
     empty_clip = hi_hat * 0
     assert empty_clip.len() == 0
-    unchanged_hi_hat = empty_clip * hi_hat
-    assert unchanged_hi_hat == hi_hat
+    equally_hi_hat: Clip = empty_clip * hi_hat
+    assert hi_hat.len() == 4
+    assert equally_hi_hat.len() == 4
+    assert equally_hi_hat == hi_hat
     
     print("------")
     six_notes = 6 / Note()
