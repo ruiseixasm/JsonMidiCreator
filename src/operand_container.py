@@ -121,21 +121,25 @@ class Container(o.Operand):
         self._items = self._items[:append_at] + inexistent_items + self._items[append_at:]
         return self
 
-    def _delete(self, items: list, by_id: bool = False) -> Self:
+    def _delete(self, items: list = None, by_id: bool = False) -> Self:
         if self is not self._base_container:
             self._base_container._delete(items)
-        if by_id:
-            # removes by id instead
-            self._items = [
-                single_item for single_item in self._items
-                if not any(single_item is item for item in items)
-            ]
+        if items is None:
+            self._items = []
+            self._base_container = []
         else:
-            # Uses "==" instead of id
-            self._items = [
-                single_item for single_item in self._items
-                if single_item not in items
-            ]
+            if by_id:
+                # removes by id instead
+                self._items = [
+                    single_item for single_item in self._items
+                    if not any(single_item is item for item in items)
+                ]
+            else:
+                # Uses "==" instead of id
+                self._items = [
+                    single_item for single_item in self._items
+                    if single_item not in items
+                ]
         return self
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
@@ -2476,7 +2480,7 @@ class Clip(Composition):  # Just a container of Elements
                     segment_clip: Clip = self._base_container.copy().filter(source_segment)
                     segment_clip << ra.Measure(target_measure)   # Stacked by measure *
                     new_elements.extend(segment_clip._items)
-                self._delete(self._items)._append(new_elements)._set_owner_clip()
+                self._delete(self._base_container._items)._append(new_elements)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
