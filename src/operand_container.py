@@ -125,8 +125,8 @@ class Container(o.Operand):
         if self is not self._base_container:
             self._base_container._delete(items)
         if items is None:
-            self._items = []
-            self._base_container._items = []
+            self._items.clear()
+            self._base_container._items.clear()
         else:
             if by_id:
                 # removes by id instead
@@ -141,6 +141,23 @@ class Container(o.Operand):
                     if single_item not in items
                 ]
         return self
+
+    def _delete_by_ids(self, item_ids: set | None = None):
+        if isinstance(item_ids, set):
+            if item_ids:
+                self._base_container._items = [
+                    base_item for base_item in self._base_container._items
+                    if id(base_item) not in item_ids
+                ]
+                self._items = [
+                    mask_item for mask_item in self._items
+                    if id(mask_item) not in item_ids
+                ]
+        else:
+            self._base_container._items.clear()
+            self._items.clear()
+        return self
+
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
         if self is not self._base_container:
@@ -811,17 +828,21 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        root_mask: Container = self._base_container.shallow_copy()
+        new_mask: Container = self._base_container.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
-        root_mask._base_container = self._base_container
+        new_mask._base_container = self._base_container
         for single_condition in conditions:
             if isinstance(single_condition, Container):
-                root_mask._items = [
-                    item for item in root_mask._items if any(item == cond_item for cond_item in single_condition)
+                new_mask._items = [
+                    base_item for base_item in self._base_container._items
+                    if any(base_item == cond_item for cond_item in single_condition._base_container._items)
                 ]
             else:
-                root_mask._items = [item for item in root_mask._items if item == single_condition]
-        return root_mask
+                new_mask._items = [
+                    base_item for base_item in self._base_container._items
+                    if base_item == single_condition
+                ]
+        return new_mask
 
     def base(self) -> Self:
         """
@@ -838,28 +859,30 @@ class Container(o.Operand):
 
     def filter(self, *conditions) -> Self:
         """
-        A Filter selects the items that meet the conditions (equal to).
-        Filters remain as `Containers` and thus they **can** be copied!
+        A `Filter` works exactly like a `Mask` with the difference of keeping just \
+            the matching items and deleting everything else.
 
         Conditions
         ----------
-        Any : Conditions that need to be matched in an And fashion.
+        Any : Conditions that need to be matched in an `And` alike fashion.
 
         Returns:
             Container: The same self object with the items processed.
         """
+        deletable_item_ids: set = set()
+        # And type of conditions, not meeting any means excluded
         for single_condition in conditions:
             if isinstance(single_condition, Container):
-                self._items = [
-                    item for item in self._base_container._items
-                    if any(item == cond_item for cond_item in single_condition)
-                ]
+                deletable_item_ids.update(
+                    id(item) for item in self._base_container._items
+                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
+                )
             else:
-                self._items = [
-                    item for item in self._base_container._items
-                    if item == single_condition
-                    ]
-        return self
+                deletable_item_ids.update(
+                    id(item) for item in self._base_container._items
+                    if not item == single_condition
+                )
+        return self._delete_by_ids(deletable_item_ids)
 
 
     def operate(self, operand: Any = None, operator: str = "<<") -> Self:
@@ -2477,9 +2500,9 @@ class Clip(Composition):  # Just a container of Elements
                     segments_list.append(og.Segment(self._base_container, single_segment))
                 new_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
-                    segment_clip: Clip = self._base_container.copy().filter(source_segment)
-                    segment_clip << ra.Measure(target_measure)   # Stacked by measure *
-                    new_elements.extend(segment_clip._items)
+                    base_segment: Clip = self._base_container.copy().filter(source_segment)
+                    base_segment << ra.Measure(target_measure)   # Stacked by measure *
+                    new_elements.extend(base_segment._items)
                 self._delete()._append(new_elements)._set_owner_clip()
 
             case tuple():
