@@ -597,13 +597,13 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with an empty list of items.
         """
-        empty_root: Container = self.__class__()
-        for single_parameter in parameters:
+        empty_root: Container = self._root_container.__class__()
+        for single_parameter in parameters: # Parameters should be set on the root
             empty_root << single_parameter
-        # if self.is_a_mask():
-        #     empty_mask: Container = self.__class__()
-        #     empty_mask._root_container = empty_root
-        #     return empty_mask
+        if self.is_a_mask():
+            empty_mask: Container = self.__class__()
+            empty_mask._root_container = empty_root
+            return empty_mask
         return empty_root
 
     # A shallow copy isn't the same as a mask!
@@ -621,8 +621,10 @@ class Container(o.Operand):
         shallow_copy: Container = self.empty_copy()
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
-        for single_parameter in parameters:
-            shallow_copy << single_parameter
+        for single_parameter in parameters: # Parameters should be set on the root
+            shallow_copy._root_container << single_parameter
+        if shallow_copy.is_a_mask():
+            shallow_copy._root_container._items = self._root_container._items.copy()
         return shallow_copy
     
 
@@ -2672,13 +2674,13 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_root: Clip                = empty_copy.root()
-        self_root: Clip                 = self.root()
+        empty_root: Clip                = empty_copy._root_container
+        self_root: Clip                 = self._root_container
         empty_root._time_signature      << self_root._time_signature
         empty_root._midi_track          << self_root._midi_track
         empty_root._length_beats        = self_root._length_beats
-        for single_parameter in parameters:
-            empty_copy << single_parameter
+        for single_parameter in parameters: # Parameters should be set on the root
+            empty_root << single_parameter
         return empty_copy
     
     def shallow_copy(self, *parameters) -> Self:
@@ -2694,11 +2696,11 @@ class Clip(Composition):  # Just a container of Elements
         """
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        shallow_copy._time_signature    = self._time_signature   
-        shallow_copy._midi_track        = self._midi_track
-        shallow_copy._length_beats      = self._length_beats
-        for single_parameter in parameters:
-            shallow_copy << single_parameter
+        shallow_copy._root_container._time_signature    = self._root_container._time_signature   
+        shallow_copy._root_container._midi_track        = self._root_container._midi_track
+        shallow_copy._root_container._length_beats      = self._root_container._length_beats
+        for single_parameter in parameters: # Parameters should be set on the root
+            shallow_copy._root_container << single_parameter
         return shallow_copy
 
 
