@@ -2474,9 +2474,9 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    single_self_copy: Clip = self.copy()
+                    single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__imul__(single_self_copy)
+                        self.__imul__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                     
@@ -2540,9 +2540,9 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    single_self_copy: Clip = self.shallow_copy()
+                    single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__itruediv__(single_self_copy)
+                        self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
 
@@ -2585,9 +2585,9 @@ class Clip(Composition):  # Just a container of Elements
 
             case int():
                 if operand > 1:
-                    single_self_copy: Clip = self.shallow_copy()
+                    single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += single_self_copy
+                        self += single_shallow_copy
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
             # Divides the `Duration` by the given `Length` amount as denominator
@@ -4154,9 +4154,9 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.copy()
+                    single_shallow_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__imul__(single_self_copy)
+                        self.__imul__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
 
@@ -4199,9 +4199,9 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.shallow_copy()
+                    single_shallow_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__itruediv__(single_self_copy)
+                        self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                     
@@ -4228,9 +4228,9 @@ class Part(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.shallow_copy()
+                    single_shallow_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += single_self_copy
+                        self += single_shallow_copy
                 elif operand == 0:
                     self._delete(self._items, True)
 
@@ -4720,9 +4720,9 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Song = self.copy()
+                    single_shallow_copy: Song = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__imul__(single_self_copy)
+                        self.__imul__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                 
@@ -4765,9 +4765,9 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Part = self.shallow_copy()
+                    single_shallow_copy: Part = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self.__itruediv__(single_self_copy)
+                        self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
                     self._delete(self._items, True)
                     
@@ -4797,9 +4797,9 @@ class Song(Composition):
 
             case int():
                 if operand > 1:
-                    single_self_copy: Song = self.shallow_copy()
+                    single_shallow_copy: Song = self.shallow_copy()
                     for _ in range(operand - 1):
-                        self += single_self_copy
+                        self += single_shallow_copy
                 elif operand == 0:
                     self._delete(self._items, True)
 
