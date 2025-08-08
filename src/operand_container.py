@@ -1397,7 +1397,7 @@ class Composition(Container):
                                 elif isinstance(note["self"], oe.Retrigger):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
-                                color_alpha: float = 0.3 + round(0.7 * (note["velocity"] / 127), 2)
+                                color_alpha: float = round(0.3 + 0.7 * (note["velocity"] / 127), 2)
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
@@ -1494,7 +1494,7 @@ class Composition(Container):
                                 elif isinstance(note["self"], oe.Retrigger):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
-                                color_alpha: float = 0.3 + round(0.7 * (note["velocity"] / 127), 2)
+                                color_alpha: float = round(0.3 + 0.7 * (note["velocity"] / 127), 2)
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
