@@ -641,9 +641,29 @@ class Operand:
         """Applies `/=` with the operand while keeping self"""
         return self.__itruediv__(operand)
 
-    def floor(self, operand: any) -> Self:
+    def floordiv(self, operand: any) -> Self:
         """Applies `//=` with the operand while keeping self"""
         return self.__ifloordiv__(operand)
+
+    def inline(self, operand: any, operation: str = "+") -> Self:
+        """Applies an inline operation given by the operation string"""
+        match operation:
+            case "+":
+                return self.__iadd__(operand)
+            case "-":
+                return self.__isub__(operand)
+            case "*":
+                return self.__imul__(operand)
+            case "/":
+                return self.__itruediv__(operand)
+            case "//":
+                return self.__ifloordiv__(operand)
+            case "<<":
+                return self.__ilshift__(operand)
+            case ">>":
+                return self.__irshift__(operand)
+        return self
+    
 
     def __iadd__(self, operand: any) -> Self:
         return self
