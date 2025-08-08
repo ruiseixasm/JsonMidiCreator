@@ -2127,10 +2127,20 @@ class Clip(Composition):  # Just a container of Elements
             "automation":   set()
         }
 
+        if masked_element_ids is None:
+            if self.is_a_mask():
+                unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in self._items}
+                masked_element_ids = {
+                    id(masked_item) for masked_item in self._root_container._items
+                    if id(masked_item) not in unmasked_ids
+                }
+            else:
+                masked_element_ids = set()
+
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
-                for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, channels)
+                for single_playlist in single_element.getPlotlist(self._midi_track, position_beats, channels, masked_element_ids)
         )
         # sorted(set) returns the sorted list from set
         # list_none = list(set).sort() doesn't return anything but None !
