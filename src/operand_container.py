@@ -2182,13 +2182,13 @@ class Clip(Composition):  # Just a container of Elements
 
         self_playlist: list[dict] = [
             {
-                "devices": self._midi_track._devices
+                "devices": self._root_container._midi_track._devices
             }
         ]
     
-        for single_element in self._items:
+        for single_element in self._root_container._items:
             self_playlist.extend(
-                single_element.getPlaylist(self._midi_track, position_beats, False)
+                single_element.getPlaylist(self._root_container._midi_track, position_beats, False)
             )
         return self_playlist
 
@@ -3937,8 +3937,8 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        for single_clip in self:
-            play_list.extend(single_clip.getPlaylist(self._position_beats))
+        for single_clip in self._root_container._items:
+            play_list.extend(single_clip.getPlaylist(self._root_container._position_beats))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -4512,7 +4512,7 @@ class Song(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        for single_part in self:
+        for single_part in self._root_container._items:
             play_list.extend(single_part.getPlaylist())
         return play_list
 
