@@ -45,7 +45,7 @@ class RS_Solutions:
         self._seed = self._seed.mask(*conditions)
         return self
 
-    def base(self) -> Self:
+    def unmask(self) -> Self:
         self._seed = self._seed.base()
         return self
 
