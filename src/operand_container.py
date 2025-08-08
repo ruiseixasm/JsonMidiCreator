@@ -3429,7 +3429,7 @@ class Clip(Composition):  # Just a container of Elements
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
                 if ignore_empty_measures:
-                    root_position: ra.Position = (single_element % od.Pipe( ra.Position() )).roundMeasures()
+                    root_position: ra.Position = (single_element % ra.Position()).roundMeasures()
                     single_element._position_beats = root_position._rational
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!

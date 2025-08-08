@@ -81,7 +81,9 @@ class RS_Clip(RS_Solutions):
                 chaos._tamer.reset()    # Tamer needs to be reset
                 picked_durations = o.list_choose(durations, chaos % choices)
                 composition << of.Foreach(*picked_durations)**ra.NoteValue()
-                return composition.stack().quantize().mul([0]).link().mul(4)
+                # These operations shall be done on the base (single Measure)
+                composition.base().stack().quantize().mul([0]).link()  
+                return composition.mul(4)
             return composition
     
         return self.iterate(iterations, n_button)
