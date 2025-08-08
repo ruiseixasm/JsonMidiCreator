@@ -126,7 +126,7 @@ class Container(o.Operand):
             self._base_container._delete(items)
         if items is None:
             self._items = []
-            self._base_container = []
+            self._base_container._items = []
         else:
             if by_id:
                 # removes by id instead
@@ -2480,7 +2480,7 @@ class Clip(Composition):  # Just a container of Elements
                     segment_clip: Clip = self._base_container.copy().filter(source_segment)
                     segment_clip << ra.Measure(target_measure)   # Stacked by measure *
                     new_elements.extend(segment_clip._items)
-                self._delete(self._base_container._items)._append(new_elements)._set_owner_clip()
+                self._delete()._append(new_elements)._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
