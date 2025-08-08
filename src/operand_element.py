@@ -1466,6 +1466,7 @@ class KeyScale(Note):
         self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
+            plot_dict["note"]["masked"] = id(self) in masked_element_ids
             plot_dict["note"]["self"] = self
         return self_plotlist
     
@@ -1908,6 +1909,7 @@ class Retrigger(Note):
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
+            plot_dict["note"]["masked"] = id(self) in masked_element_ids
             plot_dict["note"]["self"] = self
         return self_plotlist
     
@@ -2124,6 +2126,7 @@ class Tuplet(Element):
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
+            plot_dict["note"]["masked"] = id(self) in masked_element_ids
             plot_dict["note"]["self"] = self
         return self_plotlist
     
