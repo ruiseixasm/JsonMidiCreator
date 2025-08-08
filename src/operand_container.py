@@ -2007,7 +2007,7 @@ class Clip(Composition):  # Just a container of Elements
             for single_element in self._base_container._items:
                 single_element._set_owner_clip(self._base_container)
         elif isinstance(owner_clip, Clip):
-            self._base_container._time_signature << owner_clip._time_signature    # Does a parameters copy
+            self._base_container._time_signature << owner_clip._base_container._time_signature    # Does a parameters copy
             for single_element in self._base_container._items:
                 single_element._set_owner_clip(owner_clip._base_container)
         return self
