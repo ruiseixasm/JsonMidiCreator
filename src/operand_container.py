@@ -1395,13 +1395,16 @@ class Composition(Container):
                                 elif isinstance(note["self"], oe.Retrigger):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
-                                color_alpha: float = max(0.1, note["velocity"] / 127)
+                                color_alpha: float = max(0.2, note["velocity"] / 127)
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
                                 elif note["velocity"] < 0:
                                     edge_color = 'blue'
                                     color_alpha = 1.0
+
+                                if note["masked"]:
+                                    color_alpha = 0.1
                                 
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1497,6 +1500,9 @@ class Composition(Container):
                                     edge_color = 'blue'
                                     color_alpha = 1.0
                                 
+                                if note["masked"]:
+                                    color_alpha = 0.1
+                                
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
 
@@ -1578,9 +1584,15 @@ class Composition(Container):
 
                         # Stepped line connecting the points
                         self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                        
+                        if automation["masked"]:
+                            color_alpha = 0.1
+                        else:
+                            color_alpha = 1.0
+                                
                         # Actual data points
                         self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
-                                    markeredgecolor='black', markeredgewidth=1, markersize=8)
+                                    markeredgecolor='black', markeredgewidth=1, markersize=8, alpha = color_alpha)
 
                         # Add the tailed line up to the end of the chart
                         x = [
