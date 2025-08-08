@@ -598,7 +598,7 @@ class Container(o.Operand):
             Container: Returns the copy of self but with an empty list of items.
         """
         empty_root: Container = self._base_container.__class__()
-        for single_parameter in parameters: # Parameters should be set on the root
+        for single_parameter in parameters: # Parameters should be set on the base container
             empty_root << single_parameter
         if self.is_a_mask():
             empty_mask: Container = self.__class__()
@@ -621,7 +621,7 @@ class Container(o.Operand):
         shallow_copy: Container = self.empty_copy()
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
-        for single_parameter in parameters: # Parameters should be set on the root
+        for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
         if shallow_copy.is_a_mask():
             shallow_copy._base_container._items = self._base_container._items.copy()
@@ -988,7 +988,7 @@ class Composition(Container):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._root_container: Composition = self
+        self._base_container: Composition = self
         # Song sets the TimeSignature, this is just a reference
         self._time_signature: og.TimeSignature  = og.settings._time_signature
         self._length_beats: Fraction            = None
@@ -1213,11 +1213,11 @@ class Composition(Container):
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
-                self._root_container._length_beats = operand._rational
-                if self._root_container._length_beats < 0:
-                    self._root_container._length_beats = None
+                self._base_container._length_beats = operand._rational
+                if self._base_container._length_beats < 0:
+                    self._base_container._length_beats = None
             case None:
-                self._root_container._length_beats = None
+                self._base_container._length_beats = None
 
             case _:
                 super().__lshift__(operand)
@@ -1938,7 +1938,7 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
-        self._root_container: Clip = self
+        self._base_container: Clip = self
         self._time_signature: og.TimeSignature           = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
@@ -2100,8 +2100,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._root_container._time_signature
-                    case ou.MidiTrack():            return self._root_container._midi_track
+                    case og.TimeSignature():        return self._base_container._time_signature
+                    case ou.MidiTrack():            return self._base_container._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         for single_element in self._items:
@@ -2112,13 +2112,13 @@ class Clip(Composition):  # Just a container of Elements
                         return clip_get
                     case _:                 return super().__mod__(operand)
             case og.TimeSignature():        return self._time_signature.copy()
-            case ou.MidiTrack():    return self._root_container._midi_track.copy()
+            case ou.MidiTrack():    return self._base_container._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
-                return self._root_container._midi_track % operand
+                return self._base_container._midi_track % operand
             case og.TimeSignature() | og.TimeSignature():
-                return self._root_container._time_signature % operand
-            case Part():            return Part(self._root_container._time_signature, self._root_container)
-            case Song():            return Song(self._root_container._time_signature, self._root_container)
+                return self._base_container._time_signature % operand
+            case Part():            return Part(self._base_container._time_signature, self._base_container)
+            case Song():            return Song(self._base_container._time_signature, self._base_container)
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._items:
@@ -2138,7 +2138,7 @@ class Clip(Composition):  # Just a container of Elements
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             return {
-                id(masked_item) for masked_item in self._root_container._items
+                id(masked_item) for masked_item in self._base_container._items
                 if id(masked_item) not in unmasked_ids
             }
         return set()
@@ -2169,9 +2169,9 @@ class Clip(Composition):  # Just a container of Elements
 
         self_plotlist.extend(
             single_playlist
-                for single_element in self._root_container._items
+                for single_element in self._base_container._items
                     for single_playlist in single_element.getPlotlist(
-                        self._root_container._midi_track, position_beats, channels, masked_element_ids
+                        self._base_container._midi_track, position_beats, channels, masked_element_ids
                     )
         )
         # sorted(set) returns the sorted list from set
@@ -2202,13 +2202,13 @@ class Clip(Composition):  # Just a container of Elements
 
         self_playlist: list[dict] = [
             {
-                "devices": self._root_container._midi_track._devices
+                "devices": self._base_container._midi_track._devices
             }
         ]
     
-        for single_element in self._root_container._items:
+        for single_element in self._base_container._items:
             self_playlist.extend(
-                single_element.getPlaylist(self._root_container._midi_track, position_beats, False)
+                single_element.getPlaylist(self._base_container._midi_track, position_beats, False)
             )
         return self_playlist
 
@@ -2272,18 +2272,18 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._root_container._time_signature    << operand._root_container._time_signature
-                self._root_container._midi_track        << operand._root_container._midi_track
-                self._root_container._set_owner_clip()
+                self._base_container._time_signature    << operand._base_container._time_signature
+                self._base_container._midi_track        << operand._base_container._midi_track
+                self._base_container._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        self._root_container._time_signature = operand._data
-                    case ou.MidiTrack():            self._root_container._midi_track = operand._data
+                    case og.TimeSignature():        self._base_container._time_signature = operand._data
+                    case ou.MidiTrack():            self._base_container._midi_track = operand._data
 
                     # All possible TimeSignature parameters enter here
                     case og.TimeSignature() | og.TimeSignature():
-                        self._root_container._time_signature << operand._data
+                        self._base_container._time_signature << operand._data
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand):
@@ -2312,19 +2312,19 @@ class Clip(Composition):  # Just a container of Elements
                         super().__lshift__(operand)
 
             case ra.Length():
-                self._root_container._length_beats = operand._rational
-                if self._root_container._length_beats < 0:
-                    self._root_container._length_beats = None
+                self._base_container._length_beats = operand._rational
+                if self._base_container._length_beats < 0:
+                    self._base_container._length_beats = None
             case None:
-                self._root_container._length_beats = None
+                self._base_container._length_beats = None
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
-                self._root_container._midi_track << operand
+                self._base_container._midi_track << operand
             case og.TimeSignature() | og.TimeSignature():
-                self._root_container._time_signature << operand  # TimeSignature has no clock!
+                self._base_container._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
-                self._root_container.loadSerialization( operand.getSerialization() )
+                self._base_container.loadSerialization( operand.getSerialization() )
 
             case oe.Element():
                 self += operand
@@ -2353,7 +2353,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self._root_container._time_signature << operand._root_container._time_signature
+                self._base_container._time_signature << operand._base_container._time_signature
 
             case ClipGet():
                 clip_get: ClipGet = operand
@@ -2680,12 +2680,12 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_root: Clip                = empty_copy._root_container
-        self_root: Clip                 = self._root_container
+        empty_root: Clip                = empty_copy._base_container
+        self_root: Clip                 = self._base_container
         empty_root._time_signature      << self_root._time_signature
         empty_root._midi_track          << self_root._midi_track
         empty_root._length_beats        = self_root._length_beats
-        for single_parameter in parameters: # Parameters should be set on the root
+        for single_parameter in parameters: # Parameters should be set on the base container
             empty_root << single_parameter
         return empty_copy
     
@@ -2702,11 +2702,11 @@ class Clip(Composition):  # Just a container of Elements
         """
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        shallow_copy._root_container._time_signature    = self._root_container._time_signature   
-        shallow_copy._root_container._midi_track        = self._root_container._midi_track
-        shallow_copy._root_container._length_beats      = self._root_container._length_beats
-        for single_parameter in parameters: # Parameters should be set on the root
-            shallow_copy._root_container << single_parameter
+        shallow_copy._base_container._time_signature    = self._base_container._time_signature   
+        shallow_copy._base_container._midi_track        = self._base_container._midi_track
+        shallow_copy._base_container._length_beats      = self._base_container._length_beats
+        for single_parameter in parameters: # Parameters should be set on the base container
+            shallow_copy._base_container << single_parameter
         return shallow_copy
 
 
@@ -3672,7 +3672,7 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
-        self._root_container: Part = self
+        self._base_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
         self._name: str = "Part"
@@ -3889,14 +3889,14 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << ra.Position(self._root_container, self._root_container._position_beats)
+                        return operand._data << ra.Position(self._base_container, self._base_container._position_beats)
                     case str():
                         return self._name
                     case _:                 return super().__mod__(operand)
             case ra.Position():
-                return operand.copy( ra.Position(self._root_container, self._root_container._position_beats) )
+                return operand.copy( ra.Position(self._base_container, self._base_container._position_beats) )
             case str():
-                return self._root_container._name
+                return self._base_container._name
             case od.Names():
                 all_names: list[str] = []
                 for single_item in self._items:
@@ -3921,7 +3921,7 @@ class Part(Composition):
         masked_element_ids: set[int] = set()
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_clip in self._root_container._items:
+            for masked_clip in self._base_container._items:
                 masked_element_ids.update({
                     id(masked_item) for masked_item in masked_clip._items
                     if id(masked_item) not in unmasked_ids
@@ -3943,7 +3943,7 @@ class Part(Composition):
             
         masked_element_ids.update(self.get_masked_element_ids())
 
-        for single_clip in self._root_container._items:
+        for single_clip in self._base_container._items:
             clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
             plot_list.extend( clip_plotlist )
         return plot_list
@@ -3960,8 +3960,8 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        for single_clip in self._root_container._items:
-            play_list.extend(single_clip.getPlaylist(self._root_container._position_beats))
+        for single_clip in self._base_container._items:
+            play_list.extend(single_clip.getPlaylist(self._base_container._position_beats))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -4024,16 +4024,16 @@ class Part(Composition):
             case Part():
                 super().__lshift__(operand)
                 # No conversion is done, beat values are directly copied (Same for Element)
-                self._root_container._position_beats    = operand._root_container._position_beats
-                self._root_container._name              = operand._root_container._name
+                self._base_container._position_beats    = operand._base_container._position_beats
+                self._base_container._name              = operand._base_container._name
                 # Because a Part is also defined by the Owner Song, this also needs to be copied!
                 if self._owner_song is None:   # << and copy operation doesn't override ownership
                     self._owner_song    = operand._owner_song
                 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._root_container._position_beats = operand._data._rational
-                    case str():             self._root_container._name = operand._data
+                    case ra.Position():     self._base_container._position_beats = operand._data._rational
+                    case str():             self._base_container._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -4044,7 +4044,7 @@ class Part(Composition):
                         super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                self._root_container._position_beats = operand % ra.Position(self) % Fraction()
+                self._base_container._position_beats = operand % ra.Position(self) % Fraction()
 
             case Clip():
                 self.__iadd__(operand)
@@ -4053,7 +4053,7 @@ class Part(Composition):
                 self += operand
 
             case od.Serialization():
-                self._root_container.loadSerialization( operand.getSerialization() )
+                self._base_container.loadSerialization( operand.getSerialization() )
             case list():
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
@@ -4070,7 +4070,7 @@ class Part(Composition):
                         item << operand
 
             case str():
-                self._root_container._name = operand
+                self._base_container._name = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -4304,7 +4304,7 @@ class Song(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._root_container: Song = self
+        self._base_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
         for single_operand in operands:
@@ -4473,11 +4473,11 @@ class Song(Composition):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._root_container._time_signature
+                    case og.TimeSignature():        return self._base_container._time_signature
                     case _:                         return super().__mod__(operand)
-            case og.TimeSignature():        return self._root_container._time_signature.copy()
+            case og.TimeSignature():        return self._base_container._time_signature.copy()
             case og.TimeSignature() | og.TimeSignature():
-                return self._root_container._time_signature % operand
+                return self._base_container._time_signature % operand
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
@@ -4497,8 +4497,8 @@ class Song(Composition):
         masked_element_ids: set[int] = set()
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_part in self._root_container._items:
-                for masked_clip in masked_part._root_container._items:
+            for masked_part in self._base_container._items:
+                for masked_clip in masked_part._base_container._items:
                     masked_element_ids.update({
                         id(masked_item) for masked_item in masked_clip._items
                         if id(masked_item) not in unmasked_ids
@@ -4516,7 +4516,7 @@ class Song(Composition):
         plot_list: list = []
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
-        for single_part in self._root_container._items:
+        for single_part in self._base_container._items:
             part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids)
             # Part uses the Song staff as Elements use the Clip staff, so, no need for conversions
             plot_list.extend( part_plotlist )
@@ -4535,7 +4535,7 @@ class Song(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        for single_part in self._root_container._items:
+        for single_part in self._base_container._items:
             play_list.extend(single_part.getPlaylist())
         return play_list
 
@@ -4593,13 +4593,13 @@ class Song(Composition):
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self._root_container._time_signature << operand._root_container._time_signature
-                self._root_container._set_owner_song()
+                self._base_container._time_signature << operand._base_container._time_signature
+                self._base_container._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
-                        self._root_container._time_signature = operand._data
+                        self._base_container._time_signature = operand._data
                     case list():
                         if all(isinstance(item, Part) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -4614,9 +4614,9 @@ class Song(Composition):
                 self += operand
 
             case od.Serialization():
-                self._root_container.loadSerialization( operand.getSerialization() )
+                self._base_container.loadSerialization( operand.getSerialization() )
             case og.TimeSignature() | og.TimeSignature():
-                self._root_container._time_signature << operand
+                self._base_container._time_signature << operand
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]
