@@ -52,7 +52,6 @@ class RS_Solutions:
         self._seed = self._seed.base()
         return self
 
-
     def iterate(self, iterations, n_button, title: str = "") -> Self:
         if iterations < 0:
             self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(n_button).set_title(title)
@@ -86,7 +85,7 @@ class RS_Clip(RS_Solutions):
                 return composition.mul(4)
             return composition
     
-        return self.iterate(iterations, n_button)
+        return self.iterate(iterations, n_button, "Rhythm Fast Quantized")
 
 
     def tonality_conjunct(self,
@@ -103,7 +102,7 @@ class RS_Clip(RS_Solutions):
                 return new_clip * 4
             return composition
     
-        return self.iterate(iterations, n_button)
+        return self.iterate(iterations, n_button, "Tonality Conjunct")
 
 
     def tonality_conjunct_but_slacked(self,
@@ -127,7 +126,7 @@ class RS_Clip(RS_Solutions):
                 return new_clip * 4
             return composition
     
-        return self.iterate(iterations, n_button)
+        return self.iterate(iterations, n_button, "Sweep Sharps")
 
 
 class RS_Part(RS_Solutions):
