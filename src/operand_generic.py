@@ -2275,7 +2275,6 @@ class Plot(ReadOnly):
             this is dependent on a n_button being given.
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
         c_button (Callable): A function intended to play the plotted clip among other compositions.
-        e_button (Callable): A function to be executed by itself without any output required.
         title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
