@@ -1802,11 +1802,11 @@ class Composition(Container):
                 self._run_play(event)
             case 'c':
                 self._run_composition(event)
-            case 's':
+            case 'S':
                 self._run_save(event)
-            case 'e':
+            case 'E':
                 self._run_export(event)
-            case 'r':
+            case 'R':
                 self._run_render(event)
             case 'n':
                 self._run_new(event)
