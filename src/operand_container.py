@@ -1751,10 +1751,15 @@ class Composition(Container):
             f"{len(self._iterations) - 1}",
             composition_actual.checksum()
         ]
-        # Filter out empty/None parts and join with underscores
-        file_name = "_".join(designation for designation in composition_designations if designation) + ".json"
-        # Final cleanup (replace any remaining double underscores from empty title)
-        file_name = file_name.replace("__", "_")
+        # 1. Filter empty strings and convert all parts to lowercase
+        filtered_strings = [
+            designation.strip().lower() 
+            for designation in composition_designations 
+            if designation
+        ]
+        # 2. Join with single underscore (no leading/trailing/double underscores)
+        file_name = "_".join(filtered_strings) + ".json"
+    
         composition_actual >> od.Save(file_name)
         return self
 
