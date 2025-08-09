@@ -34,7 +34,7 @@ motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 displacing_motif = motif >> R + motif % Copy() >> S >> LJ  # up a half-step
 displacing_motif % NoteValue() >> Print(0)
-displacing_motif >> rest_play >> MidiExport("Midi/displacing_motif.mid")
+displacing_motif >> rest_play >> Render("Midi/displacing_motif.mid")
 
 # Equivalent Staff notational format
 displacing_motif = motif \

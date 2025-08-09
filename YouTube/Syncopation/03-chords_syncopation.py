@@ -75,7 +75,7 @@ chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 
 syncopation_2: Clip = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation
 syncopation_2 >> Save("YouTube/Syncopation/save_chords_syncopation.json")
-syncopation_2 >> MidiExport("YouTube/Syncopation/save_chords_syncopation.mid")
+syncopation_2 >> Render("YouTube/Syncopation/save_chords_syncopation.mid")
 syncopation_2 >> Play()
 
 

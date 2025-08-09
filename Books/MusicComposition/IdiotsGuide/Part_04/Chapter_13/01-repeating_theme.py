@@ -32,7 +32,7 @@ measure_4 = Note() * 2 << half << Foreach(8, 7)**Degree()
 motif % NoteValue() >> Print(0)
 measure_2 % NoteValue() >> Print(0)
 measure_4 % NoteValue() >> Print(0)
-(motif >> measure_2 >> motif >> measure_4 >> Rest(1/1) >> P >> MidiExport("Midi/short_motif.mid")) % NoteValue() >> Print(0)
+(motif >> measure_2 >> motif >> measure_4 >> Rest(1/1) >> P >> Render("Midi/short_motif.mid")) % NoteValue() >> Print(0)
 
 clarinet = \
     ProgramChange("Clarinet") + \
@@ -42,7 +42,7 @@ clarinet = \
     motif \
     >> S >> Tie() << Channel(1) << MidiTrack(1, "Clarinet") << Velocity(60)
 clarinet % M1 % NoteValue() >> Print(0)
-# clarinet >> rest_play >> MidiExport("Midi/clarinet.mid")
+# clarinet >> rest_play >> Render("Midi/clarinet.mid")
 trumpet = \
     ProgramChange("Trumpet") + \
     motif + \
@@ -51,4 +51,4 @@ trumpet = \
     (Note() * 2 << half << Foreach(7, 6)**Degree()) \
     >> S << Channel(2) << MidiTrack(2, "Trumpet") << Velocity(30)
 # trumpet >> rest_play
-clarinet + trumpet >> L >> Rest(1/1) >> MidiExport("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> P
+clarinet + trumpet >> L >> Rest(1/1) >> Render("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> P

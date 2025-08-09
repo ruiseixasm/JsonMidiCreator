@@ -36,8 +36,8 @@ original_clip = mutated_clip.copy() - Octave()
 
 for _ in range(400):
     original_clip += mutated_clip
-    original_clip >> MidiExport("Midi/18.1_first_clip.mid")
+    original_clip >> Render("Midi/18.1_first_clip.mid")
     final_clip *= mutated_clip.copy().stack().trim().link()
 
 final_clip % Length() % float() >> Print()
-final_clip >> MidiExport("Midi/18.1_chaotic_rhythm_3.mid")
+final_clip >> Render("Midi/18.1_chaotic_rhythm_3.mid")

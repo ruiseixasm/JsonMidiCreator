@@ -30,5 +30,5 @@ second_note = Note(1/8)
 
 simultaneous_notes = beat_tick + first_note + second_note
 
-simultaneous_notes * 8 >> MidiExport("Midi/test_1.1_overlapping_notes.mid") >> P
+simultaneous_notes * 8 >> Render("Midi/test_1.1_overlapping_notes.mid") >> P
 

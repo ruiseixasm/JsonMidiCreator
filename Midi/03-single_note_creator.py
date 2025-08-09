@@ -22,4 +22,4 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 single_note = Note(1/1)
-single_note >> MidiExport("Midi/single_note.mid")
+single_note >> Render("Midi/single_note.mid")

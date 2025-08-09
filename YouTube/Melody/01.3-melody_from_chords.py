@@ -64,7 +64,7 @@ chords_melody >> measure_operations
 # Total Notes = 3 * 4 - 2 = 10 notes
 chords_melody.len() >> Print()
 chords_melody * 4 >> Play()
-# chords_melody * 4 >> MidiExport("Midi/21_melody_from_chords_1.2.mid")
+# chords_melody * 4 >> Render("Midi/21_melody_from_chords_1.2.mid")
 
 # ADD SOME RHYTHM
 

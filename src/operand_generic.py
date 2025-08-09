@@ -2243,10 +2243,10 @@ class Export(ReadOnly):
             case _:
                 return super().__rrshift__(operand)
 
-class MidiExport(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> MidiExport`
+class Render(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Render`
 
-    Exports a file playable by a Midi player.
+    Renders a midi file playable by any Midi player.
 
     Parameters
     ----------

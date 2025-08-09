@@ -1768,7 +1768,7 @@ class Composition(Container):
     def _run_midi(self, even = None) -> Self:
         composition = self._iterations[self._iteration]
         file_name: str = self._plot_filename(composition) + ".mid"
-        composition >> og.MidiExport(file_name)
+        composition >> og.Render(file_name)
         return self
 
     @staticmethod
@@ -1895,9 +1895,20 @@ class Composition(Container):
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self._run_composition)
 
+
+        # Save Button Widget
+        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        export_button = Button(ax_button, 'S', color='white', hovercolor='grey')
+        export_button.on_clicked(self._run_export)
+
         # Execution Button Widget
         ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
         export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        export_button.on_clicked(self._run_export)
+
+        # Midi Export Button Widget
+        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        export_button = Button(ax_button, 'M', color='white', hovercolor='grey')
         export_button.on_clicked(self._run_export)
 
         # Previous Button Widget

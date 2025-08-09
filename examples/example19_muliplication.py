@@ -36,4 +36,4 @@ final_clip = Clip()
 final_clip % Length() % float() >> Print()
 
 
-final_clip >> MidiExport("Midi/19_multiplication_1.mid")
+final_clip >> Render("Midi/19_multiplication_1.mid")
