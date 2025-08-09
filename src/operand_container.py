@@ -1041,6 +1041,24 @@ class Composition(Container):
     def checksum(self) -> str:
         return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
 
+    def composition_filename(self, title: str = "composition") -> str:
+        # Process title separately (replace whitespace with underscores)
+        processed_title = str(title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
+        composition_designations: list[str] = [
+            processed_title,
+            type(self).__name__,
+            self.checksum()
+        ]
+        # 1. Filter empty strings and convert all parts to lowercase
+        filtered_strings = [
+            designation.strip().lower() 
+            for designation in composition_designations 
+            if designation
+        ]
+        # 2. Join with single underscore (no leading/trailing/double underscores)
+        return "_".join(filtered_strings)
+
+
     def masked_element(self, element: oe.Element) -> bool:
         return False
 
