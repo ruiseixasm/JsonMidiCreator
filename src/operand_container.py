@@ -1896,8 +1896,8 @@ class Composition(Container):
 
         # Execution Button Widget
         ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
-        execute_button = Button(ax_button, 'E', color='white', hovercolor='grey')
-        execute_button.on_clicked(self._run_execute)
+        export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        export_button.on_clicked(self._run_export)
 
         # Previous Button Widget
         if self._iteration == 0:
