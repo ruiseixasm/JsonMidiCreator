@@ -53,9 +53,9 @@ class RS_Solutions:
         return self
 
 
-    def iterate(self, iterations, n_button) -> Self:
+    def iterate(self, iterations, n_button, title: str = "") -> Self:
         if iterations < 0:
-            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(n_button)
+            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(n_button).set_title(title)
         else:
             self._seed >>= og.Call(iterations, n_button)
         return self

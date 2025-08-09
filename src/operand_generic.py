@@ -2309,6 +2309,11 @@ class Plot(ReadOnly):
         self._parameters[4] = function
         return self
 
+    def set_title(self, title: str) -> Self:
+        if isinstance(title, str):
+            self._parameters[7] = title
+        return self
+
 
 class Call(ReadOnly):
     """`Generic -> Process -> ReadOnly -> Call`
