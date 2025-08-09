@@ -334,7 +334,7 @@ class Container(o.Operand):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["items"] = self.serialize(self._items)
+        serialization["parameters"]["items"] = self.serialize(self._base_container._items)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -354,6 +354,7 @@ class Container(o.Operand):
 
             super().loadSerialization(serialization)
             self._items = self.deserialize(serialization["parameters"]["items"])
+            self._base_container = self # Not a mask anymore if one
         return self
 
     def __lshift__(self, operand: any) -> Self:
