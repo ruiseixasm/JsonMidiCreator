@@ -6,7 +6,7 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 2. Library `matplotlib` for plotting in order to do `>> Plot()`;
 3. [JsonMidiPlayer](https://github.com/ruiseixasm/JsonMidiPlayer) shared library in order to do `>> Play()`;
 4. Library [ctypes](https://docs.python.org/3/library/ctypes.html) to run the [JsonMidiPlayer](https://github.com/ruiseixasm/JsonMidiPlayer) library above. Normally is already installed.
-5. Library [mido](https://mido.readthedocs.io/en/stable/) to export Midi files with `>> Render("midi_file.mid")`;
+5. Library [MIDIUtil](https://pypi.org/project/MIDIUtil/) to export Midi files with `>> Render("midi_file.mid")`;
 6. [Jupyter](https://jupyter.org/) library if you intend to use Notebooks. Highly recommended.
 
 ## How to install matplotlib
@@ -21,10 +21,10 @@ python -m pip install -U matplotlib
 2. Copy the `.dll` or `.so` file into your own local [JsonMidiCreator](https://github.com/ruiseixasm/JsonMidiCreator) library `/lib` folder.
 Go to [/lib](https://github.com/ruiseixasm/JsonMidiCreator/tree/main/lib) to see even more details.
 
-## How to install the mido library
+## How to install the MIDIUtil library
 Go to your command line and type:
 ```
-python3 -m pip install mido
+pip install MIDIUtil
 ```
 
 ## How to install and use Jupyter
