@@ -1735,8 +1735,10 @@ class Composition(Container):
         return self
 
     def _plot_filename(self, composition: 'Composition') -> str:
+        # Process title separately (replace whitespace with underscores)
+        processed_title = str(self._title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
         composition_designations: list[str] = [
-            self._title,
+            processed_title,
             type(composition).__name__,
             f"{self._iteration}",
             f"{len(self._iterations) - 1}",
