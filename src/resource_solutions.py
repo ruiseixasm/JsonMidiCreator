@@ -163,7 +163,7 @@ class RS_Clip(RS_Solutions):
                     measure_clip: oc.Clip = self._seed * [measure]
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
+                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % measure_iteration)  # One iteration
                         measure_clip << new_key_signature << ou.TonicKey(-1)
                     new_clip *= measure_clip
                 return new_clip
@@ -188,7 +188,7 @@ class RS_Clip(RS_Solutions):
                     measure_clip: oc.Clip = self._seed * [measure]
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
+                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % measure_iteration * -1)  # One iteration
                         measure_clip << new_key_signature << ou.TonicKey(-1)
                     new_clip *= measure_clip
                 return new_clip
