@@ -1041,8 +1041,9 @@ class Composition(Container):
     def checksum(self) -> str:
         return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
 
-    def composition_filename(self, title: str = "composition") -> str:
+    def composition_filename(self) -> str:
         # Process title separately (replace whitespace with underscores)
+        title: str = self % str()
         processed_title = str(title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
         composition_designations: list[str] = [
             processed_title,
@@ -3979,8 +3980,9 @@ class Part(Composition):
                     case ra.Position():
                         return operand._data << ra.Position(self._base_container, self._base_container._position_beats)
                     case str():
-                        return self._name
-                    case _:                 return super().__mod__(operand)
+                        return self._base_container._name
+                    case _:
+                        return super().__mod__(operand)
             case ra.Position():
                 return operand.copy( ra.Position(self._base_container, self._base_container._position_beats) )
             case str():
