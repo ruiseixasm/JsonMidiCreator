@@ -86,10 +86,9 @@ class Element(o.Operand):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
-        master: int = self % ra.Beats() % int()
+        master: int = self._channel << 8
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
-        master ^= self % ra.Measure() % int() << 8
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 

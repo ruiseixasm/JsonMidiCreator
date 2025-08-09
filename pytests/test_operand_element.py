@@ -676,3 +676,11 @@ def test_element_position():
     assert single_note == Measure(1)
 
 # test_element_position()
+
+
+def test_checksum():
+    single_note = Note()
+    assert single_note.checksum() == "0000"
+
+# test_checksum()
+
