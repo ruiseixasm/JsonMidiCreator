@@ -1025,6 +1025,14 @@ class Note(Element):
         return self
 
 
+    def checksum(self) -> str:
+        """4-char hex checksum (16-bit) for an Element."""
+        master: int = self._channel << 8 ^ self._pitch.pitch_int() ^ self._velocity << 8
+        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
+        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
+
     def __eq__(self, other: o.Operand) -> bool:
         other ^= self    # Processes the Frame operand if any exists
         match other:
@@ -2229,6 +2237,13 @@ class Automation(Element):
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+    def checksum(self) -> str:
+        """4-char hex checksum (16-bit) for an Element."""
+        master: int = self._channel << 8 ^ self._value
+        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
+        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
     def __mod__(self, operand: o.T) -> o.T:
         """

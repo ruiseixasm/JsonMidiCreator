@@ -680,7 +680,7 @@ def test_element_position():
 
 def test_checksum():
     single_note = Note()
-    assert single_note.checksum() == "0000"
+    assert single_note.checksum() == "643c"
 
 # test_checksum()
 
