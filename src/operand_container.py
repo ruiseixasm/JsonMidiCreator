@@ -3742,7 +3742,11 @@ class Part(Composition):
 
 
     def checksum(self) -> str:
-        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
+        """4-char hex checksum (16-bit) for a Part, combining part checksums."""
+        master: int = len(self._base_container._items)
+        for single_clip in self._base_container._items:
+            master ^= int(single_clip.checksum(), 16)   # XOR 16-bit
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: oe.Element) -> bool:
@@ -4384,7 +4388,11 @@ class Song(Composition):
 
 
     def checksum(self) -> str:
-        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
+        """4-char hex checksum (16-bit) for a Song, combining part checksums."""
+        master: int = len(self._base_container._items)
+        for single_part in self._base_container._items:
+            master ^= int(single_part.checksum(), 16)   # XOR 16-bit
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: oe.Element) -> bool:
