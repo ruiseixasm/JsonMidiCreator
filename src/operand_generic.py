@@ -2211,7 +2211,7 @@ class Save(ReadOnly):
 
     Parameters
     ----------
-    str("json/_Save_jsonMidiCreator.json") : The filename of the Operand's serialization data.
+    None, str() : The filename of the Operand's serialization data.
     """
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
@@ -2220,7 +2220,7 @@ class Save(ReadOnly):
         if isinstance(operand, o.Operand):
             if not (isinstance(self._parameters, str) and self._parameters):
                 if isinstance(operand, oc.Composition):
-                    self._parameters = operand.composition_filename()
+                    self._parameters = operand.composition_filename() + "_save.json"
                 else:
                     self._parameters = "json/_Save_jsonMidiCreator.json"
             c.saveJsonMidiCreator(operand.getSerialization(), self._parameters)
@@ -2234,14 +2234,19 @@ class Export(ReadOnly):
 
     Parameters
     ----------
-    str("json/_Export_jsonMidiPlayer.json") : The filename of the JsonMidiPlayer playable file.
+    None, str() : The filename of the JsonMidiPlayer playable file.
     """
-    def __init__(self, filename: str = "json/_Export_jsonMidiPlayer.json"):
+    def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
+                if not (isinstance(self._parameters, str) and self._parameters):
+                    if isinstance(operand, oc.Composition):
+                        self._parameters = operand.composition_filename() + "_export.json"
+                    else:
+                        self._parameters = "json/_Export_jsonMidiPlayer.json"
                 playlist: list[dict] = self._clocked_playlist(operand)
                 c.saveJsonMidiPlay(playlist, self._parameters)
                 return operand
