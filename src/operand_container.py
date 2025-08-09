@@ -1734,22 +1734,13 @@ class Composition(Container):
             self._update_iteration(self._iteration, iteration_clip.getPlotlist())
         return self
 
-    def _run_execute(self, even = None) -> Self:
-        if callable(self._e_function):
-            iteration_clip: Clip = self._iterations[self._iteration]
-            self._e_function(iteration_clip, self._iteration)
-            # Updates the iteration_clip data and plot just in case
-            self._update_iteration(self._iteration, iteration_clip.getPlotlist())
-        return self
-
-    def _run_save(self, even = None) -> Self:
-        composition_actual = self._iterations[self._iteration]
+    def _plot_filename(self, composition: 'Composition') -> str:
         composition_designations: list[str] = [
             self._title,
-            type(composition_actual).__name__,
+            type(composition).__name__,
             f"{self._iteration}",
             f"{len(self._iterations) - 1}",
-            composition_actual.checksum()
+            composition.checksum()
         ]
         # 1. Filter empty strings and convert all parts to lowercase
         filtered_strings = [
@@ -1758,9 +1749,24 @@ class Composition(Container):
             if designation
         ]
         # 2. Join with single underscore (no leading/trailing/double underscores)
-        file_name = "_".join(filtered_strings) + ".json"
-    
-        composition_actual >> od.Save(file_name)
+        return "_".join(filtered_strings)
+
+    def _run_save(self, even = None) -> Self:
+        composition = self._iterations[self._iteration]
+        file_name: str = self._plot_filename(composition) + "_save.json"
+        composition >> od.Save(file_name)
+        return self
+
+    def _run_export(self, even = None) -> Self:
+        composition = self._iterations[self._iteration]
+        file_name: str = self._plot_filename(composition) + "_export.json"
+        composition >> od.Export(file_name)
+        return self
+
+    def _run_midi(self, even = None) -> Self:
+        composition = self._iterations[self._iteration]
+        file_name: str = self._plot_filename(composition) + ".mid"
+        composition >> od.MidiExport(file_name)
         return self
 
     @staticmethod
@@ -1794,8 +1800,10 @@ class Composition(Container):
                 self._run_play(event)
             case 'c':
                 self._run_composition(event)
+            case 's':
+                self._run_save(event)
             case 'e':
-                self._run_execute(event)
+                self._run_export(event)
             case 'n':
                 self._run_new(event)
             case ',':
@@ -1811,8 +1819,7 @@ class Composition(Container):
 
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = "") -> Self:
+            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str = "") -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1836,7 +1843,6 @@ class Composition(Container):
         self._iteration: int = 0
         self._n_function = n_button
         self._c_function = c_button
-        self._e_function = e_button
         self._title: str = title
 
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
@@ -1906,11 +1912,6 @@ class Composition(Container):
         if not callable(self._c_function):
             # Composition Button Widget
             self._disable_button(composition_button)
-
-        if not callable(self._e_function):
-            # Composition Button Widget
-            self._disable_button(execute_button)
-
 
         if block and pause == 0:
             plt.show(block=True)

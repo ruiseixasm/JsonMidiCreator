@@ -2280,9 +2280,8 @@ class Plot(ReadOnly):
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 c_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 e_button: Optional[Callable[['Composition', int], Any]] = None, title: str = ""):
-        super().__init__([by_channel, block, pause, iterations, n_button, c_button, e_button, title])
+                 c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str = ""):
+        super().__init__([by_channel, block, pause, iterations, n_button, c_button, title])
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -2311,7 +2310,7 @@ class Plot(ReadOnly):
 
     def set_title(self, title: str) -> Self:
         if isinstance(title, str):
-            self._parameters[7] = title
+            self._parameters[6] = title
         return self
 
 
