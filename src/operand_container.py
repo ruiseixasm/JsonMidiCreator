@@ -1742,6 +1742,22 @@ class Composition(Container):
             self._update_iteration(self._iteration, iteration_clip.getPlotlist())
         return self
 
+    def _run_save(self, even = None) -> Self:
+        composition_actual = self._iterations[self._iteration]
+        composition_designations: list[str] = [
+            self._title,
+            type(composition_actual).__name__,
+            f"{self._iteration}",
+            f"{len(self._iterations) - 1}",
+            composition_actual.checksum()
+        ]
+        # Filter out empty/None parts and join with underscores
+        file_name = "_".join(designation for designation in composition_designations if designation) + ".json"
+        # Final cleanup (replace any remaining double underscores from empty title)
+        file_name = file_name.replace("__", "_")
+        composition_actual >> od.Save(file_name)
+        return self
+
     @staticmethod
     def _disable_button(button: Button) -> Button:
         # Set disabled style
