@@ -88,17 +88,25 @@ class RS_Clip(RS_Solutions):
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
-            measures: list[int] = [1, 0, 0, 0],
+            measures: list[int] = [0, 0, 0, 0],
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 chaos.reset_tamers()    # Tamer needs to be reset
-                picked_durations = o.list_choose(durations, chaos % choices)
-                composition << of.Foreach(*picked_durations)**ra.NoteValue()
-                # These operations shall be done on the base (single Measure)
-                composition.base().stack().quantize().mul([0]).link()  
-                return composition.mul(4)
+                picked_durations: list[float] = o.list_choose(durations, chaos % choices)
+                new_clip: oc.Clip = self._seed.empty_copy()
+                for measure_iteration in measures:
+                    measure_clip: oc.Clip = self._seed.copy()
+                    if measure_iteration >= 0:
+                        if measure_iteration > 0:
+                            chaos.reset_tamers()    # Tamer needs to be reset
+                            picked_durations = o.list_choose(durations, chaos % choices)
+                        measure_clip << of.Foreach(*picked_durations)**ra.NoteValue()
+                    # These operations shall be done on the base (single Measure)
+                    measure_clip.base().stack().quantize().mul([0]).link()
+                    new_clip *= measure_clip
+                return new_clip
             return composition
     
         if not isinstance(title, str):
