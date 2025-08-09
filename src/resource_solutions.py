@@ -60,6 +60,7 @@ class RS_Solutions:
         return self
 
 
+
 class RS_Clip(RS_Solutions):
     def __init__(self, seed: oc.Clip, plot : og.Plot = og.Plot(title="Clip Solutions")):
         super().__init__(seed, plot)
@@ -68,6 +69,18 @@ class RS_Clip(RS_Solutions):
     def solution(self) -> 'oc.Clip':
         return self._seed
     
+
+    def my_n_button(self,
+            iterations: int = 1,
+            n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
+            title: str | None = None) -> Self:
+        
+        if callable(n_button):
+            if not isinstance(title, str):
+                title = "My N Button"
+            return self.iterate(iterations, n_button, title)
+        return self
+
 
     def rhythm_fast_quantized(self,
             iterations: int = 1,
@@ -146,6 +159,61 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, n_button, title)
 
 
+    def sweep_flats(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            title: str | None = None) -> Self:
+        
+        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                chaos.reset_tamers()    # Tamer needs to be reset
+                chaos_data = chaos % 1  # One iteration
+                key_signature: ou.KeySignature = ou.KeySignature(chaos_data * -1)
+                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
+                new_clip << key_signature << ou.TonicKey(-1)
+                return new_clip * 4
+            return composition
+    
+        if not isinstance(title, str):
+            title = "Sweep Flats"
+    
+        return self.iterate(iterations, n_button, title)
+
+
+    def sprinkle_accidentals(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.Flipper(ra.Period(6))**ch.SinX(33),
+            title: str | None = None) -> Self:
+        
+        last_accidental: int = 0
+        
+        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
+            nonlocal last_accidental
+            if isinstance(composition, oc.Clip):
+                chaos.reset_tamers()    # Tamer needs to be reset
+                chaos_flip: int = chaos % 1
+                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
+                if chaos_flip > 0:
+                    if last_accidental == 0:
+                        last_accidental = 1
+                        accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
+                    elif last_accidental > 0:
+                        last_accidental = -1
+                        accidental_degree: ou.Degree = ou.Degree(0.2)   # Flat
+                    else:
+                        last_accidental = 0
+                        accidental_degree: ou.Degree = ou.Degree(0.0)   # Natural
+                    new_clip << accidental_degree
+                return new_clip * 4
+            return composition
+    
+        if not isinstance(title, str):
+            title = "Sprinkle Accidentals"
+    
+        return self.iterate(iterations, n_button, title)
+
+
+
 class RS_Part(RS_Solutions):
     def __init__(self, seed: oc.Part, plot : og.Plot = og.Plot(title="Part Solutions")):
         super().__init__(seed, plot)
@@ -153,6 +221,7 @@ class RS_Part(RS_Solutions):
          
     def solution(self) -> 'oc.Part':
         return self._seed
+
 
 
 class RS_Song(RS_Solutions):

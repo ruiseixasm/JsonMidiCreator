@@ -287,10 +287,10 @@ class Cycle(Chaos):
 
 
 class Flipper(Cycle):
-    """`Chaos -> Modulus -> Flipper`
+    """`Chaos -> Cycle -> Flipper`
 
     The Xn alternates like left and right, where left is 0 and right is 1.
-    It works just like a Modulus with the difference of returning only 0 or 1,
+    It works just like a `Cycle` with the difference of returning only 0 or 1,
     where a given split defines what belongs to left and what to right.
 
     Parameters
@@ -298,13 +298,13 @@ class Flipper(Cycle):
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Cycle(2) : The cyclic value on which the `Xn` modulus % operation is made.
+    Period(2) : The period value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     Split(1) : This sets the value below which is considered a "left" flip.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._period             = ra.Period(2)._rational
+        self._period            = ra.Period(2)._rational
         self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -366,7 +366,7 @@ class Flipper(Cycle):
         return self
 
 class Counter(Cycle):
-    """`Chaos -> Modulus -> Counter`
+    """`Chaos -> Cycle -> Counter`
 
     The Xn represents the total number of completed cycles.
     Contrary to modulus, the counter returns the amount of completed cycles.
@@ -376,7 +376,7 @@ class Counter(Cycle):
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Cycle(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Period(12) : The period value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     """
     def __mod__(self, operand: o.T) -> o.T:
