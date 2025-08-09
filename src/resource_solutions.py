@@ -73,6 +73,7 @@ class RS_Clip(RS_Solutions):
     def my_n_button(self,
             iterations: int = 1,
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         if callable(n_button):
@@ -87,6 +88,7 @@ class RS_Clip(RS_Solutions):
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -109,6 +111,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -130,6 +133,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         if not isinstance(title, str):
@@ -141,6 +145,7 @@ class RS_Clip(RS_Solutions):
     def sweep_sharps(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -162,6 +167,7 @@ class RS_Clip(RS_Solutions):
     def sweep_flats(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -183,6 +189,7 @@ class RS_Clip(RS_Solutions):
     def sprinkle_accidentals(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Flipper(ra.Period(6))**ch.SinX(33),
+            measures: list[int] = [1, 0, 0, 0],
             title: str | None = None) -> Self:
         
         last_accidental: int = 0
