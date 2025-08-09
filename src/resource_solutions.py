@@ -98,7 +98,7 @@ class RS_Clip(RS_Solutions):
                     measure_clip: oc.Clip = self._seed.copy()
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_durations = o.list_choose(durations, chaos.reset_tamers() % choices)
+                            new_durations = o.list_choose(durations, chaos.reset_tamers() * measure_iteration % choices)
                         measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
                     # These operations shall be done on the base (single Measure)
                     measure_clip.base().stack().quantize().mul([0]).link()
@@ -126,7 +126,7 @@ class RS_Clip(RS_Solutions):
                     measure_clip: oc.Clip = self._seed * [measure]
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_degrees = chaos.reset_tamers() % choices
+                            new_degrees = chaos.reset_tamers() * measure_iteration % choices
                         measure_clip += of.Foreach(*new_degrees)**ou.Degree()
                     new_clip *= measure_clip
                 return new_clip
