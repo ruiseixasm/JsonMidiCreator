@@ -2213,11 +2213,16 @@ class Save(ReadOnly):
     ----------
     str("json/_Save_jsonMidiCreator.json") : The filename of the Operand's serialization data.
     """
-    def __init__(self, filename: str = "json/_Save_jsonMidiCreator.json"):
+    def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
+            if not (isinstance(self._parameters, str) and self._parameters):
+                if isinstance(operand, oc.Composition):
+                    self._parameters = operand.composition_filename()
+                else:
+                    self._parameters = "json/_Save_jsonMidiCreator.json"
             c.saveJsonMidiCreator(operand.getSerialization(), self._parameters)
             return operand
         return super().__rrshift__(operand)
