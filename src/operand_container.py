@@ -1037,6 +1037,10 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
+
+    def checksum(self) -> str:
+        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
+
     def masked_element(self, element: oe.Element) -> bool:
         return False
 
@@ -2028,6 +2032,10 @@ class Clip(Composition):  # Just a container of Elements
             if single_element._owner_clip is not self._base_container:
                 return False
         return True
+
+
+    def checksum(self) -> str:
+        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: oe.Element) -> bool:
@@ -3733,6 +3741,10 @@ class Part(Composition):
         return self
 
 
+    def checksum(self) -> str:
+        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
+
+
     def masked_element(self, element: oe.Element) -> bool:
         if self.is_a_mask():
             for single_clip in self._items:
@@ -4369,6 +4381,10 @@ class Song(Composition):
             if single_part._owner_song is not self:
                 return False
         return True
+
+
+    def checksum(self) -> str:
+        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: oe.Element) -> bool:
