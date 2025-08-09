@@ -23,10 +23,10 @@ def composition(clip: Clip) -> Composition:
 seed_notes = Note() / 8
 clip_solution = RS_Clip(seed_notes, [0, 0, 0, 0, 1, 0, 0, 0], og.Plot(c_button=composition))
 
-phrase_notes = clip_solution.rhythm_fast_quantized(-7).tonality_conjunct_but_slacked(3).solution()
+phrase_notes = clip_solution.rhythm_fast_quantized(7).tonality_conjunct_but_slacked(3).solution()
 # phrase_notes >> Plot()
 
-key_signatures = RS_Clip(phrase_notes)
+key_signatures = RS_Clip(phrase_notes, [0, 0, 0, 0, 0, 0, 0, 0])
 phrase_notes = key_signatures.sweep_sharps(-7).solution()
 # phrase_notes >> Plot()
 

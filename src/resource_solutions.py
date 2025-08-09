@@ -92,16 +92,14 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos.reset_tamers()    # Tamer needs to be reset
-                picked_durations: list[float] = o.list_choose(durations, chaos % choices)
+                new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % choices)
                 new_clip: oc.Clip = self._seed.empty_copy()
                 for measure_iteration in self._measures:
                     measure_clip: oc.Clip = self._seed.copy()
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            chaos.reset_tamers()    # Tamer needs to be reset
-                            picked_durations = o.list_choose(durations, chaos % choices)
-                        measure_clip << of.Foreach(*picked_durations)**ra.NoteValue()
+                            new_durations = o.list_choose(durations, chaos.reset_tamers() % choices)
+                        measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
                     # These operations shall be done on the base (single Measure)
                     measure_clip.base().stack().quantize().mul([0]).link()
                     new_clip *= measure_clip
@@ -122,11 +120,16 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos.reset_tamers()    # Tamer needs to be reset
-                final_degrees = chaos % choices
-                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip += of.Foreach(*final_degrees)**ou.Degree()
-                return new_clip * 4
+                new_degrees = chaos.reset_tamers() % choices
+                new_clip: oc.Clip = self._seed.empty_copy()
+                for measure, measure_iteration in enumerate(self._measures):
+                    measure_clip: oc.Clip = self._seed * [measure]
+                    if measure_iteration >= 0:
+                        if measure_iteration > 0:
+                            new_degrees = chaos.reset_tamers() % choices
+                        measure_clip += of.Foreach(*new_degrees)**ou.Degree()
+                    new_clip *= measure_clip
+                return new_clip
             return composition
         
         if not isinstance(title, str):
@@ -154,12 +157,16 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos.reset_tamers()    # Tamer needs to be reset
-                chaos_data = chaos % 1  # One iteration
-                key_signature: ou.KeySignature = ou.KeySignature(chaos_data)
-                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip << key_signature << ou.TonicKey(-1)
-                return new_clip * 4
+                new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
+                new_clip: oc.Clip = self._seed.empty_copy()
+                for measure, measure_iteration in enumerate(self._measures):
+                    measure_clip: oc.Clip = self._seed * [measure]
+                    if measure_iteration >= 0:
+                        if measure_iteration > 0:
+                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
+                        measure_clip << new_key_signature << ou.TonicKey(-1)
+                    new_clip *= measure_clip
+                return new_clip
             return composition
     
         if not isinstance(title, str):
@@ -175,12 +182,16 @@ class RS_Clip(RS_Solutions):
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                chaos.reset_tamers()    # Tamer needs to be reset
-                chaos_data = chaos % 1  # One iteration
-                key_signature: ou.KeySignature = ou.KeySignature(chaos_data * -1)
-                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                new_clip << key_signature << ou.TonicKey(-1)
-                return new_clip * 4
+                new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
+                new_clip: oc.Clip = self._seed.empty_copy()
+                for measure, measure_iteration in enumerate(self._measures):
+                    measure_clip: oc.Clip = self._seed * [measure]
+                    if measure_iteration >= 0:
+                        if measure_iteration > 0:
+                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
+                        measure_clip << new_key_signature << ou.TonicKey(-1)
+                    new_clip *= measure_clip
+                return new_clip
             return composition
     
         if not isinstance(title, str):
@@ -199,8 +210,7 @@ class RS_Clip(RS_Solutions):
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
-                chaos.reset_tamers()    # Tamer needs to be reset
-                chaos_flip: int = chaos % 1
+                chaos_flip: int = chaos.reset_tamers() % 1
                 new_clip: oc.Clip = self._seed * [0] # Just the first Measure
                 if chaos_flip > 0:
                     if last_accidental == 0:
