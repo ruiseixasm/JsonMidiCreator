@@ -73,7 +73,8 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.SinX(340)) -> Self:
+            chaos: ch.Chaos = ch.SinX(340),
+            title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
@@ -85,13 +86,17 @@ class RS_Clip(RS_Solutions):
                 return composition.mul(4)
             return composition
     
-        return self.iterate(iterations, n_button, "Rhythm Fast Quantized")
+        if not isinstance(title, str):
+            title = "Rhythm Fast Quantized"
+    
+        return self.iterate(iterations, n_button, title)
 
 
     def tonality_conjunct(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX()) -> Self:
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
+            title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
@@ -101,20 +106,29 @@ class RS_Clip(RS_Solutions):
                 new_clip += of.Foreach(*final_degrees)**ou.Degree()
                 return new_clip * 4
             return composition
+        
+        if not isinstance(title, str):
+            title = "Tonality Conjunct"
     
-        return self.iterate(iterations, n_button, "Tonality Conjunct")
+        return self.iterate(iterations, n_button, title)
 
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX()) -> Self:
-        return self.tonality_conjunct(iterations, choices, chaos)
+            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
+            title: str | None = None) -> Self:
+        
+        if not isinstance(title, str):
+            title = "Tonality Conjunct But Slacked"
+    
+        return self.tonality_conjunct(iterations, choices, chaos, title)
 
 
     def sweep_sharps(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8))) -> Self:
+            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
@@ -126,7 +140,10 @@ class RS_Clip(RS_Solutions):
                 return new_clip * 4
             return composition
     
-        return self.iterate(iterations, n_button, "Sweep Sharps")
+        if not isinstance(title, str):
+            title = "Sweep Sharps"
+    
+        return self.iterate(iterations, n_button, title)
 
 
 class RS_Part(RS_Solutions):
