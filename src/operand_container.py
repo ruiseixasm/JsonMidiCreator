@@ -1765,9 +1765,9 @@ class Composition(Container):
         composition >> og.Export(file_name)
         return self
 
-    def _run_midi(self, even = None) -> Self:
+    def _run_render(self, even = None) -> Self:
         composition = self._iterations[self._iteration]
-        file_name: str = self._plot_filename(composition) + ".mid"
+        file_name: str = self._plot_filename(composition) + "_render.mid"
         composition >> og.Render(file_name)
         return self
 
@@ -1806,6 +1806,8 @@ class Composition(Container):
                 self._run_save(event)
             case 'e':
                 self._run_export(event)
+            case 'r':
+                self._run_render(event)
             case 'n':
                 self._run_new(event)
             case ',':
@@ -1895,6 +1897,7 @@ class Composition(Container):
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self._run_composition)
 
+        # Buttons are vertically spaced by 0.060
 
         # Save Button Widget
         ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
@@ -1902,14 +1905,14 @@ class Composition(Container):
         export_button.on_clicked(self._run_export)
 
         # Execution Button Widget
-        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        ax_button = plt.axes([0.979, 0.468, 0.015, 0.05])
         export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_export)
+        export_button.on_clicked(self._run_save)
 
-        # Midi Export Button Widget
-        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
-        export_button = Button(ax_button, 'M', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_export)
+        # Render Button Widget
+        ax_button = plt.axes([0.979, 0.408, 0.015, 0.05])
+        export_button = Button(ax_button, 'R', color='white', hovercolor='grey')
+        export_button.on_clicked(self._run_render)
 
         # Previous Button Widget
         if self._iteration == 0:
