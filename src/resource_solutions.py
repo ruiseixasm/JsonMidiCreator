@@ -37,10 +37,17 @@ import operand_chaos as ch
 
 
 class RS_Solutions:
-    def __init__(self, seed: oc.Composition, measures: list[int] = [0, 0, 0, 0], c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
+    def __init__(self,
+                 seed: oc.Composition,
+                 measures: list[int] = [0, 0, 0, 0],
+                 by_channel: bool = False,
+                 c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 title: str | None = None):
         self._seed: oc.Composition = seed
         self._measures: list[int] = measures
+        self._by_channel: bool = by_channel
         self._c_button = c_button
+        self._title: str | None = title
 
     def solution(self) -> 'oc.Composition':
         return self._seed
@@ -55,7 +62,12 @@ class RS_Solutions:
 
     def iterate(self, iterations, n_button, title: str = "") -> Self:
         if iterations < 0:
-            self._seed >>= og.Plot(iterations=(iterations * -1), n_button=n_button, c_button=self._c_button, title=title)
+            if isinstance(self._title, str):
+                title = self._title
+            self._seed >>= og.Plot(self._by_channel,
+                iterations=iterations * -1,
+                n_button=n_button, c_button=self._c_button, title=title
+            )
         else:
             self._seed >>= og.Call(iterations, n_button)
         return self
@@ -63,8 +75,13 @@ class RS_Solutions:
 
 
 class RS_Clip(RS_Solutions):
-    def __init__(self, seed: oc.Composition, measures: list[int] = [0, 0, 0, 0], c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
-        super().__init__(seed, measures, c_button)
+    def __init__(self,
+                 seed: oc.Composition,
+                 measures: list[int] = [0, 0, 0, 0],
+                 by_channel: bool = False,
+                 c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 title: str | None = None):
+        super().__init__(seed, measures, by_channel, c_button, title)
         self._seed: oc.Clip = seed
          
     def solution(self) -> 'oc.Clip':
