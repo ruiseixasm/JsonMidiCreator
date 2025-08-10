@@ -647,10 +647,10 @@ class Convertible(Rational):
         match operand:
             case Convertible():
                 self_beats: Fraction = self._get_beats(operand._time_signature_reference)
-                self_operand: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
-                if isinstance(self_operand, TimeUnit):
-                    return self.round_to_measurement(self_operand)
-                return self_operand
+                converted_operand: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
+                if isinstance(converted_operand, TimeUnit):
+                    return self.round_to_measurement(converted_operand)
+                return converted_operand
             case _:
                 return super().__mod__(operand)
 
