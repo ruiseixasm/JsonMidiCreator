@@ -619,18 +619,14 @@ class Convertible(Rational):
             timeunit._rational = Fraction(int(timeunit._rational), 1)
         return timeunit
 
-
-    # Position round type: [...)
     def roundMeasures(self) -> Self:
-        return self << self % Measure()
+        return self.copy(self % Measure())
 
-    # Position round type: [...)
     def roundBeats(self) -> Self:
-        return self << self % Beat()
+        return self.copy(self % Beat())
     
-    # Position round type: [...)
     def roundSteps(self) -> Self:
-        return self << self % Step()
+        return self.copy(self % Step())
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -876,18 +872,6 @@ class Measurement(Convertible):
             case _:
                 super().__itruediv__(operand)
         return self
-
-    # Measurement/Length/Duration round type: (...]
-    def roundMeasures(self) -> Self:
-        return self.copy(self % Measure())
-
-    # Measurement/Length/Duration round type: (...]
-    def roundBeats(self) -> Self:
-        return self.copy(self % Beat())
-    
-    # Measurement/Length/Duration round type: (...]
-    def roundSteps(self) -> Self:
-        return self.copy(self % Step())
 
 
 class Position(Measurement):
