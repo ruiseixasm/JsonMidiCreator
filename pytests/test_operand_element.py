@@ -145,6 +145,7 @@ def test_note_lshift():
     note += Measure(1)
     assert note % Position() == 1.0
     note += Beat(2)
+    print(f"Position: {note % Position() % float()}")
     assert note % Position() == 1.5
     assert note % Beat() == 2
     note << Beat(0)
