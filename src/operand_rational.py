@@ -645,7 +645,7 @@ class Convertible(Rational):
     def round_to_measurement(self, timeunit: o.T) -> o.T:
         match timeunit:
             case TimeUnit():
-                return timeunit.measure_unit()
+                return timeunit._set_position_value()
             case _:
                 return timeunit
 
@@ -654,10 +654,10 @@ class Convertible(Rational):
         match operand:
             case Convertible():
                 self_beats: Fraction = self._get_beats(operand._time_signature_reference)
-                converted_operand: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
-                if isinstance(converted_operand, TimeUnit):
-                    return self.round_to_measurement(converted_operand)
-                return converted_operand
+                if isinstance(operand, TimeUnit):
+                    converted_timeunit: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
+                    return self._round_timeunit(converted_timeunit)
+                return operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
             case _:
                 return super().__mod__(operand)
 
@@ -955,6 +955,7 @@ class Position(Measurement):
     @staticmethod
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
+            timeunit._set_position_value()
             timeunit._rational = Fraction(int(timeunit._rational), 1)
         return timeunit
 
@@ -962,7 +963,7 @@ class Position(Measurement):
     def round_to_measurement(self, timeunit: o.T) -> o.T:
         match timeunit:
             case TimeUnit():
-                return timeunit.measure_unit()
+                return timeunit._set_position_value()
             case _:
                 return timeunit
 
@@ -1645,7 +1646,7 @@ class TimeUnit(Convertible):
         return Fraction( int(self._rational) )
     
 
-    def measure_unit(self) -> Self:
+    def _set_position_value(self) -> Self:
         return self
 
 
@@ -1720,7 +1721,7 @@ class Measure(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_measure: int = time_signature._top
-        return Fraction(int(beats / beats_per_measure), 1)  # As unitary value
+        return beats / beats_per_measure    # As value NOT unitary
 
 
     # CHAINABLE OPERATIONS
@@ -1789,13 +1790,12 @@ class Beat(TimeUnit):
         return self_time
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        return Fraction(int(beats), 1)  # As unitary value
+        return beats    # As value NOT unitary
 
-    def measure_unit(self) -> Self:
+    def _set_position_value(self) -> Self:
         time_signature: TimeSignature = self._get_time_signature()
-        absolute_beat: int = int(self._rational)
         beats_per_measure: int = time_signature._top
-        return self << absolute_beat % beats_per_measure
+        return self << self._rational % beats_per_measure
 
     # CHAINABLE OPERATIONS
 
@@ -1865,16 +1865,15 @@ class Step(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
-        return Fraction(int(beats / beats_per_step), 1) # As unitary value
+        return beats / beats_per_step   # As value NOT unitary
 
-    def measure_unit(self) -> Self:
+    def _set_position_value(self) -> Self:
         import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         time_signature: TimeSignature = self._get_time_signature()
-        absolute_step: int = int(self._rational)
         beats_per_measure: int = time_signature._top
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
-        return self << absolute_step % steps_per_measure
+        return self << self._rational % steps_per_measure
 
     # CHAINABLE OPERATIONS
 

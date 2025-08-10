@@ -235,9 +235,7 @@ def test_time_mod():
     note_value_float = time % Duration() % float()
     assert note_value_float == 4.5 * 1.0
 
-
 # test_time_mod()
-
 
 
 def test_add_beats():
@@ -426,26 +424,43 @@ def test_basic_conversions():
 
 def test_full_conversions():
 
-    position = Position()
-    position_staff = position._get_time_signature()
-
     for time_value in (Measures(10.5), Beats(10.5 * 4), Steps(10.5 * 4 * 4)):
-        assert time_value % Measures(position_staff) == 10.5
-        assert time_value % Measure(position_staff) == 10
-        assert time_value % Beats(position_staff) == 10.5 * 4
-        assert time_value % Beat(position_staff) == 2
-        assert time_value % Steps(position_staff) == 10.5 * 4 * 4
-        assert time_value % Step(position_staff) == 2 * 4
-        assert time_value % Duration(position_staff) == 10 * (1/1) + 2 * (1/4)
+        assert time_value % Measures(   ) == 10.5
+        assert time_value % Measure(    ) == 10
+        assert time_value % Beats(      ) == 10.5 * 4
+        assert time_value % Beat(       ) == 10.5 * 4
+        assert time_value % Steps(      ) == 10.5 * 4 * 4
+        assert time_value % Step(       ) == 10.5 * 4 * 4
+        assert time_value % Duration(   ) == 10 * (1/1) + 2 * (1/4)
 
     for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
-        assert time_unit % Measures(position_staff) == 10
-        assert time_unit % Measure(position_staff) == 10
-        assert time_unit % Beats(position_staff) == 10 * 4
-        assert time_unit % Beat(position_staff) == 0
-        assert time_unit % Steps(position_staff) == 10 * 4 * 4
-        assert time_unit % Step(position_staff) == 0 * 4
-        assert time_unit % Duration(position_staff) == 10 * (1/1)
+        assert time_unit % Measures(    ) == 10
+        assert time_unit % Measure(     ) == 10
+        assert time_unit % Beats(       ) == 10 * 4
+        assert time_unit % Beat(        ) == 10 * 4
+        assert time_unit % Steps(       ) == 10 * 4 * 4
+        assert time_unit % Step(        ) == 10 * 4 * 4
+        assert time_unit % Duration(    ) == 10 * (1/1)
+
+    for measurement in (Position(10)):
+        assert measurement % Measures(  ) == 10
+        assert measurement % Measure(   ) == 10
+        assert measurement % Beats(     ) == 10 * 4
+        assert measurement % Beat(      ) == 0
+        assert measurement % Steps(     ) == 10 * 4 * 4
+        assert measurement % Step(      ) == 0 * 4
+        assert measurement % Duration(  ) == 10 * (1/1)
+        assert measurement % Length(    ) == 10.0
+
+    for measurement in (Length(10.5), Duration(10.5)):
+        assert measurement % Measures(  ) == 10.5
+        assert measurement % Measure(   ) == 11   # Considers entire Measure where it's present
+        assert measurement % Beats(     ) == 10.5 * 4
+        assert measurement % Beat(      ) == 10.5 * 4
+        assert measurement % Steps(     ) == 10.5 * 4 * 4
+        assert measurement % Step(      ) == 10.5 * 4 * 4
+        assert measurement % Duration(  ) == 10 * (1/1) + 2 * (1/4)
+        assert measurement % Length(    ) == 10.5
 
 # test_full_conversions()
 
@@ -461,11 +476,11 @@ def test_equality():
     assert measures == measure
 
     beats = Beats(6)
-    beat = Beat(2)
+    beat = Beat(6)
     assert measures == beats
     assert measures == beat
 
-    assert Beats(6.5) == Beat(2)
+    assert Beats(6.5) == Beat(6)
 
 # test_equality()
 
