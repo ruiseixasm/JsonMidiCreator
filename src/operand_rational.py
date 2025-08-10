@@ -651,7 +651,8 @@ class Convertible(Rational):
                 if isinstance(self_operand, TimeUnit):
                     return self.round_to_measurement(self_operand)
                 return self_operand
-            case _:                     return super().__mod__(operand)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         other ^= self    # Processes the Frame operand if any exists
@@ -812,7 +813,12 @@ class Measurement(Convertible):
         match operand:
             case int():                 return self % Measure() % int()     # Measure, NOT Measures
             case float():               return self % Measures() % float()
-            case _:                     return super().__mod__(operand)
+            case _:
+                converted_operand = super().__mod__(operand)
+                # if isinstance(converted_operand, TimeUnit):
+                #     return self.round_to_measurement(converted_operand)
+                return converted_operand
+
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
