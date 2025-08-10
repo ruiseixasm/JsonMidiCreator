@@ -886,20 +886,15 @@ class Measurement(Convertible):
                 super().__itruediv__(operand)
         return self
 
-    # Measurement round type: [...)
     def roundMeasures(self) -> Self:
-        self_measures: Measures = self % Measures()
-        return self.copy(self_measures.roundMeasures())
+        return self.copy(self % Measure())
 
-    # Measurement round type: [...)
     def roundBeats(self) -> Self:
-        self_beats: Beats = self % Beats()
-        return self.copy(self_beats.roundBeats())
+        return self.copy(self % Beat())
     
-    # Measurement round type: [...)
     def roundSteps(self) -> Self:
-        self_steps: Steps = self % Steps()
-        return self.copy(self_steps.roundSteps())
+        return self.copy(self % Step())
+
 
 class Position(Measurement):
     """`Rational -> Convertible -> Measurement -> Position`
@@ -994,25 +989,6 @@ class Length(Measurement):
         return self << od.Pipe( beats )
 
 
-    # CHAINABLE OPERATIONS
-
-    # Measurement/Length round type: (...]
-    def roundMeasures(self) -> Self:
-        self_measure: Measure = self % Measure()
-        return self.copy(self_measure)
-
-    # Measurement/Length round type: (...]
-    def roundBeats(self) -> Self:
-        return self.copy(self % Beat())
-    
-    # Measurement/Length round type: (...]
-    def roundSteps(self) -> Self:
-        rounded_length: Length = super().roundSteps()
-        if rounded_length == self:
-            return rounded_length
-        return rounded_length.__iadd__(Step(1))
-
-
 class Duration(Measurement):
     """`Rational -> Convertible -> Measurement -> Duration`
 
@@ -1032,17 +1008,6 @@ class Duration(Measurement):
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_note: int = time_signature._bottom
         return beats / beats_per_note
-
-
-    @staticmethod
-    def _round_timeunit(timeunit: o.T) -> o.T:
-        if isinstance(timeunit, TimeUnit):
-            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
-            if timeunit != round_timeunit:
-                round_timeunit += 1
-            timeunit._rational = round_timeunit
-        return timeunit
-
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -1126,27 +1091,6 @@ class Duration(Measurement):
             case _:
                 super().__itruediv__(operand)
         return self
-
-    # Measurement/Duration round type: (...]
-    def roundMeasures(self) -> Self:
-        rounded_duration: Duration = super().roundMeasures()
-        if rounded_duration == self:
-            return rounded_duration
-        return rounded_duration.__iadd__(Measure(1))
-
-    # Measurement/Duration round type: (...]
-    def roundBeats(self) -> Self:
-        rounded_duration: Duration = super().roundBeats()
-        if rounded_duration == self:
-            return rounded_duration
-        return rounded_duration.__iadd__(Beat(1))
-    
-    # Measurement/Duration round type: (...]
-    def roundSteps(self) -> Self:
-        rounded_duration: Duration = super().roundSteps()
-        if rounded_duration == self:
-            return rounded_duration
-        return rounded_duration.__iadd__(Step(1))
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
