@@ -1129,12 +1129,6 @@ class Measures(TimeValue):
         beats_per_measure: int = time_signature._top
         return beats / beats_per_measure
 
-    # Position round type: [...)
-    def roundMeasures(self) -> Self:
-        self << int(self._rational)
-        return self # NO copy !
-
-
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> 'Measures':
