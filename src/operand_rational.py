@@ -642,14 +642,6 @@ class Convertible(Rational):
         return self # NO copy !
 
 
-    def round_to_measurement(self, timeunit: o.T) -> o.T:
-        match timeunit:
-            case TimeUnit():
-                return timeunit._set_position_value()
-            case _:
-                return timeunit
-
-
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Convertible():
@@ -960,13 +952,6 @@ class Position(Measurement):
         return timeunit
 
 
-    def round_to_measurement(self, timeunit: o.T) -> o.T:
-        match timeunit:
-            case TimeUnit():
-                return timeunit._set_position_value()
-            case _:
-                return timeunit
-
     def __eq__(self, other: any) -> bool:
         import operand_generic as og
         other ^= self    # Processes the Frame operand if any exists
@@ -1029,19 +1014,6 @@ class Length(Measurement):
         return timeunit
 
 
-    def round_to_measurement(self, timeunit: o.T) -> o.T:
-        self_units: Fraction = timeunit % Fraction()
-        match timeunit:
-            case Measure():
-                self_units = self % Measures() % Fraction()
-            case Beat():
-                self_units = self % Beats() % Fraction()
-            case Step():
-                self_units = self % Steps() % Fraction()
-        if timeunit != self_units:
-            timeunit += 1
-        return timeunit
-
     # CHAINABLE OPERATIONS
 
     # Measurement/Length round type: (...]
@@ -1094,20 +1066,6 @@ class Duration(Measurement):
             if timeunit != round_timeunit:
                 round_timeunit += 1
             timeunit._rational = round_timeunit
-        return timeunit
-
-
-    def round_to_measurement(self, timeunit: o.T) -> o.T:
-        self_units: Fraction = timeunit % Fraction()
-        match timeunit:
-            case Measure():
-                self_units = self % Measures() % Fraction()
-            case Beat():
-                self_units = self % Beats() % Fraction()
-            case Step():
-                self_units = self % Steps() % Fraction()
-        if timeunit != self_units:
-            timeunit += 1
         return timeunit
 
 
