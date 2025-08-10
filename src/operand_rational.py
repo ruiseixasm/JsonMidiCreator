@@ -886,12 +886,15 @@ class Measurement(Convertible):
                 super().__itruediv__(operand)
         return self
 
+    # Measurement/Length/Duration round type: (...]
     def roundMeasures(self) -> Self:
         return self.copy(self % Measure())
 
+    # Measurement/Length/Duration round type: (...]
     def roundBeats(self) -> Self:
         return self.copy(self % Beat())
     
+    # Measurement/Length/Duration round type: (...]
     def roundSteps(self) -> Self:
         return self.copy(self % Step())
 
@@ -922,7 +925,7 @@ class Position(Measurement):
     @staticmethod
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
-            timeunit._set_position_value()
+            timeunit._set_position_value()  # Because for position TimeUnit is relative to Measure!
             timeunit._rational = Fraction(int(timeunit._rational), 1)
         return timeunit
 
@@ -944,6 +947,7 @@ class Position(Measurement):
             case TimeUnit():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
+                # This preserves the position in the Measure
                 self += operand - self % operand    # operand >= actual_unit
             case _:
                 super().__lshift__(operand)
@@ -951,18 +955,18 @@ class Position(Measurement):
 
     # Measurement round type: [...)
     def roundMeasures(self) -> Self:
-        self_measures: Measures = self % Measures()
-        return self.copy(self_measures.roundMeasures())
+        self_measures: Measures = self % Measure() % Measures()
+        return self.copy(self_measures)
 
     # Measurement round type: [...)
     def roundBeats(self) -> Self:
-        self_beats: Beats = self % Beats()
-        return self.copy(self_beats.roundBeats())
+        self_beats: Beats = self % Beats() % Beat() % Beats()
+        return self.copy(self_beats)
     
     # Measurement round type: [...)
     def roundSteps(self) -> Self:
-        self_steps: Steps = self % Steps()
-        return self.copy(self_steps.roundSteps())
+        self_steps: Steps = self % Steps() % Step() % Steps()
+        return self.copy(self_steps)
 
 
 class Length(Measurement):
