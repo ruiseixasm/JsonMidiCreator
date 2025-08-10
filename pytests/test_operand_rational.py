@@ -186,7 +186,7 @@ def test_position_round():
     position -= Beat(1)
     assert position.roundMeasures() == 1.0  # Common behavior
 
-test_position_round()
+# test_position_round()
 
 
 def test_length_round():
