@@ -160,9 +160,9 @@ def test_length_unit():
     assert length % Measure() == 0
 
     assert length + Steps(1/2) == 1/32          # Measures
-    assert length + Steps(1/2) == Measure(0)    # Measure
-    assert length + Steps(1/2) == Beat(0)       # Beat
-    assert length + Steps(1/2) == Step(0)       # Step
+    assert length + Steps(1/2) == Measure(1)    # Measure
+    assert length + Steps(1/2) == Beat(1)       # Beat
+    assert length + Steps(1/2) == Step(1)       # Step
 
     # Test if length as Length was round up
     assert (length + Steps(1/2)).roundMeasures() == 1           # 1 Measure (int)
@@ -413,11 +413,12 @@ def test_basic_conversions():
 
     assert length % Measures() % Fraction() == 10.5
     print(f"Length Measure: {length % Measure() % Fraction()}")
-    # assert length % Measure() % Fraction() == 11
-    # assert length % Beats() % Fraction() == 10.5 * 4
-    # assert length % Beat() % Fraction() == 2      # Second beat in the Measure 10
-    # assert length % Steps() % Fraction() == 10.5 * 4 * 4
-    # assert length % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
+    assert length % Measure() % Fraction() == 11
+    assert length % Beats() % Fraction() == 10.5 * 4
+    print(f"Length Beat: {length % Beat() % Fraction()}")
+    assert length % Beat() % Fraction() == 2      # Second beat in the Measure 10
+    assert length % Steps() % Fraction() == 10.5 * 4 * 4
+    assert length % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
 
 # test_basic_conversions()
 

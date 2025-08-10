@@ -994,6 +994,33 @@ class Length(Measurement):
             return rounded_length
         return rounded_length.__iadd__(Step(1))
 
+    def round_timeunit(self, timeunit: o.T) -> o.T:
+        import operand_generic as og
+        match timeunit:
+            case TimeUnit():
+                measure_unit = timeunit.measure_unit()
+                self_units: Fraction = measure_unit % Fraction()
+                match measure_unit:
+                    case Measure():
+                        self_units = self % Measures() % Fraction()
+                    case Beat():
+                        self_units = self % Beats() % Fraction()
+                        time_signature: TimeSignature = self._get_time_signature()
+                        beats_per_measure: int = time_signature._top
+                        self_units %= beats_per_measure
+                    case Step():
+                        self_units = self % Steps() % Fraction()
+                        beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
+                        time_signature: TimeSignature = self._get_time_signature()
+                        beats_per_measure: int = time_signature._top
+                        steps_per_measure: int = int(beats_per_measure / beats_per_step)
+                        self_units %= steps_per_measure
+                if measure_unit != self_units:
+                    measure_unit += 1
+                return measure_unit
+            case _:
+                return timeunit
+
 
 class Duration(Measurement):
     """`Rational -> Convertible -> Measurement -> Duration`
