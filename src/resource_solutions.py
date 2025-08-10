@@ -62,13 +62,13 @@ class RS_Solutions:
 
 
     def iterate_measure(self, measure_i: int, chaos: ch.Chaos,
-                        choices: list | int | float | Fraction,
+                        triggers: list | int | float | Fraction,
                         measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition']) -> Self:
         seed_len: int = self._seed.len()
-        if isinstance(choices, list):
-            measure_choices: list = choices
+        if isinstance(triggers, list):
+            measure_choices: list = triggers
         else:
-            measure_choices: list = [choices] * seed_len
+            measure_choices: list = [triggers] * seed_len
         if self._measures[measure_i] > 0:
             measure_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
         return measure_iterator(measure_choices)
@@ -79,16 +79,16 @@ class RS_Solutions:
         last_choices: list | None = None
 
         def iterate_measure(measure_i: int, chaos: ch.Chaos,
-                            choices: list | int | float | Fraction,
-                            measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition']) -> 'oc.Composition':
+                            triggers: list | int | float | Fraction,
+                            measure_iterator: Callable[[list | int | float | Fraction, int], 'oc.Composition']) -> 'oc.Composition':
             nonlocal last_choices
-            if isinstance(choices, list):
-                measure_choices: list = choices
+            if isinstance(triggers, list):
+                measure_choices: list = triggers
             else:
-                measure_choices: list = [choices] * self._seed.len()
+                measure_choices: list = [triggers] * (self._seed * [measure_i] % int())
             if self._measures[measure_i] > 0 or last_choices is None:
                 last_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
-            return measure_iterator(last_choices)
+            return measure_iterator(last_choices, measure_i)
 
 
 
@@ -135,19 +135,19 @@ class RS_Clip(RS_Solutions):
     def rhythm_fast_quantized(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
-            choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
+            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % choices)
+                new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % triggers)
                 new_clip: oc.Clip = self._seed.empty_copy()
                 for measure_iteration in self._measures:
                     measure_clip: oc.Clip = self._seed.copy()
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_durations = o.list_choose(durations, chaos.reset_tamers() * measure_iteration % choices)
+                            new_durations = o.list_choose(durations, chaos.reset_tamers() * measure_iteration % triggers)
                         measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
                     # These operations shall be done on the base (single Measure)
                     measure_clip.base().stack().quantize().mul([0]).link()
@@ -163,19 +163,19 @@ class RS_Clip(RS_Solutions):
 
     def tonality_conjunct(self,
             iterations: int = 1,
-            choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
+            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
             title: str | None = None) -> Self:
         
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                new_degrees = chaos.reset_tamers() % choices
+                new_degrees = chaos.reset_tamers() % triggers
                 new_clip: oc.Clip = self._seed.empty_copy()
                 for measure, measure_iteration in enumerate(self._measures):
                     measure_clip: oc.Clip = self._seed * [measure]
                     if measure_iteration >= 0:
                         if measure_iteration > 0:
-                            new_degrees = chaos.reset_tamers() * measure_iteration % choices
+                            new_degrees = chaos.reset_tamers() * measure_iteration % triggers
                         measure_clip += of.Foreach(*new_degrees)**ou.Degree()
                     new_clip *= measure_clip
                 return new_clip
@@ -189,14 +189,14 @@ class RS_Clip(RS_Solutions):
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
-            choices: list[int] = [2, 4, 4, 2, 1, 1, 3],
+            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
             title: str | None = None) -> Self:
         
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
     
-        return self.tonality_conjunct(iterations, choices, chaos, title)
+        return self.tonality_conjunct(iterations, triggers, chaos, title)
 
 
     def sweep_sharps(self,
