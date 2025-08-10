@@ -635,7 +635,7 @@ class Convertible(Rational):
         return self # NO copy !
 
 
-    def round_timeunit(self, timeunit: o.T) -> o.T:
+    def round_to_measurement(self, timeunit: o.T) -> o.T:
         match timeunit:
             case TimeUnit():
                 return timeunit.measure_unit()
@@ -649,7 +649,7 @@ class Convertible(Rational):
                 self_beats: Fraction = self._get_beats(operand._time_signature_reference)
                 self_operand: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
                 if isinstance(self_operand, TimeUnit):
-                    return self.round_timeunit(self_operand)
+                    return self.round_to_measurement(self_operand)
                 return self_operand
             case _:                     return super().__mod__(operand)
 
@@ -939,7 +939,7 @@ class Position(Measurement):
     def position(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
-    def round_timeunit(self, timeunit: o.T) -> o.T:
+    def round_to_measurement(self, timeunit: o.T) -> o.T:
         match timeunit:
             case TimeUnit():
                 return timeunit.measure_unit()
@@ -997,7 +997,7 @@ class Length(Measurement):
     def length(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
-    def round_timeunit(self, timeunit: o.T) -> o.T:
+    def round_to_measurement(self, timeunit: o.T) -> o.T:
         self_units: Fraction = timeunit % Fraction()
         match timeunit:
             case Measure():
@@ -1055,7 +1055,7 @@ class Duration(Measurement):
         return beats / beats_per_note
 
 
-    def round_timeunit(self, timeunit: o.T) -> o.T:
+    def round_to_measurement(self, timeunit: o.T) -> o.T:
         self_units: Fraction = timeunit % Fraction()
         match timeunit:
             case Measure():
