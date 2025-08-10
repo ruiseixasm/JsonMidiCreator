@@ -949,19 +949,7 @@ class Position(Measurement):
             case TimeUnit():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
-                match operand:
-                    case Measure():
-                        actual_measure: Measure = self % Measure()
-                        offset_measure: Measure = operand - actual_measure
-                        self += Measures(offset_measure)
-                    case Beat():
-                        actual_beat: Beat = self % Beat()
-                        offset_beat: Beat = operand - actual_beat
-                        self += Beats(offset_beat)
-                    case Step():
-                        actual_step: Step = self % Step()
-                        offset_step: Step = operand - actual_step
-                        self += Steps(offset_step)
+                self += operand - self % operand    # operand >= actual_unit
             case _:
                 super().__lshift__(operand)
         return self
