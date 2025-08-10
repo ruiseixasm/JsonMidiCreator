@@ -1634,6 +1634,14 @@ class TimeUnit(Convertible):
                 return super().__gt__(other)
         return False
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        super().__lshift__(operand)
+        # Makes sure it's unitary (int)
+        self._rational = Fraction(self % int(), 1)
+        return self
+
 
 class Measure(TimeUnit):
     """`Rational -> Convertible -> TimeUnit -> Measure`
