@@ -613,6 +613,13 @@ class Convertible(Rational):
         return self._time_signature_reference
 
 
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            timeunit._rational = Fraction(int(timeunit._rational), 1)
+        return timeunit
+
+
     # Position round type: [...)
     def roundMeasures(self) -> Self:
         measures: Measures = self % Measures()
@@ -793,7 +800,6 @@ class Measurement(Convertible):
         return self << od.Pipe( beats )
 
 
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Time,
@@ -945,6 +951,14 @@ class Position(Measurement):
     def position(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
+
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            timeunit._rational = Fraction(int(timeunit._rational), 1)
+        return timeunit
+
+
     def round_to_measurement(self, timeunit: o.T) -> o.T:
         match timeunit:
             case TimeUnit():
@@ -1003,6 +1017,17 @@ class Length(Measurement):
     def length(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
+
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
+            if timeunit != round_timeunit:
+                round_timeunit += 1
+            timeunit._rational = round_timeunit
+        return timeunit
+
+
     def round_to_measurement(self, timeunit: o.T) -> o.T:
         self_units: Fraction = timeunit % Fraction()
         match timeunit:
@@ -1059,6 +1084,16 @@ class Duration(Measurement):
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_note: int = time_signature._bottom
         return beats / beats_per_note
+
+
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
+            if timeunit != round_timeunit:
+                round_timeunit += 1
+            timeunit._rational = round_timeunit
+        return timeunit
 
 
     def round_to_measurement(self, timeunit: o.T) -> o.T:

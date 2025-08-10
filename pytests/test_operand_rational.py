@@ -160,6 +160,7 @@ def test_length_unit():
     assert length % Measure() == 0
 
     assert length + Steps(1/2) == 1/32          # Measures
+    print(f"Length Measure: {(length + Steps(1/2)) % Measure() % Fraction()}")
     assert length + Steps(1/2) == Measure(1)    # Measure
     assert length + Steps(1/2) == Beat(1)       # Beat
     assert length + Steps(1/2) == Step(1)       # Step
