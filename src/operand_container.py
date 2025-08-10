@@ -832,17 +832,23 @@ class Container(o.Operand):
         new_mask: Container = self._base_container.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
         new_mask._base_container = self._base_container
+        masked_item_ids: set = set()
+        # And type of conditions, not meeting any means excluded
         for single_condition in conditions:
             if isinstance(single_condition, Container):
-                new_mask._items = [
-                    base_item for base_item in self._base_container._items
-                    if any(base_item == cond_item for cond_item in single_condition._base_container._items)
-                ]
+                masked_item_ids.update(
+                    id(item) for item in self._base_container._items
+                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
+                )
             else:
-                new_mask._items = [
-                    base_item for base_item in self._base_container._items
-                    if base_item == single_condition
-                ]
+                masked_item_ids.update(
+                    id(item) for item in self._base_container._items
+                    if not item == single_condition
+                )
+        new_mask._items = [
+            unmasked_item for unmasked_item in self._base_container
+            if id(unmasked_item) not in masked_item_ids
+        ]
         return new_mask
 
     def base(self) -> Self:
