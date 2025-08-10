@@ -1679,7 +1679,7 @@ class Measure(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_measure: int = time_signature._top
-        return Fraction( int(beats / beats_per_measure) )
+        return Fraction(int(beats / beats_per_measure), 1)  # As unitary value
 
 
     # CHAINABLE OPERATIONS
@@ -1748,7 +1748,7 @@ class Beat(TimeUnit):
         return self_time
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        return Fraction( int(beats) )
+        return Fraction(int(beats), 1)  # As unitary value
 
     def measure_unit(self) -> Self:
         time_signature: TimeSignature = self._get_time_signature()
@@ -1824,7 +1824,7 @@ class Step(TimeUnit):
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
         import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
-        return Fraction( int(beats / beats_per_step) )
+        return Fraction(int(beats / beats_per_step), 1) # As unitary value
 
     def measure_unit(self) -> Self:
         import operand_generic as og
