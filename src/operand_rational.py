@@ -1007,9 +1007,7 @@ class Length(Measurement):
                         self_units = self % Steps() % Fraction()
                 if timeunit != self_units:
                     timeunit += 1
-                return timeunit
-            case _:
-                return timeunit
+        return timeunit
 
 
 class Duration(Measurement):
@@ -1057,9 +1055,7 @@ class Duration(Measurement):
                         self_units = self % Steps() % Fraction()
                 if timeunit != self_units:
                     timeunit += 1
-                return timeunit
-            case _:
-                return timeunit
+        return timeunit
 
 
     def __mod__(self, operand: o.T) -> o.T:
