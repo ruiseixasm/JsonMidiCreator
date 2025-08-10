@@ -1639,7 +1639,7 @@ class TimeUnit(Convertible):
     def __lshift__(self, operand: any) -> Self:
         super().__lshift__(operand)
         # Makes sure it's unitary (int)
-        self._rational = Fraction(self % int(), 1)
+        self._rational = Fraction(int(self._rational), 1)
         return self
 
 
