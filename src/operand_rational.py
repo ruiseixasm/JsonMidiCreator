@@ -930,18 +930,15 @@ class Position(Measurement):
 
     # Measurement round type: [...)
     def roundMeasures(self) -> Self:
-        self_measures: Measures = self % Measure() % Measures()
-        return self.copy(self_measures)
+        return self.copy(self % Measure() % Measures())
 
     # Measurement round type: [...)
     def roundBeats(self) -> Self:
-        self_beats: Beats = self % Beats() % Beat() % Beats()
-        return self.copy(self_beats)
+        return self.copy(self % Beats() % Beat() % Beats())
     
     # Measurement round type: [...)
     def roundSteps(self) -> Self:
-        self_steps: Steps = self % Steps() % Step() % Steps()
-        return self.copy(self_steps)
+        return self.copy(self % Steps() % Step() % Steps())
 
 
 class Length(Measurement):
