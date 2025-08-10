@@ -1054,6 +1054,24 @@ class Duration(Measurement):
         return rounded_duration.__iadd__(Step(1))
 
 
+    # def round_timeunit(self, timeunit: o.T) -> o.T:
+    #     match timeunit:
+    #         case TimeUnit():
+    #             self_units: Fraction = measure_unit % Fraction()
+    #             match measure_unit:
+    #                 case Measure():
+    #                     self_units = self % Measures() % Fraction()
+    #                 case Beat():
+    #                     self_units = self % Beats() % Fraction()
+    #                 case Step():
+    #                     self_units = self % Steps() % Fraction()
+    #             if measure_unit != self_units:
+    #                 measure_unit += 1
+    #             return measure_unit
+    #         case _:
+    #             return timeunit
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float() | int():
