@@ -192,11 +192,14 @@ def test_length_round():
     length: Length = Length()
     assert length.roundMeasures() == 0.0    # Common behavior
     length += Beat(1)
+    print(f"Measure: {length.roundMeasures() % float()}")
     assert length.roundMeasures() == 1.0
     length += 1.0 # Measure
     assert length.roundMeasures() == 2.0
     length -= Beat(1)
     assert length.roundMeasures() == 1.0    # Common behavior
+
+# test_length_round()
 
 
 def test_duration_eq():

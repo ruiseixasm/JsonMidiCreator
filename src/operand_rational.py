@@ -787,10 +787,14 @@ class Measurement(Convertible):
         self._rational = beats  # Kept as beats already
         return self
 
-    
-    def measurement(self, beats: float = None) -> Self:
-        return self << od.Pipe( beats )
-
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
+            if timeunit != round_timeunit:
+                round_timeunit += 1
+            timeunit._rational = round_timeunit
+        return timeunit
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -811,12 +815,7 @@ class Measurement(Convertible):
         match operand:
             case int():                 return self % Measure() % int()     # Measure, NOT Measures
             case float():               return self % Measures() % float()
-            case _:
-                converted_operand = super().__mod__(operand)
-                # if isinstance(converted_operand, TimeUnit):
-                #     return self.round_to_measurement(converted_operand)
-                return converted_operand
-
+            case _:                     return super().__mod__(operand)
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
@@ -826,28 +825,10 @@ class Measurement(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Convertible():
+            case TimeUnit():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
-                match operand:
-                    case Measurement() | Beats():
-                        self._rational = operand._rational  # Both are in beats
-                    case Measure():
-                        actual_measure: Measure = self % Measure()
-                        offset_measure: Measure = operand - actual_measure
-                        self += Measures(offset_measure)
-                    case Beat():
-                        actual_beat: Beat = self % Beat()
-                        offset_beat: Beat = operand - actual_beat
-                        self += Beats(offset_beat)
-                    case Step():
-                        actual_step: Step = self % Step()
-                        offset_step: Step = operand - actual_step
-                        self += Steps(offset_step)
-                    case Convertible():
-                        self._rational = operand % Beats(self._time_signature_reference) % Fraction()
-                    case _:
-                        super().__lshift__(operand)
+                self._rational = operand % Beats(self._time_signature_reference) % Fraction()
             case int() | float():
                 self << Measures(operand)
             case _:
@@ -943,14 +924,12 @@ class Position(Measurement):
     def position(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
 
-
     @staticmethod
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
             timeunit._set_position_value()
             timeunit._rational = Fraction(int(timeunit._rational), 1)
         return timeunit
-
 
     def __eq__(self, other: any) -> bool:
         import operand_generic as og
@@ -963,6 +942,29 @@ class Position(Measurement):
         return False
 
     # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case TimeUnit():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
+                match operand:
+                    case Measure():
+                        actual_measure: Measure = self % Measure()
+                        offset_measure: Measure = operand - actual_measure
+                        self += Measures(offset_measure)
+                    case Beat():
+                        actual_beat: Beat = self % Beat()
+                        offset_beat: Beat = operand - actual_beat
+                        self += Beats(offset_beat)
+                    case Step():
+                        actual_step: Step = self % Step()
+                        offset_step: Step = operand - actual_step
+                        self += Steps(offset_step)
+            case _:
+                super().__lshift__(operand)
+        return self
 
     # Measurement round type: [...)
     def roundMeasures(self) -> Self:
@@ -1004,31 +1006,16 @@ class Length(Measurement):
         return self << od.Pipe( beats )
 
 
-    @staticmethod
-    def _round_timeunit(timeunit: o.T) -> o.T:
-        if isinstance(timeunit, TimeUnit):
-            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
-            if timeunit != round_timeunit:
-                round_timeunit += 1
-            timeunit._rational = round_timeunit
-        return timeunit
-
-
     # CHAINABLE OPERATIONS
 
     # Measurement/Length round type: (...]
     def roundMeasures(self) -> Self:
-        rounded_length: Length = super().roundMeasures()
-        if rounded_length == self:
-            return rounded_length
-        return rounded_length.__iadd__(Measure(1))
+        self_measure: Measure = self % Measure()
+        return self.copy(self_measure)
 
     # Measurement/Length round type: (...]
     def roundBeats(self) -> Self:
-        rounded_length: Length = super().roundBeats()
-        if rounded_length == self:
-            return rounded_length
-        return rounded_length.__iadd__(Beat(1))
+        return self.copy(self % Beat())
     
     # Measurement/Length round type: (...]
     def roundSteps(self) -> Self:
