@@ -60,7 +60,39 @@ class RS_Solutions:
         self._seed = self._seed.base()
         return self
 
+
+    def iterate_measure(self, measure_i: int, chaos: ch.Chaos,
+                        choices: list | int | float | Fraction,
+                        measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition']) -> Self:
+        seed_len: int = self._seed.len()
+        if isinstance(choices, list):
+            measure_choices: list = choices
+        else:
+            measure_choices: list = [choices] * seed_len
+        if self._measures[measure_i] > 0:
+            measure_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
+        return measure_iterator(measure_choices)
+
+
     def iterate(self, iterations, n_button, title: str = "") -> Self:
+
+        last_choices: list | None = None
+
+        def iterate_measure(measure_i: int, chaos: ch.Chaos,
+                            choices: list | int | float | Fraction,
+                            measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition']) -> 'oc.Composition':
+            nonlocal last_choices
+            if isinstance(choices, list):
+                measure_choices: list = choices
+            else:
+                measure_choices: list = [choices] * self._seed.len()
+            if self._measures[measure_i] > 0 or last_choices is None:
+                last_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
+            return measure_iterator(last_choices)
+
+
+
+
         if iterations < 0:
             if isinstance(self._title, str):
                 title = self._title
