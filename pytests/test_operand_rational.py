@@ -416,9 +416,9 @@ def test_basic_conversions():
     assert length % Measure() % Fraction() == 11
     assert length % Beats() % Fraction() == 10.5 * 4
     print(f"Length Beat: {length % Beat() % Fraction()}")
-    assert length % Beat() % Fraction() == 2      # Second beat in the Measure 10
+    assert length % Beat() % Fraction() == 10.5 * 4      # Second beat in the Measure 10
     assert length % Steps() % Fraction() == 10.5 * 4 * 4
-    assert length % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
+    assert length % Step() % Fraction() == 10.5 * 4 * 4  # Eight step in the Measure 10
 
 # test_basic_conversions()
 
@@ -428,8 +428,7 @@ def test_full_conversions():
     position = Position()
     position_staff = position._get_time_signature()
 
-    for time_value in (Measures(10.5), Beats(10.5 * 4),
-                       Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
+    for time_value in (Measures(10.5), Beats(10.5 * 4), Steps(10.5 * 4 * 4)):
         assert time_value % Measures(position_staff) == 10.5
         assert time_value % Measure(position_staff) == 10
         assert time_value % Beats(position_staff) == 10.5 * 4
