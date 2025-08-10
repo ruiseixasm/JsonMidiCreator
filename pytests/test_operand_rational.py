@@ -409,6 +409,16 @@ def test_basic_conversions():
 
     assert Beats(2) % Measures() == Measures(1/2)
 
+    length = Length(10.5)
+
+    assert length % Measures() % Fraction() == 10.5
+    print(f"Length Measure: {length % Measure() % Fraction()}")
+    # assert length % Measure() % Fraction() == 11
+    # assert length % Beats() % Fraction() == 10.5 * 4
+    # assert length % Beat() % Fraction() == 2      # Second beat in the Measure 10
+    # assert length % Steps() % Fraction() == 10.5 * 4 * 4
+    # assert length % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
+
 # test_basic_conversions()
 
 
