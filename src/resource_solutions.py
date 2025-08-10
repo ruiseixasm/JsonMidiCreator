@@ -37,9 +37,10 @@ import operand_chaos as ch
 
 
 class RS_Solutions:
-    def __init__(self, seed: oc.Composition, plot : og.Plot = og.Plot()):
+    def __init__(self, seed: oc.Composition, measures: list[int] = [0, 0, 0, 0], c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
         self._seed: oc.Composition = seed
-        self._plot: og.Plot = plot
+        self._measures: list[int] = measures
+        self._c_button = c_button
 
     def solution(self) -> 'oc.Composition':
         return self._seed
@@ -54,7 +55,7 @@ class RS_Solutions:
 
     def iterate(self, iterations, n_button, title: str = "") -> Self:
         if iterations < 0:
-            self._seed >>= self._plot.set_iterations(iterations * -1).set_n_button(n_button).set_title(title)
+            self._seed >>= og.Plot(iterations=(iterations * -1), n_button=n_button, c_button=self._c_button, title=title)
         else:
             self._seed >>= og.Call(iterations, n_button)
         return self
@@ -62,10 +63,9 @@ class RS_Solutions:
 
 
 class RS_Clip(RS_Solutions):
-    def __init__(self, seed: oc.Clip, measures: list[int] = [0, 0, 0, 0], plot : og.Plot = og.Plot(title="Clip Solutions")):
-        super().__init__(seed, plot)
+    def __init__(self, seed: oc.Composition, measures: list[int] = [0, 0, 0, 0], c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
+        super().__init__(seed, measures, c_button)
         self._seed: oc.Clip = seed
-        self._measures: list[int] = measures
          
     def solution(self) -> 'oc.Clip':
         return self._seed
@@ -234,21 +234,11 @@ class RS_Clip(RS_Solutions):
 
 
 class RS_Part(RS_Solutions):
-    def __init__(self, seed: oc.Part, plot : og.Plot = og.Plot(title="Part Solutions")):
-        super().__init__(seed, plot)
-        self._seed: oc.Part = seed
-         
-    def solution(self) -> 'oc.Part':
-        return self._seed
+    pass
 
 
 
 class RS_Song(RS_Solutions):
-    def __init__(self, seed: oc.Song, plot : og.Plot = og.Plot(title="Song Solutions")):
-        super().__init__(seed, plot)
-        self._seed: oc.Song = seed
-         
-    def solution(self) -> 'oc.Song':
-        return self._seed
+    pass
     
 
