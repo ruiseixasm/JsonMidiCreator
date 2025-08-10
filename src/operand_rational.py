@@ -995,17 +995,16 @@ class Length(Measurement):
         return rounded_length.__iadd__(Step(1))
 
     def round_timeunit(self, timeunit: o.T) -> o.T:
-        if isinstance(timeunit, TimeUnit):
-            self_units: Fraction = timeunit % Fraction()
-            match timeunit:
-                case Measure():
-                    self_units = self % Measures() % Fraction()
-                case Beat():
-                    self_units = self % Beats() % Fraction()
-                case Step():
-                    self_units = self % Steps() % Fraction()
-            if timeunit != self_units:
-                timeunit += 1
+        self_units: Fraction = timeunit % Fraction()
+        match timeunit:
+            case Measure():
+                self_units = self % Measures() % Fraction()
+            case Beat():
+                self_units = self % Beats() % Fraction()
+            case Step():
+                self_units = self % Steps() % Fraction()
+        if timeunit != self_units:
+            timeunit += 1
         return timeunit
 
 
@@ -1042,17 +1041,16 @@ class Duration(Measurement):
 
 
     def round_timeunit(self, timeunit: o.T) -> o.T:
-        if isinstance(timeunit, TimeUnit):
-            self_units: Fraction = timeunit % Fraction()
-            match timeunit:
-                case Measure():
-                    self_units = self % Measures() % Fraction()
-                case Beat():
-                    self_units = self % Beats() % Fraction()
-                case Step():
-                    self_units = self % Steps() % Fraction()
-            if timeunit != self_units:
-                timeunit += 1
+        self_units: Fraction = timeunit % Fraction()
+        match timeunit:
+            case Measure():
+                self_units = self % Measures() % Fraction()
+            case Beat():
+                self_units = self % Beats() % Fraction()
+            case Step():
+                self_units = self % Steps() % Fraction()
+        if timeunit != self_units:
+            timeunit += 1
         return timeunit
 
 
