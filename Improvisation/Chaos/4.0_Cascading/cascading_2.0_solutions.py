@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 # Solution                0,  1
-iterations: list[int] = [+7, +12]
+iterations: list[int] = [-7, +12]
 
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
@@ -27,7 +27,7 @@ def composition(clip: Clip) -> Composition:
 SOLUTION = 0
 
 many_notes = Note() / 8
-rhythm_solution = RS_Clip(many_notes, Plot(c_button=composition, title="Note Durations"))
+rhythm_solution = RS_Clip(many_notes, plot=Plot(c_button=composition, title="Note Durations"))
 
 rhythm_notes = rhythm_solution.rhythm_fast_quantized(iterations[SOLUTION]).solution()
 
