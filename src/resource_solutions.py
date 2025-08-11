@@ -133,6 +133,18 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed.copy()
+                new_durations: list[float] = o.list_choose(durations, choices)
+                measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
+                return measure_clip
+            return composition
+        
+        self._measure_iterator = _measure_iterator
+        self._chaos = chaos
+        self._triggers = triggers # Immutable for each Solution
+
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % triggers)
@@ -209,6 +221,18 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
             title: str | None = None) -> Self:
         
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                new_key_signature = ou.KeySignature(choices[0])  # One iteration
+                measure_clip << new_key_signature << ou.TonicKey(-1)
+                return measure_clip
+            return composition
+        
+        self._measure_iterator = _measure_iterator
+        self._chaos = chaos
+        self._triggers = [1] # Immutable for each Solution
+
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
@@ -234,6 +258,18 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
             title: str | None = None) -> Self:
         
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                new_key_signature = ou.KeySignature(choices[0] * -1)  # One iteration
+                measure_clip << new_key_signature << ou.TonicKey(-1)
+                return measure_clip
+            return composition
+        
+        self._measure_iterator = _measure_iterator
+        self._chaos = chaos
+        self._triggers = [1] # Immutable for each Solution
+
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
@@ -261,6 +297,29 @@ class RS_Clip(RS_Solutions):
         
         last_accidental: int = 0
         
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            nonlocal last_accidental
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                chaos_flip: int = choices[0]
+                if chaos_flip > 0:
+                    if last_accidental == 0:
+                        last_accidental = 1
+                        accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
+                    elif last_accidental > 0:
+                        last_accidental = -1
+                        accidental_degree: ou.Degree = ou.Degree(0.2)   # Flat
+                    else:
+                        last_accidental = 0
+                        accidental_degree: ou.Degree = ou.Degree(0.0)   # Natural
+                    measure_clip << accidental_degree
+                return measure_clip
+            return composition
+        
+        self._measure_iterator = _measure_iterator
+        self._chaos = chaos
+        self._triggers = [1] # Immutable for each Solution
+
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
