@@ -74,6 +74,13 @@ class RS_Solutions:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             new_composition: oc.Composition = composition.empty_copy()
+            # Each iteration results in new choices
+            if isinstance(self._triggers, list):
+                measure_triggers: list = self._triggers
+            else:
+                measure_triggers: list = [self._triggers] * (composition % int())
+            self._choices = self._chaos.reset_tamers() % measure_triggers
+            # Here is where each Measure is processed
             for measure_i, iterations in enumerate(self._measures):
                 if iterations >= 0 or self._choices is None:
                     if isinstance(self._triggers, list):
