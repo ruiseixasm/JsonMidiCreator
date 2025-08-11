@@ -54,21 +54,6 @@ class RS_Solutions:
         self._triggers: list | int | float | Fraction | None = None # Immutable for each Solution
         self._choices: list | None = None
 
-    def _n_button(self, composition: 'oc.Composition') -> 'oc.Composition':
-        new_composition: oc.Composition = composition.empty_copy()
-        for measure_i in self._measures:
-            if self._measures[measure_i] >= 0 or self._choices is None:
-                if isinstance(self._triggers, list):
-                    measure_triggers: list = self._triggers
-                else:
-                    measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
-                if self._measures[measure_i] > 0 or self._choices is None:
-                    self._choices = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
-                new_composition *= self._measure_iterator(self._choices, measure_i, composition)
-            else:
-                new_composition *= composition * [measure_i]
-        return new_composition
-
 
     def solution(self) -> 'oc.Composition':
         return self._seed
@@ -86,6 +71,21 @@ class RS_Solutions:
 
         # Resets parameters for the next Solution
         self._choices = None
+
+        def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
+            new_composition: oc.Composition = composition.empty_copy()
+            for measure_i in self._measures:
+                if self._measures[measure_i] >= 0 or self._choices is None:
+                    if isinstance(self._triggers, list):
+                        measure_triggers: list = self._triggers
+                    else:
+                        measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
+                    if self._measures[measure_i] > 0 or self._choices is None:
+                        self._choices = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
+                    new_composition *= self._measure_iterator(self._choices, measure_i, composition)
+                else:
+                    new_composition *= composition * [measure_i]
+            return new_composition
 
         if iterations < 0:
             if isinstance(self._title, str):
