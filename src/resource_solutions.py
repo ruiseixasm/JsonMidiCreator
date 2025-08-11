@@ -152,23 +152,7 @@ class RS_Clip(RS_Solutions):
                 measure_clip.base().stack().quantize().mul([0]).link()
                 return measure_clip
             return composition
-        
-        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(composition, oc.Clip):
-                new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % triggers)
-                new_clip: oc.Clip = self._seed.empty_copy()
-                for measure_iteration in self._measures:
-                    measure_clip: oc.Clip = self._seed.copy()
-                    if measure_iteration >= 0:
-                        if measure_iteration > 0:
-                            new_durations = o.list_choose(durations, chaos.reset_tamers() * measure_iteration % triggers)
-                        measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
-                    # These operations shall be done on the base (single Measure)
-                    measure_clip.base().stack().quantize().mul([0]).link()
-                    new_clip *= measure_clip
-                return new_clip
-            return composition
-    
+
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
@@ -187,21 +171,7 @@ class RS_Clip(RS_Solutions):
                 measure_clip += of.Foreach(*choices)**ou.Degree()
                 return measure_clip
             return composition
-        
-        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(composition, oc.Clip):
-                new_degrees = chaos.reset_tamers() % triggers
-                new_clip: oc.Clip = self._seed.empty_copy()
-                for measure, measure_iteration in enumerate(self._measures):
-                    measure_clip: oc.Clip = self._seed * [measure]
-                    if measure_iteration >= 0:
-                        if measure_iteration > 0:
-                            new_degrees = chaos.reset_tamers() * measure_iteration % triggers
-                        measure_clip += of.Foreach(*new_degrees)**ou.Degree()
-                    new_clip *= measure_clip
-                return new_clip
-            return composition
-        
+
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
@@ -232,21 +202,7 @@ class RS_Clip(RS_Solutions):
                 measure_clip << new_key_signature << ou.TonicKey(-1)
                 return measure_clip
             return composition
-        
-        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(composition, oc.Clip):
-                new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
-                new_clip: oc.Clip = self._seed.empty_copy()
-                for measure, measure_iteration in enumerate(self._measures):
-                    measure_clip: oc.Clip = self._seed * [measure]
-                    if measure_iteration >= 0:
-                        if measure_iteration > 0:
-                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % measure_iteration)  # One iteration
-                        measure_clip << new_key_signature << ou.TonicKey(-1)
-                    new_clip *= measure_clip
-                return new_clip
-            return composition
-    
+
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
@@ -265,21 +221,7 @@ class RS_Clip(RS_Solutions):
                 measure_clip << new_key_signature << ou.TonicKey(-1)
                 return measure_clip
             return composition
-        
-        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(composition, oc.Clip):
-                new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
-                new_clip: oc.Clip = self._seed.empty_copy()
-                for measure, measure_iteration in enumerate(self._measures):
-                    measure_clip: oc.Clip = self._seed * [measure]
-                    if measure_iteration >= 0:
-                        if measure_iteration > 0:
-                            new_key_signature = ou.KeySignature(chaos.reset_tamers() % measure_iteration * -1)  # One iteration
-                        measure_clip << new_key_signature << ou.TonicKey(-1)
-                    new_clip *= measure_clip
-                return new_clip
-            return composition
-    
+
         if not isinstance(title, str):
             title = "Sweep Flats"
     
@@ -311,26 +253,7 @@ class RS_Clip(RS_Solutions):
                     measure_clip << accidental_degree
                 return measure_clip
             return composition
-        
-        def n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            nonlocal last_accidental
-            if isinstance(composition, oc.Clip):
-                chaos_flip: int = chaos.reset_tamers() % 1
-                new_clip: oc.Clip = self._seed * [0] # Just the first Measure
-                if chaos_flip > 0:
-                    if last_accidental == 0:
-                        last_accidental = 1
-                        accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
-                    elif last_accidental > 0:
-                        last_accidental = -1
-                        accidental_degree: ou.Degree = ou.Degree(0.2)   # Flat
-                    else:
-                        last_accidental = 0
-                        accidental_degree: ou.Degree = ou.Degree(0.0)   # Natural
-                    new_clip << accidental_degree
-                return new_clip * 4
-            return composition
-    
+
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
