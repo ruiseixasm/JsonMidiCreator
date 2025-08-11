@@ -62,7 +62,7 @@ class RS_Solutions:
         return self
 
 
-    def iterate(self, iterations, n_button,
+    def iterate(self, iterations,
                 measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
                 chaos: ch.Chaos,
                 triggers: list | int | float | Fraction,
@@ -133,7 +133,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "My N Button"
-        return self.iterate(iterations, n_button, _measure_iterator, ch.Chaos(), [1], title)
+        return self.iterate(iterations, _measure_iterator, ch.Chaos(), [1], title)
 
 
     def rhythm_fast_quantized(self,
@@ -172,7 +172,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, triggers, title)
+        return self.iterate(iterations, _measure_iterator, chaos, triggers, title)
 
 
     def tonality_conjunct(self,
@@ -205,7 +205,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, triggers, title)
+        return self.iterate(iterations, _measure_iterator, chaos, triggers, title)
 
 
     def tonality_conjunct_but_slacked(self,
@@ -250,7 +250,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, [1], title)
+        return self.iterate(iterations, _measure_iterator, chaos, [1], title)
 
 
     def sweep_flats(self,
@@ -283,7 +283,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, [1], title)
+        return self.iterate(iterations, _measure_iterator, chaos, [1], title)
 
 
     def sprinkle_accidentals(self,
@@ -334,7 +334,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
+        return self.iterate(iterations, _measure_iterator, chaos, 1, title)
 
 
 
