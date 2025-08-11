@@ -48,11 +48,6 @@ class RS_Solutions:
         self._by_channel: bool = by_channel
         self._c_button = c_button
         self._title: str | None = title
-        # Solution n_button parameters
-        self._measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'] | None = None
-        self._chaos: ch.Chaos | None = None
-        self._triggers: list | int | float | Fraction | None = None # Immutable for each Solution
-        self._choices: list | None = None
 
 
     def solution(self) -> 'oc.Composition':
@@ -67,29 +62,34 @@ class RS_Solutions:
         return self
 
 
-    def iterate(self, iterations, n_button, title: str = "") -> Self:
+    def iterate(self, iterations, n_button,
+                measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
+                chaos: ch.Chaos,
+                triggers: list | int | float | Fraction,
+                title: str = "") -> Self:
 
         # Resets parameters for the next Solution
-        self._choices = None
+        _choices = None
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
+            nonlocal _choices
             new_composition: oc.Composition = composition.empty_copy()
             # Each iteration results in new choices
-            if isinstance(self._triggers, list):
-                measure_triggers: list = self._triggers
+            if isinstance(triggers, list):
+                measure_triggers: list = triggers
             else:
-                measure_triggers: list = [self._triggers] * (composition % int())
-            self._choices = self._chaos.reset_tamers() % measure_triggers
+                measure_triggers: list = [triggers] * (composition % int())
+            _choices = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
-            for measure_i, iterations in enumerate(self._measures):
-                if iterations >= 0 or self._choices is None:
-                    if isinstance(self._triggers, list):
-                        measure_triggers: list = self._triggers
+            for measure_i, measure_iterations in enumerate(self._measures):
+                if measure_iterations >= 0 or _choices is None:
+                    if isinstance(triggers, list):
+                        measure_triggers: list = triggers
                     else:
-                        measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
-                    if iterations > 0 or self._choices is None:
-                        self._choices = self._chaos.reset_tamers() * (iterations - 1) % measure_triggers
-                    new_composition *= self._measure_iterator(self._choices, measure_i, composition) * [0]
+                        measure_triggers: list = [triggers] * (composition * [measure_i] % int())
+                    if measure_iterations > 0 or _choices is None:
+                        _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
+                    new_composition *= measure_iterator(_choices, measure_i, composition) * [0]
                 else:
                     new_composition *= composition * [measure_i]
             return new_composition
@@ -129,7 +129,7 @@ class RS_Clip(RS_Solutions):
         if callable(n_button):
             if not isinstance(title, str):
                 title = "My N Button"
-            return self.iterate(iterations, n_button, title)
+            return self.iterate(iterations, n_button, None, None, None, title)
         return self
 
 
@@ -150,10 +150,6 @@ class RS_Clip(RS_Solutions):
                 return measure_clip
             return composition
         
-        self._measure_iterator = _measure_iterator
-        self._chaos = chaos
-        self._triggers = triggers # Immutable for each Solution
-
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_durations: list[float] = o.list_choose(durations, chaos.reset_tamers() % triggers)
@@ -173,7 +169,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
-        return self.iterate(iterations, n_button, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, triggers, title)
 
 
     def tonality_conjunct(self,
@@ -189,10 +185,6 @@ class RS_Clip(RS_Solutions):
                 return measure_clip
             return composition
         
-        self._measure_iterator = _measure_iterator
-        self._chaos = chaos
-        self._triggers = triggers # Immutable for each Solution
-
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_degrees = chaos.reset_tamers() % triggers
@@ -210,7 +202,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
-        return self.iterate(iterations, n_button, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, triggers, title)
 
 
     def tonality_conjunct_but_slacked(self,
@@ -238,10 +230,6 @@ class RS_Clip(RS_Solutions):
                 return measure_clip
             return composition
         
-        self._measure_iterator = _measure_iterator
-        self._chaos = chaos
-        self._triggers = 1 # Immutable for each Solution
-
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1)  # One iteration
@@ -259,7 +247,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, n_button, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
 
 
     def sweep_flats(self,
@@ -275,10 +263,6 @@ class RS_Clip(RS_Solutions):
                 return measure_clip
             return composition
         
-        self._measure_iterator = _measure_iterator
-        self._chaos = chaos
-        self._triggers = 1 # Immutable for each Solution
-
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_key_signature = ou.KeySignature(chaos.reset_tamers() % 1 * -1)  # One iteration
@@ -296,7 +280,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, n_button, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
 
 
     def sprinkle_accidentals(self,
@@ -325,10 +309,6 @@ class RS_Clip(RS_Solutions):
                 return measure_clip
             return composition
         
-        self._measure_iterator = _measure_iterator
-        self._chaos = chaos
-        self._triggers = 1 # Immutable for each Solution
-
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
@@ -351,7 +331,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
-        return self.iterate(iterations, n_button, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
 
 
 

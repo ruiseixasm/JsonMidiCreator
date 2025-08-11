@@ -1926,18 +1926,18 @@ class Composition(Container):
 
         # Save Button Widget
         ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
-        export_button = Button(ax_button, 'S', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_export)
+        save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
+        save_button.on_clicked(self._run_save)
 
         # Execution Button Widget
         ax_button = plt.axes([0.979, 0.468, 0.015, 0.05])
         export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_save)
+        export_button.on_clicked(self._run_export)
 
         # Render Button Widget
         ax_button = plt.axes([0.979, 0.408, 0.015, 0.05])
-        export_button = Button(ax_button, 'R', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_render)
+        render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
+        render_button.on_clicked(self._run_render)
 
         # Previous Button Widget
         if self._iteration == 0:
