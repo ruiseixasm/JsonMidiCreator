@@ -50,21 +50,21 @@ class RS_Solutions:
         self._title: str | None = title
         # Solution n_button parameters
         self._measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'] | None = None
-        self._triggers: list | int | float | Fraction | None = None # Immutable for each Solution
         self._chaos: ch.Chaos | None = None
-        self._parameters: list | None = None
+        self._triggers: list | int | float | Fraction | None = None # Immutable for each Solution
+        self._choices: list | None = None
 
     def _n_button(self, composition: 'oc.Composition') -> 'oc.Composition':
         new_composition: oc.Composition = composition.empty_copy()
         for measure_i in self._measures:
-            if self._measures[measure_i] >= 0 or self._parameters is None:
+            if self._measures[measure_i] >= 0 or self._choices is None:
                 if isinstance(self._triggers, list):
                     measure_triggers: list = self._triggers
                 else:
                     measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
-                if self._measures[measure_i] > 0 or self._parameters is None:
-                    measure_triggers = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
-                new_composition *= self._measure_iterator(measure_triggers)
+                if self._measures[measure_i] > 0 or self._choices is None:
+                    self._choices = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
+                new_composition *= self._measure_iterator(self._choices)
             else:
                 new_composition *= composition * [measure_i]
         return new_composition
@@ -85,7 +85,7 @@ class RS_Solutions:
     def iterate(self, iterations, n_button, title: str = "") -> Self:
 
         # Resets parameters for the next Solution
-        self._parameters = None
+        self._choices = None
 
         if iterations < 0:
             if isinstance(self._title, str):
