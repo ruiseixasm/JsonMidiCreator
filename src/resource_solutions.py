@@ -99,10 +99,10 @@ class RS_Solutions:
                 title = self._title
             self._seed >>= og.Plot(self._by_channel,
                 iterations=iterations * -1,
-                n_button=n_button, c_button=self._c_button, title=title
+                n_button=_n_button, c_button=self._c_button, title=title
             )
         else:
-            self._seed >>= og.Call(iterations, n_button)
+            self._seed >>= og.Call(iterations, _n_button)
         return self
 
 
@@ -247,7 +247,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, [1], title)
 
 
     def sweep_flats(self,
@@ -280,7 +280,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, n_button, _measure_iterator, chaos, 1, title)
+        return self.iterate(iterations, n_button, _measure_iterator, chaos, [1], title)
 
 
     def sprinkle_accidentals(self,
