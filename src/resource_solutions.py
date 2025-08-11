@@ -48,6 +48,27 @@ class RS_Solutions:
         self._by_channel: bool = by_channel
         self._c_button = c_button
         self._title: str | None = title
+        # Solution n_button parameters
+        self._measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'] | None = None
+        self._triggers: list | int | float | Fraction | None = None # Immutable for each Solution
+        self._chaos: ch.Chaos | None = None
+        self._parameters: list | None = None
+
+    def _n_button(self, composition: 'oc.Composition') -> 'oc.Composition':
+        new_composition: oc.Composition = composition.empty_copy()
+        for measure_i in self._measures:
+            if self._measures[measure_i] >= 0 or self._parameters is None:
+                if isinstance(self._triggers, list):
+                    measure_triggers: list = self._triggers
+                else:
+                    measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
+                if self._measures[measure_i] > 0 or self._parameters is None:
+                    measure_triggers = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
+                new_composition *= self._measure_iterator(measure_triggers)
+            else:
+                new_composition *= composition * [measure_i]
+        return new_composition
+
 
     def solution(self) -> 'oc.Composition':
         return self._seed
@@ -61,37 +82,10 @@ class RS_Solutions:
         return self
 
 
-    def iterate_measure(self, measure_i: int, chaos: ch.Chaos,
-                        triggers: list | int | float | Fraction,
-                        measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition']) -> Self:
-        seed_len: int = self._seed.len()
-        if isinstance(triggers, list):
-            measure_choices: list = triggers
-        else:
-            measure_choices: list = [triggers] * seed_len
-        if self._measures[measure_i] > 0:
-            measure_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
-        return measure_iterator(measure_choices)
-
-
     def iterate(self, iterations, n_button, title: str = "") -> Self:
 
-        last_choices: list | None = None
-
-        def iterate_measure(measure_i: int, chaos: ch.Chaos,
-                            triggers: list | int | float | Fraction,
-                            measure_iterator: Callable[[list | int | float | Fraction, int], 'oc.Composition']) -> 'oc.Composition':
-            nonlocal last_choices
-            if isinstance(triggers, list):
-                measure_choices: list = triggers
-            else:
-                measure_choices: list = [triggers] * (self._seed * [measure_i] % int())
-            if self._measures[measure_i] > 0 or last_choices is None:
-                last_choices = chaos.reset_tamers() * self._measures[measure_i] % measure_choices
-            return measure_iterator(last_choices, measure_i)
-
-
-
+        # Resets parameters for the next Solution
+        self._parameters = None
 
         if iterations < 0:
             if isinstance(self._title, str):
