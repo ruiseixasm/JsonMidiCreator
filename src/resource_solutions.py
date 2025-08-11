@@ -88,7 +88,7 @@ class RS_Solutions:
                     else:
                         measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
                     if iterations > 0 or self._choices is None:
-                        self._choices = self._chaos.reset_tamers() * iterations % measure_triggers
+                        self._choices = self._chaos.reset_tamers() * (iterations - 1) % measure_triggers
                     new_composition *= self._measure_iterator(self._choices, measure_i, composition) * [0]
                 else:
                     new_composition *= composition * [measure_i]
