@@ -126,11 +126,14 @@ class RS_Clip(RS_Solutions):
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
             title: str | None = None) -> Self:
         
-        if callable(n_button):
-            if not isinstance(title, str):
-                title = "My N Button"
-            return self.iterate(iterations, n_button, None, None, None, title)
-        return self
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip) and callable(n_button):
+                return n_button(composition * [measure_i])
+            return composition
+        
+        if not isinstance(title, str):
+            title = "My N Button"
+        return self.iterate(iterations, n_button, _measure_iterator, ch.Chaos(), [1], title)
 
 
     def rhythm_fast_quantized(self,
