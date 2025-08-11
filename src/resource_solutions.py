@@ -64,7 +64,7 @@ class RS_Solutions:
                     measure_triggers: list = [self._triggers] * (composition * [measure_i] % int())
                 if self._measures[measure_i] > 0 or self._choices is None:
                     self._choices = self._chaos.reset_tamers() * self._measures[measure_i] % measure_triggers
-                new_composition *= self._measure_iterator(self._choices)
+                new_composition *= self._measure_iterator(self._choices, measure_i, composition)
             else:
                 new_composition *= composition * [measure_i]
         return new_composition
@@ -161,6 +161,17 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
             title: str | None = None) -> Self:
         
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                measure_clip += of.Foreach(*choices)**ou.Degree()
+                return measure_clip
+            return composition
+        
+        self._measure_iterator = _measure_iterator
+        self._chaos = chaos
+        self._triggers = triggers # Immutable for each Solution
+
         def n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 new_degrees = chaos.reset_tamers() % triggers
