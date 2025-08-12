@@ -1156,13 +1156,13 @@ class Note(Element):
         if midi_track is not None and self._owner_clip is not None:
 
             # Record present Note on the TimeSignature stacked notes
-            if not og.settings._stack_note(
-                self_plotlist[0]['note']["position_on"],
-                self._channel - 1,
+            if not og.settings._add_note_on(
+                self._channel,
+                self._position_beats,
                 pitch_int
             ):
                 print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel} "
-                    f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
+                    f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
 
@@ -1239,21 +1239,22 @@ class Note(Element):
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
 
+
+            # Record present Note on the TimeSignature stacked notes
+            if not og.settings._add_note_on(
+                self._channel,
+                self._position_beats,
+                pitch_int
+            ):
+                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel} "
+                    f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
+                return []
+
+
             # Filers out any "devices" parameter, without "time_ms" one
             self_playlist_time_ms: list[dict] = self_playlist 
             if devices_header:
                 self_playlist_time_ms = o.playlist_time_ms( self_playlist )
-
-
-            # Record present Note on the TimeSignature stacked notes
-            if not og.settings._stack_note(
-                self_playlist_time_ms[0]["time_ms"],
-                self_playlist_time_ms[0]["midi_message"]["status_byte"],
-                self_playlist_time_ms[0]["midi_message"]["data_byte_1"]
-            ):
-                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel} "
-                    f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
-                return []
 
 
             if not og.settings._add_note_off(
@@ -1303,13 +1304,13 @@ class Note(Element):
         if midi_track is not None and self._owner_clip is not None:
 
             # Record present Note on the TimeSignature stacked notes
-            if not og.settings._stack_note(
-                self_midilist[0]["time"],
-                self_midilist[0]["channel"],
-                self_midilist[0]["pitch"]
+            if not og.settings._add_note_on(
+                self._channel,
+                self._position_beats,
+                pitch_int
             ):
-                print(f"Warning (ML): Ignored redundant Note on Channel {self_midilist[0]['channel'] + 1} "
-                    f"and Pitch {self_midilist[0]['pitch']} with same time start!")
+                print(f"Warning (ML): Ignored redundant Note on Channel {self._channel} "
+                    f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
 

@@ -2473,7 +2473,7 @@ class Reset(Process):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.reset(*self._parameters)
+            return operand.reset_volatiles(*self._parameters)
         return super().__rrshift__(operand)
 
 class Clear(Process):
@@ -3307,37 +3307,18 @@ class Settings(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        self._stacked_notes: dict[float | Fraction, # note on time
-                                  dict[int,             # status byte
-                                       set[int]             # set of pitches
-                                  ]
-                            ] = {}
         # (Channel, position_on, pitch)
         self._notes_on: set[tuple] = set()
         # (Channel, position_off, pitch), note_off
         self._notes_off: dict[tuple[int, Fraction, int], dict]
 
 
-    # Checks for stacked notes
-    def _stack_note(self, note_on: float | Fraction, channel_byte: int, pitch: int) -> bool:
-        if note_on not in self._stacked_notes:
-            self._stacked_notes[note_on] = {
-                channel_byte: {
-                    pitch: set( [pitch] )
-                }
-            }
-        elif channel_byte not in self._stacked_notes[note_on]:
-            self._stacked_notes[note_on][channel_byte] = {
-                pitch: set( [pitch] )
-            }
-        elif pitch not in self._stacked_notes[note_on][channel_byte]:
-            self._stacked_notes[note_on][channel_byte][pitch] = set( [pitch] )
-        elif pitch not in self._stacked_notes[note_on][channel_byte][pitch]:
-            self._stacked_notes[note_on][channel_byte][pitch].add( pitch )
-        else:   # It's an Overlapping note
+    def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
+        if (channel, position_on, pitch) in self._notes_on:
             return False
+        self._notes_on.update((channel, position_on, pitch))
         return True
-
+    
 
     def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, note_off: dict, tied: bool = False) -> bool:
         if tied and (channel, position_on, pitch) in self._notes_off:
@@ -3353,20 +3334,14 @@ class Settings(Generic):
         return self
 
 
-    def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
-        if (channel, position_on, pitch) in self._notes_on:
-            return False
-        self._notes_on.update((channel, position_on, pitch))
-        return True
-    
-
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        # Needs to be reset because shallow_copy doesn't result in different
-        # staff references for each element
-        self._stacked_notes = {}
+    def reset_volatiles(self, *parameters) -> Self:
         self._notes_on = set()
         self._notes_off = {}
+        return self << parameters
+    
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self.reset_volatiles()
         return self << parameters
     
     
