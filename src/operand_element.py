@@ -1275,7 +1275,7 @@ class Note(Element):
             ):
             
                 def _get_note_off_pitch(note_off: dict) -> int:
-                    return note_off["note_off"]["midi_message"]["data_byte_1"]
+                    return note_off["midi_message"]["data_byte_1"]
 
                 note_off: dict = og.settings._get_note_off((self._channel, self._position_beats), pitch_int, _get_note_off_pitch)
                 og.settings._delete_note_off((self._channel, self._position_beats)) # Delete previous registry
