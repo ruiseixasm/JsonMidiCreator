@@ -1297,27 +1297,10 @@ class Note(Element):
         self_midilist[0]["duration"]    = self_duration
         self_midilist[0]["velocity"]    = self._velocity
         self_midilist[0]["pitch"]       = pitch_int
+        self_midilist[0]["position_on"] = self._position_beats
 
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
-
-            # Checks if it's a tied note first
-            if self._tied:
-
-                def extend_note(note: dict, position_on: Fraction, position_off: Fraction):
-                    note["duration"] = float(position_off - position_on)
-
-                self_position: Fraction = (Fraction(0) if position_beats is None else position_beats) + self._position_beats
-
-                tied_note: bool = og.settings._tie_note(
-                    get_channel_pitch(self._channel, pitch_int),
-                    self_position, self_position + self_duration_beats,
-                    self_midilist[0], extend_note
-                )
-
-                if tied_note:
-                    return []   # Discards note
-
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
@@ -1329,6 +1312,27 @@ class Note(Element):
                     f"and Pitch {self_midilist[0]['pitch']} with same time start!")
                 return []
 
+
+            if not og.settings._add_note_off(
+                self._channel,
+                self._position_beats,
+                self._position_beats + self._duration_beats,
+                pitch_int,
+                self_midilist[0],
+                self._tied
+            ):
+                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
+                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
+                note_off["duration"] = float(self._position_beats + self._duration_beats - note_off["position_on"])
+                og.settings._add_note_off(  # Updated position_off
+                    self._channel,
+                    self._position_beats,
+                    self._position_beats + self._duration_beats,
+                    pitch_int,
+                    note_off
+                )
+                return []   # Discards note
+            
         return self_midilist
 
 
