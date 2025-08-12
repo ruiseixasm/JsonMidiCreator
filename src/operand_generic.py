@@ -3318,6 +3318,10 @@ class Settings(Generic):
             return False
         self._notes_on.update((channel, position_on, pitch))
         return True
+
+    def reset_notes_on(self) -> Self:
+        self._notes_on = set()
+        return self
     
 
     def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, note_off: dict, tied: bool = False) -> bool:
@@ -3333,15 +3337,15 @@ class Settings(Generic):
         del self._notes_off[(channel, position_off, pitch)]
         return self
 
-
-    def reset_volatiles(self, *parameters) -> Self:
-        self._notes_on = set()
+    def reset_notes_off(self) -> Self:
         self._notes_off = {}
-        return self << parameters
+        return self
     
+
     def reset(self, *parameters) -> Self:
         super().reset()
-        self.reset_volatiles()
+        self.reset_notes_on()
+        self.reset_notes_off()
         return self << parameters
     
     

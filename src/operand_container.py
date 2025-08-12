@@ -2223,7 +2223,7 @@ class Clip(Composition):  # Just a container of Elements
         return set()
 
 
-    def getPlotlist(self, position_beats: Fraction = Fraction(0), masked_element_ids: set[int] | None = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -2233,7 +2233,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        og.settings.reset_volatiles()
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0, 1)
+            og.settings.reset_notes_on()
+        og.settings.reset_notes_off()
 
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
@@ -2267,7 +2270,7 @@ class Clip(Composition):  # Just a container of Elements
         return self_plotlist
 
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -2277,7 +2280,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        og.settings.reset_volatiles()
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0, 1)
+            og.settings.reset_notes_on()
+        og.settings.reset_notes_off()
 
         self_playlist: list[dict] = [
             {
@@ -2292,7 +2298,7 @@ class Clip(Composition):  # Just a container of Elements
         return self_playlist
 
 
-    def getMidilist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction = None) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
@@ -2302,7 +2308,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        og.settings.reset_volatiles()
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0, 1)
+            og.settings.reset_notes_on()
+        og.settings.reset_notes_off()
 
         return [
             single_midilist
