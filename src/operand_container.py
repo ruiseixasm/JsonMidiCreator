@@ -4040,13 +4040,15 @@ class Part(Composition):
         return masked_element_ids
 
 
-    def getPlotlist(self, masked_element_ids: set[int] | None = None) -> list[dict]:
+    def getPlotlist(self, masked_element_ids: set[int] | None = None, from_song: bool = False) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
+        if not from_song:
+            og.settings.reset_notes_on()
         plot_list: list = []
         
         if masked_element_ids is None:
@@ -4060,7 +4062,7 @@ class Part(Composition):
         return plot_list
 
 
-    def getPlaylist(self) -> list[dict]:
+    def getPlaylist(self, from_song: bool = False) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -4070,12 +4072,14 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
+        if not from_song:
+            og.settings.reset_notes_on()
         play_list: list = []
         for single_clip in self._base_container._items:
             play_list.extend(single_clip.getPlaylist(self._base_container._position_beats))
         return play_list
 
-    def getMidilist(self) -> list[dict]:
+    def getMidilist(self, from_song: bool = False) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
@@ -4085,6 +4089,8 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
+        if not from_song:
+            og.settings.reset_notes_on()
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
@@ -4632,11 +4638,12 @@ class Song(Composition):
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
+        og.settings.reset_notes_on()
         plot_list: list = []
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
         for single_part in self._base_container._items:
-            part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids)
+            part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids, True)
             # Part uses the Song staff as Elements use the Clip staff, so, no need for conversions
             plot_list.extend( part_plotlist )
 
@@ -4653,9 +4660,10 @@ class Song(Composition):
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
+        og.settings.reset_notes_on()
         play_list: list = []
         for single_part in self._base_container._items:
-            play_list.extend(single_part.getPlaylist())
+            play_list.extend(single_part.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -4668,9 +4676,10 @@ class Song(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
+        og.settings.reset_notes_on()
         midi_list: list = []
         for single_part in self:
-            midi_list.extend(single_part.getMidilist())
+            midi_list.extend(single_part.getMidilist(True))
         return midi_list
 
     def getSerialization(self) -> dict:
