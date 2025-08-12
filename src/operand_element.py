@@ -1492,13 +1492,13 @@ class KeyScale(Note):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, self))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
         self_midilist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats, self))
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1937,13 +1937,13 @@ class Retrigger(Note):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, self))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
         self_midilist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats, self))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
