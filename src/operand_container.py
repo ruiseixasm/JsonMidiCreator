@@ -1266,6 +1266,19 @@ class Composition(Container):
     def __ifloordiv__(self, operand: any) -> Self:
         return self
     
+    
+    def fit(self, tie_splits: bool = True) -> Self:
+        """
+        Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
+
+        Args:
+            tie_splits (bool): Does a tie of all splitted Notes.
+
+        Returns:
+            Composition: The same self object with the items processed.
+        """
+        return self
+
 
     def loop(self, position = 0, length = 4) -> Self:
         """
@@ -3490,27 +3503,32 @@ class Clip(Composition):  # Just a container of Elements
 
         return self
 
-    def fit(self, length: ra.Length = None) -> Self:
+
+    def fit(self, tie_splitted_notes: bool = True) -> Self:
         """
-        Fits the entire clip in a given length.
+        Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
 
         Args:
-            length (Length): A length in which the clip must fit.
+            tie_splitted_notes (bool): Does a tie of all splitted Notes.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        if isinstance(length, (ra.Position, ra.TimeValue, ra.Duration, ra.TimeUnit)):
-            fitting_finish: ra.Position = ra.Position(self, length)
-        else:
-            fitting_finish: ra.Position = ra.Position(ra.Measure(self, 1))
-        actual_finish: ra.Position = self.finish()
-        if actual_finish is None:
-            actual_finish = ra.Position(self)
-        length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
-        self.__imul__(ra.Position(self, float(length_ratio)))   # Adjust positions
-        self.__imul__(ra.Duration(self, float(length_ratio)))   # Adjust durations
-        return self
+        new_elements: list[oe.Element] = []
+        for single_element in self._items:
+            rightest_element: oe.Element = single_element
+            while rightest_element.start().roundMeasures() + ra.Measure(1) < rightest_element.finish():
+                if tie_splitted_notes and isinstance(rightest_element, oe.Note):
+                    rightest_element._tied = True
+                right_element: oe.Element = rightest_element.copy()
+                new_elements.append(right_element)
+                measure_end: ra.Position = rightest_element.start().roundMeasures() + ra.Measure(1)
+                rightest_element._duration_beats = measure_end._rational - rightest_element._position_beats
+                right_element._position_beats = measure_end._rational
+                right_element._duration_beats -= rightest_element._duration_beats
+                rightest_element = right_element
+        return self._append(new_elements)._sort_items()
+
 
     def link(self, ignore_empty_measures: bool = True) -> Self:
         """

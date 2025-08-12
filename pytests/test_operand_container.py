@@ -777,11 +777,13 @@ def test_clip_filter():
 
 def test_clip_fitting():
 
-    six_notes: Clip = Note() / 6
-    assert six_notes % Duration() == Beats(6)
+    long_notes: Clip = Note(2/1) / Note(2.5)
+    assert long_notes.len() == 2
+    assert long_notes % Duration() == 2.0 + 2.5
 
-    six_notes.fit(Measures(2))
-    assert six_notes % Duration() == Beats(8)
+    long_notes.fit()
+    assert long_notes.len() == 1*2 + 1*3
+    assert long_notes % Duration() == 2.0 + 2.5
 
 # test_clip_fitting()
 

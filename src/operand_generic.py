@@ -2812,6 +2812,22 @@ class CompositionProcess(ContainerProcess):
     def _process(self, operand: TypeComposition) -> TypeComposition:
         return operand
 
+class Fit(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> Fit`
+
+    Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
+
+    Args:
+        tie_splitted_notes (bool): Does a tie of all splitted Notes.
+    """
+    from operand_rational import Length
+
+    def __init__(self, tie_splitted_notes: bool = True):
+        super().__init__(tie_splitted_notes)
+
+    def _process(self, operand: TypeComposition) -> TypeComposition:
+        return operand.fit(self._parameters)
+
 class Loop(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Loop`
 
@@ -2873,22 +2889,6 @@ class ClipProcess(CompositionProcess):
 
     def _process(self, operand: o.T) -> o.T:
         return operand
-
-class Fit(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fit`
-
-    Fits the entire clip in a given length.
-
-    Args:
-        length (Length): A length in which the clip must fit.
-    """
-    from operand_rational import Length
-
-    def __init__(self, length: 'Length' = None):
-        super().__init__(length)
-
-    def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.fit(self._parameters)
 
 class Link(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
