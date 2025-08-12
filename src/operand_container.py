@@ -1419,7 +1419,7 @@ class Composition(Container):
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
+                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1442,7 +1442,7 @@ class Composition(Container):
                                     bar_hatch = 'xx'
                                 
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
+                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.6, linestyle=line_style, alpha = color_alpha)
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["channel"] - 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
@@ -1518,7 +1518,7 @@ class Composition(Container):
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1, linestyle='dotted', alpha = 1)
+                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1541,7 +1541,7 @@ class Composition(Container):
                                     bar_hatch = 'xx'
                                 
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
+                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.6, linestyle=line_style, alpha = color_alpha)
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
