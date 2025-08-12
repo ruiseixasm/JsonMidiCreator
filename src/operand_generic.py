@@ -3041,18 +3041,16 @@ class Oscillate(ClipProcess):
 class Tie(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Tie`
 
-    Extends the `Note` elements as tied when applicable.
-    Works only on Notes, and NOT on its derived elements, as `Chord`,
-    do `Decompose` if needed to transform a `Chord` into Notes.
+    Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
     Args:
-        decompose (bool): If `True`, decomposes elements derived from `Note` first.
+        decompose (bool): If `True`, decomposes elements derived from `Note` first. False is the default.
     """
-    def __init__(self, decompose: bool = True):
-        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+    def __init__(self, decompose: bool = False):
+        super().__init__(decompose)  # Has to have the ending "," to be considered a tuple
 
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.tie(*self._parameters)
+        return operand.tie(self._parameters)
 
 class Join(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Join`

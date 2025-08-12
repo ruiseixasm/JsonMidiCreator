@@ -1114,16 +1114,7 @@ class DrumKit(Unit):
 class Boolean(Unit):
     """`Unit -> Boolean`"""
     def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
-    # def __or__(self, operand: any) -> 'Boolean':
-    #     operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case bool():
-    #             return self._unit != 0 or operand
-    #         case Boolean():
-    #             return self._unit != 0 or operand._unit != 0
-    #     return False
+        super().__init__(True, *parameters)
 
 class Tied(Boolean):
     """`Unit -> Boolean -> Tied`
@@ -1132,7 +1123,7 @@ class Tied(Boolean):
     
     Parameters
     ----------
-    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false. True is the Default.
     """
     pass
 

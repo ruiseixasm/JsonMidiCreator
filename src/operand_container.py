@@ -3625,45 +3625,28 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def tie(self, decompose: bool = True) -> Self:
+    def tie(self, decompose: bool = False) -> Self:
         """
-        Extends the `Note` elements as tied when applicable.
-        Works only on Notes, and NOT on its derived elements, as `Chord`,
-        do `Decompose` if needed to transform a `Chord` into Notes.
+        Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
         Args:
-            decompose (bool): If `True`, decomposes elements derived from `Note` first.
+            decompose (bool): If `True`, decomposes elements derived from `Note` first. False is the default.
 
         Returns:
             Clip: The same self object with the items processed.
         """
         if decompose:
             self.decompose()
+        # Only notes can be tied
         all_notes: list[oe.Note] = [
-            single_note for single_note in self._items if type(single_note) is oe.Note
+            single_note << ou.Tied(True) for single_note in self._items if isinstance(single_note, oe.Note)
         ]
-        removed_notes: list[oe.Note] = []
-        extended_notes: dict[int, oe.Note] = {}
-        for note in all_notes:
-            channel_pitch: int = note._channel << 8 | note._pitch.pitch_int()
-            if channel_pitch in extended_notes:
-                extended_note: oe.Note = extended_notes[channel_pitch]
-                extended_note_position: Fraction = extended_note._position_beats
-                extended_note_length: Fraction = extended_note % od.Pipe( ra.Length() ) % od.Pipe( Fraction() )   # In Beats
-                extended_note_position_off: Fraction = extended_note_position + extended_note_length
-                
-                if note._position_beats == extended_note_position_off:
-                    note_length: Fraction = note % od.Pipe( ra.Length() ) % od.Pipe( Fraction() )   # In Beats
-                    extended_length: Fraction = extended_note_length + note_length
-                    # Extends the original note duration and marks note for removal
-                    extended_note << ra.Length(self, extended_length)
-                    removed_notes.append(note)
-                else:
-                    # Becomes the new original note
-                    extended_notes[channel_pitch] = note
-            else:
-                extended_notes[channel_pitch] = note
-        self._delete(removed_notes)
+        notes_position_off: dict[Fraction, og.Pitch] = {}
+        for single_note in all_notes:
+            notes_position_off[single_note._position_beats] = single_note % og.Pitch()
+        for single_note in all_notes:
+            if single_note._position_beats in notes_position_off:
+                single_note << notes_position_off[single_note._position_beats]
         return self
     
     def join(self, decompose: bool = True) -> Self:
