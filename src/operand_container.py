@@ -1168,7 +1168,7 @@ class Composition(Container):
             case og.TimeSignature():
                 return self._time_signature % operand
             case int():
-                if self._items:
+                if self._base_container._items:
                     last_element_position: ra.Position = self._last_element_position()
                     measures_length: ra.Length = ra.Length(last_element_position)
                     return measures_length % ra.Measure() % int()
