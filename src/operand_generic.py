@@ -3314,8 +3314,8 @@ class Settings(Generic):
                                        set[int]             # set of pitches
                                   ]
                             ] = {}
-        # (Channel, position_off), note_off
-        self._notes_off: dict[tuple[int, Fraction], list[dict]]
+        # (Channel, position_off, pitch), note_off
+        self._notes_off: dict[tuple[int, Fraction, int], dict]
 
     # For Playlist Notes list
     def _reset_tied_notes(self) -> Self:
@@ -3370,28 +3370,17 @@ class Settings(Generic):
         return self
 
 
-    def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, note_off: dict, tied: bool = False) -> bool:
-        if tied:
-            note_channel_position_on: tuple[int, Fraction] = (channel, position_on)
-            if note_channel_position_on in self._notes_off:
-                return False
-        note_channel_position_off: tuple[int, Fraction] = (channel, position_off)
-        if not note_channel_position_off in self._notes_off:
-            self._notes_off[note_channel_position_off] = [note_off]
-        else:
-            self._notes_off[note_channel_position_off].append(note_off)
+    def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, note_off: dict, tied: bool = False) -> bool:
+        if tied and (channel, position_on, pitch) in self._notes_off:
+            return False
+        self._notes_off[(channel, position_off, pitch)] = note_off
         return True
     
-    def _get_note_off(self, note_channel_position_off: tuple[int, Fraction], pitch: int,
-                      get_note_off_pitch: Callable[[dict], int]) -> dict:
-        notes_off_list: list[dict] = self._notes_off[note_channel_position_off]
-        for note_off in notes_off_list:
-            if get_note_off_pitch(note_off) == pitch:
-                return note_off
-        return notes_off_list[0]
+    def _get_note_off(self, channel: int, position_off: Fraction, pitch: int) -> dict:
+        return self._notes_off[(channel, position_off, pitch)]
 
-    def _delete_note_off(self, note_channel_position_off: tuple[int, Fraction]) -> Self:
-        del self._notes_off[note_channel_position_off]
+    def _delete_note_off(self, channel: int, position_off: Fraction, pitch: int) -> Self:
+        del self._notes_off[(channel, position_off, pitch)]
         return self
 
     def _reset_notes_off(self) -> Self:

@@ -1008,7 +1008,7 @@ class Note(Element):
     def __init__(self, *parameters):
         self._velocity: int         = og.settings._velocity
         self._gate: Fraction        = Fraction(1)
-        self._tied: int             = False
+        self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
         super().__init__(*parameters)
 
@@ -1146,6 +1146,7 @@ class Note(Element):
                     "velocity": self._velocity,
                     "channel": self._channel,
                     "masked": id(self) in masked_element_ids,
+                    "tied": self._tied,
                     "self": self
                 }
             }
@@ -1153,23 +1154,6 @@ class Note(Element):
 
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
-
-            # Checks if it's a following tied note first
-            if self._tied:
-
-                def extend_note(note_off: dict, position_on_beats: Fraction, position_off_beats: Fraction):
-                    note_off["position_off"] = position_off_beats
-
-
-                tied_note: bool = og.settings._tie_note(
-                    get_channel_pitch(self._channel, pitch_int),
-                    position_on, position_off,
-                    self_plotlist[0]["note"], extend_note
-                )
-
-                if tied_note:
-                    return []   # Discards note
-
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
@@ -1181,6 +1165,27 @@ class Note(Element):
                     f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
                 return []
 
+
+            if not og.settings._add_note_off(
+                self._channel,
+                self._position_beats,
+                self._position_beats + self._duration_beats,
+                pitch_int,
+                self_plotlist[0]['note'],
+                self._tied
+            ):
+                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
+                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
+                note_off["position_off"] = self._position_beats + self._duration_beats
+                og.settings._add_note_off(  # Updated position_off
+                    self._channel,
+                    self._position_beats,
+                    self._position_beats + self._duration_beats,
+                    pitch_int,
+                    note_off
+                )
+                return []   # Discards note
+            
         return self_plotlist
 
 
@@ -1239,22 +1244,6 @@ class Note(Element):
             if devices_header:
                 self_playlist_time_ms = o.playlist_time_ms( self_playlist )
 
-            # Checks if it's a tied note first
-            if self._tied:
-
-                def extend_note(note_off: dict, position_on: Fraction, position_off: Fraction):
-                    note_off["time_ms"] = o.minutes_to_time_ms(position_off)
-
-
-                tied_note: bool = og.settings._tie_note(
-                    get_channel_pitch(self._channel, pitch_int),
-                    self_position_min, self_position_min + self_duration_min * self._gate,
-                    self_playlist[1], extend_note
-                )
-
-                if tied_note:
-                    return []   # Discards note
-
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._stack_note(
@@ -1266,28 +1255,28 @@ class Note(Element):
                     f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
                 return []
 
+
             if not og.settings._add_note_off(
                 self._channel,
                 self._position_beats,
                 self._position_beats + self._duration_beats,
+                pitch_int,
                 self_playlist[1],
                 self._tied
             ):
-            
-                def _get_note_off_pitch(note_off: dict) -> int:
-                    return note_off["midi_message"]["data_byte_1"]
-
-                note_off: dict = og.settings._get_note_off((self._channel, self._position_beats), pitch_int, _get_note_off_pitch)
-                og.settings._delete_note_off((self._channel, self._position_beats)) # Delete previous registry
+                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
+                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
                 position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
                 note_off["time_ms"] = o.minutes_to_time_ms(position_off_min)
                 og.settings._add_note_off(  # Updated position_off
                     self._channel,
                     self._position_beats,
                     self._position_beats + self._duration_beats,
+                    pitch_int,
                     note_off
                 )
-
+                return []   # Discards note
+            
         return self_playlist
 
 

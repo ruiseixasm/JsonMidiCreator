@@ -1438,8 +1438,8 @@ class Composition(Container):
 
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                if "tied" in note:
-                                    bar_hatch = '+'
+                                if note["tied"]:
+                                    bar_hatch = '--'
                                 
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1538,17 +1538,11 @@ class Composition(Container):
                                 
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                if "tied" in note and edge_color == 'black':
-                                    edge_color = 'white'
+                                if note["tied"]:
+                                    bar_hatch = '--'
                                 
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
-
-                                if "tied" in note:
-                                    tied_pitch: int = note["tied"]
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                            height=0.5, color=channel_color, hatch='+', edgecolor="black", linewidth=1, linestyle=line_style, alpha = color_alpha)
-
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
