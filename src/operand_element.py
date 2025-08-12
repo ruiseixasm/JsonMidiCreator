@@ -1117,7 +1117,8 @@ class Note(Element):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_note: 'Note' = None) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1168,7 +1169,8 @@ class Note(Element):
         return self_plotlist
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_note: 'Note' = None) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1253,7 +1255,8 @@ class Note(Element):
         return self_playlist
 
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+                    derived_note: 'Note' = None) -> list:
         if not self._enabled:
             return []
         
@@ -2304,7 +2307,8 @@ class Automation(Element):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_automation: 'Automation' = None) -> list[dict]:
         if not self._enabled:
             return []
         
