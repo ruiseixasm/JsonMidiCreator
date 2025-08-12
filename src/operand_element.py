@@ -646,7 +646,7 @@ class Element(o.Operand):
 
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str = "") -> Self:
+            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str | None = None) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 

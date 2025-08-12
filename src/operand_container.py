@@ -1859,7 +1859,7 @@ class Composition(Container):
 
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str = "") -> Self:
+            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str | None = None) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1882,7 +1882,10 @@ class Composition(Container):
         self._iteration: int = 0
         self._n_function = n_button
         self._c_function = c_button
-        self._title: str = title
+        if not isinstance(title, str):
+            self._title: str = self % str()
+        else:
+            self._title: str = title
 
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
             for i in range(iterations):
