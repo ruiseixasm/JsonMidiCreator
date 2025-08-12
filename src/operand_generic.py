@@ -3307,8 +3307,6 @@ class Settings(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # channel_pitch, position_off, note_off
-        self._tied_notes: dict[int, dict[str, any]] = {}
         self._stacked_notes: dict[float | Fraction, # note on time
                                   dict[int,             # status byte
                                        set[int]             # set of pitches
@@ -3316,33 +3314,6 @@ class Settings(Generic):
                             ] = {}
         # (Channel, position_off, pitch), note_off
         self._notes_off: dict[tuple[int, Fraction, int], dict]
-
-    # For Playlist Notes list
-    def _reset_tied_notes(self) -> Self:
-        self._tied_notes = {}
-        return self
-
-    def _tie_note(self, channel_pitch: int,
-                  position_on: Fraction, position_off: Fraction, note_off: dict,
-                  extend_note: Callable[[dict, Fraction, Fraction], None]) -> bool:
-        
-        if channel_pitch in self._tied_notes:
-            if self._tied_notes[channel_pitch]["position_off"] == position_on:
-                # The Note is already in the sequence to be tied (extended)
-                self._tied_notes[channel_pitch]["position_off"] = position_off
-                extend_note(
-                    self._tied_notes[channel_pitch]["note_off"],
-                    self._tied_notes[channel_pitch]["position_on"],
-                    position_off
-                )
-                return True # It was Tied
-        # Any previous note becomes history
-        self._tied_notes[channel_pitch] = {
-            "position_on": position_on,
-            "position_off": position_off,
-            "note_off": note_off
-        }
-        return False
 
 
     # Checks for stacked notes
@@ -3392,7 +3363,6 @@ class Settings(Generic):
         super().reset()
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
-        self._reset_tied_notes()
         self._reset_stacked_notes()
         self._reset_notes_off()
         return self << parameters
