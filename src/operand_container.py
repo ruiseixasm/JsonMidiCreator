@@ -1439,7 +1439,7 @@ class Composition(Container):
                                 if note["masked"]:
                                     color_alpha = 0.2
                                 if note["tied"]:
-                                    bar_hatch = '--'
+                                    bar_hatch = 'xx'
                                 
                                 self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1501,7 +1501,6 @@ class Composition(Container):
                             else:
                                 min_pitch -= 12
 
-
                     # Shade black keys
                     for channel in range(min_pitch, max_pitch + 1):
                         if o.is_black_key(channel):
@@ -1539,7 +1538,7 @@ class Composition(Container):
                                 if note["masked"]:
                                     color_alpha = 0.2
                                 if note["tied"]:
-                                    bar_hatch = '--'
+                                    bar_hatch = 'xx'
                                 
                                 self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1, linestyle=line_style, alpha = color_alpha)
@@ -1892,7 +1891,6 @@ class Composition(Container):
         plt.ion()
 
         self._fig, self._ax = plt.subplots(figsize=(12, 6))
-        # self._fig.canvas.mpl_connect("motion_notify_event", lambda event: self._on_move(event))
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
 
         self._plot_elements(self._plot_lists[self._iteration])
@@ -1901,7 +1899,7 @@ class Composition(Container):
         plt.tight_layout()
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
-        plt.rcParams['hatch.linewidth'] = 0.10
+        plt.rcParams['hatch.linewidth'] = 0.30  # Where the HATCH thickness is set
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
@@ -2236,7 +2234,6 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
-        og.settings.reset_notes_off()
 
         self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {

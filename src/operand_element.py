@@ -1165,27 +1165,6 @@ class Note(Element):
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
-
-            if not og.settings._add_note_off(
-                self._channel,
-                self._position_beats,
-                self._position_beats + self._duration_beats,
-                pitch_int,
-                self_plotlist[0]['note'],
-                self._tied
-            ):
-                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
-                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
-                note_off["position_off"] = self._position_beats + self._duration_beats
-                og.settings._add_note_off(  # Updated position_off
-                    self._channel,
-                    self._position_beats,
-                    self._position_beats + self._duration_beats,
-                    pitch_int,
-                    note_off
-                )
-                return []   # Discards note
-            
         return self_plotlist
 
 
