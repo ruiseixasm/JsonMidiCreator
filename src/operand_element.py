@@ -1181,6 +1181,13 @@ class Note(Element):
                     f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
                 return []
 
+            if not og.settings._add_note_off(
+                self._channel,
+                self._position_beats + self._duration_beats,
+                pitch_int
+            ) < 0:
+                print("EXTENDED NOTE!!")
+
         return self_plotlist
 
 

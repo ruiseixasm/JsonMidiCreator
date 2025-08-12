@@ -3314,6 +3314,8 @@ class Settings(Generic):
                                        set[int]             # set of pitches
                                   ]
                             ] = {}
+        # Channel, position_off, pitches
+        self._notes_off: dict[int, dict[Fraction, list[int]]]
 
     # For Playlist Notes list
     def _reset_tied_notes(self) -> Self:
@@ -3367,14 +3369,22 @@ class Settings(Generic):
         self._stacked_notes = {}
         return self
 
+
+    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int) -> int:
+        return -1
+
+    def _reset_notes_off(self) -> Self:
+        self._notes_off = {}
+        return self
+
+
     def reset(self, *parameters) -> Self:
         super().reset()
-        
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
         self._reset_tied_notes()
         self._reset_stacked_notes()
-
+        self._reset_notes_off()
         return self << parameters
     
     
