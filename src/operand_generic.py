@@ -3312,6 +3312,8 @@ class Settings(Generic):
                                        set[int]             # set of pitches
                                   ]
                             ] = {}
+        # (Channel, position_on, pitch)
+        self._notes_on: set[tuple] = set()
         # (Channel, position_off, pitch), note_off
         self._notes_off: dict[tuple[int, Fraction, int], dict]
 
@@ -3336,10 +3338,6 @@ class Settings(Generic):
             return False
         return True
 
-    def _reset_stacked_notes(self) -> Self:
-        self._stacked_notes = {}
-        return self
-
 
     def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, note_off: dict, tied: bool = False) -> bool:
         if tied and (channel, position_on, pitch) in self._notes_off:
@@ -3354,17 +3352,21 @@ class Settings(Generic):
         del self._notes_off[(channel, position_off, pitch)]
         return self
 
-    def _reset_notes_off(self) -> Self:
-        self._notes_off = {}
-        return self
 
+    def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
+        if (channel, position_on, pitch) in self._notes_on:
+            return False
+        self._notes_on.update((channel, position_on, pitch))
+        return True
+    
 
     def reset(self, *parameters) -> Self:
         super().reset()
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
-        self._reset_stacked_notes()
-        self._reset_notes_off()
+        self._stacked_notes = {}
+        self._notes_on = set()
+        self._notes_off = {}
         return self << parameters
     
     
