@@ -2218,7 +2218,7 @@ class Save(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            if not (isinstance(self._parameters, str) and self._parameters):
+            if not isinstance(self._parameters, str):
                 if isinstance(operand, oc.Composition):
                     self._parameters = operand.composition_filename() + "_save.json"
                 else:
@@ -2242,7 +2242,7 @@ class Export(ReadOnly):
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
-                if not (isinstance(self._parameters, str) and self._parameters):
+                if not isinstance(self._parameters, str):
                     if isinstance(operand, oc.Composition):
                         self._parameters = operand.composition_filename() + "_export.json"
                     else:
@@ -2267,7 +2267,7 @@ class Render(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            if not (isinstance(self._parameters, str) and self._parameters):
+            if not isinstance(self._parameters, str):
                 if isinstance(operand, oc.Composition):
                     self._parameters = operand.composition_filename() + "_render.mid"
                 else:
