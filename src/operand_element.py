@@ -1181,15 +1181,6 @@ class Note(Element):
                     f"and Pitch {self_plotlist[0]['note']['pitch']} with same time start!")
                 return []
 
-            if not og.settings._add_note_off(
-                self._channel,
-                self._position_beats,
-                self._position_beats + self._duration_beats,
-                pitch_int,
-                self._tied
-            ) < 0:
-                print("EXTENDED NOTE!!")
-
         return self_plotlist
 
 
@@ -1274,6 +1265,24 @@ class Note(Element):
                 print(f"Warning (PL): Ignored redundant Note on Channel {self._channel} "
                     f"and Pitch {self_playlist_time_ms[0]['midi_message']['data_byte_1']} with same time start!")
                 return []
+
+            if not og.settings._add_note_off(
+                self._channel,
+                self._position_beats,
+                self._position_beats + self._duration_beats,
+                self_playlist[1],
+                self._tied
+            ):
+                note_off: dict = og.settings._get_note_off((self._channel, self._position_beats), pitch_int)
+                og.settings._delete_note_off((self._channel, self._position_beats)) # Delete previous registry
+                position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
+                note_off["time_ms"] = o.minutes_to_time_ms(position_off_min)
+                og.settings._add_note_off(  # Updated position_off
+                    self._channel,
+                    self._position_beats,
+                    self._position_beats + self._duration_beats,
+                    note_off
+                )
 
         return self_playlist
 
