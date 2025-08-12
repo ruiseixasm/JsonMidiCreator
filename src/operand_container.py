@@ -3643,14 +3643,15 @@ class Clip(Composition):  # Just a container of Elements
             for single_note in self._items if isinstance(single_note, oe.Note)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
-            single_note._position_beats + single_note._duration_beats: single_note._pitch
+            single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
             for single_note in all_notes
         }
         for single_note in all_notes:
             if single_note._position_beats in notes_position_off:
                 single_note << notes_position_off[single_note._position_beats]
         return self
-    
+
+
     def join(self, decompose: bool = True) -> Self:
         """
         Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
