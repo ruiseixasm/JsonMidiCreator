@@ -2473,7 +2473,7 @@ class Reset(Process):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.reset_volatiles(*self._parameters)
+            return operand.reset(*self._parameters)
         return super().__rrshift__(operand)
 
 class Clear(Process):
