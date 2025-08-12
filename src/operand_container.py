@@ -3649,22 +3649,20 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def tie(self, decompose: bool = False) -> Self:
+    def tie(self, every_note: bool = False) -> Self:
         """
         Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
         Args:
-            decompose (bool): If `True`, decomposes elements derived from `Note` first. False is the default.
+            every_note (bool): If set as `True`, it will tie every Note and ot just the ones already set as `Tied`.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        if decompose:
-            self.decompose()
         # Only notes can be tied
         all_notes: list[oe.Note] = [
-            single_note << ou.Tied(True)
-            for single_note in self._items if isinstance(single_note, oe.Note)
+            single_note << ou.Tied(True) for single_note in self._items
+            if isinstance(single_note, oe.Note) and (every_note or single_note._tied)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
             single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
