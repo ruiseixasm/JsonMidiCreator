@@ -3314,8 +3314,8 @@ class Settings(Generic):
                                        set[int]             # set of pitches
                                   ]
                             ] = {}
-        # Channel, position_off, pitches
-        self._notes_off: dict[int, dict[Fraction, list[int]]]
+        # (Channel, position_off), pitches
+        self._notes_off: dict[tuple[int, Fraction], list[int]]
 
     # For Playlist Notes list
     def _reset_tied_notes(self) -> Self:
@@ -3370,7 +3370,19 @@ class Settings(Generic):
         return self
 
 
-    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int) -> int:
+    def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, tied: bool) -> int:
+        note_channel_position_off: tuple[int, Fraction] = (channel, position_off)
+        if not note_channel_position_off in self._notes_off:
+            self._notes_off[note_channel_position_off] = [pitch]
+        else:
+            self._notes_off[note_channel_position_off].append(pitch)
+        if tied:
+            note_channel_position_on: tuple[int, Fraction] = (channel, position_on)
+            if note_channel_position_on in self._notes_off:
+                pitches_list: list[int] = self._notes_off[note_channel_position_on]
+                if pitch in pitches_list:
+                    return pitch
+                return pitches_list[0]
         return -1
 
     def _reset_notes_off(self) -> Self:

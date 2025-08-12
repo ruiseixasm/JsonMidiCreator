@@ -1183,8 +1183,10 @@ class Note(Element):
 
             if not og.settings._add_note_off(
                 self._channel,
+                self._position_beats,
                 self._position_beats + self._duration_beats,
-                pitch_int
+                pitch_int,
+                self._tied
             ) < 0:
                 print("EXTENDED NOTE!!")
 
