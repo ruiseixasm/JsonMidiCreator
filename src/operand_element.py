@@ -1273,7 +1273,11 @@ class Note(Element):
                 self_playlist[1],
                 self._tied
             ):
-                note_off: dict = og.settings._get_note_off((self._channel, self._position_beats), pitch_int)
+            
+                def _get_note_off_pitch(note_off: dict) -> int:
+                    return note_off["note_off"]["midi_message"]["data_byte_1"]
+
+                note_off: dict = og.settings._get_note_off((self._channel, self._position_beats), pitch_int, _get_note_off_pitch)
                 og.settings._delete_note_off((self._channel, self._position_beats)) # Delete previous registry
                 position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
                 note_off["time_ms"] = o.minutes_to_time_ms(position_off_min)

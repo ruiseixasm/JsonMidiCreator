@@ -3382,10 +3382,11 @@ class Settings(Generic):
             self._notes_off[note_channel_position_off].append(note_off)
         return True
     
-    def _get_note_off(self, note_channel_position_off: tuple[int, Fraction], pitch: int) -> dict:
+    def _get_note_off(self, note_channel_position_off: tuple[int, Fraction], pitch: int,
+                      get_note_off_pitch: Callable[[dict], int]) -> dict:
         notes_off_list: list[dict] = self._notes_off[note_channel_position_off]
         for note_off in notes_off_list:
-            if note_off["note_off"]["midi_message"]["data_byte_1"] == pitch:
+            if get_note_off_pitch(note_off) == pitch:
                 return note_off
         return notes_off_list[0]
 
