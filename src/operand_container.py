@@ -3660,15 +3660,15 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         # Only notes can be tied
-        all_notes: list[oe.Note] = [
+        tied_notes: list[oe.Note] = [
             single_note << ou.Tied(True) for single_note in self._items
             if isinstance(single_note, oe.Note) and (every_note or single_note._tied)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
             single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
-            for single_note in all_notes
+            for single_note in tied_notes
         }
-        for single_note in all_notes:
+        for single_note in tied_notes:
             if single_note._position_beats in notes_position_off:
                 single_note << notes_position_off[single_note._position_beats]
         return self
