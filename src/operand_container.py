@@ -1374,6 +1374,7 @@ class Composition(Container):
         # Plot Notes
         if note_channels or not automation_channels:
 
+            # As Channels
             if self._by_channel:
                 self._ax.set_ylabel("Channels")
 
@@ -1453,7 +1454,7 @@ class Composition(Container):
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
                     self._ax.set_ylim(0 - 0.5, 15 + 0.5)  # Ensure all channels fit
 
-
+            # As Chromatic keys
             else:
 
                 self._ax.set_ylabel("Chromatic Keys")
