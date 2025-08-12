@@ -1169,7 +1169,7 @@ class Composition(Container):
                 return self._time_signature % operand
             case int():
                 if self._base_container._items:
-                    last_element_position: ra.Position = self._last_element_position()
+                    last_element_position: ra.Position = self._base_container._last_element_position()
                     measures_length: ra.Length = ra.Length(last_element_position)
                     return measures_length % ra.Measure() % int()
                 return 0
