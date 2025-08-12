@@ -1230,19 +1230,12 @@ class Note(Element):
                 return []
 
 
-            # Filers out any "devices" parameter, without "time_ms" one
-            self_playlist_time_ms: list[dict] = self_playlist 
-            if devices_header:
-                self_playlist_time_ms = o.playlist_time_ms( self_playlist )
-
-
-            if not og.settings._add_note_off(
+            if self._tied and not og.settings._add_note_off(
                 self._channel,
                 self._position_beats,
                 self._position_beats + self._duration_beats,
                 pitch_int,
-                self_playlist[1],
-                self._tied
+                self_playlist[1]
             ):
                 note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
                 og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
@@ -1293,13 +1286,12 @@ class Note(Element):
                 return []
 
 
-            if not og.settings._add_note_off(
+            if self._tied and not og.settings._add_note_off(
                 self._channel,
                 self._position_beats,
                 self._position_beats + self._duration_beats,
                 pitch_int,
-                self_midilist[0],
-                self._tied
+                self_midilist[0]
             ):
                 note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
                 og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
