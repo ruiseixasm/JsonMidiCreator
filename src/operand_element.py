@@ -209,10 +209,12 @@ class Element(o.Operand):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_element: 'Element' = None) -> list[dict]:
         return []
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_element: 'Element' = None) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -224,7 +226,8 @@ class Element(o.Operand):
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+                    derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
@@ -1477,7 +1480,7 @@ class KeyScale(Note):
             masked_element_ids = set()
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
         # Makes sure the self is correctly set
@@ -1924,7 +1927,7 @@ class Retrigger(Note):
             masked_element_ids = set()
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
             plot_dict["note"]["masked"] = id(self) in masked_element_ids
@@ -2143,7 +2146,7 @@ class Tuplet(Element):
             masked_element_ids = set()
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self is correctly set
         for plot_dict in self_plotlist:
             plot_dict["note"]["masked"] = id(self) in masked_element_ids
