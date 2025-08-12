@@ -812,7 +812,7 @@ def test_clip_selectors():
 
     # Test for bad input
     empty_clip: Clip = Clip()
-    if empty_clip % int() >= 2:
+    if empty_clip.len() >= 2:
         assert empty_clip[0] == Null()
         assert empty_clip[2] == Null()
         assert empty_clip[-1] == Null()
@@ -881,12 +881,12 @@ def test_clip_duration():
     assert four_notes_2[0] % Beat() == 0
 
     print(f"Duration_0: {four_notes_1 % Duration() % float()}")
-    assert four_notes_1 % int() == 4    # Total of 4 notes
+    assert four_notes_1.len() == 4    # Total of 4 notes
     # Measures has to be wrapped with Position because by itself set the Duration!
     assert Position(Measures(1)) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
     # All Notes are now at position Measure 1
     print(f"Duration_1: {four_notes_1 % Duration() % float()}")
-    assert four_notes_1 % int() == 4    # Total of 4 notes
+    assert four_notes_1.len() == 4    # Total of 4 notes
     assert four_notes_1.net_duration() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
     print(f"Total Duration: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
@@ -1081,13 +1081,13 @@ def test_pitch_shifting():
 def test_split_note():
 
     note_clip: Clip = Note(1/1) * 1
-    assert note_clip % int() == 1
+    assert note_clip.len() == 1
 
     # NoteValue split
-    assert note_clip // NoteValue(1/4) % int() == 4
+    assert (note_clip // NoteValue(1/4)).len() == 4
 
     # Frame split
-    assert note_clip // NoteValue(1/4) // All()**NoteValue(1/8) % int() == 8
+    assert (note_clip // NoteValue(1/4) // All()**NoteValue(1/8)).len() == 8
 
 # test_split_note()
 
