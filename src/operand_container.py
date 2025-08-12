@@ -3639,11 +3639,13 @@ class Clip(Composition):  # Just a container of Elements
             self.decompose()
         # Only notes can be tied
         all_notes: list[oe.Note] = [
-            single_note << ou.Tied(True) for single_note in self._items if isinstance(single_note, oe.Note)
+            single_note << ou.Tied(True)
+            for single_note in self._items if isinstance(single_note, oe.Note)
         ]
-        notes_position_off: dict[Fraction, og.Pitch] = {}
-        for single_note in all_notes:
-            notes_position_off[single_note._position_beats + single_note._duration_beats] = single_note._pitch  # Needs to be a reference to Pitch
+        notes_position_off: dict[Fraction, og.Pitch] = {
+            single_note._position_beats + single_note._duration_beats: single_note._pitch
+            for single_note in all_notes
+        }
         for single_note in all_notes:
             if single_note._position_beats in notes_position_off:
                 single_note << notes_position_off[single_note._position_beats]
