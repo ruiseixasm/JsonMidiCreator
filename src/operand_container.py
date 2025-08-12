@@ -3643,7 +3643,7 @@ class Clip(Composition):  # Just a container of Elements
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {}
         for single_note in all_notes:
-            notes_position_off[single_note._position_beats] = single_note % og.Pitch()
+            notes_position_off[single_note._position_beats + single_note._duration_beats] = single_note % og.Pitch()
         for single_note in all_notes:
             if single_note._position_beats in notes_position_off:
                 single_note << notes_position_off[single_note._position_beats]
