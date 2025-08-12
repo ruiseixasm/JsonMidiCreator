@@ -706,7 +706,7 @@ class Container(o.Operand):
         for item in self._items:
             parameters.append(item % parameter_instance)   # No need to copy
         for item in self._items:
-            data_index: int = chaos * 1 % int() % len(parameters)
+            data_index: int = chaos % 1 % len(parameters)
             item << parameters[data_index]
             del parameters[data_index] # Like picking up colored balls, pop out
         return self._sort_items()

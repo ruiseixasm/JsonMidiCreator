@@ -78,7 +78,7 @@ class RS_Solutions:
             if isinstance(triggers, list):
                 measure_triggers: list = triggers
             else:
-                measure_triggers: list = [triggers] * (composition % int())
+                measure_triggers: list = [triggers] * composition.len()
             _choices = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             for measure_i, measure_iterations in enumerate(self._measures):
@@ -86,7 +86,7 @@ class RS_Solutions:
                     if isinstance(triggers, list):
                         measure_triggers: list = triggers
                     else:
-                        measure_triggers: list = [triggers] * (composition * [measure_i] % int())
+                        measure_triggers: list = [triggers] * (composition * [measure_i]).len()
                     if measure_iterations > 0:
                         _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= measure_iterator(_choices, measure_i, composition) * [0]
