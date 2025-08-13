@@ -1922,7 +1922,8 @@ class Composition(Container):
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
-        self._fig, self._ax = plt.subplots(figsize=(12, 6))
+        # Where the window title is set too
+        self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
 
         self._plot_elements(self._plot_lists[self._iteration])
