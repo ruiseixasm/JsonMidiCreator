@@ -31,6 +31,8 @@ else:
 
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
+    from operand_data import Inline
+
 
 T = TypeVar('T')
 
@@ -369,6 +371,13 @@ class Operand:
             case _:         self._current_node = None
         return previous_node
 
+    
+    def inline(self) -> 'Inline':
+        """
+        Temporary disables the `Operand` implicit copy by wrapping it in an `Inline` operand.
+        """
+        import operand_data as od
+        return od.Inline(self)
 
     def len(self) -> int:
         list_size = 0

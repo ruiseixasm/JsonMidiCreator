@@ -247,19 +247,19 @@ class Inline(Data):
         return self
 
     def __rshift__(self, operand: any) -> Self:
-        return self.__irshift__(operand)
+        return self._data.__irshift__(operand)
     
     def __add__(self, operand: any) -> Self:
-        return self.__iadd__(operand)
+        return self._data.__iadd__(operand)
     
     def __sub__(self, operand: any) -> Self:
-        return self.__isub__(operand)
+        return self._data.__isub__(operand)
     
     def __mul__(self, operand: any) -> Self:
-        return self.__imul__(operand)
+        return self._data.__imul__(operand)
     
     def __truediv__(self, operand: any) -> Self:
-        return self.__itruediv__(operand)
+        return self._data.__itruediv__(operand)
 
 
 class Conditional(Data):
