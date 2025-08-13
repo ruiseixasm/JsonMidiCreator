@@ -105,3 +105,19 @@ def test_playlist_mod():
     assert play_list == retrigger
     
 # test_playlist_mod()
+
+
+def test_inline_operations():
+    four_notes = Note() / 4
+    five_notes = four_notes / Note()
+    assert five_notes is not four_notes
+    assert four_notes.len() == 4
+    assert five_notes.len() == 5
+
+    four_notes.inline() / Note()
+    assert four_notes.len() == 5
+
+    many_notes = four_notes.inline() / Note() / Note() % Pipe()
+    assert many_notes is four_notes
+    assert many_notes.len() == 7
+

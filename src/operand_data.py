@@ -204,7 +204,7 @@ class Inline(Data):
     
     Parameters
     ----------
-    Operand() : An Operand to temporary disable implicit copies.
+    Operand() : An `Operand` to temporary disable implicit copies.
     """
     def __init__(self, operand: any = None):
         super().__init__()
@@ -247,19 +247,24 @@ class Inline(Data):
         return self
 
     def __rshift__(self, operand: any) -> Self:
-        return self._data.__irshift__(operand)
+        self._data.__irshift__(operand)
+        return self # remains as an Inline operand
     
     def __add__(self, operand: any) -> Self:
-        return self._data.__iadd__(operand)
+        self._data.__iadd__(operand)
+        return self # remains as an Inline operand
     
     def __sub__(self, operand: any) -> Self:
-        return self._data.__isub__(operand)
+        self._data.__isub__(operand)
+        return self # remains as an Inline operand
     
     def __mul__(self, operand: any) -> Self:
-        return self._data.__imul__(operand)
+        self._data.__imul__(operand)
+        return self # remains as an Inline operand
     
     def __truediv__(self, operand: any) -> Self:
-        return self._data.__itruediv__(operand)
+        self._data.__itruediv__(operand)
+        return self # remains as an Inline operand
 
 
 class Conditional(Data):
