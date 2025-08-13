@@ -192,10 +192,10 @@ class Rational(o.Operand):
                 self._rational = Fraction(operand._unit)
             case str():
                 self << od.Pipe( operand )
-            case oe.Element():
-                self << operand % self
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case o.Operand():
+                self << operand % self
             case tuple():
                 for single_operand in operand:
                     self << single_operand

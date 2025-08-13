@@ -169,10 +169,10 @@ class Unit(o.Operand):
                 self._unit = operand
             case ra.Rational():
                 self._unit = operand % int()
-            case oe.Element():
-                self << operand % self
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case o.Operand():
+                self << operand % self
             case tuple():
                 for single_operand in operand:
                     self << single_operand
