@@ -1107,6 +1107,13 @@ def test_process_mask():
     assert same_mask == native_clip
     # Now by using the mask the native_copy was stacked changed
     assert native_clip == copy_clip
+    
+    long_clip: Clip = Note() / 16
+    print(f"long_clip.len: {long_clip.len()}")
+    assert long_clip.len() == 16
+    long_mask: Clip = long_clip.mask(Last())
+    print(f"long_mask.len: {long_mask.len()}")
+    assert long_mask.len() == 1
 
 # test_process_mask()
 

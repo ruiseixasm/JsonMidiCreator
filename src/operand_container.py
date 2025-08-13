@@ -841,6 +841,8 @@ class Container(o.Operand):
                     if not any(item == cond_item for cond_item in single_condition._base_container._items)
                 )
             else:
+                if isinstance(single_condition, of.Frame):
+                    single_condition._set_inside_container(self._base_container)
                 masked_item_ids.update(
                     id(item) for item in self._base_container._items
                     if not item == single_condition
@@ -885,6 +887,8 @@ class Container(o.Operand):
                     if not any(item == cond_item for cond_item in single_condition._base_container._items)
                 )
             else:
+                if isinstance(single_condition, of.Frame):
+                    single_condition._set_inside_container(self._base_container)
                 deletable_item_ids.update(
                     id(item) for item in self._base_container._items
                     if not item == single_condition
