@@ -2018,7 +2018,11 @@ class Process(Generic):
                 default_clock: oe.Clock = settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
-                playlist.extend( operand.getPlaylist() )    # Operand Playlist
+                if isinstance(operand, oc.Composition):
+                    # Makes sure the entire Composition content is used
+                    playlist.extend( operand._base_container.getPlaylist() )    # Operand Playlist
+                else:
+                    playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case od.Playlist():
 
                 operand_playlist = operand.getPlaylist()
@@ -2380,9 +2384,9 @@ class Play(ReadOnly):
         import operand_container as oc
         import operand_element as oe
         match operand:
-            case oc.Composition() | oe.Element() | od.Playlist():
-                if isinstance(operand, oe.Element) or len(operand % od.Pipe(list())) > 0:
-                    playlist: list[dict] = self._clocked_playlist(operand)
+            case oc.Composition():
+                if operand._base_container.len() > 0:
+                    playlist: list[dict] = self._clocked_playlist(operand._base_container)
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))
@@ -2394,6 +2398,18 @@ class Play(ReadOnly):
                         c.jsonMidiPlay(playlist, self._parameters[0])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
+                return operand
+            case oe.Element() | od.Playlist():
+                playlist: list[dict] = self._clocked_playlist(operand)
+                if self._parameters[1] and self._parameters[2]:
+                    # Start the function in a new process
+                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))
+                    process.start()
+                    operand >> Plot(self._parameters[2])
+                else:
+                    if self._parameters[1] and not self._parameters[2]:
+                        operand >> Plot(self._parameters[2])
+                    c.jsonMidiPlay(playlist, self._parameters[0])
                 return operand
             case _:
                 return super().__rrshift__(operand)
