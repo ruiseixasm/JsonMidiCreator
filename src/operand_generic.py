@@ -3325,7 +3325,7 @@ class Settings(Generic):
         # (position_on, (Channel, , pitch)) - faster lookups (O(1) per item)
         self._notes_on: dict[Fraction, set[tuple[int, int]]] = {}
         # (Channel, pitch, {position_off: note_off}) - faster deletes (O(1) per item)
-        self._notes_off: dict[tuple[int, int], dict[Fraction, dict]] = {}
+        self._notes_off: dict[Fraction, dict[tuple[int, int], dict]] = {}
 
 
     def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
@@ -3343,22 +3343,17 @@ class Settings(Generic):
         return self
     
 
-    def _add_note_off(self, channel: int, position_on: Fraction, position_off: Fraction, pitch: int, note_off: dict) -> bool:
-        if (channel, pitch) in self._notes_off:
-            if position_on in self._notes_off[(channel, pitch)]:
-                return False
-            else:
-                self._notes_off[(channel, pitch)][position_off] = note_off
+    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int, note_off: dict, position_on: Fraction = None) -> bool:
+        if position_on is not None and position_on in self._notes_off and (channel, pitch) in self._notes_off[position_on]:
+            return False
+        if position_off in self._notes_off:
+            self._notes_off[position_off][(channel, pitch)] = note_off
         else:
-            self._notes_off[(channel, pitch)] = {position_off: note_off}
+            self._notes_off[position_off] = {(channel, pitch): note_off}
         return True
     
     def _get_note_off(self, channel: int, position_off: Fraction, pitch: int) -> dict:
-        return self._notes_off[(channel, pitch)][position_off]
-
-    def _delete_note_off(self, channel: int, position_off: Fraction, pitch: int) -> Self:
-        del self._notes_off[(channel, pitch)][position_off]
-        return self
+        return self._notes_off[position_off][(channel, pitch)]
 
     def reset_notes_off(self) -> Self:
         self._notes_off = {}

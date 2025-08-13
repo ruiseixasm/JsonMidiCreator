@@ -1259,18 +1259,16 @@ class Note(Element):
 
             if self._tied and not og.settings._add_note_off(
                 self._channel,
-                self._position_beats,
                 self._position_beats + self._duration_beats,
                 pitch_int,
-                self_playlist[1]
+                self_playlist[1],
+                self._position_beats
             ):
                 note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
-                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
                 position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
                 note_off["time_ms"] = o.minutes_to_time_ms(position_off_min)
                 og.settings._add_note_off(  # Updated position_off
                     self._channel,
-                    self._position_beats,
                     self._position_beats + self._duration_beats,
                     pitch_int,
                     note_off
@@ -1316,17 +1314,15 @@ class Note(Element):
 
             if self._tied and not og.settings._add_note_off(
                 self._channel,
-                self._position_beats,
                 self._position_beats + self._duration_beats,
                 pitch_int,
-                self_midilist[0]
+                self_midilist[0],
+                self._position_beats
             ):
                 note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
-                og.settings._delete_note_off(self._channel, self._position_beats, pitch_int)    # Delete previous registry
                 note_off["duration"] = float(self._position_beats + self._duration_beats - note_off["position_on"])
                 og.settings._add_note_off(  # Updated position_off
                     self._channel,
-                    self._position_beats,
                     self._position_beats + self._duration_beats,
                     pitch_int,
                     note_off
