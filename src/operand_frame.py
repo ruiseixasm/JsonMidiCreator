@@ -705,7 +705,9 @@ class Crossing(InputFilter):
     """
     def __ixor__(self, input: o.T) -> o.T:
         import operand_element as oe
-        if isinstance(input, oe.Element) and input.crossing():
+        import operand_container as oc
+        if isinstance(self._inside_container, oc.Container) \
+            and isinstance(input, oe.Element) and input.crossing(self._inside_container):
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
             return self._next_operand

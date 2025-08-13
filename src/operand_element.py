@@ -105,7 +105,11 @@ class Element(o.Operand):
         return self
 
 
-    def crossing(self, composition: 'Composition') -> bool:
+    def crossing(self, composition: 'Composition' = None) -> bool:
+        if composition is None:
+            if self._owner_clip is None:
+                return False
+            composition = self._owner_clip
         last_position: ra.Position = composition._last_element_position()
         if last_position is None:   # An empty Composition doesn't count
             return False
