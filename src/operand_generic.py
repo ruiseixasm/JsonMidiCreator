@@ -3302,9 +3302,9 @@ class Settings(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # (Channel, position_on, pitch)
+        # (position_on, (Channel, , pitch)) - faster lookups (O(1) per item)
         self._notes_on: dict[Fraction, set[tuple[int, int]]] = {}
-        # (Channel, position_off, pitch), note_off
+        # (position_off, Channel, pitch), note_off
         self._notes_off: dict[tuple[Fraction, int, int], dict] = {}
 
 
