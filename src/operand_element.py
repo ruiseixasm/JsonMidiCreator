@@ -122,7 +122,7 @@ class Element(o.Operand):
         finish_position: ra.Position = self.finish()
         finish_measure: int = finish_position % ra.Measure() % int()
         last_measure: int = last_position % ra.Measure() % int()
-        return finish_measure < last_measure and finish_measure > start_measure
+        return finish_measure < last_measure + 1 and finish_measure > start_measure
     
 
     def __mod__(self, operand: o.T) -> o.T:
