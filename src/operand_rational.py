@@ -194,6 +194,8 @@ class Rational(o.Operand):
                 self << od.Pipe( operand )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ol.Null():
+                return self
             case o.Operand():
                 self << operand % self
             case tuple():

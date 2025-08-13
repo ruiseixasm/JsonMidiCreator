@@ -171,6 +171,8 @@ class Unit(o.Operand):
                 self._unit = operand % int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ol.Null():
+                return self
             case o.Operand():
                 self << operand % self
             case tuple():
