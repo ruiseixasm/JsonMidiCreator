@@ -116,7 +116,7 @@ class Element(o.Operand):
         # Starts by checking if it's a starting measure Element
         start_position: ra.Position = self.start()
         start_measure: int = start_position % ra.Measure() % int()
-        if start_position % ra.Measures() == start_measure and start_measure > 0:
+        if start_position % ra.Measures() == ra.Measures(start_measure) and start_measure > 0:
             return True
         # Finally checks if it finishes at or beyond the end of the Measure
         finish_position: ra.Position = self.finish()
