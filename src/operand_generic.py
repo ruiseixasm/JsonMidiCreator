@@ -2399,7 +2399,7 @@ class Play(ReadOnly):
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
-            case oe.Element() | od.Playlist():
+            case oe.Element():
                 playlist: list[dict] = self._clocked_playlist(operand)
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
@@ -2410,6 +2410,10 @@ class Play(ReadOnly):
                     if self._parameters[1] and not self._parameters[2]:
                         operand >> Plot(self._parameters[2])
                     c.jsonMidiPlay(playlist, self._parameters[0])
+                return operand
+            case od.Playlist():
+                playlist: list[dict] = self._clocked_playlist(operand)
+                c.jsonMidiPlay(playlist, self._parameters[0])
                 return operand
             case _:
                 return super().__rrshift__(operand)
