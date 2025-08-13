@@ -1457,11 +1457,16 @@ class Composition(Container):
 
                                 if note["masked"]:
                                     color_alpha = 0.2
+                                    
                                 if note["tied"]:
-                                    bar_hatch = 'xx'
-                                
-                                self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.6, linestyle=line_style, alpha = color_alpha)
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.4, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.5, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
+
+                                else:
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["channel"] - 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
@@ -1556,15 +1561,20 @@ class Composition(Container):
                                 
                                 if note["masked"]:
                                     color_alpha = 0.2
+
                                 if note["tied"]:
-                                    bar_hatch = 'xx'
-                                
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.6, linestyle=line_style, alpha = color_alpha)
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.4, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.5, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
+
+                                else:
+                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                            height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
-                                                    color='black', linewidth=0.5, alpha = color_alpha)
+                                                    color='black', linewidth=0.5, alpha=color_alpha)
                 
 
                     # Where the VERTICAL axis is defined - Chromatic Keys
@@ -1921,7 +1931,7 @@ class Composition(Container):
         plt.tight_layout()
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
-        plt.rcParams['hatch.linewidth'] = 0.30  # Where the HATCH thickness is set
+        plt.rcParams['hatch.linewidth'] = 7.00  # Where the HATCH thickness is set
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])

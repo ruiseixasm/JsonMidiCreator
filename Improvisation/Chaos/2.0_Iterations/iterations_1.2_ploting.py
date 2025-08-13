@@ -23,7 +23,7 @@ def new_clip(clip: Clip) -> Clip:
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) / 16 * 8 << Velocity(50)
 
-snare_part = Part(ghost_notes) >> Plot()
+snare_part = Part(ghost_notes) >> Plot(block=False)
 
 def composition(clip: Clip) -> Composition:
     # This filter retains the clip as a Clip and not as a Mask
