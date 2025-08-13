@@ -1140,6 +1140,7 @@ class Note(Element):
     
         position_on: Fraction = position_beats + self._position_beats
         position_off: Fraction = position_on + self._duration_beats
+        self_to_plot: Note = self if derived_note is None else derived_note
 
         self_plotlist.append(
             {
@@ -1149,9 +1150,9 @@ class Note(Element):
                     "pitch": pitch_int,
                     "velocity": self._velocity,
                     "channel": self._channel,
-                    "masked": id(self) in masked_element_ids,
+                    "masked": id(self_to_plot) in masked_element_ids,
                     "tied": self._tied,
-                    "self": self
+                    "self": self_to_plot
                 }
             }
         )
@@ -1483,10 +1484,6 @@ class KeyScale(Note):
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
-        # Makes sure the self is correctly set
-        for plot_dict in self_plotlist:
-            plot_dict["note"]["masked"] = id(self) in masked_element_ids
-            plot_dict["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -1928,10 +1925,6 @@ class Retrigger(Note):
         self_plotlist: list[dict] = []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
-        # Makes sure the self is correctly set
-        for plot_dict in self_plotlist:
-            plot_dict["note"]["masked"] = id(self) in masked_element_ids
-            plot_dict["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -2147,10 +2140,9 @@ class Tuplet(Element):
         self_plotlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
-        # Makes sure the self is correctly set
-        for plot_dict in self_plotlist:
-            plot_dict["note"]["masked"] = id(self) in masked_element_ids
-            plot_dict["note"]["self"] = self
+            # Makes sure the self is correctly set
+            self_plotlist[-1]["note"]["masked"] = id(self) in masked_element_ids
+            self_plotlist[-1]["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
