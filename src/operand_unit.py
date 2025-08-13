@@ -151,6 +151,7 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
+        import operand_element as oe
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Unit():
@@ -168,6 +169,8 @@ class Unit(o.Operand):
                 self._unit = operand
             case ra.Rational():
                 self._unit = operand % int()
+            case oe.Element():
+                self << operand % self
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case tuple():

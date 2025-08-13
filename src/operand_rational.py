@@ -156,6 +156,7 @@ class Rational(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Rational():
@@ -191,6 +192,8 @@ class Rational(o.Operand):
                 self._rational = Fraction(operand._unit)
             case str():
                 self << od.Pipe( operand )
+            case oe.Element():
+                self << operand % self
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case tuple():
