@@ -104,6 +104,11 @@ class Element(o.Operand):
         self._channel = channel
         return self
 
+
+    def crossing(self) -> bool:
+        return False
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,

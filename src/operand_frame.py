@@ -693,6 +693,24 @@ class Last(InputFilter):
                 return self._next_operand
         return ol.Null()
 
+class Crossing(InputFilter):
+    """`Frame -> Left -> InputFilter -> Crossing`
+
+    A `Crossing` selects all elements that start at the beginning of a Measure or end at the end of one.
+    Note that `Crossing` only applies if there is a playable Measure before or after respectively.
+
+    Parameters
+    ----------
+    None : `Crossing` doesn't have parameters to be set.
+    """
+    def __ixor__(self, input: o.T) -> o.T:
+        import operand_element as oe
+        if isinstance(input, oe.Element) and input.crossing():
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.__xor__(input)
+            return self._next_operand
+        return ol.Null()
+
 class Odd(InputFilter):
     """`Frame -> Left -> InputFilter -> Odd`
 
