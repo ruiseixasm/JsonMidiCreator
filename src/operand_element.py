@@ -1256,24 +1256,19 @@ class Note(Element):
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
-
-            if self._tied and not og.settings._add_note_off(
-                self._channel,
-                self._position_beats + self._duration_beats,
-                pitch_int,
-                self_playlist[1],
-                self._position_beats
-            ):
-                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
-                position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
-                note_off["time_ms"] = o.minutes_to_time_ms(position_off_min)
-                og.settings._add_note_off(  # Updated position_off
+            if self._tied:
+                tied_to: list | None = og.settings._add_note_off(
                     self._channel,
                     self._position_beats + self._duration_beats,
                     pitch_int,
-                    note_off
+                    self_playlist[1],
+                    self._position_beats
                 )
-                return []   # Discards note
+                if tied_to is not None:
+                    position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
+                    tied_to["time_ms"] = o.minutes_to_time_ms(position_off_min)
+
+                    return []   # Discards note
             
         return self_playlist
 
@@ -1311,23 +1306,18 @@ class Note(Element):
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
-
-            if self._tied and not og.settings._add_note_off(
-                self._channel,
-                self._position_beats + self._duration_beats,
-                pitch_int,
-                self_midilist[0],
-                self._position_beats
-            ):
-                note_off: dict = og.settings._get_note_off(self._channel, self._position_beats, pitch_int)
-                note_off["duration"] = float(self._position_beats + self._duration_beats - note_off["position_on"])
-                og.settings._add_note_off(  # Updated position_off
+            if self._tied:
+                tied_to: list | None = og.settings._add_note_off(
                     self._channel,
                     self._position_beats + self._duration_beats,
                     pitch_int,
-                    note_off
+                    self_midilist[0],
+                    self._position_beats
                 )
-                return []   # Discards note
+                if tied_to is not None:
+                    tied_to["duration"] = float(self._position_beats + self._duration_beats - tied_to["position_on"])
+
+                    return []   # Discards note
             
         return self_midilist
 

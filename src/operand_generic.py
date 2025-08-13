@@ -3343,18 +3343,16 @@ class Settings(Generic):
         return self
     
 
-    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int, note_off: dict, position_on: Fraction = None) -> bool:
-        if position_on is not None and position_on in self._notes_off and (channel, pitch) in self._notes_off[position_on]:
-            return False
+    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int, note_off: dict, position_on: Fraction) -> dict | None:
+        tied_to: dict | None = None
+        if position_on in self._notes_off and (channel, pitch) in self._notes_off[position_on]:
+            note_off = tied_to = self._notes_off[position_on][(channel, pitch)]
         if position_off in self._notes_off:
             self._notes_off[position_off][(channel, pitch)] = note_off
         else:
             self._notes_off[position_off] = {(channel, pitch): note_off}
-        return True
+        return tied_to
     
-    def _get_note_off(self, channel: int, position_off: Fraction, pitch: int) -> dict:
-        return self._notes_off[position_off][(channel, pitch)]
-
     def reset_notes_off(self) -> Self:
         self._notes_off = {}
         return self
