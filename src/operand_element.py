@@ -105,9 +105,21 @@ class Element(o.Operand):
         return self
 
 
-    def crossing(self) -> bool:
-        return False
-
+    def crossing(self, composition: 'Composition') -> bool:
+        last_position: ra.Position = composition._last_element_position()
+        if last_position is None:   # An empty Composition doesn't count
+            return False
+        # Starts by checking if it's a starting measure Element
+        start_position: ra.Position = self.start()
+        start_measure: int = start_position % ra.Measure() % int()
+        if start_position % ra.Measures() == start_measure and start_measure > 0:
+            return True
+        # Finally checks if it finishes at or beyond the end of the Measure
+        finish_position: ra.Position = self.finish()
+        finish_measure: int = finish_position % ra.Measure() % int()
+        last_measure: int = last_position % ra.Measure() % int()
+        return finish_measure < last_measure and finish_measure > start_measure
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
