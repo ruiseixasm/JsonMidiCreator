@@ -1470,7 +1470,7 @@ class Composition(Container):
 
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["channel"] - 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
-                                                    color='black', linewidth=0.5, alpha = color_alpha)
+                                                    color='black', linewidth=0.5, alpha=color_alpha)
                 
                 
                     # Set MIDI channel ticks with Middle C in bold

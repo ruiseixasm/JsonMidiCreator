@@ -3303,7 +3303,7 @@ class Settings(Generic):
 
         # Volatile variable not intended to be user defined
         # (Channel, position_on, pitch)
-        self._notes_on: dict[Fraction, set[tuple]] = {}
+        self._notes_on: dict[Fraction, set[tuple[int, int]]] = {}
         # (Channel, position_off, pitch), note_off
         self._notes_off: dict[tuple[int, Fraction, int], dict] = {}
 
