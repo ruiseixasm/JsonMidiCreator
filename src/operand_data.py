@@ -198,6 +198,69 @@ class Pipe(Data):
                     self._data << operand
         return self
 
+class Inline(Data):
+    """
+    `Inline` disables the `Operand` implicit copy.
+    
+    Parameters
+    ----------
+    Operand() : An Operand to temporary disable implicit copies.
+    """
+    def __init__(self, operand: any = None):
+        super().__init__()
+        self._data: any = o.Operand() if operand is None else operand
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol will extract the data source value.
+
+        Examples
+        --------
+        >>> dotted_note = Dotted(1/4)
+        >>> dotted_note % float() >> Print()
+        0.25
+        >>> dotted_note % Pipe( float() ) >> Print()
+        0.375
+        """
+        match operand:
+            case Pipe():
+                return self._data
+            case _:
+                if isinstance(self._data, o.Operand):
+                    return self._data % operand
+                return self.deep_copy(operand)
+    
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Pipe():
+                self._data = self.deep_copy(operand._data)
+            case tuple():
+                if isinstance(self._data, o.Operand):
+                    for single_operand in operand:
+                        self._data << single_operand
+            case _:
+                if isinstance(self._data, o.Operand):
+                    self._data << operand
+        return self
+
+    def __rshift__(self, operand: any) -> Self:
+        return self.__irshift__(operand)
+    
+    def __add__(self, operand: any) -> Self:
+        return self.__iadd__(operand)
+    
+    def __sub__(self, operand: any) -> Self:
+        return self.__isub__(operand)
+    
+    def __mul__(self, operand: any) -> Self:
+        return self.__imul__(operand)
+    
+    def __truediv__(self, operand: any) -> Self:
+        return self.__itruediv__(operand)
+
 
 class Conditional(Data):
     """`Data -> Conditional`
