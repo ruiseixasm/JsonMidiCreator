@@ -513,12 +513,15 @@ class Operand:
         return self.__lshift__(operand)
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_label as ol
         import operand_data as od
         # Don't do the line bellow, already done on sub class call
         # operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ol.Null():
+                return self
             case Operand():
                 self._initiated = operand._initiated
                 self._index = operand._index
