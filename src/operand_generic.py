@@ -3303,19 +3303,23 @@ class Settings(Generic):
 
         # Volatile variable not intended to be user defined
         # (Channel, position_on, pitch)
-        self._notes_on: set[tuple] = set()
+        self._notes_on: dict[Fraction, set[tuple]] = {}
         # (Channel, position_off, pitch), note_off
-        self._notes_off: dict[tuple[int, Fraction, int], dict]
+        self._notes_off: dict[tuple[int, Fraction, int], dict] = {}
 
 
     def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
-        if (channel, position_on, pitch) in self._notes_on:
-            return False
-        self._notes_on.update((channel, position_on, pitch))
+        if position_on in self._notes_on:
+            if (channel, pitch) in self._notes_on[position_on]:
+                return False
+            else:
+                self._notes_on[position_on].add((channel, pitch))
+        else:
+            self._notes_on[position_on] = {(channel, pitch)}
         return True
 
     def reset_notes_on(self) -> Self:
-        self._notes_on = set()
+        self._notes_on = {}
         return self
     
 
