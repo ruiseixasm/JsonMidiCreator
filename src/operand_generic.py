@@ -3044,13 +3044,10 @@ class Tie(ClipProcess):
     Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
     Args:
-        every_note (bool): If set as `True`, it will tie every Note and ot just the ones already set as `Tied`.
+        None.
     """
-    def __init__(self, every_note: bool = False):
-        super().__init__(every_note)  # Has to have the ending "," to be considered a tuple
-
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.tie(self._parameters)
+        return operand.tie()
 
 class Join(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Join`
