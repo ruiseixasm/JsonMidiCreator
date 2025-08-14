@@ -258,6 +258,7 @@ class Element(o.Operand):
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
+        channel_0: int = 0x0F & self._channel - 1
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -267,7 +268,7 @@ class Element(o.Operand):
                     "track_name":   midi_track % str(),
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "channel":      self._channel - 1,
+                    "channel":      channel_0,
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
