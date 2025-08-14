@@ -1530,9 +1530,9 @@ class Composition(Container):
                                 min_pitch -= 12
 
                     # Shade black keys
-                    for channel in range(min_pitch, max_pitch + 1):
-                        if o.is_black_key(channel):
-                            self._ax.axhspan(channel - 0.5, channel + 0.5, color='lightgray', alpha=0.5)
+                    for pitch in range(min_pitch, max_pitch + 1):
+                        if o.is_black_key(pitch):
+                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
                     for channel in note_channels:
