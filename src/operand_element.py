@@ -995,6 +995,7 @@ class Rest(Element):
     
         position_on: Fraction = position_beats + self._position_beats
         position_off: Fraction = position_on + self._duration_beats
+        channel_0: int = 0x0F & self._channel - 1
 
         self_plotlist.append(
             {
@@ -1150,6 +1151,7 @@ class Note(Element):
         if self._duration_beats == 0:
             return []
 
+        channel_0: int = 0x0F & self._channel - 1
         if channels is not None:
             channels["note"].add(self._channel)
 
@@ -1286,6 +1288,7 @@ class Note(Element):
             return []
 
         pitch_int: int = self._pitch.pitch_int()
+        channel_0: int = 0x0F & self._channel - 1
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -2316,6 +2319,7 @@ class Automation(Element):
         if not self._enabled:
             return []
         
+        channel_0: int = 0x0F & self._channel - 1
         if channels is not None:
             channels["automation"].add(self._channel)
 
