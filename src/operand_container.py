@@ -3707,7 +3707,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel << 8 | note._pitch.pitch_int()
+            channel_pitch: int = note._channel_0 << 8 | note._pitch.pitch_int()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats

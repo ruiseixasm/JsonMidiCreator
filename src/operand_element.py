@@ -58,7 +58,7 @@ class Element(o.Operand):
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = og.settings._duration
-        self._channel: int                  = og.settings._channel
+        self._channel_0: int                = og.settings._channel_0
         self._enabled: bool                 = True
 
         self._owner_clip: oc.Clip           = None
@@ -86,7 +86,7 @@ class Element(o.Operand):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
-        master: int = self._channel << 8
+        master: int = self._channel_0 << 8
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
@@ -101,7 +101,7 @@ class Element(o.Operand):
         return self
 
     def channel(self, channel: int = None) -> Self:
-        self._channel = channel
+        self._channel_0 = channel
         return self
 
 
@@ -148,7 +148,7 @@ class Element(o.Operand):
                         return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
-                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
@@ -164,7 +164,7 @@ class Element(o.Operand):
                 return operand.copy(self, self._duration_beats)
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
-            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel )
+            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
             case Element():         return self.copy()
             case int():             return self % ra.Measure() % int()
             case og.Segment():      return operand.copy(self % ra.Position())
@@ -185,7 +185,7 @@ class Element(o.Operand):
             case Element():
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats \
-                    and self._channel == other._channel
+                    and self._channel_0 == other._channel_0
             case og.Segment():
                 return other == self % ra.Position()
             case od.Conditional():
@@ -203,7 +203,7 @@ class Element(o.Operand):
             case Element():
                 if self._position_beats == other._position_beats:
                     if self._duration_beats == other._duration_beats:
-                        return self._channel < other._channel
+                        return self._channel_0 < other._channel_0
                     return self._duration_beats > other._duration_beats # Longer duration comes first
                 return self._position_beats < other._position_beats
             case _:
@@ -215,7 +215,7 @@ class Element(o.Operand):
             case Element():
                 if self._position_beats == other._position_beats:
                     if self._duration_beats == other._duration_beats:
-                        return self._channel > other._channel
+                        return self._channel_0 > other._channel_0
                     return self._duration_beats < other._duration_beats # Longer duration comes first
                 return self._position_beats > other._position_beats
             case _:
@@ -258,7 +258,7 @@ class Element(o.Operand):
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -279,7 +279,7 @@ class Element(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]     = self.serialize(self._duration_beats)
-        serialization["parameters"]["channel"]      = self.serialize(self._channel)
+        serialization["parameters"]["channel_0"]    = self.serialize(self._channel_0)
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         return serialization
 
@@ -288,12 +288,12 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "enabled" in serialization["parameters"]):
+            "channel_0" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats        = self.deserialize(serialization["parameters"]["duration"])
-            self._channel               = self.deserialize(serialization["parameters"]["channel"])
+            self._channel_0             = self.deserialize(serialization["parameters"]["channel_0"])
             self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
         return self
 
@@ -304,7 +304,7 @@ class Element(o.Operand):
             case Element():
 
                 super().__lshift__(operand)
-                self._channel               = operand._channel
+                self._channel_0             = operand._channel_0
                 self._enabled               = operand._enabled
                 # No conversion is done, beat and note_value values are directly copied (Same for Part)
                 self._position_beats        = operand._position_beats
@@ -318,7 +318,7 @@ class Element(o.Operand):
                     case ra.Position():     self._position_beats = operand._data._rational
                     case ra.Duration() | ra.Length():
                                             self._duration_beats = operand._data._rational
-                    case ou.Channel():      self._channel = operand._data._unit
+                    case ou.Channel():      self._channel_0 = operand._data._unit
                     case Fraction():        self._duration_beats = operand._data
 
             case od.Serialization():
@@ -346,7 +346,7 @@ class Element(o.Operand):
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
             case ou.Channel():
-                self._channel               = operand._unit
+                self._channel_0             = operand._unit
             case ou.Enable():
                 self._enabled               = operand._unit != 0
             case ou.Disable():
@@ -986,7 +986,7 @@ class Rest(Element):
             return []
 
         if channels is not None:
-            channels["note"].add(self._channel)
+            channels["note"].add(self._channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -995,7 +995,7 @@ class Rest(Element):
     
         position_on: Fraction = position_beats + self._position_beats
         position_off: Fraction = position_on + self._duration_beats
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         self_plotlist.append(
             {
@@ -1004,7 +1004,7 @@ class Rest(Element):
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": self._channel,
+                    "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
@@ -1057,7 +1057,7 @@ class Note(Element):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
-        master: int = self._channel << 8 ^ self._pitch.pitch_int() ^ self._velocity << 8
+        master: int = self._channel_0 << 8 ^ self._pitch.pitch_int() ^ self._velocity << 8
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
@@ -1137,7 +1137,7 @@ class Note(Element):
             case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel))
+                return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0))
             case _:                 return super().__mod__(operand)
 
 
@@ -1151,9 +1151,9 @@ class Note(Element):
         if self._duration_beats == 0:
             return []
 
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
         if channels is not None:
-            channels["note"].add(self._channel)
+            channels["note"].add(self._channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -1173,7 +1173,7 @@ class Note(Element):
                     "position_off": position_off,
                     "pitch": pitch_int,
                     "velocity": self._velocity,
-                    "channel": self._channel,
+                    "channel": self._channel_0,
                     "masked": id(self_to_plot) in masked_element_ids,
                     "tied": self._tied,
                     "self": self_to_plot
@@ -1186,11 +1186,11 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel,
+                self._channel_0,
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel} "
+                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
@@ -1211,7 +1211,7 @@ class Note(Element):
 
         pitch_int: int = self._pitch.pitch_int()
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         self_playlist: list[dict] = []
     
@@ -1252,17 +1252,17 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel,
+                self._channel_0,
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel} "
+                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
             if self._tied:
                 tied_to: list | None = og.settings._add_note_off(
-                    self._channel,
+                    self._channel_0,
                     self._position_beats + self._duration_beats,
                     pitch_int,
                     self_playlist[1],
@@ -1288,7 +1288,7 @@ class Note(Element):
             return []
 
         pitch_int: int = self._pitch.pitch_int()
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -1303,17 +1303,17 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel,
+                self._channel_0,
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (ML): Ignored redundant Note on Channel {self._channel} "
+                print(f"Warning (ML): Ignored redundant Note on Channel {self._channel_0} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
             if self._tied:
                 tied_to: list | None = og.settings._add_note_off(
-                    self._channel,
+                    self._channel_0,
                     self._position_beats + self._duration_beats,
                     pitch_int,
                     self_midilist[0],
@@ -1375,7 +1375,7 @@ class Note(Element):
             case og.Pitch() | ou.PitchParameter() | ou.Quality() | None | og.Scale() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
-                self._channel = operand._channel
+                self._channel_0 = operand._channel
                 self._pitch << operand
             case _:
                 super().__lshift__(operand)
@@ -2241,7 +2241,7 @@ class Automation(Element):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
-        master: int = self._channel << 8 ^ self._value
+        master: int = self._channel_0 << 8 ^ self._value
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
@@ -2285,7 +2285,7 @@ class Automation(Element):
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
-                        return self._channel < other._channel
+                        return self._channel_0 < other._channel_0
                     return self._value < other._value
                 return self._position_beats < other._position_beats
             case Element():
@@ -2300,7 +2300,7 @@ class Automation(Element):
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
-                        return self._channel > other._channel
+                        return self._channel_0 > other._channel_0
                     return self._value > other._value
                 return self._position_beats > other._position_beats
             case Element():
@@ -2319,9 +2319,9 @@ class Automation(Element):
         if not self._enabled:
             return []
         
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
         if channels is not None:
-            channels["automation"].add(self._channel)
+            channels["automation"].add(self._channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -2336,7 +2336,7 @@ class Automation(Element):
                 "automation": {
                     "position": position_on,
                     "value": self._get_msb_value(),
-                    "channel": self._channel,
+                    "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
@@ -2486,7 +2486,7 @@ class ControlChange(Automation):
 
         time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3042,7 +3042,7 @@ class PitchBend(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
         
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3212,7 +3212,7 @@ class Aftertouch(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3373,7 +3373,7 @@ class PolyAftertouch(Aftertouch):
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3497,7 +3497,7 @@ class ProgramChange(Element):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        channel_0: int = 0x0F & self._channel - 1
+        channel_0: int = 0x0F & self._channel_0 - 1
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
