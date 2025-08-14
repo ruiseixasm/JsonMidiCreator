@@ -1426,22 +1426,22 @@ class Composition(Container):
                     # CHANNELS VERTICAL AXIS
 
                     # Shade black keys
-                    for channel in range(16):
-                        if channel % 2 == 1:
-                            self._ax.axhspan(channel - 0.5, channel + 0.5, color='lightgray', alpha=0.5)
+                    for channel_0 in range(16):
+                        if channel_0 % 2 == 1:
+                            self._ax.axhspan(channel_0 - 0.5, channel_0 + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
-                    for channel in note_channels:
-                        channel_color = Clip._channel_colors[channel - 1]
+                    for channel_0 in note_channels:
+                        channel_color = Clip._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
-                            if channel_note["channel"] == channel
+                            if channel_note["channel"] == channel_0
                         ]
 
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                                self._ax.barh(y = note["channel"] - 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
                             else:
                                 bar_hatch: str = ''
@@ -1473,14 +1473,14 @@ class Composition(Container):
                                             height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
-                                    self._ax.hlines(y=note["channel"] - 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                    self._ax.hlines(y=note["channel"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
                 
                 
                     # Set MIDI channel ticks with Middle C in bold
                     self._ax.set_yticks(range(16))
                     y_labels = [
-                        channel + 1 for channel in range(16)
+                        channel_0 + 1 for channel_0 in range(16)
                     ]
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
                     self._ax.set_ylim(0 - 0.5, 15 + 0.5)  # Ensure all channels fit
@@ -1535,11 +1535,11 @@ class Composition(Container):
                             self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
-                    for channel in note_channels:
-                        channel_color = Clip._channel_colors[channel - 1]
+                    for channel_0 in note_channels:
+                        channel_color = Clip._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
-                            if channel_note["channel"] == channel
+                            if channel_note["channel"] == channel_0
                         ]
 
                         for note in channel_plotlist:
@@ -1634,11 +1634,11 @@ class Composition(Container):
                 self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
 
                 # Plot automations
-                for channel in automation_channels:
-                    channel_color = Clip._channel_colors[channel - 1]
+                for channel_0 in automation_channels:
+                    channel_color = Clip._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_automation for channel_automation in automation_plotlist
-                        if channel_automation["channel"] == channel
+                        if channel_automation["channel"] == channel_0
                     ]
 
                     if channel_plotlist:
@@ -3101,11 +3101,11 @@ class Clip(Composition):  # Just a container of Elements
         """
         automation_clip: Clip = self.mask(of.InputType(oe.Automation))
         plotlist: list[dict] = automation_clip.getPlotlist()
-        channels: list[int] = plotlist[0]["channels"]["automation"]
+        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
 
-        for channel in channels:
+        for channel_0 in automation_channels:
 
-            channel_automation: Clip = automation_clip.mask(ou.Channel(channel))
+            channel_automation: Clip = automation_clip.mask(ou.Channel(channel_0 + 1))
 
             if channel_automation.len() > 1:
 

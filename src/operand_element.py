@@ -985,8 +985,9 @@ class Rest(Element):
         if self._duration_beats == 0:
             return []
 
+        temp_channel_0: int = 0x0F & self._channel_0 - 1
         if channels is not None:
-            channels["note"].add(self._channel_0)
+            channels["note"].add(temp_channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -995,7 +996,6 @@ class Rest(Element):
     
         position_on: Fraction = position_beats + self._position_beats
         position_off: Fraction = position_on + self._duration_beats
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
 
         self_plotlist.append(
             {
@@ -1004,7 +1004,7 @@ class Rest(Element):
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": self._channel_0,
+                    "channel": temp_channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
@@ -1153,7 +1153,7 @@ class Note(Element):
 
         temp_channel_0: int = 0x0F & self._channel_0 - 1
         if channels is not None:
-            channels["note"].add(self._channel_0)
+            channels["note"].add(temp_channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -1173,7 +1173,7 @@ class Note(Element):
                     "position_off": position_off,
                     "pitch": pitch_int,
                     "velocity": self._velocity,
-                    "channel": self._channel_0,
+                    "channel": temp_channel_0,
                     "masked": id(self_to_plot) in masked_element_ids,
                     "tied": self._tied,
                     "self": self_to_plot
@@ -1186,11 +1186,11 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel_0,
+                temp_channel_0,
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0} "
+                print(f"Warning (PLL): Ignored redundant Note on Channel {temp_channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
@@ -2336,7 +2336,7 @@ class Automation(Element):
                 "automation": {
                     "position": position_on,
                     "value": self._get_msb_value(),
-                    "channel": self._channel_0,
+                    "channel": temp_channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
