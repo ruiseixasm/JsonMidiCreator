@@ -3328,14 +3328,14 @@ class Settings(Generic):
         self._notes_off: dict[Fraction, dict[tuple[int, int], dict]] = {}
 
 
-    def _add_note_on(self, channel: int, position_on: Fraction, pitch: int) -> bool:
+    def _add_note_on(self, channel_0: int, position_on: Fraction, pitch: int) -> bool:
         if position_on in self._notes_on:
-            if (channel, pitch) in self._notes_on[position_on]:
+            if (channel_0, pitch) in self._notes_on[position_on]:
                 return False
             else:
-                self._notes_on[position_on].add((channel, pitch))
+                self._notes_on[position_on].add((channel_0, pitch))
         else:
-            self._notes_on[position_on] = {(channel, pitch)}
+            self._notes_on[position_on] = {(channel_0, pitch)}
         return True
 
     def reset_notes_on(self) -> Self:
@@ -3343,14 +3343,14 @@ class Settings(Generic):
         return self
     
 
-    def _add_note_off(self, channel: int, position_off: Fraction, pitch: int, note_off: dict, position_on: Fraction) -> dict | None:
+    def _add_note_off(self, channel_0: int, position_off: Fraction, pitch: int, note_off: dict, position_on: Fraction) -> dict | None:
         tied_to: dict | None = None
-        if position_on in self._notes_off and (channel, pitch) in self._notes_off[position_on]:
-            note_off = tied_to = self._notes_off[position_on][(channel, pitch)]
+        if position_on in self._notes_off and (channel_0, pitch) in self._notes_off[position_on]:
+            note_off = tied_to = self._notes_off[position_on][(channel_0, pitch)]
         if position_off in self._notes_off:
-            self._notes_off[position_off][(channel, pitch)] = note_off
+            self._notes_off[position_off][(channel_0, pitch)] = note_off
         else:
-            self._notes_off[position_off] = {(channel, pitch): note_off}
+            self._notes_off[position_off] = {(channel_0, pitch): note_off}
         return tied_to
     
     def reset_notes_off(self) -> Self:
