@@ -258,7 +258,6 @@ class Element(o.Operand):
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
-        temp_channel_0: int = self._channel_0
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -268,7 +267,7 @@ class Element(o.Operand):
                     "track_name":   midi_track % str(),
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "channel":      temp_channel_0,
+                    "channel":      self._channel_0,
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
@@ -985,9 +984,8 @@ class Rest(Element):
         if self._duration_beats == 0:
             return []
 
-        temp_channel_0: int = self._channel_0
         if channels is not None:
-            channels["note"].add(temp_channel_0)
+            channels["note"].add(self._channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -1004,7 +1002,7 @@ class Rest(Element):
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": temp_channel_0,
+                    "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
@@ -1151,9 +1149,8 @@ class Note(Element):
         if self._duration_beats == 0:
             return []
 
-        temp_channel_0: int = self._channel_0
         if channels is not None:
-            channels["note"].add(temp_channel_0)
+            channels["note"].add(self._channel_0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -1173,7 +1170,7 @@ class Note(Element):
                     "position_off": position_off,
                     "pitch": pitch_int,
                     "velocity": self._velocity,
-                    "channel": temp_channel_0,
+                    "channel": self._channel_0,
                     "masked": id(self_to_plot) in masked_element_ids,
                     "tied": self._tied,
                     "self": self_to_plot
@@ -1186,11 +1183,11 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                temp_channel_0,
+                self._channel_0,
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (PLL): Ignored redundant Note on Channel {temp_channel_0 + 1} "
+                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
@@ -1211,7 +1208,6 @@ class Note(Element):
 
         pitch_int: int = self._pitch.pitch_int()
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = self._channel_0
 
         self_playlist: list[dict] = []
     
@@ -1227,7 +1223,7 @@ class Note(Element):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
-                    "status_byte": 0x90 | temp_channel_0,
+                    "status_byte": 0x90 | self._channel_0,
                     "data_byte_1": pitch_int,
                     "data_byte_2": self._velocity
                 }
@@ -1237,7 +1233,7 @@ class Note(Element):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * self._gate),
                 "midi_message": {
-                    "status_byte": 0x80 | temp_channel_0,
+                    "status_byte": 0x80 | self._channel_0,
                     "data_byte_1": pitch_int,
                     "data_byte_2": 0
                 }
@@ -1288,7 +1284,6 @@ class Note(Element):
             return []
 
         pitch_int: int = self._pitch.pitch_int()
-        temp_channel_0: int = self._channel_0
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -2319,7 +2314,6 @@ class Automation(Element):
         if not self._enabled:
             return []
         
-        temp_channel_0: int = self._channel_0
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
@@ -2336,7 +2330,7 @@ class Automation(Element):
                 "automation": {
                     "position": position_on,
                     "value": self._get_msb_value(),
-                    "channel": temp_channel_0,
+                    "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
@@ -2486,7 +2480,6 @@ class ControlChange(Automation):
 
         time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -2506,7 +2499,7 @@ class ControlChange(Automation):
                 {
                     "time_ms": time_ms,
                     "midi_message": {
-                        "status_byte": 0xB0 | temp_channel_0,
+                        "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 99,
                         "data_byte_2": cc_99_msb
                     }
@@ -2514,7 +2507,7 @@ class ControlChange(Automation):
                 {
                     "time_ms": time_ms,
                     "midi_message": {
-                        "status_byte": 0xB0 | temp_channel_0,
+                        "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 98,
                         "data_byte_2": cc_98_lsb
                     }
@@ -2522,7 +2515,7 @@ class ControlChange(Automation):
                 {
                     "time_ms": time_ms,
                     "midi_message": {
-                        "status_byte": 0xB0 | temp_channel_0,
+                        "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 6,
                         "data_byte_2": cc_6_msb
                     }
@@ -2535,7 +2528,7 @@ class ControlChange(Automation):
                     {
                         "time_ms": time_ms,
                         "midi_message": {
-                            "status_byte": 0xB0 | temp_channel_0,
+                            "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 38,
                             "data_byte_2": cc_38_lsb
                         }
@@ -2550,7 +2543,7 @@ class ControlChange(Automation):
                 {
                     "time_ms": time_ms,
                     "midi_message": {
-                        "status_byte": 0xB0 | temp_channel_0,
+                        "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": self._controller._number_msb,
                         "data_byte_2": msb_value
                     }
@@ -2563,7 +2556,7 @@ class ControlChange(Automation):
                     {
                         "time_ms": time_ms,
                         "midi_message": {
-                            "status_byte": 0xB0 | temp_channel_0,
+                            "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": self._controller._lsb,
                             "data_byte_2": lsb_value
                         }
@@ -3042,7 +3035,6 @@ class PitchBend(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
         
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3058,7 +3050,7 @@ class PitchBend(Automation):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
-                    "status_byte": 0xE0 | temp_channel_0,
+                    "status_byte": 0xE0 | self._channel_0,
                     "data_byte_1": self._lsb,
                     "data_byte_2": self._value
                 }
@@ -3212,7 +3204,6 @@ class Aftertouch(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3229,7 +3220,7 @@ class Aftertouch(Automation):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
-                    "status_byte": 0xD0 | temp_channel_0,
+                    "status_byte": 0xD0 | self._channel_0,
                     "data_byte": self._value
                 }
             }
@@ -3373,7 +3364,6 @@ class PolyAftertouch(Aftertouch):
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
-        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3390,7 +3380,7 @@ class PolyAftertouch(Aftertouch):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
-                    "status_byte": 0xA0 | temp_channel_0,
+                    "status_byte": 0xA0 | self._channel_0,
                     "data_byte_1": pitch_int,
                     "data_byte_2": self._value
                 }
@@ -3497,7 +3487,6 @@ class ProgramChange(Element):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3520,7 +3509,7 @@ class ProgramChange(Element):
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
-                    "status_byte": 0xC0 | temp_channel_0,
+                    "status_byte": 0xC0 | self._channel_0,
                     "data_byte": self._program_0
                 }
             }
