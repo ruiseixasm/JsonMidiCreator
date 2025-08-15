@@ -3322,35 +3322,30 @@ class Settings(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # (position_on, (Channel, , pitch)) - faster lookups (O(1) per item)
-        self._notes_on: dict[Fraction, set[tuple[int, int]]] = {}
-        # (Channel, pitch, {position_off: note_off}) - faster deletes (O(1) per item)
-        self._notes_off: dict[Fraction, dict[tuple[int, int], dict]] = {}
+        # (position_on, pitch_channel_0)
+        self._notes_on: set[tuple[Fraction, int]] = set()
+        # (position_on, pitch_channel_0, note_on)
+        self._notes_off: dict[tuple[Fraction, int], dict] = {}
 
 
     def _add_note_on(self, position_on: Fraction, pitch: int, channel_0: int) -> bool:
-        if position_on in self._notes_on:
-            if (channel_0, pitch) in self._notes_on[position_on]:
-                return False
-            else:
-                self._notes_on[position_on].add((channel_0, pitch))
-        else:
-            self._notes_on[position_on] = {(channel_0, pitch)}
+        pitch_channel_0: int = pitch << 4 | channel_0   # (7 bits, 4 bits)
+        if (position_on, pitch_channel_0) in self._notes_on:
+            return False
+        self._notes_on.add((position_on, pitch_channel_0))
         return True
 
     def reset_notes_on(self) -> Self:
-        self._notes_on = {}
+        self._notes_on = set()
         return self
     
 
     def _add_note_off(self, position_on: Fraction, position_off: Fraction, pitch: int, channel_0: int, note_off: dict) -> dict | None:
+        pitch_channel_0: int = pitch << 4 | channel_0   # (7 bits, 4 bits)
         tied_to: dict | None = None
-        if position_on in self._notes_off and (channel_0, pitch) in self._notes_off[position_on]:
-            note_off = tied_to = self._notes_off[position_on][(channel_0, pitch)]
-        if position_off in self._notes_off:
-            self._notes_off[position_off][(channel_0, pitch)] = note_off
-        else:
-            self._notes_off[position_off] = {(channel_0, pitch): note_off}
+        if (position_on, pitch_channel_0) in self._notes_off:
+            note_off = tied_to = self._notes_off[(position_on, pitch_channel_0)]
+        self._notes_off[(position_off, pitch_channel_0)] = note_off
         return tied_to
     
     def reset_notes_off(self) -> Self:
