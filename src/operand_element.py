@@ -35,8 +35,8 @@ import operand_chaos as ch
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
 
-def get_channel_pitch(channel: int, pitch: int) -> int:
-    return channel << 8 | pitch
+def pitch_channel_0(pitch: int, channel_0: int) -> int:
+    return pitch << 4 | channel_0
 
 if TYPE_CHECKING:
     from operand_container import Composition, Clip, Part, Song
@@ -318,7 +318,7 @@ class Element(o.Operand):
                     case ra.Position():     self._position_beats = operand._data._rational
                     case ra.Duration() | ra.Length():
                                             self._duration_beats = operand._data._rational
-                    case ou.Channel():      self._channel_0 = operand._data._unit
+                    case ou.Channel():      self._channel_0 = 0x0F & operand._data._unit - 1
                     case Fraction():        self._duration_beats = operand._data
 
             case od.Serialization():
@@ -346,7 +346,7 @@ class Element(o.Operand):
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
             case ou.Channel():
-                self._channel_0             = operand._unit
+                self._channel_0             = 0x0F & operand._unit - 1
             case ou.Enable():
                 self._enabled               = operand._unit != 0
             case ou.Disable():
@@ -1137,7 +1137,7 @@ class Note(Element):
             case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0))
+                return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
 
@@ -1256,7 +1256,7 @@ class Note(Element):
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0} "
+                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
@@ -1307,7 +1307,7 @@ class Note(Element):
                 self._position_beats,
                 pitch_int
             ):
-                print(f"Warning (ML): Ignored redundant Note on Channel {self._channel_0} "
+                print(f"Warning (ML): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
                 return []
 
@@ -1375,7 +1375,7 @@ class Note(Element):
             case og.Pitch() | ou.PitchParameter() | ou.Quality() | None | og.Scale() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
-                self._channel_0 = operand._channel
+                self._channel_0 = operand._channel_0
                 self._pitch << operand
             case _:
                 super().__lshift__(operand)

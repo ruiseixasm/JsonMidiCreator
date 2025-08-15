@@ -1002,7 +1002,7 @@ class DrumKit(Unit):
     Channel(10), float : Sets the `Channel` associated with the kit.
     """
     def __init__(self, *parameters):
-        self._channel: int = 10
+        self._channel_0: int = 9    # is the 10 base 1
         super().__init__(35, *parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1010,26 +1010,26 @@ class DrumKit(Unit):
             case od.Pipe():
                 match operand._data:
                     case str():                     return DrumKit.numberToName(self._unit)
-                    case Channel():                 return operand._data << self._channel
+                    case Channel():                 return operand._data << self._channel_0 + 1
                     case _:                         return super().__mod__(operand)
             case str():                 return DrumKit.numberToName(self._unit)
-            case Channel():             return Channel(self._channel)
-            case float():               return float(self._channel)
+            case Channel():             return Channel(self._channel_0 + 1)
+            case float():               return float(self._channel_0 + 1)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["channel"] = self.serialize(self._channel)
+        serialization["parameters"]["channel_0"] = self.serialize(self._channel_0)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "channel" in serialization["parameters"]):
+            "channel_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._channel = self.deserialize(serialization["parameters"]["channel"])
+            self._channel_0 = self.deserialize(serialization["parameters"]["channel_0"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -1039,11 +1039,11 @@ class DrumKit(Unit):
             case od.Pipe():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
-                    case Channel():                 self._channel = operand._data._unit
+                    case Channel():                 self._channel_0 = 0x0F & operand._data._unit - 1
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
-            case Channel():         self._channel = operand._unit
-            case float():           self._channel = int(operand)
+            case Channel():         self._channel_0 = 0x0F & operand._unit - 1
+            case float():           self._channel_0 = 0x0F & int(operand) - 1
             case _:                 super().__lshift__(operand)
         return self
 
