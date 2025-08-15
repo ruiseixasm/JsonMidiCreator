@@ -3313,7 +3313,7 @@ class Settings(Generic):
         self._octave: int                           = 4
         self._velocity: int                         = 100
         self._controller: Controller                = Controller("Pan")
-        self._channel_0: int                        = 1
+        self._channel_0: int                        = 0 # Default is channel 1 base 1 same as 0 base 0
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
         self._clock_ppqn: int                       = 24

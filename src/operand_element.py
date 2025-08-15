@@ -148,7 +148,7 @@ class Element(o.Operand):
                         return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
-                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
@@ -164,7 +164,7 @@ class Element(o.Operand):
                 return operand.copy(self, self._duration_beats)
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
-            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
+            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
             case Element():         return self.copy()
             case int():             return self % ra.Measure() % int()
             case og.Segment():      return operand.copy(self % ra.Position())
@@ -258,7 +258,7 @@ class Element(o.Operand):
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -985,7 +985,7 @@ class Rest(Element):
         if self._duration_beats == 0:
             return []
 
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
         if channels is not None:
             channels["note"].add(temp_channel_0)
 
@@ -1151,7 +1151,7 @@ class Note(Element):
         if self._duration_beats == 0:
             return []
 
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
         if channels is not None:
             channels["note"].add(temp_channel_0)
 
@@ -1211,7 +1211,7 @@ class Note(Element):
 
         pitch_int: int = self._pitch.pitch_int()
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         self_playlist: list[dict] = []
     
@@ -1288,7 +1288,7 @@ class Note(Element):
             return []
 
         pitch_int: int = self._pitch.pitch_int()
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -2319,7 +2319,7 @@ class Automation(Element):
         if not self._enabled:
             return []
         
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
@@ -2486,7 +2486,7 @@ class ControlChange(Automation):
 
         time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3042,7 +3042,7 @@ class PitchBend(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
         
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3212,7 +3212,7 @@ class Aftertouch(Automation):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3373,7 +3373,7 @@ class PolyAftertouch(Aftertouch):
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
@@ -3497,7 +3497,7 @@ class ProgramChange(Element):
         self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        temp_channel_0: int = 0x0F & self._channel_0 - 1
+        temp_channel_0: int = self._channel_0
 
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
