@@ -1183,9 +1183,9 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel_0,
                 self._position_beats,
-                pitch_int
+                pitch_int,
+                self._channel_0
             ):
                 print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1248,9 +1248,9 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel_0,
                 self._position_beats,
-                pitch_int
+                pitch_int,
+                self._channel_0
             ):
                 print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1258,11 +1258,11 @@ class Note(Element):
 
             if self._tied:
                 tied_to: list | None = og.settings._add_note_off(
-                    self._channel_0,
+                    self._position_beats,
                     self._position_beats + self._duration_beats,
                     pitch_int,
-                    self_playlist[1],
-                    self._position_beats
+                    self._channel_0,
+                    self_playlist[1]
                 )
                 if tied_to is not None:
                     position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
@@ -1298,9 +1298,9 @@ class Note(Element):
 
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._channel_0,
                 self._position_beats,
-                pitch_int
+                pitch_int,
+                self._channel_0
             ):
                 print(f"Warning (ML): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1308,11 +1308,11 @@ class Note(Element):
 
             if self._tied:
                 tied_to: list | None = og.settings._add_note_off(
-                    self._channel_0,
+                    self._position_beats,
                     self._position_beats + self._duration_beats,
                     pitch_int,
-                    self_midilist[0],
-                    self._position_beats
+                    self._channel_0,
+                    self_midilist[0]
                 )
                 if tied_to is not None:
                     tied_to["duration"] = float(self._position_beats + self._duration_beats - tied_to["position_on"])
