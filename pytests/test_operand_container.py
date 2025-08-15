@@ -1153,11 +1153,11 @@ def test_segment_operations():
 
 def test_checksum():
     four_notes = Note() / 4
-    assert four_notes.checksum() == "0004"
+    assert four_notes.checksum() == "8904"
 
     part_notes = Part(four_notes)
-    assert part_notes.checksum() == "0005"
+    assert part_notes.checksum() == "8905"
 
     song_notes = Song(part_notes)
-    assert song_notes.checksum() == "0004"
+    assert song_notes.checksum() == "8906"
 
