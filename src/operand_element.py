@@ -1181,11 +1181,11 @@ class Note(Element):
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
 
+            pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
                 self._position_beats,
-                pitch_int,
-                self._channel_0
+                pitch_channel_0
             ):
                 print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1245,12 +1245,11 @@ class Note(Element):
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
 
-
+            pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
                 self._position_beats,
-                pitch_int,
-                self._channel_0
+                pitch_channel_0
             ):
                 print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1260,8 +1259,7 @@ class Note(Element):
                 tied_to: list | None = og.settings._add_note_off(
                     self._position_beats,
                     self._position_beats + self._duration_beats,
-                    pitch_int,
-                    self._channel_0,
+                    pitch_channel_0,
                     self_playlist[1]
                 )
                 if tied_to is not None:
@@ -1296,11 +1294,11 @@ class Note(Element):
         # This only applies for Clip owned Notes called by the Clip class!
         if midi_track is not None and self._owner_clip is not None:
 
+            pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
                 self._position_beats,
-                pitch_int,
-                self._channel_0
+                pitch_channel_0
             ):
                 print(f"Warning (ML): Ignored redundant Note on Channel {self._channel_0 + 1} "
                     f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
@@ -1310,8 +1308,7 @@ class Note(Element):
                 tied_to: list | None = og.settings._add_note_off(
                     self._position_beats,
                     self._position_beats + self._duration_beats,
-                    pitch_int,
-                    self._channel_0,
+                    pitch_channel_0,
                     self_midilist[0]
                 )
                 if tied_to is not None:

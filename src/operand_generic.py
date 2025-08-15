@@ -3328,8 +3328,7 @@ class Settings(Generic):
         self._notes_off: dict[tuple[Fraction, int], dict] = {}
 
 
-    def _add_note_on(self, position_on: Fraction, pitch: int, channel_0: int) -> bool:
-        pitch_channel_0: int = pitch << 4 | channel_0   # (7 bits, 4 bits)
+    def _add_note_on(self, position_on: Fraction, pitch_channel_0: int) -> bool:
         if (position_on, pitch_channel_0) in self._notes_on:
             return False
         self._notes_on.add((position_on, pitch_channel_0))
@@ -3340,8 +3339,7 @@ class Settings(Generic):
         return self
     
 
-    def _add_note_off(self, position_on: Fraction, position_off: Fraction, pitch: int, channel_0: int, note_off: dict) -> dict | None:
-        pitch_channel_0: int = pitch << 4 | channel_0   # (7 bits, 4 bits)
+    def _add_note_off(self, position_on: Fraction, position_off: Fraction, pitch_channel_0: int, note_off: dict) -> dict | None:
         tied_to: dict | None = None
         if (position_on, pitch_channel_0) in self._notes_off:
             note_off = tied_to = self._notes_off[(position_on, pitch_channel_0)]
