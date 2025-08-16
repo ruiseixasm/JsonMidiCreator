@@ -1113,10 +1113,14 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        last_position: ra.Position = self._base_container._last_element_position()
-        if last_position is not None:
-            return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
-        return ra.Length(self)
+        if self._base_container.len() > 0:
+            last_position: ra.Position = self._base_container._last_element_position()
+            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
+            finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
+            if finish_length > position_length:
+                return finish_length
+            return position_length
+        return ra.Length(self, 0)
     
     
     def duration(self) -> 'ra.Duration':
@@ -2199,26 +2203,6 @@ class Clip(Composition):  # Just a container of Elements
             return ra.Position(self, finish_beats)
         return None
 
-
-    def length(self) -> 'ra.Length':
-        """
-        Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
-
-        Args:
-            None
-
-        Returns:
-            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
-        """
-        if self._base_container.len() > 0:
-            last_position: ra.Position = self._base_container._last_element_position()
-            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
-            finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
-            if finish_length > position_length:
-                return finish_length
-            return position_length
-        return ra.Length(self, 0)
-    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
