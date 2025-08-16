@@ -2153,10 +2153,11 @@ class Clip(Composition):  # Just a container of Elements
             return True
         return False
 
+
     # Ignores the self Length
     def start(self) -> 'ra.Position':
         """
-        Gets the starting position of all its Elements.
+        Gets the starting position of all its BASE Elements.
         This is the same as the minimum Position of all `Element` positions.
 
         Args:
@@ -2167,7 +2168,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self.len() > 0:
             start_beats: Fraction = Fraction(0)
-            first_element: oe.Element = self._first_element()
+            first_element: oe.Element = self._base_container._first_element()
             if first_element:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
@@ -2178,7 +2179,7 @@ class Clip(Composition):  # Just a container of Elements
     def finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
-        as the maximum of all of them.
+        as the maximum of all BASE them.
 
         Args:
             None
@@ -2188,7 +2189,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self.len() > 0:
             finish_beats: Fraction = Fraction(0)
-            for item in self._items:
+            for item in self._base_container._items:
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
                     element_finish: Fraction = single_element._position_beats \
