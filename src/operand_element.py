@@ -1056,8 +1056,8 @@ class Note(Element):
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
         master: int = self._velocity << 7 + 4 | self._pitch.pitch_int() << 4 | self._channel_0
-        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
-        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
+        master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
