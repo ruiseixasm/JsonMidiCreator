@@ -260,7 +260,7 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self.len() > 0:
+        if self._items:
             first_item = self._items[0]
         return first_item
 
@@ -275,7 +275,7 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self.len() > 0:
+        if self._items:
             last_item = self._items[-1]
         return last_item
 
@@ -464,7 +464,7 @@ class Container(o.Operand):
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand._items
                 ]
-                if self.len() > 0:
+                if self._items:
                     self_last_item: any = self[-1]
                     return self._append(operand_items, self_last_item)
                 return self._append(operand_items)
@@ -484,7 +484,7 @@ class Container(o.Operand):
                 for item in self._items:
                     item += operand
             case _:
-                if self.len() > 0:
+                if self._items:
                     self_last_item: any = self[-1]
                     return self._append([ self.deep_copy(operand) ], self_last_item)
                 return self._append([ self.deep_copy(operand) ])
@@ -733,7 +733,7 @@ class Container(o.Operand):
                 left_mask << right_segment
                 right_mask << left_segment
         else:
-            if self.len() > 0 and isinstance(what, type):
+            if self._items and isinstance(what, type):
                 if isinstance(left, int):
                     left = self[left]
                 if isinstance(right, int):
@@ -2145,7 +2145,9 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _has_elements(self) -> bool:
-        return len(self._base_container._items) > 0
+        if self._base_container._items:
+            return True
+        return False
 
     def _total_elements(self) -> int:
         return len(self._base_container._items)
@@ -2542,7 +2544,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
-                if self.len() > 0:
+                if self._has_elements():
                     self_last_element: oe.Element = self[-1]
                     return self._append([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
                 return self._append([ new_element ])._sort_items()  # Shall be sorted!
@@ -2872,7 +2874,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Container: The same self object with the operands processed.
         """
-        if self.len() > 0 and isinstance(parameter_type, type):
+        if self._items and isinstance(parameter_type, type):
             if isinstance(left_operand, of.Frame):
                 left_operand = self[left_operand]
             if isinstance(right_operand, of.Frame):
@@ -3570,7 +3572,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        if self.len() > 0:
+        if self._items:
             for index, element in enumerate(self._items):
                 if index > 0:
                     previous_element: oe.Element = self[index - 1]
@@ -5134,7 +5136,7 @@ class ClipGet(Container):
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand._items
                 ]
-                if self.len() > 0:
+                if self._items:
                     self_last_item: any = self[-1]
                     return self._append(operand_items, self_last_item)
                 return self._append(operand_items)
