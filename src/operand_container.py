@@ -3864,25 +3864,6 @@ class Part(Composition):
             return True
         return False
 
-    def len(self, just_clips: bool = False) -> int:
-        """
-        Returns the total number of items.
-
-        Args:
-            just_clips: Excludes the `Playlist` items if True.
-
-        Returns:
-            int: Returns the equivalent to the len(self._items).
-        """
-        if just_clips:
-            total_clips: int = 0
-            for single_item in self._items:
-                if isinstance(single_item, Clip):
-                    total_clips += 1
-            return total_clips
-
-        return super().len()
-
 
     def __eq__(self, other: o.Operand) -> bool:
         other ^= self    # Processes the Frame operand if any exists
