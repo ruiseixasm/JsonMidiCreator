@@ -1147,11 +1147,9 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        self_start: ra.Position = self.start()
-        self_finish: ra.Position = self.finish()
-        if self_start is not None and self_finish is not None:
+        if self._base_container.len() > 0:
             return ra.Duration(self.finish() - self.start())
-        return ra.Duration(self)
+        return ra.Duration(self, 0)
     
 
     def __mod__(self, operand: o.T) -> o.T:
