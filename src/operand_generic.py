@@ -203,7 +203,7 @@ class Pitch(Generic):
         pitch_int = 
             tonic_key
             + octave_transposition + degree_transposition + scale_transposition
-            + accidentals_transposition
+            + degree_accidentals + sharps_flats_and_naturals
     """
 
     def octave_transposition(self) -> int:
@@ -241,7 +241,7 @@ class Pitch(Generic):
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0
 
-    def chromatic_transposition(self) -> int:
+    def degree_accidentals(self) -> int:
         degree_int: int = round(self._degree_0)
         semitones: int = round((self._degree_0 - degree_int) * 10)
         if semitones % 2:  # Odd - same direction, same sign
@@ -250,7 +250,7 @@ class Pitch(Generic):
             semitones = semitones // (-2)
         return semitones
 
-    def accidentals_transposition(self, key: int) -> int:
+    def sharps_flats_and_naturals(self, key: int) -> int:
         """
         Processes the given set sharps and natural accordingly as final decorators.
         """
@@ -306,18 +306,17 @@ class Pitch(Generic):
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        chromatic_transposition: int = self.chromatic_transposition()
-        return tonic_int + degree_transposition + scale_transposition + chromatic_transposition
+        degree_accidentals: int = self.degree_accidentals()
+        return tonic_int + degree_transposition + scale_transposition + degree_accidentals
 
     def pitch_int(self) -> int:
         """
-        The final chromatic conversion of the tonic_key into the midi pitch with accidentals.
+        The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
         """
         chromatic_int: int = self.chromatic_int()
-
-        accidentals_transposition: int = self.accidentals_transposition(chromatic_int)
+        sharps_flats_and_naturals: int = self.sharps_flats_and_naturals(chromatic_int)
         octave_transposition: int = self.octave_transposition()
-        return chromatic_int + accidentals_transposition + octave_transposition
+        return chromatic_int + sharps_flats_and_naturals + octave_transposition
 
     """
     Auxiliary methods to get specific data directly

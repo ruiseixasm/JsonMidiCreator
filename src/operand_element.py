@@ -1138,7 +1138,7 @@ class Note(Element):
                 return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
-
+    # REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
@@ -1169,6 +1169,7 @@ class Note(Element):
                     "position_on": position_on,
                     "position_off": position_off,
                     "pitch": pitch_int,
+                    "accidentals": self._pitch.degree_accidentals(),
                     "velocity": self._velocity,
                     "channel": self._channel_0,
                     "masked": id(self_to_plot) in masked_element_ids,
