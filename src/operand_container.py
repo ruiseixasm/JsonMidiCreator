@@ -2166,7 +2166,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self.len() > 0:
+        if self._base_container.len() > 0:
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._base_container._first_element()
             if first_element:
@@ -2187,18 +2187,38 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self.len() > 0:
+        if self._base_container.len() > 0:
             finish_beats: Fraction = Fraction(0)
             for item in self._base_container._items:
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
-                    element_finish: Fraction = single_element._position_beats \
-                        + (single_element % ra.Length())._rational
+                    element_finish: Fraction = \
+                        single_element._position_beats + single_element._duration_beats
                     if element_finish > finish_beats:
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
 
+
+    def length(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        if self._base_container.len() > 0:
+            last_position: ra.Position = self._base_container._last_element_position()
+            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
+            finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
+            if finish_length > position_length:
+                return finish_length
+            return position_length
+        return ra.Length(self, 0)
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
