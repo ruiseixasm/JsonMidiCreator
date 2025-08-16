@@ -1133,10 +1133,9 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        self_finish: ra.Position = self.finish()
-        if self_finish is not None:
+        if self._base_container.len() > 0:
             return ra.Duration(self.finish())
-        return ra.Duration(self)
+        return ra.Duration(self, 0)
     
     def net_duration(self) -> 'ra.Duration':
         """
