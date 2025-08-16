@@ -1007,6 +1007,8 @@ class Composition(Container):
     def _get_time_signature(self) -> 'og.TimeSignature':
         return og.settings._time_signature
 
+    def _total_elements(self) -> int:
+        return 0
 
     def _first_element(self) -> 'oe.Element':
         """
@@ -1113,7 +1115,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._base_container.len() > 0:
+        if self._total_elements() > 0:
             last_position: ra.Position = self._base_container._last_element_position()
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
             finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
@@ -1133,7 +1135,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        if self._base_container.len() > 0:
+        if self._total_elements() > 0:
             return ra.Duration(self.finish())
         return ra.Duration(self, 0)
     
@@ -1147,7 +1149,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        if self._base_container.len() > 0:
+        if self._total_elements() > 0:
             return ra.Duration(self.finish() - self.start())
         return ra.Duration(self, 0)
     
@@ -2138,6 +2140,10 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
+    def _total_elements(self) -> int:
+        return len(self._base_container._items)
+
+
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Clip, combining Element checksums."""
         master: int = len(self._base_container._items)
@@ -2167,14 +2173,13 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self._base_container.len() > 0:
+        if self._total_elements() > 0:
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._base_container._first_element()
             if first_element:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
         return None
-
 
     # Ignores the self Length
     def finish(self) -> 'ra.Position':
@@ -2188,7 +2193,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self._base_container.len() > 0:
+        if self._total_elements() > 0:
             finish_beats: Fraction = Fraction(0)
             for item in self._base_container._items:
                 if isinstance(item, oe.Element):
@@ -3847,6 +3852,40 @@ class Part(Composition):
         return self
 
 
+    def _total_elements(self) -> int:
+        total_elements: int = 0
+        for single_clip in self._base_container._items:
+            total_elements += single_clip._total_elements()
+        return total_elements
+
+    def _last_element(self) -> 'oe.Element':
+        """
+        Returns the `Element` with the last `Position` in the given `Part`.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last `Element` of all elements in each `Clip`.
+        """
+        clips_list: list[Clip] = [
+            clip for clip in self._items if isinstance(clip, Clip)
+        ]
+
+        part_last: oe.Element = None
+        if len(clips_list) > 0:
+            for clip in clips_list:
+                clip_last: oe.Element = clip._last_element()
+                if clip_last:
+                    if part_last:
+                        # Implicit conversion
+                        if clip_last > part_last:
+                            part_last = clip_last
+                    else:
+                        part_last = clip_last
+        return part_last
+
+
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Part, combining Clip checksums."""
         master: int = len(self._base_container._items)
@@ -3970,34 +4009,6 @@ class Part(Composition):
                 else:
                     finish_position = clip_finish
         return finish_position
-
-
-    def _last_element(self) -> 'oe.Element':
-        """
-        Returns the `Element` with the last `Position` in the given `Part`.
-
-        Args:
-            None
-
-        Returns:
-            Element: The last `Element` of all elements in each `Clip`.
-        """
-        clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
-        ]
-
-        part_last: oe.Element = None
-        if len(clips_list) > 0:
-            for clip in clips_list:
-                clip_last: oe.Element = clip._last_element()
-                if clip_last:
-                    if part_last:
-                        # Implicit conversion
-                        if clip_last > part_last:
-                            part_last = clip_last
-                    else:
-                        part_last = clip_last
-        return part_last
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4481,6 +4492,59 @@ class Song(Composition):
         return True
 
 
+    def _total_elements(self) -> int:
+        total_elements: int = 0
+        for single_part in self._base_container._items:
+            total_elements += single_part._total_elements()
+        return total_elements
+
+    def _last_position_and_element(self) -> tuple:
+        last_elements_list: list[tuple[ra.Position, Clip]] = []
+        for single_part in self._items:
+            part_last_element: oe.Element = single_part._last_element()
+            if part_last_element is not None:
+                # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
+                last_elements_list.append(
+                    ( single_part % ra.Position() + part_last_element % ra.Position(), part_last_element )
+                )
+        # In this case a dictionary works like a list of pairs where [0] is the key
+        last_elements_list.sort(key=lambda pair: pair[0])
+        if len(last_elements_list) > 0:
+            return last_elements_list[-1]
+        return None
+
+    def _last_element(self) -> 'oe.Element':
+        """
+        Returns the `Element` with the last `Position` in the given `Part`.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last `Element` of all elements in each `Clip`.
+        """
+        last_position_element: tuple = self._last_position_and_element()
+        if last_position_element is not None:
+            return last_position_element[1]
+        return None
+
+    def _last_element_position(self) -> ra.Position:
+        """
+        Returns the `Position` of tha last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The `Position` of the last `Element` of all elements in each `Part`.
+        """
+        last_position_element: tuple = self._last_position_and_element()
+        if last_position_element is not None:
+            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
+            return last_position_element[0]
+        return None
+
+
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Song, combining Part checksums."""
         master: int = len(self._base_container._items)
@@ -4551,53 +4615,6 @@ class Song(Composition):
                 else:
                     finish_position = absolute_finish
         return finish_position
-
-
-    def _last_position_and_element(self) -> tuple:
-        last_elements_list: list[tuple[ra.Position, Clip]] = []
-        for single_part in self._items:
-            part_last_element: oe.Element = single_part._last_element()
-            if part_last_element is not None:
-                # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
-                last_elements_list.append(
-                    ( single_part % ra.Position() + part_last_element % ra.Position(), part_last_element )
-                )
-        # In this case a dictionary works like a list of pairs where [0] is the key
-        last_elements_list.sort(key=lambda pair: pair[0])
-        if len(last_elements_list) > 0:
-            return last_elements_list[-1]
-        return None
-
-    def _last_element(self) -> 'oe.Element':
-        """
-        Returns the `Element` with the last `Position` in the given `Part`.
-
-        Args:
-            None
-
-        Returns:
-            Element: The last `Element` of all elements in each `Clip`.
-        """
-        last_position_element: tuple = self._last_position_and_element()
-        if last_position_element is not None:
-            return last_position_element[1]
-        return None
-
-    def _last_element_position(self) -> ra.Position:
-        """
-        Returns the `Position` of tha last `Element`.
-
-        Args:
-            None
-
-        Returns:
-            Position: The `Position` of the last `Element` of all elements in each `Part`.
-        """
-        last_position_element: tuple = self._last_position_and_element()
-        if last_position_element is not None:
-            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
-            return last_position_element[0]
-        return None
 
 
     def __mod__(self, operand: o.T) -> o.T:
