@@ -1113,7 +1113,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        last_position: ra.Position = self._last_element_position()
+        last_position: ra.Position = self._base_container._last_element_position()
         if last_position is not None:
             return ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
         return ra.Length(self)
