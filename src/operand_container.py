@@ -1007,6 +1007,10 @@ class Composition(Container):
     def _get_time_signature(self) -> 'og.TimeSignature':
         return og.settings._time_signature
 
+
+    def _has_elements(self) -> bool:
+        return False
+
     def _total_elements(self) -> int:
         return 0
 
@@ -1115,7 +1119,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._total_elements() > 0:
+        if self._has_elements():
             last_position: ra.Position = self._base_container._last_element_position()
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
             finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
@@ -1135,7 +1139,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        if self._total_elements() > 0:
+        if self._has_elements():
             return ra.Duration(self.finish())
         return ra.Duration(self, 0)
     
@@ -1149,7 +1153,7 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        if self._total_elements() > 0:
+        if self._has_elements():
             return ra.Duration(self.finish() - self.start())
         return ra.Duration(self, 0)
     
@@ -2140,6 +2144,9 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
+    def _has_elements(self) -> bool:
+        return len(self._base_container._items) > 0
+
     def _total_elements(self) -> int:
         return len(self._base_container._items)
 
@@ -2173,7 +2180,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self._total_elements() > 0:
+        if self._has_elements():
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._base_container._first_element()
             if first_element:
@@ -2193,7 +2200,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self._total_elements() > 0:
+        if self._has_elements():
             finish_beats: Fraction = Fraction(0)
             for item in self._base_container._items:
                 if isinstance(item, oe.Element):
@@ -3852,6 +3859,12 @@ class Part(Composition):
         return self
 
 
+    def _has_elements(self) -> bool:
+        for single_clip in self._base_container._items:
+            if single_clip._has_elements():
+                return True
+        return False
+
     def _total_elements(self) -> int:
         total_elements: int = 0
         for single_clip in self._base_container._items:
@@ -4491,6 +4504,12 @@ class Song(Composition):
                 return False
         return True
 
+
+    def _has_elements(self) -> bool:
+        for single_part in self._base_container._items:
+            if single_part._has_elements():
+                return True
+        return False
 
     def _total_elements(self) -> int:
         total_elements: int = 0
