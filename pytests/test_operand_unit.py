@@ -142,7 +142,9 @@ def test_degree_accidentals():
     assert flattened_degree % Natural() != Natural(True)
     assert flattened_degree % Sharp()   != Sharp(True)
 
-    
+    print(f"Sharp: {(natural_degree + Sharp(1)) % Sharp() % int()}")
+    print(f"Flat: {(natural_degree - Flat(1)) % Sharp() % int()}")
+    assert natural_degree + Sharp(1) == natural_degree - Flat(1)
 
 # test_degree_accidentals()
 

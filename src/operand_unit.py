@@ -836,11 +836,13 @@ class Degree(PitchParameter):
             case Sharp():
                 if operand < 0:
                     self << Flat(operand * -1)
-                self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2 - 0.1)), 1)
+                else:
+                    self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2 - 0.1)), 1)
             case Flat():
                 if operand < 0:
                     self << Sharp(operand * -1)
-                self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2)), 1)
+                else:
+                    self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2)), 1)
             case Natural():
                 self._semitones = 0.0
             case _:
