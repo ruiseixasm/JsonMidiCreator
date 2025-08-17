@@ -1597,9 +1597,15 @@ class Composition(Container):
                                 if note["key_signature"] != last_key_signature["key_signature"] and note["position_on"] > last_key_signature["position"]:
                                     last_key_signature["position"] = note["position_on"]
                                     last_key_signature["key_signature"] = note["key_signature"]
-                                    modulated_scale: list[int] = note["key_signature"].get_modulated_scale_list()
-                                    for chromatic_pitch in range(min_pitch, min_pitch + 12):
-                                        pass
+                                    sharps_flats: int = note["key_signature"] % int()
+                                    if sharps_flats:
+                                        symbol: str = '♯'
+                                        if sharps_flats < 0: # Flattened
+                                            symbol = '♭'
+                                        for chromatic_pitch in range(min_pitch, min_pitch + 12):
+                                            if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch]:
+                                                x_pos = float(note["position_on"]) - 0.1
+                                                self._ax.text(x_pos, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
                                     
 
                                 if note["accidentals"]:
