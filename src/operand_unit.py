@@ -79,6 +79,7 @@ class Unit(o.Operand):
             case of.Frame():        return self % operand
             case Unit() | ra.Rational():
                                     return operand.__class__() << od.Pipe( self._unit )
+            case str():             return str(self._unit)
             case _:                 return super().__mod__(operand)
 
     def __bool__(self) -> bool:  # For Python 3
