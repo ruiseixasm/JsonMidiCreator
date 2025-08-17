@@ -178,8 +178,6 @@ class Pitch(Generic):
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
-        self._sharp: int                = 0     # By default not a Sharp or Flat
-        self._natural: bool             = False
         self._scale: list[int]          = []
         super().__init__(*parameters)
 
@@ -427,9 +425,6 @@ class Pitch(Generic):
                     case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
-                    case ou.Sharp():        return operand._data << od.Pipe(max(0, self._sharp))
-                    case ou.Flat():         return operand._data << od.Pipe(max(0, self._sharp * -1))
-                    case ou.Natural():      return operand._data << od.Pipe(self._natural)
                     case int():             return float(self._tonic_key)
                     case float():           return self._degree_0
                     case Fraction():        return Fraction(self._transposition)
@@ -530,8 +525,6 @@ class Pitch(Generic):
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
         serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
-        serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
-        serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
@@ -539,8 +532,8 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_signature" in serialization["parameters"] and "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and
-            "natural" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "octave_0" in serialization["parameters"] and
+            "key_signature" in serialization["parameters"] and "tonic_key" in serialization["parameters"] and
+            "degree_0" in serialization["parameters"] and "octave_0" in serialization["parameters"] and
             "transposition" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -549,8 +542,6 @@ class Pitch(Generic):
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
             self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
-            self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
-            self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
@@ -565,8 +556,6 @@ class Pitch(Generic):
                 self._octave_0              = operand._octave_0
                 self._degree_0              = operand._degree_0
                 self._transposition         = operand._transposition
-                self._sharp                 = operand._sharp
-                self._natural               = operand._natural
                 self._scale                 = operand._scale.copy()
             case od.Pipe():
                 match operand._data:
@@ -582,12 +571,6 @@ class Pitch(Generic):
                         self._transposition = int(operand._data)
                     case ou.Semitone():
                         self._tonic_key = operand._data._unit
-                    case ou.Sharp():
-                        self._sharp = operand._data._unit
-                    case ou.Flat():
-                        self._sharp = operand._data._unit * -1
-                    case ou.Natural():
-                        self._natural = operand._data.__mod__(od.Pipe( bool() ))
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():
@@ -595,9 +578,10 @@ class Pitch(Generic):
                     case list():
                         self._scale = operand._data
                     case str():
-                        self._sharp = \
-                            ((operand._data).strip().lower().find("#") != -1) * 1 + \
-                            ((operand._data).strip().lower().find("b") != -1) * -1
+                        # TO BE REVIEWED
+                        # self._sharp = \
+                        #     ((operand._data).strip().lower().find("#") != -1) * 1 + \
+                        #     ((operand._data).strip().lower().find("b") != -1) * -1
                         self._degree_0 = abs((self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit) - 1 # 0 based
                         self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
@@ -609,18 +593,12 @@ class Pitch(Generic):
                 self._key_signature << operand
 
             case int():
-                # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
-                self._natural = False
-                self._sharp = 0
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.pitch_int()
                 pitch_offset: int = operand - actual_pitch
                 self.increment_tonic(pitch_offset)
 
             case ou.Semitone():
-                # Starts by resetting non-linear parameters like sharps and flats (needed for simple transposition)
-                self._natural = False
-                self._sharp = 0
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.tonic_int()    # Based on the outputted pitch
                 tonic_offset: int = operand._unit % 12 - actual_pitch
@@ -652,8 +630,6 @@ class Pitch(Generic):
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Degree(degree)
             case ou.TargetKey():
-                self._sharp = 0
-                self._natural = False
                 degree: float = 0.0 # No linear accidentals
                 transposition, semitone = self.key_transposition_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -671,8 +647,6 @@ class Pitch(Generic):
                 if operand < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
                     self._degree_0 = 0  # Resets the degree to I
-                    self._sharp = 0
-                    self._natural = False
                 elif operand < 1:
                     # Changes only the chromatic transposition
                     self._degree_0 = round(self._degree_0) + operand % float()
@@ -686,8 +660,6 @@ class Pitch(Generic):
                 self._tonic_key = self._key_signature % ou.Key() % int()
                 self._degree_0 = 0  # Resets the degree to I
                 self._transposition = 0
-                self._sharp = 0
-                self._natural = False
                 self.match_octave(False)    # Keep actual octave (False)
 
             case ou.Transposition():
@@ -708,8 +680,6 @@ class Pitch(Generic):
                     self << value << ou.Octave(octave)
 
             case ou.DrumKit():
-                self._natural = False
-                self._sharp = 0
                 self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
                 self << operand % int() # Sets the key number regardless KeySignature or Scale!
 
@@ -725,9 +695,8 @@ class Pitch(Generic):
 
             case str():
                 string: str = operand.strip()
-                self._sharp = \
-                    (ou.Sharp(max(0, self._sharp)) << string)._unit + \
-                    (ou.Flat(max(0, self._sharp * -1)) << string)._unit
+                # TO BE REVIEWED
+                # self << ou.Degree(ou.Sharp(max(0, self._sharp)) << string, ou.Flat(max(0, self._sharp * -1)) << string)
                 self << (self % ou.Degree() << string) # Safe, doesn't change the octave
                 self << (self % ou.TonicKey() << string)
                 self << Scale(od.Pipe(self._scale), operand)
