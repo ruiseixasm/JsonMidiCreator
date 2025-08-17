@@ -1597,14 +1597,14 @@ class Composition(Container):
                                 if note["key_signature"] != last_key_signature["key_signature"] and note["position_on"] > last_key_signature["position"]:
                                     last_key_signature["position"] = note["position_on"]
                                     last_key_signature["key_signature"] = note["key_signature"]
-                                    base_pitch: int = max_pitch - 12
+                                    sharps_flats: int = note["key_signature"] % int()
                                     if note["position_on"] == 0:
                                         x_pos = -0.30
                                     else:
                                         x_pos = float(note["position_on"]) - 0.1
                                     tonic_key: int = note["key_signature"].get_tonic_key()
+                                    base_pitch: int = max_pitch - 12
                                     self._ax.text(x_pos - 0.2, base_pitch + tonic_key - 0.1, 'T', ha='center', va='center', fontsize=9, color='black')
-                                    sharps_flats: int = note["key_signature"] % int()
                                     if sharps_flats:
                                         symbol: str = '♯'
                                         if sharps_flats < 0: # Flattened
