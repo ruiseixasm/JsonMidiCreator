@@ -1459,6 +1459,12 @@ class Composition(Container):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
                                 color_alpha: float = round(0.3 + 0.7 * (note["velocity"] / 127), 2)
+                                if note["accidentals"]:
+                                    if note["accidentals"] % 2:
+                                        bar_hatch = '+' # Sharped
+                                    else:
+                                        bar_hatch = '-' # Flattened
+
                                 if note["velocity"] > 127:
                                     edge_color = 'red'
                                     color_alpha = 1.0
