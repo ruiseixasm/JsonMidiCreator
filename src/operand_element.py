@@ -1001,12 +1001,9 @@ class Rest(Element):
                     "position_on": position_on,
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
-                    "key_signature": None,
-                    "accidentals": 0,
                     "velocity": 127,    # Maximum contrast, no transparency
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "tied": False,
                     "self": self
                 }
             }

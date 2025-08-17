@@ -1543,6 +1543,11 @@ class Composition(Container):
                         if o.is_black_key(pitch):
                             self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
+                    last_key_signature: dict = {
+                        "position": Fraction(),
+                        "key_signature": None
+                    }
+
                     # Plot notes
                     for channel_0 in note_channels:
                         channel_color = Clip._channel_colors[channel_0]
@@ -1590,6 +1595,9 @@ class Composition(Container):
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
                 
+                                if last_key_signature["key_signature"] is None or note["position_on"] > last_key_signature["position"]:
+                                    pass
+
                                 if note["accidentals"]:
                                     symbol: str = ''
                                     if note["accidentals"] > 0: # Sharped
