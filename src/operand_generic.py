@@ -202,8 +202,7 @@ class Pitch(Generic):
     the formula:
         pitch_int = 
             tonic_key
-            + octave_transposition + degree_transposition + scale_transposition
-            + degree_accidentals + sharps_flats_and_naturals
+            + octave_transposition + degree_transposition + scale_transposition + degree_accidentals
     """
 
     def octave_transposition(self) -> int:
@@ -249,24 +248,6 @@ class Pitch(Generic):
         else:  # Even - inverse sign
             semitones = semitones // (-2)
         return semitones
-
-    def sharps_flats_and_naturals(self, key: int) -> int:
-        """
-        Processes the given set sharps and natural accordingly as final decorators.
-        """
-        transposition: int = 0
-        # Final parameter decorators like Sharp and Natural
-        if self._natural:
-            if self._major_scale[(key + transposition) % 12] == 0:  # Black key
-                accidentals_int: int = self._key_signature._unit
-                if accidentals_int < 0:
-                    transposition += 1  # Considered a flat
-                else:
-                    transposition -= 1  # Considered a sharp
-        elif self._sharp != 0:
-            if self._major_scale[(key + transposition) % 12] == 1:  # White key
-                transposition += self._sharp  # applies Pitch self accidentals
-        return transposition
 
     def tonic_int(self) -> int:
         """
@@ -314,9 +295,8 @@ class Pitch(Generic):
         The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
         """
         chromatic_int: int = self.chromatic_int()
-        sharps_flats_and_naturals: int = self.sharps_flats_and_naturals(chromatic_int)
         octave_transposition: int = self.octave_transposition()
-        return chromatic_int + sharps_flats_and_naturals + octave_transposition
+        return chromatic_int + octave_transposition
 
     """
     Auxiliary methods to get specific data directly
@@ -490,20 +470,8 @@ class Pitch(Generic):
             case ou.Transposition():
                 return operand.copy(self._transposition)
              
-            case ou.Sharp():
-                target_pitch: int = self.pitch_int()
-                if self._major_scale[target_pitch % 12] == 0:    # Black key
-                    if self._key_signature._unit >= 0:
-                        return ou.Sharp(1)
-                return ou.Sharp(0)
-            case ou.Flat():
-                target_pitch: int = self.pitch_int()
-                if self._major_scale[target_pitch % 12] == 0:    # Black key
-                    if self._key_signature._unit < 0:
-                        return ou.Flat(1)
-                return ou.Flat(0)
-            case ou.Natural():
-                return ou.Natural() << od.Pipe(self._natural)
+            case ou.Sharp() | ou.Flat() | ou.Natural():
+                return self % ou.Degree() % operand
             
             case Scale():
                 return Scale(self._scale)
@@ -744,15 +712,10 @@ class Pitch(Generic):
                 self._sharp = 0
                 self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
                 self << operand % int() # Sets the key number regardless KeySignature or Scale!
-            case ou.Sharp():
-                if max(0, self._sharp) != operand._unit:
-                    self._sharp = operand._unit % 3
-            case ou.Flat():
-                if max(0, self._sharp * -1) != operand._unit:
-                    self._sharp = operand._unit % 3 * -1
-            case ou.Natural():
-                self._natural = operand.__mod__(od.Pipe( bool() ))
-                
+
+            case ou.Sharp() | ou.Flat() | ou.Natural():
+                self << ou.Degree(operand)
+            
             case Scale():
                 self._scale = operand % list()
             case list():
@@ -794,6 +757,8 @@ class Pitch(Generic):
                 self._degree_0 += operand % float()
                 self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
+            case ou.Sharp() | ou.Flat() | ou.Natural():
+                self += ou.Degree(operand)
             case ou.Transposition():
                 self._transposition += operand._unit
                 self.match_octave()
@@ -823,6 +788,8 @@ class Pitch(Generic):
                 self._degree_0 -= operand % float()
                 self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
+            case ou.Sharp() | ou.Flat() | ou.Natural():
+                self -= ou.Degree(operand)
             case ou.Transposition():
                 self._transposition -= operand._unit
                 self.match_octave()

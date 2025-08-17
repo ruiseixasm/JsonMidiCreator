@@ -78,8 +78,8 @@ def test_pitch_mod():
     assert (pitch + Octave()) % int() == 60 + 12
     assert (pitch + 1.0) % int() == 60 + 2
     assert not pitch % Sharp()
-    assert (pitch + 1) % Sharp()
-    assert (pitch + 1 << Natural()) % int() == 60
+    assert (pitch + 0.1) % Sharp()
+    assert (pitch + 0.1 << Natural()) % int() == 60
 
 # test_pitch_mod()
 
