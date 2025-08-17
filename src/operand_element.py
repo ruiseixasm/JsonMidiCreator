@@ -1001,9 +1001,12 @@ class Rest(Element):
                     "position_on": position_on,
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
+                    "key_signature": None,
+                    "accidentals": 0,
                     "velocity": 127,    # Maximum contrast, no transparency
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
+                    "tied": False,
                     "self": self
                 }
             }
@@ -1138,7 +1141,7 @@ class Note(Element):
                 return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
-    # REPRESENTATION
+    # CREATION VS REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
@@ -1169,6 +1172,7 @@ class Note(Element):
                     "position_on": position_on,
                     "position_off": position_off,
                     "pitch": pitch_int,
+                    "key_signature": self._pitch._key_signature,
                     "accidentals": self._pitch.degree_accidentals(),
                     "velocity": self._velocity,
                     "channel": self._channel_0,
