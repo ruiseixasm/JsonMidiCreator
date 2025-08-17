@@ -684,7 +684,7 @@ class Pitch(Generic):
                 self << operand % int() # Sets the key number regardless KeySignature or Scale!
 
             case ou.Sharp() | ou.Flat() | ou.Natural():
-                self << ou.Degree(operand)
+                self << (self % ou.Degree() << operand)
             
             case Scale():
                 self._scale = operand % list()
