@@ -1544,7 +1544,7 @@ class Composition(Container):
                             self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
                     last_key_signature: dict[str, Fraction | 'ou.KeySignature' | None] = {
-                        "position": Fraction(),
+                        "position": Fraction(-1),
                         "key_signature": None
                     }
 
