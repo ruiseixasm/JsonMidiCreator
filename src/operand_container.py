@@ -1595,8 +1595,10 @@ class Composition(Container):
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
                 
-                                if last_key_signature["key_signature"] is None or note["position_on"] > last_key_signature["position"]:
-                                    pass
+                                if note["key_signature"] != last_key_signature["key_signature"] and note["position_on"] > last_key_signature["position"]:
+                                    last_key_signature["position"] = note["position_on"]
+                                    last_key_signature["key_signature"] = note["key_signature"]
+                                    
 
                                 if note["accidentals"]:
                                     symbol: str = ''
