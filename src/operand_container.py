@@ -43,6 +43,7 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib.backend_bases import MouseEvent
     from matplotlib.widgets import Button
+    import matplotlib.patheffects as patheffects
 except ImportError:
     print(f"{RED}Error: The 'matplotlib.pyplot' library is not installed.{RESET}")
     print("Please install it by running 'pip install matplotlib'.")
@@ -1574,7 +1575,6 @@ class Composition(Container):
                                 accidentals_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                    accidentals_alpha = 0.2
 
                                 if note["tied"]:
                                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
@@ -1594,13 +1594,14 @@ class Composition(Container):
                                     symbol: str = ''
                                     if note["accidentals"] > 0: # Sharped
                                         symbol = '♯' * note["accidentals"]
-                                        y_pos = note["pitch"] + 0.5
                                     else:                       # Flattened
                                         symbol = '♭' * (note["accidentals"] * -1)
-                                        y_pos = note["pitch"] - 0.6 * 2
-                                    width = float(note["position_off"] - note["position_on"])
-                                    x_pos = float(note["position_on"]) + 0.1 * width
-                                    self._ax.text(x_pos, y_pos + 0.3, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color=channel_color, alpha=accidentals_alpha)
+                                    y_pos: int = note["pitch"]
+                                    x_pos = float(note["position_on"]) - 0.1
+                                    self._ax.text(x_pos, y_pos, symbol, ha='center', va='center', fontsize=14, fontweight='bold',
+                                        color='black',  # Outline color
+                                        path_effects=[patheffects.withStroke(linewidth=1.4, foreground=channel_color)],
+                                        alpha=color_alpha)
                                         
 
                     # Where the VERTICAL axis is defined - Chromatic Keys
