@@ -1543,7 +1543,7 @@ class Composition(Container):
                         if o.is_black_key(pitch):
                             self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
-                    last_key_signature: dict = {
+                    last_key_signature: dict[str, Fraction | 'ou.KeySignature' | None] = {
                         "position": Fraction(),
                         "key_signature": None
                     }
@@ -1597,6 +1597,9 @@ class Composition(Container):
                                 if note["key_signature"] != last_key_signature["key_signature"] and note["position_on"] > last_key_signature["position"]:
                                     last_key_signature["position"] = note["position_on"]
                                     last_key_signature["key_signature"] = note["key_signature"]
+                                    modulated_scale: list[int] = note["key_signature"].get_modulated_scale_list()
+                                    for chromatic_pitch in range(min_pitch, min_pitch + 12):
+                                        pass
                                     
 
                                 if note["accidentals"]:
