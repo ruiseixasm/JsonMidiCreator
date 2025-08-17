@@ -1603,8 +1603,11 @@ class Composition(Container):
                                         if sharps_flats < 0: # Flattened
                                             symbol = '♭'
                                         for chromatic_pitch in range(min_pitch, min_pitch + 12):
-                                            if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch]:
-                                                x_pos = float(note["position_on"]) - 0.1
+                                            if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
+                                                if note["position_on"] == 0:
+                                                    x_pos = -0.35
+                                                else:
+                                                    x_pos = float(note["position_on"]) - 0.1
                                                 self._ax.text(x_pos, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
                                     
 

@@ -57,6 +57,11 @@ def test_key_signature():
     key_signature << Minor()
     assert key_signature % list() == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]   # minor scale
 
+    assert not key_signature is None
+    assert not key_signature == None
+
+test_key_signature()
+
 
 def test_tonic_key_signature():
 

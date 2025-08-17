@@ -409,7 +409,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             return self._unit == other._unit and self._major == other._major
         if isinstance(other, od.Conditional):
             return other == self
-        return self % other == other
+        return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
