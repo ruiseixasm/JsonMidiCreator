@@ -142,5 +142,7 @@ def test_degree_accidentals():
     assert flattened_degree % Natural() != Natural(True)
     assert flattened_degree % Sharp()   != Sharp(True)
 
+    
+
 # test_degree_accidentals()
 

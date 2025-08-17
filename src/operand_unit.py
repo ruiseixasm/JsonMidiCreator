@@ -784,11 +784,15 @@ class Degree(PitchParameter):
                 semitones_int: int = round(self._semitones * 10)
                 if semitones_int % 2 == 1:
                     return Sharp(round((semitones_int + 1) / 2))
+                if semitones_int > 0:
+                    return Sharp(self % Flat() * -1)
                 return Sharp(0)
             case Flat():
                 semitones_int: int = round(self._semitones * 10)
                 if semitones_int % 2 == 0:
                     return Flat(round(semitones_int / 2))
+                if semitones_int > 0:
+                    return Flat(self % Sharp() * -1)
                 return Flat(0)
             case Natural():
                 if self._semitones == 0.0:
@@ -830,8 +834,12 @@ class Degree(PitchParameter):
             case str():
                 self.stringSetDegree(operand)
             case Sharp():
+                if operand < 0:
+                    self << Flat(operand * -1)
                 self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2 - 0.1)), 1)
             case Flat():
+                if operand < 0:
+                    self << Sharp(operand * -1)
                 self._semitones = round(min(0.9, max(0.0, operand._unit * 0.2)), 1)
             case Natural():
                 self._semitones = 0.0
@@ -839,7 +847,35 @@ class Degree(PitchParameter):
                 super().__lshift__(operand)
         return self
 
-    def stringSetDegree(self, string: str) -> None:
+
+    def __iadd__(self, number: any) -> Self:
+        number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case Sharp():
+                self << self % Sharp() + number
+            case Flat():
+                self << self % Flat() + number
+            case Natural():
+                return self # Does nothing
+            case _:
+                super().__iadd__(number)
+        return self
+    
+    def __isub__(self, number: any) -> Self:
+        number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case Sharp():
+                self << self % Sharp() - number
+            case Flat():
+                self << self % Flat() - number
+            case Natural():
+                return self # Does nothing
+            case _:
+                super().__iadd__(number)
+        return self
+    
+
+    def stringSetDegree(self, string: str) -> Self:
         string = string.strip()
         match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
             case "i"   | "tonic":                   self._unit = 1
@@ -849,6 +885,7 @@ class Degree(PitchParameter):
             case "v"   | "dominant":                self._unit = 5
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
+        return self
 
 
 class Transposition(PitchParameter):
