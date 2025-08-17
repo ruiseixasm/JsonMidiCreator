@@ -1559,7 +1559,7 @@ class Composition(Container):
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                         height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
                             else:
                                 bar_hatch: str = ''
@@ -1577,7 +1577,6 @@ class Composition(Container):
                                     edge_color = 'blue'
                                     color_alpha = 1.0
                                 
-                                accidentals_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
 
