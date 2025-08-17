@@ -1543,8 +1543,8 @@ class Composition(Container):
                         if o.is_black_key(pitch):
                             self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
 
-                    last_key_signature: dict[str, Fraction | 'ou.KeySignature' | None] = {
-                        "position": Fraction(-1),
+                    last_key_signature: dict[str, int | 'ou.KeySignature' | None] = {
+                        "measure": -1,
                         "key_signature": None
                     }
 
@@ -1593,18 +1593,19 @@ class Composition(Container):
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
-                
-                                if note["key_signature"] != last_key_signature["key_signature"] and note["position_on"] > last_key_signature["position"]:
-                                    last_key_signature["position"] = note["position_on"]
+
+                                # Where the Key Signature is plotted
+                                if note["key_signature"] != last_key_signature["key_signature"] and int(note["position_on"] / beats_per_measure) > last_key_signature["measure"]:
+                                    last_key_signature["measure"] = int(note["position_on"] / beats_per_measure)
                                     last_key_signature["key_signature"] = note["key_signature"]
                                     sharps_flats: int = note["key_signature"] % int()
-                                    if note["position_on"] == 0:
+                                    if last_key_signature["measure"] == 0:
                                         x_pos = -0.30
                                     else:
-                                        x_pos = float(note["position_on"]) - 0.1
+                                        x_pos = float(last_key_signature["measure"] * beats_per_measure) - 0.1
                                     tonic_key: int = note["key_signature"].get_tonic_key()
                                     base_pitch: int = max_pitch - 12
-                                    self._ax.text(x_pos - 0.2, base_pitch + tonic_key - 0.1, 'T', ha='center', va='center', fontsize=9, color='black')
+                                    self._ax.text(x_pos - (0.2 if sharps_flats else 0.0), base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
                                     if sharps_flats:
                                         symbol: str = '♯'
                                         if sharps_flats < 0: # Flattened
@@ -1613,8 +1614,7 @@ class Composition(Container):
                                             if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
                                                 self._ax.text(x_pos, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
 
-                                    
-
+                                # Where the bar accidentals are plotted
                                 if note["accidentals"]:
                                     symbol: str = ''
                                     if note["accidentals"] > 0: # Sharped
