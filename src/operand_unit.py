@@ -908,9 +908,7 @@ class Flat(PitchParameter):   # Flat (b)
     int(1) : Accepts a boolean or a numeral (0 or 1) to set Flat as true or false
     """
     def __init__(self, *parameters):
-        super().__init__(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(1, *parameters)
 
     # CHAINABLE OPERATIONS
 

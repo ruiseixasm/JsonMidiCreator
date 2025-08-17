@@ -19,7 +19,9 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 many_notes = Note() / 16 << TrackName("Accidentals")
 
-many_notes << Even()**Degree(0.1)
+sharped_degree = Degree(Sharp())
+sharped_degree % Sharp() >> Print()
+many_notes << Even()**sharped_degree
 
 many_notes >> Plot()
 

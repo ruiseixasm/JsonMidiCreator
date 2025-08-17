@@ -126,3 +126,21 @@ def test_drum_kit():
     assert DrumKit("Hi-Hat")    == 42   # Black Key
     assert DrumKit("Clap")      == 39   # Black Key
 
+
+def test_degree_accidentals():
+
+    natural_degree = Degree()
+    assert natural_degree % Natural()   == Natural(True)
+
+    sharped_degree = Degree(Sharp())
+    assert sharped_degree % Sharp()     == Sharp(True)
+    assert sharped_degree % Natural()   != Natural(True)
+    assert sharped_degree % Flat()      != Flat(True)
+
+    flattened_degree = Degree(Flat())
+    assert flattened_degree % Flat()    == Flat(True)
+    assert flattened_degree % Natural() != Natural(True)
+    assert flattened_degree % Sharp()   != Sharp(True)
+
+# test_degree_accidentals()
+
