@@ -779,6 +779,14 @@ class Degree(PitchParameter):
                 if adjusted_degree > 0:
                     adjusted_degree -= 1
                 return __class__._degree[adjusted_degree % 7]
+            case Sharp():
+                return Sharp(round((self._semitones + 1) / 2))
+            case Flat():
+                return Flat(round(self._semitones / 2))
+            case Natural():
+                if self._semitones == 0.0:
+                    return Natural(True)
+                return Natural(False)
             case _:
                 return super().__mod__(operand)
 
@@ -814,6 +822,12 @@ class Degree(PitchParameter):
                 self._semitones = round(operand - self._unit, 1)
             case str():
                 self.stringSetDegree(operand)
+            case Sharp():
+                self._semitones = round(min(0.9, max(0.0, operand._unit * 2.0 - 1)), 1)
+            case Flat():
+                self._semitones = round(min(0.9, max(0.0, operand._unit * 2.0)), 1)
+            case Natural():
+                self._semitones = 0.0
             case _:
                 super().__lshift__(operand)
         return self
