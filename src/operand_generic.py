@@ -726,8 +726,8 @@ class Pitch(Generic):
                 self._degree_0 += operand % float()
                 self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
-            case ou.Sharp() | ou.Flat() | ou.Natural():
-                self += ou.Degree(operand)
+            case ou.Sharp() | ou.Flat():
+                self << self % ou.Degree() + operand
             case ou.Transposition():
                 self._transposition += operand._unit
                 self.match_octave()
@@ -757,8 +757,8 @@ class Pitch(Generic):
                 self._degree_0 -= operand % float()
                 self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
-            case ou.Sharp() | ou.Flat() | ou.Natural():
-                self -= ou.Degree(operand)
+            case ou.Sharp() | ou.Flat():
+                self << self % ou.Degree() - operand
             case ou.Transposition():
                 self._transposition -= operand._unit
                 self.match_octave()
