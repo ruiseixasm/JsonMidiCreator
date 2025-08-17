@@ -1633,6 +1633,13 @@ class Composition(Container):
                     chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
                     # Set MIDI note ticks with Middle C in bold
                     self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                    
+                    # # Only show tick marks for octaves (pitch % 12 == 0)
+                    # for tick in self._ax.yaxis.get_major_ticks():
+                    #     if tick.get_loc() % 12 != 0:  # If not an octave
+                    #         tick.tick1line.set_visible(False)  # Hide left tick
+                    #         tick.tick2line.set_visible(False)  # Hide right tick
+
                     y_labels = [
                         chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
                         for pitch in range(min_pitch, max_pitch + 1)
