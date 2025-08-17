@@ -1597,7 +1597,7 @@ class Composition(Container):
                                         y_pos = note["pitch"] + 0.5
                                     else:                       # Flattened
                                         symbol = '♭' * (note["accidentals"] * -1)
-                                        y_pos = note["pitch"] - 0.5
+                                        y_pos = note["pitch"] - 0.6 * 2
                                     width = float(note["position_off"] - note["position_on"])
                                     x_pos = float(note["position_on"]) + 0.1 * width
                                     self._ax.text(x_pos, y_pos + 0.3, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color=channel_color, alpha=accidentals_alpha)
