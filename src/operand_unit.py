@@ -1423,14 +1423,22 @@ class Mode(Unit):
 
     def stringToNumber(self, string: str):
         match string.strip().lower():
-            case '1'  | "1st":              self._unit = 1
-            case '2'  | "2nd":              self._unit = 2
-            case '3'  | "3rd":              self._unit = 3
-            case '4'  | "4th":              self._unit = 4
-            case '5'  | "5th":              self._unit = 5
-            case '6'  | "6th":              self._unit = 6
-            case '7'  | "7th":              self._unit = 7
-            case '8'  | "8th":              self._unit = 8
+            case '1'  | "1st" | "major" | "ionian":
+                self._unit = 1
+            case '2'  | "2nd" | "dorian":
+                self._unit = 2
+            case '3'  | "3rd" | "phrygian":
+                self._unit = 3
+            case '4'  | "4th" | "lydian":
+                self._unit = 4
+            case '5'  | "5th" | "mixolydian":
+                self._unit = 5
+            case '6'  | "6th" | "minor" | "aeolian":
+                self._unit = 6
+            case '7'  | "7th" | "locrian":
+                self._unit = 7
+            case '8'  | "8th":
+                self._unit = 8
 
     @staticmethod
     def numberToString(number: int) -> str:
