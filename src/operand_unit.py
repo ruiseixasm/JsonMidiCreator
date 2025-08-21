@@ -456,6 +456,10 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     self._unit = self._major_keys_accidentals[ operand % int() ]
                 else:
                     self._unit = self._minor_keys_accidentals[ operand % int() ]
+                major_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+                major_pitch: int = operand._unit % 12
+                if major_scale[major_pitch]:
+                    self._mode_0 = sum(major_scale[:major_pitch + 1]) # for indexes <= operand._unit % 12
             case Mode():
                 self._mode_0 = operand._unit - 1
             case str(): # Processes series of "#" and "b"
