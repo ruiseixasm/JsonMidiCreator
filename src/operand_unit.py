@@ -313,6 +313,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     """
     def __init__(self, *parameters):
         self._major: bool = True
+        self._mode_0: int = 0
         super().__init__(*parameters)
     
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
@@ -364,6 +365,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case KeySignature():        return self
                     case list():                return self % list()
                     case Major():               return Major() << od.Pipe(self._major)
+                    case Mode():                return Mode(self._mode_0 + 1)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case KeySignature():        return self.copy()
@@ -393,6 +395,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     return Flats(self._unit * -1)
                 return Flats(0)
             case og.Scale():            return og.Scale(self % list())
+            case Mode():                return Mode(self._mode_0 + 1)
             case list():                return self.get_scale_list()
             case str():
                 if self._unit < 0:
@@ -406,7 +409,9 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, KeySignature):
-            return self._unit == other._unit and self._major == other._major
+            return \
+                self._unit == other._unit and self._major == other._major and \
+                self._mode_0 == other._mode_0
         if isinstance(other, od.Conditional):
             return other == self
         return super().__eq__(other)
@@ -414,16 +419,18 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["major"]            = self.serialize( self._major )
+        serialization["parameters"]["mode_0"]           = self.serialize( self._mode_0 )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "major" in serialization["parameters"]):
+            "major" in serialization["parameters"] and "mode_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._major         = self.deserialize( serialization["parameters"]["major"] )
+            self._mode_0        = self.deserialize( serialization["parameters"]["mode_0"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -436,6 +443,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 match operand._data:
                     case int():     self._unit      = operand._data
                     case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
+                    case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
             case Major():   self._major  = operand.__mod__(od.Pipe( bool() ))
             case Minor():   self._major  = not (operand.__mod__(od.Pipe( bool() )))
@@ -448,6 +456,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     self._unit = self._major_keys_accidentals[ operand % int() ]
                 else:
                     self._unit = self._minor_keys_accidentals[ operand % int() ]
+            case Mode():
+                self._mode_0 = operand._unit - 1
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._unit = 0
