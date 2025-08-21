@@ -445,14 +445,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
-            case Major():
-                self._major = operand.__mod__(od.Pipe( bool() ))
-                if self._major:
-                    self._mode_0 = 0    # Major
-                else:
-                    self._mode_0 = 6    # minor
-            case Minor():
-                self._major = not (operand.__mod__(od.Pipe( bool() )))
+            case Major() | Minor():
+                self._major = operand == Major(True)
                 if self._major:
                     self._mode_0 = 0    # Major
                 else:
