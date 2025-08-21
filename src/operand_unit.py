@@ -445,8 +445,18 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
-            case Major():   self._major  = operand.__mod__(od.Pipe( bool() ))
-            case Minor():   self._major  = not (operand.__mod__(od.Pipe( bool() )))
+            case Major():
+                self._major = operand.__mod__(od.Pipe( bool() ))
+                if self._major:
+                    self._mode_0 = 0    # Major
+                else:
+                    self._mode_0 = 6    # minor
+            case Minor():
+                self._major = not (operand.__mod__(od.Pipe( bool() )))
+                if self._major:
+                    self._mode_0 = 0    # Major
+                else:
+                    self._mode_0 = 6    # minor
             case Sharps() | Flats():
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
@@ -1249,7 +1259,13 @@ class Major(Quality):
     ----------
     bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Major the Key Signature
     """
-    pass
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Minor():
+                return self._unit != other._unit
+            case _:
+                return super().__eq__(other)    # Compares the _unit integer value
 
 class Minor(Quality):
     """`Unit -> Boolean -> Quality -> Minor`
@@ -1260,7 +1276,13 @@ class Minor(Quality):
     ----------
     bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as minor the Key Signature
     """
-    pass
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Major():
+                return self._unit != other._unit
+            case _:
+                return super().__eq__(other)    # Compares the _unit integer value
 
 class Natural(Boolean):     # Natural (n)
     """`Unit -> Boolean -> Natural`
