@@ -407,7 +407,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["mode_0"]           = self.serialize( self._mode_0 )
+        serialization["parameters"]["mode_0"] = self.serialize( self._mode_0 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -417,7 +417,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             "mode_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._mode_0        = self.deserialize( serialization["parameters"]["mode_0"] )
+            self._mode_0 = self.deserialize( serialization["parameters"]["mode_0"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
