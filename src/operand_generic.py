@@ -214,7 +214,7 @@ class Pitch(Generic):
         Based on the Key Signature, this method gives the degree transposition
         """
         if self._degree_0 != 0: # Optimization
-            signature_scale: list[int] = self._key_signature.get_scale_list()
+            signature_scale: list[int] = self._key_signature.get_scale()
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
@@ -234,7 +234,7 @@ class Pitch(Generic):
                 the tonic_offset is 0 for the new calculated degree
                 """
                 degree_0: float = round(self._degree_0) + self._transposition
-                signature_scale: list[int] = self._key_signature.get_scale_list()
+                signature_scale: list[int] = self._key_signature.get_scale()
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0
 
@@ -348,7 +348,7 @@ class Pitch(Generic):
 
 
     def key_degree_semitone(self, key_int: int) -> tuple[int, int]:
-        signature_scale: list[int] = self._key_signature.get_scale_list()
+        signature_scale: list[int] = self._key_signature.get_scale()
         degree_0: int = 0
         semitone: int = 0
         tonic_offset: int = key_int - self._tonic_key % 12
@@ -376,7 +376,7 @@ class Pitch(Generic):
             scale_degrees = sum(self._scale)
             first_key_int: int = self.root_int()
         else:
-            transposition_scale: list[int] = self._key_signature.get_scale_list()
+            transposition_scale: list[int] = self._key_signature.get_scale()
             first_key_int: int = self.tonic_int()   # Transposition becomes equivalent to degrees
         first_key_offset: int = key_int - first_key_int
         
@@ -3347,7 +3347,7 @@ class Settings(Generic):
                                         return self._key_signature % operand
             # Calculated Values
             case list():
-                return self._key_signature.get_scale_list() # Faster this way
+                return self._key_signature.get_scale() # Faster this way
             case ou.TonicKey():
                 return ou.TonicKey( self._key_signature.get_tonic_key() )
             case ra.Duration():         return operand.copy() << self._duration

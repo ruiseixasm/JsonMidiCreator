@@ -325,15 +325,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             zero_key_int = 9   # A (minor)
         return (zero_key_int + circle_fifths_position * 7) % 12
 
-    def get_scale_list(self) -> list[int]:
-        if self._major: #                      A
-            return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                #                              |
-        else:   #   ----------------------------
-                #   |
-            return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]  # minor scale
-                #   A
-
     def get_scale(self) -> list[int]:
         match self._mode_0 % 7:
             case 0: # Major Scale (C)
