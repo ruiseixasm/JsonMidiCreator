@@ -400,7 +400,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 return Flats(0)
             case og.Scale():            return og.Scale(self % list())
             case Mode():                return Mode(self._mode_0 + 1)
-            case list():                return self.get_scale_list()
+            case list():                return self.get_scale()
             case str():
                 if self._unit < 0:
                     flats: int = self._unit * -1
@@ -454,7 +454,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 if self._major:
                     self._mode_0 = 0    # Major
                 else:
-                    self._mode_0 = 6    # minor
+                    self._mode_0 = 5    # minor
             case Sharps() | Flats():
                 self._unit = operand._unit
                 if isinstance(operand, Flats):

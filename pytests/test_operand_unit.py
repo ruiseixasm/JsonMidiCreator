@@ -60,7 +60,7 @@ def test_key_signature():
     assert not key_signature is None
     assert not key_signature == None
 
-test_key_signature()
+# test_key_signature()
 
 
 def test_tonic_key_signature():
