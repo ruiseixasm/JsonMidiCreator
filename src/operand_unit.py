@@ -400,8 +400,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, KeySignature):
-            return \
-                self._unit == other._unit and self._mode_0 == other._mode_0
+            return self._unit == other._unit and self._mode_0 == other._mode_0
         if isinstance(other, od.Conditional):
             return other == self
         return super().__eq__(other)
