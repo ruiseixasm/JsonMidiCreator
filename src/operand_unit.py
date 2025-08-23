@@ -334,6 +334,25 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]  # minor scale
                 #   A
 
+    def get_scale(self) -> list[int]:
+        match self._mode_0 % 7:
+            case 0: # Major Scale (C)
+                return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+            case 5: # minor scale (A)
+                return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+            case 1: # 1 dorian    (D)
+                return [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0]
+            case 2: # phrygian    (E)
+                return [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+            case 3: # lydian      (F)
+                return [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
+            case 4: # mixolydian  (G)
+                return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0]
+            case 6: # locrian     (B)
+                return [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0]
+        return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+
+
     def get_modulated_scale_list(self) -> list[int]:
         key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
         if not(self._unit == 0 and self._major):
