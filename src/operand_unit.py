@@ -312,7 +312,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     bool(True) : By default it considers the Major scale.
     """
     def __init__(self, *parameters):
-        self._major: bool = True
         self._mode_0: int = 0
         super().__init__(*parameters)
     
@@ -357,8 +356,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
                     case KeySignature():        return self
-                    case list():                return self % list()
-                    case Major():               return Major() << od.Pipe(self._major)
                     case Mode():                return Mode(self._mode_0 + 1)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
@@ -378,8 +375,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     key_line += 2    # All Sharps/Flats
                 return Key( float(tonic_key + key_line * 12) )
             
-            case Major():               return Major() << od.Pipe(self._major)
-            case Minor():               return Minor() << od.Pipe(not self._major)
+            case Major():               return Major(self._mode_0 == 0)
+            case Minor():               return Minor(self._mode_0 == 5)
             case Sharps():
                 if self._unit > 0:
                     return Sharps(self._unit)
@@ -404,15 +401,13 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             return True
         if isinstance(other, KeySignature):
             return \
-                self._unit == other._unit and self._major == other._major and \
-                self._mode_0 == other._mode_0
+                self._unit == other._unit and self._mode_0 == other._mode_0
         if isinstance(other, od.Conditional):
             return other == self
         return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["major"]            = self.serialize( self._major )
         serialization["parameters"]["mode_0"]           = self.serialize( self._mode_0 )
         return serialization
 
@@ -420,10 +415,9 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "major" in serialization["parameters"] and "mode_0" in serialization["parameters"]):
+            "mode_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._major         = self.deserialize( serialization["parameters"]["major"] )
             self._mode_0        = self.deserialize( serialization["parameters"]["mode_0"] )
         return self
       
@@ -433,18 +427,18 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         match operand:
             case KeySignature():
                 super().__lshift__(operand)
-                self._major     = operand._major
+                # self._major     = operand._major
                 self._mode_0    = operand._mode_0
             case od.Pipe():
                 match operand._data:
                     case int():     self._unit      = operand._data
-                    case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
+                    # case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
             case float():   self._mode_0 = int(operand - 1)
             case Major() | Minor():
-                self._major = operand == Major(True)
-                if self._major:
+                # self._major = operand == Major(True)
+                if operand == Major(True):
                     self._mode_0 = 0    # Major
                 else:
                     self._mode_0 = 5    # minor
@@ -453,10 +447,10 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 if isinstance(operand, Flats):
                     self._unit *= -1
             case Key():
-                if self._major:
-                    self._unit = self._major_keys_accidentals[ operand % int() ]
-                else:
-                    self._unit = self._minor_keys_accidentals[ operand % int() ]
+                if self._mode_0 == 0:   # Major
+                    self._unit = self._major_keys_accidentals[ operand._unit ]
+                elif self._mode_0 == 5: # minor
+                    self._unit = self._minor_keys_accidentals[ operand._unit ]
                 major_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
                 major_pitch: int = operand._unit % 12
                 if major_scale[major_pitch]:
