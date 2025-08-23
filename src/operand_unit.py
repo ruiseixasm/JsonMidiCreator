@@ -353,21 +353,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
 
 
-    def get_modulated_scale_list(self) -> list[int]:
-        key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-        if not(self._unit == 0 and self._major):
-            key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
-            for key_i in range(11, -1, -1): # range(12) results in a bug
-                if key_signature[key_i] != 0:
-                    key_signature_scale[key_i] = 0
-                    key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
-            if not self._major: # Needs to rotate scale to start on the key of A (9th key)
-                original_scale: list[int] = key_signature_scale.copy()
-                for key_i in range(12):
-                    key_signature_scale[key_i] = original_scale[(key_i + 9) % 12]
-                
-        return key_signature_scale
-    
     def is_enharmonic(self, tonic_key: int, key: int) -> bool:
         # if self._major_scale[tonic_key % 12] != 1:
         #     return True
