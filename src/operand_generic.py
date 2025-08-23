@@ -1028,7 +1028,7 @@ class Scale(Generic):
 
 
     @staticmethod
-    def transpose_key(steps: int = 4, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> int:
+    def transpose_key(steps: int = 4, scale: list[int] | tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)) -> int:
         # The given scale shall always have a size of 12
         scale_transposition: int = 0
         if len(scale) == 12 and sum(scale) > 0:

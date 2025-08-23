@@ -319,11 +319,10 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     def get_tonic_key(self) -> int:
+        import operand_generic as og
+        zero_tonic_key: int = og.Scale.transpose_key(self._mode_0, KeySignature._major_scale)
         circle_fifths_position: int = self._unit
-        zero_key_int: int = 0  # C (Major)
-        if not self._major:
-            zero_key_int = 9   # A (minor)
-        return (zero_key_int + circle_fifths_position * 7) % 12
+        return (zero_tonic_key + circle_fifths_position * 7) % 12
 
     def get_scale(self) -> list[int]:
         match self._mode_0 % 7:
