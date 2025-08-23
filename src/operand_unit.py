@@ -375,7 +375,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case KeySignature():        return self.copy()
             case int():                 return self._unit
             case float():
-                return float(self.get_tonic_key())
+                return float(self._mode_0 + 1)
             case TonicKey():
                 return TonicKey(self.get_tonic_key())
             case Key():
@@ -450,6 +450,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
+            case float():   self._mode_0 = int(operand - 1)
             case Major() | Minor():
                 self._major = operand == Major(True)
                 if self._major:
