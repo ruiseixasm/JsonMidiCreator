@@ -438,6 +438,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return self
       
     def __lshift__(self, operand: any) -> Self:
+        import operand_generic as og
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeySignature():
@@ -470,6 +471,11 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     self._mode_0 = sum(major_scale[:major_pitch]) # for indexes < operand._unit % 12
             case Mode():
                 self._mode_0 = operand._unit - 1
+            case og.Scale():
+                for mode_0 in range(7):
+                    if self.get_scale() == operand._scale:
+                        self._mode_0 = mode_0
+                        break
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._unit = 0
