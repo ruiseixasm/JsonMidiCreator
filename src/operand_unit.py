@@ -443,7 +443,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         match operand:
             case KeySignature():
                 super().__lshift__(operand)
-                self._major         = operand._major
+                self._major     = operand._major
+                self._mode_0    = operand._mode_0
             case od.Pipe():
                 match operand._data:
                     case int():     self._unit      = operand._data
