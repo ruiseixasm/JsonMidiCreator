@@ -40,12 +40,10 @@ class RS_Solutions:
     def __init__(self,
                  seed: oc.Composition,
                  measures: list[int] = [0, 0, 0, 0],
-                 by_channel: bool = False,
                  c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  title: str | None = None):
         self._seed: oc.Composition = seed
         self._measures: list[int] = measures
-        self._by_channel: bool = by_channel
         self._c_button = c_button
         self._title: str | None = title
 
@@ -66,6 +64,7 @@ class RS_Solutions:
                 measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
                 chaos: ch.Chaos,
                 triggers: list | int | float | Fraction,
+                by_channel: bool = False,
                 title: str = "") -> Self:
 
         # Resets parameters for the next Solution
@@ -97,7 +96,7 @@ class RS_Solutions:
         if iterations < 0:
             if isinstance(self._title, str):
                 title = self._title
-            self._seed >>= og.Plot(self._by_channel,
+            self._seed >>= og.Plot(by_channel=by_channel,
                 iterations=iterations * -1,
                 n_button=_n_button, c_button=self._c_button, title=title
             )
@@ -111,10 +110,9 @@ class RS_Clip(RS_Solutions):
     def __init__(self,
                  seed: oc.Composition,
                  measures: list[int] = [0, 0, 0, 0],
-                 by_channel: bool = False,
                  c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  title: str | None = None):
-        super().__init__(seed, measures, by_channel, c_button, title)
+        super().__init__(seed, measures, c_button, title)
         self._seed: oc.Clip = seed
          
     def solution(self) -> 'oc.Clip':
@@ -124,6 +122,7 @@ class RS_Clip(RS_Solutions):
     def my_n_button(self,
             iterations: int = 1,
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
@@ -133,7 +132,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "My N Button"
-        return self.iterate(iterations, _measure_iterator, ch.Chaos(), [1], title)
+        return self.iterate(iterations, _measure_iterator, ch.Chaos(), [1], by_channel, title)
 
 
     def rhythm_fast_quantized(self,
@@ -141,6 +140,7 @@ class RS_Clip(RS_Solutions):
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
@@ -156,13 +156,14 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
-        return self.iterate(iterations, _measure_iterator, chaos, triggers, title)
+        return self.iterate(iterations, _measure_iterator, chaos, triggers, by_channel, title)
 
 
     def tonality_conjunct(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
@@ -175,24 +176,26 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
-        return self.iterate(iterations, _measure_iterator, chaos, triggers, title)
+        return self.iterate(iterations, _measure_iterator, chaos, triggers, by_channel, title)
 
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
     
-        return self.tonality_conjunct(iterations, triggers, chaos, title)
+        return self.tonality_conjunct(iterations, triggers, chaos, by_channel, title)
 
 
     def sweep_sharps(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
@@ -206,12 +209,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], title)
+        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
 
 
     def sweep_flats(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
@@ -225,12 +229,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], title)
+        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
 
 
     def sprinkle_accidentals(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Flipper(ra.Period(6))**ch.SinX(33),
+            by_channel: bool = False,
             title: str | None = None) -> Self:
         
         last_accidental: int = 0
@@ -257,7 +262,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
-        return self.iterate(iterations, _measure_iterator, chaos, 1, title)
+        return self.iterate(iterations, _measure_iterator, chaos, 1, by_channel, title)
 
 
 
