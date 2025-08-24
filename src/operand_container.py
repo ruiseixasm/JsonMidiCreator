@@ -1600,7 +1600,7 @@ class Composition(Container):
                                     last_key_signature["key_signature"] = note["key_signature"]
                                     sharps_flats: int = note["key_signature"] % int()
                                     if last_key_signature["measure"] == 0:
-                                        x_pos = -0.30
+                                        x_pos = -0.50
                                     else:
                                         x_pos = float(last_key_signature["measure"] * beats_per_measure) - 0.1
                                     tonic_key: int = note["key_signature"].get_tonic_key()
