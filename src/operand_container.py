@@ -1472,13 +1472,13 @@ class Composition(Container):
                                     color_alpha = 0.2
                                     
                                 if note["tied"]:
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.4, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.5, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
                                 else:
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.5, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
