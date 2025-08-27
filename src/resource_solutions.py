@@ -289,17 +289,16 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
                 clip_len: int = measure_clip.len()
-                for single_element in measure_clip:
-                    if chaos * 1 % clip_len == 0:
-                        single_element += tune_by
-                        break   # tunes only once per measure (fine tuning)
+                if clip_len > 0:
+                    clip_pick: int = choices[0] % clip_len
+                    measure_clip[clip_pick] += tune_by
                 return measure_clip
             return composition
 
         if not isinstance(title, str):
             title = "Fine Tune"
     
-        return self.iterate(iterations, _measure_iterator, chaos, 1, by_channel, title)
+        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
 
 
 
