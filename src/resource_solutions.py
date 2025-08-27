@@ -290,8 +290,7 @@ class RS_Clip(RS_Solutions):
                 measure_clip: oc.Clip = self._seed * [measure_i]
                 clip_len: int = measure_clip.len()
                 for single_element in measure_clip:
-                    to_be_tunned: bool = chaos * 1 % clip_len == 0
-                    if to_be_tunned:
+                    if chaos * 1 % clip_len == 0:
                         single_element += tune_by
                         break   # tunes only once per measure (fine tuning)
                 return measure_clip
