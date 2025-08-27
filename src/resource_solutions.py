@@ -121,7 +121,9 @@ class RS_Clip(RS_Solutions):
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Processes the user defined `n_button` associated to the `plot` method.
+        """
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip) and callable(n_button):
                 return n_button(composition * [measure_i])
@@ -139,7 +141,9 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(340),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Distributes small note values among the elements
+        """
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed.copy()
@@ -162,7 +166,9 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
+        """
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
@@ -182,7 +188,9 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Adjusts the pitch of each `Note` in Conjunct whole steps of 0 or 1 except in 25% of the times.
+        """
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
     
@@ -194,7 +202,9 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Sweeps all possible sharps for the set Key Signature for all Notes.
+        """
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
@@ -214,7 +224,9 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Sweeps all possible flats for the set Key Signature for all Notes.
+        """
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
@@ -234,30 +246,59 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Flipper(ra.Period(6))**ch.SinX(33),
             by_channel: bool = False,
             title: str | None = None) -> Self:
-        
+        """
+        Sets accidentals on each measure `Note` accordingly to the set `Chaos`.
+        """
         last_accidental: int = 0
         
         def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
-                chaos_flip: int = choices[0]
-                if chaos_flip > 0:
-                    if last_accidental == 0:
-                        last_accidental = 1
-                        accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
-                    elif last_accidental > 0:
-                        last_accidental = -1
-                        accidental_degree: ou.Degree = ou.Degree(0.2)   # Flat
-                    else:
-                        last_accidental = 0
-                        accidental_degree: ou.Degree = ou.Degree(0.0)   # Natural
-                    measure_clip << accidental_degree
+                for single_note in measure_clip:
+                    if isinstance(single_note, oe.Note) and choices[0] and chaos % 1:
+                        if last_accidental == 0:
+                            last_accidental = 1
+                            accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
+                        elif last_accidental > 0:
+                            last_accidental = -1
+                            accidental_degree: ou.Degree = ou.Degree(0.2)   # Flat
+                        else:
+                            last_accidental = 0
+                            accidental_degree: ou.Degree = ou.Degree(0.0)   # Natural
+                        single_note << accidental_degree
                 return measure_clip
             return composition
 
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
+    
+        return self.iterate(iterations, _measure_iterator, chaos, 1, by_channel, title)
+
+
+    def fine_tune(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(33),
+            tune_by: ra.Rational = ra.Step(1),
+            by_channel: bool = False,
+            title: str | None = None) -> Self:
+        """
+        Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
+        """
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                clip_len: int = measure_clip.len()
+                for single_element in measure_clip:
+                    to_be_tunned: bool = chaos * 1 % clip_len == 0
+                    if to_be_tunned:
+                        single_element += tune_by
+                        break   # tunes only once per measure (fine tuning)
+                return measure_clip
+            return composition
+
+        if not isinstance(title, str):
+            title = "Fine Tune"
     
         return self.iterate(iterations, _measure_iterator, chaos, 1, by_channel, title)
 
