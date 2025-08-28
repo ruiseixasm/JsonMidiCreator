@@ -1864,7 +1864,7 @@ class Retrigger(Note):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._number: int       = 8
+        self._count: int        = 8
         self._swing: Fraction   = ra.Swing(0.5)._rational
         super().__init__()
         self._duration_beats  *= 2 # Equivalent to twice single note duration
@@ -1872,8 +1872,8 @@ class Retrigger(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def number(self, number: int = 16) -> Self:
-        self._number = number
+    def count(self, count: int = 8) -> Self:
+        self._count = count
         return self
 
     def swing(self, swing: float = 0.5) -> Self:
@@ -1895,10 +1895,10 @@ class Retrigger(Note):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Number():       return operand._data << od.Pipe(self._number)
+                    case ou.Number():       return operand._data << od.Pipe(self._count)
                     case ra.Swing():        return operand._data << od.Pipe(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Number():       return ou.Number() << od.Pipe(self._number)
+            case ou.Number():       return ou.Number() << od.Pipe(self._count)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
@@ -1912,8 +1912,8 @@ class Retrigger(Note):
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = ra.Position(self, self._position_beats)
-        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._number) ) # Already 2x single note duration
-        for _ in range(self._number):
+        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._count) ) # Already 2x single note duration
+        for _ in range(self._count):
             swing_ratio: Fraction = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
@@ -1947,7 +1947,7 @@ class Retrigger(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number"]   = self.serialize( self._number )
+        serialization["parameters"]["count"]    = self.serialize( self._count )
         serialization["parameters"]["swing"]    = self.serialize( self._swing )
         return serialization
 
@@ -1955,10 +1955,10 @@ class Retrigger(Note):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "number" in serialization["parameters"]):
+            "count" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number    = self.deserialize( serialization["parameters"]["number"] )
+            self._count     = self.deserialize( serialization["parameters"]["count"] )
             self._swing     = self.deserialize( serialization["parameters"]["swing"] )
         return self
 
@@ -1967,16 +1967,16 @@ class Retrigger(Note):
         match operand:
             case Retrigger():
                 super().__lshift__(operand)
-                self._number  = operand._number
+                self._count  = operand._count
                 self._swing     = operand._swing
             case od.Pipe():
                 match operand._data:
-                    case ou.Number():               self._number = operand._data.__mod__(od.Pipe( int() ))
+                    case ou.Number():               self._count = operand._data.__mod__(od.Pipe( int() ))
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case ou.Number():
                 if operand > 0:
-                    self._number = operand.__mod__(od.Pipe( int() ))
+                    self._count = operand.__mod__(od.Pipe( int() ))
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -2027,7 +2027,7 @@ class Triplet(Retrigger):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._number = 3
+        self._count = 3
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
