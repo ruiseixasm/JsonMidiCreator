@@ -2148,6 +2148,7 @@ class Clip(Composition):  # Just a container of Elements
             target_element: oe.Element = self[index]
             if isinstance(target_element, oe.Element) and value is not target_element:
                 self._replace(target_element, value)    # Makes sure it propagates
+                value._set_owner_clip(self) # Makes sure `value` is owned by the Clip
         return self
     
     def __next__(self) -> 'oe.Element':

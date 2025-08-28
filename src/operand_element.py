@@ -1851,7 +1851,7 @@ class Retrigger(Note):
 
     Parameters
     ----------
-    Number(16) : The number above the notation beam with 3 as being a triplet.
+    Number(8) : The number above the notation beam with 3 as being a triplet.
     Swing(0.5) : The ratio of time the `Note` is pressed.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -1864,7 +1864,7 @@ class Retrigger(Note):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._number: int       = 16
+        self._number: int       = 8
         self._swing: Fraction   = ra.Swing(0.5)._rational
         super().__init__()
         self._duration_beats  *= 2 # Equivalent to twice single note duration
