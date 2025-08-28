@@ -42,7 +42,7 @@ class RS_Solutions:
                  measures: list[int] = [0, 0, 0, 0],
                  c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None
             ):
-        self._seed: oc.Composition = seed
+        self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._measures: list[int] = measures
         self._c_button = c_button
 
@@ -92,6 +92,7 @@ class RS_Solutions:
                     new_composition *= composition * [measure_i]
             return new_composition
 
+        # Where the seed is set
         if iterations < 0:
             self._seed >>= og.Plot(by_channel=by_channel,
                 iterations=iterations * -1,
