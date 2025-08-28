@@ -76,7 +76,7 @@ def test_serialization_mod():
     assert serialization_total_duration == ra.NoteValue(1/4 * 2)
     
     # A division of 6 means 6 notes in place of 2 (2 divisions/durations)
-    retrigger = Retrigger("D") << Number(6)
+    retrigger = Retrigger("D") << Count(6)
     serialization = Serialization() << retrigger
 
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
@@ -98,7 +98,7 @@ def test_serialization_mod():
 def test_playlist_mod():
 
     # Perform the operation
-    retrigger = Retrigger("D") << Number(6)
+    retrigger = Retrigger("D") << Count(6)
     play_list = Playlist() << retrigger
     
     # Depends on the order, different order results in False!

@@ -1851,7 +1851,7 @@ class Retrigger(Note):
 
     Parameters
     ----------
-    Number(8) : The number above the notation beam with 3 as being a triplet.
+    Count(8) : The number above the notation beam with 3 as being a triplet.
     Swing(0.5) : The ratio of time the `Note` is pressed.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -1884,21 +1884,21 @@ class Retrigger(Note):
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
         those Parameters are the ones of the Element, like Position and Duration,
-        plus the ones of a Note and the Number as 16 by default.
+        plus the ones of a Note and the Count as 16 by default.
 
         Examples
         --------
-        >>> retrigger = Retrigger("G") << Number(32)
-        >>> retrigger % Number() % int() >> Print()
+        >>> retrigger = Retrigger("G") << Count(32)
+        >>> retrigger % Count() % int() >> Print()
         32
         """
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Number():       return operand._data << od.Pipe(self._count)
+                    case ou.Count():       return operand._data << od.Pipe(self._count)
                     case ra.Swing():        return operand._data << od.Pipe(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Number():       return ou.Number() << od.Pipe(self._count)
+            case ou.Count():       return ou.Count() << od.Pipe(self._count)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
@@ -1971,10 +1971,10 @@ class Retrigger(Note):
                 self._swing     = operand._swing
             case od.Pipe():
                 match operand._data:
-                    case ou.Number():               self._count = operand._data.__mod__(od.Pipe( int() ))
+                    case ou.Count():               self._count = operand._data.__mod__(od.Pipe( int() ))
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
-            case ou.Number():
+            case ou.Count():
                 if operand > 0:
                     self._count = operand.__mod__(od.Pipe( int() ))
             case ra.Swing():
@@ -2013,7 +2013,7 @@ class Triplet(Retrigger):
 
     Parameters
     ----------
-    Number(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Triplet`.
+    Count(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Triplet`.
     Swing(0.5) : The ratio of time the `Note` is pressed.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
@@ -2036,8 +2036,8 @@ class Triplet(Retrigger):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Number():
-                return self # disables the setting of Number, always 3
+            case ou.Count():
+                return self # disables the setting of Count, always 3
             case _:
                 super().__lshift__(operand)
         return self
@@ -2045,7 +2045,7 @@ class Triplet(Retrigger):
 class Tuplet(Element):
     """`Element -> Tuplet`
 
-    A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Number` of a `Retrigger`.
+    A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Count` of a `Retrigger`.
 
     Parameters
     ----------
@@ -2093,12 +2093,12 @@ class Tuplet(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a Tuplet,
         those Parameters are the ones of the Element, like Position and Duration,
-        and the Number and a List of Elements.
+        and the Count and a List of Elements.
 
         Examples
         --------
         >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
-        >>> tuplet % Number() % int() >> Print()
+        >>> tuplet % Count() % int() >> Print()
         4
         """
         match operand:
@@ -2108,7 +2108,7 @@ class Tuplet(Element):
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-            case ou.Number():       return ou.Number() << len(self._elements)
+            case ou.Count():       return ou.Count() << len(self._elements)
             case ra.Duration() | ra.NoteValue():
                 return operand << od.Pipe( self._duration_beats / 2 )
             case list():            return self.deep_copy(self._elements)
