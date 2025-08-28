@@ -19,12 +19,17 @@ settings += Device("Digitakt")
 settings << Tempo(114)
 
 # Samples
-kick = Note(Channel(1), Velocity(90)) / 2
-snare = Note(Channel(2), Velocity(90)) / 1 + Beat(2)
-open_hat = Note(Channel(6), Velocity(120)) / 4
+kick = Note(1/8, Channel(1), Velocity(90)) / 8
+snare = Note(1/8, Channel(2), Velocity(90)) / 8
+open_hat = Note(1/8, Channel(6), Velocity(120)) / 8
 
-section_a = kick + snare + open_hat << TrackName("Section A")
-section_a * 8 >> Plot(True)
+kick_a = kick - [2, 4, 6]
+snare_a = snare - [0, 1, 3, 4, 5, 7]
+
+section_a = kick_a + snare_a + open_hat << TrackName("Section A")
+section_a * 4 >> Plot(True)
+
+
 
 rhythm_solution = RS_Clip(section_a * 4)
 # moved_beats = rhythm_solution.mask(Channel(2)).single_wrapper(-10, by_channel=True).unmask().solution()
