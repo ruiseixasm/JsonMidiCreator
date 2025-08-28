@@ -2598,12 +2598,17 @@ class Clip(Composition):  # Just a container of Elements
                 return self._append([ new_element ])._sort_items()  # Shall be sorted!
             
             case list():
-                operand_elements = [
-                    single_element.copy()._set_owner_clip(self)
-                    for single_element in operand if isinstance(single_element, oe.Element)
-                ]
-                self._append(operand_elements)
-
+                if all(isinstance(item, oe.Element) for item in operand):
+                    new_elements: list[oe.Element] = [
+                        single_element.copy()._set_owner_clip(self)
+                        for single_element in operand if isinstance(single_element, oe.Element)
+                    ]
+                else: # Duplicate and add by index
+                    new_elements: list[oe.Element] = [
+                        self[index].copy() for index in operand
+                    ]
+                self._append(new_elements)
+                
             case og.TimeSignature() | og.TimeSignature():
                 self._time_signature += operand
 
@@ -2624,7 +2629,13 @@ class Clip(Composition):  # Just a container of Elements
             case oe.Element():
                 return self._delete([ operand ])
             case list():
-                return self._delete(operand)
+                if all(isinstance(item, oe.Element) for item in operand):
+                    return self._delete(operand)
+                else: # Remove by index
+                    elements_to_delete: list[oe.Element] = [
+                        self[index] for index in operand
+                    ]
+                    return self._delete(elements_to_delete, True)
             
             case og.TimeSignature() | og.TimeSignature():
                 self._time_signature -= operand
