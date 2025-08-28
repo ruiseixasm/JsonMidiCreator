@@ -1955,7 +1955,7 @@ class Retrigger(Note):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "count" in serialization["parameters"]):
+            "count" in serialization["parameters"] and "swing" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._count     = self.deserialize( serialization["parameters"]["count"] )
@@ -1971,7 +1971,7 @@ class Retrigger(Note):
                 self._swing     = operand._swing
             case od.Pipe():
                 match operand._data:
-                    case ou.Count():               self._count = operand._data.__mod__(od.Pipe( int() ))
+                    case ou.Count():                self._count = operand._data.__mod__(od.Pipe( int() ))
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case ou.Count():
