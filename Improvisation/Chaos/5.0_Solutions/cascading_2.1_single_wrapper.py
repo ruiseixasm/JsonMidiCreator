@@ -16,11 +16,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 settings += Device("Digitakt")
+settings << Tempo(114)
 
-snare = Note(Channel(2)) / 4
-def composition(clip: Clip) -> Composition:
-    return clip
+# Samples
+kick = Note(Channel(1), Velocity(90)) / 2
+snare = Note(Channel(2), Velocity(90)) / 1 + Beat(2)
+open_hat = Note(Channel(6), Velocity(120)) / 4
 
-rhythm_solution = RS_Clip(snare * 4, c_button=composition)
-moved_beats = rhythm_solution.single_wrapper(-10, by_channel=True).solution()
+section_a = kick + snare + open_hat << TrackName("Section A")
+section_a * 8 >> Plot(True)
+
+rhythm_solution = RS_Clip(section_a * 4)
+# moved_beats = rhythm_solution.mask(Channel(2)).single_wrapper(-10, by_channel=True).unmask().solution()
 
