@@ -1520,6 +1520,29 @@ class Size(Unit):
         return __class__._types_str[number % len(__class__._types_str)]
 
 
+class Count(Unit):
+    """`Unit -> Count`
+
+    `Count` sets the number of Notes a Retrigger is subdivider by. In the case of a `Triplet` \
+        this value is always 3.
+    
+    Parameters
+    ----------
+    int(8) : The default number of notes is 8 that results in a duration of 1/32 per Note for a \
+        total duration of 1/4.
+    """
+    def __init__(self, *parameters):
+        super().__init__(8, *parameters)         # Default Size is 8
+            
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        super().__lshift__(operand)
+        if self._unit < 1:
+            self._unit = 1
+        return self
+
+
 class Inversion(Unit):
     """`Unit -> Inversion`
 
