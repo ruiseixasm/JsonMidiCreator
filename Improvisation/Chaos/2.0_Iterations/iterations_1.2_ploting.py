@@ -25,17 +25,9 @@ ghost_notes = Note(DrumKit("Snare"), 1/16) / 16 * 8 << Velocity(50)
 
 snare_part = Part(ghost_notes) >> Plot(block=False)
 
-def composition(clip: Clip) -> Composition:
-    # This filter retains the clip as a Clip and not as a Mask
-    one_measure = clip >> Filter(Or(Measure(0), Measure(1)))
-
-    # Automatically sorted by position
-    interrupted_clip = one_measure + Measures(4) + one_measure
-    return snare_part + interrupted_clip
-
 
 four_notes = Note() * 4 << Key("A") << Duration(1/8) << Channel(2)
 seed_clip: Clip = (Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) << Tied()) * 2 + four_notes
 
-seed_clip >> Plot(iterations=10, n_button=new_clip, c_button=composition)
+seed_clip >> Plot(iterations=10, n_button=new_clip, composition=snare_part)
 

@@ -24,15 +24,9 @@ def new_clip(clip: Clip) -> Clip:
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
 snare_part = Part(ghost_notes)
 
-def composition(clip: Clip) -> Composition:
-    one_measure = clip >> Or(Measure(0), Measure(1))
-    # Automatically sorted by position
-    interrupted_clip = one_measure + Measures(4) + one_measure
-    return snare_part + interrupted_clip
-
 volume_automation = ControlChange("Volume", 100, 1/4) * 4 * 4 + Get(Beats())**Channel()
 
-volume_automation >> Plot(iterations=10, n_button=new_clip, c_button=composition)
+volume_automation >> Plot(iterations=10, n_button=new_clip, composition=snare_part)
 
 
 

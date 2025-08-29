@@ -20,14 +20,11 @@ iterations: list[int] = [-7, +12]
 
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
-def composition(clip: Clip) -> Composition:
-    return snare + clip
-
 
 SOLUTION = 0
 
 many_notes = Note() / 8
-rhythm_solution = RS_Clip(many_notes, c_button=composition)
+rhythm_solution = RS_Clip(many_notes, composition=snare)
 
 rhythm_notes = rhythm_solution.rhythm_fast_quantized(iterations[SOLUTION]).solution()
 
@@ -45,7 +42,7 @@ def tonality(clip: Clip) -> Clip:
     return new_clip * 4
 
 if iterations[SOLUTION] < 0:
-    phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
+    phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, composition=snare, title="Note Pitches")
 else:
     phrase_notes = rhythm_notes >> Call(iterations=iterations[SOLUTION], n_button=tonality)
 

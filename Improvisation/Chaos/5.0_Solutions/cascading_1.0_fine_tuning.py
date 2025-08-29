@@ -17,9 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 down_beat = Note(DrumKit("Snare")) / 4 << Steps(1)
-def composition(clip: Clip) -> Composition:
-    return clip
 
-rhythm_solution = RS_Clip(down_beat * 4, c_button=composition)
+rhythm_solution = RS_Clip(down_beat * 4)
 moved_beats = rhythm_solution.fine_tune(-10, by_channel=True).solution()
 

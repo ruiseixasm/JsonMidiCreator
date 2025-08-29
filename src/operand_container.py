@@ -1842,14 +1842,9 @@ class Composition(Container):
 
     def _run_composition(self, even = None) -> Self:
         import threading
-        if callable(self._c_function):
+        if isinstance(self._composition, Composition):
             iteration_clip: Clip = self._iterations[self._iteration]
-            composition: Composition = self._c_function(iteration_clip)
-            if isinstance(composition, Composition):
-                threading.Thread(target=og.Play.play, args=(composition,)).start()
-                # composition >> og.Play()
-            # Updates the iteration_clip data and plot just in case
-            self._update_iteration(self._iteration, iteration_clip.getPlotlist())
+            threading.Thread(target=og.Play.play, args=(iteration_clip + self._composition,)).start()
         return self
 
     def _plot_filename(self, composition: 'Composition') -> str:
@@ -1941,7 +1936,7 @@ class Composition(Container):
 
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
             n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str | None = None) -> Self:
+            composition: Optional['Composition'] = None, title: str | None = None) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1952,7 +1947,7 @@ class Composition(Container):
             iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
                 this is dependent on a n_button being given.
             n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-            c_button (Callable): A function intended to play the plotted clip among other compositions.
+            composition (Composition): A composition to be played together with the plotted one.
             title (str): A title to give to the chart in order to identify it.
 
         Returns:
@@ -1963,7 +1958,7 @@ class Composition(Container):
         self._by_channel: bool = by_channel
         self._iteration: int = 0
         self._n_function = n_button
-        self._c_function = c_button
+        self._composition = composition
         if not isinstance(title, str):
             self._title: str = self % str()
         else:
@@ -2045,7 +2040,7 @@ class Composition(Container):
             # New Button Widget
             self._disable_button(new_button)
 
-        if not callable(self._c_function):
+        if not isinstance(self._composition, Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 

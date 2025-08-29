@@ -2228,13 +2228,13 @@ class Plot(ReadOnly):
         iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
             this is dependent on a n_button being given.
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-        c_button (Callable): A function intended to play the plotted clip among other compositions.
+        composition (Composition): A composition to be played together with the plotted one.
         title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 c_button: Optional[Callable[['Composition'], 'Composition']] = None, title: str | None = None):
-        super().__init__([by_channel, block, pause, iterations, n_button, c_button, title])
+                 composition: Optional['Composition'] = None, title: str | None = None):
+        super().__init__([by_channel, block, pause, iterations, n_button, composition, title])
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc

@@ -27,13 +27,8 @@ triads = Chord(1/2) * 7 << Input(modulus)**Choice("C", "D", "E", "F", "G", "A", 
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
 snare_part = Part(ghost_notes)
-def composition(clip: Clip) -> Composition:
-    one_measure = clip >> Or(Measure(0), Measure(1))
-    # Automatically sorted by position
-    interrupted_clip = one_measure + Measures(4) + one_measure
-    return snare_part + interrupted_clip
 
-triads / 2 >> Plot(iterations=1, n_button=new_clip, c_button=composition)
+triads / 2 >> Plot(iterations=1, n_button=new_clip, composition=snare_part)
 
 
 

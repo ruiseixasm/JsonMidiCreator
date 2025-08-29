@@ -40,11 +40,11 @@ class RS_Solutions:
     def __init__(self,
                  seed: oc.Composition,
                  measures: list[int] = [0, 0, 0, 0],
-                 c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None
+                 composition: Optional['oc.Composition'] = None
             ):
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._measures: list[int] = measures
-        self._c_button = c_button
+        self._composition = composition
 
 
     def solution(self) -> 'oc.Composition':
@@ -96,7 +96,7 @@ class RS_Solutions:
         if iterations < 0:
             self._seed >>= og.Plot(by_channel=by_channel,
                 iterations=iterations * -1,
-                n_button=_n_button, c_button=self._c_button, title=title
+                n_button=_n_button, composition=self._composition, title=title
             )
         else:
             self._seed >>= og.Call(iterations, _n_button)
@@ -108,9 +108,9 @@ class RS_Clip(RS_Solutions):
     def __init__(self,
                  seed: oc.Composition,
                  measures: list[int] = [0, 0, 0, 0],
-                 c_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None
+                 composition: Optional['oc.Composition'] = None
             ):
-        super().__init__(seed, measures, c_button)
+        super().__init__(seed, measures, composition)
         self._seed: oc.Clip = seed
          
     def solution(self) -> 'oc.Clip':

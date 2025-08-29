@@ -32,11 +32,9 @@ def rhythm(clip: Clip) -> Clip:
     return clip.stack().quantize().mul([0]).link().mul(4)
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
-def composition(clip: Clip) -> Composition:
-    return snare + clip
 
 if iterations[SOLUTION] < 0:
-    rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm, c_button=composition, title="Note Durations")
+    rhythm_notes = many_notes >> Plot(iterations=10, n_button=rhythm, composition=snare, title="Note Durations")
 else:
     rhythm_notes = many_notes >> Call(iterations=iterations[SOLUTION], n_button=rhythm)
 
@@ -54,7 +52,7 @@ def tonality(clip: Clip) -> Clip:
     return new_clip * 4
 
 if iterations[SOLUTION] < 0:
-    phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, c_button=composition, title="Note Pitches")
+    phrase_notes = rhythm_notes >> Plot(iterations=10, n_button=tonality, composition=snare, title="Note Pitches")
 else:
     phrase_notes = rhythm_notes >> Call(iterations=iterations[SOLUTION], n_button=tonality)
 

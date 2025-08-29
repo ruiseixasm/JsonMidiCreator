@@ -17,11 +17,9 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
-def composition(clip: Clip) -> Composition:
-    return snare + clip
 
 seed_notes = Note() / 8
-clip_solution = RS_Clip(seed_notes, [0, 0, 0, 0, 1, 0, 0, 0], c_button=composition)
+clip_solution = RS_Clip(seed_notes, [0, 0, 0, 0, 1, 0, 0, 0], composition=snare)
 
 phrase_notes = clip_solution.rhythm_fast_quantized(7).tonality_conjunct_but_slacked(3).solution()
 # phrase_notes >> Plot()
