@@ -1772,9 +1772,8 @@ class Composition(Container):
 
     def _run_play(self, even = None) -> Self:
         import threading
-        iteration_clip: Clip = self._iterations[self._iteration]
-        threading.Thread(target=og.Play.play, args=(iteration_clip,)).start()
-        # iteration_clip >> og.Play()
+        iteration_self: Composition = self._iterations[self._iteration]
+        threading.Thread(target=og.Play.play, args=(iteration_self,)).start()
         return self
 
     def _run_first(self, even = None) -> Self:
@@ -1826,16 +1825,16 @@ class Composition(Container):
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
             iteration: int = self._iteration
-            iteration_clip: Clip = self._iterations[-1]
-            new_clip: Clip = self._n_function(iteration_clip.copy())
-            if isinstance(new_clip, Clip):
+            iteration_self: Composition = self._iterations[-1]
+            new_iteration: Composition = self._n_function(iteration_self.copy())
+            if isinstance(new_iteration, Composition):
                 self._iteration = len(self._iterations)
-                plotlist: list[dict] = new_clip.getPlotlist()
-                self._iterations.append(new_clip)
+                plotlist: list[dict] = new_iteration.getPlotlist()
+                self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
                 self._plot_elements(plotlist)
-            # Updates the iteration_clip data and plot just in case
-            self._update_iteration(iteration, iteration_clip.getPlotlist())
+            # Updates the iteration_self data and plot just in case
+            self._update_iteration(iteration, iteration_self.getPlotlist())
             self._enable_button(self._previous_button)
             self._disable_button(self._next_button)
         return self
@@ -1843,8 +1842,8 @@ class Composition(Container):
     def _run_composition(self, even = None) -> Self:
         import threading
         if isinstance(self._composition, Composition):
-            iteration_clip: Clip = self._iterations[self._iteration]
-            threading.Thread(target=og.Play.play, args=(iteration_clip + self._composition,)).start()
+            iteration_self: Composition = self._iterations[self._iteration]
+            threading.Thread(target=og.Play.play, args=(self._composition + iteration_self,)).start()
         return self
 
     def _plot_filename(self, composition: 'Composition') -> str:
