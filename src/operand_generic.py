@@ -1983,15 +1983,6 @@ class Process(Generic):
 
         return playlist
 
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self.copy().__irrshift__(operand)
-
-    def __irrshift__(self, operand: o.T) -> o.T:
-        return super().__irrshift__(operand)
-
-
 
 class ReadOnly(Process):
     """`Generic -> Process -> ReadOnly`

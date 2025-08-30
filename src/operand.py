@@ -619,12 +619,15 @@ class Operand:
     def __matmul__(self, operand) -> Self:
         return self.__rshift__( operand )
     
+    
     # operand is the pusher
     def __rrshift__(self, operand: T) -> T:
-        match operand:
-            case tuple():
-                for single_operand in operand:
-                    self.__rrshift__(single_operand)
+        return self.copy().__irrshift__(operand)
+
+    def __irrshift__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_operand in operand:
+                self.__irrshift__(single_operand)
         return operand
 
 
