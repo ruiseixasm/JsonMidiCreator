@@ -1989,7 +1989,7 @@ class Composition(Container):
         plt.tight_layout()
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
-        plt.rcParams['hatch.linewidth'] = 7.00  # Where the HATCH thickness is set
+        plt.rcParams['hatch.linewidth'] = 4.00  # Where the HATCH thickness is set
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
