@@ -212,6 +212,18 @@ def list_range(range_in: range) -> list:
 def string_to_list(pattern: str = "1... 1... 1... 1...") -> list[int]:
     return [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
 
+def list_to_string(places: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]) -> str:
+    pattern: str = ""
+    for index, value in enumerate(places):
+        previous_index: int = index - 1
+        if previous_index > 0 and previous_index % 4 == 0:
+            pattern += ' '
+        if value == 1:
+            pattern += '1'
+        else:
+            pattern += '.'
+    return pattern
+
 
 # GLOBAL FUNCTIONS
 

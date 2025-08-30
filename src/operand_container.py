@@ -3072,15 +3072,13 @@ class Clip(Composition):  # Just a container of Elements
                 oe.Note()._set_owner_clip(self) \
                 << Fraction(1) << note
 
-            pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
+            steps_place = o.string_to_list(pattern)
 
-            if isinstance(pattern, list):
-
-                position_steps: ra.Steps = ra.Steps(0)
-                for single_step in pattern:
-                    if single_step == 1:
-                        self += element_note << position_steps
-                    position_steps += 1
+            position_steps: ra.Steps = ra.Steps(0)
+            for single_step in steps_place:
+                if single_step == 1:
+                    self += element_note << position_steps
+                position_steps += 1
 
             return self._sort_items()
 
