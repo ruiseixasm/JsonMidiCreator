@@ -352,8 +352,8 @@ def test_handy_methods():
 
     assert list_rotate(list_int, 1) == [3, 45, 12]
 
-    places = string_to_list()
-    pattern = list_to_string()
+    places = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+    pattern = "1... 1... 1... 1..."
     assert string_to_list(pattern) == places
     assert list_to_string(places) == pattern
 
