@@ -2568,18 +2568,18 @@ class Clip(Composition):  # Just a container of Elements
                 return self
             
             case list():
-                new_elements: list[oe.Element] = [
+                kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
                 ]
-                return self._delete(self._items, True)._append(new_elements)    # No need to sort
+                return self._delete(self._items, True)._append(kept_elements)    # No need to sort
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
-                new_elements: list[oe.Element] = []
+                kept_elements: list[oe.Element] = []
                 for index, placed in enumerate(elements_place):
                     if placed:
-                        new_elements.append(self[index])    # No need to copy
-                return self._delete(self._items, True)._append(new_elements)    # No need to sort
+                        kept_elements.append(self[index])    # No need to copy
+                return self._delete(self._items, True)._append(kept_elements)    # No need to sort
             
         return super().__irshift__(operand)
 
