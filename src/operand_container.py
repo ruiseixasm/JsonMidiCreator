@@ -2566,13 +2566,21 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in self._items:
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
                 return self
+            
             case list():
-                total_wrappers: int = len(operand)
-                if total_wrappers > 0:
-                    for index, single_element in enumerate(self._items):
-                        wrapper: oe.Element = operand[index % total_wrappers]
-                        single_element.__irshift__(wrapper)
-                return self
+                new_elements: list[oe.Element] = [
+                    self[index] for index in operand    # No need to copy
+                ]
+                return self._delete(self._items, True)._append(new_elements)    # No need to sort
+            
+            case str():
+                elements_place: list[int] = o.string_to_list(operand)
+                new_elements: list[oe.Element] = []
+                for index, placed in enumerate(elements_place):
+                    if placed:
+                        new_elements.append(self[index])    # No need to copy
+                return self._delete(self._items, True)._append(new_elements)    # No need to sort
+            
         return super().__irshift__(operand)
 
 
