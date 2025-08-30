@@ -209,6 +209,10 @@ def list_range(range_in: range) -> list:
     return list(range_in)
 
 
+def string_to_list(pattern: str = "1... 1... 1... 1...") -> list[int]:
+    return [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
+
+
 # GLOBAL FUNCTIONS
 
 @cache  # Important decorator to avoid repeated searches (class names are static, never change)
