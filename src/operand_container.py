@@ -2571,7 +2571,7 @@ class Clip(Composition):  # Just a container of Elements
                 kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
                 ]
-                return self._delete(self._items, True)._append(kept_elements)    # No need to sort
+                return self._delete(self._items, True)._append(kept_elements)._sort_items()
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -2579,7 +2579,7 @@ class Clip(Composition):  # Just a container of Elements
                 for index, placed in enumerate(elements_place):
                     if placed:
                         kept_elements.append(self[index])    # No need to copy
-                return self._delete(self._items, True)._append(kept_elements)    # No need to sort
+                return self._delete(self._items, True)._append(kept_elements)._sort_items()
             
         return super().__irshift__(operand)
 
