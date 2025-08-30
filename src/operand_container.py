@@ -2642,7 +2642,7 @@ class Clip(Composition):  # Just a container of Elements
                 elements_to_delete: list[oe.Element] = []
                 for index, placed in enumerate(elements_place):
                     if placed:
-                        elements_to_delete.append(self[index])    # Shouldn't be copy
+                        elements_to_delete.append(self[index])    # Shouldn't be copied
                 return self._delete(elements_to_delete, True)
             
             case og.TimeSignature() | og.TimeSignature():

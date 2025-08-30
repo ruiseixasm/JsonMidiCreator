@@ -24,7 +24,7 @@ snare = Note(1/8, Channel(2), Velocity(90)) / 8
 open_hat = Note(1/8, Channel(6), Velocity(120)) / 8
 
 kick_a = kick - [2, 4, 6]
-snare_a = snare - [0, 1, 3, 4, 5, 7]
+snare_a = snare - "11.111.1"
 
 section_a = kick_a + snare_a + open_hat << TrackName("Section A")
 section_a * 4 >> Plot(True)
