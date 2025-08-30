@@ -475,6 +475,22 @@ class Element(o.Operand):
                         for _ in range(operand - 1):
                             new_clip.__imul__(self)
                     return new_clip
+                
+            case str():
+                elements_place: list[int] = o.string_to_list(operand)
+                place_measure: ra.Measure = self % ra.Measure()
+                new_elements: list[Element] = []
+                for placed in elements_place:
+                    if placed:
+                        next_element: Element = self.copy(place_measure)
+                        new_elements.append(next_element)
+                    place_measure += 1  # Moves one measure each time
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    return self._owner_clip._append(new_elements)._sort_items()
+                else:
+                    new_clip: oc.Clip = oc.Clip()
+                    return new_clip._append(new_elements)._set_owner_clip()
+
             case ra.TimeValue() | ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
