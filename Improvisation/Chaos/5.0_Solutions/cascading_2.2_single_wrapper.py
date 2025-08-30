@@ -19,7 +19,7 @@ settings += Device("Digitakt")
 settings << Tempo(114)
 
 # Samples
-kick = Note(1/8, Channel(1), Velocity(90)) / "11.1.1.1"
+kick = Note(1/8, Channel(1), Velocity(90)) // "11.1.1.1"
 snare = Note(1/8, Channel(2), Velocity(90)) / "..1...1."
 open_hat = Note(1/8, Channel(6), Velocity(120)) / 8
 

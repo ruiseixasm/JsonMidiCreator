@@ -633,7 +633,7 @@ class Element(o.Operand):
                     if placed:
                         next_element: Element = self.copy()
                     else:
-                        next_element: Element = Rest()
+                        next_element: Element = Rest(self)
                     new_elements.append(next_element)
                     next_element._position_beats = place_position_beats
                     place_position_beats += self._duration_beats
