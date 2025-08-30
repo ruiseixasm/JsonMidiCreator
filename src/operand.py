@@ -210,7 +210,7 @@ def list_range(range_in: range) -> list:
 
 
 def string_to_list(pattern: str = "1... 1... 1... 1...") -> list[int]:
-    return [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
+    return [1 if char == '1' else 0 for char in pattern if char == '.' or char == '1']
 
 def list_to_string(places: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]) -> str:
     pattern: str = ""
