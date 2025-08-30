@@ -523,8 +523,7 @@ class Element(o.Operand):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats += self._duration_beats * next_element_i
-                        self._owner_clip._append(new_elements)
-                    return self._owner_clip._append(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip._append(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip(self)
                     if operand > 1:
@@ -536,14 +535,17 @@ class Element(o.Operand):
                 elements_place: list[int] = o.string_to_list(operand)
                 place_position_beats: Fraction = self._position_beats
                 new_elements: list[Element] = []
-                for place in elements_place:
-                    if place:
+                for placed in elements_place:
+                    if placed:
                         next_element: Element = self.copy()
                         new_elements.append(next_element)
                         next_element._position_beats = place_position_beats
                     place_position_beats += self._duration_beats
-                new_clip: oc.Clip = oc.Clip()
-                return new_clip._append(new_elements)._set_owner_clip()
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    return self._owner_clip._append(new_elements)._sort_items()
+                else:
+                    new_clip: oc.Clip = oc.Clip()
+                    return new_clip._append(new_elements)._set_owner_clip()
 
             case ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
@@ -595,13 +597,11 @@ class Element(o.Operand):
             case int(): # This results in a simple repeat of elements
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     if operand > 1:
-                        element_clip: oc.Clip = self._owner_clip
                         new_elements: list[Element] = []
                         for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()._set_owner_clip(element_clip)
+                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
                             new_elements.append(next_element)
-                        element_clip._append(new_elements)
-                    return self
+                    return self._owner_clip._append(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
