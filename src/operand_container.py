@@ -451,9 +451,10 @@ class Container(o.Operand):
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
-        if not isinstance(operand, tuple):
-            return self.mask(operand)
-        return super().__irshift__(operand)
+            case tuple():
+                return super().__irshift__(operand)
+            case _:
+                return self.mask(operand)
 
 
     # Pass trough operation as last resort

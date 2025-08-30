@@ -1986,7 +1986,10 @@ class Process(Generic):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return super().__rrshift__(operand)
+        return self.copy().__irrshift__(operand)
+
+    def __irrshift__(self, operand: o.T) -> o.T:
+        return super().__irrshift__(operand)
 
 
 
