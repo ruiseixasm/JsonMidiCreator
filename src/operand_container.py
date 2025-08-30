@@ -2637,6 +2637,14 @@ class Clip(Composition):  # Just a container of Elements
                     ]
                     return self._delete(elements_to_delete, True)
             
+            case str():
+                elements_place: list[int] = o.string_to_list(operand)
+                elements_to_delete: list[oe.Element] = []
+                for index, placed in enumerate(elements_place):
+                    if placed:
+                        elements_to_delete.append(self[index])    # Shouldn't be copy
+                return self._delete(elements_to_delete, True)
+            
             case og.TimeSignature() | og.TimeSignature():
                 self._time_signature -= operand
 
