@@ -434,9 +434,12 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-        if not isinstance(operand, tuple):
-            return self.mask(operand)
-        return super().__irshift__(operand)
+            case list() | str():
+                return self.copy().__irshift__(operand)
+            case tuple():
+                return super().__irshift__(operand)
+            case _:
+                return self.mask(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
