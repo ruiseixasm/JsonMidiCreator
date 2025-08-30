@@ -624,6 +624,25 @@ class Element(o.Operand):
                         for _ in range(operand):
                             new_clip.__ifloordiv__(self)
                     return new_clip
+                
+            case str():
+                elements_place: list[int] = o.string_to_list(operand)
+                place_position_beats: Fraction = self._position_beats
+                new_elements: list[Element] = []
+                for placed in elements_place:
+                    if placed:
+                        next_element: Element = self.copy()
+                    else:
+                        next_element: Element = Rest()
+                    new_elements.append(next_element)
+                    next_element._position_beats = place_position_beats
+                    place_position_beats += self._duration_beats
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    return self._owner_clip._append(new_elements)._sort_items()
+                else:
+                    new_clip: oc.Clip = oc.Clip()
+                    return new_clip._append(new_elements)._set_owner_clip()
+
             # Divides the `Duration` by the given `Length` amount as denominator
             case ra.Length() | ra.Duration():
                 if self._owner_clip is not None:    # Owner clip is always the base container
