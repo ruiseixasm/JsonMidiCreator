@@ -531,6 +531,20 @@ class Element(o.Operand):
                         for _ in range(operand - 1):
                             new_clip.__itruediv__(self)
                     return new_clip
+                
+            case str():
+                elements_place: list[int] = o.string_to_list(operand)
+                place_position_beats: Fraction = self._position_beats
+                new_elements: list[Element] = []
+                for place in elements_place:
+                    if place:
+                        next_element: Element = self.copy()
+                        new_elements.append(next_element)
+                        next_element._position_beats = place_position_beats
+                    place_position_beats += self._duration_beats
+                new_clip: oc.Clip = oc.Clip()
+                return new_clip._append(new_elements)._set_owner_clip()
+
             case ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
