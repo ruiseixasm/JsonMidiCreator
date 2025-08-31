@@ -1930,14 +1930,31 @@ class Process(Generic):
 
     Parameters
     ----------
-    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
+    list([]) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
 
     Returns:
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
-    def __init__(self, parameters: any = None):
+    def __init__(self, parameters: list = []):
         super().__init__()
-        self._parameters = self.deep_copy(parameters)
+        self._parameters: list = self.deep_copy(parameters)
+        self._indexes: dict[str, int] = {}
+
+    def __getitem__(self, name: str) -> Any:
+        """Get parameter value by name using bracket notation."""
+        if name not in self._indexes:
+            print(f"Warning: Parameter '{name}' not found. Available: {list(self._indexes.keys())}")
+            return ol.Null()
+        return self._parameters[self._indexes[name]]
+    
+    def __setitem__(self, name: str, value: Any) -> Self:
+        """Set parameter value by name using bracket notation."""
+        if name not in self._indexes:
+            print(f"Warning: Parameter '{name}' not found. Available: {list(self._indexes.keys())}")
+        else:
+            self._parameters[self._indexes[name]] = value
+        return self
+
 
     @staticmethod
     def _clocked_playlist(operand: o.T) -> list[dict]:
@@ -2235,6 +2252,9 @@ class Plot(ReadOnly):
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
                  composition: Optional['Composition'] = None, title: str | None = None):
         super().__init__([by_channel, block, pause, iterations, n_button, composition, title])
+        self._indexes = {
+            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'n_button': 4, 'composition': 5, 'title': 6
+        }
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -2248,23 +2268,6 @@ class Plot(ReadOnly):
         elif isinstance(operand, ou.KeySignature):
             Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
         return operand
-
-    def set_iterations(self, iterations: int) -> Self:
-        if not isinstance(iterations, int) or iterations < 0:
-            return self
-        self._parameters[3] = iterations
-        return self
-
-    def set_n_button(self, function: Callable[['Composition'], 'Composition']) -> Self:
-        if not callable(function):
-            return self
-        self._parameters[4] = function
-        return self
-
-    def set_title(self, title: str) -> Self:
-        if isinstance(title, str):
-            self._parameters[6] = title
-        return self
 
 
 class Call(ReadOnly):
@@ -2280,6 +2283,9 @@ class Call(ReadOnly):
     """
     def __init__(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
         super().__init__([iterations, n_button])
+        self._indexes = {
+            'iterations': 0, 'n_button': 1
+        }
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -2287,18 +2293,6 @@ class Call(ReadOnly):
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.call(*self._parameters)
         return operand
-
-    def set_iterations(self, iterations: int) -> Self:
-        if not isinstance(iterations, int) or iterations < 0:
-            return self
-        self._parameters[0] = iterations
-        return self
-
-    def set_n_button(self, function: Callable[['Composition'], 'Composition']) -> Self:
-        if not callable(function):
-            return self
-        self._parameters[1] = function
-        return self
 
 
 class Play(ReadOnly):
@@ -2313,6 +2307,9 @@ class Play(ReadOnly):
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
         super().__init__([verbose, plot, block])
+        self._indexes = {
+            'verbose': 0, 'plot': 1, 'block': 2
+        }
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import threading
@@ -2548,6 +2545,9 @@ class Sort(ContainerProcess):
 
     def __init__(self, parameter: type = Position, reverse: bool = False):
         super().__init__([parameter, reverse])
+        self._indexes = {
+            'parameter': 0, 'reverse': 1
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.sort(*self._parameters)
@@ -2623,6 +2623,9 @@ class Operate(ContainerProcess):
     """
     def __init__(self, operand: Any = None, operator: str = "<<"):
         super().__init__([operand, operator])
+        self._indexes = {
+            'operand': 0, 'operator': 1
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.operate(*self._parameters)
@@ -2656,6 +2659,9 @@ class Shuffle(ContainerProcess):
 
     def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
         super().__init__([chaos, parameter])
+        self._indexes = {
+            'chaos': 0, 'parameter': 1
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.shuffle(*self._parameters)
@@ -2674,6 +2680,9 @@ class Swap(ContainerProcess):
 
     def __init__(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = Position):
         super().__init__([left, right, what])
+        self._indexes = {
+            'left': 0, 'right': 1, 'what': 2
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.swap(*self._parameters)
@@ -2706,6 +2715,9 @@ class Recur(ContainerProcess):
 
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
         super().__init__([recursion, parameter])
+        self._indexes = {
+            'recursion': 0, 'parameter': 1
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.recur(*self._parameters)
@@ -2725,6 +2737,9 @@ class Rotate(ContainerProcess):
 
     def __init__(self, offset: int = 1, parameter: type = Position):
         super().__init__([offset, parameter])
+        self._indexes = {
+            'offset': 0, 'parameter': 1
+        }
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.rotate(*self._parameters)
@@ -2794,6 +2809,9 @@ class Loop(CompositionProcess):
     """
     def __init__(self, position = 0, length = 4):
         super().__init__([position, length])
+        self._indexes = {
+            'position': 0, 'length': 1
+        }
 
     def _process(self, composition: TypeComposition) -> TypeComposition:
         return composition.loop(*self._parameters)
@@ -2936,8 +2954,11 @@ class Stepper(ClipProcess):
         pattern (str): A string where the 1s in it set where the triggered steps are.
         element (Element): A element or any respective parameter that sets each element.
     """
-    def __init__(self, pattern: str = "1... 1... 1... 1...", note: 'Element' = None):
-        super().__init__([pattern, note])
+    def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
+        super().__init__([pattern, element])
+        self._indexes = {
+            'pattern': 0, 'element': 1
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.stepper(*self._parameters)
@@ -2957,6 +2978,9 @@ class Automate(ClipProcess):
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
         super().__init__([values, pattern, automation, interpolate])
+        self._indexes = {
+            'values': 0, 'pattern': 1, 'automation': 2, 'interpolate': 3
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.automate(*self._parameters)
@@ -2988,6 +3012,9 @@ class Oscillate(ClipProcess):
     def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                  parameter: type = None):
         super().__init__([amplitude, wavelength, offset, phase, parameter])
+        self._indexes = {
+            'amplitude': 0, 'wavelength': 1, 'offset': 2, 'phase': 3, 'parameter': 4
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.oscillate(*self._parameters)
@@ -3014,6 +3041,9 @@ class Join(ClipProcess):
     """
     def __init__(self, decompose: bool = True):
         super().__init__([decompose])  # Has to have the ending "," to be considered a tuple
+        self._indexes = {
+            'decompose': 0
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.join(*self._parameters)
@@ -3136,6 +3166,9 @@ class Cut(ClipProcess):
 
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__([start, finish])
+        self._indexes = {
+            'start': 0, 'finish': 1
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.cut(*self._parameters)
@@ -3153,6 +3186,9 @@ class Select(ClipProcess):
 
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__([start, finish])
+        self._indexes = {
+            'start': 0, 'finish': 1
+        }
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.select(*self._parameters)
