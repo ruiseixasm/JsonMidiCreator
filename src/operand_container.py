@@ -3067,30 +3067,30 @@ class Clip(Composition):  # Just a container of Elements
             element._position_beats = original_positions[index]
         return self
     
-    def stepper(self, pattern: str = "1... 1... 1... 1...", note: Any = None) -> Self:
+    def stepper(self, pattern: str = "1... 1... 1... 1...", element: 'oe.Element' = None) -> Self:
         """
-        Sets the steps in a Drum Machine for a given `Note`.
+        Sets the steps in a Drum Machine for a given `Element`.
 
         Args:
             pattern (str): A string where the 1s in it set where the triggered steps are.
-            note (Any): A note or any respective parameter that sets each note.
+            element (Element): A element or any respective parameter that sets each element.
 
         Returns:
-            Clip: A clip with the notes placed at the triggered steps.
+            Clip: A clip with the elements placed at the triggered steps.
         """
         if isinstance(pattern, str):
 
             # Fraction sets the Duration in Steps
-            element_note: oe.Note = \
+            element_element: oe.Note = \
                 oe.Note()._set_owner_clip(self) \
-                << Fraction(1) << note
+                << Fraction(1) << element
 
             steps_place = o.string_to_list(pattern)
 
             position_steps: ra.Steps = ra.Steps(0)
             for single_step in steps_place:
                 if single_step == 1:
-                    self += element_note << position_steps
+                    self += element_element << position_steps
                 position_steps += 1
 
             return self._sort_items()

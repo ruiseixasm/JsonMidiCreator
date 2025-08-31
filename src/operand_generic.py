@@ -1917,7 +1917,7 @@ class Segment(Generic):
 
 
 if TYPE_CHECKING:
-    from operand_element import Note
+    from operand_element import Element, Note
     from operand_chaos import Chaos
     from operand_rational import Length
     from operand_container import Container, Composition, Clip
@@ -2930,13 +2930,13 @@ class Purge(ClipProcess):
 class Stepper(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stepper`
 
-    Sets the steps in a Drum Machine for a given `Note`.
+    Sets the steps in a Drum Machine for a given `Element`.
 
     Args:
         pattern (str): A string where the 1s in it set where the triggered steps are.
-        note (Any): A note or any respective parameter that sets each note.
+        element (Element): A element or any respective parameter that sets each element.
     """
-    def __init__(self, pattern: str = "1... 1... 1... 1...", note: Any = None):
+    def __init__(self, pattern: str = "1... 1... 1... 1...", note: 'Element' = None):
         super().__init__((pattern, note))
 
     def _process(self, operand: 'Clip') -> 'Clip':
