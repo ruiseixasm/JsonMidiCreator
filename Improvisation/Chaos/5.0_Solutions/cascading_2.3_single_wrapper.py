@@ -23,7 +23,7 @@ open_hat * 4 >> Plot(by_channel=True, block=False)
 
 kick = Note(1/8, Channel(1), Velocity(90)) / "11.1.1.1"
 snare = Note(1/8, Channel(2), Velocity(90)) / "..1...1."
-rest = Rest(1/8) / "....1..."
+rest = Rest(1/8) / string_nor("11.1.1.1", "..1...1.")
 kick_snare = kick + snare + rest << TrackName("Kick & Snare")
 # kick_snare * 4 >> Plot(True, composition=open_hat)
 

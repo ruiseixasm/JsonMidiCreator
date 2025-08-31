@@ -261,6 +261,40 @@ def list_not(left: list[int]) -> list[int]:
     return [0 if a == 1 else 1 for a in left]  # Or: [1 - a for a in left]
 
 
+def string_and(left: str, right: str) -> str:
+    """Element-wise binary AND of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_and(left_list, right_list))
+
+
+def string_or(left: str, right: str) -> str:
+    """Element-wise binary OR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_or(left_list, right_list))
+
+
+def string_xor(left: str, right: str) -> str:
+    """Element-wise binary XOR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_xor(left_list, right_list))
+
+
+def string_nor(left: str, right: str) -> str:
+    """Element-wise binary NOR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_nor(left_list, right_list))
+
+
+def string_not(left: str) -> str:
+    """Element-wise binary NOT of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_not(left_list))
+
+
 
 # GLOBAL FUNCTIONS
 
