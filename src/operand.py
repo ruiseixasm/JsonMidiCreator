@@ -224,6 +224,44 @@ def list_to_string(places: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0
     return pattern
 
 
+def list_and(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary AND of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a & b for a, b in zip(left_padded, right_padded)]
+
+
+def list_or(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary OR of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a | b for a, b in zip(left_padded, right_padded)]
+
+
+def list_xor(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary XOR of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a ^ b for a, b in zip(left_padded, right_padded)]
+
+
+def list_nor(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary NOR (NOT OR). Returns 1 only if both inputs are 0."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [1 if (a == 0 and b == 0) else 0 for a, b in zip(left_padded, right_padded)]
+
+
+def list_not(left: list[int]) -> list[int]:
+    """Element-wise binary NOT. Converts 1→0 and 0→1."""
+    return [0 if a == 1 else 1 for a in left]  # Or: [1 - a for a in left]
+
+
+
 # GLOBAL FUNCTIONS
 
 @cache  # Important decorator to avoid repeated searches (class names are static, never change)
