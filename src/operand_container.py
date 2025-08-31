@@ -3069,7 +3069,7 @@ class Clip(Composition):  # Just a container of Elements
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", element: 'oe.Element' = None) -> Self:
         """
-        Sets the steps in a Drum Machine for a given `Element`.
+        Sets the steps in a Drum Machine for a given `Element`. The default element is `Note` for None.
 
         Args:
             pattern (str): A string where the 1s in it set where the triggered steps are.
