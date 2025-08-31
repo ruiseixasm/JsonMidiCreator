@@ -2312,7 +2312,7 @@ class Play(ReadOnly):
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False):
-        super().__init__((verbose, plot, block))
+        super().__init__([verbose, plot, block])
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import threading
@@ -2547,7 +2547,7 @@ class Sort(ContainerProcess):
     from operand_rational import Position
 
     def __init__(self, parameter: type = Position, reverse: bool = False):
-        super().__init__((parameter, reverse))
+        super().__init__([parameter, reverse])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.sort(*self._parameters)
@@ -2622,7 +2622,7 @@ class Operate(ContainerProcess):
         operator (str): The operator `op` that becomes processed as `self op operand`.
     """
     def __init__(self, operand: Any = None, operator: str = "<<"):
-        super().__init__((operand, operator))
+        super().__init__([operand, operator])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.operate(*self._parameters)
@@ -2655,7 +2655,7 @@ class Shuffle(ContainerProcess):
     from operand_rational import Position
 
     def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
-        super().__init__((chaos, parameter))
+        super().__init__([chaos, parameter])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.shuffle(*self._parameters)
@@ -2673,7 +2673,7 @@ class Swap(ContainerProcess):
     from operand_rational import Position
 
     def __init__(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = Position):
-        super().__init__((left, right, what))
+        super().__init__([left, right, what])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.swap(*self._parameters)
@@ -2705,7 +2705,7 @@ class Recur(ContainerProcess):
     from operand_rational import Duration
 
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
-        super().__init__((recursion, parameter))
+        super().__init__([recursion, parameter])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.recur(*self._parameters)
@@ -2724,7 +2724,7 @@ class Rotate(ContainerProcess):
     from operand_rational import Position
 
     def __init__(self, offset: int = 1, parameter: type = Position):
-        super().__init__((offset, parameter))
+        super().__init__([offset, parameter])
 
     def _process(self, operand: 'Container') -> 'Container':
         return operand.rotate(*self._parameters)
@@ -2793,7 +2793,7 @@ class Loop(CompositionProcess):
         length (Length): The `Length` of the loop.
     """
     def __init__(self, position = 0, length = 4):
-        super().__init__((position, length))
+        super().__init__([position, length])
 
     def _process(self, composition: TypeComposition) -> TypeComposition:
         return composition.loop(*self._parameters)
@@ -2937,7 +2937,7 @@ class Stepper(ClipProcess):
         element (Element): A element or any respective parameter that sets each element.
     """
     def __init__(self, pattern: str = "1... 1... 1... 1...", note: 'Element' = None):
-        super().__init__((pattern, note))
+        super().__init__([pattern, note])
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.stepper(*self._parameters)
@@ -2956,7 +2956,7 @@ class Automate(ClipProcess):
     """
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
-        super().__init__((values, pattern, automation, interpolate))
+        super().__init__([values, pattern, automation, interpolate])
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.automate(*self._parameters)
@@ -2987,7 +2987,7 @@ class Oscillate(ClipProcess):
     """
     def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                  parameter: type = None):
-        super().__init__((amplitude, wavelength, offset, phase, parameter))
+        super().__init__([amplitude, wavelength, offset, phase, parameter])
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.oscillate(*self._parameters)
@@ -3013,7 +3013,7 @@ class Join(ClipProcess):
         decompose (bool): If `True`, decomposes elements derived from `Note` first.
     """
     def __init__(self, decompose: bool = True):
-        super().__init__((decompose,))  # Has to have the ending "," to be considered a tuple
+        super().__init__([decompose])  # Has to have the ending "," to be considered a tuple
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.join(*self._parameters)
@@ -3135,7 +3135,7 @@ class Cut(ClipProcess):
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
-        super().__init__((start, finish))
+        super().__init__([start, finish])
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.cut(*self._parameters)
@@ -3152,7 +3152,7 @@ class Select(ClipProcess):
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
-        super().__init__((start, finish))
+        super().__init__([start, finish])
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.select(*self._parameters)
