@@ -253,7 +253,7 @@ def list_nor(left: list[int], right: list[int]) -> list[int]:
     max_len = max(len(left), len(right))
     left_padded = left + [0] * (max_len - len(left))
     right_padded = right + [0] * (max_len - len(right))
-    return [1 if (a == 0 and b == 0) else 0 for a, b in zip(left_padded, right_padded)]
+    return [0 if a == 1 or b == 1 else 1 for a, b in zip(left_padded, right_padded)]
 
 
 def list_not(left: list[int]) -> list[int]:
