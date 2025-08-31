@@ -2930,7 +2930,7 @@ class Purge(ClipProcess):
 class Stepper(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stepper`
 
-    Sets the steps in a Drum Machine for a given `Element`. The default element is `Note` for None.
+    Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
 
     Args:
         pattern (str): A string where the 1s in it set where the triggered steps are.
