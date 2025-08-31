@@ -355,6 +355,33 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _measure_iterator, chaos, [1, 1], by_channel, title)
 
 
+    def process_parameterization(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(25),
+            process: og.Process = og.Swap(),
+            parameter: str = 'what',
+            by_channel: bool = False,
+            title: str | None = None) -> Self:
+        """
+        Applies a given process with chaotic parametrization.
+        """
+        def _measure_iterator(choices: list, measure_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                measure_clip: oc.Clip = self._seed * [measure_i]
+                clip_len: int = measure_clip.len()
+                if clip_len > 1:
+                    process[parameter] << choices[0]
+                    measure_clip >>= process
+                    measure_clip._sort_items()
+                return measure_clip
+            return composition
+
+        if not isinstance(title, str):
+            title = "Process Parameterization "
+    
+        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+
+
 class RS_Part(RS_Solutions):
     pass
 
