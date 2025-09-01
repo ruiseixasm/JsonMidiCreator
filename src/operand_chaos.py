@@ -147,7 +147,6 @@ class Chaos(o.Operand):
                 if isinstance(self._next_operand, Chaos):
                     self._next_operand << operand
                 self._xn << operand
-                self._x0 << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -449,10 +448,10 @@ class Bouncer(Chaos):
             case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
                 hypotenuse = math.hypot(self._xn % float(), self._yn % float())
+                if isinstance(operand, Fraction):
+                    return ra.Xn(hypotenuse)._rational
                 if isinstance(operand, int):
                     return int(hypotenuse)
-                if isinstance(operand, Fraction):
-                    return Fraction(hypotenuse)
                 return hypotenuse
             case _:                     return super().__mod__(operand)
 
@@ -526,7 +525,16 @@ class Bouncer(Chaos):
             case ra.X0():       self._x0 << operand
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
-            case _: super().__lshift__(operand)
+            case int() | float() | Fraction():
+                if isinstance(self._next_operand, Chaos):
+                    self._next_operand << operand
+                operand_rational: Fraction = ra.Xn(operand)._rational
+                hypotenuse: Fraction = self % operand_rational
+                ratio: Fraction = operand_rational / hypotenuse
+                self._xn *= ratio
+                self._yn *= ratio
+            case _:
+                super().__lshift__(operand)
         # Final needed modulation
         self._xn << (self._xn % float()) % (self._width % float())
         self._yn << (self._yn % float()) % (self._height % float())
