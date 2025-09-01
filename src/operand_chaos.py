@@ -144,7 +144,8 @@ class Chaos(o.Operand):
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float() | Fraction():
-                self.__imul__(operand)  # Numbers trigger iterations
+                if isinstance(self._next_operand, Chaos):
+                    self._next_operand << operand
                 self._xn << operand
                 self._x0 << operand
             case tuple():
@@ -619,10 +620,8 @@ class SinX(Chaos):
             case ra.Lambda():               self._lambda << operand
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
-            case int() | float():
-                                            self._xn << operand
-                                            self._x0 << operand
-            case _: super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
     def iterate(self, times: int = 0) -> Self:
