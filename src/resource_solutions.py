@@ -369,8 +369,8 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [measure_i]
                 clip_len: int = measure_clip.len()
-                if clip_len > 1:
-                    process[parameter] = choices[0] % clip_len
+                if clip_len:
+                    process[parameter] = choices[0]
                     measure_clip >>= process
                 return measure_clip
             return composition
