@@ -533,10 +533,6 @@ class Bouncer(Chaos):
             case ra.X0():       self._x0 << operand
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
-            case int() | float() | Fraction():
-                if isinstance(self._next_operand, Chaos):
-                    self._next_operand << operand
-                self <<= operand
             case _:
                 super().__lshift__(operand)
         # Final needed modulation
