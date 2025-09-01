@@ -156,6 +156,10 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
+    # Operand ^= Chaos is taken care above
+    def __rxor__(self, operand: o.T) -> o.T:
+        return operand
+    
     def iterate(self, times: int = 0) -> Self:
         self._initiated = True
         for _ in range(times):

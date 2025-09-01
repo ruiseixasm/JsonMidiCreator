@@ -818,13 +818,15 @@ class Operand:
     def __xor__(self, operand) -> Self:
         return self.__ixor__(operand)
     
-    # Check `operand ^= self`
     def __ixor__(self, operand) -> Self:
-        if isinstance(operand, Operand) and isinstance(operand._next_operand, Operand):
-            return operand._next_operand << self
+        if isinstance(operand, Operand):
+            return operand.__rxor__(self)
         return self
     
+    # Check `operand ^= self`
     def __rxor__(self, operand: T) -> T:
+        if isinstance(self._next_operand, Operand):
+            return self._next_operand << operand
         return operand
     
     def _tail_lshift(self, source: T) -> T:
