@@ -47,7 +47,6 @@ class Chaos(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._next_operand: Chaos       = None
         self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
         self._xn: ra.Xn                 = ra.Xn()
@@ -187,12 +186,6 @@ class Chaos(o.Operand):
     def __irshift__(self, operand: any) -> Self:
         return self.__imul__(operand)
     
-    def __pow__(self, operand: o.Operand) -> Self:
-        match operand:
-            case Chaos():       self._next_operand = operand
-            case _:             self._next_operand = None
-        return self
-
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self.reset_tamers()

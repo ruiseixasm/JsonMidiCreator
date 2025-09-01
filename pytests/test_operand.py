@@ -38,7 +38,7 @@ def test_tail_recur():
     note_degree = Note(Degree(3))
     assert note_degree != note_velocity
 
-    note_degree_int = Note()**Degree()**3
+    note_degree_int = Note()**Degree(3)
     assert note_degree_int != note_velocity
     assert note_degree_int == note_degree
 

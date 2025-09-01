@@ -807,9 +807,14 @@ class Operand:
     
     def __pow__(self, operand: 'Operand') -> Self:
         '''
-        This operator ** is similar to << with the difference of making a previous copy of self
+        This operator ** tags another Operand to self that will be the target of the << operation and \
+            be passed to self afterwards in a chained fashion.
         '''
-        return self.copy(operand)
+        if isinstance(operand, Operand) or operand is None:
+            if isinstance(operand, Operand):
+                self << operand
+            self._next_operand = operand
+        return self
     
 
     def __xor__(self, operand) -> Self:
