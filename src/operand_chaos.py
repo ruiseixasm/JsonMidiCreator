@@ -138,6 +138,8 @@ class Chaos(o.Operand):
                     case ot.Tamer():                self._tamer = operand._data
                     case ra.Xn():                   self._xn = operand._data
                     case ra.X0():                   self._x0 = operand._data
+                    case int() | float() | Fraction():
+                        self._xn << operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Tamer():                self._tamer = operand.copy()
@@ -146,7 +148,7 @@ class Chaos(o.Operand):
             case int() | float() | Fraction():
                 if isinstance(self._next_operand, Chaos):
                     self._next_operand << operand
-                self._xn << operand
+                self <<= operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -168,7 +170,7 @@ class Chaos(o.Operand):
             while not tamed and count_down > 0:
                 if isinstance(self._next_operand, Chaos):
                     # iterations are only done on tailed Chaos operands
-                    self << self._next_operand.iterate(total_iterations) % Fraction()
+                    self <<= self._next_operand.iterate(total_iterations) % Fraction()
                 self.iterate(total_iterations)
                 tamed = self.tame(self % Fraction())
                 count_down -= 1
@@ -516,6 +518,12 @@ class Bouncer(Chaos):
                     case ra.X0():       self._x0 = operand._data
                     case ra.Yn():       self._yn = operand._data
                     case ra.Y0():       self._y0 = operand._data
+                    case int() | float() | Fraction():
+                        operand_rational: Fraction = ra.Xn(operand)._rational
+                        hypotenuse: Fraction = self % operand_rational
+                        ratio: Fraction = operand_rational / hypotenuse
+                        self._xn *= ratio
+                        self._yn *= ratio
                     case _:             super().__lshift__(operand)
             case ra.Width():    self._width << operand
             case ra.Height():   self._height << operand
@@ -528,11 +536,7 @@ class Bouncer(Chaos):
             case int() | float() | Fraction():
                 if isinstance(self._next_operand, Chaos):
                     self._next_operand << operand
-                operand_rational: Fraction = ra.Xn(operand)._rational
-                hypotenuse: Fraction = self % operand_rational
-                ratio: Fraction = operand_rational / hypotenuse
-                self._xn *= ratio
-                self._yn *= ratio
+                self <<= operand
             case _:
                 super().__lshift__(operand)
         # Final needed modulation
