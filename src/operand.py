@@ -809,7 +809,7 @@ class Operand:
         '''
         This operator ** is similar to << with the difference of making a previous copy of self
         '''
-        return  self.copy(operand)
+        return self.copy(operand)
     
 
     def __xor__(self, operand) -> Self:
