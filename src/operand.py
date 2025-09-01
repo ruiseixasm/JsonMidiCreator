@@ -635,8 +635,6 @@ class Operand:
     def __lshift__(self, operand: any) -> Self:
         import operand_label as ol
         import operand_data as od
-        # Don't do the line bellow, already done on sub class call
-        # operand = self._tail_recur(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -818,10 +816,12 @@ class Operand:
     
 
     def __xor__(self, operand) -> Self:
-        return self
+        return self.__ixor__(operand)
     
-    # Check "self_operand &= input" of operand_frame module!
+    # Check `operand ^= self`
     def __ixor__(self, operand) -> Self:
+        if isinstance(operand, Operand) and isinstance(operand._next_operand, Operand):
+            return operand._next_operand << self
         return self
     
     def __rxor__(self, operand: T) -> T:
