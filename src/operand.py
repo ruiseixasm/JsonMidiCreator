@@ -261,6 +261,18 @@ def list_not(left: list[int]) -> list[int]:
     return [0 if a == 1 else 1 for a in left]  # Or: [1 - a for a in left]
 
 
+def list_lshift(left: list[int], shift: int) -> list[int]:
+    """Element-wise binary `<<`. Converts 01→10."""
+    shift = max(min(shift, len(left)), 0)
+    return left[shift:] + [0] * shift
+
+
+def list_rshift(left: list[int], shift: int) -> list[int]:
+    """Element-wise binary `>>`. Converts 10→01."""
+    shift = max(min(shift, len(left)), 0)
+    return [0] * shift + left[:shift]
+
+
 def string_and(left: str, right: str) -> str:
     """Element-wise binary AND of two strings. Pads with 0s if lengths differ."""
     left_list: list[int] = string_to_list(left)
@@ -293,6 +305,18 @@ def string_not(left: str) -> str:
     """Element-wise binary NOT of two strings. Pads with 0s if lengths differ."""
     left_list: list[int] = string_to_list(left)
     return list_to_string(list_not(left_list))
+
+
+def string_lshift(left: str, shift: int) -> str:
+    """Element-wise binary `<<`. Converts 01→10."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_lshift(left_list, shift))
+
+
+def string_rshift(left: str, shift: int) -> str:
+    """Element-wise binary `>>`. Converts 10→01."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_rshift(left_list, shift))
 
 
 

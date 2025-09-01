@@ -357,7 +357,7 @@ class RS_Clip(RS_Solutions):
 
     def process_parameterization(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(25),
+            chaos: ch.Chaos = ch.Cycle(ra.Period(4))**ch.SinX(25),
             process: og.Process = og.Swap(),
             parameter: str = 'right',
             by_channel: bool = False,
