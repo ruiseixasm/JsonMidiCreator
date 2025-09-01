@@ -40,10 +40,12 @@ class RS_Solutions:
     def __init__(self,
                  seed: oc.Composition,
                  iterations: list[int] = [0, 0, 0, 0],
+                 measures: int = 1,
                  composition: Optional['oc.Composition'] = None
             ):
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._iterations: list[int] = iterations
+        self._measures: int = measures
         self._composition = composition
 
 
@@ -108,9 +110,10 @@ class RS_Clip(RS_Solutions):
     def __init__(self,
                  seed: oc.Clip,
                  iterations: list[int] = [0, 0, 0, 0],
+                 measures: int = 1,
                  composition: Optional['oc.Composition'] = None
             ):
-        super().__init__(seed, iterations, composition)
+        super().__init__(seed, iterations, measures, composition)
         self._seed: oc.Clip = seed
          
     def solution(self) -> 'oc.Clip':
