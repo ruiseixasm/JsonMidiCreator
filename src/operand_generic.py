@@ -2669,12 +2669,12 @@ class Shuffle(ContainerProcess):
 class Swap(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Swap`
 
-    This `Process` swaps a given parameter type between two operands.
+    This method swaps a given parameter type between two operands.
 
     Args:
-        left_item (any): The first item called the left item.
-        right_item (any): The second item called the right item.
-        parameter (type): The parameters that will be switched between both operands.
+        left (any): The first item or `Segment` data.
+        right (any): The second item or `Segment` data.
+        what (type): The parameter type that will be swapped between both left and right.
     """
     from operand_rational import Position
 

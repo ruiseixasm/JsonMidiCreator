@@ -359,7 +359,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25),
             process: og.Process = og.Swap(),
-            parameter: str = 'what',
+            parameter: str = 'right',
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -370,9 +370,8 @@ class RS_Clip(RS_Solutions):
                 measure_clip: oc.Clip = self._seed * [measure_i]
                 clip_len: int = measure_clip.len()
                 if clip_len > 1:
-                    process[parameter] << choices[0]
+                    process[parameter] = choices[0] % clip_len
                     measure_clip >>= process
-                    measure_clip._sort_items()
                 return measure_clip
             return composition
 
