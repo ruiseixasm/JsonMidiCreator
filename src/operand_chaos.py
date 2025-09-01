@@ -156,6 +156,10 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
+    # Check `operand ^= self`, self Chaos chaining is taken care directly above
+    def __ixor__(self, operand) -> Self:
+        return self
+    
     def iterate(self, times: int = 0) -> Self:
         self._initiated = True
         for _ in range(times):
