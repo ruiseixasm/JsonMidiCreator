@@ -262,7 +262,7 @@ class Cycle(Chaos):
         match operand:
             case Cycle():
                 super().__lshift__(operand)
-                self._period     = operand._period
+                self._period    = operand._period
                 self._steps     = operand._steps
             case od.Pipe():
                 match operand._data:
