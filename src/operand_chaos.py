@@ -92,7 +92,10 @@ class Chaos(o.Operand):
                 for number in operand:
                     list_out.append(self % number)  # Implicit iterations
                 return list_out
-            case _:                     return super().__mod__(operand)
+            case o.Operand():
+                return operand.copy(self % Fraction)
+            case _:
+                return super().__mod__(operand)
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self._xn % float()}'
@@ -455,7 +458,8 @@ class Bouncer(Chaos):
                 if isinstance(operand, int):
                     return int(hypotenuse)
                 return hypotenuse
-            case _:                     return super().__mod__(operand)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
         if other.__class__ == o.Operand:
