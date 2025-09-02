@@ -1953,7 +1953,7 @@ class Composition(Container):
         Returns:
             Composition: Returns the presently plotted composition.
         """
-        self._iterations: list[Composition] = [ type(self)(self) ]   # Works with a forced copy (Read Only)
+        self._iterations: list[Composition] = [ self.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._by_channel: bool = by_channel
         self._iteration: int = 0
@@ -1965,9 +1965,8 @@ class Composition(Container):
             self._title: str = title
 
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
-            for i in range(iterations):
-                previous_composition: Composition = self._iterations[i]
-                new_composition: Composition = self._n_function(previous_composition.copy())
+            for _ in range(iterations):
+                new_composition: Composition = self._n_function(self.copy())
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 self._iterations.append(new_composition)
                 self._plot_lists.append(new_plotlist)
@@ -2068,10 +2067,10 @@ class Composition(Container):
             Returns:
                 Composition: Returns the presently plotted composition.
             """
-            iterated_composition: Composition = type(self)(self)
+            iterated_composition: Composition = self.copy()
             if callable(n_button) and isinstance(iterations, int) and iterations > 0:
                 for _ in range(iterations):
-                    iterated_composition = n_button(iterated_composition)
+                    iterated_composition = n_button(self.copy())
             return iterated_composition
 
 
