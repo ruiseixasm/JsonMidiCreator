@@ -88,7 +88,7 @@ class RS_Solutions:
                     if isinstance(triggers, list):
                         measure_triggers: list = triggers
                     else:
-                        measure_triggers: list = [triggers] * (composition * composition_measures).len()
+                        measure_triggers: list = o.list_spread(triggers, (composition * composition_measures).len())
                     if measure_iterations > 0:
                         _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= iterator(_choices, composition_measures, composition) * iteration_measures
