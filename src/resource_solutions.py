@@ -89,7 +89,8 @@ class RS_Solutions:
                         measure_triggers: list = [triggers] * (composition * [iteration_i]).len()
                     if measure_iterations > 0:
                         _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= iterator(_choices, iteration_i, composition) * [0]
+                    new_composition *= \
+                        iterator(_choices, iteration_i, composition) * o.list_increment(self._measures)
                 else:
                     new_composition *= composition * [iteration_i]
             return new_composition
