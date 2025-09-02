@@ -87,7 +87,7 @@ class RS_Solutions:
                 if measure_iterations >= 0:
                     if measure_iterations > 0:
                         if not isinstance(triggers, list):
-                            measure_triggers = [triggers] * (composition * composition_measures).len()
+                            measure_triggers = [triggers] * segmented_composition.len()
                         choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= iterator(choices, segmented_composition) * iteration_measures
                 else:   # Repeats previous measures unaltered
