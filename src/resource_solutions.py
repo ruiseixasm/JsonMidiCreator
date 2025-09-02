@@ -72,17 +72,13 @@ class RS_Solutions:
                 by_channel: bool = False,
                 title: str = "") -> Self:
 
-        # Resets parameters for the next Solution
-        _choices = None
-
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            nonlocal _choices
             # Each _n_button Call results in new choices
             if isinstance(triggers, list):
                 measure_triggers: list = o.Operand.deep_copy(triggers)
             else:
                 measure_triggers: list = o.list_spread(triggers, composition.len())
-            _choices = chaos.reset_tamers() % measure_triggers
+            choices: list = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             new_composition: oc.Composition = composition.empty_copy()
             iteration_measures: list[int] = o.list_increment(self._measures)
@@ -90,13 +86,13 @@ class RS_Solutions:
                 composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                 segmented_composition: oc.Composition = composition * composition_measures
                 if measure_iterations >= 0:
-                    if isinstance(triggers, list):
-                        measure_triggers: list = o.Operand.deep_copy(triggers)
-                    else:
-                        measure_triggers: list = o.list_spread(triggers, (composition * composition_measures).len())
                     if measure_iterations > 0:
-                        _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= iterator(_choices, segmented_composition) * iteration_measures
+                        if isinstance(triggers, list):
+                            measure_triggers = o.Operand.deep_copy(triggers)
+                        else:
+                            measure_triggers = o.list_spread(triggers, (composition * composition_measures).len())
+                        choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
+                    new_composition *= iterator(choices, segmented_composition) * iteration_measures
                 else:   # Repeats previous measures unaltered
                     new_composition *= segmented_composition
             return new_composition
