@@ -82,6 +82,8 @@ class Tamer(o.Operand):
             rational, validation = self._next_operand.tame(rational)
             if not validation:
                 return rational, False    # Breaks the chain
+        if iterate:
+            self.next(rational)
         return rational, True
 
     def __mod__(self, operand: o.T) -> o.T:
