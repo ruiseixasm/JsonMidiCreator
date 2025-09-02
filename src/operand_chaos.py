@@ -77,6 +77,7 @@ class Chaos(o.Operand):
                     case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
+                    case Fraction():            return self._xn._rational
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case Chaos():               return self.copy()
@@ -85,7 +86,9 @@ class Chaos(o.Operand):
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
-                return self._xn % operand
+                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction())))
+                result = ra.Result(self % od.Pipe(Fraction()))
+                return result % operand
             case list():
                 list_out: list = []
                 for number in operand:
@@ -457,6 +460,7 @@ class Bouncer(Chaos):
                     case ra.X0():               return self._x0
                     case ra.Yn():               return self._yn
                     case ra.Y0():               return self._y0
+                    case Fraction():            return ra.Result(math.hypot(self._xn % float(), self._yn % float()))._rational
                     case _:                     return super().__mod__(operand)
             case ra.Width():            return self._width.copy()
             case ra.Height():           return self._height.copy()
@@ -466,14 +470,6 @@ class Bouncer(Chaos):
             case ra.X0():               return self._x0.copy()
             case ra.Yn():               return self._yn.copy()
             case ra.Y0():               return self._y0.copy()
-            case int() | float() | Fraction():
-                self.__imul__(operand)  # Numbers trigger iterations
-                hypotenuse = math.hypot(self._xn % float(), self._yn % float())
-                if isinstance(operand, Fraction):
-                    return ra.Xn(hypotenuse)._rational
-                if isinstance(operand, int):
-                    return int(hypotenuse)
-                return hypotenuse
             case _:
                 return super().__mod__(operand)
 

@@ -267,6 +267,10 @@ class Index(ChaosParameters):
     """`Rational -> ChaosParameters -> Index`"""
     pass
 
+class Result(ChaosParameters):
+    """`Rational -> ChaosParameters -> Result`"""
+    pass
+
 class Split(ChaosParameters):
     """`Rational -> ChaosParameters -> Split`"""
     pass
