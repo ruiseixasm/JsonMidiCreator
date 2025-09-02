@@ -601,7 +601,7 @@ class Limit(Manipulator):
     def __lshift__(self, operand: any) -> Self:
         operand ^= self    # Processes the Frame operand if any exists
         match operand:
-            case Modulo():
+            case self.__class__():
                 super().__lshift__(operand)
                 self._limit = operand._limit
             case od.Pipe():
