@@ -47,6 +47,9 @@ def is_black_key(midi_note: int) -> bool:
     black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
     return (midi_note % 12) in black_keys
 
+def list_increment(size: int = 4) -> list[int]:
+    return [i for i in range(size)]
+
 def list_mod(list_in: list, mod: any = 2) -> list:
     return [item % mod for item in list_in]
 
