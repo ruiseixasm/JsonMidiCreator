@@ -128,14 +128,14 @@ class RS_Clip(RS_Solutions):
         """
         Processes the user defined `n_button` associated to the `plot` method.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip) and callable(n_button):
                 return n_button(composition * [iteration_i])
             return composition
         
         if not isinstance(title, str):
             title = "My N Button"
-        return self.iterate(iterations, _measure_iterator, ch.Chaos(), [1], by_channel, title)
+        return self.iterate(iterations, _iterator, ch.Chaos(), [1], by_channel, title)
 
 
     def rhythm_fast_quantized(self,
@@ -148,7 +148,7 @@ class RS_Clip(RS_Solutions):
         """
         Distributes small note values among the elements
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed.copy()
                 new_durations: list[float] = o.list_choose(durations, choices)
@@ -161,7 +161,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
-        return self.iterate(iterations, _measure_iterator, chaos, triggers, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, by_channel, title)
 
 
     def tonality_conjunct(self,
@@ -173,7 +173,7 @@ class RS_Clip(RS_Solutions):
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 measure_clip += of.Foreach(*choices)**ou.Degree()
@@ -183,7 +183,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
-        return self.iterate(iterations, _measure_iterator, chaos, triggers, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, by_channel, title)
 
 
     def tonality_conjunct_but_slacked(self,
@@ -209,7 +209,7 @@ class RS_Clip(RS_Solutions):
         """
         Sweeps all possible sharps for the set Key Signature for all Notes.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 new_key_signature = ou.KeySignature(choices[0])  # One iteration
@@ -220,7 +220,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
     def sweep_flats(self,
@@ -231,7 +231,7 @@ class RS_Clip(RS_Solutions):
         """
         Sweeps all possible flats for the set Key Signature for all Notes.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 new_key_signature = ou.KeySignature(choices[0] * -1)  # One iteration
@@ -242,7 +242,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
     def sprinkle_accidentals(self,
@@ -255,7 +255,7 @@ class RS_Clip(RS_Solutions):
         """
         last_accidental: int = 0
         
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
@@ -277,7 +277,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
-        return self.iterate(iterations, _measure_iterator, chaos, 1, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, 1, by_channel, title)
 
 
     def fine_tune(self,
@@ -289,7 +289,7 @@ class RS_Clip(RS_Solutions):
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 clip_len: int = measure_clip.len()
@@ -302,7 +302,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Fine Tune"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
     def single_wrapper(self,
@@ -314,7 +314,7 @@ class RS_Clip(RS_Solutions):
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 clip_len: int = measure_clip.len()
@@ -327,7 +327,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Single Wrapper"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
     def move_around(self,
@@ -338,7 +338,7 @@ class RS_Clip(RS_Solutions):
         """
         Swaps the position of two elements, no swaps if both picked are the same.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 clip_len: int = measure_clip.len()
@@ -355,7 +355,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Move Around"
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1, 1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1, 1], by_channel, title)
 
 
     def process_parameterization(self,
@@ -368,7 +368,7 @@ class RS_Clip(RS_Solutions):
         """
         Applies a given process with chaotic parametrization.
         """
-        def _measure_iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(choices: list, iteration_i: int, composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 measure_clip: oc.Clip = self._seed * [iteration_i]
                 clip_len: int = measure_clip.len()
@@ -381,7 +381,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Process Parameterization "
     
-        return self.iterate(iterations, _measure_iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
 class RS_Part(RS_Solutions):
