@@ -209,6 +209,9 @@ class Chaos(o.Operand):
         # RESET THE SELF OPERANDS RECURSIVELY
         if isinstance(self._next_operand, Chaos):
             self << self._next_operand.reset() % Fraction()
+        elif isinstance(self._next_operand, o.Operand):
+            self._xn << self._x0
+            self << self._next_operand.reset()
         else:
             self._xn << self._x0
         self.reset_tamers()
