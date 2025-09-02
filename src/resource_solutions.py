@@ -158,7 +158,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution.copy()
+                measure_clip: oc.Clip = composition
                 new_durations: list[float] = o.list_choose(durations, choices)
                 measure_clip << of.Foreach(*new_durations)**ra.NoteValue()
                 # These operations shall be done on the base (single Measure)
@@ -183,7 +183,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 measure_clip += of.Foreach(*choices)**ou.Degree()
                 return measure_clip
             return composition
@@ -219,7 +219,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 new_key_signature = ou.KeySignature(choices[0])  # One iteration
                 measure_clip << new_key_signature << ou.TonicKey(-1)
                 return measure_clip
@@ -241,7 +241,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 new_key_signature = ou.KeySignature(choices[0] * -1)  # One iteration
                 measure_clip << new_key_signature << ou.TonicKey(-1)
                 return measure_clip
@@ -266,7 +266,7 @@ class RS_Clip(RS_Solutions):
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 for single_note in measure_clip:
                     if isinstance(single_note, oe.Note) and choices[0] and chaos % 1:
                         if last_accidental == 0:
@@ -299,7 +299,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 clip_len: int = measure_clip.len()
                 if clip_len > 0:
                     clip_pick: int = choices[0] % clip_len
@@ -324,7 +324,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 clip_len: int = measure_clip.len()
                 if clip_len > 0:
                     clip_pick: int = choices[0] % clip_len
@@ -348,7 +348,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 clip_len: int = measure_clip.len()
                 if clip_len > 0:
                     first_pick: int = choices[0] % clip_len
@@ -378,7 +378,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(choices: list, composition_measures: list[int], composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
-                measure_clip: oc.Clip = self._solution * composition_measures
+                measure_clip: oc.Clip = composition * composition_measures
                 clip_len: int = measure_clip.len()
                 if clip_len:
                     process[parameter] = choices[0]
