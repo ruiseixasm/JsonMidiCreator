@@ -203,6 +203,7 @@ class Chaos(o.Operand):
         return self.__imul__(operand)
     
     def reset(self, *parameters) -> Self:
+        self._xn << self._x0
         self._initiated     = False
         self._set           = False
         self._index         = 0
@@ -210,10 +211,7 @@ class Chaos(o.Operand):
         if isinstance(self._next_operand, Chaos):
             self << self._next_operand.reset() % Fraction()
         elif isinstance(self._next_operand, o.Operand):
-            self._xn << self._x0
             self << self._next_operand.reset()
-        else:
-            self._xn << self._x0
         self.reset_tamers()
         return self << parameters
 
@@ -583,9 +581,8 @@ class Bouncer(Chaos):
         return f'{self._index + 1}: {self % tuple()}'
     
     def reset(self, *parameters) -> Self:
-        super().reset(*parameters)
-        self._yn    << self._y0
-        return self
+        self._yn << self._y0
+        return super().reset(*parameters)
 
 class SinX(Chaos):
     """`Chaos -> SinX`
