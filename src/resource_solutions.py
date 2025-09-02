@@ -62,7 +62,7 @@ class RS_Solutions:
 
 
     def iterate(self, iterations,
-                measure_iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
+                iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
                 chaos: ch.Chaos,
                 triggers: list | int | float | Fraction,
                 by_channel: bool = False,
@@ -89,7 +89,7 @@ class RS_Solutions:
                         measure_triggers: list = [triggers] * (composition * [iteration_i]).len()
                     if measure_iterations > 0:
                         _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= measure_iterator(_choices, iteration_i, composition) * [0]
+                    new_composition *= iterator(_choices, iteration_i, composition) * [0]
                 else:
                     new_composition *= composition * [iteration_i]
             return new_composition
