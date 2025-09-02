@@ -62,7 +62,7 @@ class RS_Solutions:
 
 
     def iterate(self, iterations,
-                iterator: Callable[[list | int | float | Fraction], 'oc.Composition'],
+                iterator: Callable[[list | int | float | Fraction, list[int], 'oc.Composition'], 'oc.Composition'],
                 chaos: ch.Chaos,
                 triggers: list | int | float | Fraction,
                 by_channel: bool = False,
