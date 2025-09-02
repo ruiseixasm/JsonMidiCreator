@@ -87,9 +87,7 @@ class RS_Solutions:
                 segmented_composition: oc.Composition = composition * composition_measures
                 if measure_iterations >= 0:
                     if measure_iterations > 0:
-                        if isinstance(triggers, list):
-                            measure_triggers = o.Operand.deep_copy(triggers)
-                        else:
+                        if not isinstance(triggers, list):
                             measure_triggers = o.list_spread(triggers, (composition * composition_measures).len())
                         choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= iterator(choices, segmented_composition) * iteration_measures
