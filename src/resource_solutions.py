@@ -85,14 +85,14 @@ class RS_Solutions:
             for iteration_i, measure_iterations in enumerate(self._iterations):
                 composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                 segmented_composition: oc.Composition = composition * composition_measures
-                if measure_iterations >= 0:
+                if measure_iterations < 0:  # Repeats previous measures unaltered
+                    new_composition *= segmented_composition
+                else:   
                     if measure_iterations > 0:
                         if not isinstance(triggers, list):
                             measure_triggers = [triggers] * segmented_composition.len()
                         choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= iterator(choices, segmented_composition) * iteration_measures
-                else:   # Repeats previous measures unaltered
-                    new_composition *= segmented_composition
             return new_composition
 
         # Where the solution is set
