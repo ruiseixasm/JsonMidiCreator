@@ -583,8 +583,21 @@ class Limit(Manipulator):
             case float():               return float(self._limit)
             case _:                     return super().__mod__(operand)
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["limit"] = self.serialize( self._limit )
+        return serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "limit" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._limit = self.deserialize( serialization["parameters"]["limit"] )
+        return self
+        
     def __lshift__(self, operand: any) -> Self:
         operand ^= self    # Processes the Frame operand if any exists
         match operand:
