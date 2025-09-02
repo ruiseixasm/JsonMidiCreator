@@ -45,7 +45,7 @@ class RS_Solutions:
             ):
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._iterations: list[int] = iterations
-        self._measures: int = measures
+        self._measures: int = max(measures, 1)
         self._composition = composition
 
 
