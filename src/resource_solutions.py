@@ -74,13 +74,14 @@ class RS_Solutions:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             # Each _n_button Call results in new choices
+            iteration_measures: list[int] = o.list_increment(self._measures)
             measure_triggers: list = triggers   # No need to copy, Chaos does the copy
             if not isinstance(triggers, list):
-                measure_triggers = [triggers] * composition.len() # No need to copy
+                segmented_composition: oc.Composition = composition * iteration_measures
+                measure_triggers = [triggers] * segmented_composition.len() # No need to copy
             choices: list = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             new_composition: oc.Composition = composition.empty_copy()
-            iteration_measures: list[int] = o.list_increment(self._measures)
             for iteration_i, measure_iterations in enumerate(self._iterations):
                 composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                 segmented_composition: oc.Composition = composition * composition_measures
