@@ -548,7 +548,7 @@ class Manipulator(Tamer):
     pass
 
 class Modulo(Manipulator):
-    """`Tamer -> Validator -> Modulo`
+    """`Tamer -> Manipulator -> Modulo`
 
     This `Modulo` does the module by a given value.
 
