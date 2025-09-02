@@ -77,7 +77,7 @@ class Tamer(o.Operand):
         """Returns True to skip the respective tamer, meaning, gives some slack."""
         return rational * self.from_tail() % Fraction(1) > self._strictness
 
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
             rational, validation = self._next_operand.tame(rational)
             if not validation:
@@ -178,7 +178,7 @@ class Parallel(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational) and self._tamers:
@@ -189,7 +189,7 @@ class Parallel(Tamer):
                         parallel_validation = True
                 if not parallel_validation:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -366,14 +366,14 @@ class Conjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) > 1:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -391,14 +391,14 @@ class Stepwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) != 1:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -416,14 +416,14 @@ class Skipwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) != 2:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -441,14 +441,14 @@ class Disjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) < 1:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -466,14 +466,14 @@ class Leaping(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and abs(int(rational) - self._last_integer) < 3:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -491,14 +491,14 @@ class Ascending(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and not int(rational) > self._last_integer:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -516,14 +516,14 @@ class Descending(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 if self._last_integer is not None \
                     and not int(rational) < self._last_integer:
                     return rational, False    # Breaks the chain
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
@@ -566,12 +566,12 @@ class Modulo(Manipulator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, from_chaos: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
             if self.enabled() and not self.slack(rational):
                 rational %= self._module
-            if from_chaos:
+            if iterate:
                 self.next(rational)
         return rational, validation
 
