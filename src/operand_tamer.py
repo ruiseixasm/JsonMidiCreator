@@ -547,10 +547,10 @@ class Manipulator(Tamer):
     """
     pass
 
-class Modulo(Manipulator):
-    """`Tamer -> Manipulator -> Modulo`
+class Limit(Manipulator):
+    """`Tamer -> Manipulator -> Limit`
 
-    This `Modulo` does the module by a given value.
+    A `Limit` manipulates a given value accordingly to an imposed limit.
 
     Parameters
     ----------
@@ -564,18 +564,9 @@ class Modulo(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._module: Fraction = Fraction(8)
+        self._limit: Fraction = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validation = super().tame(rational)
-        if validation:
-            if self.enabled() and not self.slack(rational):
-                rational %= self._module
-            if iterate:
-                self.next(rational)
-        return rational, validation
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -584,12 +575,12 @@ class Modulo(Manipulator):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
-                    case Fraction():            return self._module
+                    case Fraction():            return self._limit
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case Fraction():            return self._module
-            case int():                 return int(self._module)
-            case float():               return float(self._module)
+            case Fraction():            return self._limit
+            case int():                 return int(self._limit)
+            case float():               return float(self._limit)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -599,12 +590,37 @@ class Modulo(Manipulator):
         match operand:
             case Modulo():
                 super().__lshift__(operand)
-                self._module        = operand._module
+                self._limit = operand._limit
             case od.Pipe():
                 match operand._data:
-                    case Fraction():                self._module = operand._data
+                    case Fraction():                self._limit = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
-                self._module = ra.Modulus(operand)._rational
+                self._limit = ra.Result(operand)._rational
         return self
+
+class Modulo(Limit):
+    """`Tamer -> Manipulator -> Limit -> Modulo`
+
+    This `Modulo` does the module by a given value.
+
+    Parameters
+    ----------
+    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
+    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
+    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
+    The default of `[]` means always enabled for any index.
+    Strictness(1) : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(8) : Sets the Module to be done on the inputted rational.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if self.enabled() and not self.slack(rational):
+                rational %= self._limit
+            if iterate:
+                self.next(rational)
+        return rational, validation
+    
