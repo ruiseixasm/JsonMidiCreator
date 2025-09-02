@@ -50,6 +50,10 @@ def is_black_key(midi_note: int) -> bool:
 def list_increment(size: int = 4) -> list[int]:
     return [i for i in range(size)]
 
+def list_spread(content: any, size: int) -> list:
+    return [Operand.deep_copy(content) for _ in range(size)]
+
+
 def list_mod(list_in: list, mod: any = 2) -> list:
     return [item % mod for item in list_in]
 
