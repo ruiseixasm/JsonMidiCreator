@@ -606,5 +606,5 @@ class Modulo(Manipulator):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._module = operand
-            case int() | float():           self._module = Fraction(operand)
+            case int() | float():           self._module = ra.Modulus(operand)._rational
         return self
