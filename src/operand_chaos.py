@@ -142,6 +142,7 @@ class Chaos(o.Operand):
                     case ra.X0():                   self._x0 = operand._data
                     case int() | float() | Fraction():
                         self._xn << operand._data
+                        self._x0 << self._xn
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Tamer():                self._tamer = operand.copy()
@@ -156,6 +157,17 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
+    def __pow__(self, operand: 'o.Operand') -> Self:
+        '''
+        This operator ** tags another Operand to self that will be the target of the << operation and \
+            be passed to self afterwards in a chained fashion.
+        '''
+        if isinstance(operand, Chaos):
+            self << operand % Fraction()
+            self._next_operand = operand
+            return self
+        return self.__pow__(operand)
+    
     # Operand ^= Chaos is taken care above
     def __rxor__(self, operand: o.T) -> o.T:
         return operand
@@ -191,10 +203,16 @@ class Chaos(o.Operand):
         return self.__imul__(operand)
     
     def reset(self, *parameters) -> Self:
-        super().reset(*parameters)
+        self._initiated     = False
+        self._set           = False
+        self._index         = 0
+        # RESET THE SELF OPERANDS RECURSIVELY
+        if isinstance(self._next_operand, Chaos):
+            self << self._next_operand.reset() % Fraction()
+        else:
+            self._xn << self._x0
         self.reset_tamers()
-        self._xn << self._x0
-        return self
+        return self << parameters
 
     def reset_tamers(self) -> Self:
         # Reset Tamers recursively
@@ -525,6 +543,8 @@ class Bouncer(Chaos):
                         ratio: Fraction = operand_rational / hypotenuse
                         self._xn *= ratio
                         self._yn *= ratio
+                        self._x0 << self._xn
+                        self._y0 << self._yn
                     case _:             super().__lshift__(operand)
             case ra.Width():    self._width << operand
             case ra.Height():   self._height << operand
@@ -561,7 +581,6 @@ class Bouncer(Chaos):
     
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        self._xn    << self._x0
         self._yn    << self._y0
         return self
 

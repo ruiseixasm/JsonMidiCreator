@@ -53,6 +53,9 @@ def list_increment(size: int = 4) -> list[int]:
 def list_spread(content: any, size: int) -> list:
     return [Operand.deep_copy(content) for _ in range(size)]
 
+def list_wrap(list_in: list, wrapper: 'Operand') -> list['Operand']:
+    return [wrapper.copy(value) for value in list_in]
+
 
 def list_mod(list_in: list, mod: any = 2) -> list:
     return [item % mod for item in list_in]
@@ -688,7 +691,7 @@ class Operand:
     def reset(self, *parameters) -> Self:
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._next_operand is not None:
-            self._next_operand.reset()
+            self << self._next_operand.reset()
         self._initiated     = False
         self._set           = False
         self._index         = 0

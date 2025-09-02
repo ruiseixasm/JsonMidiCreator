@@ -110,3 +110,31 @@ def test_list_chaos():
     assert note_values_2 == note_values_1
 
 # test_list_chaos()
+
+
+def test_reset():
+    chaos = Cycle(Modulus(120))**SinX(24)
+    chaos_copy = chaos.copy()
+    assert chaos_copy == chaos
+    chaos_copy *= 10
+    assert chaos_copy != chaos
+    chaos_copy.reset()
+    assert chaos_copy == chaos
+
+# test_reset()
+
+
+def test_get_list():
+    chaos = Cycle(Modulus(120))**SinX(24)
+    measures_int: list[int] = [1] * 4
+    results_int: list[int] = chaos % measures_int
+    results_a = list_wrap(results_int, Velocity())
+    measures_velocity = [Velocity(1)] * 4
+    results_b = chaos.reset() % measures_velocity
+    print(f"measures_int: {measures_int}")
+    print(f"measures_velocity: {list_mod(measures_velocity, int())}")
+    print(f"results_a: {list_mod(results_a, int())}")
+    print(f"results_b: {list_mod(results_b, int())}")
+    assert results_b == results_a
+
+# test_get_list()
