@@ -1828,19 +1828,16 @@ class Composition(Container):
 
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
-            iteration: int = self._iteration
-            iteration_self: Composition = self._iterations[-1]
-            new_iteration: Composition = self._n_function(iteration_self.copy())
+            # Keeps iterating the root/seed composition
+            new_iteration: Composition = self._n_function(self.copy())
             if isinstance(new_iteration, Composition):
                 self._iteration = len(self._iterations)
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
                 self._plot_elements(plotlist)
-            # Updates the iteration_self data and plot just in case
-            self._update_iteration(iteration, iteration_self.getPlotlist())
-            self._enable_button(self._previous_button)
-            self._disable_button(self._next_button)
+                self._enable_button(self._previous_button)
+                self._disable_button(self._next_button)
         return self
 
     def _run_composition(self, even = None) -> Self:
