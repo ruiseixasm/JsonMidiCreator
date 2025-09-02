@@ -86,8 +86,8 @@ class Chaos(o.Operand):
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
-                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction())))
-                result = ra.Result(self % od.Pipe(Fraction()))
+                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
+                # result = ra.Result(self % od.Pipe(Fraction()))
                 return result % operand
             case list():
                 list_out: list = []
