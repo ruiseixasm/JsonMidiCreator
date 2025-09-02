@@ -101,7 +101,7 @@ class RS_Solutions:
                     new_composition *= segmented_composition
             return new_composition
 
-        # Where the seed is set
+        # Where the solution is set
         if iterations < 0:
             self._solution >>= og.Plot(by_channel=by_channel,
                 iterations=iterations * -1,
