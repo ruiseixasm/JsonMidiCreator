@@ -73,13 +73,13 @@ class RS_Solutions:
                 title: str = "") -> Self:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            # Each _n_button Call results in new choices
+            # Each _n_button Call results in new results
             iteration_measures: list[int] = o.list_increment(self._measures)
             measure_triggers: list = triggers   # No need to copy, Chaos does the copy
             if not isinstance(triggers, list):
                 segmented_composition: oc.Composition = composition * iteration_measures
                 measure_triggers = [triggers] * segmented_composition.len() # No need to copy
-            choices: list = chaos.reset_tamers() % measure_triggers
+            results: list = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             new_composition: oc.Composition = composition.empty_copy()
             for iteration_i, measure_iterations in enumerate(self._iterations):
@@ -91,8 +91,8 @@ class RS_Solutions:
                     if measure_iterations > 0:
                         if not isinstance(triggers, list):
                             measure_triggers = [triggers] * segmented_composition.len()
-                        choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= iterator(choices, segmented_composition) * iteration_measures
+                        results = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
+                    new_composition *= iterator(results, segmented_composition) * iteration_measures
             return new_composition
 
         # Where the solution is set
@@ -131,7 +131,7 @@ class RS_Clip(RS_Solutions):
         """
         Processes the user defined `n_button` associated to the `plot` method.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip) and callable(n_button):
                 return n_button(segmented_composition)
             return segmented_composition
@@ -151,9 +151,9 @@ class RS_Clip(RS_Solutions):
         """
         Distributes small note values among the elements
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_durations: list[float] = o.list_choose(durations, choices)
+                new_durations: list[float] = o.list_choose(durations, results)
                 segmented_composition << of.Foreach(*new_durations)**ra.NoteValue()
                 # These operations shall be done on the base (single Measure)
                 segmented_composition.base().stack().quantize().mul([0]).link()
@@ -174,9 +174,9 @@ class RS_Clip(RS_Solutions):
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                segmented_composition += of.Foreach(*choices)**ou.Degree()
+                segmented_composition += of.Foreach(*results)**ou.Degree()
             return segmented_composition
 
         if not isinstance(title, str):
@@ -208,9 +208,9 @@ class RS_Clip(RS_Solutions):
         """
         Sweeps all possible sharps for the set Key Signature for all Notes.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_key_signature = ou.KeySignature(choices[0])  # One iteration
+                new_key_signature = ou.KeySignature(results[0])  # One iteration
                 segmented_composition << new_key_signature << ou.TonicKey(-1)
             return segmented_composition
 
@@ -228,9 +228,9 @@ class RS_Clip(RS_Solutions):
         """
         Sweeps all possible flats for the set Key Signature for all Notes.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_key_signature = ou.KeySignature(choices[0] * -1)  # One iteration
+                new_key_signature = ou.KeySignature(results[0] * -1)  # One iteration
                 segmented_composition << new_key_signature << ou.TonicKey(-1)
             return segmented_composition
 
@@ -250,11 +250,11 @@ class RS_Clip(RS_Solutions):
         """
         last_accidental: int = 0
         
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal last_accidental
             if isinstance(segmented_composition, oc.Clip):
                 for single_note in segmented_composition:
-                    if isinstance(single_note, oe.Note) and choices[0] and chaos % 1:
+                    if isinstance(single_note, oe.Note) and results[0] and chaos % 1:
                         if last_accidental == 0:
                             last_accidental = 1
                             accidental_degree: ou.Degree = ou.Degree(0.1)   # Sharp
@@ -282,11 +282,11 @@ class RS_Clip(RS_Solutions):
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
-                    clip_pick: int = choices[0] % clip_len
+                    clip_pick: int = results[0] % clip_len
                     segmented_composition[clip_pick] += tune_by
             return segmented_composition
 
@@ -305,11 +305,11 @@ class RS_Clip(RS_Solutions):
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
-                    clip_pick: int = choices[0] % clip_len
+                    clip_pick: int = results[0] % clip_len
                     # Transforms the original Element into another one
                     segmented_composition[clip_pick] = wrapper.copy(segmented_composition[clip_pick])
             return segmented_composition
@@ -328,12 +328,12 @@ class RS_Clip(RS_Solutions):
         """
         Swaps the position of two elements, no swaps if both picked are the same.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
-                    first_pick: int = choices[0] % clip_len
-                    second_pick: int = choices[1] % clip_len
+                    first_pick: int = results[0] % clip_len
+                    second_pick: int = results[1] % clip_len
                     first_position: Fraction = segmented_composition[first_pick]._position_beats
                     segmented_composition[first_pick]._position_beats = segmented_composition[second_pick]._position_beats
                     segmented_composition[second_pick]._position_beats = first_position
@@ -356,11 +356,11 @@ class RS_Clip(RS_Solutions):
         """
         Applies a given process with chaotic parametrization.
         """
-        def _iterator(choices: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len:
-                    process[parameter] = choices[0]
+                    process[parameter] = results[0]
                     segmented_composition >>= process
             return segmented_composition
 
