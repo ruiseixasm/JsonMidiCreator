@@ -206,19 +206,19 @@ class Chaos(o.Operand):
 class Cycle(Chaos):
     """`Chaos -> Cycle`
 
-    Increments the `Xn` by each step and its return is the remainder of the given `Period`.
+    Increments the `Xn` by each step and its return is the remainder of the given `Modulus`.
 
     Parameters
     ----------
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Period(12) : The cyclic value on which the `Xn` modulus % operation is made.
+    Modulus(12) : The cyclic value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._period: Fraction  = ra.Period(12)._rational
+        self._modulus: Fraction  = ra.Modulus(12)._rational
         self._steps: Fraction   = ra.Steps(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -227,10 +227,10 @@ class Cycle(Chaos):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ra.Period():           return operand._data << self._period
+                    case ra.Modulus():          return operand._data << self._modulus
                     case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
-            case ra.Period():           return ra.Period(self._period)
+            case ra.Modulus():          return ra.Modulus(self._modulus)
             case ra.Steps():            return ra.Steps(self._steps)
             case _:                     return super().__mod__(operand)
 
@@ -238,13 +238,13 @@ class Cycle(Chaos):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._period == other._period and self._steps == other._steps
+                    and self._modulus == other._modulus and self._steps == other._steps
             case _:
                 return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["period"]   = self.serialize( self._period )
+        serialization["parameters"]["modulus"]  = self.serialize( self._modulus )
         serialization["parameters"]["steps"]    = self.serialize( self._steps )
         return serialization
 
@@ -252,10 +252,10 @@ class Cycle(Chaos):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "period" in serialization["parameters"] and "steps" in serialization["parameters"]):
+            "modulus" in serialization["parameters"] and "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._period    = self.deserialize( serialization["parameters"]["period"] )
+            self._modulus   = self.deserialize( serialization["parameters"]["modulus"] )
             self._steps     = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
@@ -264,26 +264,26 @@ class Cycle(Chaos):
         match operand:
             case Cycle():
                 super().__lshift__(operand)
-                self._period    = operand._period
+                self._modulus   = operand._modulus
                 self._steps     = operand._steps
             case od.Pipe():
                 match operand._data:
-                    case ra.Period():           self._period = operand._data._rational
+                    case ra.Modulus():          self._modulus = operand._data._rational
                     case ra.Steps():            self._steps = operand._data._rational
                     case _:                     super().__lshift__(operand)
-            case ra.Period():       self._period = operand._rational
+            case ra.Modulus():      self._modulus = operand._rational
             case ra.Steps():        self._steps = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
-        self._xn << self._xn % Fraction() % self._period
+        self._xn << self._xn % Fraction() % self._modulus
         return self
 
     def iterate(self, times: int = 0) -> Self:
         self._initiated = True
         for _ in range(times):
             self._xn += self._steps
-            self._xn << self._xn % Fraction() % self._period
+            self._xn << self._xn % Fraction() % self._modulus
             self._index += 1    # keeps track of each iteration
         return self
 
@@ -300,13 +300,13 @@ class Flipper(Cycle):
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Period(2) : The period value on which the `Xn` modulus % operation is made.
+    Modulus(2) : The modulus value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     Split(1) : This sets the value below which is considered a "left" flip.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._period            = ra.Period(2)._rational
+        self._modulus            = ra.Modulus(2)._rational
         self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -378,20 +378,20 @@ class Counter(Cycle):
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Period(12) : The period value on which the `Xn` modulus % operation is made.
+    Modulus(12) : The modulus value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Fraction():
                 self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(Fraction()) // self._period
+                return super().__mod__(Fraction()) // self._modulus
             case int():
                 self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(int()) // int(self._period)
+                return super().__mod__(int()) // int(self._modulus)
             case float():
                 self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(float()) // float(self._period)
+                return super().__mod__(float()) // float(self._modulus)
             case _:
                 return super().__mod__(operand)
 

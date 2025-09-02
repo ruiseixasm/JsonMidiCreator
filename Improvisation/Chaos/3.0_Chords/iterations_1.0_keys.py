@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-chaos = Cycle(Period(7))   # Works like a cyclic picker
+chaos = Cycle(Modulus(7))   # Works like a cyclic picker
 
 def new_clip(clip: Clip) -> Clip:
     clip << Input(chaos)**Choice("C", "D", "E", "F", "G", "A", "B")**Key()

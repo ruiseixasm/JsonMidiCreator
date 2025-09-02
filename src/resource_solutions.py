@@ -73,7 +73,7 @@ class RS_Solutions:
                 title: str = "") -> Self:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            # Each _n_button Call results in new results
+            # Each _n_button Call results in new solution
             iteration_measures: list[int] = o.list_increment(self._measures)
             measure_triggers: list = triggers   # No need to copy, Chaos does the copy
             if not isinstance(triggers, list):
@@ -168,7 +168,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct())**ch.SinX(),
+            chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -188,7 +188,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
-            chaos: ch.Chaos = ch.Cycle(ra.Period(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
+            chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -202,7 +202,7 @@ class RS_Clip(RS_Solutions):
 
     def sweep_sharps(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -222,7 +222,7 @@ class RS_Clip(RS_Solutions):
 
     def sweep_flats(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Cycle(0, ra.Period(8)),
+            chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -242,7 +242,7 @@ class RS_Clip(RS_Solutions):
 
     def sprinkle_accidentals(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Flipper(ra.Period(6))**ch.SinX(33),
+            chaos: ch.Chaos = ch.Flipper(ra.Modulus(6))**ch.SinX(33),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
@@ -348,7 +348,7 @@ class RS_Clip(RS_Solutions):
 
     def process_parameterization(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Cycle(ra.Period(4))**ch.SinX(25),
+            chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
             process: og.Process = og.Swap(),
             parameter: str = 'right',
             by_channel: bool = False,

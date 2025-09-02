@@ -53,19 +53,19 @@ def test_sinx_mod():
 
 def test_modulus():
 
-    modulus = Cycle(Period(4))
+    cycle = Cycle(Modulus(4))
 
-    assert modulus * 0 % int() == 0
-    assert modulus * 1 % int() == 1
-    assert modulus * 2 % int() == 2
-    assert modulus * 3 % int() == 3
-    assert modulus * 4 % int() == 0
+    assert cycle * 0 % int() == 0
+    assert cycle * 1 % int() == 1
+    assert cycle * 2 % int() == 2
+    assert cycle * 3 % int() == 3
+    assert cycle * 4 % int() == 0
 
-    assert modulus @ 0 % int() == 0
-    assert modulus @ 1 % int() == 1
-    assert modulus @ 1 % int() == 2
-    assert modulus @ 1 % int() == 3
-    assert modulus @ 1 % int() == 0
+    assert cycle @ 0 % int() == 0
+    assert cycle @ 1 % int() == 1
+    assert cycle @ 1 % int() == 2
+    assert cycle @ 1 % int() == 3
+    assert cycle @ 1 % int() == 0
 
 # test_modulus()
 

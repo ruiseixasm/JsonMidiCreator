@@ -319,8 +319,8 @@ class Lambda(ChaosParameters):
     """`Rational -> ChaosParameters -> Lambda`"""
     pass
 
-class Period(ChaosParameters):
-    """`Rational -> ChaosParameters -> Period`"""
+class Modulus(ChaosParameters):
+    """`Rational -> ChaosParameters -> Modulus`"""
     pass
 
 

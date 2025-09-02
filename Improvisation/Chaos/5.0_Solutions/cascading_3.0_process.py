@@ -30,5 +30,5 @@ kick_snare = kick + snare + rest << TrackName("Kick & Snare")
 
 
 rhythm_solution = RS_Clip(kick_snare * 4, composition=open_hat * 4)
-moved_beats = rhythm_solution.process_parameterization(-10, Cycle(Period(8))**SinX(23), by_channel=True).solution()
+moved_beats = rhythm_solution.process_parameterization(-10, Cycle(Modulus(8))**SinX(23), by_channel=True).solution()
 
