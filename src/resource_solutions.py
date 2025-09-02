@@ -74,10 +74,9 @@ class RS_Solutions:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             # Each _n_button Call results in new choices
-            if isinstance(triggers, list):
-                measure_triggers: list = o.Operand.deep_copy(triggers)
-            else:
-                measure_triggers: list = o.list_spread(triggers, composition.len())
+            measure_triggers: list = triggers   # No need to copy, Chaos does the copy
+            if not isinstance(triggers, list):
+                measure_triggers = [triggers] * composition.len() # No need to copy
             choices: list = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             new_composition: oc.Composition = composition.empty_copy()
@@ -88,7 +87,7 @@ class RS_Solutions:
                 if measure_iterations >= 0:
                     if measure_iterations > 0:
                         if not isinstance(triggers, list):
-                            measure_triggers = o.list_spread(triggers, (composition * composition_measures).len())
+                            measure_triggers = [triggers] * (composition * composition_measures).len()
                         choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
                     new_composition *= iterator(choices, segmented_composition) * iteration_measures
                 else:   # Repeats previous measures unaltered
