@@ -83,17 +83,17 @@ class RS_Solutions:
             # Here is where each Measure is processed
             iteration_measures: list[int] = o.list_increment(self._measures)
             for iteration_i, measure_iterations in enumerate(self._iterations):
+                composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                 if measure_iterations >= 0:
                     if isinstance(triggers, list):
                         measure_triggers: list = triggers
                     else:
-                        measure_triggers: list = [triggers] * (composition * [iteration_i]).len()
+                        measure_triggers: list = [triggers] * (composition * composition_measures).len()
                     if measure_iterations > 0:
                         _choices = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= \
-                        iterator(_choices, iteration_i, composition) * iteration_measures
-                else:
-                    new_composition *= composition * o.list_add(iteration_measures, self._measures * iteration_i)
+                    new_composition *= iterator(_choices, iteration_i, composition) * iteration_measures
+                else:   # Repeats previous measures unaltered
+                    new_composition *= composition * composition_measures
             return new_composition
 
         # Where the seed is set
