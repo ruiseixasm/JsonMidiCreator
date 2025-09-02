@@ -77,21 +77,21 @@ class RS_Solutions:
 
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             nonlocal _choices
-            new_composition: oc.Composition = composition.empty_copy()
-            # Each iteration results in new choices
+            # Each _n_button Call results in new choices
             if isinstance(triggers, list):
-                measure_triggers: list = triggers
+                measure_triggers: list = o.Operand.deep_copy(triggers)
             else:
                 measure_triggers: list = o.list_spread(triggers, composition.len())
             _choices = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
+            new_composition: oc.Composition = composition.empty_copy()
             iteration_measures: list[int] = o.list_increment(self._measures)
             for iteration_i, measure_iterations in enumerate(self._iterations):
                 composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                 segmented_composition: oc.Composition = composition * composition_measures
                 if measure_iterations >= 0:
                     if isinstance(triggers, list):
-                        measure_triggers: list = triggers
+                        measure_triggers: list = o.Operand.deep_copy(triggers)
                     else:
                         measure_triggers: list = o.list_spread(triggers, (composition * composition_measures).len())
                     if measure_iterations > 0:
