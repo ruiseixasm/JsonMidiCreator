@@ -72,6 +72,11 @@ class Tamer(o.Operand):
             case _:             super().__pow__(operand)
         return self
 
+    # Operand ^= Tamer is taken care above
+    def __rxor__(self, operand: o.T) -> o.T:
+        return operand
+
+
 class Parallel(Tamer):
     """`Tamer -> Parallel`
 
