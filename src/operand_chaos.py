@@ -175,33 +175,60 @@ class Chaos(o.Operand):
     def __rxor__(self, operand: o.T) -> o.T:
         return operand
     
-    def iterate(self, times: int = 0) -> Self:
-        self._initiated = True
-        for _ in range(times):
-            # INSERT CODE HERE
-            self._index += 1    # keeps track of each iteration
-        return self
+
+    def iterate(self, numerical: Fraction, times: int = 0) -> tuple[Fraction, int]:
+        result: Fraction = numerical
+        iterations: int = 0
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        while not tamed and count_down > 0:
+            for _ in range(times):
+                ####################
+                # INSERT CODE HERE #
+                ####################
+                iterations += 1    # keeps track of each iteration
+            tamed = self.tame(result)
+            count_down -= 1
+        if count_down == 0 and not tamed:   # Failed tries
+            iterations = 0  # No valid iterations done
+        else:
+            self._xn._rational = result
+        return result, iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number ^= self # Extracts the Frame operand first
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
-            # Keep track of original data
-            starting_index: int = self._index
-            starting_numeral: Fraction = self % od.Pipe(Fraction())
-            tamed: bool = False
-            count_down: int = self._max_iterations
-            while not tamed and count_down > 0:
-                if isinstance(self._next_operand, Chaos):
-                    # iterations are done from tail left
-                    self <<= self._next_operand.iterate(total_iterations) % Fraction()
-                self.iterate(total_iterations)
-                tamed = self.tame(self % Fraction())
-                count_down -= 1
-            if count_down == 0 and not tamed:   # Failed tries
-                # Rollback to the original data
-                self._index = starting_index
-                self << od.Pipe(starting_numeral)
+            self_numeral: Fraction = self % od.Pipe(Fraction())
+            if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+                next_numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+                result, iterations = self._next_operand.iterate(next_numeral, total_iterations)
+                if iterations > 0:
+                    self_numeral = result # Has to be passed trough to self (the whole point of chaining)
+                    self._next_operand._index += iterations
+                    self._next_operand._initiated = True
+                else:
+                    return self # Failed try, remains unaltered
+            result, iterations = self.iterate(self_numeral, total_iterations)
+            if iterations > 0:
+                self._index += iterations
+                self._initiated = True
+
+            # # Keep track of original data
+            # starting_index: int = self._index
+            # tamed: bool = False
+            # count_down: int = self._max_iterations
+            # while not tamed and count_down > 0:
+            #     if isinstance(self._next_operand, Chaos):
+            #         # iterations are done from tail left
+            #         self <<= self._next_operand.iterate(total_iterations) % Fraction()
+            #     self.iterate(total_iterations)
+            #     tamed = self.tame(self % Fraction())
+            #     count_down -= 1
+            # if count_down == 0 and not tamed:   # Failed tries
+            #     # Rollback to the original data
+            #     self._index = starting_index
+            #     self << od.Pipe(starting_numeral)
         return self
     
     # self is the pusher
@@ -308,13 +335,31 @@ class Cycle(Chaos):
         self._xn << self._xn % Fraction() % self._modulus
         return self
 
-    def iterate(self, times: int = 0) -> Self:
-        self._initiated = True
-        for _ in range(times):
-            self._xn += self._steps
-            self._xn << self._xn % Fraction() % self._modulus
-            self._index += 1    # keeps track of each iteration
-        return self
+    def iterate(self, numerical: Fraction, times: int = 0) -> tuple[Fraction, int]:
+        result: Fraction = numerical
+        iterations: int = 0
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        while not tamed and count_down > 0:
+            for _ in range(times):
+                result += self._steps
+                result = result % self._modulus
+                iterations += 1    # keeps track of each iteration
+            tamed = self.tame(result)
+            count_down -= 1
+        if count_down == 0 and not tamed:   # Failed tries
+            iterations = 0  # No valid iterations done
+        else:
+            self._xn._rational = result
+        return result, iterations
+
+
+        # self._initiated = True
+        # for _ in range(times):
+        #     self._xn += self._steps
+        #     self._xn << self._xn % Fraction() % self._modulus
+        #     self._index += 1    # keeps track of each iteration
+        # return self
 
 
 class Flipper(Cycle):
@@ -565,20 +610,52 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
-    def iterate(self, times: int = 0) -> Self:
-        self._initiated = True
-        for _ in range(times):
-            for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
-                new_position = direction_data[0] + direction_data[1]
-                if new_position < 0:
-                    direction_data[1] << direction_data[1] * -1 # flips direction
-                    new_position = new_position * -1 % direction_data[2]
-                elif new_position >= direction_data[2]:
-                    direction_data[1] << direction_data[1] * -1 # flips direction
-                    new_position = direction_data[2] - new_position % direction_data[2]
-                direction_data[0] << new_position
-            self._index += 1    # keeps track of each iteration
-        return self
+    def iterate(self, numerical: Fraction, times: int = 0) -> tuple[Fraction, int]:
+        result: Fraction = numerical
+        iterations: int = 0
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        position_x: Fraction = self._xn._rational
+        position_y: Fraction = self._yn._rational
+        while not tamed and count_down > 0:
+            for _ in range(times):
+                for direction_data in [
+                            (position_x, self._dx._rational, self._width._rational),
+                            (position_y, self._dy._rational, self._height._rational)
+                        ]:
+                    new_position: Fraction = direction_data[0] + direction_data[1]
+                    if new_position < 0:
+                        direction_data[1] << direction_data[1] * -1 # flips direction
+                        new_position = new_position * -1 % direction_data[2]
+                    elif new_position >= direction_data[2]:
+                        direction_data[1] << direction_data[1] * -1 # flips direction
+                        new_position = direction_data[2] - new_position % direction_data[2]
+                    direction_data[0] = new_position
+                iterations += 1    # keeps track of each iteration
+            result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
+            tamed = self.tame(result)
+            count_down -= 1
+        if count_down == 0 and not tamed:   # Failed tries
+            iterations = 0  # No valid iterations done
+        else:
+            self._xn._rational = position_x
+            self._yn._rational = position_y
+        return result, iterations
+
+    # def iterate(self, times: int = 0) -> Self:
+    #     self._initiated = True
+    #     for _ in range(times):
+    #         for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
+    #             new_position = direction_data[0] + direction_data[1]
+    #             if new_position < 0:
+    #                 direction_data[1] << direction_data[1] * -1 # flips direction
+    #                 new_position = new_position * -1 % direction_data[2]
+    #             elif new_position >= direction_data[2]:
+    #                 direction_data[1] << direction_data[1] * -1 # flips direction
+    #                 new_position = direction_data[2] - new_position % direction_data[2]
+    #             direction_data[0] << new_position
+    #         self._index += 1    # keeps track of each iteration
+    #     return self
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
@@ -655,11 +732,28 @@ class SinX(Chaos):
                 super().__lshift__(operand)
         return self
 
-    def iterate(self, times: int = 0) -> Self:
-        self._initiated = True
-        for _ in range(times):
-            self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-            self._index += 1    # keeps track of each iteration
-        return self
+    def iterate(self, numerical: Fraction, times: int = 0) -> tuple[Fraction, int]:
+        result: Fraction = numerical
+        iterations: int = 0
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        while not tamed and count_down > 0:
+            for _ in range(times):
+                result = ra.Result(float(result) + float(self._lambda._rational) * math.sin(float(result)))._rational
+                iterations += 1    # keeps track of each iteration
+            tamed = self.tame(result)
+            count_down -= 1
+        if count_down == 0 and not tamed:   # Failed tries
+            iterations = 0  # No valid iterations done
+        else:
+            self._xn._rational = result
+        return result, iterations
+
+    # def iterate(self, times: int = 0) -> Self:
+    #     self._initiated = True
+    #     for _ in range(times):
+    #         self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
+    #         self._index += 1    # keeps track of each iteration
+    #     return self
 
 
