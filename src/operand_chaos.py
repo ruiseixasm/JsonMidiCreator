@@ -213,22 +213,6 @@ class Chaos(o.Operand):
             if iterations > 0:
                 self._index += iterations
                 self._initiated = True
-
-            # # Keep track of original data
-            # starting_index: int = self._index
-            # tamed: bool = False
-            # count_down: int = self._max_iterations
-            # while not tamed and count_down > 0:
-            #     if isinstance(self._next_operand, Chaos):
-            #         # iterations are done from tail left
-            #         self <<= self._next_operand.iterate(total_iterations) % Fraction()
-            #     self.iterate(total_iterations)
-            #     tamed = self.tame(self % Fraction())
-            #     count_down -= 1
-            # if count_down == 0 and not tamed:   # Failed tries
-            #     # Rollback to the original data
-            #     self._index = starting_index
-            #     self << od.Pipe(starting_numeral)
         return self
     
     # self is the pusher
@@ -352,14 +336,6 @@ class Cycle(Chaos):
         else:
             self._xn._rational = result
         return result, iterations
-
-
-        # self._initiated = True
-        # for _ in range(times):
-        #     self._xn += self._steps
-        #     self._xn << self._xn % Fraction() % self._modulus
-        #     self._index += 1    # keeps track of each iteration
-        # return self
 
 
 class Flipper(Cycle):
@@ -620,8 +596,8 @@ class Bouncer(Chaos):
         while not tamed and count_down > 0:
             for _ in range(times):
                 for direction_data in [
-                            (position_x, self._dx._rational, self._width._rational),
-                            (position_y, self._dy._rational, self._height._rational)
+                            [position_x, self._dx._rational, self._width._rational],
+                            [position_y, self._dy._rational, self._height._rational]
                         ]:
                     new_position: Fraction = direction_data[0] + direction_data[1]
                     if new_position < 0:
@@ -641,21 +617,6 @@ class Bouncer(Chaos):
             self._xn._rational = position_x
             self._yn._rational = position_y
         return result, iterations
-
-    # def iterate(self, times: int = 0) -> Self:
-    #     self._initiated = True
-    #     for _ in range(times):
-    #         for direction_data in [(self._xn, self._dx, self._width), (self._yn, self._dy, self._height)]:
-    #             new_position = direction_data[0] + direction_data[1]
-    #             if new_position < 0:
-    #                 direction_data[1] << direction_data[1] * -1 # flips direction
-    #                 new_position = new_position * -1 % direction_data[2]
-    #             elif new_position >= direction_data[2]:
-    #                 direction_data[1] << direction_data[1] * -1 # flips direction
-    #                 new_position = direction_data[2] - new_position % direction_data[2]
-    #             direction_data[0] << new_position
-    #         self._index += 1    # keeps track of each iteration
-    #     return self
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
@@ -748,12 +709,4 @@ class SinX(Chaos):
         else:
             self._xn._rational = result
         return result, iterations
-
-    # def iterate(self, times: int = 0) -> Self:
-    #     self._initiated = True
-    #     for _ in range(times):
-    #         self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-    #         self._index += 1    # keeps track of each iteration
-    #     return self
-
 
