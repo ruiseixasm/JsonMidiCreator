@@ -186,6 +186,9 @@ class Chaos(o.Operand):
         number ^= self # Extracts the Frame operand first
         total_iterations = self.number_to_int(number)
         if total_iterations > 0:
+            # Keep track of original data
+            starting_index: int = self._index
+            starting_numeral: Fraction = self % od.Pipe(Fraction())
             tamed: bool = False
             count_down: int = self._max_iterations
             while not tamed and count_down > 0:
@@ -195,6 +198,10 @@ class Chaos(o.Operand):
                 self.iterate(total_iterations)
                 tamed = self.tame(self % Fraction())
                 count_down -= 1
+            if count_down == 0 and not tamed:   # Failed tries
+                # Rollback to the original data
+                self._index = starting_index
+                self << od.Pipe(starting_numeral)
         return self
     
     # self is the pusher
