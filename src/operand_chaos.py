@@ -193,7 +193,7 @@ class Chaos(o.Operand):
             count_down: int = self._max_iterations
             while not tamed and count_down > 0:
                 if isinstance(self._next_operand, Chaos):
-                    # iterations are only done on tailed Chaos operands
+                    # iterations are done from tail left
                     self <<= self._next_operand.iterate(total_iterations) % Fraction()
                 self.iterate(total_iterations)
                 tamed = self.tame(self % Fraction())
