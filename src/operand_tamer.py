@@ -594,23 +594,11 @@ class Manipulator(Tamer):
 
     Parameters
     ----------
-    None
-    """
-    # A `Manipulator` shall always be triggered regardless of being previously validated or not
-    pass
-
-class Limit(Manipulator):
-    """`Tamer -> Manipulator -> Limit`
-
-    A `Limit` manipulates a given value accordingly to an imposed limit.
-
-    Parameters
-    ----------
-    Fraction(8) : Sets the limit value.
+    Fraction(8) : Sets the respective numeral.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._limit: Fraction = Fraction(8)
+        self._numeral: Fraction = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -621,27 +609,27 @@ class Limit(Manipulator):
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
-                    case Fraction():            return self._limit
+                    case Fraction():            return self._numeral
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case Fraction():            return self._limit
-            case int():                 return int(self._limit)
-            case float():               return float(self._limit)
+            case Fraction():            return self._numeral
+            case int():                 return int(self._numeral)
+            case float():               return float(self._numeral)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["limit"] = self.serialize( self._limit )
+        serialization["parameters"]["numeral"] = self.serialize( self._numeral )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "limit" in serialization["parameters"]):
+            "numeral" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._limit = self.deserialize( serialization["parameters"]["limit"] )
+            self._numeral = self.deserialize( serialization["parameters"]["numeral"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -649,27 +637,28 @@ class Limit(Manipulator):
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._limit = operand._limit
+                self._numeral = operand._numeral
             case od.Pipe():
                 match operand._data:
-                    case Fraction():                self._limit = operand._data
+                    case Fraction():                self._numeral = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
-                self._limit = ra.Result(operand)._rational
+                self._numeral = ra.Result(operand)._rational
         return self
 
-class Modulo(Limit):
-    """`Tamer -> Manipulator -> Limit -> Modulo`
+class Modulo(Manipulator):
+    """`Tamer -> Manipulator -> Modulo`
 
     This `Modulo` does the module by a given value.
 
     Parameters
     ----------
-    Fraction(8) : Sets the limit value.
+    Fraction(8) : Sets the respective `Modulus`.
     """
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational, iterate)
-        rational %= self._limit
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        rational %= self._numeral
         return rational, validation
     
