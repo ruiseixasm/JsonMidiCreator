@@ -545,7 +545,7 @@ class Limit(Manipulator):
 
     Parameters
     ----------
-    Fraction(8) : Sets the Module to be done on the inputted rational.
+    Fraction(8) : Sets the limit value.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -605,7 +605,7 @@ class Modulo(Limit):
 
     Parameters
     ----------
-    Fraction(8) : Sets the Module to be done on the inputted rational.
+    Fraction(8) : Sets the limit value.
     """
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational, iterate)
@@ -619,7 +619,7 @@ class Maximum(Limit):
 
     Parameters
     ----------
-    Fraction(127) : Sets the Module to be done on the inputted rational.
+    Fraction(127) : Sets the limit value.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -630,5 +630,25 @@ class Maximum(Limit):
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational, iterate)
         rational = min(self._limit, rational)
+        return rational, validation
+
+class Minimum(Limit):
+    """`Tamer -> Manipulator -> Limit -> Minimum`
+
+    This `Minimum` limits a given Result to a minimum, equal or above it.
+
+    Parameters
+    ----------
+    Fraction(0) : Sets the limit value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._limit: Fraction = Fraction(0)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational, iterate)
+        rational = max(self._limit, rational)
         return rational, validation
     
