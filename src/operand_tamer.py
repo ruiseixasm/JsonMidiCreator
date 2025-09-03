@@ -39,43 +39,12 @@ class Tamer(o.Operand):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
-    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
-    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    None
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._next_operand: Tamer = None
-        self._enabled_indexes: list[float | int] = []
-        self._strictness: Fraction = Fraction(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def enabled(self) -> bool:
-        """Returns True if current index is within enabled range."""
-        if all(isinstance(index, float) for index in self._enabled_indexes):
-            indexes_len: int = len(self._enabled_indexes)
-            match indexes_len:
-                case 1:
-                    return self._index >= self._enabled_indexes[0]
-                case 2:
-                    return self._index < self._enabled_indexes[1] \
-                    and self._index >= self._enabled_indexes[0]
-        elif all(isinstance(index, int) for index in self._enabled_indexes):
-            return self._index in self._enabled_indexes
-        return True
-    
     def from_tail(self) -> int:
         if self._next_operand is None:
             return 1
         return self._next_operand.from_tail() + 1
-
-    def slack(self, rational: Fraction) -> bool:
-        """Returns True to skip the respective tamer, meaning, gives some slack."""
-        return rational * self.from_tail() % Fraction(1) > self._strictness
 
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
@@ -86,68 +55,11 @@ class Tamer(o.Operand):
             self.next(rational)
         return rational, True
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case self.__class__():
-                return self.copy()
-            case od.Pipe():
-                match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
-                    case list():                return self._enabled_indexes
-                    case ra.Strictness():       return operand._data << od.Pipe(self._strictness)
-                    case Fraction():            return self._strictness
-                    case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
-            case list():                return self._enabled_indexes.copy()
-            case ra.Strictness():       return operand.copy(od.Pipe(self._strictness))
-            case Fraction():            return self._strictness
-            case _:                     return super().__mod__(operand)
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["enabled_indexes"]  = self.serialize( self._enabled_indexes )
-        serialization["parameters"]["strictness"]       = self.serialize( self._strictness )
-        return serialization
-
     # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled_indexes" in serialization["parameters"] and "strictness" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._enabled_indexes   = self.deserialize( serialization["parameters"]["enabled_indexes"] )
-            self._strictness        = self.deserialize( serialization["parameters"]["strictness"] )
-        return self
-        
-    def __lshift__(self, operand: any) -> Self:
-        operand ^= self    # Processes the Frame operand if any exists
-        match operand:
-            case Tamer():
-                super().__lshift__(operand)
-                self._enabled_indexes   = operand._enabled_indexes.copy()
-                self._strictness        = operand._strictness
-            case od.Pipe():
-                match operand._data:
-                    case list():
-                        self._enabled_indexes = operand._data
-                    case ra.Strictness():
-                        self._strictness = operand._data._rational
-                    case Fraction():
-                        self._strictness = operand._data
-            case list():
-                self._enabled_indexes = operand.copy()
-            case ra.Strictness():
-                self._strictness = operand._rational
-            case Fraction():
-                self._strictness = operand
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        if self._next_operand is not None:
+        if isinstance(self._next_operand, Tamer):
             self._next_operand.next(rational)
         self._index += 1
         return self
@@ -279,7 +191,90 @@ class Validator(Tamer):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__()
+        self._enabled_indexes: list[float | int] = []
+        self._strictness: Fraction = Fraction(1)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def enabled(self) -> bool:
+        """Returns True if current index is within enabled range."""
+        if all(isinstance(index, float) for index in self._enabled_indexes):
+            indexes_len: int = len(self._enabled_indexes)
+            match indexes_len:
+                case 1:
+                    return self._index >= self._enabled_indexes[0]
+                case 2:
+                    return self._index < self._enabled_indexes[1] \
+                    and self._index >= self._enabled_indexes[0]
+        elif all(isinstance(index, int) for index in self._enabled_indexes):
+            return self._index in self._enabled_indexes
+        return True
+    
+    def slack(self, rational: Fraction) -> bool:
+        """Returns True to skip the respective tamer, meaning, gives some slack."""
+        return rational * self.from_tail() % Fraction(1) > self._strictness
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case list():                return self._enabled_indexes
+                    case ra.Strictness():       return operand._data << od.Pipe(self._strictness)
+                    case Fraction():            return self._strictness
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case list():                return self._enabled_indexes.copy()
+            case ra.Strictness():       return operand.copy(od.Pipe(self._strictness))
+            case Fraction():            return self._strictness
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["enabled_indexes"]  = self.serialize( self._enabled_indexes )
+        serialization["parameters"]["strictness"]       = self.serialize( self._strictness )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "enabled_indexes" in serialization["parameters"] and "strictness" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._enabled_indexes   = self.deserialize( serialization["parameters"]["enabled_indexes"] )
+            self._strictness        = self.deserialize( serialization["parameters"]["strictness"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Tamer():
+                super().__lshift__(operand)
+                self._enabled_indexes   = operand._enabled_indexes.copy()
+                self._strictness        = operand._strictness
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._enabled_indexes = operand._data
+                    case ra.Strictness():
+                        self._strictness = operand._data._rational
+                    case Fraction():
+                        self._strictness = operand._data
+            case list():
+                self._enabled_indexes = operand.copy()
+            case ra.Strictness():
+                self._strictness = operand._rational
+            case Fraction():
+                self._strictness = operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
@@ -538,13 +533,9 @@ class Manipulator(Tamer):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
-    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
-    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    None
     """
+    # A `Manipulator` shall always be triggered regardless of being previously validated or not
     pass
 
 class Limit(Manipulator):
@@ -554,12 +545,6 @@ class Limit(Manipulator):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
-    Strictness(1) : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
-    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(8) : Sets the Module to be done on the inputted rational.
     """
     def __init__(self, *parameters):
@@ -620,20 +605,30 @@ class Modulo(Limit):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
-    Strictness(1) : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
-    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(8) : Sets the Module to be done on the inputted rational.
     """
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validation = super().tame(rational)
-        if validation:
-            if self.enabled() and not self.slack(rational):
-                rational %= self._limit
-            if iterate:
-                self.next(rational)
+        rational, validation = super().tame(rational, iterate)
+        rational %= self._limit
+        return rational, validation
+    
+class Maximum(Limit):
+    """`Tamer -> Manipulator -> Limit -> Maximum`
+
+    This `Maximum` limits a given Result to a maximum, equal or below it.
+
+    Parameters
+    ----------
+    Fraction(127) : Sets the Module to be done on the inputted rational.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._limit: Fraction = Fraction(127)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational, iterate)
+        rational = min(self._limit, rational)
         return rational, validation
     
