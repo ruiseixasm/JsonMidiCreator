@@ -51,7 +51,9 @@ class Tamer(o.Operand):
             rational, validation = self._next_operand.tame(rational)
             if not validation:
                 return rational, False    # Breaks the chain
-        if iterate:
+            if validation and iterate:
+                self.next(rational)
+        elif iterate:
             self.next(rational)
         return rational, True
 
@@ -248,6 +250,124 @@ class Validator(Tamer):
         return self
 
 
+class Boundary(Validator):
+    """`Tamer -> Validator -> Boundary`
+
+    A `Boundary` manipulates a given value accordingly to an imposed limit.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(8) : Sets the limit value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._boundary: Fraction = Fraction(8)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case Fraction():            return self._boundary
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % operand
+            case Fraction():            return self._boundary
+            case int():                 return int(self._boundary)
+            case float():               return float(self._boundary)
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["boundary"] = self.serialize( self._boundary )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "boundary" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._boundary = self.deserialize( serialization["parameters"]["boundary"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._boundary = operand._boundary
+            case od.Pipe():
+                match operand._data:
+                    case Fraction():                self._boundary = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int() | float() | Fraction():
+                self._boundary = ra.Result(operand)._rational
+        return self
+
+
+class Maximum(Boundary):
+    """`Tamer -> Validator -> Boundary -> Maximum`
+
+    This `Maximum` limits a given Result to a maximum, equal or below it.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(127) : Sets the boundary value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._boundary: Fraction = Fraction(127)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational):
+                if rational > self._boundary:
+                    return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+
+class Minimum(Boundary):
+    """`Tamer -> Validator -> Boundary -> Minimum`
+
+    This `Minimum` limits a given Result to a minimum, equal or above it.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(0) : Sets the boundary value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._boundary: Fraction = Fraction(0)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational):
+                if rational < self._boundary:
+                    return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+    
+
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
 
@@ -256,9 +376,6 @@ class Motion(Validator):
 
     Parameters
     ----------
-    list([]) : A list of integers that set the `Tamer` enabled range of iterations (indexes), like, \
-    `[2]` to enable the Tamer at the 2nd iteration or `[0, 2]` to enable the first 2 iterations. The default \
-    of `[]` means always enabled.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -328,10 +445,6 @@ class Conjunct(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -353,10 +466,6 @@ class Stepwise(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -378,10 +487,6 @@ class Skipwise(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -403,10 +508,6 @@ class Disjunct(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -428,10 +529,6 @@ class Leaping(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -453,10 +550,6 @@ class Ascending(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -478,10 +571,6 @@ class Descending(Motion):
 
     Parameters
     ----------
-    list([]) : A list of floats or integer that set the `Tamer` enabled range of iterations (indexes), for floats, \
-    `[2.0]` to enable the Tamer at the 2nd iteration onwards or `[0.0, 2.0]` to enable the first 2 iterations, while for integers, \
-    the list of integers represent the enabled indexes, like, `[0, 3, 7]` means, enabled for indexes 0, 3 and 7. \
-    The default of `[]` means always enabled for any index.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
@@ -582,45 +671,5 @@ class Modulo(Limit):
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational, iterate)
         rational %= self._limit
-        return rational, validation
-    
-class Maximum(Limit):
-    """`Tamer -> Manipulator -> Limit -> Maximum`
-
-    This `Maximum` limits a given Result to a maximum, equal or below it.
-
-    Parameters
-    ----------
-    Fraction(127) : Sets the limit value.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._limit: Fraction = Fraction(127)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validation = super().tame(rational, iterate)
-        rational = min(self._limit, rational)
-        return rational, validation
-
-class Minimum(Limit):
-    """`Tamer -> Manipulator -> Limit -> Minimum`
-
-    This `Minimum` limits a given Result to a minimum, equal or above it.
-
-    Parameters
-    ----------
-    Fraction(0) : Sets the limit value.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._limit: Fraction = Fraction(0)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validation = super().tame(rational, iterate)
-        rational = max(self._limit, rational)
         return rational, validation
     
