@@ -66,7 +66,12 @@ class Tamer(o.Operand):
         self._index += 1
         return self
         
-        
+    def __pow__(self, operand: 'o.Operand') -> Self:
+        match operand:
+            case Tamer():       self._next_operand = operand
+            case _:             super().__pow__(operand)
+        return self
+
 class Parallel(Tamer):
     """`Tamer -> Parallel`
 
