@@ -41,6 +41,20 @@ class RO_Operands:
 
 
 class RO_Clips(RO_Operands):
-    pass
+    
+    def multi(notes: int = 6, rests: int = 1, triplets: int = 1, triads: int = 1) -> 'oc.Clip':
+        multi_clip: oc.Clip = oc.Clip()
+        for _ in range(notes):
+            multi_clip /= oe.Note()
+        for _ in range(rests):
+            multi_clip /= oe.Rest()
+        for _ in range(triplets):
+            multi_clip /= oe.Triplet()
+        for _ in range(triads):
+            multi_clip /= oe.Cluster()
+        return multi_clip
 
+
+class RO_Lists(RO_Operands):
+    pass
 
