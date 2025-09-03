@@ -365,9 +365,30 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Process Parameterization "
+            title = "Process Parameterization"
     
         return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+
+
+    def set_parameter(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
+            parameter: any = ou.Velocity(),
+            by_channel: bool = False,
+            title: str | None = None) -> Self:
+        """
+        Applies a given parameter with the given chaos.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                for single_element, single_result in zip(segmented_composition, results):
+                    single_element << single_result
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Set Parameter"
+    
+        return self.iterate(iterations, _iterator, chaos, parameter, by_channel, title)
 
 
 class RS_Part(RS_Solutions):
