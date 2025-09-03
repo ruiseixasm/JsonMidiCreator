@@ -29,6 +29,7 @@ from operand_element import *
 from operand_tamer import *
 from operand_chaos import *
 from resource_devices import *
+from resource_operands import *
 from resource_solutions import *
 from resource_presets import *
 
