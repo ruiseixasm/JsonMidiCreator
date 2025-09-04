@@ -254,11 +254,73 @@ class Validator(Tamer):
                 super().__lshift__(operand)
         return self
 
+class Check(Validator):
+    """`Tamer -> Validator -> Check`
+
+    A `Check` manipulates a given value accordingly to an imposed limit.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Fraction(8) : Sets the limit value.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._checker: Callable = lambda: True
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational) and not self._checker(rational):
+                return rational, False  # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                if isinstance(operand._data, Callable):
+                    return self._checker
+                else:
+                    return super().__mod__(operand)
+            case _:
+                if isinstance(operand, Callable):
+                    return self._checker
+                else:
+                    return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._checker = operand._checker
+            case od.Pipe():
+                if isinstance(operand._data, Callable):
+                    self._checker = operand._data
+                else:
+                    super().__lshift__(operand)
+            case _:
+                if isinstance(operand, Callable):
+                    self._checker = operand
+                else:
+                    super().__lshift__(operand)
+        return self
+
+
 
 class Boundary(Validator):
     """`Tamer -> Validator -> Boundary`
 
-    A `Boundary` manipulates a given value accordingly to an imposed limit.
+    A `Boundary` verifies a given value accordingly to an imposed limit.
 
     Parameters
     ----------
