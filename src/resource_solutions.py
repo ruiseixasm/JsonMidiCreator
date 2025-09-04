@@ -336,13 +336,15 @@ class RS_Clip(RS_Solutions):
                     # Swap elements
                     first_pick: int = results[0] % clip_len
                     second_pick: int = results[1] % clip_len
-                    first_element: oe.Element = segmented_composition._items[first_pick]
-                    segmented_composition._items[first_pick] = segmented_composition._items[second_pick]
-                    segmented_composition._items[second_pick] = first_element
+                    first_element: oe.Element = segmented_composition[first_pick]
+                    second_element: oe.Element = segmented_composition[second_pick]
+                    dummy_element: oe.Element = oe.Element()    # For a different id
+                    segmented_composition[first_pick] = dummy_element
+                    segmented_composition[second_pick] = first_element
+                    segmented_composition[first_pick] = second_element
                     # Replaces the respective locus
                     for locus, element in zip(loci, segmented_composition):
                         element << locus
-                    segmented_composition._base_container._sort_items() # Needed for the case of being a Mask
             return segmented_composition
 
         if not isinstance(title, str):
