@@ -450,31 +450,25 @@ class Prior(Validator):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["last_number"] = self.serialize( self._prior_rational )
+        serialization["parameters"]["prior"] = self.serialize( self._prior_rational )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "last_number" in serialization["parameters"]):
+            "prior" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._prior_rational = self.deserialize( serialization["parameters"]["last_number"] )
+            self._prior_rational = self.deserialize( serialization["parameters"]["prior"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
         operand ^= self    # Processes the Frame operand if any exists
         match operand:
-            case Motion():
+            case self.__class__():
                 super().__lshift__(operand)
-                self._prior_rational = operand._last_integer
-            case od.Pipe():
-                match operand._data:
-                    case int():
-                        self._prior_rational = operand._data
-            case int():
-                self._prior_rational = operand
+                self._prior_rational = operand._prior_rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -485,9 +479,46 @@ class Prior(Validator):
     
     def next(self, rational: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._prior_rational = int(rational)
+        self._prior_rational = rational
         return super().next(rational)
-        
+
+class Different(Prior):
+    """`Tamer -> Validator -> Prior -> Different`
+
+    A `Different` tamer validates if the new `Rational` is different form the prior one.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational) and self._prior_rational == rational:
+                return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+    
+class Same(Prior):
+    """`Tamer -> Validator -> Prior -> Same`
+
+    A `Same` tamer validates if the new `Rational` is equal to the prior one.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational) and self._prior_rational is not None and self._prior_rational != rational:
+                return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
     
 
 class Motion(Validator):
@@ -768,7 +799,7 @@ class Modulo(Manipulator):
 
     Parameters
     ----------
-    Fraction(8) : Sets the respective `Modulus`.
+    Fraction(8), int, float : Sets the respective `Modulus`.
     """
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational, iterate)

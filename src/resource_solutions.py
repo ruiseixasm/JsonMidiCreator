@@ -322,7 +322,7 @@ class RS_Clip(RS_Solutions):
 
     def move_around(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(25),
+            chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
