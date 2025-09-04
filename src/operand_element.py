@@ -891,7 +891,7 @@ class Rest(Element):
             return []
 
         if channels is not None:
-            channels["note"].add(self._channel_0)
+            channels["note"].add(0)
 
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -908,7 +908,7 @@ class Rest(Element):
                     "position_off": position_off,
                     "pitch": 60,        # Middle C
                     "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": self._channel_0,
+                    "channel": 0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
