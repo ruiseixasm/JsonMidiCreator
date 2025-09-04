@@ -175,10 +175,12 @@ class Container(o.Operand):
         for index, item in enumerate(self._items):
             if left_item is item:
                 left_index = index
+                break
         right_index: int = None
         for index, item in enumerate(self._items):
             if right_item is item:
                 right_index = index
+                break
         if left_index and right_index:
             temp_item: Any = self._items[right_index]
             self._items[right_index] = self._items[left_index]
