@@ -959,48 +959,6 @@ class DeviceElement(Element):
             case ou.Disable():      return ou.Disable(not self._enabled)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case Element():
-                return self._position_beats == other._position_beats \
-                    and self._duration_beats == other._duration_beats \
-                    and self._channel_0 == other._channel_0
-            case og.Segment():
-                return other == self % ra.Position()
-            case od.Conditional():
-                return other == self
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
-                if type(other) == ol.Null:
-                    return False    # Makes sure ol.Null ends up processed as False
-                return self % other == other
-
-    def __lt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case Element():
-                if self._position_beats == other._position_beats:
-                    if self._duration_beats == other._duration_beats:
-                        return self._channel_0 < other._channel_0
-                    return self._duration_beats > other._duration_beats # Longer duration comes first
-                return self._position_beats < other._position_beats
-            case _:
-                return self % other < other
-    
-    def __gt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
-        match other:
-            case Element():
-                if self._position_beats == other._position_beats:
-                    if self._duration_beats == other._duration_beats:
-                        return self._channel_0 > other._channel_0
-                    return self._duration_beats < other._duration_beats # Longer duration comes first
-                return self._position_beats > other._position_beats
-            case _:
-                return self % other > other
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
