@@ -1396,7 +1396,7 @@ class ChannelElement(DeviceElement):
 
 
 class Note(ChannelElement):
-    """`Element -> Note`
+    """`Element -> DeviceElement -> ChannelElement -> Note`
 
     A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
 
@@ -1778,7 +1778,7 @@ class Note(ChannelElement):
             
 
 class KeyScale(Note):
-    """`Element -> Note -> KeyScale`
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
 
     A `KeyScale` element allows the triggering of all notes concerning a specific `Scale`.
 
@@ -1926,7 +1926,7 @@ class KeyScale(Note):
 
 
 class Cluster(KeyScale):
-    """`Element -> Note -> KeyScale -> Cluster`
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Cluster`
 
     A `Cluster` element allows the triggering of notes concerning specific degrees of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
@@ -2018,7 +2018,7 @@ class Cluster(KeyScale):
         return self
 
 class Chord(KeyScale):
-    """`Element -> Note -> KeyScale -> Chord`
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord`
 
     A `Chord` element allows the triggering of notes belonging to a specific `Scale`.
 
@@ -2228,7 +2228,7 @@ class Chord(KeyScale):
         self._sus4          = ou.Sus4(od.Pipe( self._sus4 ), data).__mod__(od.Pipe( bool() ))
 
 class Retrigger(Note):
-    """`Element -> Note -> Retrigger`
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Retrigger`
 
     A `Retrigger` element allows the repeated triggering of a `Note`.
 
@@ -2378,7 +2378,7 @@ class Retrigger(Note):
         return self
 
 class Triplet(Retrigger):
-    """`Element -> Note -> Retrigger -> Triplet`
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Retrigger -> Triplet`
 
     A `Triplet` is the repetition of a given Note three times on a row Triplets have each \
         Note Duration set to the following Values:
@@ -2426,7 +2426,7 @@ class Triplet(Retrigger):
         return self
 
 class Tuplet(ChannelElement):
-    """`Element -> Tuplet`
+    """`Element -> DeviceElement -> ChannelElement -> Tuplet`
 
     A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Count` of a `Retrigger`.
 
@@ -2597,7 +2597,7 @@ class Tuplet(ChannelElement):
 
 
 class Automation(ChannelElement):
-    """`Element -> Automation`
+    """`Element -> DeviceElement -> ChannelElement -> Automation`
 
     An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
 
@@ -2782,7 +2782,7 @@ class Automation(ChannelElement):
 
 
 class ControlChange(Automation):
-    """`Element -> Automation -> ControlChange`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange`
 
     A `ControlChange` is an element that represents the CC midi messages of a Device.
 
@@ -3022,7 +3022,7 @@ class ControlChange(Automation):
         return self
 
 class BankSelect(ControlChange):
-    """`Element -> Automation -> ControlChange -> BankSelect`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> BankSelect`
 
     A `BankSelect` is a specific CC message that is used to select a Bank of presents.
 
@@ -3095,7 +3095,7 @@ class BankSelect(ControlChange):
 #   all other values set a specific number of channels, beginning with the current basic channel.
 
 class ValueZero(ControlChange):
-    """`Element -> Automation -> ControlChange -> ValueZero`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero`
 
     A `ValueZero` is a specific CC message that has a `Value` of 0.
 
@@ -3129,7 +3129,7 @@ class ValueZero(ControlChange):
         return self
 
 class ResetAllControllers(ValueZero):
-    """`Element -> Automation -> ControlChange -> ValueZero -> ResetAllControllers`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> ResetAllControllers`
 
     A `ResetAllControllers` is a specific CC message that results in a Device resting all its controller to their defaults.
 
@@ -3157,7 +3157,7 @@ class ResetAllControllers(ValueZero):
         return self
 
 class LocalControl(ControlChange):
-    """`Element -> Automation -> ControlChange -> LocalControl`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> LocalControl`
 
     A `LocalControl` is a specific CC message that sets the Device Local control On or Off with 1 or 0 respectively.
 
@@ -3185,7 +3185,7 @@ class LocalControl(ControlChange):
         return self
 
 class AllNotesOff(ValueZero):
-    """`Element -> Automation -> ControlChange -> ValueZero -> AllNotesOff`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> AllNotesOff`
 
     A `AllNotesOff` is a specific CC message that results in all notes being turned Off in the Device.
 
@@ -3213,7 +3213,7 @@ class AllNotesOff(ValueZero):
         return self
 
 class OmniModeOff(ValueZero):
-    """`Element -> Automation -> ControlChange -> ValueZero -> OmniModeOff`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> OmniModeOff`
 
     A `OmniModeOff` is a specific CC message that results in turning Off the Device Omni Mode.
 
@@ -3241,7 +3241,7 @@ class OmniModeOff(ValueZero):
         return self
 
 class OmniModeOn(ValueZero):
-    """`Element -> Automation -> ControlChange -> ValueZero -> OmniModeOn`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> OmniModeOn`
 
     A `OmniModeOn` is a specific CC message that results in turning On the Device Omni Mode.
 
@@ -3269,7 +3269,7 @@ class OmniModeOn(ValueZero):
         return self
 
 class MonoMode(ControlChange):
-    """`Element -> Automation -> ControlChange -> MonoMode`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> MonoMode`
 
     A `MonoMode` is a specific CC message that results in setting the Device Mono Mode.
 
@@ -3298,7 +3298,7 @@ class MonoMode(ControlChange):
         return self
 
 class PolyModeOn(ValueZero):
-    """`Element -> Automation -> ControlChange -> ValueZero -> PolyModeOn`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> PolyModeOn`
 
     A `PolyModeOn` is a specific CC message that results in turning On the Device Poly Mode.
 
@@ -3327,7 +3327,7 @@ class PolyModeOn(ValueZero):
 
 
 class PitchBend(Automation):
-    """`Element -> Automation -> PitchBend`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> PitchBend`
 
     A `PitchBend` is an element that controls the Device Pitch Bend wheel.
 
@@ -3524,7 +3524,7 @@ class PitchBend(Automation):
 
 
 class Aftertouch(Automation):
-    """`Element -> Automation -> Aftertouch`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> Aftertouch`
 
     An `Aftertouch` is an element that controls the pressure on all keys being played.
 
@@ -3677,7 +3677,7 @@ class Aftertouch(Automation):
                 return super().__isub__(operand)
 
 class PolyAftertouch(Aftertouch):
-    """`Element -> Automation -> PolyAftertouch`
+    """`Element -> DeviceElement -> ChannelElement -> Automation -> PolyAftertouch`
 
     A `PolyAftertouch` is an element that controls the pressure on a particular key `Pitch` being played.
 
@@ -3804,7 +3804,7 @@ class PolyAftertouch(Aftertouch):
         return self
 
 class ProgramChange(ChannelElement):
-    """`Element -> ProgramChange`
+    """`Element -> DeviceElement -> ChannelElement -> ProgramChange`
 
     A `ProgramChange` is an element that selects the Device program or preset.
 
