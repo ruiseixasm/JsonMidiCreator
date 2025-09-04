@@ -919,7 +919,126 @@ class Rest(Element):
 
 
 class DeviceElement(Element):
-    pass
+    """`Element`
+
+    Element represents a type of midi message, like, `Note` and `ControlChange`.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._enabled: bool                 = True
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Duration, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> element = Element()
+        >>> element % Devices() % list() >> Print()
+        ['loopMIDI', 'Microsoft']
+        """
+        import operand_container as oc
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ou.Enable():       return ou.Enable(self._enabled)
+                    case _:                 return super().__mod__(operand)
+            case ou.Enable():       return ou.Enable(self._enabled)
+            case ou.Disable():      return ou.Disable(not self._enabled)
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                return self._position_beats == other._position_beats \
+                    and self._duration_beats == other._duration_beats \
+                    and self._channel_0 == other._channel_0
+            case og.Segment():
+                return other == self % ra.Position()
+            case od.Conditional():
+                return other == self
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+                if type(other) == ol.Null:
+                    return False    # Makes sure ol.Null ends up processed as False
+                return self % other == other
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel_0 < other._channel_0
+                    return self._duration_beats > other._duration_beats # Longer duration comes first
+                return self._position_beats < other._position_beats
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel_0 > other._channel_0
+                    return self._duration_beats < other._duration_beats # Longer duration comes first
+                return self._position_beats > other._position_beats
+            case _:
+                return self % other > other
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "enabled" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._enabled = self.deserialize(serialization["parameters"]["enabled"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._enabled               = operand._enabled
+            case od.Pipe():
+                match operand._data:
+                    case ou.Enable():
+                        self._enabled               = operand._data._unit != 0
+                    case ou.Disable():
+                        self._enabled               = operand._data._unit == 0
+                    case _:
+                        super().__lshift__(operand)
+            case ou.Enable():
+                self._enabled               = operand._unit != 0
+            case ou.Disable():
+                self._enabled               = operand._unit == 0
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Clock(DeviceElement):
     """`Element -> DeviceElement -> Clock`
@@ -1174,7 +1293,149 @@ class Clock(DeviceElement):
         return self
 
 class ChannelElement(DeviceElement):
-    pass
+    """`Element -> DeviceElement -> ChannelElement`
+
+    Element represents a type of midi message, like, `Note` and `ControlChange`.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._channel_0: int                = og.settings._channel_0
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+
+    def checksum(self) -> str:
+        """4-char hex checksum (16-bit) for an Element."""
+        master: int = self._channel_0 << 8
+        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
+        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
+
+    def channel(self, channel: int = None) -> Self:
+        self._channel_0 = channel
+        return self
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Duration, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> element = Element()
+        >>> element % Devices() % list() >> Print()
+        ['loopMIDI', 'Microsoft']
+        """
+        import operand_container as oc
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
+                    case _:                 return super().__mod__(operand)
+            case of.Frame():        return self % operand
+            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                return self._position_beats == other._position_beats \
+                    and self._duration_beats == other._duration_beats \
+                    and self._channel_0 == other._channel_0
+            case og.Segment():
+                return other == self % ra.Position()
+            case od.Conditional():
+                return other == self
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+                if type(other) == ol.Null:
+                    return False    # Makes sure ol.Null ends up processed as False
+                return self % other == other
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel_0 < other._channel_0
+                    return self._duration_beats > other._duration_beats # Longer duration comes first
+                return self._position_beats < other._position_beats
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    if self._duration_beats == other._duration_beats:
+                        return self._channel_0 > other._channel_0
+                    return self._duration_beats < other._duration_beats # Longer duration comes first
+                return self._position_beats > other._position_beats
+            case _:
+                return self % other > other
+    
+
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+                    derived_element: 'Element' = None) -> list:
+        if not self._enabled:
+            return []
+        midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["channel"] = self._channel_0
+        return self_midilist
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["channel_0"]    = self.serialize(self._channel_0)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "channel_0" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._channel_0 = self.deserialize(serialization["parameters"]["channel_0"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._channel_0             = operand._channel_0
+            case od.Pipe():
+                match operand._data:
+                    case ou.Channel():      self._channel_0 = 0x0F & operand._data._unit - 1
+                    case _:
+                        super().__lshift__(operand)
+            case ou.Channel():
+                self._channel_0             = 0x0F & operand._unit - 1
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Note(ChannelElement):
     """`Element -> Note`
