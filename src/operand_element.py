@@ -921,7 +921,7 @@ class Rest(Element):
 class DeviceElement(Element):
     """`Element`
 
-    Element represents a type of midi message, like, `Note` and `ControlChange`.
+    Element represents a type of midi message but don't necessarily have a Channel, like, a `Clock`.
 
     Parameters
     ----------
@@ -1295,7 +1295,7 @@ class Clock(DeviceElement):
 class ChannelElement(DeviceElement):
     """`Element -> DeviceElement -> ChannelElement`
 
-    Element represents a type of midi message, like, `Note` and `ControlChange`.
+    Element represents a type of midi message associated to a `Channel`, like, `Note` and `ControlChange`.
 
     Parameters
     ----------
