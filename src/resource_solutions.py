@@ -338,10 +338,7 @@ class RS_Clip(RS_Solutions):
                     second_pick: int = results[1] % clip_len
                     first_element: oe.Element = segmented_composition[first_pick]
                     second_element: oe.Element = segmented_composition[second_pick]
-                    dummy_element: oe.Element = oe.Element()    # For a different id
-                    segmented_composition[first_pick] = dummy_element
-                    segmented_composition[second_pick] = first_element
-                    segmented_composition[first_pick] = second_element
+                    segmented_composition._swap(first_element, second_element)
                     # Replaces the respective locus
                     for locus, element in zip(loci, segmented_composition):
                         element << locus
