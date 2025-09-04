@@ -320,13 +320,13 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
 
 
-    def move_around(self,
+    def swap_elements(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
             by_channel: bool = False,
             title: str | None = None) -> Self:
         """
-        Swaps the position of two elements, no swaps if both picked are the same.
+        Swaps the place of two elements, no swaps if both picked are the same.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -345,7 +345,39 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Move Around"
+            title = "Swap Elements"
+    
+        return self.iterate(iterations, _iterator, chaos, [1, 1], by_channel, title)
+
+
+    def swap_loci(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
+            by_channel: bool = False,
+            title: str | None = None) -> Self:
+        """
+        Swaps the position of two loci, no swaps if both picked are the same.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                clip_len: int = segmented_composition.len()
+                if clip_len > 0:
+                    composition_loci: list[og.Locus] = segmented_composition % [og.Locus()]
+                    original_durations: list[ra.Duration] = o.list_get(composition_loci, ra.Duration())
+                    # Swap loci durations
+                    swapped_durations: list[ra.Duration] = o.list_swap(original_durations, results[0], results[1])
+                    position_offset: Fraction = Fraction(0)
+                    for locus, original_duration, swapped_duration in zip(composition_loci, original_durations, swapped_durations):
+                        locus << swapped_duration
+                        locus._position_beats += position_offset
+                        position_offset += swapped_duration._rational - original_duration._rational
+                    # Replaces the respective locus
+                    for locus, element in zip(composition_loci, segmented_composition):
+                        element << locus
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Swap Loci"
     
         return self.iterate(iterations, _iterator, chaos, [1, 1], by_channel, title)
 
