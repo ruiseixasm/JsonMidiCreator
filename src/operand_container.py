@@ -181,7 +181,7 @@ class Container(o.Operand):
             if right_item is item:
                 right_index = index
                 break
-        if left_index and right_index:
+        if not (left_index is None or right_index is None):
             temp_item: Any = self._items[right_index]
             self._items[right_index] = self._items[left_index]
             self._items[left_index] = temp_item
