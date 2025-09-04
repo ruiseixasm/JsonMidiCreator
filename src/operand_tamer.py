@@ -237,7 +237,7 @@ class Validator(Tamer):
     def __lshift__(self, operand: any) -> Self:
         operand ^= self    # Processes the Frame operand if any exists
         match operand:
-            case Tamer():
+            case Validator():
                 super().__lshift__(operand)
                 self._strictness = operand._strictness
             case od.Pipe():
