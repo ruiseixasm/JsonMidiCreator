@@ -57,6 +57,19 @@ class Tamer(o.Operand):
             self.next(rational)
         return rational, True
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return operand.copy(self)
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():            return self % od.Pipe( operand._data )
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():
+                return self % operand
+            case _:
+                return super().__mod__(operand)
+
     # CHAINABLE OPERATIONS
 
     def next(self, rational: Fraction) -> Self:
@@ -116,18 +129,14 @@ class Parallel(Tamer):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case list():
                         if all(isinstance(item, Tamer) for item in operand._data):
                             return self._tamers
                         else:   # Not for me
                             return super().__mod__(operand)
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case list():
                 if all(isinstance(item, Tamer) for item in operand):
                     return self.deep_copy(self._tamers)
@@ -206,15 +215,11 @@ class Validator(Tamer):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Strictness():       return operand._data << od.Pipe(self._strictness)
                     case Fraction():            return self._strictness
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case ra.Strictness():       return operand.copy(od.Pipe(self._strictness))
             case Fraction():            return self._strictness
             case _:                     return super().__mod__(operand)
@@ -282,8 +287,6 @@ class Check(Validator):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 if isinstance(operand._data, Callable):
                     return self._checker
@@ -315,6 +318,7 @@ class Check(Validator):
                     super().__lshift__(operand)
         return self
 
+
 class Boundary(Validator):
     """`Tamer -> Validator -> Boundary`
 
@@ -334,14 +338,10 @@ class Boundary(Validator):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case Fraction():            return self._boundary
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case Fraction():            return self._boundary
             case int():                 return int(self._boundary)
             case float():               return float(self._boundary)
@@ -432,6 +432,63 @@ class Minimum(Boundary):
                 self.next(rational)
         return rational, validation
     
+class Prior(Validator):
+    """`Tamer -> Validator -> Prior`
+
+    A `Prior` tamer keeps the previous Rational validated.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._prior_rational: int = None
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["last_number"] = self.serialize( self._prior_rational )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "last_number" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._prior_rational = self.deserialize( serialization["parameters"]["last_number"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Motion():
+                super().__lshift__(operand)
+                self._prior_rational = operand._last_integer
+            case od.Pipe():
+                match operand._data:
+                    case int():
+                        self._prior_rational = operand._data
+            case int():
+                self._prior_rational = operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def reset(self, *parameters) -> Self:
+        self._prior_rational = None
+        return super().reset(*parameters)
+    
+    def next(self, rational: Fraction) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        self._prior_rational = int(rational)
+        return super().next(rational)
+        
+    
 
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
@@ -452,14 +509,10 @@ class Motion(Validator):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case int():                 return self._last_integer
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case int():                 return self._last_integer
             case _:                     return super().__mod__(operand)
 
@@ -669,14 +722,10 @@ class Manipulator(Tamer):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case Fraction():            return self._numeral
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case Fraction():            return self._numeral
             case int():                 return int(self._numeral)
             case float():               return float(self._numeral)
