@@ -807,3 +807,37 @@ class Modulo(Manipulator):
         rational %= self._numeral
         return rational, validation
     
+
+class Increase(Manipulator):
+    """`Tamer -> Manipulator -> Increase`
+
+    `Increase` adds a given amount to the give `Rational`.
+
+    Parameters
+    ----------
+    Fraction(8), int, float : Sets the respective increasing amount.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        rational += self._numeral
+        return rational, validation
+    
+
+class Decrease(Manipulator):
+    """`Tamer -> Manipulator -> Decrease`
+
+    `Decrease` subtracts a given amount to the give `Rational`.
+
+    Parameters
+    ----------
+    Fraction(8), int, float : Sets the respective decrement amount.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        rational -= self._numeral
+        return rational, validation
+    
+
+
