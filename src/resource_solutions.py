@@ -332,12 +332,17 @@ class RS_Clip(RS_Solutions):
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
+                    loci: list[og.Locus] = segmented_composition % [og.Locus()]
+                    # Swap elements
                     first_pick: int = results[0] % clip_len
                     second_pick: int = results[1] % clip_len
-                    first_position: Fraction = segmented_composition[first_pick]._position_beats
-                    segmented_composition[first_pick]._position_beats = segmented_composition[second_pick]._position_beats
-                    segmented_composition[second_pick]._position_beats = first_position
-                    segmented_composition._sort_items()
+                    first_element: oe.Element = segmented_composition._items[first_pick]
+                    segmented_composition._items[first_pick] = segmented_composition._items[second_pick]
+                    segmented_composition._items[second_pick] = first_element
+                    # Replaces the respective locus
+                    for locus, element in zip(loci, segmented_composition):
+                        element << locus
+                    segmented_composition._base_container._sort_items() # Needed for the case of being a Mask
             return segmented_composition
 
         if not isinstance(title, str):
