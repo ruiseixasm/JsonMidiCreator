@@ -549,17 +549,17 @@ class Motion(Validator):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["last_number"] = self.serialize( self._last_integer )
+        serialization["parameters"]["last_integer"] = self.serialize( self._last_integer )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "last_number" in serialization["parameters"]):
+            "last_integer" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._last_integer = self.deserialize( serialization["parameters"]["last_number"] )
+            self._last_integer = self.deserialize( serialization["parameters"]["last_integer"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
