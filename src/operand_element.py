@@ -223,42 +223,11 @@ class Element(o.Operand):
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
-        if not self._enabled:
-            return []
-        
-        self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
-
-        return [
-                {
-                    "time_ms": o.minutes_to_time_ms(self_position_min)
-                }
-            ]
+        return []
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
                     derived_element: 'Element' = None) -> list:
-        if not self._enabled:
-            return []
-        midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
-
-        self_numerator: int = self._get_time_signature()._top
-        self_denominator: int = self._get_time_signature()._bottom
-        self_position: float = float(position_beats + self._position_beats)
-        self_duration: float = float(self._duration_beats)
-        self_tempo: float = float(og.settings._tempo)
-
-        # Validation is done by midiutil Midi Range Validation
-        return [
-                {
-                    "event":        "Element",
-                    "track":        midi_track % int() - 1,  # out of range shouldn't be exported as a midi track
-                    "track_name":   midi_track % str(),
-                    "numerator":    self_numerator,
-                    "denominator":  self_denominator,
-                    "time":         self_position,      # beats
-                    "duration":     self_duration,      # beats
-                    "tempo":        self_tempo          # bpm
-                }
-            ]
+        return []
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -925,6 +894,47 @@ class DeviceElement(Element):
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case _:                 return super().__mod__(operand)
+
+
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_element: 'Element' = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+
+        return [
+                {
+                    "time_ms": o.minutes_to_time_ms(self_position_min)
+                }
+            ]
+
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+                    derived_element: 'Element' = None) -> list:
+        if not self._enabled:
+            return []
+        midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
+
+        self_numerator: int = self._get_time_signature()._top
+        self_denominator: int = self._get_time_signature()._bottom
+        self_position: float = float(position_beats + self._position_beats)
+        self_duration: float = float(self._duration_beats)
+        self_tempo: float = float(og.settings._tempo)
+
+        # Validation is done by midiutil Midi Range Validation
+        return [
+                {
+                    "event":        "Element",
+                    "track":        midi_track % int() - 1,  # out of range shouldn't be exported as a midi track
+                    "track_name":   midi_track % str(),
+                    "numerator":    self_numerator,
+                    "denominator":  self_denominator,
+                    "time":         self_position,      # beats
+                    "duration":     self_duration,      # beats
+                    "tempo":        self_tempo          # bpm
+                }
+            ]
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
