@@ -737,6 +737,9 @@ class Unison(Element):
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
+        # Makes sure all elements share the same Locus
+        for single_element in self._elements:
+            single_element << self % og.Locus()
         return self._elements
 
     def getPlotlist(self,
