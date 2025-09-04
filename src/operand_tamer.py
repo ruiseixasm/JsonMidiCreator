@@ -495,7 +495,7 @@ class Different(Prior):
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if not self.slack(rational) and self._prior_rational == rational:
+            if not self.slack(rational) and self._prior_rational is not None and self._prior_rational == rational:
                 return rational, False    # Breaks the chain
             if iterate:
                 self.next(rational)
