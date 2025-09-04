@@ -96,8 +96,8 @@ class Element(o.Operand):
         self._position_beats = ra.Measures(self, position_measures) % ra.Position() % Fraction()
         return self
 
-    def duration(self, duration: float = None) -> Self:
-        self._duration_beats = ra.Duration(duration)._rational
+    def duration(self, note_value: float = None) -> Self:
+        self._duration_beats = ra.Duration(self, note_value)._rational
         return self
 
     def channel(self, channel: int = None) -> Self:
@@ -165,7 +165,6 @@ class Element(o.Operand):
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
-            case Element():         return self.copy()
             case int():             return self % ra.Measure() % int()
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
@@ -341,7 +340,7 @@ class Element(o.Operand):
                     elif len(operand._segment) > 2:
                         self << ra.Step(operand._segment[2])
             case float():
-                self << ra.NoteValue(operand)
+                self << ra.NoteValue(self, operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
             case ou.Channel():
@@ -594,7 +593,7 @@ class Element(o.Operand):
                 return oc.Clip()    # Empty Clip, self excluded
 
             case _:
-                if operand != 0:
+                if operand != Fraction(0):
                     self_operand: any = self % operand
                     self_operand /= operand # Generic `self_operand`
                     self << self_operand
@@ -711,7 +710,7 @@ class Element(o.Operand):
                 return oc.Clip()    # Empty Clip, self excluded
 
             case _:
-                if operand != 0:
+                if operand != Fraction(0):
                     self_operand: any = self % operand
                     self_operand //= operand # Generic `self_operand`
                     return self << self_operand

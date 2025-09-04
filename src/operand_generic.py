@@ -64,6 +64,246 @@ class Generic(o.Operand):
     pass
 
 
+class Locus(Generic):
+    """`Generic -> Locus`
+
+    A `Locus` is a pair of `Position` and `Duration` of a given `Element`. This allows a clear separation \
+        between Element and its positioning and duration. It materializes the following analogy:
+
+        +-------------------+---------+
+        | Music             | Biology |
+        +-------------------+---------+
+        | Clip              | Genome  |
+        | Element           | Gene    |
+        | Position/Duration | Locus   |
+        +-------------------+---------+
+        
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    """
+    
+    def __init__(self, *parameters):
+        super().__init__()
+        self._time_signature_reference: TimeSignature = None
+        self._position_beats: Fraction      = Fraction(0)   # in Beats
+        self._duration_beats: Fraction      = settings._duration
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def _get_time_signature(self, other_time_signature: 'TimeSignature' = None) -> 'TimeSignature':
+        if self._time_signature_reference is None:
+            if isinstance(other_time_signature, TimeSignature):
+                return other_time_signature
+            return settings._time_signature
+        return self._time_signature_reference
+
+    def position(self, position_measures: float = None) -> Self:
+        self._position_beats = ra.Measures(self._time_signature_reference, position_measures) % ra.Position() % Fraction()
+        return self
+
+    def duration(self, note_value: float = None) -> Self:
+        self._duration_beats = ra.Duration(self._time_signature_reference, note_value)._rational
+        return self
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case self.__class__():
+                return self.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():
+                        return operand._data << ra.Duration(self._time_signature_reference, self._duration_beats)
+                    case ra.Position():
+                        return operand._data << ra.Position(self._time_signature_reference, self._position_beats)
+                    case ra.Length():
+                        return operand._data << ra.Length(self._time_signature_reference, self._duration_beats)
+                    case Fraction():        return self._duration_beats
+                    case _:                 return super().__mod__(operand)
+            case of.Frame():        return self % operand
+            case ra.Position():
+                return operand.copy(self._time_signature_reference, self._position_beats)
+            case ra.TimeUnit():
+                # For TimeUnit only the `% operand` does the measure_module of it
+                return ra.Position(self._time_signature_reference, self._position_beats) % operand
+            case ra.Duration() | ra.Length():
+                return operand.copy(self._time_signature_reference, self._duration_beats)
+            case ra.NoteValue() | ra.TimeValue():
+                return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
+            case int():             return self % ra.Measure() % int()
+            case Segment():         return operand.copy(self % ra.Position())
+            case float():           return self % ra.NoteValue() % float()
+            case Fraction():        return self._duration_beats
+            case _:                 return super().__mod__(operand)
+
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return self._position_beats == other._position_beats \
+                    and self._duration_beats == other._duration_beats
+            case Segment():
+                return other == self % ra.Position()
+            case od.Conditional():
+                return other == self
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+                if type(other) == ol.Null:
+                    return False    # Makes sure ol.Null ends up processed as False
+                return self % other == other
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case self.__class__():
+                if self._position_beats == other._position_beats:
+                    return self._duration_beats > other._duration_beats # Longer duration comes first
+                return self._position_beats < other._position_beats
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other ^= self    # Processes the Frame operand if any exists
+        match other:
+            case self.__class__():
+                if self._position_beats == other._position_beats:
+                    return self._duration_beats < other._duration_beats # Longer duration comes first
+                return self._position_beats > other._position_beats
+            case _:
+                return self % other > other
+    
+    def start(self) -> ra.Position:
+        return ra.Position(self, self._position_beats)
+
+    def finish(self) -> ra.Position:
+        return ra.Position(self, self._position_beats + self._duration_beats)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["position"] = self.serialize(self._position_beats)
+        serialization["parameters"]["duration"] = self.serialize(self._duration_beats)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+            self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
+        import operand_container as oc
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        if self._time_signature_reference is None:
+            match operand:
+                case ra.Convertible():
+                    self._time_signature_reference = operand._time_signature_reference
+                case oe.Element() | oc.Composition():
+                    self._time_signature_reference = operand._get_time_signature()
+                case TimeSignature():
+                    self._time_signature_reference = operand
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._position_beats        = operand._position_beats
+                self._duration_beats        = operand._duration_beats
+            case od.Pipe():
+                match operand._data:
+                    case ra.Position():     self._position_beats = operand._data._rational
+                    case ra.Duration() | ra.Length():
+                                            self._duration_beats = operand._data._rational
+                    case Fraction():        self._duration_beats = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ra.Duration() | ra.Length():
+                self._duration_beats        = operand._rational
+            case ra.NoteValue() | ra.TimeValue():
+                self << ra.Duration(self._time_signature_reference, operand)
+            case ra.Position():
+                self._position_beats        = operand._rational
+            case ra.TimeUnit():
+                # The setting of the TimeUnit depends on the Element position
+                self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
+            case int():
+                self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
+            case Segment():
+                if operand._segment:
+                    self << ra.Measure(operand._segment[0])
+                    if len(operand._segment) == 2:
+                        self << ra.Beat(operand._segment[1])
+                    elif len(operand._segment) > 2:
+                        self << ra.Step(operand._segment[2])
+            case float():
+                self << ra.NoteValue(self._time_signature_reference, operand)
+            case Fraction():
+                self._duration_beats        = ra.Beats(operand)._rational
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        import operand_container as oc
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case ra.Position():
+                self._position_beats += operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats += operand._rational
+            case _:
+                self_operand: any = self % operand
+                self_operand += operand
+                self << self_operand
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case ra.Position():
+                self._position_beats -= operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats -= operand._rational
+            case _:
+                self_operand: any = self % operand
+                self_operand -= operand
+                self << self_operand
+        return self
+
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        self_operand: any = self % operand
+        self_operand *= operand # Generic `self_operand`
+        self << self_operand
+        return self
+
+    def __itruediv__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        if operand != Fraction(0):
+            self_operand: any = self % operand
+            self_operand /= operand # Generic `self_operand`
+            self << self_operand
+        return self
+
+
+    def __ifloordiv__(self, operand: any) -> Self:
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        if operand != Fraction(0):
+            self_operand: any = self % operand
+            self_operand //= operand # Generic `self_operand`
+            self << self_operand
+        return self
+
+
 class TimeSignature(Generic):
     """`Generic -> TimeSignature`
 
