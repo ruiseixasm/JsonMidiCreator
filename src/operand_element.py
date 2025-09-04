@@ -133,7 +133,7 @@ class Element(o.Operand):
         import operand_container as oc
         match operand:
             case self.__class__():
-                return self.copy()
+                return operand.copy(self)
             case od.Pipe():
                 match operand._data:
                     case ra.Duration():
