@@ -869,8 +869,60 @@ class Unison(Element):
         return self
 
 
-class Clock(Element):
-    """`Element -> Clock`
+class Rest(Element):
+    """`Element -> Rest`
+
+    A `Rest` element is essentially used to occupy space on a `TimeSignature` for a process of `Clip` stacking or linking.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        if self._duration_beats == 0:
+            return []
+
+        if channels is not None:
+            channels["note"].add(self._channel_0)
+
+        if masked_element_ids is None:
+            masked_element_ids = set()
+
+        self_plotlist: list[dict] = []
+    
+        position_on: Fraction = position_beats + self._position_beats
+        position_off: Fraction = position_on + self._duration_beats
+
+        self_plotlist.append(
+            {
+                "note": {
+                    "position_on": position_on,
+                    "position_off": position_off,
+                    "pitch": 60,        # Middle C
+                    "velocity": 127,    # Maximum contrast, no transparency
+                    "channel": self._channel_0,
+                    "masked": id(self) in masked_element_ids,
+                    "self": self
+                }
+            }
+        )
+
+        return self_plotlist
+
+
+class DeviceElement(Element):
+    pass
+
+class Clock(DeviceElement):
+    """`Element -> DeviceElement -> Clock`
 
     A `Clock` element can be used to send midi clock messages in a specific way compared to the `defaults` one.
 
@@ -1121,57 +1173,10 @@ class Clock(Element):
             case _:                     super().__lshift__(operand)
         return self
 
+class ChannelElement(DeviceElement):
+    pass
 
-class Rest(Element):
-    """`Element -> Rest`
-
-    A `Rest` element is essentially used to occupy space on a `TimeSignature` for a process of `Clip` stacking or linking.
-
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
-        if not self._enabled:
-            return []
-        
-        if self._duration_beats == 0:
-            return []
-
-        if channels is not None:
-            channels["note"].add(self._channel_0)
-
-        if masked_element_ids is None:
-            masked_element_ids = set()
-
-        self_plotlist: list[dict] = []
-    
-        position_on: Fraction = position_beats + self._position_beats
-        position_off: Fraction = position_on + self._duration_beats
-
-        self_plotlist.append(
-            {
-                "note": {
-                    "position_on": position_on,
-                    "position_off": position_off,
-                    "pitch": 60,        # Middle C
-                    "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": self._channel_0,
-                    "masked": id(self) in masked_element_ids,
-                    "self": self
-                }
-            }
-        )
-
-        return self_plotlist
-
-
-class Note(Element):
+class Note(ChannelElement):
     """`Element -> Note`
 
     A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
@@ -2201,7 +2206,7 @@ class Triplet(Retrigger):
                 super().__lshift__(operand)
         return self
 
-class Tuplet(Element):
+class Tuplet(ChannelElement):
     """`Element -> Tuplet`
 
     A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Count` of a `Retrigger`.
@@ -2372,7 +2377,7 @@ class Tuplet(Element):
         return self
 
 
-class Automation(Element):
+class Automation(ChannelElement):
     """`Element -> Automation`
 
     An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
@@ -3579,7 +3584,7 @@ class PolyAftertouch(Aftertouch):
             case _:             super().__lshift__(operand)
         return self
 
-class ProgramChange(Element):
+class ProgramChange(ChannelElement):
     """`Element -> ProgramChange`
 
     A `ProgramChange` is an element that selects the Device program or preset.
@@ -3750,8 +3755,8 @@ class ProgramChange(Element):
         return self
 
 
-class Panic(Element):
-    """`Element -> Panic`
+class Panic(DeviceElement):
+    """`Element -> DeviceElement -> Panic`
 
     A `Panic` is an element used to do a full state reset on the midi Device on all channels.
 
@@ -3759,7 +3764,6 @@ class Panic(Element):
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -3808,7 +3812,6 @@ class Panic(Element):
                     Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.NoteValue(1/16)), ou.Velocity(0))
                         .getPlaylist(midi_track, position_beats, False)
                 )
-
 
         return self_playlist
 
