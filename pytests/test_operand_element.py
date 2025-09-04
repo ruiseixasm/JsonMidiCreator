@@ -32,7 +32,7 @@ import sys
 
 def test_element_mod():
 
-    element = Element()
+    element = Note()
 
     # Redirect stdout to capture the print output
     captured_output = StringIO()

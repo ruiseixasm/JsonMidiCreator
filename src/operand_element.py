@@ -50,8 +50,6 @@ class Element(o.Operand):
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         import operand_container as oc
@@ -86,7 +84,7 @@ class Element(o.Operand):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""
-        master: int = self._channel_0 << 8
+        master: int = 0
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
@@ -98,10 +96,6 @@ class Element(o.Operand):
 
     def duration(self, note_value: float = None) -> Self:
         self._duration_beats = ra.Duration(self, note_value)._rational
-        return self
-
-    def channel(self, channel: int = None) -> Self:
-        self._channel_0 = channel
         return self
 
 
@@ -148,10 +142,7 @@ class Element(o.Operand):
                         return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
-                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
                     case Element():         return self
-                    case ou.Enable():       return ou.Enable(self._enabled)
-                    case ou.Disable():      return ou.Disable(not self._enabled)
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
@@ -169,13 +160,10 @@ class Element(o.Operand):
                 return operand.copy(self, self._duration_beats)
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
-            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
             case int():             return self % ra.Measure() % int()
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
-            case ou.Enable():       return ou.Enable(self._enabled)
-            case ou.Disable():      return ou.Disable(not self._enabled)
             case Element():         return operand.__class__(self)
             case oc.Clip():         return oc.Clip(self)
             case _:                 return super().__mod__(operand)
@@ -188,8 +176,7 @@ class Element(o.Operand):
         match other:
             case Element():
                 return self._position_beats == other._position_beats \
-                    and self._duration_beats == other._duration_beats \
-                    and self._channel_0 == other._channel_0
+                    and self._duration_beats == other._duration_beats
             case og.Segment():
                 return other == self % ra.Position()
             case od.Conditional():
@@ -206,8 +193,6 @@ class Element(o.Operand):
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
-                    if self._duration_beats == other._duration_beats:
-                        return self._channel_0 < other._channel_0
                     return self._duration_beats > other._duration_beats # Longer duration comes first
                 return self._position_beats < other._position_beats
             case _:
@@ -218,8 +203,6 @@ class Element(o.Operand):
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
-                    if self._duration_beats == other._duration_beats:
-                        return self._channel_0 > other._channel_0
                     return self._duration_beats < other._duration_beats # Longer duration comes first
                 return self._position_beats > other._position_beats
             case _:
@@ -271,7 +254,6 @@ class Element(o.Operand):
                     "track_name":   midi_track % str(),
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "channel":      self._channel_0,
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
@@ -282,22 +264,17 @@ class Element(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]     = self.serialize(self._duration_beats)
-        serialization["parameters"]["channel_0"]    = self.serialize(self._channel_0)
-        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "channel_0" in serialization["parameters"] and "enabled" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats        = self.deserialize(serialization["parameters"]["duration"])
-            self._channel_0             = self.deserialize(serialization["parameters"]["channel_0"])
-            self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -305,10 +282,7 @@ class Element(o.Operand):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-
                 super().__lshift__(operand)
-                self._channel_0             = operand._channel_0
-                self._enabled               = operand._enabled
                 # No conversion is done, beat and note_value values are directly copied (Same for Part)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
@@ -321,7 +295,6 @@ class Element(o.Operand):
                     case ra.Position():     self._position_beats = operand._data._rational
                     case ra.Duration() | ra.Length():
                                             self._duration_beats = operand._data._rational
-                    case ou.Channel():      self._channel_0 = 0x0F & operand._data._unit - 1
                     case Fraction():        self._duration_beats = operand._data
 
             case od.Serialization():
@@ -351,12 +324,6 @@ class Element(o.Operand):
                 self << ra.NoteValue(self, operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
-            case ou.Channel():
-                self._channel_0             = 0x0F & operand._unit - 1
-            case ou.Enable():
-                self._enabled               = operand._unit != 0
-            case ou.Disable():
-                self._enabled               = operand._unit == 0
             case tuple():
                 for single_operand in operand:
                     self << single_operand
