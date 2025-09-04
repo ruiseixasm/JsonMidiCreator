@@ -171,20 +171,16 @@ class Container(o.Operand):
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
         if self is not self._base_container:
             self._base_container._swap(left_item, right_item)
-        left_index: int = None
+        first_index: int = None
         for index, item in enumerate(self._items):
-            if left_item is item:
-                left_index = index
-                break
-        right_index: int = None
-        for index, item in enumerate(self._items):
-            if right_item is item:
-                right_index = index
-                break
-        if not (left_index is None or right_index is None):
-            temp_item: Any = self._items[right_index]
-            self._items[right_index] = self._items[left_index]
-            self._items[left_index] = temp_item
+            if item is left_item or item is right_item:
+                if first_index is None:
+                    first_index = index
+                else:
+                    temp_item: Any = self._items[first_index]
+                    self._items[first_index] = self._items[index]
+                    self._items[index] = temp_item
+                    break
         return self
 
 
