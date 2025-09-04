@@ -315,8 +315,6 @@ class Check(Validator):
                     super().__lshift__(operand)
         return self
 
-
-
 class Boundary(Validator):
     """`Tamer -> Validator -> Boundary`
 
