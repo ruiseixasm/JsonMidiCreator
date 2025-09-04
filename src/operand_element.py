@@ -713,8 +713,6 @@ class Unison(Element):
     list([Note(ou.Channel(2)), Note(ou.Channel(6))]) : A list with all the elements grouped by `Unison`.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         self._elements: list[Element] = [Note(ou.Channel(2)), Note(ou.Channel(6))]
@@ -814,8 +812,6 @@ class Rest(Element):
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
@@ -987,7 +983,6 @@ class Clock(DeviceElement):
     ClockStopModes(0), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
