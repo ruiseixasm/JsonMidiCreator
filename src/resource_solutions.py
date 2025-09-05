@@ -34,6 +34,7 @@ import operand_frame as of
 import operand_container as oc
 import operand_tamer as ot
 import operand_chaos as ch
+import resource_operands as ro
 
 
 class RS_Solutions:
