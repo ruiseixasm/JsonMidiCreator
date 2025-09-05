@@ -342,6 +342,8 @@ class RS_Clip(RS_Solutions):
                     # Replaces the respective locus
                     for locus, element in zip(loci, segmented_composition):
                         element << locus
+                    # Needs to be sorted due to secondary sorting criteria like Pitch and Channel
+                    segmented_composition._sort_items()
             return segmented_composition
 
         if not isinstance(title, str):
@@ -374,6 +376,8 @@ class RS_Clip(RS_Solutions):
                     # Replaces the respective locus
                     for locus, element in zip(composition_loci, segmented_composition):
                         element << locus
+                    # Needs to be sorted due to secondary sorting criteria like Duration
+                    segmented_composition._sort_items()
             return segmented_composition
 
         if not isinstance(title, str):
