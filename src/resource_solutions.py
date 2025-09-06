@@ -181,7 +181,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
-    
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
@@ -200,7 +199,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Tonality Conjunct"
-    
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
@@ -214,7 +212,6 @@ class RS_Clip(RS_Solutions):
         """
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
-    
         return self.tonality_conjunct(iterations, triggers, chaos, title)
 
 
@@ -233,7 +230,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sweep Sharps"
-    
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
@@ -252,7 +248,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sweep Flats"
-    
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
@@ -284,7 +279,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
-    
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
@@ -306,7 +300,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Fine Tune"
-    
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
@@ -329,7 +322,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Single Wrapper"
-    
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
@@ -360,7 +352,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Swap Elements"
-    
         return self.iterate(iterations, _iterator, chaos, [1, 1], title)
 
 
@@ -393,7 +384,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Swap Loci"
-    
         return self.iterate(iterations, _iterator, chaos, [1, 1], title)
 
 
@@ -416,7 +406,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Process Parameterization"
-    
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
@@ -436,7 +425,6 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Set Parameter"
-    
         return self.iterate(iterations, _iterator, chaos, parameter, title)
 
 
