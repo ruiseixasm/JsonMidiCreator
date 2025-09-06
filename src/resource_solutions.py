@@ -172,7 +172,7 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
-        Distributes small note values among the elements
+        Splits the entire clip along multiple durations
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -185,7 +185,8 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Multi Splitter"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        triggers: list[int] = [1] * len(durations)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def rhythm_fast_quantized(self,
