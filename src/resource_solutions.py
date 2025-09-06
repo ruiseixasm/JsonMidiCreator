@@ -354,7 +354,7 @@ class RS_Clip(RS_Solutions):
 
     def multi_wrapper(self,
             iterations: int = 1,
-            durations: list[float] = o.list_repeat([oe.Note(), oe.Triplet(), oe.Cluster()], [6, 1, 2]),
+            wrappers: list['oe.Element'] = o.list_repeat([oe.Note(), oe.Triplet(), oe.Cluster()], [6, 1, 2]),
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
@@ -362,16 +362,14 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                split_position: ra.Position = ra.Position(segmented_composition, 0)
-                segmented_durations: list[float] = o.list_choose(durations, results)
-                for duration in segmented_durations:
-                    split_position += ra.Duration(segmented_composition, duration)
-                    segmented_composition //= split_position
+                segmented_wrappers: list[oe.Element] = o.list_choose(wrappers, results)
+                for single_element, wrapper in zip(segmented_composition, segmented_wrappers):
+                    segmented_composition._replace(single_element, single_element % wrapper)
             return segmented_composition
 
         if not isinstance(title, str):
             title = "Multi Wrapper"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def swap_elements(self,

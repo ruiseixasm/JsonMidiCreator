@@ -18,19 +18,11 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 settings += Device("Digitakt")
 settings << Tempo(114)
 
-# Samples
-kick = Note(1/8, Channel(1), Velocity(90)) // "11.1.1.1"
-snare = Note(1/8, Channel(2), Velocity(90)) / "..1...1."
-open_hat = Note(1/8, Channel(6), Velocity(120)) / 8
+snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
 
-kick_a = kick
-snare_a = snare
+single_seed_note = Note(4/1) * 1
 
-section_a = kick_a + snare_a + open_hat << TrackName("Section A")
-# section_a * 4 >> Plot(True)
+clip_solution = RS_Clip(single_seed_note)
+phrase_notes = clip_solution.multi_splitter(-7).multi_wrapper(-7).solution()
 
-
-
-rhythm_solution = RS_Clip(section_a * 4, by_channel=True)
-moved_beats = rhythm_solution.mask(Channel(2)).single_wrapper(-10).unmask().solution()
 
