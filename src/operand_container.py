@@ -1448,7 +1448,7 @@ class Composition(Container):
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                                 self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
+                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = 1)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1558,7 +1558,7 @@ class Composition(Container):
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                                 self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color=channel_color, hatch='//', edgecolor='gray', linewidth=1.6, linestyle='dotted', alpha = 1)
+                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = 1)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1979,7 +1979,7 @@ class Composition(Container):
         plt.tight_layout()
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
-        plt.rcParams['hatch.linewidth'] = 4.00  # Where the HATCH thickness is set
+        plt.rcParams['hatch.linewidth'] = 6.00  # Where the HATCH thickness is set
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
