@@ -124,6 +124,12 @@ def list_swap(list_in: list, left: int, right: int) -> list:
         list_out[right % list_len] = list_in[left % list_len]
     return list_out
 
+def list_repeat(items: list, repeats: list[int]) -> list:
+    list_out: list = []
+    if len(items) == len(repeats):
+        for item, repeat in zip(items, repeats):
+            list_out.extend([item] * repeat)
+    return list_out
 
 def list_choose(items: list, indexes: list[int]) -> list:
     list_out: list = []

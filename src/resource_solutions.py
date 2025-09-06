@@ -162,6 +162,27 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
 
 
+    def multi_splitter(self,
+            iterations: int = 1,
+            durations: list[float] = o.list_repeat([1/8 * 3/2, 1/8, 1/16, 1/32], [1, 4, 8, 2]),
+            chaos: ch.Chaos = ch.SinX(340),
+            title: str | None = None) -> Self:
+        """
+        Distributes small note values among the elements
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                new_durations: list[float] = o.list_choose(durations, results)
+                segmented_composition << of.Foreach(*new_durations)**ra.NoteValue()
+                # These operations shall be done on the base (single Measure)
+                segmented_composition.base().stack().quantize().mul([0]).link()
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Multi Splitter"
+        return self.iterate(iterations, _iterator, chaos, 1, title)
+
+
     def rhythm_fast_quantized(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
