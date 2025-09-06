@@ -1421,8 +1421,6 @@ class Dotted(NoteValue):
         Fraction(3, 2)
         """
         match operand:
-            case Dotted():
-                return self.copy()
             case int() | float():
                 # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
                 other_rational: Fraction = self._rational * 2/3

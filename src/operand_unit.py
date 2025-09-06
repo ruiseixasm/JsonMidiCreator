@@ -357,7 +357,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case Mode():                return Mode(self._mode_0 + 1)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case KeySignature():        return self.copy()
             case int():                 return self._unit
             case float():
                 return float(self._mode_0 + 1)

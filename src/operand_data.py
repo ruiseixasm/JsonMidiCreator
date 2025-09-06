@@ -58,8 +58,6 @@ class Data(o.Operand):
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
-            case self.__class__():
-                return self.copy()
             case of.Frame():                return self % operand
             case Serialization():           return self.getSerialization()
             case dict():
@@ -67,7 +65,8 @@ class Data(o.Operand):
                 if len(operand) > 0:
                     return o.get_pair_key_data(operand, serialization)
                 return serialization
-            case Data():                    return self.copy()
+            case self.__class__():
+                return operand.copy(self)
             case _:                         return self.deep_copy(self._data)
             
     def __rmod__(self, operand: any) -> any:

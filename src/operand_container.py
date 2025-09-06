@@ -211,8 +211,6 @@ class Container(o.Operand):
                         ]
                     case _:
                         return super().__mod__(operand)
-            case Container():
-                return self.copy()
             case list():
                 if operand: # Non empty list
                     parameters: list = []
