@@ -132,7 +132,7 @@ class Element(o.Operand):
         """
         import operand_container as oc
         match operand:
-            case self.__class__():
+            case Element():
                 return operand.copy(self)
             case od.Pipe():
                 match operand._data:

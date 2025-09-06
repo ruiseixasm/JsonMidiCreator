@@ -561,7 +561,7 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
-            case self.__class__():
+            case Operand():
                 return operand.copy(self)
             case tuple():
                 results: list = []
