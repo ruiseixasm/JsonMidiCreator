@@ -40,7 +40,7 @@ import resource_operands as ro
 class RS_Solutions:
     def __init__(self,
                  seed: oc.Composition,
-                 iterations: list[int] = [0, 0, 0, 0],
+                 iterations: list[int] = [1, 0, 0, 0],
                  measures: int = 1,
                  composition: Optional['oc.Composition'] = None,
                  by_channel: bool = False
@@ -97,7 +97,7 @@ class RS_Solutions:
 class RS_Clip(RS_Solutions):
     def __init__(self,
                  seed: oc.Clip,
-                 iterations: list[int] = [0, 0, 0, 0],
+                 iterations: list[int] = [1, 0, 0, 0],
                  measures: int = 1,
                  composition: Optional['oc.Composition'] = None,
                  by_channel: bool = False
@@ -121,13 +121,10 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 # Makes sure composition is split first by the the given measures
                 composition //= ra.Measures(self._measures)
-                # Each _n_button Call results in new solution
                 iteration_measures: list[int] = o.list_increment(self._measures)
-                measure_triggers: list = triggers   # No need to copy, Chaos does the copy
-                if not isinstance(triggers, list):
-                    segmented_composition: oc.Composition = composition * iteration_measures
-                    measure_triggers = [triggers] * segmented_composition.len() # No need to copy
-                results: list = chaos.reset_tamers() % measure_triggers
+                if isinstance(triggers, list):
+                    measure_triggers: list = triggers   # No need to copy, Chaos does the copy
+                results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
                 for iteration_i, measure_iterations in enumerate(self._iterations):
@@ -135,12 +132,16 @@ class RS_Clip(RS_Solutions):
                     segmented_composition: oc.Composition = composition * composition_measures
                     if measure_iterations < 0:  # Repeats previous measures unaltered
                         new_composition *= segmented_composition
-                    else:   
+                    else:   # measure_iterations >= 0
                         if measure_iterations > 0:
                             if not isinstance(triggers, list):
-                                measure_triggers = [triggers] * segmented_composition.len()
-                            results = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                        new_composition *= iterator(results, segmented_composition) * iteration_measures
+                                measure_triggers: list = [triggers] * segmented_composition.len()
+                            results = chaos.reset_tamers().__imul__(measure_iterations - 1) % measure_triggers
+                            new_composition *= iterator(results, segmented_composition) * iteration_measures
+                        elif results is None:
+                            new_composition *= segmented_composition
+                        else:
+                            new_composition *= iterator(results, segmented_composition) * iteration_measures
                 return new_composition
             return composition
         # Where the solution is set

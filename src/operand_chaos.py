@@ -193,6 +193,8 @@ class Chaos(o.Operand):
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
+            self._index += iterations
+            self._initiated = True
         return result, iterations
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
@@ -205,14 +207,9 @@ class Chaos(o.Operand):
                 result, iterations = self._next_operand.iterate(next_numeral, total_iterations)
                 if iterations > 0:
                     self_numeral = result # Has to be passed trough to self (the whole point of chaining)
-                    self._next_operand._index += iterations
-                    self._next_operand._initiated = True
                 else:
                     return self # Failed try, remains unaltered
             result, iterations = self.iterate(self_numeral, total_iterations)
-            if iterations > 0:
-                self._index += iterations
-                self._initiated = True
         return self
     
     # self is the pusher
@@ -335,6 +332,8 @@ class Cycle(Chaos):
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
+            self._index += iterations
+            self._initiated = True
         return result, iterations
 
 
@@ -616,6 +615,8 @@ class Bouncer(Chaos):
         else:
             self._xn._rational = position_x
             self._yn._rational = position_y
+            self._index += iterations
+            self._initiated = True
         return result, iterations
 
     def __str__(self) -> str:
@@ -708,5 +709,7 @@ class SinX(Chaos):
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
+            self._index += iterations
+            self._initiated = True
         return result, iterations
 
