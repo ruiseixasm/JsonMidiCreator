@@ -209,7 +209,7 @@ class Chaos(o.Operand):
                 iterations += 1    # keeps track of each iteration
             tamed = self.tame(result)
             count_down -= 1
-        if count_down == 0 and not tamed:   # Failed tries
+        if not tamed:   # Failed tries
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
@@ -366,7 +366,7 @@ class Cycle(Chaos):
                 iterations += 1    # keeps track of each iteration
             tamed = self.tame(result)
             count_down -= 1
-        if count_down == 0 and not tamed:   # Failed tries
+        if not tamed:   # Failed tries
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
@@ -681,7 +681,7 @@ class Bouncer(Chaos):
             result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
             tamed = self.tame(result)
             count_down -= 1
-        if count_down == 0 and not tamed:   # Failed tries
+        if not tamed:   # Failed tries
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = position_x
@@ -795,7 +795,7 @@ class SinX(Chaos):
                 iterations += 1    # keeps track of each iteration
             tamed = self.tame(result)
             count_down -= 1
-        if count_down == 0 and not tamed:   # Failed tries
+        if not tamed:   # Failed tries
             iterations = 0  # No valid iterations done
         else:
             self._xn._rational = result
