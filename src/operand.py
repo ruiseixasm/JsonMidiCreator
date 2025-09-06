@@ -126,6 +126,10 @@ def list_swap(list_in: list, left: int, right: int) -> list:
 
 def list_repeat(items: list, repeats: list[int]) -> list:
     list_out: list = []
+    if len(items) > len(repeats):
+        repeats += [0] * (len(items) - len(repeats))
+    elif len(items) < len(repeats):
+        repeats = repeats[:len(items) - (len(repeats) - len(items))]
     if len(items) == len(repeats):
         for item, repeat in zip(items, repeats):
             list_out.extend([item] * repeat)

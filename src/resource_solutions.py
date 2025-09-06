@@ -336,7 +336,7 @@ class RS_Clip(RS_Solutions):
             wrapper: oe.Element = oe.Retrigger(),
             title: str | None = None) -> Self:
         """
-        Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
+        Wraps a single element in the `Clip` picked by `Chaos`.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -349,6 +349,28 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Single Wrapper"
+        return self.iterate(iterations, _iterator, chaos, [1], title)
+
+
+    def multi_wrapper(self,
+            iterations: int = 1,
+            durations: list[float] = o.list_repeat([oe.Note(), oe.Triplet(), oe.Cluster()], [6, 1, 2]),
+            chaos: ch.Chaos = ch.SinX(340),
+            title: str | None = None) -> Self:
+        """
+        Wraps each element in the `Clip` chosen by `Chaos`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                split_position: ra.Position = ra.Position(segmented_composition, 0)
+                segmented_durations: list[float] = o.list_choose(durations, results)
+                for duration in segmented_durations:
+                    split_position += ra.Duration(segmented_composition, duration)
+                    segmented_composition //= split_position
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Multi Wrapper"
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
