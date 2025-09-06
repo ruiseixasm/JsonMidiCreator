@@ -129,21 +129,19 @@ class RS_Clip(RS_Solutions):
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
                 for iteration_i, measure_iterations in enumerate(self._iterations):
-                    composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
-                    segmented_composition: oc.Composition = composition * composition_measures
-                    if measure_iterations < 0:  # Repeats previous measures unaltered
-                        new_composition *= segmented_composition
-                    else:   # measure_iterations >= 0
+                    if measure_iterations == 0 and iteration_i > 0: # Already set once
+                        previous_measures: list[int] = o.list_add(iteration_measures, self._measures * (iteration_i - 1))
+                        new_composition *= new_composition * previous_measures
+                    else:
+                        composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
+                        segmented_composition: oc.Composition = composition * composition_measures
                         if measure_iterations > 0:
                             if not isinstance(triggers, list):
                                 measure_triggers: list = [triggers] * segmented_composition.len()
                             results = chaos.reset_tamers().iterate(measure_iterations - 1) % measure_triggers
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
-                        elif results is None:
-                            new_composition *= segmented_composition
                         else:
-                            previous_measures: list[int] = o.list_add(iteration_measures, self._measures * (iteration_i - 1))
-                            new_composition *= new_composition * previous_measures
+                            new_composition *= segmented_composition
                 return new_composition
             return composition
         # Where the solution is set
