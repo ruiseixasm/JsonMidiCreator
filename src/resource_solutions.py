@@ -78,14 +78,14 @@ class RS_Solutions:
             iteration_measures: list[int] = o.list_increment(self._measures)
             measure_triggers: list = triggers   # No need to copy, Chaos does the copy
             if not isinstance(triggers, list):
-                segmented_composition: oc.Composition = composition * iteration_measures
+                segmented_composition: oc.Composition = composition * iteration_measures // ra.Measure(len(iteration_measures))
                 measure_triggers = [triggers] * segmented_composition.len() # No need to copy
             results: list = chaos.reset_tamers() % measure_triggers
             # Here is where each Measure is processed
             new_composition: oc.Composition = composition.empty_copy()
             for iteration_i, measure_iterations in enumerate(self._iterations):
                 composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
-                segmented_composition: oc.Composition = composition * composition_measures
+                segmented_composition: oc.Composition = composition * composition_measures // ra.Measure(len(iteration_measures))
                 if measure_iterations < 0:  # Repeats previous measures unaltered
                     new_composition *= segmented_composition
                 else:   
