@@ -29,6 +29,6 @@ kick_snare = kick + snare + rest << TrackName("Kick & Snare")
 
 
 
-rhythm_solution = RS_Clip(kick_snare * 4, composition=open_hat * 4)
-moved_beats = rhythm_solution.swap_elements(-10, by_channel=True).solution()
+rhythm_solution = RS_Clip(kick_snare * 4, composition=open_hat * 4, by_channel=True)
+moved_beats = rhythm_solution.swap_elements(-10).solution()
 

@@ -42,13 +42,15 @@ class RS_Solutions:
                  seed: oc.Composition,
                  iterations: list[int] = [0, 0, 0, 0],
                  measures: int = 1,
-                 composition: Optional['oc.Composition'] = None
+                 composition: Optional['oc.Composition'] = None,
+                 by_channel: bool = False
             ):
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._solution: oc.Composition = self._seed
         self._iterations: list[int] = iterations
         self._measures: int = max(measures, 1)
-        self._composition = composition
+        self._composition: oc.Composition = composition
+        self._by_channel: bool = by_channel
 
 
     def seed(self) -> 'oc.Composition':
@@ -70,40 +72,24 @@ class RS_Solutions:
                 iterator: Callable[[list | int | float | Fraction, 'oc.Composition'], 'oc.Composition'],
                 chaos: ch.Chaos,
                 triggers: list | int | float | Fraction,
-                by_channel: bool = False,
                 title: str = "") -> Self:
-
+        
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
-            # Each _n_button Call results in new solution
-            iteration_measures: list[int] = o.list_increment(self._measures)
-            measure_triggers: list = triggers   # No need to copy, Chaos does the copy
-            if not isinstance(triggers, list):
-                segmented_composition: oc.Composition = composition * iteration_measures // ra.Measure(len(iteration_measures))
-                measure_triggers = [triggers] * segmented_composition.len() # No need to copy
-            results: list = chaos.reset_tamers() % measure_triggers
-            # Here is where each Measure is processed
-            new_composition: oc.Composition = composition.empty_copy()
-            for iteration_i, measure_iterations in enumerate(self._iterations):
-                composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
-                segmented_composition: oc.Composition = composition * composition_measures // ra.Measure(len(iteration_measures))
-                if measure_iterations < 0:  # Repeats previous measures unaltered
-                    new_composition *= segmented_composition
-                else:   
-                    if measure_iterations > 0:
-                        if not isinstance(triggers, list):
-                            measure_triggers = [triggers] * segmented_composition.len()
-                        results = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
-                    new_composition *= iterator(results, segmented_composition) * iteration_measures
-            return new_composition
-
+            return composition
         # Where the solution is set
+        return self.solutionize(iterations, _n_button, title)
+
+    def solutionize(self, iterations: int,
+                    n_button: Callable[['oc.Composition'], 'oc.Composition'],
+                    title: str = "") -> Self:
+        """Where the solution is set"""
         if iterations < 0:
-            self._solution >>= og.Plot(by_channel=by_channel,
+            self._solution >>= og.Plot(by_channel=self._by_channel,
                 iterations=iterations * -1,
-                n_button=_n_button, composition=self._composition, title=title
+                n_button=n_button, composition=self._composition, title=title
             )
         else:
-            self._solution >>= og.Call(iterations, _n_button)
+            self._solution >>= og.Call(iterations, n_button)
         return self
 
 
@@ -113,9 +99,10 @@ class RS_Clip(RS_Solutions):
                  seed: oc.Clip,
                  iterations: list[int] = [0, 0, 0, 0],
                  measures: int = 1,
-                 composition: Optional['oc.Composition'] = None
+                 composition: Optional['oc.Composition'] = None,
+                 by_channel: bool = False
             ):
-        super().__init__(seed, iterations, measures, composition)
+        super().__init__(seed, iterations, measures, composition, by_channel)
          
     def seed(self) -> 'oc.Clip':
         return self._seed
@@ -123,11 +110,44 @@ class RS_Clip(RS_Solutions):
     def solution(self) -> 'oc.Clip':
         return self._solution
     
+    
+    def iterate(self, iterations: int,
+                iterator: Callable[[list | int | float | Fraction, 'oc.Composition'], 'oc.Composition'],
+                chaos: ch.Chaos,
+                triggers: list | int | float | Fraction,
+                title: str = "") -> Self:
+        
+        def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(composition, oc.Clip):
+                # Each _n_button Call results in new solution
+                iteration_measures: list[int] = o.list_increment(self._measures)
+                measure_triggers: list = triggers   # No need to copy, Chaos does the copy
+                if not isinstance(triggers, list):
+                    segmented_composition: oc.Composition = composition * iteration_measures // ra.Measure(len(iteration_measures))
+                    measure_triggers = [triggers] * segmented_composition.len() # No need to copy
+                results: list = chaos.reset_tamers() % measure_triggers
+                # Here is where each Measure is processed
+                new_composition: oc.Composition = composition.empty_copy()
+                for iteration_i, measure_iterations in enumerate(self._iterations):
+                    composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
+                    segmented_composition: oc.Composition = composition * composition_measures // ra.Measure(len(iteration_measures))
+                    if measure_iterations < 0:  # Repeats previous measures unaltered
+                        new_composition *= segmented_composition
+                    else:   
+                        if measure_iterations > 0:
+                            if not isinstance(triggers, list):
+                                measure_triggers = [triggers] * segmented_composition.len()
+                            results = chaos.reset_tamers() * (measure_iterations - 1) % measure_triggers
+                        new_composition *= iterator(results, segmented_composition) * iteration_measures
+                return new_composition
+            return composition
+        # Where the solution is set
+        return self.solutionize(iterations, _n_button, title)
+
 
     def my_n_button(self,
             iterations: int = 1,
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Processes the user defined `n_button` associated to the `plot` method.
@@ -139,7 +159,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "My N Button"
-        return self.iterate(iterations, _iterator, ch.Chaos(), [1], by_channel, title)
+        return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
 
 
     def rhythm_fast_quantized(self,
@@ -147,7 +167,6 @@ class RS_Clip(RS_Solutions):
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Distributes small note values among the elements
@@ -163,14 +182,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
     
-        return self.iterate(iterations, _iterator, chaos, triggers, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def tonality_conjunct(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
@@ -183,14 +201,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct"
     
-        return self.iterate(iterations, _iterator, chaos, triggers, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each `Note` in Conjunct whole steps of 0 or 1 except in 25% of the times.
@@ -198,13 +215,12 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
     
-        return self.tonality_conjunct(iterations, triggers, chaos, by_channel, title)
+        return self.tonality_conjunct(iterations, triggers, chaos, title)
 
 
     def sweep_sharps(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Sweeps all possible sharps for the set Key Signature for all Notes.
@@ -218,13 +234,12 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Sharps"
     
-        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
     def sweep_flats(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Sweeps all possible flats for the set Key Signature for all Notes.
@@ -238,13 +253,12 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sweep Flats"
     
-        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
     def sprinkle_accidentals(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Flipper(ra.Modulus(6))**ch.SinX(33),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Sets accidentals on each measure `Note` accordingly to the set `Chaos`.
@@ -271,14 +285,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
     
-        return self.iterate(iterations, _iterator, chaos, 1, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def fine_tune(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(33),
             tune_by: ra.Rational = ra.Step(1),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
@@ -294,14 +307,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Fine Tune"
     
-        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
     def single_wrapper(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(33),
             wrapper: oe.Element = oe.Retrigger(),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
@@ -318,13 +330,12 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Single Wrapper"
     
-        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
     def swap_elements(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Swaps the place of two elements, no swaps if both picked are the same.
@@ -350,13 +361,12 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Swap Elements"
     
-        return self.iterate(iterations, _iterator, chaos, [1, 1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
 
 
     def swap_loci(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Swaps the position of two loci, no swaps if both picked are the same.
@@ -384,7 +394,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Swap Loci"
     
-        return self.iterate(iterations, _iterator, chaos, [1, 1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
 
 
     def process_parameterization(self,
@@ -392,7 +402,6 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
             process: og.Process = og.Swap(),
             parameter: str = 'right',
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Applies a given process with chaotic parametrization.
@@ -408,14 +417,13 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Process Parameterization"
     
-        return self.iterate(iterations, _iterator, chaos, [1], by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, [1], title)
 
 
     def set_parameter(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
             parameter: any = ou.Velocity(),
-            by_channel: bool = False,
             title: str | None = None) -> Self:
         """
         Applies a given parameter with the given chaos.
@@ -429,7 +437,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Set Parameter"
     
-        return self.iterate(iterations, _iterator, chaos, parameter, by_channel, title)
+        return self.iterate(iterations, _iterator, chaos, parameter, title)
 
 
 class RS_Part(RS_Solutions):
