@@ -175,7 +175,7 @@ class Chaos(o.Operand):
     def __rxor__(self, operand: o.T) -> o.T:
         return operand
     
-    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
         result: Fraction = numerical
         tamed: bool = False
@@ -195,40 +195,23 @@ class Chaos(o.Operand):
             self._initiated = True
         return result, tamed
 
-    def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
+    def iterate(self, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> Self:
         times = self.number_to_int(times)
-        result: Fraction = numerical
-        iterations: int = 0
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        while not tamed and count_down > 0:
-            for _ in range(times):
-                ####################
-                # INSERT CODE HERE #
-                ####################
-                iterations += 1    # keeps track of each iteration
-            tamed = self.tame(result)
-            count_down -= 1
-        if not tamed:   # Failed tries
-            iterations = 0  # No valid iterations done
-        else:
-            self._xn._rational = result
-            self._index += iterations
-            self._initiated = True
-        return result, iterations
+        if times > 0:
+            self_numeral: Fraction = self % od.Pipe(Fraction())
+            if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+                next_numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+                result, tamed = self._next_operand.result(next_numeral, times)
+                if tamed:
+                    self_numeral = result # Has to be passed trough to self (the whole point of chaining)
+                else:
+                    return self # Failed try, remains unaltered
+            self.result(self_numeral, times)
+        return self
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
         number ^= self # Extracts the Frame operand first
-        self_numeral: Fraction = self % od.Pipe(Fraction())
-        if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-            next_numeral: Fraction = self._next_operand % od.Pipe(Fraction())
-            result, tamed = self._next_operand.iterate(next_numeral, number)
-            if tamed:
-                self_numeral = result # Has to be passed trough to self (the whole point of chaining)
-            else:
-                return self # Failed try, remains unaltered
-        self.iterate(self_numeral, number)
-        return self
+        return self.iterate(number)
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
@@ -334,8 +317,7 @@ class Cycle(Chaos):
         self._xn << self._xn % Fraction() % self._modulus
         return self
 
-    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
-        iterations = self.number_to_int(iterations)
+    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numerical
         tamed: bool = False
         count_down: int = self._max_iterations
@@ -352,27 +334,6 @@ class Cycle(Chaos):
             self._index += increased_index
             self._initiated = True
         return result, tamed
-
-    def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
-        times = self.number_to_int(times)
-        result: Fraction = numerical
-        iterations: int = 0
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        while not tamed and count_down > 0:
-            for _ in range(times):
-                result += self._steps
-                result %= self._modulus
-                iterations += 1    # keeps track of each iteration
-            tamed = self.tame(result)
-            count_down -= 1
-        if not tamed:   # Failed tries
-            iterations = 0  # No valid iterations done
-        else:
-            self._xn._rational = result
-            self._index += iterations
-            self._initiated = True
-        return result, iterations
 
 
 class Flipper(Cycle):
@@ -623,7 +584,7 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
-    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
         result: Fraction = numerical
         tamed: bool = False
@@ -654,41 +615,6 @@ class Bouncer(Chaos):
             self._index += increased_index
             self._initiated = True
         return result, tamed
-
-    def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
-        times = self.number_to_int(times)
-        result: Fraction = numerical
-        iterations: int = 0
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        position_x: Fraction = self._xn._rational
-        position_y: Fraction = self._yn._rational
-        while not tamed and count_down > 0:
-            for _ in range(times):
-                for direction_data in [
-                            [position_x, self._dx._rational, self._width._rational],
-                            [position_y, self._dy._rational, self._height._rational]
-                        ]:
-                    new_position: Fraction = direction_data[0] + direction_data[1]
-                    if new_position < 0:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = new_position * -1 % direction_data[2]
-                    elif new_position >= direction_data[2]:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = direction_data[2] - new_position % direction_data[2]
-                    direction_data[0] = new_position
-                iterations += 1    # keeps track of each iteration
-            result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
-            tamed = self.tame(result)
-            count_down -= 1
-        if not tamed:   # Failed tries
-            iterations = 0  # No valid iterations done
-        else:
-            self._xn._rational = position_x
-            self._yn._rational = position_y
-            self._index += iterations
-            self._initiated = True
-        return result, iterations
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
@@ -765,7 +691,7 @@ class SinX(Chaos):
                 super().__lshift__(operand)
         return self
 
-    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
         result: Fraction = numerical
         tamed: bool = False
@@ -782,24 +708,4 @@ class SinX(Chaos):
             self._index += increased_index
             self._initiated = True
         return result, tamed
-
-    def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
-        times = self.number_to_int(times)
-        result: Fraction = numerical
-        iterations: int = 0
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        while not tamed and count_down > 0:
-            for _ in range(times):
-                result = ra.Result(float(result) + float(self._lambda._rational) * math.sin(float(result)))._rational
-                iterations += 1    # keeps track of each iteration
-            tamed = self.tame(result)
-            count_down -= 1
-        if not tamed:   # Failed tries
-            iterations = 0  # No valid iterations done
-        else:
-            self._xn._rational = result
-            self._index += iterations
-            self._initiated = True
-        return result, iterations
 
