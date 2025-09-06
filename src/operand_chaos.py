@@ -222,12 +222,12 @@ class Chaos(o.Operand):
         self_numeral: Fraction = self % od.Pipe(Fraction())
         if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
             next_numeral: Fraction = self._next_operand % od.Pipe(Fraction())
-            result, iterations = self._next_operand.iterate(next_numeral, number)
-            if iterations > 0:
+            result, tamed = self._next_operand.iterate(next_numeral, number)
+            if tamed:
                 self_numeral = result # Has to be passed trough to self (the whole point of chaining)
             else:
                 return self # Failed try, remains unaltered
-        result, iterations = self.iterate(self_numeral, number)
+        result, tamed = self.iterate(self_numeral, number)
         return self
     
     # self is the pusher
@@ -273,7 +273,7 @@ class Cycle(Chaos):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._modulus: Fraction  = ra.Modulus(12)._rational
+        self._modulus: Fraction = ra.Modulus(12)._rational
         self._steps: Fraction   = ra.Steps(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -323,11 +323,11 @@ class Cycle(Chaos):
                 self._steps     = operand._steps
             case od.Pipe():
                 match operand._data:
-                    case ra.Modulus():          self._modulus = operand._data._rational
-                    case ra.Steps():            self._steps = operand._data._rational
+                    case ra.Modulus():          self._modulus   = operand._data._rational
+                    case ra.Steps():            self._steps     = operand._data._rational
                     case _:                     super().__lshift__(operand)
-            case ra.Modulus():      self._modulus = operand._rational
-            case ra.Steps():        self._steps = operand._rational
+            case ra.Modulus():      self._modulus   = operand._rational
+            case ra.Steps():        self._steps     = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
