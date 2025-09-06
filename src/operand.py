@@ -547,8 +547,6 @@ class Operand:
         import operand_data as od
         import operand_rational as ra
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
             case of.Frame():
@@ -575,6 +573,8 @@ class Operand:
                     else:
                         results.append( self % single_parameter )
                 return tuple( results )
+            case self.__class__():
+                return operand.copy(self)
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
