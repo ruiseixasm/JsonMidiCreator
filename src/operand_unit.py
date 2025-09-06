@@ -60,8 +60,6 @@ class Unit(o.Operand):
         """
         import operand_rational as ra
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!

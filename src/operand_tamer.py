@@ -59,8 +59,6 @@ class Tamer(o.Operand):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return operand.copy(self)
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
