@@ -172,10 +172,11 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_durations: list[float] = o.list_choose(durations, results)
-                segmented_composition << of.Foreach(*new_durations)**ra.NoteValue()
-                # These operations shall be done on the base (single Measure)
-                segmented_composition.base().stack().quantize().mul([0]).link()
+                split_position: ra.Position = ra.Position(segmented_composition, 0)
+                segmented_durations: list[float] = o.list_choose(durations, results)
+                for duration in segmented_durations:
+                    split_position += ra.Duration(segmented_composition, duration)
+                    segmented_composition //= split_position
             return segmented_composition
 
         if not isinstance(title, str):
