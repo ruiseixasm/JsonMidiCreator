@@ -343,7 +343,7 @@ class Cycle(Chaos):
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result += self._steps
-                result = result % self._modulus
+                result %= self._modulus
                 increased_index += 1
             tamed = self.tame(result)
             count_down -= 1
@@ -362,7 +362,7 @@ class Cycle(Chaos):
         while not tamed and count_down > 0:
             for _ in range(times):
                 result += self._steps
-                result = result % self._modulus
+                result %= self._modulus
                 iterations += 1    # keeps track of each iteration
             tamed = self.tame(result)
             count_down -= 1
