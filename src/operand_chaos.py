@@ -175,9 +175,9 @@ class Chaos(o.Operand):
     def __rxor__(self, operand: o.T) -> o.T:
         return operand
     
-    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
-        result: Fraction = numerical
+        result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         increased_index: int = 0
@@ -198,15 +198,13 @@ class Chaos(o.Operand):
     def iterate(self, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> Self:
         times = self.number_to_int(times)
         if times > 0:
-            self_numeral: Fraction = self % od.Pipe(Fraction())
+            numeral: Fraction = self % od.Pipe(Fraction())
+            tamed: bool = True
             if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-                next_numeral: Fraction = self._next_operand % od.Pipe(Fraction())
-                result, tamed = self._next_operand.result(next_numeral, times)
-                if tamed:
-                    self_numeral = result # Has to be passed trough to self (the whole point of chaining)
-                else:
-                    return self # Failed try, remains unaltered
-            self.result(self_numeral, times)
+                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+                numeral, tamed = self._next_operand.result(numeral, times)
+            if tamed:
+                self.result(numeral, times)
         return self
 
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
@@ -317,8 +315,8 @@ class Cycle(Chaos):
         self._xn << self._xn % Fraction() % self._modulus
         return self
 
-    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numerical
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+        result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         increased_index: int = 0
@@ -584,9 +582,9 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
-    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
-        result: Fraction = numerical
+        result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         increased_index: int = 0
@@ -691,9 +689,9 @@ class SinX(Chaos):
                 super().__lshift__(operand)
         return self
 
-    def result(self, numerical: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
-        result: Fraction = numerical
+        result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         increased_index: int = 0

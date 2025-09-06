@@ -267,8 +267,8 @@ class Index(ChaosParameters):
     """`Rational -> ChaosParameters -> Index`"""
     pass
 
-class Numerical(ChaosParameters):
-    """`Rational -> ChaosParameters -> Numerical`"""
+class Numeral(ChaosParameters):
+    """`Rational -> ChaosParameters -> Numeral`"""
     pass
 
 class Result(ChaosParameters):
