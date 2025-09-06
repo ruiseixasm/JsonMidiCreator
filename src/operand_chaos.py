@@ -334,6 +334,25 @@ class Cycle(Chaos):
         self._xn << self._xn % Fraction() % self._modulus
         return self
 
+    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+        iterations = self.number_to_int(iterations)
+        result: Fraction = numerical
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                result += self._steps
+                result = result % self._modulus
+                increased_index += 1
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = result
+            self._index += increased_index
+            self._initiated = True
+        return result, tamed
+
     def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
         times = self.number_to_int(times)
         result: Fraction = numerical
@@ -604,6 +623,38 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
+    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+        iterations = self.number_to_int(iterations)
+        result: Fraction = numerical
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        position_x: Fraction = self._xn._rational
+        position_y: Fraction = self._yn._rational
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                for direction_data in [
+                            [position_x, self._dx._rational, self._width._rational],
+                            [position_y, self._dy._rational, self._height._rational]
+                        ]:
+                    new_position: Fraction = direction_data[0] + direction_data[1]
+                    if new_position < 0:
+                        direction_data[1] << direction_data[1] * -1 # flips direction
+                        new_position = new_position * -1 % direction_data[2]
+                    elif new_position >= direction_data[2]:
+                        direction_data[1] << direction_data[1] * -1 # flips direction
+                        new_position = direction_data[2] - new_position % direction_data[2]
+                    direction_data[0] = new_position
+                increased_index += 1
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = position_x
+            self._yn._rational = position_y
+            self._index += increased_index
+            self._initiated = True
+        return result, tamed
+
     def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
         times = self.number_to_int(times)
         result: Fraction = numerical
@@ -713,6 +764,24 @@ class SinX(Chaos):
             case _:
                 super().__lshift__(operand)
         return self
+
+    def result(self, numerical: Fraction, iterations: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, bool]:
+        iterations = self.number_to_int(iterations)
+        result: Fraction = numerical
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                result = ra.Result(float(result) + float(self._lambda._rational) * math.sin(float(result)))._rational
+                increased_index += 1
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = result
+            self._index += increased_index
+            self._initiated = True
+        return result, tamed
 
     def iterate(self, numerical: Fraction, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> tuple[Fraction, int]:
         times = self.number_to_int(times)
