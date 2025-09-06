@@ -364,7 +364,7 @@ class RS_Clip(RS_Solutions):
             if isinstance(segmented_composition, oc.Clip):
                 segmented_wrappers: list[oe.Element] = o.list_choose(wrappers, results)
                 for single_element, wrapper in zip(segmented_composition, segmented_wrappers):
-                    segmented_composition._replace(single_element, single_element % wrapper)
+                    segmented_composition._replace(single_element, wrapper.copy(single_element))
             return segmented_composition
 
         if not isinstance(title, str):
