@@ -142,7 +142,8 @@ class RS_Clip(RS_Solutions):
                         elif results is None:
                             new_composition *= segmented_composition
                         else:
-                            new_composition *= iterator(results, segmented_composition) * iteration_measures
+                            previous_measures: list[int] = o.list_add(iteration_measures, self._measures * (iteration_i - 1))
+                            new_composition *= new_composition * previous_measures
                 return new_composition
             return composition
         # Where the solution is set
