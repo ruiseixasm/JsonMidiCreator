@@ -120,9 +120,7 @@ class Frame(o.Operand):
                                 case Frame():   continue
                                 case _:         return single_operand
             case Frame():
-                for single_operand in self:
-                    if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
-                        return single_operand.copy()    # It's a Frame
+                return operand.copy(self)
             case _:
                 for single_operand in self:
                     match single_operand:

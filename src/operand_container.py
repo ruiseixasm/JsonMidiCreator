@@ -227,6 +227,8 @@ class Container(o.Operand):
                 return self.len()
             case bool():
                 return not self.is_a_mask()
+            case Container():
+                return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 

@@ -132,8 +132,6 @@ class Element(o.Operand):
         """
         import operand_container as oc
         match operand:
-            case Element():
-                return operand.copy(self)
             case od.Pipe():
                 match operand._data:
                     case ra.Duration():
@@ -142,7 +140,6 @@ class Element(o.Operand):
                         return operand._data << ra.Position(self, self._position_beats)
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
-                    case Element():         return self
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
@@ -164,8 +161,8 @@ class Element(o.Operand):
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
-            case Element():         return operand.__class__(self)
             case oc.Clip():         return oc.Clip(self)
+            case Element():         return operand.copy(self)
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list['Element']:

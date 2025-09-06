@@ -134,6 +134,7 @@ class Locus(Generic):
             case Segment():         return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
+            case Locus():           return operand.copy(self)
             case _:                 return super().__mod__(operand)
 
 
@@ -333,6 +334,7 @@ class TimeSignature(Generic):
             case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
             # Calculated Values
             case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
+            case TimeSignature():       return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_signature: 'TimeSignature') -> bool:
@@ -712,6 +714,8 @@ class Pitch(Generic):
             case str():
                 return self % ou.Key() % str()
             
+            case Pitch():
+                return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 
@@ -1152,6 +1156,8 @@ class Controller(Generic):
                 }
                 return controller_dict
             case of.Frame():            return self % operand
+            case Controller():
+                return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -1403,6 +1409,8 @@ class Scale(Generic):
             case ou.TonicKey():         return ou.TonicKey( Scale.get_tonic_key(self._scale) )
             case ou.Key():              return ou.Key( Scale.get_tonic_key(self._scale) )
             case float():               return float( Scale.get_tonic_key(self._scale) )
+            case Scale():
+                return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
@@ -1681,6 +1689,8 @@ class Arpeggio(Generic):
             case int():                 return self._order
             case float():               return float( self._duration_beats )
             case Fraction():            return self._duration_beats
+            case Arpeggio():
+                return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
 
@@ -1935,6 +1945,8 @@ class Segment(Generic):
                 if len(self._segment) == 2:
                     return "Measure.Beat"
                 return "Measure.Step"
+            case Segment():
+                return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 
@@ -3621,6 +3633,8 @@ class Settings(Generic):
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
             case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockStopModes())
+            case Settings():
+                return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Settings') -> bool:

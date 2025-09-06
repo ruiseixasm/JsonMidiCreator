@@ -91,6 +91,8 @@ class Chaos(o.Operand):
                 for number in operand:
                     list_out.append(self % number)  # Implicit iterations
                 return list_out
+            case Chaos():
+                return operand.copy(self)
             case o.Operand():   # Operand has to have the triggering value (Fraction)
                 return operand.copy(self % (operand % Fraction()))
             case _:
