@@ -67,16 +67,14 @@ class Unit(o.Operand):
                     case Fraction():        return Fraction(self._unit)
                     case float():           return float(self._unit)
                     case of.Frame():        return self % od.Pipe( operand._data )
-                    case Unit() | ra.Rational():
-                                            return operand.__class__() << od.Pipe( self._unit )
                     case _:                 return super().__mod__(operand)
             case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
             case int():             return self._unit
             case Fraction():        return Fraction(self._unit)
             case float():           return float(self._unit)
             case of.Frame():        return self % operand
-            case Unit() | ra.Rational():
-                                    return operand.__class__() << od.Pipe( self._unit )
+            case ra.Rational():     return operand.copy() << od.Pipe( self._unit )
+            case Unit():            return operand.copy(self)
             case str():             return str(self._unit)
             case _:                 return super().__mod__(operand)
 

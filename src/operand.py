@@ -561,8 +561,6 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
-            case Operand():
-                return operand.copy(self)
             case tuple():
                 results: list = []
                 for single_parameter in operand:

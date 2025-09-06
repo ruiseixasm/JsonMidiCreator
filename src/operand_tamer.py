@@ -65,6 +65,8 @@ class Tamer(o.Operand):
                     case _:                     return super().__mod__(operand)
             case of.Frame():
                 return self % operand
+            case Tamer():
+                return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 
