@@ -227,7 +227,7 @@ class Chaos(o.Operand):
                 self_numeral = result # Has to be passed trough to self (the whole point of chaining)
             else:
                 return self # Failed try, remains unaltered
-        result, tamed = self.iterate(self_numeral, number)
+        self.iterate(self_numeral, number)
         return self
     
     # self is the pusher
