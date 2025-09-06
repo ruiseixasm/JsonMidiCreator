@@ -555,13 +555,10 @@ class Operand:
                 return od.Playlist() << od.Pipe( self.getPlaylist() )
             case od.Serialization():
                 return od.Serialization(self)
-            case dict():
-                serialization: dict = self.getSerialization()
-                if len(operand) > 0:
-                    return get_pair_key_data(operand, serialization)
-                return serialization
             case ra.Index():
                 return ra.Index(self._index)
+            case self.__class__():
+                return operand.copy(self)
             case tuple():
                 results: list = []
                 for single_parameter in operand:
@@ -573,8 +570,11 @@ class Operand:
                     else:
                         results.append( self % single_parameter )
                 return tuple( results )
-            case self.__class__():
-                return operand.copy(self)
+            case dict():
+                serialization: dict = self.getSerialization()
+                if len(operand) > 0:
+                    return get_pair_key_data(operand, serialization)
+                return serialization
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
