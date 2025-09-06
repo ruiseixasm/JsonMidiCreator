@@ -120,7 +120,8 @@ class RS_Clip(RS_Solutions):
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 # Makes sure composition is split first by the the given measures
-                composition //= ra.Measure(self._measures)
+                for index, _ in enumerate(self._iterations):
+                    composition //= ra.Measure(self._measures * index)
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 if isinstance(triggers, list):
                     measure_triggers: list = triggers   # No need to copy, Chaos does the copy
