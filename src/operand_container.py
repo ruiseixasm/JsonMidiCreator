@@ -203,12 +203,8 @@ class Container(o.Operand):
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
-                    case Container():
-                        return self
                     case list():
                         return [
                             item for item in self._items

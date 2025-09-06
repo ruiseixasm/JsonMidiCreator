@@ -110,8 +110,6 @@ class Locus(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case ra.Duration():
@@ -322,8 +320,6 @@ class TimeSignature(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
@@ -654,8 +650,6 @@ class Pitch(Generic):
         C
         """
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():        return self % od.Pipe( operand._data )
@@ -1136,8 +1130,6 @@ class Controller(Generic):
         {'class': 'Value', 'parameters': {'unit': 64}}
         """
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Number():           return operand._data << od.Pipe(self._number_msb)
@@ -1399,8 +1391,6 @@ class Scale(Generic):
         Mixolydian
         """
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case list():                return self._scale
@@ -1672,8 +1662,6 @@ class Arpeggio(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
@@ -1903,8 +1891,6 @@ class Segment(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
@@ -3584,8 +3570,6 @@ class Settings(Generic):
     def __mod__(self, operand: o.T) -> o.T:
         import operand_element as oe
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
