@@ -69,8 +69,6 @@ class Chaos(o.Operand):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case of.Frame():            return self % od.Pipe( operand._data )
@@ -80,7 +78,6 @@ class Chaos(o.Operand):
                     case Fraction():            return self._xn._rational
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case Chaos():               return self.copy()
             case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()

@@ -885,8 +885,6 @@ class DeviceElement(Element):
         """
         import operand_container as oc
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Enable():       return ou.Enable(self._enabled)
@@ -1271,8 +1269,6 @@ class ChannelElement(DeviceElement):
         """
         import operand_container as oc
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
