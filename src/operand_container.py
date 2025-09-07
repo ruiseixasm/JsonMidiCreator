@@ -2791,17 +2791,11 @@ class Clip(Composition):  # Just a container of Elements
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Clip():
+                # Preserves the Structure (Locus), Wraps the content (Element)
                 self_base: Clip = self._base_container
                 operand_base: Clip = operand._base_container
-                # Only adds NON overlapping elements
-                for operand_element in operand_base:
-                    element_overlaps: bool = False
-                    for self_element in self_base:
-                        if operand_element.overlaps(self_element):
-                            element_overlaps = True
-                            break
-                    if not element_overlaps:
-                        self_base += operand_element
+                for element, wrapper in zip(self_base, operand_base):
+                    self._replace(element, wrapper.copy(element))
 
             case oe.Element():
                 self.__ifloordiv__(Clip(operand))
