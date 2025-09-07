@@ -2800,9 +2800,9 @@ class Clip(Composition):  # Just a container of Elements
                 # Preserves the Structure (Locus), Wraps the content (Element)
                 self_base: Clip = self._base_container
                 operand_base: Clip = operand._base_container
-                for element, wrapper in zip(self_base, operand_base):
-                    element_locus: og.Locus = element % og.Locus()
-                    self._replace(element, wrapper.copy(element_locus)._set_owner_clip(self_base))
+                for left_element, right_element in zip(self_base, operand_base):
+                    element_locus: og.Locus = left_element % og.Locus()
+                    self._replace(left_element, right_element.copy(element_locus)._set_owner_clip(self_base))
 
             case oe.Element():
                 self.__ifloordiv__(Clip(operand))
