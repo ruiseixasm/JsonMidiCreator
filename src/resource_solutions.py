@@ -332,7 +332,7 @@ class RS_Clip(RS_Solutions):
     def single_wrapper(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(33),
-            wrapper: oe.Element = oe.Retrigger(),
+            wrappers: list['oe.Element'] = [oe.Triplet(), oe.Cluster()],
             title: str | None = None) -> Self:
         """
         Wraps a single element in the `Clip` picked by `Chaos`.
@@ -342,13 +342,14 @@ class RS_Clip(RS_Solutions):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
                     clip_pick: int = results[0] % clip_len
+                    wrapper: oe.Element = wrappers[results[1] % len(wrappers)]
                     # Transforms the original Element into another one
                     segmented_composition[clip_pick] = wrapper.copy(segmented_composition[clip_pick])
             return segmented_composition
 
         if not isinstance(title, str):
             title = "Single Wrapper"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
 
 
     def multi_wrapper(self,

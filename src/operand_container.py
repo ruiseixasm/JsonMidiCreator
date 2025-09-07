@@ -1447,8 +1447,11 @@ class Composition(Container):
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                                color_alpha: float = 1.0
+                                if note["masked"]:
+                                    color_alpha = 0.2
                                 self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = 1)
+                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1557,8 +1560,11 @@ class Composition(Container):
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                                color_alpha: float = 1.0
+                                if note["masked"]:
+                                    color_alpha = 0.2
                                 self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = 1)
+                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
