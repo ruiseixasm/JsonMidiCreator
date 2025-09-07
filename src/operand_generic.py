@@ -181,6 +181,10 @@ class Locus(Generic):
     def finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
+    def overlaps(self, other: 'Locus') -> bool:
+        return other._position_beats + other._duration_beats > self._position_beats \
+            and other._position_beats < self._position_beats + self._duration_beats
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
