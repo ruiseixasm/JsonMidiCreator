@@ -2467,15 +2467,18 @@ class Clip(Composition):  # Just a container of Elements
                         self._base_container._time_signature << operand._data
 
                     case list():
-                        if all(isinstance(item, oe.Element) for item in operand):
+                        if all(isinstance(item, oe.Element) for item in operand._data):
                             # Remove previous Elements from the Container stack
                             self._delete(self._items, True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
                             self._append( operand._data )
                             self._set_owner_clip()
+                        elif all(isinstance(item, og.Locus) for item in operand._data):
+                            for single_element, locus in zip(self, operand._data):
+                                single_element << locus
                         else:   # Not for me
                             for item in self._items:
-                                item <<= operand
+                                item <<= operand._data
 
                     case ClipGet():
                         clip_get: ClipGet = operand._data
@@ -2517,6 +2520,9 @@ class Clip(Composition):  # Just a container of Elements
                     # Finally adds the decomposed elements to the Container stack
                     self._append( self.deep_copy(operand) )
                     self._set_owner_clip()
+                elif all(isinstance(item, og.Locus) for item in operand):
+                    for single_element, locus in zip(self, operand):
+                        single_element << locus
                 else:   # Not for me
                     for item in self._items:
                         item << operand
