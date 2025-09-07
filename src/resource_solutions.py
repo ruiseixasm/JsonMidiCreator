@@ -167,7 +167,7 @@ class RS_Clip(RS_Solutions):
 
     def multi_splitter(self,
             iterations: int = 1,
-            durations: list[float] = o.list_repeat([1/8 * 3/2, 1/8, 1/16, 1/32], [1, 4, 8, 2]),
+            durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 8, 2]),
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
