@@ -2797,7 +2797,7 @@ class Clip(Composition):  # Just a container of Elements
                 for operand_element in operand_base:
                     element_overlaps: bool = False
                     for self_element in self_base:
-                        if (operand_element % og.Locus()).overlaps(self_element % og.Locus()):
+                        if operand_element.overlaps(self_element):
                             element_overlaps = True
                             break
                     if not element_overlaps:

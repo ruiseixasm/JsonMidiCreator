@@ -211,6 +211,10 @@ class Element(o.Operand):
     def finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
+    def overlaps(self, other: 'Element') -> bool:
+        return other._position_beats + other._duration_beats > self._position_beats \
+            and other._position_beats < self._position_beats + self._duration_beats
+
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
