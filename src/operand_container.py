@@ -2795,7 +2795,7 @@ class Clip(Composition):  # Just a container of Elements
                 self_base: Clip = self._base_container
                 operand_base: Clip = operand._base_container
                 for element, wrapper in zip(self_base, operand_base):
-                    self._replace(element, wrapper.copy(element % og.Locus()))
+                    self._replace(element, wrapper.copy(element % og.Locus())._set_owner_clip(self_base))
 
             case oe.Element():
                 self.__ifloordiv__(Clip(operand))
@@ -3899,7 +3899,7 @@ class Part(Composition):
 
     def _set_owner_song(self, owner_song: 'Song') -> Self:
         if isinstance(owner_song, Song):
-            self._owner_song = owner_song
+            self._owner_song = owner_song._base_container
         return self
 
     def _get_time_signature(self) -> 'og.TimeSignature':
