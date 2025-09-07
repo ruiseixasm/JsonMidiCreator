@@ -2866,21 +2866,30 @@ class Clip(Composition):  # Just a container of Elements
                 self._append(new_elements)
 
             case list():
-                segments_list: list[og.Segment] = [
-                    og.Segment(self._base_container, single_segment) for single_segment in operand
-                ]
-                base_elements: list[oe.Element] = []
-                mask_elements: list[oe.Element] = []
-                for _, source_segment in enumerate(segments_list):
-                    # Preserves masked elements by id in base and mask containers
-                    self_segment: Clip = self.copy().filter(source_segment)
-                    self_segment._base_container << ra.Measure(0)   # Side by Side
-                    base_elements.extend(self_segment._base_container._items)
-                    mask_elements.extend(self_segment._items)
-                self._delete()
-                self._base_container._items = base_elements
-                self._items = mask_elements
-                self._set_owner_clip()
+                
+                if all(isinstance(item, oe.Element) for item in operand):
+                    # Preserves the Structure (Locus), Wraps the content (Element)
+                    self_base: Clip = self._base_container
+                    for left_element, right_element in zip(self_base, operand):
+                        element_locus: og.Locus = left_element % og.Locus()
+                        self._replace(left_element, right_element.copy(element_locus)._set_owner_clip(self_base))
+
+                else:
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self._base_container, single_segment) for single_segment in operand
+                    ]
+                    base_elements: list[oe.Element] = []
+                    mask_elements: list[oe.Element] = []
+                    for _, source_segment in enumerate(segments_list):
+                        # Preserves masked elements by id in base and mask containers
+                        self_segment: Clip = self.copy().filter(source_segment)
+                        self_segment._base_container << ra.Measure(0)   # Side by Side
+                        base_elements.extend(self_segment._base_container._items)
+                        mask_elements.extend(self_segment._items)
+                    self._delete()
+                    self._base_container._items = base_elements
+                    self._items = mask_elements
+                    self._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
