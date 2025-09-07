@@ -1115,7 +1115,7 @@ def test_process_mask():
     print(f"long_mask.len: {long_mask.len()}")
     assert long_mask.len() == 1
 
-# test_process_mask()
+test_process_mask()
 
 
 def test_segment_swap():

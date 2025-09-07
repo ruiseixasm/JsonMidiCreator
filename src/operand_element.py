@@ -562,7 +562,7 @@ class Element(o.Operand):
                     new_clip: oc.Clip = oc.Clip()
                     if operand > 0:
                         for _ in range(operand):
-                            new_clip.__ifloordiv__(self)
+                            new_clip.__iadd__(self) # Special case
                     return new_clip
                 
             case str():
