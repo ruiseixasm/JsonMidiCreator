@@ -2795,7 +2795,8 @@ class Clip(Composition):  # Just a container of Elements
                 self_base: Clip = self._base_container
                 operand_base: Clip = operand._base_container
                 for element, wrapper in zip(self_base, operand_base):
-                    self._replace(element, wrapper.copy(element % og.Locus())._set_owner_clip(self_base))
+                    element_locus: og.Locus = element % og.Locus()
+                    self._replace(element, wrapper.copy(element_locus)._set_owner_clip(self_base))
 
             case oe.Element():
                 self.__ifloordiv__(Clip(operand))
