@@ -495,7 +495,7 @@ class Different(Prior):
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if not self.slack(rational) and self._prior_rational is not None and self._prior_rational == rational:
+            if not self.slack(rational) and self._prior_rational is not None and rational == self._prior_rational:
                 return rational, False    # Breaks the chain
             if iterate:
                 self.next(rational)
@@ -514,7 +514,45 @@ class Same(Prior):
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         rational, validation = super().tame(rational)
         if validation:
-            if not self.slack(rational) and self._prior_rational is not None and self._prior_rational != rational:
+            if not self.slack(rational) and self._prior_rational is not None and rational != self._prior_rational:
+                return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+    
+class Increasing(Prior):
+    """`Tamer -> Validator -> Prior -> Increasing`
+
+    A `Increasing` tamer validates if the new `Rational` is greater than the prior one.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational) and self._prior_rational is not None and rational <= self._prior_rational:
+                return rational, False    # Breaks the chain
+            if iterate:
+                self.next(rational)
+        return rational, validation
+    
+class Decreasing(Prior):
+    """`Tamer -> Validator -> Prior -> Decreasing`
+
+    A `Decreasing` tamer validates if the new `Rational` is less than the prior one.
+
+    Parameters
+    ----------
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validation = super().tame(rational)
+        if validation:
+            if not self.slack(rational) and self._prior_rational is not None and rational >= self._prior_rational:
                 return rational, False    # Breaks the chain
             if iterate:
                 self.next(rational)

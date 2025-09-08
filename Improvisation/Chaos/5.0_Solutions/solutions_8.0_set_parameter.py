@@ -26,7 +26,7 @@ west_side % TimeSignature() >> Print()
 
 clip_solution = RS_Clip(west_side, [1], 4)
 phrase_notes = clip_solution.mask(Measure(3)).set_parameter(
-        7, chaos=ch.Cycle(1, Modulus(7)), parameter=Degree()
+        7, chaos=ch.Cycle(1, Modulus(7), Decreasing()), parameter=Degree()
     ).solution()
 
 
