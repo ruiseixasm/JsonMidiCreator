@@ -62,8 +62,8 @@ Vel = Velocity
 Deg = Degree
 W = Tone
 H = Semitone
-KS = KeySig = KeySignature
-TS = TimeSig = TimeSignature
+KS = KeySignature
+TS = TimeSignature
 CC = ControlChange
 PC = ProgramChange
 T = Tmp = Tpo = Tempo

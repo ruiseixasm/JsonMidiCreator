@@ -199,6 +199,9 @@ def test_copy_container():
     assert song.len() == 1
     assert song.copy() == song
 
+    clip << TimeSignature(3, 4)
+    assert clip.copy() == clip
+
 
 
 def test_add_container():
