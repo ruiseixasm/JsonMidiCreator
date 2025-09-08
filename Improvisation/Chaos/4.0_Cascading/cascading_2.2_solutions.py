@@ -22,7 +22,7 @@ seed_notes = Note() / 8
 clip_solution = RS_Clip(seed_notes)
 
 phrase_notes = clip_solution.rhythm_fast_quantized(7).mask(Beat(0)) \
-    .tonality_conjunct_but_slacked(-3).unmask().solution()
+    .tonality_conjunct_but_slacked(3).unmask().solution()
 # phrase_notes >> Plot()
 
 key_signatures = RS_Clip(phrase_notes)

@@ -32,5 +32,5 @@ section_a * 4 >> Plot(True)
 
 
 rhythm_solution = RS_Clip(section_a * 4, by_channel=True)
-# moved_beats = rhythm_solution.mask(Channel(2)).single_wrapper(-10).unmask().solution()
+# moved_beats = rhythm_solution.mask(Channel(2)).single_wrapper(10).unmask().solution()
 

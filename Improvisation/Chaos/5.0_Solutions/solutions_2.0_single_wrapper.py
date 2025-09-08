@@ -20,5 +20,5 @@ settings += Device("Digitakt")
 snare = Note(Channel(2)) / 4
 
 rhythm_solution = RS_Clip(snare * 4, by_channel=True)
-moved_beats = rhythm_solution.single_wrapper(-10).solution()
+moved_beats = rhythm_solution.single_wrapper(10).solution()
 
