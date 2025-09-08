@@ -27,15 +27,15 @@ west_side % TimeSignature() >> Print()
 clip_solution = RS_Clip(west_side, [1], 4)
 phrase_notes = clip_solution.mask(Measure(3)).operate_parameter(
         -9,
-        chaos=SinX(Repeat()**Increase(1)**Modulo(7)),
+        chaos=SinX(Wrap(int())**Repeat()**Increase(1)**Modulo(7)),
         parameter=Degree()
     ).mask(Measure(3), Or(Beat(1), Beat(2))).operate_parameter(
         9,
-        chaos=SinX(Repeat()**Increase(1)**Modulo(7)),
+        chaos=SinX(Wrap(int())**Repeat()**Increase(1)**Modulo(7)),
         parameter=Degree()
     ).mask(Measure(3), Beat(2)).operate_parameter(
         9,
-        chaos=SinX(Repeat()**Increase(1)**Modulo(7)),
+        chaos=SinX(Wrap(int())**Repeat()**Increase(1)**Modulo(7)),
         parameter=Degree()
     ).solution()
 
