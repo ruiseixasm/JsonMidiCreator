@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 
 
 T = TypeVar('T')
+TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNumeral represents any class similar to a number
 
 # GENERIC HANDY FUNCTIONS
 

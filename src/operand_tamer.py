@@ -46,7 +46,7 @@ class Tamer(o.Operand):
             return 1
         return self._next_operand.from_tail() + 1
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if self._next_operand is not None:
             numeral, validated = self._next_operand.tame(numeral)
             if not validated:
@@ -72,7 +72,7 @@ class Tamer(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def next(self, numeral: Fraction) -> Self:
+    def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if isinstance(self._next_operand, Tamer):
             self._next_operand.next(numeral)
@@ -121,7 +121,7 @@ class Parallel(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and self._tamers:
@@ -195,7 +195,7 @@ class Parallel(Tamer):
             single_tamer.reset()
         return super().reset(*parameters)
     
-    def next(self, numeral: Fraction) -> Self:
+    def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         for single_tamer in self._tamers:
             single_tamer.next(numeral)
@@ -218,7 +218,7 @@ class Validator(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def slack(self, numeral: Fraction) -> bool:
+    def slack(self, numeral: o.TypeNumeral) -> bool:
         """Returns True to skip the respective tamer, meaning, gives some slack."""
         return numeral * self.from_tail() % Fraction(1) > self._strictness
 
@@ -285,7 +285,7 @@ class Check(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and not self._checker(numeral):
@@ -404,7 +404,7 @@ class Maximum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -431,7 +431,7 @@ class Minimum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -453,7 +453,7 @@ class Prior(Validator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._prior_numeral: Fraction = None
+        self._prior_numeral: o.TypeNumeral = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -486,7 +486,7 @@ class Prior(Validator):
         self._prior_numeral = None
         return super().reset(*parameters)
     
-    def next(self, numeral: Fraction) -> Self:
+    def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._prior_numeral = numeral
         return super().next(numeral)
@@ -501,7 +501,7 @@ class Different(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
@@ -520,7 +520,7 @@ class Same(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
@@ -539,7 +539,7 @@ class Increasing(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
@@ -558,7 +558,7 @@ class Decreasing(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
@@ -629,7 +629,7 @@ class Motion(Validator):
         self._last_integer = None
         return super().reset(*parameters)
     
-    def next(self, numeral: Fraction) -> Self:
+    def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._last_integer = int(numeral)
         return super().next(numeral)
@@ -644,7 +644,7 @@ class Conjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -665,7 +665,7 @@ class Stepwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -686,7 +686,7 @@ class Skipwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -707,7 +707,7 @@ class Disjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -728,7 +728,7 @@ class Leaping(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -749,7 +749,7 @@ class Ascending(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -770,7 +770,7 @@ class Descending(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
             if not self.slack(numeral):
@@ -794,7 +794,7 @@ class Manipulator(Tamer):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: Fraction = Fraction(8)
+        self._numeral: o.TypeNumeral = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -848,7 +848,7 @@ class Modulo(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective `Modulus`.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral %= self._numeral
@@ -864,7 +864,7 @@ class Increase(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective increasing amount.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral += self._numeral
@@ -880,7 +880,7 @@ class Decrease(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective decrement amount.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral -= self._numeral
@@ -898,11 +898,11 @@ class Repeat(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: Fraction | None = None
+        self._numeral: o.TypeNumeral | None = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._numeral is not None:
@@ -917,7 +917,7 @@ class Repeat(Manipulator):
         self._numeral = None
         return super().reset(*parameters)
     
-    def next(self, numeral: Fraction) -> Self:
+    def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._numeral = numeral
         return super().next(numeral)
@@ -932,7 +932,7 @@ class Wrap(Manipulator):
     ----------
     Any() : Sets the type of object to wrap the numeral.
     """
-    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = self._numeral.__class__(numeral)
