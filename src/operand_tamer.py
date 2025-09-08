@@ -46,16 +46,16 @@ class Tamer(o.Operand):
             return 1
         return self._next_operand.from_tail() + 1
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
         if self._next_operand is not None:
-            rational, validated = self._next_operand.tame(rational)
+            numeral, validated = self._next_operand.tame(numeral)
             if not validated:
-                return rational, False    # Breaks the chain
+                return numeral, False    # Breaks the chain
             if validated and iterate:
-                self.next(rational)
+                self.next(numeral)
         elif iterate:
-            self.next(rational)
-        return rational, True
+            self.next(numeral)
+        return numeral, True
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -72,10 +72,10 @@ class Tamer(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def next(self, rational: Fraction) -> Self:
+    def next(self, numeral: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if isinstance(self._next_operand, Tamer):
-            self._next_operand.next(rational)
+            self._next_operand.next(numeral)
         self._index += 1
         return self
         
@@ -121,20 +121,20 @@ class Parallel(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and self._tamers:
+            if not self.slack(numeral) and self._tamers:
                 parallel_validation: bool = False
                 for single_tamer in self._tamers:
-                    rational, single_validation = single_tamer.tame(rational)
+                    numeral, single_validation = single_tamer.tame(numeral)
                     if single_validation:
                         parallel_validation = True
                 if not parallel_validation:
-                    return rational, False    # Breaks the chain
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -195,17 +195,17 @@ class Parallel(Tamer):
             single_tamer.reset()
         return super().reset(*parameters)
     
-    def next(self, rational: Fraction) -> Self:
+    def next(self, numeral: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         for single_tamer in self._tamers:
-            single_tamer.next(rational)
-        return super().next(rational)
+            single_tamer.next(numeral)
+        return super().next(numeral)
         
 
 class Validator(Tamer):
     """`Tamer -> Validator`
 
-    A `Validator` is a read-only `Tamer` that just verifies that the submitted rational conforms.
+    A `Validator` is a read-only `Tamer` that just verifies that the submitted numeral conforms.
 
     Parameters
     ----------
@@ -218,9 +218,9 @@ class Validator(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def slack(self, rational: Fraction) -> bool:
+    def slack(self, numeral: Fraction) -> bool:
         """Returns True to skip the respective tamer, meaning, gives some slack."""
-        return rational * self.from_tail() % Fraction(1) > self._strictness
+        return numeral * self.from_tail() % Fraction(1) > self._strictness
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -285,14 +285,14 @@ class Check(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and not self._checker(rational):
-                return rational, False  # Breaks the chain
+            if not self.slack(numeral) and not self._checker(numeral):
+                return numeral, False  # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -404,15 +404,15 @@ class Maximum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
-                if rational > self._boundary:
-                    return rational, False    # Breaks the chain
+            if not self.slack(numeral):
+                if numeral > self._boundary:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Minimum(Boundary):
     """`Tamer -> Validator -> Boundary -> Minimum`
@@ -431,15 +431,15 @@ class Minimum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
-                if rational < self._boundary:
-                    return rational, False    # Breaks the chain
+            if not self.slack(numeral):
+                if numeral < self._boundary:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
     
 class Prior(Validator):
     """`Tamer -> Validator -> Prior`
@@ -453,13 +453,13 @@ class Prior(Validator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._prior_rational: int = None
+        self._prior_numeral: Fraction = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["prior"] = self.serialize( self._prior_rational )
+        serialization["parameters"]["prior"] = self.serialize( self._prior_numeral )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -469,7 +469,7 @@ class Prior(Validator):
             "prior" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._prior_rational = self.deserialize( serialization["parameters"]["prior"] )
+            self._prior_numeral = self.deserialize( serialization["parameters"]["prior"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -477,19 +477,19 @@ class Prior(Validator):
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._prior_rational = operand._prior_rational
+                self._prior_numeral = operand._prior_numeral
             case _:
                 super().__lshift__(operand)
         return self
 
     def reset(self, *parameters) -> Self:
-        self._prior_rational = None
+        self._prior_numeral = None
         return super().reset(*parameters)
     
-    def next(self, rational: Fraction) -> Self:
+    def next(self, numeral: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._prior_rational = rational
-        return super().next(rational)
+        self._prior_numeral = numeral
+        return super().next(numeral)
 
 class Different(Prior):
     """`Tamer -> Validator -> Prior -> Different`
@@ -501,14 +501,14 @@ class Different(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and self._prior_rational is not None and rational == self._prior_rational:
-                return rational, False    # Breaks the chain
+            if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
+                return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
     
 class Same(Prior):
     """`Tamer -> Validator -> Prior -> Same`
@@ -520,14 +520,14 @@ class Same(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and self._prior_rational is not None and rational != self._prior_rational:
-                return rational, False    # Breaks the chain
+            if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
+                return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
     
 class Increasing(Prior):
     """`Tamer -> Validator -> Prior -> Increasing`
@@ -539,14 +539,14 @@ class Increasing(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and self._prior_rational is not None and rational <= self._prior_rational:
-                return rational, False    # Breaks the chain
+            if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
+                return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
     
 class Decreasing(Prior):
     """`Tamer -> Validator -> Prior -> Decreasing`
@@ -558,20 +558,20 @@ class Decreasing(Prior):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational) and self._prior_rational is not None and rational >= self._prior_rational:
-                return rational, False    # Breaks the chain
+            if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
+                return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
     
 
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
 
-    A `Motion` validates the distance between integers given by the received rational.
+    A `Motion` validates the distance between integers given by the received numeral.
     It should be used together with a `Modulo` to avoid unmeet tries.
 
     Parameters
@@ -629,10 +629,10 @@ class Motion(Validator):
         self._last_integer = None
         return super().reset(*parameters)
     
-    def next(self, rational: Fraction) -> Self:
+    def next(self, numeral: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._last_integer = int(rational)
-        return super().next(rational)
+        self._last_integer = int(numeral)
+        return super().next(numeral)
         
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
@@ -644,16 +644,16 @@ class Conjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and abs(int(rational) - self._last_integer) > 1:
-                    return rational, False    # Breaks the chain
+                    and abs(int(numeral) - self._last_integer) > 1:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Stepwise(Motion):
     """`Tamer -> Validator -> Motion -> Stepwise`
@@ -665,16 +665,16 @@ class Stepwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and abs(int(rational) - self._last_integer) != 1:
-                    return rational, False    # Breaks the chain
+                    and abs(int(numeral) - self._last_integer) != 1:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Skipwise(Motion):
     """`Tamer -> Validator -> Motion -> Skipwise`
@@ -686,16 +686,16 @@ class Skipwise(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and abs(int(rational) - self._last_integer) != 2:
-                    return rational, False    # Breaks the chain
+                    and abs(int(numeral) - self._last_integer) != 2:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Disjunct(Motion):
     """`Tamer -> Validator -> Motion -> Disjunct`
@@ -707,16 +707,16 @@ class Disjunct(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and abs(int(rational) - self._last_integer) < 1:
-                    return rational, False    # Breaks the chain
+                    and abs(int(numeral) - self._last_integer) < 1:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Leaping(Motion):
     """`Tamer -> Validator -> Motion -> Leaping`
@@ -728,65 +728,65 @@ class Leaping(Motion):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and abs(int(rational) - self._last_integer) < 3:
-                    return rational, False    # Breaks the chain
+                    and abs(int(numeral) - self._last_integer) < 3:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Ascending(Motion):
     """`Tamer -> Validator -> Motion -> Ascending`
 
-    This `Ascending` checks if the successive rational is greater than the previous one.
+    This `Ascending` checks if the successive numeral is greater than the previous one.
 
     Parameters
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and not int(rational) > self._last_integer:
-                    return rational, False    # Breaks the chain
+                    and not int(numeral) > self._last_integer:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 class Descending(Motion):
     """`Tamer -> Validator -> Motion -> Descending`
 
-    This `Descending` checks if the successive rational is less than the previous one.
+    This `Descending` checks if the successive numeral is less than the previous one.
 
     Parameters
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(rational):
+            if not self.slack(numeral):
                 if self._last_integer is not None \
-                    and not int(rational) < self._last_integer:
-                    return rational, False    # Breaks the chain
+                    and not int(numeral) < self._last_integer:
+                    return numeral, False    # Breaks the chain
             if iterate:
-                self.next(rational)
-        return rational, validated
+                self.next(numeral)
+        return numeral, validated
 
 
 class Manipulator(Tamer):
     """`Tamer -> Manipulator`
 
-    A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted rational manipulates
-    the given rational to other Tamer operands.
+    A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted numeral manipulates
+    the given numeral to other Tamer operands.
 
     Parameters
     ----------
@@ -848,11 +848,11 @@ class Modulo(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective `Modulus`.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational, iterate)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        rational %= self._numeral
-        return rational, validated
+        numeral %= self._numeral
+        return numeral, validated
     
 
 class Increase(Manipulator):
@@ -864,11 +864,11 @@ class Increase(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective increasing amount.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational, iterate)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        rational += self._numeral
-        return rational, validated
+        numeral += self._numeral
+        return numeral, validated
     
 
 class Decrease(Manipulator):
@@ -880,11 +880,11 @@ class Decrease(Manipulator):
     ----------
     Fraction(8), int, float : Sets the respective decrement amount.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational, iterate)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        rational -= self._numeral
-        return rational, validated
+        numeral -= self._numeral
+        return numeral, validated
 
 
 class Repeat(Manipulator):
@@ -902,14 +902,14 @@ class Repeat(Manipulator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._numeral is not None:
-            rational = self._numeral
+            numeral = self._numeral
         if iterate: # Has to be after the fact
-            self.next(rational)
-        return rational, validated
+            self.next(numeral)
+        return numeral, validated
     
     # CHAINABLE OPERATIONS
 
@@ -917,26 +917,26 @@ class Repeat(Manipulator):
         self._numeral = None
         return super().reset(*parameters)
     
-    def next(self, rational: Fraction) -> Self:
+    def next(self, numeral: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._numeral = rational
-        return super().next(rational)
+        self._numeral = numeral
+        return super().next(numeral)
 
 
-class Integer(Manipulator):
-    """`Tamer -> Manipulator -> Integer`
+class Wrap(Manipulator):
+    """`Tamer -> Manipulator -> Wrap`
 
-    `Integer` rounds the given `Rational` to an integer.
+    `Wrap` wraps the `Numeral` into a different class than `Fraction`.
 
     Parameters
     ----------
-    None
+    Any() : Sets the type of object to wrap the numeral.
     """
-    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational, iterate)
+    def tame(self, numeral: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        rational = Fraction(int(rational))
-        return rational, validated
+        numeral = self._numeral.__class__(numeral)
+        return numeral, validated
     
 
 
