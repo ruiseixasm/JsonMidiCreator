@@ -249,7 +249,7 @@ class Cycle(Chaos):
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Modulus(12) : The cyclic value on which the `Xn` modulus % operation is made.
-    Steps(1) : The increase amount for each iteration.
+    Steps(1), Step() : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -267,6 +267,7 @@ class Cycle(Chaos):
                     case _:                     return super().__mod__(operand)
             case ra.Modulus():          return ra.Modulus(self._modulus)
             case ra.Steps():            return ra.Steps(self._steps)
+            case ra.Step():             return ra.Step(self._steps)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -308,6 +309,7 @@ class Cycle(Chaos):
                     case _:                     super().__lshift__(operand)
             case ra.Modulus():      self._modulus   = operand._rational
             case ra.Steps():        self._steps     = operand._rational
+            case ra.Step():         self._steps     = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
