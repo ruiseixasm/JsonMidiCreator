@@ -308,8 +308,8 @@ class Cycle(Chaos):
                     case ra.Steps():            self._steps     = operand._data._rational
                     case _:                     super().__lshift__(operand)
             case ra.Modulus():      self._modulus   = operand._rational
-            case ra.Steps():        self._steps     = operand._rational
-            case ra.Step():         self._steps     = operand._rational
+            case ra.Steps() | ra.Step():
+                self._steps     = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
