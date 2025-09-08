@@ -835,8 +835,9 @@ class Manipulator(Tamer):
                     case Fraction():                self._numeral = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case int() | float() | Fraction():
-                self._numeral = ra.Result(operand)._rational
+            case _: # o.TypeNumeral
+                if isinstance(operand, (int, float, Fraction, o.Operand)):
+                    self._numeral = operand
         return self
 
 class Modulo(Manipulator):
