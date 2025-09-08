@@ -2113,7 +2113,7 @@ class Clip(Composition):  # Just a container of Elements
             self << single_operand
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._time_signature
+        return self._base_container._time_signature
 
     def _index_from_frame(self, frame: of.Frame) -> int:
         """
@@ -2299,7 +2299,7 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack():    return self._base_container._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._base_container._midi_track % operand
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 return self._base_container._time_signature % operand
             case Part():            return Part(self._base_container._time_signature, self._base_container)
             case Song():            return Song(self._base_container._time_signature, self._base_container)
@@ -3937,7 +3937,7 @@ class Part(Composition):
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_song is None:
             return og.settings._time_signature
-        return self._owner_song._time_signature
+        return self._owner_song._base_container._time_signature
 
 
     def __getitem__(self, key: str | int) -> 'Clip':
@@ -4546,7 +4546,7 @@ class Song(Composition):
             self << single_operand
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._time_signature
+        return self._base_container._time_signature
 
 
     def __getitem__(self, key: int) -> 'Part':
