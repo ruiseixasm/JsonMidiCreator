@@ -49,9 +49,9 @@ class RP_Patterns:
         pattern = oc.Clip(od.TrackName("West Side"), og.TimeSignature(3, 4), parameters)
         pattern += oe.Note(pattern, 1/8) / 6
         pattern /= oe.Note(pattern, 1/4) / 3
-        pattern << of.Nth(1, 2, 3)**ou.Key("G")
-        pattern << of.Nth(4, 5, 6)**(ou.Octave(5), ou.Key("C"))
-        pattern << of.Nth(7, 8, 9)**of.Foreach("A", "F", "C")**ou.Key()
+        pattern << of.Nth(1, 2, 3)**ou.Degree(5)
+        pattern << of.Nth(4, 5, 6)**ou.Octave(5)
+        pattern << of.Nth(7, 8, 9)**of.Foreach(6, 4, 1)**ou.Degree()
         return pattern * (measures // 2)
 
 
