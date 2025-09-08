@@ -1795,7 +1795,7 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration = 0
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -1805,7 +1805,7 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -1815,7 +1815,7 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -1825,7 +1825,7 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -1834,7 +1834,7 @@ class Composition(Container):
     def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
         self._plot_lists[iteration] = plotlist
         if iteration == self._iteration:
-            self._plot_elements(plotlist, self._iterations[iteration]._time_signature)
+            self._plot_elements(plotlist, self._iterations[iteration]._base_container._time_signature)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -1846,7 +1846,7 @@ class Composition(Container):
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
-                self._plot_elements(plotlist, new_iteration._time_signature)
+                self._plot_elements(plotlist, new_iteration._base_container._time_signature)
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
         return self
@@ -1990,7 +1990,7 @@ class Composition(Container):
         self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
 
-        self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._time_signature)
+        self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._base_container._time_signature)
 
         # Where the padding is set
         plt.tight_layout()
