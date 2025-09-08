@@ -405,6 +405,11 @@ class Tempo(Rational):
     def __init__(self, *parameters):
         super().__init__(120, *parameters)
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():             return str(round(float(self._rational), 1))
+            case _:                 return super().__mod__(operand)
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:

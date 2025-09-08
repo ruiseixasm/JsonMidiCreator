@@ -338,6 +338,7 @@ class TimeSignature(Generic):
             case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
             # Calculated Values
             case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
+            case str():                 return f"{self._top}/{self._bottom}"
             case TimeSignature():       return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
@@ -2612,9 +2613,8 @@ class Print(ReadOnly):
         import json
         match operand:
             case o.Operand():
-                operand_serialization = operand.getSerialization()
                 if self._parameters:
-                    serialized_json_str = json.dumps(operand_serialization)
+                    serialized_json_str = json.dumps(operand.getSerialization())
                     json_object = json.loads(serialized_json_str)
                     json_formatted_str = json.dumps(json_object, indent=4)
                     print(json_formatted_str)
