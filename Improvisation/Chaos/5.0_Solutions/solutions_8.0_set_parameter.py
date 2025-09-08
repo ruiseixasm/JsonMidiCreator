@@ -13,25 +13,24 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-import sys
-import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
-if src_path not in sys.path:
-    sys.path.append(src_path)
+from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-from JsonMidiCreator import *
+settings += Device("Blofeld")
+settings << Tempo(140)
+settings % Tempo() >> Print()
 
-settings << Tempo(140) << TimeSignature(3, 4)
-settings % TimeSignature() >> Print()
+west_side = RP_Patterns.west_side()
+west_side % [Degree()] >> Print()
 
-west_side = Clip(TrackName("West Side"))
-west_side += Note(1/8) / 6
-west_side /= Note(1/4) / 3
-west_side << Nth(1, 2, 3)**Key("G")
-west_side << Nth(4, 5, 6)**(Octave(5), Key("C"))
-west_side << Nth(7, 8, 9)**Foreach("A", "F", "C")**Key()
-west_side * 2 >> Plot()
+
+snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
+
+single_seed_note = Note(4/1) * 1
+
+clip_solution = RS_Clip(single_seed_note)
+phrase_notes = clip_solution.multi_splitter(1).multi_wrapper(-7).solution()
+
 
 settings << Settings()  # Resets to Defaults
-settings % TimeSignature() >> Print()
+settings % Tempo() >> Print()
 

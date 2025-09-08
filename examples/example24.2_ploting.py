@@ -28,6 +28,6 @@ west_side = RP_Patterns.west_side()
 west_side % [Degree()] >> Print()
 west_side >> Plot()
 
-settings << Settings()  # Rests to Defaults
+settings << Settings()  # Resets to Defaults
 settings % Tempo() >> Print()
 
