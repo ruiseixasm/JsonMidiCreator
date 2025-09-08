@@ -830,9 +830,9 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        new_mask: Container = self._base_container.shallow_copy()
+        container_mask: Container = self._base_container.shallow_copy()
         # This shallow copy is a mask, so it chains upper containers
-        new_mask._base_container = self._base_container
+        container_mask._base_container = self._base_container
         masked_item_ids: set = set()
         # And type of conditions, not meeting any means excluded
         for single_condition in conditions:
@@ -848,11 +848,11 @@ class Container(o.Operand):
                     id(item) for item in self._base_container._items
                     if not item == single_condition
                 )
-        new_mask._items = [
+        container_mask._items = [
             unmasked_item for unmasked_item in self._base_container
             if id(unmasked_item) not in masked_item_ids
         ]
-        return new_mask
+        return container_mask
 
     def base(self) -> Self:
         """
@@ -1287,6 +1287,23 @@ class Composition(Container):
     def __ifloordiv__(self, operand: any) -> Self:
         return self
     
+
+    def mask(self, *conditions) -> Self:
+        """
+        Masks the items that meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Composition Mask: A different object with a shallow copy of the original
+            `Composition` items now selected as a `Mask`.
+        """
+        composition_mask: Composition = super().mask(*conditions)
+        composition_mask._time_signature = self._time_signature
+        return composition_mask
+
     
     def fit(self, tie_splits: bool = True) -> Self:
         """
@@ -2435,8 +2452,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"]        = self.serialize(self._time_signature)
-        serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
+        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
+        serialization["parameters"]["midi_track"]       = self.serialize(self._midi_track)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2452,11 +2469,11 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._time_signature             = self.deserialize(serialization["parameters"]["staff"])
-            self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
+            self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
+            self._midi_track        << self.deserialize(serialization["parameters"]["midi_track"])
             self._set_owner_clip()
         return self
 
@@ -2465,7 +2482,6 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 super().__lshift__(operand)
                 self._base_container._time_signature    << operand._base_container._time_signature
-                self._time_signature = self._base_container._time_signature
                 self._base_container._midi_track        << operand._base_container._midi_track
                 self._midi_track = self._base_container._midi_track
                 self._base_container._set_owner_clip()
@@ -2478,7 +2494,6 @@ class Clip(Composition):  # Just a container of Elements
 
                     case og.TimeSignature():
                         self._base_container._time_signature = operand._data
-                        self._time_signature = self._base_container._time_signature
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2519,9 +2534,8 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._base_container._midi_track << operand
                 self._midi_track = self._base_container._midi_track
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 self._base_container._time_signature << operand  # TimeSignature has no clock!
-                self._time_signature = self._base_container._time_signature
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self._base_container.loadSerialization( operand.getSerialization() )
