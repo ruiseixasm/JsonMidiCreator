@@ -974,7 +974,7 @@ class Devices(Container):
 class ClockedDevices(Devices):
     """`Container -> Devices -> ClockedDevices`
 
-    Represents a list of Devices passed to the clip staff, all these devices are intended
+    Represents a list of Devices passed to the clip `Track`, all these devices are intended
     to be connected as destiny of the generated Clock messages by the JsonMidiPlayer.
 
     Parameters
@@ -2116,7 +2116,7 @@ class Clip(Composition):  # Just a container of Elements
     ----------
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
-    TimeSignature(settings) : A staff on which `TimeValue` units are based and `Element` items placed.
+    TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
     Length : Returns the length of all combined elements.
     """
@@ -2198,13 +2198,13 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
-        if isinstance(staff_reference, og.TimeSignature):
+    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
+        if isinstance(time_signature, og.TimeSignature):
             for single_element in self:
                 single_element._convert_time_signature(self._time_signature)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature << staff_reference  # Does a copy
+                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
+            self._time_signature << time_signature  # Does a copy
         return self
 
 
@@ -3934,12 +3934,12 @@ class Part(Composition):
             self << single_operand
 
 
-    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
-        if isinstance(staff_reference, og.TimeSignature):
-            self._position_beats = ra.Position(staff_reference, self % od.Pipe( ra.Position() ))._rational
+    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
+        if isinstance(time_signature, og.TimeSignature):
+            self._position_beats = ra.Position(time_signature, self % od.Pipe( ra.Position() ))._rational
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature = staff_reference  # Does an assignment
+                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
+            self._time_signature = time_signature  # Does an assignment
         return self
 
 
@@ -4548,7 +4548,7 @@ class Song(Composition):
     ----------
     list([]) : A list of `Part` type items.
     int : Returns the len of the list.
-    TimeSignature(settings) : It keeps its own staff on which their `Part` items are placed.
+    TimeSignature(settings) : It keeps its own Time Signature on which their `Part` items are placed.
     Length : Returns the length of all combined parts.
     """
     def __init__(self, *operands):
@@ -4590,13 +4590,13 @@ class Song(Composition):
         return self
 
 
-    def _convert_time_signature_reference(self, staff_reference: 'og.TimeSignature') -> Self:
-        if isinstance(staff_reference, og.TimeSignature):
+    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
+        if isinstance(time_signature, og.TimeSignature):
             for single_part in self:
                 single_part._convert_time_signature_reference(self._time_signature)
             if self._length_beats is not None:
-                self._length_beats = ra.Length(staff_reference, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature << staff_reference  # Does a copy
+                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
+            self._time_signature << time_signature  # Does a copy
         return self
 
 
@@ -4788,7 +4788,7 @@ class Song(Composition):
         
         for single_part in self._base_container._items:
             part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids, True)
-            # Part uses the Song staff as Elements use the Clip staff, so, no need for conversions
+            # Part uses the Song Time Signature as Elements use the Clip Time Signature, so, no need for conversions
             plot_list.extend( part_plotlist )
 
         return plot_list
@@ -4838,7 +4838,7 @@ class Song(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"] = self.serialize(self._time_signature)
+        serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4854,10 +4854,10 @@ class Song(Composition):
             Song: The self Song object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._time_signature = self.deserialize(serialization["parameters"]["staff"])
+            self._time_signature = self.deserialize(serialization["parameters"]["time_signature"])
             self._set_owner_song()
         return self
 
