@@ -1351,6 +1351,7 @@ class Composition(Container):
         "#FF4081",  # Hot Pink
     ]
 
+
     def _plot_elements(self, plotlist: list[dict], time_signature: 'og.TimeSignature'):
         """
         The method that does the heavy work of plotting
@@ -1363,7 +1364,6 @@ class Composition(Container):
                            f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0
         }")
 
-
         # Horizontal X-Axis, Time related (COMMON)
 
         composition_tempo: float = float(plotlist[0]["tempo"])
@@ -1373,7 +1373,7 @@ class Composition(Container):
         # self._ax.set_xlim(current_min, current_max * 1.03)
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
-        beats_per_measure: Fraction = self._time_signature % og.TimeSignature() % ra.BeatsPerMeasure() % Fraction()
+        beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
