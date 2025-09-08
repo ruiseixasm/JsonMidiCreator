@@ -2095,7 +2095,7 @@ class Clip(Composition):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__()
         self._base_container: Clip = self
-        self._time_signature: og.TimeSignature           = og.settings._time_signature.copy()
+        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
         for single_operand in operands:

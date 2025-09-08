@@ -38,10 +38,21 @@ import operand_chaos as ch
 
 class RP_Patterns:
     
-    def four_on_the_floor(*parameters, measures: int = 4) -> oc.Clip:
-        pattern: oc.Clip = oc.Clip(og.TimeSignature(4, 4), oe.Note(1/16), parameters)
+    @staticmethod
+    def four_on_the_floor(*parameters, measures: int = 4) -> 'oc.Clip':
+        pattern: oc.Clip = oc.Clip(od.TrackName("Four on the Floor"), og.TimeSignature(4, 4), oe.Note(1/16), parameters)
         pattern *= measures       
         return pattern
+
+    @staticmethod
+    def west_side(*parameters, measures: int = 4) -> 'oc.Clip':
+        pattern = oc.Clip(od.TrackName("West Side"), og.TimeSignature(3, 4))
+        pattern += oe.Note(og.TimeSignature(3, 4), 1/8) / 6
+        pattern /= oe.Note(og.TimeSignature(3, 4), 1/4) / 3
+        pattern << of.Nth(1, 2, 3)**ou.Key("G")
+        pattern << of.Nth(4, 5, 6)**(ou.Octave(5), ou.Key("C"))
+        pattern << of.Nth(7, 8, 9)**of.Foreach("A", "F", "C")**ou.Key()
+        return pattern * (measures // 2)
 
 
 class RP_Mutation(RP_Patterns):
