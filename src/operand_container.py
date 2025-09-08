@@ -286,6 +286,8 @@ class Container(o.Operand):
                         return False
                 return True
         if not isinstance(other, ol.Null):
+            if other.__class__ == o.Operand:
+                return True
             return self % other == other
         # When comparing lists containing objects in Python using the == operator,
         # Python will call the __eq__ method on the objects if it is defined,
@@ -1156,6 +1158,14 @@ class Composition(Container):
             return ra.Duration(self.finish() - self.start())
         return ra.Duration(self, 0)
     
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case Composition():
+                return self._time_signature == other._time_signature and super().__eq__(other)
+            case _:
+                return super().__eq__(other)
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -2454,17 +2464,20 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 super().__lshift__(operand)
                 self._base_container._time_signature    << operand._base_container._time_signature
+                self._time_signature = self._base_container._time_signature
                 self._base_container._midi_track        << operand._base_container._midi_track
+                self._midi_track = self._base_container._midi_track
                 self._base_container._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        self._base_container._time_signature = operand._data
-                    case ou.MidiTrack():            self._base_container._midi_track = operand._data
+                    case ou.MidiTrack():
+                        self._base_container._midi_track = operand._data
+                        self._midi_track = self._base_container._midi_track
 
-                    # All possible TimeSignature parameters enter here
-                    case og.TimeSignature() | og.TimeSignature():
-                        self._base_container._time_signature << operand._data
+                    case og.TimeSignature():
+                        self._base_container._time_signature = operand._data
+                        self._time_signature = self._base_container._time_signature
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2504,8 +2517,10 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._base_container._midi_track << operand
+                self._midi_track = self._base_container._midi_track
             case og.TimeSignature() | og.TimeSignature():
                 self._base_container._time_signature << operand  # TimeSignature has no clock!
+                self._time_signature = self._base_container._time_signature
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self._base_container.loadSerialization( operand.getSerialization() )
@@ -4007,17 +4022,8 @@ class Part(Composition):
                         and self._position_beats == other._position_beats
                 return super().__eq__(other) \
                     and self % ra.Position() == other % ra.Position()
-            case of.Frame():
-                for single_clip in self._items:
-                    if not single_clip == other:
-                        return False
-                return True
             case _:
-                if other.__class__ == o.Operand:
-                    return True
-                if type(other) == ol.Null:
-                    return False    # Makes sure ol.Null ends up processed as False
-                return self % other == other
+                return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
         other ^= self    # Processes the Frame operand if any exists

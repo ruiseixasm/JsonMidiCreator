@@ -560,7 +560,7 @@ def test_mul_clip():
     assert hi_hat[3] % Position() % Steps() == 14.0
 
     # Test empty Clip
-    empty_clip = hi_hat * 0
+    empty_clip = hi_hat * 0 << TimeSignature(2, 4)
     assert empty_clip.len() == 0
     equally_hi_hat: Clip = empty_clip * hi_hat
     assert hi_hat.len() == 4

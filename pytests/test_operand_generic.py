@@ -1005,3 +1005,11 @@ def test_degree_float():
 
 # test_degree_float()
 
+
+def test_time_signature():
+    default_ts = TimeSignature()
+    assert default_ts.copy() == default_ts
+
+    default_ts << BeatsPerMeasure(3)
+    assert default_ts.copy() == default_ts
+
