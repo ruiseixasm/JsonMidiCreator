@@ -903,10 +903,12 @@ class Repeat(Manipulator):
             self << single_parameter
 
     def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        rational, validated = super().tame(rational, iterate)
+        rational, validated = super().tame(rational)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._numeral is not None:
             rational = self._numeral
+        if iterate: # Has to be after the fact
+            self.next(rational)
         return rational, validated
     
     # CHAINABLE OPERATIONS
