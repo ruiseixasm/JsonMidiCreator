@@ -852,7 +852,13 @@ class Modulo(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral %= self._numeral
+        self_numeral: Fraction = self._numeral
+        if isinstance(self._numeral, o.Operand):
+            self_numeral = self._numeral % Fraction()
+        if isinstance(numeral, o.Operand):
+            numeral << numeral % Fraction() % self_numeral
+        else:
+            numeral %= self_numeral
         return numeral, validated
     
 
