@@ -60,6 +60,7 @@ class Element(o.Operand):
         self._enabled: bool                 = True
 
         self._owner_clip: oc.Clip           = None
+        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -78,7 +79,7 @@ class Element(o.Operand):
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
-            return og.settings._time_signature
+            return self._time_signature
         return self._owner_clip._time_signature
 
 
@@ -232,19 +233,21 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
-        serialization["parameters"]["duration"]     = self.serialize(self._duration_beats)
+        serialization["parameters"]["position"]         = self.serialize(self._position_beats)
+        serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
+        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position_beats        = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats        = self.deserialize(serialization["parameters"]["duration"])
+            self._time_signature        = self.deserialize(serialization["parameters"]["time_signature"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -259,6 +262,7 @@ class Element(o.Operand):
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 if self._owner_clip is None:    # << and copy operation doesn't override ownership
                     self._owner_clip        = operand._owner_clip
+                self._time_signature        = operand._time_signature.copy()
 
             case od.Pipe():
                 match operand._data:
