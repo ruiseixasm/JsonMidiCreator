@@ -885,7 +885,41 @@ class Decrease(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         rational -= self._numeral
         return rational, validated
+
+
+class Repeat(Manipulator):
+    """`Tamer -> Manipulator -> Repeat`
+
+    `Repeat` returns the previous `Rational` numeral resulting in its repetition.
+
+    Parameters
+    ----------
+    None
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._numeral: Fraction | None = None
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, rational: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
+        rational, validated = super().tame(rational, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        if self._numeral is not None:
+            rational = self._numeral
+        return rational, validated
     
+    # CHAINABLE OPERATIONS
+
+    def reset(self, *parameters) -> Self:
+        self._numeral = None
+        return super().reset(*parameters)
+    
+    def next(self, rational: Fraction) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        self._numeral = rational
+        return super().next(rational)
+
 
 class Integer(Manipulator):
     """`Tamer -> Manipulator -> Integer`
