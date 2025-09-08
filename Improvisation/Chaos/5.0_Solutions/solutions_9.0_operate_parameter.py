@@ -35,8 +35,9 @@ phrase_notes = clip_solution.mask(Measure(3)).operate_parameter(
         parameter=Degree()
     ).mask(Measure(3), Beat(2)).operate_parameter(
         9,
-        chaos=SinX(Wrap(int())**Repeat()**Increase(1)**Modulo(7)),
-        parameter=Semitone()
+        chaos=Cycle(),
+        parameter=Semitone(1),  # Has to set 1 to trigger iterations!
+        operator=lambda element, result: element.sub(result)
     ).solution()
 
 
