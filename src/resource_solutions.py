@@ -474,6 +474,34 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, parameter, title)
 
 
+    def operate_parameter(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
+            parameter: Any = ou.Degree(),
+            operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
+            title: str | None = None) -> Self:
+        """
+        Applies any operator between elements and computed values.
+        
+        Args:
+            iterations: Number of iterations
+            chaos: Chaos generator for values
+            parameter: Parameter to compute values from
+            operator: Function that takes (element, value) and applies operation
+            title: Optional title for the operation
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                for single_element, single_result in zip(segmented_composition, results):
+                    operator(single_element, single_result)  # Apply custom operator
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Operate Parameter"
+        
+        return self.iterate(iterations, _iterator, chaos, parameter, title)
+
+
 class RS_Part(RS_Solutions):
     pass
 
