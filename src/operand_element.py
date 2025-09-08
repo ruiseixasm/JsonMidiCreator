@@ -58,9 +58,9 @@ class Element(o.Operand):
         self._duration_beats: Fraction      = og.settings._duration
         self._channel_0: int                = og.settings._channel_0
         self._enabled: bool                 = True
+        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
 
         self._owner_clip: oc.Clip           = None
-        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -162,6 +162,8 @@ class Element(o.Operand):
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
+            case og.TimeSignature():
+                                    return self._time_signature.copy()
             case oc.Clip():         return oc.Clip(self)
             case Element():         return operand.copy(self)
             case _:                 return super().__mod__(operand)
@@ -259,10 +261,10 @@ class Element(o.Operand):
                 # No conversion is done, beat and note_value values are directly copied (Same for Part)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
+                self._time_signature        << operand._time_signature
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 if self._owner_clip is None:    # << and copy operation doesn't override ownership
                     self._owner_clip        = operand._owner_clip
-                self._time_signature        = operand._time_signature.copy()
 
             case od.Pipe():
                 match operand._data:
@@ -270,6 +272,8 @@ class Element(o.Operand):
                     case ra.Duration() | ra.Length():
                                             self._duration_beats = operand._data._rational
                     case Fraction():        self._duration_beats = operand._data
+                    case og.TimeSignature():
+                                            self._time_signature = operand._data
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -298,6 +302,10 @@ class Element(o.Operand):
                 self << ra.NoteValue(self, operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
+            case og.TimeSignature():
+                self._time_signature << operand
+            case oc.Composition():
+                self._time_signature << operand._time_signature
             case tuple():
                 for single_operand in operand:
                     self << single_operand
