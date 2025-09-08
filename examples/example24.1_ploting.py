@@ -21,13 +21,17 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-settings << Tempo(140)
+settings << Tempo(140) << TimeSignature(6, 8)
+settings % TimeSignature() >> Print()
 
-west_side = Clip(TimeSignature(3/4))
+west_side = Clip()
 west_side += Note(1/8) / 6
 west_side /= Note(1/4) / 3
 west_side << Nth(1, 2, 3)**Key("G")
 west_side << Nth(4, 5, 6)**(Octave(5), Key("C"))
 west_side << Nth(7, 8, 9)**Foreach("A", "F", "C")**Key()
 west_side >> Plot()
+
+settings << Settings()  # Rests to Defaults
+settings % TimeSignature() >> Print()
 

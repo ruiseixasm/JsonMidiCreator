@@ -1366,7 +1366,7 @@ class Composition(Container):
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        clip_tempo: float = float(plotlist[0]["tempo"])
+        composition_tempo: float = float(plotlist[0]["tempo"])
         # # 1. Disable autoscaling and force limits
         # self._ax.set_autoscalex_on(False)
         # current_min, current_max = self._ax.get_xlim()
@@ -1409,9 +1409,9 @@ class Composition(Container):
 
                 # Where the corner Coordinates are defined
                 self._ax.format_coord = lambda x, y: (
-                    f"Time = {int(x / clip_tempo * 60 // 60)}'"
-                    f"{int(x / clip_tempo * 60 % 60)}''"
-                    f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
+                    f"Time = {int(x / composition_tempo * 60 // 60)}'"
+                    f"{int(x / composition_tempo * 60 % 60)}''"
+                    f"{int(x / composition_tempo * 60_000 % 1000)}ms, "
                     f"Measure = {int(x / beats_per_measure)}, "
                     f"Beat = {int(x % beats_per_measure)}, "
                     f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
@@ -1501,9 +1501,9 @@ class Composition(Container):
                 self._ax.set_ylabel("Chromatic Keys")
                 # Where the corner Coordinates are defined
                 self._ax.format_coord = lambda x, y: (
-                    f"Time = {int(x / clip_tempo * 60 // 60)}'"
-                    f"{int(x / clip_tempo * 60 % 60)}''"
-                    f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
+                    f"Time = {int(x / composition_tempo * 60 // 60)}'"
+                    f"{int(x / composition_tempo * 60 % 60)}''"
+                    f"{int(x / composition_tempo * 60_000 % 1000)}ms, "
                     f"Measure = {int(x / beats_per_measure)}, "
                     f"Beat = {int(x % beats_per_measure)}, "
                     f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
@@ -1658,9 +1658,9 @@ class Composition(Container):
             self._ax.set_ylabel("Automation Values (MSB)")
             # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
-                f"Time = {int(x / clip_tempo * 60 // 60)}'"
-                f"{int(x / clip_tempo * 60 % 60)}''"
-                f"{int(x / clip_tempo * 60_000 % 1000)}ms, "
+                f"Time = {int(x / composition_tempo * 60 // 60)}'"
+                f"{int(x / composition_tempo * 60 % 60)}''"
+                f"{int(x / composition_tempo * 60_000 % 1000)}ms, "
                 f"Measure = {int(x / beats_per_measure)}, "
                 f"Beat = {int(x % beats_per_measure)}, "
                 f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
@@ -1758,10 +1758,10 @@ class Composition(Container):
         ]
         
         self._ax.set_xlabel(
-            f"Measures played at {round(clip_tempo, 1)}bpm for "
-            f"{int(last_position / clip_tempo * 60 // 60)}'"
-            f"{int(last_position / clip_tempo * 60 % 60)}''"
-            f"{int(last_position / clip_tempo * 60_000 % 1000)}ms"
+            f"Measures played at {round(composition_tempo, 1)}bpm for "
+            f"{int(last_position / composition_tempo * 60 // 60)}'"
+            f"{int(last_position / composition_tempo * 60 % 60)}''"
+            f"{int(last_position / composition_tempo * 60_000 % 1000)}ms"
         )
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
