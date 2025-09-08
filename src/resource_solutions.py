@@ -83,13 +83,12 @@ class RS_Solutions:
                     n_button: Callable[['oc.Composition'], 'oc.Composition'],
                     title: str = "") -> Self:
         """Where the solution is set"""
-        if iterations < 0:
-            self._solution >>= og.Plot(by_channel=self._by_channel,
-                iterations=iterations * -1,
+        if iterations > 0:
+            self._solution >>= og.Plot(by_channel=self._by_channel, iterations=iterations,
                 n_button=n_button, composition=self._composition, title=title
             )
         else:
-            self._solution >>= og.Call(iterations, n_button)
+            self._solution >>= og.Call(iterations * -1, n_button)
         return self
 
 

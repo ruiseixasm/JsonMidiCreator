@@ -23,12 +23,10 @@ west_side = RP_Patterns.west_side()
 west_side % [Degree()] >> Print()
 
 
-snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
-
-single_seed_note = Note(4/1) * 1
-
-clip_solution = RS_Clip(single_seed_note)
-phrase_notes = clip_solution.multi_splitter(1).multi_wrapper(-7).solution()
+clip_solution = RS_Clip(west_side)
+phrase_notes = clip_solution.mask(Measure(1)).set_parameter(
+        7, chaos=ch.Cycle(1, Modulus(7)), parameter=Degree()
+    ).solution()
 
 
 settings << Settings()  # Resets to Defaults
