@@ -807,6 +807,7 @@ class Degree(PitchParameter):
                 adjusted_degree: int = self._unit
                 if adjusted_degree > 0:
                     adjusted_degree -= 1
+                # Outputs the 'I' degree roman numerals
                 return __class__._degree[adjusted_degree % 7]
             case Sharp():
                 semitones_int: int = round(self._semitones * 10)
