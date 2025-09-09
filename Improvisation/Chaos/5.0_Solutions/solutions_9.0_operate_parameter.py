@@ -35,9 +35,8 @@ phrase_notes = clip_solution.mask(Measure(3)).operate_parameter(
         parameter=Degree()
     ).mask(Measure(3), Beat(2)).operate_parameter(
         9,
-        chaos=Cycle(),
-        parameter=Semitone(1),  # Has to set 1 to trigger iterations!
-        operator=lambda element, result: element.sub(result)
+        chaos=Ripple(),
+        parameter=Semitone(1)   # Has to set 1 to trigger iterations!
     ).solution()
 
 
