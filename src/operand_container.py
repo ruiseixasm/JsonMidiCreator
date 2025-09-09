@@ -1972,7 +1972,21 @@ class Composition(Container):
             beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
 
             composition = self._iterations[self._iteration]
-            at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
+            at_position_elements: list[oe.Element] = o.Operand.deep_copy( composition.at_position_elements(ra.Position(ra.Beats(event.xdata))) )
+
+            new_pitch: int = int(event.ydata + 0.5)
+            minimum_position: Fraction = Fraction(0)
+            for single_element in at_position_elements:
+                if new_pitch is not None:
+                    single_element % od.Pipe(og.Pitch()) << new_pitch
+                    new_pitch = None
+                    minimum_position = single_element._position_beats
+                elif single_element._position_beats < minimum_position:
+                    minimum_position = single_element._position_beats
+
+            for single_element in at_position_elements:
+                single_element._position_beats -= minimum_position
+                
 
             print('-----------------------------------------------')
             print(f'Clicked at: x={event.xdata}, y={event.ydata}')
