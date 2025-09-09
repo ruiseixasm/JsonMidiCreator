@@ -4493,7 +4493,7 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Length())._rational
 
             case Clip():
-                last_position: ra.Position = self._base_container._last_element_position()
+                last_position: ra.Position = self._base_container.last_position()
                 if last_position is not None:
                     finish_position: ra.Position = self._base_container.finish()
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
@@ -4504,7 +4504,7 @@ class Part(Composition):
                     self._append([ operand.copy() ])    # Explicit copy
 
             case oe.Element():
-                last_position: ra.Position = self._base_container._last_element_position()
+                last_position: ra.Position = self._base_container.last_position()
                 if last_position is not None:
                     finish_position: ra.Position = self._base_container.finish()
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
