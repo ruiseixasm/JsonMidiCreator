@@ -1158,6 +1158,8 @@ class Composition(Container):
             return ra.Duration(self.finish() - self.start())
         return ra.Duration(self, 0)
     
+    def all_elements(self) -> list[oe.Element]:
+        return []
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -1960,6 +1962,23 @@ class Composition(Container):
             case '/' | "-" | ";":
                 self._run_last(event)
         return self
+    
+    def _onclick(self, event: MouseEvent) -> Self:
+        if event.button == 3:   # 1=left, 2=middle, 3=right
+            time_signature: og.TimeSignature = self._iterations[self._iteration]._base_container._time_signature
+            beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
+
+            composition = self._iterations[self._iteration]
+            all_elements: list[oe.Element] = composition.all_elements()
+
+            print('-----------------------------------------------')
+            print(f'Clicked at: x={event.xdata}, y={event.ydata}')
+            print(f'Pixel coordinates: x={event.x}, y={event.y}')
+            print(f'Which button: {event.button}')  # 1=left, 2=middle, 3=right
+            print(f'Which key was pressed: {event.key}')
+            print(f'Beats: {int(event.xdata)}')
+            print(f'Pitch: {int(event.ydata + 0.5)}')
+        return self
 
 
     def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
@@ -2006,6 +2025,7 @@ class Composition(Container):
         # Where the window title is set too
         self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
+        self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
         self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._base_container._time_signature)
 
@@ -2284,6 +2304,9 @@ class Clip(Composition):  # Just a container of Elements
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
+
+    def all_elements(self) -> list[oe.Element]:
+        return self._base_container._items
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4125,6 +4148,12 @@ class Part(Composition):
                     finish_position = clip_finish
         return finish_position
 
+    def all_elements(self) -> list[oe.Element]:
+        elements: list[oe.Element] = []
+        for single_clip in self._base_container._items:
+            elements.extend(single_clip.all_elements())
+        return elements
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -4736,6 +4765,12 @@ class Song(Composition):
                 else:
                     finish_position = absolute_finish
         return finish_position
+
+    def all_elements(self) -> list[oe.Element]:
+        elements: list[oe.Element] = []
+        for single_part in self._base_container._items:
+            elements.extend(single_part.all_elements())
+        return elements
 
 
     def __mod__(self, operand: o.T) -> o.T:
