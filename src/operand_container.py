@@ -4437,8 +4437,6 @@ class Part(Composition):
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Part():
-                return self._delete(operand._items)
             case Clip():
                 return self._delete([ operand ])
             case ra.Position() | ra.TimeValue():
