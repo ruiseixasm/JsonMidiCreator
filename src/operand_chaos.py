@@ -356,7 +356,6 @@ class Cycle(Chaos):
             self._initiated = True
         return result, tamed
 
-
 class Counter(Cycle):
     """`Chaos -> Cycle -> Counter`
 
@@ -395,12 +394,11 @@ class Counter(Cycle):
             self._initiated = True
         return result, tamed
 
-
 class Ripple(Cycle):
     """`Chaos -> Cycle -> Ripple`
 
     Similar to the ripple effect in water the result alternates positively and negatively `
-        increasing each alternation by the step amount..
+        increasing each alternation by the step amount.
 
     Parameters
     ----------
@@ -424,6 +422,39 @@ class Ripple(Cycle):
                         result -= self._steps
                     else:
                         result += self._steps
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = result
+            self._index += increased_index
+            self._initiated = True
+        return result, tamed
+
+class Spiral(Cycle):
+    """`Chaos -> Cycle -> Spiral`
+
+    Similar to a `Ripple` but always move a step for each iteration and not jus the odd ones.
+
+    Parameters
+    ----------
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
+    Steps(1), Step() : The increase amount for each iteration.
+    """
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+        result: Fraction = numeral
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                result *= -1    # Always alternates (0 means 0)
+                increased_index += 1
+                if result < 0:
+                    result -= self._steps
+                else:
+                    result += self._steps
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
