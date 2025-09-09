@@ -1967,16 +1967,15 @@ class Composition(Container):
         return self
     
     def _onclick(self, event: MouseEvent) -> Self:
+        import threading
         if event.button == 3:   # 1=left, 2=middle, 3=right
-            time_signature: og.TimeSignature = self._iterations[self._iteration]._base_container._time_signature
-            beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
-
             composition = self._iterations[self._iteration]
-            at_position_elements: list[oe.Element] = o.Operand.deep_copy( composition.at_position_elements(ra.Position(ra.Beats(event.xdata))) )
+            at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
+            clip_elements: Clip = Clip(at_position_elements)    # Implicit copy
 
             new_pitch: int = int(event.ydata + 0.5)
             minimum_position: Fraction = Fraction(0)
-            for single_element in at_position_elements:
+            for single_element in clip_elements:
                 if new_pitch is not None:
                     single_element % od.Pipe(og.Pitch()) << new_pitch
                     new_pitch = None
@@ -1984,17 +1983,10 @@ class Composition(Container):
                 elif single_element._position_beats < minimum_position:
                     minimum_position = single_element._position_beats
 
-            for single_element in at_position_elements:
+            for single_element in clip_elements:
                 single_element._position_beats -= minimum_position
                 
-
-            print('-----------------------------------------------')
-            print(f'Clicked at: x={event.xdata}, y={event.ydata}')
-            print(f'Pixel coordinates: x={event.x}, y={event.y}')
-            print(f'Which button: {event.button}')  # 1=left, 2=middle, 3=right
-            print(f'Which key was pressed: {event.key}')
-            print(f'Beats: {int(event.xdata)}')
-            print(f'Pitch: {int(event.ydata + 0.5)}')
+            threading.Thread(target=og.Play.play, args=(clip_elements,)).start()
         return self
 
 
