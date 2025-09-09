@@ -2752,7 +2752,7 @@ class Clip(Composition):  # Just a container of Elements
                         self._append(operand_copy._items)
 
             case oe.Element():
-                self.__imul__(Clip(operand))
+                self.__imul__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -2824,7 +2824,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._append(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
-                self.__itruediv__(Clip(operand))
+                self.__itruediv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -2874,7 +2874,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._replace(left_element, right_element.copy(element_locus)._set_owner_clip(self_base))
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand))
+                self.__ifloordiv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -4414,10 +4414,10 @@ class Part(Composition):
                     self += single_clip
 
             case Clip():
-                self._append([ Clip(operand) ])
+                self._append([ operand.copy() ])
 
             case oe.Element():
-                self += Clip(operand)
+                self += Clip(operand._time_signature, operand)
 
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
@@ -4481,7 +4481,7 @@ class Part(Composition):
                 self.__imul__(Part(operand))
 
             case oe.Element():
-                self.__imul__(Clip(operand))
+                self.__imul__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -4526,7 +4526,7 @@ class Part(Composition):
                 self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self.__itruediv__(Clip(operand))
+                self.__itruediv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -4549,13 +4549,13 @@ class Part(Composition):
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Part():
-                self += operand
+                self += operand # Special case
 
             case Clip():
-                self.__ifloordiv__(Part(operand))
+                self._append([ operand.copy() ])
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand))
+                self._append([ Clip(operand._time_signature, operand) ])
 
             case int():
                 if operand > 1:
@@ -5034,7 +5034,7 @@ class Song(Composition):
                 self += Part(operand)
 
             case oe.Element():
-                self += Clip(operand)
+                self += Clip(operand._time_signature, operand)
 
             case list():
                 for item in operand:
@@ -5101,7 +5101,7 @@ class Song(Composition):
                 self.__imul__(Part(operand))
 
             case oe.Element():
-                self.__imul__(Clip(operand))
+                self.__imul__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -5146,7 +5146,7 @@ class Song(Composition):
                 self.__itruediv__(Part(operand))
 
             case oe.Element():
-                self.__itruediv__(Clip(operand))
+                self.__itruediv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -5178,7 +5178,7 @@ class Song(Composition):
                 self.__ifloordiv__(Part(operand))
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand))
+                self.__ifloordiv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
