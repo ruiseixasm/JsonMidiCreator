@@ -189,12 +189,13 @@ class Chaos(o.Operand):
     
     # Unitary iterations on the operand
     def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         match operand:
             case int() | float() | Fraction():
                 self.iterate(1) # Does a single iteration
                 result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
                 return ra.Result(result) % operand
-            case list():
+            case list() | oc.Container():
                 for index, item in enumerate(operand):
                     operand[index] = self.__irrshift__(item)    # Recursive call
                 return operand
