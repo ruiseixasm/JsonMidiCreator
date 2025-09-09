@@ -2148,7 +2148,7 @@ class Clip(Composition):  # Just a container of Elements
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
-    Length : Returns the length of all combined elements.
+    None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
@@ -3965,15 +3965,17 @@ class Clip(Composition):  # Just a container of Elements
 class Part(Composition):
     """`Container -> Composition -> Part`
 
-    This type of `Container` aggregates `Clip` items as also `Playlist` ones. This type
-    of `Composition` has a `Position` working similarly to `Element` operands.
+    This type of `Container` aggregates `Clip` items. This type of `Composition` has \
+        a `Position` working similarly to `Element` operands.
+    A `Part` works similarly like an `Element`, meaning that adding two parts will result \
+        in a `Song` as adding two elements result in a `Clip`.
 
     Parameters
     ----------
     list([]) : A list of `Clip` and `Playlist` type items.
     int : Returns the len of the list.
     Position(0) : It is possible to place a Part on a staff `Position`.
-    Length : Returns the length of all combined clips.
+    None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
@@ -4639,7 +4641,7 @@ class Song(Composition):
     list([]) : A list of `Part` type items.
     int : Returns the len of the list.
     TimeSignature(settings) : It keeps its own Time Signature on which their `Part` items are placed.
-    Length : Returns the length of all combined parts.
+    None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
