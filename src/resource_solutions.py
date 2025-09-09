@@ -45,10 +45,14 @@ class RS_Solutions:
                  composition: Optional['oc.Composition'] = None,
                  by_channel: bool = False
             ):
+        if isinstance(seed, oe.Element):
+            seed = oc.Clip(seed)
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._solution: oc.Composition = self._seed
         self._iterations: list[int] = iterations
         self._measures: int = max(measures, 1)
+        if isinstance(composition, oe.Element):
+            composition = oc.Clip(seed)
         self._composition: oc.Composition = composition
         self._by_channel: bool = by_channel
 
@@ -342,8 +346,9 @@ class RS_Clip(RS_Solutions):
                 if clip_len > 0:
                     clip_pick: int = results[0] % clip_len
                     wrapper: oe.Element = wrappers[results[1] % len(wrappers)]
-                    # Transforms the original Element into another one
-                    segmented_composition[clip_pick] = wrapper.copy(segmented_composition[clip_pick])
+                    if isinstance(wrapper, oe.Element):
+                        # Transforms the original Element into another one
+                        segmented_composition[clip_pick] = wrapper.copy(segmented_composition[clip_pick])
             return segmented_composition
 
         if not isinstance(title, str):
@@ -363,7 +368,8 @@ class RS_Clip(RS_Solutions):
             if isinstance(segmented_composition, oc.Clip):
                 segmented_wrappers: list[oe.Element] = o.list_choose(wrappers, results)
                 for single_element, wrapper in zip(segmented_composition, segmented_wrappers):
-                    segmented_composition._replace(single_element, wrapper.copy(single_element))
+                    if isinstance(wrapper, oe.Element):
+                        segmented_composition._replace(single_element, wrapper.copy(single_element))
             return segmented_composition
 
         if not isinstance(title, str):
