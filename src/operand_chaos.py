@@ -220,7 +220,6 @@ class Chaos(o.Operand):
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        iterations = self.number_to_int(iterations)
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
@@ -466,7 +465,7 @@ class Flipper(Cycle):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._modulus            = ra.Modulus(2)._rational
+        self._modulus           = ra.Modulus(2)._rational
         self._split: Fraction   = ra.Split(1)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -541,19 +540,24 @@ class Counter(Cycle):
     Modulus(12) : The modulus value on which the `Xn` modulus % operation is made.
     Steps(1) : The increase amount for each iteration.
     """
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case Fraction():
-                self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(Fraction()) // self._modulus
-            case int():
-                self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(int()) // int(self._modulus)
-            case float():
-                self.__imul__(operand)  # Numbers trigger iterations
-                return super().__mod__(float()) // float(self._modulus)
-            case _:
-                return super().__mod__(operand)
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+        result: Fraction = numeral
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                increased_index += 1
+                actual_index: int = self._index + increased_index
+                result = actual_index % self._modulus
+                increased_index += 1
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = result
+            self._index += increased_index
+            self._initiated = True
+        return result, tamed
 
 
 class Bouncer(Chaos):
@@ -697,7 +701,6 @@ class Bouncer(Chaos):
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        iterations = self.number_to_int(iterations)
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
@@ -804,7 +807,6 @@ class SinX(Chaos):
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        iterations = self.number_to_int(iterations)
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
