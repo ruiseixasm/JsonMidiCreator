@@ -596,10 +596,7 @@ class Bouncer(Chaos):
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
             case int() | float() | Fraction():
-                if isinstance(self._next_operand, Chaos):
-                    self._next_operand << operand
-                self <<= operand
-                self._x0 << self._xn
+                super().__lshift__(operand)
                 self._y0 << self._yn
             case _:
                 super().__lshift__(operand)
