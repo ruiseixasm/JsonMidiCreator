@@ -181,7 +181,7 @@ class Chaos(o.Operand):
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
-        return self.__irshift__(operand)    # Does no Copy !!
+        return self.__irshift__(operand)    # Does not Copy !!
 
     # Pass trough method that always results in a Chaos (Self)
     def __irshift__(self, operand: any) -> Self:
@@ -191,19 +191,19 @@ class Chaos(o.Operand):
     def __irrshift__(self, operand: o.T) -> o.T:
         match operand:
             case int() | float() | Fraction():
-                self.__imul__(operand)  # Numbers trigger iterations
-                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
-                # result = ra.Result(self % od.Pipe(Fraction()))
-                return result % operand
+                self.iterate(1) # Does a single iteration
+                result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
+                return ra.Result(result) % operand
             case list():
-                list_out: list = []
-                for number in operand:
-                    list_out.append(self % number)  # Implicit iterations
-                return list_out
+                for index, item in enumerate(operand):
+                    operand[index] = self.__irrshift__(item)    # Recursive call
+                return operand
             case Chaos():
                 return operand
-            case o.Operand():   # Operand has to have the triggering value (Fraction)
-                return operand << self % Fraction(1)
+            case o.Operand():
+                self.iterate(1) # Does a single iteration
+                result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
+                return operand << result
             case _:
                 return super().__irrshift__(operand)
 
