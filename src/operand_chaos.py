@@ -174,6 +174,51 @@ class Chaos(o.Operand):
     def __rxor__(self, operand: o.T) -> o.T:
         return operand
     
+    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
+        number ^= self # Extracts the Frame operand first
+        number = self.number_to_int(number)
+        return self.iterate(number)
+    
+    # self is the pusher
+    def __rshift__(self, operand: any) -> Self:
+        return self.__irshift__(operand)    # Does no Copy !!
+
+    # Pass trough method that always results in a Chaos (Self)
+    def __irshift__(self, operand: any) -> Self:
+        return self.__imul__(operand)
+    
+    # Unitary iterations on the operand
+    def __irrshift__(self, operand: o.T) -> o.T:
+        match operand:
+            case int() | float() | Fraction():
+                self.__imul__(operand)  # Numbers trigger iterations
+                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
+                # result = ra.Result(self % od.Pipe(Fraction()))
+                return result % operand
+            case list():
+                list_out: list = []
+                for number in operand:
+                    list_out.append(self % number)  # Implicit iterations
+                return list_out
+            case Chaos():
+                return operand
+            case o.Operand():   # Operand has to have the triggering value (Fraction)
+                return operand << self % Fraction(1)
+            case _:
+                return super().__irrshift__(operand)
+
+
+    def iterate(self, times: int = 1) -> Self:
+        if times > 0:
+            numeral: Fraction = self % od.Pipe(Fraction())
+            tamed: bool = True
+            if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+                numeral, tamed = self._next_operand.result(numeral, times)
+            if tamed:
+                self.result(numeral, times)
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         iterations = self.number_to_int(iterations)
         result: Fraction = numeral
@@ -194,30 +239,6 @@ class Chaos(o.Operand):
             self._initiated = True
         return result, tamed
 
-    def iterate(self, times: Union[int, float, Fraction, ou.Unit, ra.Rational] = 1) -> Self:
-        times = self.number_to_int(times)
-        if times > 0:
-            numeral: Fraction = self % od.Pipe(Fraction())
-            tamed: bool = True
-            if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
-                numeral, tamed = self._next_operand.result(numeral, times)
-            if tamed:
-                self.result(numeral, times)
-        return self
-
-    def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        number ^= self # Extracts the Frame operand first
-        return self.iterate(number)
-    
-    # self is the pusher
-    def __rshift__(self, operand: any) -> Self:
-        return self.__irshift__(operand)    # Does no Copy !!
-
-    # Pass trough method that always results in a Chaos (Self)
-    def __irshift__(self, operand: any) -> Self:
-        return self.__imul__(operand)
-    
     def reset(self, *parameters) -> Self:
         self._xn << self._x0
         self._initiated     = False

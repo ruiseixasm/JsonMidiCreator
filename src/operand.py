@@ -743,7 +743,8 @@ class Operand:
     
     # operand is the pusher
     def __rrshift__(self, operand: T) -> T:
-        return self.copy().__irrshift__(operand)
+        operand_copy = Operand.deep_copy(operand)
+        return self.__irrshift__(operand_copy)
 
     def __irrshift__(self, operand: T) -> T:
         if isinstance(operand, tuple):
