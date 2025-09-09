@@ -274,8 +274,8 @@ class Cycle(Chaos):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._modulus: Fraction = ra.Modulus(12)._rational
-        self._steps: Fraction   = ra.Steps(1)._rational
+        self._modulus: Fraction = Fraction(12)
+        self._steps: Fraction   = Fraction(1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -367,8 +367,14 @@ class Counter(Cycle):
     Tamer() : The Tamer that adds criteria to the validation of each final result.
     Xn(0), int, float : The resultant value of each iteration.
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
-    Modulus(12) : The modulus value on which the `Xn` modulus % operation is made.
+    Modulus(1) : The modulus value on which the `Xn` modulus % operation is made.
     """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._modulus: Fraction = Fraction(1)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
