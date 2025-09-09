@@ -1028,12 +1028,12 @@ def test_part_operations():
 
     assert (part_1 + clip_2).len() == 3
     assert (part_1 - part_1[1]).len() == 1
-    assert (part_1 + part_2).len() == 4
+    assert (part_1 + part_2).len() == 2 # Becomes a Song!
 
     # Becomes a Part of two Clips due to * operator
-    assert (part_1 >> clip_2).len() == 3
+    assert (part_1 * clip_2).len() == 3
     part_1 *= clip_2
-    assert (part_1 >> part_2).len() == 5
+    assert part_1.len() == 3
 
 # test_part_operations()
 

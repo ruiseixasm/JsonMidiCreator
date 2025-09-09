@@ -4404,20 +4404,19 @@ class Part(Composition):
         return self._sort_items()
 
 
-    def __iadd__(self, operand: any) -> Self:
+    def __iadd__(self, operand: any) -> Union['Song', 'Part']:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                for single_clip in operand:
-                    self += single_clip
+                return Song(self, operand)
 
             case Clip():
                 self._append([ operand.copy() ])
 
             case oe.Element():
-                self += Clip(operand._time_signature, operand)
+                self._append([ Clip(operand._time_signature, operand) ])
 
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() + operand
