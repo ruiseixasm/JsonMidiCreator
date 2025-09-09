@@ -165,7 +165,7 @@ class Chaos(o.Operand):
             be passed to self afterwards in a chained fashion.
         '''
         if isinstance(operand, Chaos):
-            self << operand % Fraction()
+            self << operand % Fraction()    # SETS THE DEFAULT x0 PARAMETER
             self._next_operand = operand
             return self
         return self.__pow__(operand)
