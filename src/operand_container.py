@@ -2286,7 +2286,7 @@ class Clip(Composition):  # Just a container of Elements
         if self._has_elements():
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._base_container._first_element()
-            if first_element:
+            if first_element is not None:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
         return None
@@ -4142,7 +4142,7 @@ class Part(Composition):
             Position: The minimum `Position` of all Clips.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
+            clip for clip in self._base_container._items if isinstance(clip, Clip)
         ]
 
         start_position: ra.Position = None
@@ -4169,7 +4169,7 @@ class Part(Composition):
             Position: The maximum of `Position` + Length of all Clips.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
+            clip for clip in self._base_container._items if isinstance(clip, Clip)
         ]
 
         finish_position: ra.Position = None
@@ -4807,7 +4807,7 @@ class Song(Composition):
         """
         start_position: ra.Position = None
 
-        for single_part in self._items:
+        for single_part in self._base_container._items:
             # Already includes the Song TimeSignature conversion
             part_start: ra.Position = single_part.start()
             if part_start is not None:
@@ -4834,7 +4834,7 @@ class Song(Composition):
         """
         finish_position: ra.Position = None
 
-        for single_part in self._items:
+        for single_part in self._base_container._items:
             # Already includes the Song TimeSignature conversion
             part_finish: ra.Position = single_part.finish()
             if part_finish is not None:
