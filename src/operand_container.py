@@ -1306,7 +1306,8 @@ class Composition(Container):
             `Composition` items now selected as a `Mask`.
         """
         composition_mask: Composition = super().mask(*conditions)
-        composition_mask._time_signature = self._time_signature
+        composition_mask._time_signature = self._base_container._time_signature
+        composition_mask._length_beats = self._base_container._length_beats
         return composition_mask
 
     
@@ -2522,7 +2523,6 @@ class Clip(Composition):  # Just a container of Elements
                 super().__lshift__(operand)
                 self._base_container._time_signature    << operand._base_container._time_signature
                 self._base_container._midi_track        << operand._base_container._midi_track
-                self._midi_track = self._base_container._midi_track
                 self._base_container._set_owner_clip()
 
             case od.Pipe():
@@ -2533,6 +2533,7 @@ class Clip(Composition):  # Just a container of Elements
 
                     case og.TimeSignature():
                         self._base_container._time_signature = operand._data
+                        self._time_signature = self._base_container._time_signature
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2572,7 +2573,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._base_container._midi_track << operand
-                self._midi_track = self._base_container._midi_track
             case og.TimeSignature():
                 self._base_container._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
@@ -3010,6 +3010,23 @@ class Clip(Composition):  # Just a container of Elements
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
         return shallow_copy
+
+
+    def mask(self, *conditions) -> Self:
+        """
+        Masks the items that meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Clip Mask: A different object with a shallow copy of the original
+            `Clip` items now selected as a `Mask`.
+        """
+        clip_mask: Clip = super().mask(*conditions)
+        clip_mask._midi_track = self._base_container._midi_track
+        return clip_mask
 
 
     def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
@@ -4555,6 +4572,25 @@ class Part(Composition):
                 for item in self._items:
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
+
+
+    def mask(self, *conditions) -> Self:
+        """
+        Masks the items that meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Part Mask: A different object with a shallow copy of the original
+            `Part` items now selected as a `Mask`.
+        """
+        part_mask: Part = super().mask(*conditions)
+        part_mask._position_beats = self._base_container._position_beats
+        part_mask._name = self._base_container._name
+        part_mask._owner_song = self._base_container._owner_song
+        return part_mask
 
 
     def loop(self, position = 0, length = 4) -> Self:
