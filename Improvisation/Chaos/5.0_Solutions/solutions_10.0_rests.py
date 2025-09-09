@@ -20,12 +20,12 @@ settings << Tempo(100)
 settings % Tempo() >> Print()
 
 
-big_note = Note(Measures(4))
+big_rest = Rest(Measures(4))
 
-rests_chopper = RS_Clip(big_note, [1], 4)
+rests_chopper = RS_Clip(big_rest, [1], 4)
 melody_wanna_be = \
     rests_chopper.multi_splitter(
-        -9
+        9
     ).multi_wrapper(
         10,
         list_repeat([Note(), Rest(), Null()], [5, 1, 3])

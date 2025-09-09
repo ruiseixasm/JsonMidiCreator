@@ -1483,8 +1483,8 @@ class Composition(Container):
                                 color_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
+                                self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                    height=0.50, color='white', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1596,8 +1596,8 @@ class Composition(Container):
                                 color_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=0.20, color='gray', hatch='//', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
+                                self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                    height=0.50, color='white', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -2042,7 +2042,7 @@ class Composition(Container):
         plt.tight_layout()
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
-        plt.rcParams['hatch.linewidth'] = 6.00  # Where the HATCH thickness is set
+        plt.rcParams['hatch.linewidth'] = 3.00  # Where the HATCH thickness is set
 
         # Play Button Widget
         ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
