@@ -344,11 +344,11 @@ class RS_Clip(RS_Solutions):
             if isinstance(segmented_composition, oc.Clip):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
-                    clip_pick: int = results[0] % clip_len
+                    element_pick: int = results[0] % clip_len
                     wrapper: oe.Element = wrappers[results[1] % len(wrappers)]
                     if isinstance(wrapper, oe.Element):
                         # Transforms the original Element into another one
-                        segmented_composition[clip_pick] = wrapper.copy(segmented_composition[clip_pick])
+                        segmented_composition[element_pick] = wrapper.copy(segmented_composition[element_pick])
             return segmented_composition
 
         if not isinstance(title, str):
