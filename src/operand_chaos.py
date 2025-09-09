@@ -263,7 +263,8 @@ class Chaos(o.Operand):
 class Ripple(Chaos):
     """`Chaos -> Ripple`
 
-    Increments the `Xn` by each step and its return is the remainder of the given `Modulus`.
+    Similar to the ripple effect in water the result alternates positively and negatively `
+        increasing each alternation by the step amount..
 
     Parameters
     ----------
