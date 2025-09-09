@@ -28,7 +28,7 @@ melody_wanna_be = \
         -9
     ).multi_wrapper(
         10,
-        o.list_repeat([Note(), Rest()], [5, 1])
+        list_repeat([Note(), Rest(), Null()], [5, 1, 3])
         ).solution
 
 
