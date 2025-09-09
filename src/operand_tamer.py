@@ -946,4 +946,24 @@ class Wrap(Manipulator):
         return numeral, validated
     
 
+class Switch(Manipulator):
+    """`Tamer -> Manipulator -> Switch`
+
+    A `Switch` returns 0 or 1 depending of Numeral being below the threshold or not.
+
+    Parameters
+    ----------
+    Fraction(1), int, float : Sets the respective switch threshold.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._numeral: o.TypeNumeral = 1
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        numeral = Fraction(0) if numeral < self._numeral else Fraction(1)
+        return numeral, validated
 

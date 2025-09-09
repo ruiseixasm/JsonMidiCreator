@@ -278,7 +278,7 @@ class RS_Clip(RS_Solutions):
 
     def sprinkle_accidentals(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Flipper(ra.Modulus(6))**ch.SinX(33),
+            chaos: ch.Chaos = ch.SinX(33, ot.Switch()**ot.Modulo(6)),
             title: str | None = None) -> Self:
         """
         Sets accidentals on each measure `Note` accordingly to the set `Chaos`.
