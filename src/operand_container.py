@@ -1158,9 +1158,6 @@ class Composition(Container):
             return ra.Duration(self.finish() - self.start())
         return ra.Duration(self, 0)
     
-    def all_elements(self) -> list[oe.Element]:
-        return []
-
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case Composition():
@@ -1168,6 +1165,12 @@ class Composition(Container):
                     and super().__eq__(other)
             case _:
                 return super().__eq__(other)
+
+    def all_elements(self) -> list[oe.Element]:
+        return []
+
+    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+        return []
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1969,7 +1972,7 @@ class Composition(Container):
             beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
 
             composition = self._iterations[self._iteration]
-            all_elements: list[oe.Element] = composition.all_elements()
+            at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
 
             print('-----------------------------------------------')
             print(f'Clicked at: x={event.xdata}, y={event.ydata}')
@@ -2307,6 +2310,13 @@ class Clip(Composition):  # Just a container of Elements
 
     def all_elements(self) -> list[oe.Element]:
         return self._base_container._items
+
+    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+        position_beats: Fraction = position._rational
+        return [
+            single_element for single_element in self.all_elements()
+            if single_element._position_beats <= position_beats < single_element._position_beats + single_element._duration_beats
+        ] 
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4154,6 +4164,15 @@ class Part(Composition):
             elements.extend(single_clip.all_elements())
         return elements
 
+    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+        position_beats: Fraction = position._rational - self._position_beats
+        if position_beats < 0:
+            return []
+        return [
+            single_element for single_element in self.all_elements()
+            if single_element._position_beats <= position_beats < single_element._position_beats + single_element._duration_beats
+        ] 
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -4770,6 +4789,12 @@ class Song(Composition):
         elements: list[oe.Element] = []
         for single_part in self._base_container._items:
             elements.extend(single_part.all_elements())
+        return elements
+
+    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+        elements: list[oe.Element] = []
+        for single_part in self._base_container._items:
+            elements.extend( single_part.at_position_elements(position) )
         return elements
 
 
