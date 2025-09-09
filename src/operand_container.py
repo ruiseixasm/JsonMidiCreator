@@ -1109,6 +1109,9 @@ class Composition(Container):
         """
         return None
 
+    def last_position(self) -> 'ra.Position':
+        return self._base_container._last_element_position()
+
 
     def length(self) -> 'ra.Length':
         """
@@ -2314,6 +2317,10 @@ class Clip(Composition):  # Just a container of Elements
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
+
+    def last_position(self) -> 'ra.Position':
+        return self._base_container._last_element_position()
+
 
     def all_elements(self) -> list[oe.Element]:
         return self._base_container._items
@@ -4156,7 +4163,6 @@ class Part(Composition):
                     start_position = clip_start
         return start_position
 
-
     def finish(self) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
@@ -4182,6 +4188,18 @@ class Part(Composition):
                 else:
                     finish_position = clip_finish
         return finish_position
+
+    def last_position(self) -> 'ra.Position':
+        position: ra.Position = None
+        for clip in self._base_container._items:
+            clip_position: ra.Position = clip._base_container.last_position()
+            if clip_position is not None:
+                if position is None:
+                    position = clip_position
+                elif clip_position > position:
+                    position = clip_position
+        return position
+
 
     def all_elements(self) -> list[oe.Element]:
         elements: list[oe.Element] = []
@@ -4819,7 +4837,6 @@ class Song(Composition):
                     start_position = absolute_start
         return start_position
 
-
     def finish(self) -> ra.Position:
         """
         Gets the finishing position of all its Parts.
@@ -4845,6 +4862,18 @@ class Song(Composition):
                 else:
                     finish_position = absolute_finish
         return finish_position
+
+    def last_position(self) -> 'ra.Position':
+        position: ra.Position = None
+        for part in self._base_container._items:
+            part_position: ra.Position = part._base_container.last_position()
+            if part_position is not None:
+                if position is None:
+                    position = part_position
+                elif part_position > position:
+                    position = part_position
+        return position
+
 
     def all_elements(self) -> list[oe.Element]:
         elements: list[oe.Element] = []
