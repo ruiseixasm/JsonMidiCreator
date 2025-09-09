@@ -144,7 +144,6 @@ class Chaos(o.Operand):
                     case ra.X0():                   self._x0 = operand._data
                     case int() | float() | Fraction():
                         self._xn << operand._data
-                        self._x0 << self._xn
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Tamer():                self._tamer = operand.copy()
@@ -154,6 +153,7 @@ class Chaos(o.Operand):
                 if isinstance(self._next_operand, Chaos):
                     self._next_operand << operand
                 self <<= operand
+                self._x0 << self._xn
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -586,8 +586,6 @@ class Bouncer(Chaos):
                         ratio: Fraction = operand_rational / hypotenuse
                         self._xn *= ratio
                         self._yn *= ratio
-                        self._x0 << self._xn
-                        self._y0 << self._yn
                     case _:             super().__lshift__(operand)
             case ra.Width():    self._width << operand
             case ra.Height():   self._height << operand
@@ -597,6 +595,12 @@ class Bouncer(Chaos):
             case ra.X0():       self._x0 << operand
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
+            case int() | float() | Fraction():
+                if isinstance(self._next_operand, Chaos):
+                    self._next_operand << operand
+                self <<= operand
+                self._x0 << self._xn
+                self._y0 << self._yn
             case _:
                 super().__lshift__(operand)
         # Final needed modulation
