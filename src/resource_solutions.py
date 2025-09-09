@@ -137,7 +137,7 @@ class RS_Clip(RS_Solutions):
                         if measure_iterations > 0:
                             if not isinstance(triggers, list):
                                 measure_triggers: list = [triggers] * segmented_composition.len()
-                            results = chaos.reset_tamers().iterate(measure_iterations - 1) % measure_triggers
+                            results = measure_triggers >> chaos.reset_tamers().iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
                         else:
                             new_composition *= segmented_composition
