@@ -4475,10 +4475,26 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Length())._rational
 
             case Clip():
-                self.__imul__(Part(operand))
+                last_position: ra.Position = self._base_container._last_element_position()
+                if last_position is not None:
+                    finish_position: ra.Position = self._base_container.finish()
+                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                        last_position = ra.Position(finish_position % ra.Measure())
+                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
+                    self._append([ operand + ra.Position(finish_length) ])  # Implicit copy
+                else:
+                    self._append([ operand.copy() ])    # Explicit copy
 
             case oe.Element():
-                self.__imul__(Clip(operand._time_signature, operand))
+                last_position: ra.Position = self._base_container._last_element_position()
+                if last_position is not None:
+                    finish_position: ra.Position = self._base_container.finish()
+                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                        last_position = ra.Position(finish_position % ra.Measure())
+                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
+                    self._append([ Clip(operand._time_signature, operand + ra.Position(finish_length)) ])   # Implicit copy
+                else:
+                    self._append([ Clip(operand._time_signature, operand) ])
 
             case int():
                 if operand > 1:
@@ -4520,10 +4536,14 @@ class Part(Composition):
                     self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
             case Clip():
-                self.__itruediv__(Part(operand))
+                finish_position: ra.Position = self._base_container.finish()
+                repositioned_clip: Clip = operand + finish_position # Implicit copy
+                self._append([ repositioned_clip ]) # No implicit copy
 
             case oe.Element():
-                self.__itruediv__(Clip(operand._time_signature, operand))
+                finish_position: ra.Position = self._base_container.finish()
+                repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
+                self._append([ repositioned_clip ]) # No implicit copy
 
             case int():
                 if operand > 1:
