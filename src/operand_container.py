@@ -336,6 +336,7 @@ class Container(o.Operand):
         serialization = super().getSerialization()
 
         serialization["parameters"]["items"] = self.serialize(self._base_container._items)
+        serialization["parameters"]["mask_items"] = self.serialize(self._mask_items_developing)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -351,10 +352,11 @@ class Container(o.Operand):
             Container: The self Container object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "items" in serialization["parameters"]):
+            "items" in serialization["parameters"] and "mask_items" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._items = self.deserialize(serialization["parameters"]["items"])
+            self._mask_items_developing = self.deserialize(serialization["parameters"]["mask_items"])
             self._base_container = self # Not a mask anymore if one
         return self
 
@@ -362,6 +364,10 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
+
+                # DEVELOPING CODE
+                # self._items = self.deep_copy(operand._items)
+                self._mask_items_developing = o.Operand.deep_copy(operand._mask_items_developing)
 
                 if not (self.is_a_mask() or operand.is_a_mask()):
                     self._items = self.deep_copy(operand._items)
