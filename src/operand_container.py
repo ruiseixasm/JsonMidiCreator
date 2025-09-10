@@ -1321,29 +1321,29 @@ class Composition(Container):
         match operand:
             case Composition():
                 super().__lshift__(operand)
-                self._base_container._length_beats = operand._base_container._length_beats
+                self._length_beats = operand._length_beats
 
             case od.Pipe():
                 match operand._data:
                     case ra.Length():
-                        self._base_container._length_beats = operand._data._rational
+                        self._length_beats = operand._data._rational
                         if self._length_beats < 0:
-                            self._base_container._length_beats = None
-                    case None:              self._base_container._length_beats = None
+                            self._length_beats = None
+                    case None:              self._length_beats = None
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
-                self._base_container._length_beats = operand._rational
-                if self._base_container._length_beats < 0:
-                    self._base_container._length_beats = None
+                self._length_beats = operand._rational
+                if self._length_beats < 0:
+                    self._length_beats = None
             case None:
-                self._base_container._length_beats = None
+                self._length_beats = None
 
             case _:
                 super().__lshift__(operand)
 
-        # Makes sure non Operand data is transferred to the existing mask
-        self._length_beats = self._base_container._length_beats
+        # Makes sure non Operand mask data is transferred to the existing base
+        self._base_container._length_beats = self._length_beats
         return self
 
 
@@ -2573,7 +2573,7 @@ class Clip(Composition):  # Just a container of Elements
         serialization = super().getSerialization()
 
         serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
-        serialization["parameters"]["midi_track"]       = self.serialize(self._base_container._midi_track)
+        serialization["parameters"]["midi_track"]       = self.serialize(self._midi_track)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2602,18 +2602,16 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 super().__lshift__(operand)
                 self._time_signature    << operand._time_signature
-                self._base_container._midi_track        << operand._base_container._midi_track
-                self._base_container._set_owner_clip()
+                self._midi_track        << operand._midi_track
+                self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
                     case ou.MidiTrack():
-                        self._base_container._midi_track = operand._data
-                        self._midi_track = self._base_container._midi_track
+                        self._midi_track = operand._data
 
                     case og.TimeSignature():
-                        self._base_container._time_signature = operand._data
-                        self._time_signature = self._base_container._time_signature
+                        self._time_signature = operand._data
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2645,19 +2643,19 @@ class Clip(Composition):  # Just a container of Elements
                         super().__lshift__(operand)
 
             case ra.Length():
-                self._base_container._length_beats = operand._rational
-                if self._base_container._length_beats < 0:
-                    self._base_container._length_beats = None
+                self._length_beats = operand._rational
+                if self._length_beats < 0:
+                    self._length_beats = None
             case None:
-                self._base_container._length_beats = None
+                self._length_beats = None
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
-                self._base_container._midi_track << operand
+                self._midi_track << operand
             case og.TimeSignature():
                 self._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
-                self._base_container.loadSerialization( operand.getSerialization() )
+                self.loadSerialization( operand.getSerialization() )
 
             case oe.Element():
                 self += operand
@@ -2708,6 +2706,10 @@ class Clip(Composition):  # Just a container of Elements
                     operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
+
+        # Makes sure non Operand mask data is transferred to the existing base
+        self._base_container._midi_track = self._midi_track
+        self._base_container._time_signature = self._time_signature
         return self._sort_items()
 
     # Works as a Clip transformer
