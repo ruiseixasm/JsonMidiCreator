@@ -76,7 +76,8 @@ class Container(o.Operand):
         self._items: list = []
         self._items_iterator: int = 0
         self._base_container: Self = self
-        self._mask_items_developing: list | None = None
+        self._mask_items: list | None = None
+        self._masked: bool = False
         for single_operand in operands:
             self << single_operand
         
@@ -169,8 +170,8 @@ class Container(o.Operand):
     def _delete_developing(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
             self._items.clear()
-            if self._mask_items_developing is not None:
-                self._mask_items_developing.clear()
+            if self._mask_items is not None:
+                self._mask_items.clear()
         else:
             if by_id:
                 # removes by id instead
@@ -178,9 +179,9 @@ class Container(o.Operand):
                     single_item for single_item in self._items
                     if not any(single_item is item for item in items)
                 ]
-                if self._mask_items_developing is not None:
-                    self._mask_items_developing = [
-                        single_item for single_item in self._mask_items_developing
+                if self._mask_items is not None:
+                    self._mask_items = [
+                        single_item for single_item in self._mask_items
                         if not any(single_item is item for item in items)
                     ]
             else:
@@ -189,9 +190,9 @@ class Container(o.Operand):
                     single_item for single_item in self._items
                     if single_item not in items
                 ]
-                if self._mask_items_developing is not None:
-                    self._mask_items_developing = [
-                        single_item for single_item in self._mask_items_developing
+                if self._mask_items is not None:
+                    self._mask_items = [
+                        single_item for single_item in self._mask_items
                         if single_item not in items
                     ]
         return self
@@ -386,8 +387,9 @@ class Container(o.Operand):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["items"] = self.serialize(self._dev_base_container()._items)
-        serialization["parameters"]["mask_items"] = self.serialize(self._mask_items_developing)
+        serialization["parameters"]["items"]        = self.serialize(self._dev_base_container()._items)
+        serialization["parameters"]["mask_items"]   = self.serialize(self._mask_items)
+        serialization["parameters"]["masked"]       = self.serialize(self._masked)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -403,11 +405,12 @@ class Container(o.Operand):
             Container: The self Container object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "items" in serialization["parameters"] and "mask_items" in serialization["parameters"]):
+            "items" in serialization["parameters"] and "mask_items" in serialization["parameters"] and "masked" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._items = self.deserialize(serialization["parameters"]["items"])
-            self._mask_items_developing = self.deserialize(serialization["parameters"]["mask_items"])
+            self._mask_items = self.deserialize(serialization["parameters"]["mask_items"])
+            self._masked = self.deserialize(serialization["parameters"]["masked"])
             self._base_container = self # Not a mask anymore if one
         return self
 
@@ -418,18 +421,19 @@ class Container(o.Operand):
 
                 if AS_MASK_LIST:
                     self._items = self.deep_copy(operand._items)
-                    if operand._mask_items_developing is None:
-                        self._mask_items_developing = None
+                    if operand._mask_items is None:
+                        self._mask_items = None
                     else:
                         items_indexes: list[int] = []
-                        for mask_item in operand._mask_items_developing:
+                        for mask_item in operand._mask_items:
                             for index, single_item in enumerate(operand._items):
                                 if mask_item is single_item:
                                     items_indexes.append(index)
                                     break
-                        self._mask_items_developing = [
+                        self._mask_items = [
                             self._items[index] for index in items_indexes
                         ]
+                    self._masked = operand._masked
 
                 else:
                     if not (self.is_a_mask() or operand.is_a_mask()):
@@ -725,7 +729,7 @@ class Container(o.Operand):
         return self._base_container is not self
     
     def is_a_mask_developing(self) -> bool:
-        return self._mask_items_developing is not None
+        return self._mask_items is not None
     
 
     def upper(self, level: int = None) -> Self:
@@ -989,14 +993,14 @@ class Container(o.Operand):
                     id(item) for item in self._items
                     if not item == single_condition
                 )
-        self._mask_items_developing = [
+        self._mask_items = [
             unmasked_item for unmasked_item in self
             if id(unmasked_item) not in excluded_item_ids
         ]
         return self
 
     def unmask_developing(self) -> Self:
-        self._mask_items_developing = None
+        self._mask_items = None
         return self
     
 
@@ -2312,7 +2316,7 @@ class Clip(Composition):  # Just a container of Elements
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
-        self._mask_items_developing: list[oe.Element] | None = None
+        self._mask_items: list[oe.Element] | None = None
         for single_operand in operands:
             self << single_operand
 
@@ -4154,7 +4158,7 @@ class Part(Composition):
         self._base_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
-        self._mask_items_developing: list[Clip] | None = None
+        self._mask_items: list[Clip] | None = None
         self._name: str = "Part"
 
         # Song sets the TimeSignature, this is just a reference
@@ -4843,7 +4847,7 @@ class Song(Composition):
         self._base_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
-        self._mask_items_developing: list[Part] | None = None
+        self._mask_items: list[Part] | None = None
         for single_operand in operands:
             self << single_operand
 
