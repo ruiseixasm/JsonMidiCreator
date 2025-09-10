@@ -1241,7 +1241,7 @@ class Composition(Container):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["length"] = self.serialize(self._length_beats)
+        serialization["parameters"]["length"] = self.serialize(self._base_container._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2509,8 +2509,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
-        serialization["parameters"]["midi_track"]       = self.serialize(self._midi_track)
+        serialization["parameters"]["time_signature"]   = self.serialize(self._base_container._time_signature)
+        serialization["parameters"]["midi_track"]       = self.serialize(self._base_container._midi_track)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4340,8 +4340,8 @@ class Part(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["position"] = self.serialize(self._position_beats)
-        serialization["parameters"]["name"]     = self.serialize(self._name)
+        serialization["parameters"]["position"] = self.serialize(self._base_container._position_beats)
+        serialization["parameters"]["name"]     = self.serialize(self._base_container._name)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4901,9 +4901,8 @@ class Song(Composition):
                 match operand._data:
                     case og.TimeSignature():        return self._base_container._time_signature
                     case _:                         return super().__mod__(operand)
-            case og.TimeSignature():        return self._base_container._time_signature.copy()
             case og.TimeSignature():
-                return self._base_container._time_signature % operand
+                return self._base_container._time_signature.copy()
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
@@ -4995,7 +4994,7 @@ class Song(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
+        serialization["parameters"]["time_signature"] = self.serialize(self._base_container._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -5014,7 +5013,7 @@ class Song(Composition):
             "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._time_signature = self.deserialize(serialization["parameters"]["time_signature"])
+            self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
             self._set_owner_song()
         return self
 
@@ -5327,7 +5326,7 @@ class ClipGet(Container):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["get"] = self.serialize(self._get)
+        serialization["parameters"]["get"] = self.serialize(self._base_container._get)
         return serialization
 
     # CHAINABLE OPERATIONS
