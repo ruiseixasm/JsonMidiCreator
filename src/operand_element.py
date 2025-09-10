@@ -80,7 +80,7 @@ class Element(o.Operand):
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
             return self._time_signature
-        return self._owner_clip._base_container._time_signature
+        return self._owner_clip._time_signature
 
 
     def checksum(self) -> str:
