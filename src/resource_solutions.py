@@ -125,7 +125,8 @@ class RS_Clip(RS_Solutions):
                 # Makes sure the ENTIRE composition is split first by the the given measures
                 for index, _ in enumerate(self._iterations):
                     splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))
-                    composition //= splitting_measure
+                    if composition.is_a_mask():
+                        composition //= splitting_measure
                     composition._base_container //= splitting_measure
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 if isinstance(triggers, list):
