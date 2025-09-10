@@ -108,9 +108,9 @@ class Container(o.Operand):
         self._items = self._items[:insert_at] + inexistent_items + self._items[insert_at:]
         return self
 
-    def _append(self, items: list, after_item: any = None) -> Self:
+    def _extend(self, items: list, after_item: any = None) -> Self:
         if self.is_a_mask():
-            self._base_container._append(items, after_item)
+            self._base_container._extend(items, after_item)
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
@@ -121,6 +121,9 @@ class Container(o.Operand):
         inexistent_items: list = [inexistent_item for inexistent_item in items if id(inexistent_item) not in existing_ids]
         self._items = self._items[:append_at] + inexistent_items + self._items[append_at:]
         return self
+
+    def _append(self, item: any, after_item: any = None) -> Self:
+        return self._extend([ item ], after_item)
 
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
         if self is not self._base_container:
@@ -393,7 +396,7 @@ class Container(o.Operand):
                         # Remove previous Elements from the Container stack
                         self._delete(self._items, True) # deletes by id, safer
                         # Finally adds the decomposed elements to the Container stack
-                        self._append( operand._data )
+                        self._extend( operand._data )
                         # for item in operand._data:
                         #     self._append([ item ])
             case od.Serialization():
@@ -402,7 +405,7 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
-                self._append([
+                self._extend([
                     self.deep_copy(item) for item in operand
                 ])
             case dict():
@@ -467,16 +470,16 @@ class Container(o.Operand):
                 ]
                 if self._items:
                     self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
+                    return self._extend(operand_items, self_last_item)
+                return self._extend(operand_items)
             case list():
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand
                 ]
                 if len(operand_items) > 0:
                     self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
+                    return self._extend(operand_items, self_last_item)
+                return self._extend(operand_items)
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -487,8 +490,8 @@ class Container(o.Operand):
             case _:
                 if self._items:
                     self_last_item: any = self[-1]
-                    return self._append([ self.deep_copy(operand) ], self_last_item)
-                return self._append([ self.deep_copy(operand) ])
+                    return self._extend([ self.deep_copy(operand) ], self_last_item)
+                return self._extend([ self.deep_copy(operand) ])
         return self
 
     def __radd__(self, operand: any) -> Self:
@@ -532,12 +535,12 @@ class Container(o.Operand):
                         new_items: list = [
                             self.deep_copy( data ) for data in items_copy
                         ]
-                        self._append(new_items)  # Propagates upwards in the stack
+                        self._extend(new_items)  # Propagates upwards in the stack
                         # self._items.extend(
                         #     self.deep_copy( data ) for data in items_copy
                         # )
                         operand -= 1
-                    self._append(items_copy)  # Propagates upwards in the stack
+                    self._extend(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
                     self._delete(self._base_container._items, True)
@@ -803,7 +806,7 @@ class Container(o.Operand):
             # Remove previous Elements from the Container stack
             self._delete(self._items, True) # deletes by id, safer
             # Finally adds the decomposed elements to the Container stack
-            self._append(items)
+            self._extend(items)
         else:
             parameters: list = []
             for operand in self:
@@ -2557,7 +2560,7 @@ class Clip(Composition):  # Just a container of Elements
                             # Remove previous Elements from the Container stack
                             self._delete(self._items, True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
-                            self._append( operand._data )
+                            self._extend( operand._data )
                             self._set_owner_clip()
                         elif all(isinstance(item, og.Locus) for item in operand._data):
                             for single_element, locus in zip(self, operand._data):
@@ -2604,7 +2607,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Remove previous Elements from the Container stack
                     self._delete(self._items, True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
-                    self._append( self.deep_copy(operand) )
+                    self._extend( self.deep_copy(operand) )
                     self._set_owner_clip()
                 elif all(isinstance(item, og.Locus) for item in operand):
                     for single_element, locus in zip(self, operand):
@@ -2659,7 +2662,7 @@ class Clip(Composition):  # Just a container of Elements
                 kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
                 ]
-                return self._delete(self._items, True)._append(kept_elements)._sort_items()
+                return self._delete(self._items, True)._extend(kept_elements)._sort_items()
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -2667,7 +2670,7 @@ class Clip(Composition):  # Just a container of Elements
                 for index, placed in enumerate(elements_place):
                     if placed:
                         kept_elements.append(self[index])    # No need to copy
-                return self._delete(self._items, True)._append(kept_elements)._sort_items()
+                return self._delete(self._items, True)._extend(kept_elements)._sort_items()
             
         return super().__irshift__(operand)
 
@@ -2682,8 +2685,8 @@ class Clip(Composition):  # Just a container of Elements
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
                 if self._has_elements():
                     self_last_element: oe.Element = self[-1]
-                    return self._append([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
-                return self._append([ new_element ])._sort_items()  # Shall be sorted!
+                    return self._extend([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
+                return self._extend([ new_element ])._sort_items()  # Shall be sorted!
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2695,7 +2698,7 @@ class Clip(Composition):  # Just a container of Elements
                     new_elements: list[oe.Element] = [
                         self[index].copy() for index in operand
                     ]
-                self._append(new_elements)
+                self._extend(new_elements)
                 
             case og.TimeSignature():
                 self._time_signature += operand
@@ -2762,11 +2765,11 @@ class Clip(Composition):  # Just a container of Elements
                     position_offset: ra.Position = operand_position - self_length
                     operand_base -= position_offset   # Does a position offset
                     
-                    self_base._append(operand_base._items) # Propagates upwards in the stack
+                    self_base._extend(operand_base._items) # Propagates upwards in the stack
                     if self_base._length_beats is not None:
                         self_base._length_beats += (operand_copy % ra.Length())._rational
                     if self.is_a_mask() and operand_copy.is_a_mask():
-                        self._append(operand_copy._items)
+                        self._extend(operand_copy._items)
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
@@ -2838,7 +2841,7 @@ class Clip(Composition):  # Just a container of Elements
                         element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
                         operand_elements.append(element_copy)
                         element_copy._position_beats += position_shift
-                    self._append(operand_elements)  # Propagates upwards in the stack
+                    self._extend(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
@@ -2886,9 +2889,9 @@ class Clip(Composition):  # Just a container of Elements
                 # Preserves the Structure (Locus), Wraps the content (Element)
                 self_base: Clip = self._base_container
                 operand_base: Clip = operand._base_container
-                for left_element, right_element in zip(self_base, operand_base):
-                    element_locus: og.Locus = left_element % og.Locus()
-                    self._replace(left_element, right_element.copy(element_locus)._set_owner_clip(self_base))
+                for existent_element, new_element in zip(self_base, operand_base):
+                    element_locus: og.Locus = existent_element % og.Locus()
+                    self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
 
             case oe.Element():
                 self.__ifloordiv__(Clip(operand._time_signature, operand))
@@ -2912,7 +2915,7 @@ class Clip(Composition):  # Just a container of Elements
                             next_element: oe.Element = first_element.copy() # already with the right duration
                             next_element._position_beats += first_element_duration * next_element_i
                             new_elements.append(next_element)
-                    self._append(new_elements)
+                    self._extend(new_elements)
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             case ra.Duration() | ra.TimeValue():    # Single point split if Duration
                 new_elements: list[oe.Element] = []
@@ -2932,33 +2935,33 @@ class Clip(Composition):  # Just a container of Elements
                             if next_split > group_finish:
                                 next_element._duration_beats -= next_split - group_finish # Trims the extra `Duration`
                                 break
-                self._append(new_elements)
+                self._extend(new_elements)
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []
-                for left_element in self._items:
-                    left_start: Fraction = left_element._position_beats
-                    split_position: Fraction = ra.Position(self, left_start, operand)._rational
-                    if split_position > left_start:
-                        right_finish: Fraction = left_start + left_element._duration_beats
-                        if split_position < right_finish:
-                            left_duration: Fraction = split_position - left_start
-                            right_duration: Fraction = right_finish - split_position
-                            left_element._duration_beats = left_duration
-                            right_element: oe.Element = left_element.copy()
-                            new_elements.append(right_element)
-                            right_element._position_beats = split_position
-                            right_element._duration_beats = right_duration
-                self._append(new_elements)
+                for existent_element in self._items:
+                    existent_start: Fraction = existent_element._position_beats
+                    split_position: Fraction = ra.Position(self._base_container._time_signature, existent_start, operand)._rational
+                    if split_position > existent_start: # Can't split the start
+                        existent_finish: Fraction = existent_start + existent_element._duration_beats
+                        if split_position < existent_finish:    # Can't split the finish
+                            left_duration: Fraction = split_position - existent_start
+                            right_duration: Fraction = existent_finish - split_position
+                            existent_element._duration_beats = left_duration
+                            new_element: oe.Element = existent_element.copy()
+                            new_elements.append(new_element)
+                            new_element._position_beats = split_position
+                            new_element._duration_beats = right_duration
+                self._extend(new_elements)
 
             case list():
                 
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Preserves the Structure (Locus), Wraps the content (Element)
                     self_base: Clip = self._base_container
-                    for left_element, right_element in zip(self_base, operand):
-                        element_locus: og.Locus = left_element % og.Locus()
-                        self._replace(left_element, right_element.copy(element_locus)._set_owner_clip(self_base))
+                    for existent_element, new_element in zip(self_base, operand):
+                        element_locus: og.Locus = existent_element % og.Locus()
+                        self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
 
                 else:
                     segments_list: list[og.Segment] = [
@@ -3654,7 +3657,7 @@ class Clip(Composition):  # Just a container of Elements
         ]
 
         self._delete(self._items, True)
-        self._append(included_elements)
+        self._extend(included_elements)
 
         self._length_beats = ra.Length(punch_out - punch_in)._rational
         self -= punch_in   # Moves to the start of the Clip being looped/trimmed
@@ -3740,7 +3743,7 @@ class Clip(Composition):  # Just a container of Elements
                 right_element._position_beats = measure_end._rational
                 right_element._duration_beats -= rightest_element._duration_beats
                 rightest_element = right_element
-        return self._append(new_elements)._sort_items()
+        return self._extend(new_elements)._sort_items()
 
 
     def link(self, ignore_empty_measures: bool = True) -> Self:
@@ -3844,7 +3847,7 @@ class Clip(Composition):  # Just a container of Elements
         # Remove previous Elements from the Container stack
         self._delete(self._items, True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
-        self._append(decomposed_elements)
+        self._extend(decomposed_elements)
         return self._sort_items()
 
     def arpeggiate(self, parameters: any = None) -> Self:
@@ -4443,15 +4446,15 @@ class Part(Composition):
                 return Song(self, operand)
 
             case Clip():
-                self._append([ operand.copy() ])
+                self._extend([ operand.copy() ])
 
             case oe.Element():
-                self._append([ Clip(operand._time_signature, operand) ])
+                self._extend([ Clip(operand._time_signature, operand) ])
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
             case list():
-                self._append(self.deep_copy(operand))
+                self._extend(self.deep_copy(operand))
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -4506,9 +4509,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._append([ operand + ra.Position(finish_length) ])  # Implicit copy
+                    self._extend([ operand + ra.Position(finish_length) ])  # Implicit copy
                 else:
-                    self._append([ operand.copy() ])    # Explicit copy
+                    self._extend([ operand.copy() ])    # Explicit copy
 
             case oe.Element():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4517,9 +4520,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._append([ Clip(operand._time_signature, operand + ra.Position(finish_length)) ])   # Implicit copy
+                    self._extend([ Clip(operand._time_signature, operand + ra.Position(finish_length)) ])   # Implicit copy
                 else:
-                    self._append([ Clip(operand._time_signature, operand) ])
+                    self._extend([ Clip(operand._time_signature, operand) ])
 
             case int():
                 if operand > 1:
@@ -4554,12 +4557,12 @@ class Part(Composition):
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
-                self._append([ repositioned_clip ]) # No implicit copy
+                self._extend([ repositioned_clip ]) # No implicit copy
 
             case oe.Element():
                 finish_position: ra.Position = self._base_container.finish()
                 repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
-                self._append([ repositioned_clip ]) # No implicit copy
+                self._extend([ repositioned_clip ]) # No implicit copy
 
             case int():
                 if operand > 1:
@@ -4589,10 +4592,10 @@ class Part(Composition):
                     return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
-                self._append([ operand.copy() ])
+                self._extend([ operand.copy() ])
 
             case oe.Element():
-                self._append([ Clip(operand._time_signature, operand) ])
+                self._extend([ Clip(operand._time_signature, operand) ])
 
             case int():
                 if operand > 1:
@@ -5080,7 +5083,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._append([ Part(operand)._set_owner_song(self) ])._sort_items()
+                self._extend([ Part(operand)._set_owner_song(self) ])._sort_items()
 
             case Clip():
                 self += Part(operand)
@@ -5091,7 +5094,7 @@ class Song(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._append([ item.copy()._set_owner_song(self) ])
+                        self._extend([ item.copy()._set_owner_song(self) ])
                 self._sort_items()
             case tuple():
                 for single_operand in operand:
@@ -5141,7 +5144,7 @@ class Song(Composition):
                 for single_part in right_song:
                     single_part += position_offset
 
-                self._append(right_song._items)
+                self._extend(right_song._items)
                 
                 if self._length_beats is not None:
                     self._length_beats += (right_song % ra.Length())._rational
@@ -5186,7 +5189,7 @@ class Song(Composition):
                 for single_part in right_song:
                     single_part += position_offset
 
-                self._append(right_song._items)  # Propagates upwards in the stack
+                self._extend(right_song._items)  # Propagates upwards in the stack
                 
                 if self._length_beats is not None:
                     self._length_beats += (right_song % ra.Duration() % ra.Length())._rational
@@ -5367,7 +5370,7 @@ class ClipGet(Container):
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
                 # Finally adds the decomposed elements to the Container stack
-                self._append([
+                self._extend([
                     self.deep_copy(item) for item in operand
                 ])
             case dict():
@@ -5394,16 +5397,16 @@ class ClipGet(Container):
                 ]
                 if self._items:
                     self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
+                    return self._extend(operand_items, self_last_item)
+                return self._extend(operand_items)
             case list():
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand
                 ]
                 if len(operand_items) > 0:
                     self_last_item: any = self[-1]
-                    return self._append(operand_items, self_last_item)
-                return self._append(operand_items)
+                    return self._extend(operand_items, self_last_item)
+                return self._extend(operand_items)
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -5455,12 +5458,12 @@ class ClipGet(Container):
                         new_items: list = [
                             self.deep_copy( data ) for data in items_copy
                         ]
-                        self._append(new_items)  # Propagates upwards in the stack
+                        self._extend(new_items)  # Propagates upwards in the stack
                         # self._items.extend(
                         #     self.deep_copy( data ) for data in items_copy
                         # )
                         operand -= 1
-                    self._append(items_copy)  # Propagates upwards in the stack
+                    self._extend(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
                     self._delete(self._base_container._items, True)
