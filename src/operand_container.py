@@ -1268,15 +1268,15 @@ class Composition(Container):
         match operand:
             case Composition():
                 super().__lshift__(operand)
-                self._length_beats = operand._length_beats
+                self._base_container._length_beats = operand._base_container._length_beats
 
             case od.Pipe():
                 match operand._data:
                     case ra.Length():
-                        self._length_beats = operand._data._rational
+                        self._base_container._length_beats = operand._data._rational
                         if self._length_beats < 0:
-                            self._length_beats = None
-                    case None:              self._length_beats = None
+                            self._base_container._length_beats = None
+                    case None:              self._base_container._length_beats = None
                     case _:                 super().__lshift__(operand)
 
             case ra.Length():
@@ -1289,6 +1289,8 @@ class Composition(Container):
             case _:
                 super().__lshift__(operand)
 
+        # Makes sure non Operand data is transferred to the existing mask
+        self._length_beats = self._base_container._length_beats
         return self
 
 
@@ -4364,7 +4366,6 @@ class Part(Composition):
 
     def __lshift__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
-        # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
@@ -4378,7 +4379,8 @@ class Part(Composition):
                 
             case od.Pipe():
                 match operand._data:
-                    case ra.Position():     self._base_container._position_beats = operand._data._rational
+                    case ra.Position():
+                        self._base_container._position_beats = operand._data._rational
                     case str():             self._base_container._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
@@ -4425,6 +4427,9 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item << operand
+
+        # Makes sure non Operand data is transferred to the existing mask
+        self._position_beats = self._base_container._position_beats
         return self._sort_items()
 
 
@@ -4658,6 +4663,8 @@ class Part(Composition):
         self._length_beats = punch_length._rational
 
         return self._sort_items()
+
+
 
 #####################################################################################################
 ##############################################  SONG  ###############################################
