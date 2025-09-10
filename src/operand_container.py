@@ -843,8 +843,22 @@ class Container(o.Operand):
                 left += 1
         return self._sort_items()
 
-
     def mask(self, *conditions) -> Self:
+        """
+        Masks the items that meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Container Mask: A different object with a shallow copy of the original
+            `Container` items now selected as a `Mask`.
+        """
+        self.mask_developing(*conditions)
+        return self.mask_original(*conditions)
+
+    def mask_original(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
 
@@ -1365,7 +1379,7 @@ class Composition(Container):
         return self
     
 
-    def mask(self, *conditions) -> Self:
+    def mask_original(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
 
@@ -1377,7 +1391,7 @@ class Composition(Container):
             Composition Mask: A different object with a shallow copy of the original
             `Composition` items now selected as a `Mask`.
         """
-        composition_mask: Composition = super().mask(*conditions)
+        composition_mask: Composition = super().mask_original(*conditions)
         composition_mask._time_signature = self._base_container._time_signature
         composition_mask._length_beats = self._base_container._length_beats
         return composition_mask
@@ -3107,7 +3121,7 @@ class Clip(Composition):  # Just a container of Elements
         return shallow_copy
 
 
-    def mask(self, *conditions) -> Self:
+    def mask_original(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
 
@@ -3119,7 +3133,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip Mask: A different object with a shallow copy of the original
             `Clip` items now selected as a `Mask`.
         """
-        clip_mask: Clip = super().mask(*conditions)
+        clip_mask: Clip = super().mask_original(*conditions)
         clip_mask._midi_track = self._base_container._midi_track
         return clip_mask
 
@@ -4695,7 +4709,7 @@ class Part(Composition):
         return self._sort_items()  # Shall be sorted!
 
 
-    def mask(self, *conditions) -> Self:
+    def mask_original(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
 
@@ -4707,7 +4721,7 @@ class Part(Composition):
             Part Mask: A different object with a shallow copy of the original
             `Part` items now selected as a `Mask`.
         """
-        part_mask: Part = super().mask(*conditions)
+        part_mask: Part = super().mask_original(*conditions)
         part_mask._position_beats = self._base_container._position_beats
         part_mask._name = self._base_container._name
         part_mask._owner_song = self._base_container._owner_song
