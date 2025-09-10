@@ -71,6 +71,7 @@ class Container(o.Operand):
         self._items: list = []
         self._items_iterator: int = 0
         self._base_container: Self = self
+        self._mask_items_developing: list | None = None
         for single_operand in operands:
             self << single_operand
         
@@ -650,9 +651,14 @@ class Container(o.Operand):
             self << single_parameter
         return self
 
+
     def is_a_mask(self) -> bool:
         return self._base_container is not self
     
+    def is_a_mask_developing(self) -> bool:
+        return self._mask_items_developing is not None
+    
+
     def upper(self, level: int = None) -> Self:
         """
         Returns self or the upper container if existent up to the last one if no argument is given, or,
@@ -869,6 +875,44 @@ class Container(o.Operand):
         """
         return self._base_container
 
+
+    def mask_developing(self, *conditions) -> Self:
+        """
+        Masks the items that meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Container Mask: A different object with a shallow copy of the original
+            `Container` items now selected as a `Mask`.
+        """
+        excluded_item_ids: set = set()
+        # And type of conditions, not meeting any means excluded
+        for single_condition in conditions:
+            if isinstance(single_condition, Container):
+                excluded_item_ids.update(
+                    id(item) for item in self._items
+                    if not any(item == cond_item for cond_item in single_condition)
+                )
+            else:
+                if isinstance(single_condition, of.Frame):
+                    single_condition._set_inside_container(self)
+                excluded_item_ids.update(
+                    id(item) for item in self._items
+                    if not item == single_condition
+                )
+        self._mask_items_developing = [
+            unmasked_item for unmasked_item in self
+            if id(unmasked_item) not in excluded_item_ids
+        ]
+        return self
+
+    def unmask_developing(self) -> Self:
+        self._mask_items_developing = None
+        return self
+    
 
     def filter(self, *conditions) -> Self:
         """
