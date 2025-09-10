@@ -2214,7 +2214,7 @@ class Process(Generic):
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
                 if isinstance(operand, oc.Composition):
                     # Makes sure the entire Composition content is used
-                    playlist.extend( operand._base_container.getPlaylist() )    # Operand Playlist
+                    playlist.extend( operand._dev_base_container().getPlaylist() )    # Operand Playlist
                 else:
                     playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case od.Playlist():
@@ -2559,7 +2559,7 @@ class Play(ReadOnly):
         import operand_element as oe
         match operand:
             case oc.Composition():
-                if operand._base_container.len() > 0:
+                if operand._dev_base_container().len() > 0:
                     playlist: list[dict] = self._clocked_playlist(operand._base_container)
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
