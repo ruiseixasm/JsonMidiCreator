@@ -1220,7 +1220,7 @@ class Composition(Container):
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case Composition():
-                return self._base_container._time_signature == other._base_container._time_signature \
+                return self._time_signature == other._time_signature \
                     and super().__eq__(other)
             case _:
                 return super().__eq__(other)
@@ -1879,7 +1879,7 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration = 0
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -1889,7 +1889,7 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -1899,7 +1899,7 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -1909,7 +1909,7 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            self._plot_elements(plotlist, self._iterations[self._iteration]._base_container._time_signature)
+            self._plot_elements(plotlist, self._iterations[self._iteration]._time_signature)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -1918,7 +1918,7 @@ class Composition(Container):
     def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
         self._plot_lists[iteration] = plotlist
         if iteration == self._iteration:
-            self._plot_elements(plotlist, self._iterations[iteration]._base_container._time_signature)
+            self._plot_elements(plotlist, self._iterations[iteration]._time_signature)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -1930,7 +1930,7 @@ class Composition(Container):
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
-                self._plot_elements(plotlist, new_iteration._base_container._time_signature)
+                self._plot_elements(plotlist, new_iteration._time_signature)
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
         return self
@@ -2098,7 +2098,7 @@ class Composition(Container):
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
-        self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._base_container._time_signature)
+        self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._time_signature)
 
         # Where the padding is set
         plt.tight_layout()
@@ -2226,7 +2226,7 @@ class Clip(Composition):  # Just a container of Elements
             self << single_operand
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._base_container._time_signature
+        return self._time_signature
 
     def _index_from_frame(self, frame: of.Frame) -> int:
         """
@@ -2288,7 +2288,7 @@ class Clip(Composition):  # Just a container of Elements
             for single_element in self._base_container._items:
                 single_element._set_owner_clip(self._base_container)
         elif isinstance(owner_clip, Clip):
-            self._base_container._time_signature << owner_clip._base_container._time_signature    # Does a parameters copy
+            self._time_signature << owner_clip._time_signature    # Does a parameters copy
             for single_element in self._base_container._items:
                 single_element._set_owner_clip(owner_clip._base_container)
         return self
@@ -2411,7 +2411,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._base_container._time_signature
+                    case og.TimeSignature():        return self._time_signature
                     case ou.MidiTrack():            return self._base_container._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
@@ -2427,9 +2427,9 @@ class Clip(Composition):  # Just a container of Elements
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._base_container._midi_track % operand
             case og.TimeSignature():
-                return self._base_container._time_signature % operand
-            case Part():            return Part(self._base_container._time_signature, self._base_container)
-            case Song():            return Song(self._base_container._time_signature, self._base_container)
+                return self._time_signature.copy()
+            case Part():            return Part(self._time_signature, self._base_container)
+            case Song():            return Song(self._time_signature, self._base_container)
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._items:
@@ -2562,7 +2562,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"]   = self.serialize(self._base_container._time_signature)
+        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         serialization["parameters"]["midi_track"]       = self.serialize(self._base_container._midi_track)
         return serialization
 
@@ -2591,7 +2591,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._base_container._time_signature    << operand._base_container._time_signature
+                self._time_signature    << operand._time_signature
                 self._base_container._midi_track        << operand._base_container._midi_track
                 self._base_container._set_owner_clip()
 
@@ -2644,7 +2644,7 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._base_container._midi_track << operand
             case og.TimeSignature():
-                self._base_container._time_signature << operand  # TimeSignature has no clock!
+                self._time_signature << operand  # TimeSignature has no clock!
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self._base_container.loadSerialization( operand.getSerialization() )
@@ -2679,7 +2679,7 @@ class Clip(Composition):  # Just a container of Elements
                     self << single_operand
 
             case Composition():
-                self._base_container._time_signature << operand._base_container._time_signature
+                self._time_signature << operand._time_signature
 
             case ClipGet():
                 clip_get: ClipGet = operand
@@ -2991,7 +2991,7 @@ class Clip(Composition):  # Just a container of Elements
                 new_elements: list[oe.Element] = []
                 for existent_element in self._items:
                     existent_start: Fraction = existent_element._position_beats
-                    operand_position = ra.Position(self._base_container._time_signature, existent_start)
+                    operand_position = ra.Position(self._time_signature, existent_start)
                     operand_position <<= operand    # Strict operand positioning (<<=)
                     split_position: Fraction = operand_position._rational
                     if split_position > existent_start: # Can't split the start
@@ -3076,8 +3076,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        shallow_copy._base_container._time_signature    = self._base_container._time_signature   
-        shallow_copy._base_container._midi_track        = self._base_container._midi_track
+        shallow_copy._time_signature    << self._time_signature   
+        shallow_copy._base_container._midi_track        << self._base_container._midi_track
         shallow_copy._base_container._length_beats      = self._base_container._length_beats
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
@@ -4087,7 +4087,7 @@ class Part(Composition):
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_song is None:
             return og.settings._time_signature
-        return self._owner_song._base_container._time_signature
+        return self._owner_song._time_signature
 
 
     def __getitem__(self, key: str | int) -> 'Clip':
@@ -4291,7 +4291,7 @@ class Part(Composition):
                     case _:
                         return super().__mod__(operand)
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                return operand.copy( ra.Position(self._base_container._time_signature, self._base_container._position_beats) )
+                return operand.copy( ra.Position(self._time_signature, self._base_container._position_beats) )
             case str():
                 return self._base_container._name
             case od.Names():
@@ -4749,7 +4749,7 @@ class Song(Composition):
             self << single_operand
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._base_container._time_signature
+        return self._time_signature
 
 
     def __getitem__(self, key: int) -> 'Part':
@@ -4773,7 +4773,7 @@ class Song(Composition):
             for single_part in self._base_container._items:
                 single_part._set_owner_song(self._base_container)
         elif isinstance(owner_song, Song):
-            self._base_container._time_signature << owner_song._base_container._time_signature    # Does a parameters copy
+            self._time_signature << owner_song._time_signature    # Does a parameters copy
             for single_part in self._base_container._items:
                 single_part._set_owner_song(owner_song._base_container)
         return self
@@ -4954,10 +4954,10 @@ class Song(Composition):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._base_container._time_signature
+                    case og.TimeSignature():        return self._time_signature
                     case _:                         return super().__mod__(operand)
             case og.TimeSignature():
-                return self._base_container._time_signature.copy()
+                return self._time_signature.copy()
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._items:
@@ -5049,7 +5049,7 @@ class Song(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"] = self.serialize(self._base_container._time_signature)
+        serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -5076,13 +5076,14 @@ class Song(Composition):
         match operand:
             case Song():
                 super().__lshift__(operand)
-                self._base_container._time_signature << operand._base_container._time_signature
+                self._time_signature << operand._time_signature
                 self._base_container._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
                         self._base_container._time_signature = operand._data
+                        self._time_signature = self._base_container._time_signature
                     case list():
                         if all(isinstance(item, Part) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -5099,7 +5100,7 @@ class Song(Composition):
             case od.Serialization():
                 self._base_container.loadSerialization( operand.getSerialization() )
             case og.TimeSignature():
-                self._base_container._time_signature << operand
+                self._time_signature << operand
             case list():
                 if all(isinstance(item, Part) for item in operand):
                     self._items = [item.copy() for item in operand]
