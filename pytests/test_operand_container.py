@@ -281,12 +281,11 @@ def test_rshift_container():
     assert clip_part[1][0] % Position() == Measures(1) + Beats(0)
     assert clip_part[1][1] % Position() == Measures(1) + Beats(1)
 
-    new_part = Part() * clip_part * clip_part
-    assert new_part.len() == 4
-    assert new_part[2][0] % Position() == Measures(2) + Beats(0)
-    assert new_part[2][1] % Position() == Measures(2) + Beats(1)
-    assert new_part[3][0] % Position() == Measures(3) + Beats(0)
-    assert new_part[3][1] % Position() == Measures(3) + Beats(1)
+    new_song = clip_part * clip_part
+    assert new_song.len() == 2
+    print(f"new_song[1][0] % Position(): {new_song[1] % Position() % str()}")
+    assert new_song[0] % Position() == Measures(0) + Beats(0)
+    assert new_song[1] % Position() == Measures(2) + Beats(0)
 
     elements_part = Part(Note(), Note("A"))
     assert elements_part.len() == 2

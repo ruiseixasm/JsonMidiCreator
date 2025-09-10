@@ -2687,7 +2687,7 @@ class Clip(Composition):  # Just a container of Elements
                     ]
                 self._append(new_elements)
                 
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 self._time_signature += operand
 
             case tuple():
@@ -2723,7 +2723,7 @@ class Clip(Composition):  # Just a container of Elements
                         elements_to_delete.append(self[index])    # Shouldn't be copied
                 return self._delete(elements_to_delete, True)
             
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 self._time_signature -= operand
 
             case tuple():
@@ -4227,8 +4227,8 @@ class Part(Composition):
                         return self._base_container._name
                     case _:
                         return super().__mod__(operand)
-            case ra.Position():
-                return operand.copy( ra.Position(self._base_container, self._base_container._position_beats) )
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
+                return operand.copy( ra.Position(self._base_container._time_signature, self._base_container._position_beats) )
             case str():
                 return self._base_container._name
             case od.Names():
@@ -4436,7 +4436,7 @@ class Part(Composition):
             case oe.Element():
                 self._append([ Clip(operand._time_signature, operand) ])
 
-            case ra.Position() | ra.TimeValue():
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
             case list():
                 self._append(self.deep_copy(operand))
@@ -4457,7 +4457,7 @@ class Part(Composition):
         match operand:
             case Clip():
                 return self._delete([ operand ])
-            case ra.Position() | ra.TimeValue():
+            case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() - operand
             case list():
                 return self._delete(operand)
@@ -4477,20 +4477,15 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                # Part(operand) works as copy on Masks while operand.copy() doesn't !!
-                right_part: Part = Part(operand)
-
-                left_length: ra.Length = self % ra.Length()
-                right_position: ra.Position = right_part % od.Pipe( ra.Position() )
-                position_offset: ra.Position = right_position - left_length
-
-                for single_clip in right_part:
-                    single_clip -= position_offset
-
-                self._append(right_part._items)  # Propagates upwards in the stack
-                
-                if self._length_beats is not None:
-                    self._length_beats += (right_part % ra.Length())._rational
+                last_position: ra.Position = self._base_container.last_position()
+                if last_position is not None:
+                    finish_position: ra.Position = self._base_container.finish()
+                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                        last_position = ra.Position(finish_position % ra.Measure())
+                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
+                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
+                else:
+                    return Song(self._time_signature, operand)  # Implicit copy
 
             case Clip():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4895,7 +4890,7 @@ class Song(Composition):
                     case og.TimeSignature():        return self._base_container._time_signature
                     case _:                         return super().__mod__(operand)
             case og.TimeSignature():        return self._base_container._time_signature.copy()
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 return self._base_container._time_signature % operand
             case od.Names():
                 all_names: list[str] = []
@@ -5037,7 +5032,7 @@ class Song(Composition):
 
             case od.Serialization():
                 self._base_container.loadSerialization( operand.getSerialization() )
-            case og.TimeSignature() | og.TimeSignature():
+            case og.TimeSignature():
                 self._base_container._time_signature << operand
             case list():
                 if all(isinstance(item, Part) for item in operand):
