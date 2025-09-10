@@ -5078,7 +5078,7 @@ class Song(Composition):
                 for item in self._items:
                     item += operand
                 self._sort_items()
-        return self
+        return self._sort_items()  # Shall be sorted!
 
 
     # FROM PART TO BE ADAPTED
