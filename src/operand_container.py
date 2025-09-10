@@ -133,8 +133,9 @@ class Container(o.Operand):
 
     
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
-        self._delete_original(items, by_id)
-        return self
+        if AS_MASK_LIST:
+            return self._delete_developing(items, by_id)
+        return self._delete_original(items, by_id)
 
 
     def _delete_original(self, items: list = None, by_id: bool = False) -> Self:
@@ -157,6 +158,38 @@ class Container(o.Operand):
                     if single_item not in items
                 ]
         return self
+
+
+    def _delete_developing(self, items: list = None, by_id: bool = False) -> Self:
+        if items is None:
+            self._items.clear()
+            if self._mask_items_developing is not None:
+                self._mask_items_developing.clear()
+        else:
+            if by_id:
+                # removes by id instead
+                self._items = [
+                    single_item for single_item in self._items
+                    if not any(single_item is item for item in items)
+                ]
+                if self._mask_items_developing is not None:
+                    self._mask_items_developing = [
+                        single_item for single_item in self._mask_items_developing
+                        if not any(single_item is item for item in items)
+                    ]
+            else:
+                # Uses "==" instead of id
+                self._items = [
+                    single_item for single_item in self._items
+                    if single_item not in items
+                ]
+                if self._mask_items_developing is not None:
+                    self._mask_items_developing = [
+                        single_item for single_item in self._mask_items_developing
+                        if single_item not in items
+                    ]
+        return self
+
 
 
     def _delete_by_ids(self, item_ids: set | None = None):
@@ -868,7 +901,8 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        self.mask_developing(*conditions)
+        if AS_MASK_LIST:
+            return self.mask_developing(*conditions)
         return self.mask_original(*conditions)
 
     def mask_original(self, *conditions) -> Self:
@@ -917,6 +951,8 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
+        if AS_MASK_LIST:
+            return self.unmask_developing()
         return self._base_container
 
 
