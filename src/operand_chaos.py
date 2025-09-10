@@ -582,9 +582,9 @@ class Bouncer(Chaos):
                     case ra.Y0():       self._y0 = operand._data
                     case int() | float() | Fraction():
                         operand_rational: Fraction = ra.Xn(operand)._rational
-                        hypotenuse: Fraction = self % operand_rational
-                        if hypotenuse != 0:
-                            ratio: Fraction = operand_rational / hypotenuse
+                        if operand_rational != 0:
+                            hypotenuse: Fraction = self % operand_rational
+                            ratio: Fraction = hypotenuse / operand_rational
                             self._xn *= ratio
                             self._yn *= ratio
                     case _:             super().__lshift__(operand)
