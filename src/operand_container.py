@@ -4533,20 +4533,11 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                # This conversion doesn't touch on the Clips
-                right_part: Part = Part(operand)
-
-                left_length: ra.Length = self % ra.Duration() % ra.Length()
-                position_offset: ra.Position = ra.Position(left_length.roundMeasures())
-
-                # right part Position is lost, so, there is the need of reposition the Clips based on the self Part
-                for single_clip in right_part:
-                    single_clip += position_offset
-
-                self._append(right_part._items)  # Propagates upwards in the stack
-                
-                if self._length_beats is not None:
-                    self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
+                finish_position: ra.Position = self._base_container.finish()
+                if finish_position is not None:
+                    return Song(self._time_signature, self, operand.copy(finish_position))
+                else:
+                    return Song(self._time_signature, operand)  # Implicit copy
 
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
