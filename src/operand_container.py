@@ -2708,8 +2708,8 @@ class Clip(Composition):  # Just a container of Elements
                     item << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
-        self._base_container._midi_track = self._midi_track
-        self._base_container._time_signature = self._time_signature
+        self._base_container._midi_track        = self._midi_track
+        self._base_container._time_signature    = self._time_signature
         return self._sort_items()
 
     # Works as a Clip transformer
@@ -4429,6 +4429,9 @@ class Part(Composition):
             super().loadSerialization(serialization)
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._name              = self.deserialize(serialization["parameters"]["name"])
+            # Makes sure non Operand mask data is transferred to the existing base
+            self._base_container._position_beats    = self._position_beats
+            self._base_container._name              = self._name
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -4438,8 +4441,8 @@ class Part(Composition):
             case Part():
                 super().__lshift__(operand)
                 # No conversion is done, beat values are directly copied (Same for Element)
-                self._base_container._position_beats    = operand._base_container._position_beats
-                self._base_container._name              = operand._base_container._name
+                self._position_beats    = operand._position_beats
+                self._name              = operand._name
                 # Because a Part is also defined by the Owner Song, this also needs to be copied!
                 if self._owner_song is None:   # << and copy operation doesn't override ownership
                     self._owner_song    = operand._owner_song
@@ -4447,8 +4450,9 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        self._base_container._position_beats = operand._data._rational
-                    case str():             self._base_container._name = operand._data
+                        self._position_beats = operand._data._rational
+                    case str():
+                        self._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -4459,7 +4463,7 @@ class Part(Composition):
                         super().__lshift__(operand)
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                self._base_container._position_beats = operand % ra.Position(self) % Fraction()
+                self._position_beats = operand % ra.Position(self) % Fraction()
 
             case Clip():
                 self.__iadd__(operand)
@@ -4468,7 +4472,7 @@ class Part(Composition):
                 self += operand
 
             case od.Serialization():
-                self._base_container.loadSerialization( operand.getSerialization() )
+                self.loadSerialization( operand.getSerialization() )
             case list():
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
@@ -4485,7 +4489,7 @@ class Part(Composition):
                         item << operand
 
             case str():
-                self._base_container._name = operand
+                self._name = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -4495,9 +4499,9 @@ class Part(Composition):
                 for item in self._items:
                     item << operand
 
-        # Makes sure non Operand data is transferred to the existing mask
-        self._position_beats = self._base_container._position_beats
-        self._name = self._base_container._name
+        # Makes sure non Operand mask data is transferred to the existing base
+        self._base_container._position_beats    = self._position_beats
+        self._base_container._name              = self._name
         return self._sort_items()
 
 
@@ -5089,13 +5093,12 @@ class Song(Composition):
             case Song():
                 super().__lshift__(operand)
                 self._time_signature << operand._time_signature
-                self._base_container._set_owner_song()
+                self._set_owner_song()
 
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
-                        self._base_container._time_signature = operand._data
-                        self._time_signature = self._base_container._time_signature
+                        self._time_signature = operand._data
                     case list():
                         if all(isinstance(item, Part) for item in operand._data):
                             self._items = [item for item in operand._data]
@@ -5110,7 +5113,7 @@ class Song(Composition):
                 self += operand
 
             case od.Serialization():
-                self._base_container.loadSerialization( operand.getSerialization() )
+                self.loadSerialization( operand.getSerialization() )
             case og.TimeSignature():
                 self._time_signature << operand
             case list():
@@ -5138,6 +5141,8 @@ class Song(Composition):
                 for single_part in self._items:
                     single_part << operand
 
+        # Makes sure non Operand mask data is transferred to the existing base
+        self._base_container._time_signature    = self._time_signature
         return self._sort_items()
 
 
