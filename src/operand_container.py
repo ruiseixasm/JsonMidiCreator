@@ -55,6 +55,11 @@ except ImportError:
     print("Please install it by running 'pip install numpy'.")
 
 
+
+AS_MASK_LIST: bool = False
+
+
+
 class Container(o.Operand):
     """`Container`
 
@@ -126,9 +131,15 @@ class Container(o.Operand):
     def _append(self, item: any, after_item: any = None) -> Self:
         return self._extend([ item ], after_item)
 
+    
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
+        self._delete_original(items, by_id)
+        return self
+
+
+    def _delete_original(self, items: list = None, by_id: bool = False) -> Self:
         if self is not self._base_container:
-            self._base_container._delete(items)
+            self._base_container._delete_original(items)
         if items is None:
             self._items.clear()
             self._base_container._items.clear()
@@ -146,6 +157,7 @@ class Container(o.Operand):
                     if single_item not in items
                 ]
         return self
+
 
     def _delete_by_ids(self, item_ids: set | None = None):
         if isinstance(item_ids, set):
@@ -365,48 +377,49 @@ class Container(o.Operand):
             case Container():
                 super().__lshift__(operand)
 
-                if not (self.is_a_mask() or operand.is_a_mask()):
+                if AS_MASK_LIST:
                     self._items = self.deep_copy(operand._items)
+                    if operand._mask_items_developing is None:
+                        self._mask_items_developing = None
+                    else:
+                        items_indexes: list[int] = []
+                        for mask_item in operand._mask_items_developing:
+                            for index, single_item in enumerate(operand._items):
+                                if mask_item is single_item:
+                                    items_indexes.append(index)
+                                    break
+                        self._mask_items_developing = [
+                            self._items[index] for index in items_indexes
+                        ]
 
-                elif self.is_a_mask() and operand.is_a_mask():
-                    self_base: Container = self._base_container
-                    operand_base: Container = operand._base_container
-                    self_base._items = self.deep_copy(operand_base._items)
-                    unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
-                    self._items = [
-                        self_base._items[index] for index, root_item in enumerate(operand_base._items)
-                        if id(root_item) in unmasked_ids
-                    ]
-
-                elif self.is_a_mask():
-                    self._base_container = self # Not a mask anymore
-                    self._items = self.deep_copy(operand._items)
-
-                else:   # operand.is_a_mask(), so, self shall become a mask too
-                    self_base: Container = self.empty_copy()
-                    self._base_container = self_base
-                    operand_base: Container = operand._base_container
-                    self_base._items = self.deep_copy(operand_base._items)
-                    unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
-                    self._items = [
-                        self_base._items[index] for index, root_item in enumerate(operand_base._items)
-                        if id(root_item) in unmasked_ids
-                    ]
-
-                # DEVELOPING CODE
-                # self._items = self.deep_copy(operand._items)
-                if operand._mask_items_developing is None:
-                    self._mask_items_developing = None
                 else:
-                    items_indexes: list[int] = []
-                    for mask_item in operand._mask_items_developing:
-                        for index, single_item in enumerate(operand._items):
-                            if mask_item is single_item:
-                                items_indexes.append(index)
-                                break
-                    self._mask_items_developing = [
-                        self._items[index] for index in items_indexes
-                    ]
+                    if not (self.is_a_mask() or operand.is_a_mask()):
+                        self._items = self.deep_copy(operand._items)
+
+                    elif self.is_a_mask() and operand.is_a_mask():
+                        self_base: Container = self._base_container
+                        operand_base: Container = operand._base_container
+                        self_base._items = self.deep_copy(operand_base._items)
+                        unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
+                        self._items = [
+                            self_base._items[index] for index, root_item in enumerate(operand_base._items)
+                            if id(root_item) in unmasked_ids
+                        ]
+
+                    elif self.is_a_mask():
+                        self._base_container = self # Not a mask anymore
+                        self._items = self.deep_copy(operand._items)
+
+                    else:   # operand.is_a_mask(), so, self shall become a mask too
+                        self_base: Container = self.empty_copy()
+                        self._base_container = self_base
+                        operand_base: Container = operand._base_container
+                        self_base._items = self.deep_copy(operand_base._items)
+                        unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
+                        self._items = [
+                            self_base._items[index] for index, root_item in enumerate(operand_base._items)
+                            if id(root_item) in unmasked_ids
+                        ]
 
             case od.Pipe():
                 match operand._data:
