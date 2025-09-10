@@ -2941,7 +2941,9 @@ class Clip(Composition):  # Just a container of Elements
                 new_elements: list[oe.Element] = []
                 for existent_element in self._items:
                     existent_start: Fraction = existent_element._position_beats
-                    split_position: Fraction = ra.Position(self._base_container._time_signature, existent_start, operand)._rational
+                    operand_position = ra.Position(self._base_container._time_signature, existent_start)
+                    operand_position <<= operand    # Strict operand positioning (<<=)
+                    split_position: Fraction = operand_position._rational
                     if split_position > existent_start: # Can't split the start
                         existent_finish: Fraction = existent_start + existent_element._duration_beats
                         if split_position < existent_finish:    # Can't split the finish

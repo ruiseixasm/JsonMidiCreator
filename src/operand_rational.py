@@ -933,7 +933,17 @@ class Position(Measurement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case TimeUnit():
+            case od.Pipe():
+                match operand._data:
+                    case TimeUnit():    # Strict Positioning
+                        if self._time_signature_reference is None:
+                            self._time_signature_reference = operand._data._time_signature_reference
+                        operand_beats: Fraction = operand % Beats() % Fraction()
+                        self_beats: Fraction = self % Beats() % Fraction()
+                        self += operand_beats - self_beats
+                    case _:
+                        super().__lshift__(operand)
+            case TimeUnit():    # Relative Positioning
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
                 # This preserves the position in the Measure
