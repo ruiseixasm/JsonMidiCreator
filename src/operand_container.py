@@ -1510,7 +1510,7 @@ class Composition(Container):
                     f"Measure = {int(x / beats_per_measure)}, "
                     f"Beat = {int(x % beats_per_measure)}, "
                     f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
-                    f"Channel = {int(y + 1)}"
+                    f"Channel = {int(y + 0.5 + 1)}"
                 )
 
                 note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
@@ -2030,25 +2030,35 @@ class Composition(Container):
     
     def _onclick(self, event: MouseEvent) -> Self:
         import threading
-        if event.button == 3:   # 1=left, 2=middle, 3=right
+        if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
             composition = self._iterations[self._iteration]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
-            clip_elements: Clip = Clip(at_position_elements)    # Implicit copy
-
-            new_pitch: int = int(event.ydata + 0.5)
-            minimum_position: Fraction = Fraction(0)
-            for single_element in clip_elements:
-                if new_pitch is not None:
-                    single_element % od.Pipe(og.Pitch()) << new_pitch
-                    new_pitch = None
-                    minimum_position = single_element._position_beats
-                elif single_element._position_beats < minimum_position:
-                    minimum_position = single_element._position_beats
-
-            for single_element in clip_elements:
-                single_element._position_beats -= minimum_position
-                
-            threading.Thread(target=og.Play.play, args=(clip_elements,)).start()
+            at_position_notes: list[oe.Note] = [
+                single_note.copy() for single_note in at_position_elements
+                if isinstance(single_note, oe.Note)
+            ]
+            if at_position_notes:
+                if self._by_channel:
+                    at_position_notes = [ at_position_notes[0] ]    # Just a single note is played
+                    at_position_notes[0]._channel_0 = int(event.ydata + 0.5)
+                    at_position_notes[0]._position_beats = Fraction(0)
+                else:
+                    minimum_position: Fraction = None
+                    plotting_pitch: int = int(event.ydata + 0.5)
+                    for single_note in at_position_notes:
+                        if minimum_position is None:
+                            minimum_position = single_note._position_beats
+                            root_pitch: int = single_note._pitch.pitch_int()
+                            single_note._pitch << plotting_pitch
+                            plotting_pitch += root_pitch
+                        else:
+                            if single_note._position_beats < minimum_position:
+                                minimum_position = single_note._position_beats
+                            single_note._pitch += plotting_pitch
+                    for single_note in at_position_notes:
+                        single_note._position_beats -= minimum_position
+                    
+                threading.Thread(target=og.Play.play, args=(Clip( od.Pipe(at_position_notes) ),)).start()
         return self
 
 
