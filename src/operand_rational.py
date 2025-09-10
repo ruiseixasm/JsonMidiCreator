@@ -43,7 +43,7 @@ class Rational(o.Operand):
 
     def check_denominator(self, rational: Fraction) -> Fraction:
         if self._limit_denominator > 0:
-            rational = rational.limit_denominator(self._limit_denominator)
+            return rational.limit_denominator(self._limit_denominator)
         return rational
 
     def __init__(self, *parameters):
