@@ -4420,7 +4420,7 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                return Song(self, operand)._sort_items()
+                return Song(self, operand)
 
             case Clip():
                 self._append([ operand.copy() ])
@@ -4440,7 +4440,7 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item += operand
-        return self
+        return self._sort_items()  # Shall be sorted!
 
     def __isub__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
@@ -4461,7 +4461,7 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item -= operand
-        return self
+        return self._sort_items()  # Shall be sorted!
 
     def __imul__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
@@ -4475,9 +4475,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))._sort_items()
+                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
                 else:
-                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
+                    return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4517,7 +4517,7 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__imul__(operand)
-        return self
+        return self._sort_items()  # Shall be sorted!
 
     def __itruediv__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
@@ -4527,9 +4527,9 @@ class Part(Composition):
             case Part():
                 finish_position: ra.Position = self._base_container.finish()
                 if finish_position is not None:
-                    return Song(self._time_signature, self, operand.copy(finish_position))._sort_items()
+                    return Song(self._time_signature, self, operand.copy(finish_position))
                 else:
-                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
+                    return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
@@ -4557,16 +4557,16 @@ class Part(Composition):
                     operand._set_inside_container(self)
                 for item in self._items:
                     item.__itruediv__(operand)
-        return self
+        return self._sort_items()  # Shall be sorted!
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Part():
                 start_position: ra.Position = self._base_container.start()
                 if start_position is not None:
-                    return Song(self._time_signature, self, operand.copy(start_position))._sort_items()
+                    return Song(self._time_signature, self, operand.copy(start_position))
                 else:
-                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
+                    return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
                 self._append([ operand.copy() ])
