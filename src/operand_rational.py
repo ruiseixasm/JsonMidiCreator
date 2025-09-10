@@ -163,21 +163,10 @@ class Rational(o.Operand):
                     self._rational = operand._rational
             case od.Pipe():
                 match operand._data:
-                    case int():
-                        self._rational = Fraction(operand._data)
-                    case float():
-                        self._rational = self.check_denominator( Fraction(operand._data) )
                     case Fraction():
-                        self._rational = self.check_denominator( operand._data )
+                        self._rational = operand._data
                     case Rational():
-                        self._rational = self.check_denominator( operand._data._rational )
-                    case ou.Unit():
-                        self._rational = Fraction(operand._data._unit)
-                    case str():
-                        try:
-                            self._rational = Fraction(operand._data)
-                        except ValueError as e:
-                            print(f"Error: {e}, '{operand._data}' is not a number!")
+                        self._rational = operand._data._rational
             case int():
                 self._rational = Fraction(operand)
             case float():
@@ -187,7 +176,10 @@ class Rational(o.Operand):
             case ou.Unit():
                 self._rational = Fraction(operand._unit)
             case str():
-                self << od.Pipe( operand )
+                try:
+                    self._rational = Fraction(operand)
+                except ValueError as e:
+                    print(f"Error: {e}, '{operand}' is not a number!")
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ol.Null():
