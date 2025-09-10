@@ -81,7 +81,7 @@ class Container(o.Operand):
             self << single_operand
         
 
-    def _base_container_dev(self) -> Self:
+    def _dev_base_container(self) -> Self:
         if AS_MASK_LIST:
             return self
         return self._base_container
@@ -386,7 +386,7 @@ class Container(o.Operand):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["items"] = self.serialize(self._base_container_dev()._items)
+        serialization["parameters"]["items"] = self.serialize(self._dev_base_container()._items)
         serialization["parameters"]["mask_items"] = self.serialize(self._mask_items_developing)
         return serialization
 
@@ -470,7 +470,7 @@ class Container(o.Operand):
                         # for item in operand._data:
                         #     self._append([ item ])
             case od.Serialization():
-                self._base_container_dev().loadSerialization( operand.getSerialization() )
+                self._dev_base_container().loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
                 self._delete(self._items, True) # deletes by id, safer
@@ -665,7 +665,7 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with an empty list of items.
         """
-        empty_base: Container = self._base_container_dev().__class__()
+        empty_base: Container = self._dev_base_container().__class__()
         for single_parameter in parameters: # Parameters should be set on the base container
             empty_base << single_parameter
         if self.is_a_mask():
@@ -692,7 +692,7 @@ class Container(o.Operand):
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
         if shallow_copy.is_a_mask():
-            shallow_copy._base_container._items = self._base_container_dev()._items.copy()
+            shallow_copy._base_container._items = self._dev_base_container()._items.copy()
         return shallow_copy
     
 
@@ -1374,7 +1374,7 @@ class Composition(Container):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["length"] = self.serialize(self._base_container_dev()._length_beats)
+        serialization["parameters"]["length"] = self.serialize(self._dev_base_container()._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1423,7 +1423,7 @@ class Composition(Container):
                 super().__lshift__(operand)
 
         # Makes sure non Operand mask data is transferred to the existing base
-        self._base_container_dev()._length_beats = self._length_beats
+        self._dev_base_container()._length_beats = self._length_beats
         return self
 
 
