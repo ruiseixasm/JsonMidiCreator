@@ -2306,6 +2306,7 @@ class Clip(Composition):  # Just a container of Elements
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
+        self._mask_items_developing: list[oe.Element] | None = None
         for single_operand in operands:
             self << single_operand
 
@@ -4147,6 +4148,7 @@ class Part(Composition):
         self._base_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
+        self._mask_items_developing: list[Clip] | None = None
         self._name: str = "Part"
 
         # Song sets the TimeSignature, this is just a reference
@@ -4835,6 +4837,7 @@ class Song(Composition):
         self._base_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
+        self._mask_items_developing: list[Part] | None = None
         for single_operand in operands:
             self << single_operand
 
@@ -5059,7 +5062,7 @@ class Song(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_part in self._items:
+        for unmasked_part in self._items:   # Here self._items is unmasked
             unmasked_element_ids.update( unmasked_part.get_unmasked_element_ids() )
         return unmasked_element_ids
 
@@ -5107,8 +5110,12 @@ class Song(Composition):
         """
         og.settings.reset_notes_on()
         play_list: list = []
-        for single_part in self._base_container._items:
-            play_list.extend(single_part.getPlaylist(True))
+        if AS_MASK_LIST:
+            for single_part in self._items:
+                play_list.extend(single_part.getPlaylist(True))
+        else:
+            for single_part in self._base_container._items:
+                play_list.extend(single_part.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
