@@ -80,6 +80,12 @@ class Container(o.Operand):
         for single_operand in operands:
             self << single_operand
         
+
+    def _base_container_dev(self) -> Self:
+        if AS_MASK_LIST:
+            return self
+        return self._base_container
+
     def __getitem__(self, index: int) -> any:
         return self._items[index]
     
