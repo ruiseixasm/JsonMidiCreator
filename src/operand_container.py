@@ -607,7 +607,7 @@ class Container(o.Operand):
                     self._extend(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
             case ch.Chaos():
                 return self.shuffle(operand.copy())
             case tuple():
@@ -2916,7 +2916,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
                     
 
             case ra.TimeValue() | ra.TimeUnit():
@@ -2988,7 +2988,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
 
             case ra.TimeUnit():
                 self_repeating: int = 0
@@ -3038,7 +3038,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:   # Must be empty
-                    self._delete(self._base_container._items, True)
+                    self._delete()
             # Divides the `Duration` by the given `Length` amount as denominator
             case ra.Length() | ra.Duration():
                 total_segments: int = operand % int()   # Extracts the original imputed integer
@@ -4672,7 +4672,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
 
             case tuple():
                 for single_operand in operand:
@@ -4712,7 +4712,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
                     
             case tuple():
                 for single_operand in operand:
@@ -4745,7 +4745,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
 
             case tuple():
                 for single_operand in operand:
@@ -5308,7 +5308,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
                 
             case tuple():
                 for single_operand in operand:
@@ -5353,7 +5353,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
                     
             case tuple():
                 for single_operand in operand:
@@ -5385,7 +5385,7 @@ class Song(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
 
             case tuple():
                 for single_operand in operand:
@@ -5610,7 +5610,7 @@ class ClipGet(Container):
                     self._extend(items_copy)  # Propagates upwards in the stack
                     # self._items.extend( items_copy )
                 elif operand == 0:
-                    self._delete(self._base_container._items, True)
+                    self._delete()
             case ch.Chaos():
                 return self.shuffle(operand.copy())
             case tuple():
