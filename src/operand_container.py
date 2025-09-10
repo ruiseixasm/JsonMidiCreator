@@ -4097,11 +4097,7 @@ class Part(Composition):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
-                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
-                    return super().__eq__(other) \
-                        and self._position_beats == other._position_beats
-                return super().__eq__(other) \
-                    and self % ra.Position() == other % ra.Position()
+                return super().__eq__(other) and self._position_beats == other._position_beats
             case _:
                 return super().__eq__(other)
 
@@ -4109,9 +4105,7 @@ class Part(Composition):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
-                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
-                    return self._position_beats < other._position_beats
-                return self % ra.Position() < other % ra.Position()
+                return self._position_beats < other._position_beats
             case of.Frame():
                 for single_clip in self._items:
                     if not single_clip < other:
@@ -4124,9 +4118,7 @@ class Part(Composition):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
-                if self._owner_song is other._owner_song:   # Most of the cases. Optimization!
-                    return self._position_beats > other._position_beats
-                return self % ra.Position() > other % ra.Position()
+                return self._position_beats > other._position_beats
             case of.Frame():
                 for single_clip in self._items:
                     if not single_clip > other:
@@ -4485,7 +4477,7 @@ class Part(Composition):
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
                     return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
                 else:
-                    return Song(self._time_signature, operand)  # Implicit copy
+                    return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4537,7 +4529,7 @@ class Part(Composition):
                 if finish_position is not None:
                     return Song(self._time_signature, self, operand.copy(finish_position))
                 else:
-                    return Song(self._time_signature, operand)  # Implicit copy
+                    return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
@@ -4570,7 +4562,11 @@ class Part(Composition):
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Part():
-                self += operand # Special case
+                start_position: ra.Position = self._base_container.start()
+                if start_position is not None:
+                    return Song(self._time_signature, self, operand.copy(start_position))._sort_items()
+                else:
+                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
 
             case Clip():
                 self._append([ operand.copy() ])
