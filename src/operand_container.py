@@ -241,7 +241,7 @@ class Container(o.Operand):
 
     def _sort_items(self) -> Self:
         # This works with a list method sort
-        self._base_container._items.sort()  # Operands implement __lt__ and __gt__
+        self._dev_base_container()._items.sort()  # Operands implement __lt__ and __gt__
         return self
 
 
@@ -692,7 +692,7 @@ class Container(o.Operand):
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
         if shallow_copy.is_a_mask():
-            shallow_copy._base_container._items = self._dev_base_container()._items.copy()
+            shallow_copy._dev_base_container()._items = self._dev_base_container()._items.copy()
         return shallow_copy
     
 
@@ -1017,14 +1017,14 @@ class Container(o.Operand):
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 deletable_item_ids.update(
-                    id(item) for item in self._base_container._items
-                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
+                    id(item) for item in self._dev_base_container()._items
+                    if not any(item == cond_item for cond_item in single_condition._dev_base_container()._items)
                 )
             else:
                 if isinstance(single_condition, of.Frame):
                     single_condition._set_inside_container(self._base_container)
                 deletable_item_ids.update(
-                    id(item) for item in self._base_container._items
+                    id(item) for item in self._dev_base_container()._items
                     if not item == single_condition
                 )
         return self._delete_by_ids(deletable_item_ids)
@@ -1246,7 +1246,7 @@ class Composition(Container):
         return None
 
     def last_position(self) -> 'ra.Position':
-        return self._base_container._last_element_position()
+        return self._dev_base_container()._last_element_position()
 
 
     def length(self) -> 'ra.Length':
@@ -1260,7 +1260,7 @@ class Composition(Container):
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         if self._has_elements():
-            last_position: ra.Position = self._base_container._last_element_position()
+            last_position: ra.Position = self._dev_base_container()._last_element_position()
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
             finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
             if finish_length > position_length:
@@ -1333,8 +1333,8 @@ class Composition(Container):
             case og.TimeSignature():
                 return self._time_signature % operand
             case int():
-                if self._base_container._items:
-                    last_element_position: ra.Position = self._base_container._last_element_position()
+                if self._dev_base_container()._items:
+                    last_element_position: ra.Position = self._dev_base_container()._last_element_position()
                     measures_length: ra.Length = ra.Length(last_element_position)
                     return measures_length % ra.Measure() % int()
                 return 0
@@ -2376,11 +2376,11 @@ class Clip(Composition):  # Just a container of Elements
         with a shallow `Clip`.
         """
         if owner_clip is None:
-            for single_element in self._base_container._items:
+            for single_element in self._dev_base_container()._items:
                 single_element._set_owner_clip(self._base_container)
         elif isinstance(owner_clip, Clip):
             self._time_signature << owner_clip._time_signature    # Does a parameters copy
-            for single_element in self._base_container._items:
+            for single_element in self._dev_base_container()._items:
                 single_element._set_owner_clip(owner_clip._base_container)
         return self
 
@@ -2403,18 +2403,18 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _has_elements(self) -> bool:
-        if self._base_container._items:
+        if self._dev_base_container()._items:
             return True
         return False
 
     def _total_elements(self) -> int:
-        return len(self._base_container._items)
+        return len(self._dev_base_container()._items)
 
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Clip, combining Element checksums."""
-        master: int = len(self._base_container._items)
-        for single_element in self._base_container._items:
+        master: int = len(self._dev_base_container()._items)
+        for single_element in self._dev_base_container()._items:
             master += int(single_element.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
@@ -2442,7 +2442,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self._has_elements():
             start_beats: Fraction = Fraction(0)
-            first_element: oe.Element = self._base_container._first_element()
+            first_element: oe.Element = self._dev_base_container()._first_element()
             if first_element is not None:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
@@ -2462,7 +2462,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self._has_elements():
             finish_beats: Fraction = Fraction(0)
-            for item in self._base_container._items:
+            for item in self._dev_base_container()._items:
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
                     element_finish: Fraction = \
@@ -2473,11 +2473,11 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     def last_position(self) -> 'ra.Position':
-        return self._base_container._last_element_position()
+        return self._dev_base_container()._last_element_position()
 
 
     def all_elements(self) -> list[oe.Element]:
-        return self._base_container._items
+        return self._dev_base_container()._items
 
     def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
         position_beats: Fraction = position._rational
@@ -2540,7 +2540,7 @@ class Clip(Composition):  # Just a container of Elements
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             return {
-                id(masked_item) for masked_item in self._base_container._items
+                id(masked_item) for masked_item in self._dev_base_container()._items
                 if id(masked_item) not in unmasked_ids
             }
         return set()
@@ -2573,7 +2573,7 @@ class Clip(Composition):  # Just a container of Elements
 
         self_plotlist.extend(
             single_playlist
-                for single_element in self._base_container._items
+                for single_element in self._dev_base_container()._items
                     for single_playlist in single_element.getPlotlist(
                         self._base_container._midi_track, position_beats, channels, masked_element_ids
                     )
@@ -2613,7 +2613,7 @@ class Clip(Composition):  # Just a container of Elements
             }
         ]
     
-        for single_element in self._base_container._items:
+        for single_element in self._dev_base_container()._items:
             self_playlist.extend(
                 single_element.getPlaylist(self._base_container._midi_track, position_beats, False)
             )
@@ -2822,7 +2822,7 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                self += operand._base_container._items
+                self += operand._dev_base_container()._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -2859,7 +2859,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self._base_container._delete(operand._items)
+                return self._dev_base_container()._delete(operand._items)
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -2945,10 +2945,10 @@ class Clip(Composition):  # Just a container of Elements
                     # Preserves masked elements by id in base and mask containers
                     self_segment: Clip = self.copy().filter(source_segment)
                     self_segment._base_container << ra.Measure(target_measure)   # Stacked by measure *
-                    base_elements.extend(self_segment._base_container._items)
+                    base_elements.extend(self_segment._dev_base_container()._items)
                     mask_elements.extend(self_segment._items)
                 self._delete()
-                self._base_container._items = base_elements
+                self._dev_base_container()._items = base_elements
                 self._items = mask_elements
                 self._set_owner_clip()
 
@@ -3118,10 +3118,10 @@ class Clip(Composition):  # Just a container of Elements
                         # Preserves masked elements by id in base and mask containers
                         self_segment: Clip = self.copy().filter(source_segment)
                         self_segment._base_container << ra.Measure(0)   # Side by Side
-                        base_elements.extend(self_segment._base_container._items)
+                        base_elements.extend(self_segment._dev_base_container()._items)
                         mask_elements.extend(self_segment._items)
                     self._delete()
-                    self._base_container._items = base_elements
+                    self._dev_base_container()._items = base_elements
                     self._items = mask_elements
                     self._set_owner_clip()
 
@@ -4201,14 +4201,14 @@ class Part(Composition):
 
 
     def _has_elements(self) -> bool:
-        for single_clip in self._base_container._items:
+        for single_clip in self._dev_base_container()._items:
             if single_clip._has_elements():
                 return True
         return False
 
     def _total_elements(self) -> int:
         total_elements: int = 0
-        for single_clip in self._base_container._items:
+        for single_clip in self._dev_base_container()._items:
             total_elements += single_clip._total_elements()
         return total_elements
 
@@ -4242,8 +4242,8 @@ class Part(Composition):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Part, combining Clip checksums."""
-        master: int = len(self._base_container._items)
-        for single_clip in self._base_container._items:
+        master: int = len(self._dev_base_container()._items)
+        for single_clip in self._dev_base_container()._items:
             master += int(single_clip.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
@@ -4306,7 +4306,7 @@ class Part(Composition):
             Position: The minimum `Position` of all Clips.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._base_container._items if isinstance(clip, Clip)
+            clip for clip in self._dev_base_container()._items if isinstance(clip, Clip)
         ]
 
         start_position: ra.Position = None
@@ -4332,7 +4332,7 @@ class Part(Composition):
             Position: The maximum of `Position` + Length of all Clips.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._base_container._items if isinstance(clip, Clip)
+            clip for clip in self._dev_base_container()._items if isinstance(clip, Clip)
         ]
 
         finish_position: ra.Position = None
@@ -4348,7 +4348,7 @@ class Part(Composition):
 
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
-        for clip in self._base_container._items:
+        for clip in self._dev_base_container()._items:
             clip_position: ra.Position = clip._base_container.last_position()
             if clip_position is not None:
                 if position is None:
@@ -4360,7 +4360,7 @@ class Part(Composition):
 
     def all_elements(self) -> list[oe.Element]:
         elements: list[oe.Element] = []
-        for single_clip in self._base_container._items:
+        for single_clip in self._dev_base_container()._items:
             elements.extend(single_clip.all_elements())
         return elements
 
@@ -4412,7 +4412,7 @@ class Part(Composition):
         masked_element_ids: set[int] = set()
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_clip in self._base_container._items:
+            for masked_clip in self._dev_base_container()._items:
                 masked_element_ids.update({
                     id(masked_item) for masked_item in masked_clip._items
                     if id(masked_item) not in unmasked_ids
@@ -4436,7 +4436,7 @@ class Part(Composition):
             
         masked_element_ids.update(self.get_masked_element_ids())
 
-        for single_clip in self._base_container._items:
+        for single_clip in self._dev_base_container()._items:
             clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
             plot_list.extend( clip_plotlist )
         return plot_list
@@ -4455,7 +4455,7 @@ class Part(Composition):
         if not from_song:
             og.settings.reset_notes_on()
         play_list: list = []
-        for single_clip in self._base_container._items:
+        for single_clip in self._dev_base_container()._items:
             play_list.extend(single_clip.getPlaylist(self._base_container._position_beats))
         return play_list
 
@@ -4869,11 +4869,11 @@ class Song(Composition):
         with a shallow `Song`.
         """
         if owner_song is None:
-            for single_part in self._base_container._items:
+            for single_part in self._dev_base_container()._items:
                 single_part._set_owner_song(self._base_container)
         elif isinstance(owner_song, Song):
             self._time_signature << owner_song._time_signature    # Does a parameters copy
-            for single_part in self._base_container._items:
+            for single_part in self._dev_base_container()._items:
                 single_part._set_owner_song(owner_song._base_container)
         return self
 
@@ -4896,14 +4896,14 @@ class Song(Composition):
 
 
     def _has_elements(self) -> bool:
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             if single_part._has_elements():
                 return True
         return False
 
     def _total_elements(self) -> int:
         total_elements: int = 0
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             total_elements += single_part._total_elements()
         return total_elements
 
@@ -4956,8 +4956,8 @@ class Song(Composition):
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Song, combining Part checksums."""
-        master: int = len(self._base_container._items)
-        for single_part in self._base_container._items:
+        master: int = len(self._dev_base_container()._items)
+        for single_part in self._dev_base_container()._items:
             master += int(single_part.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
@@ -4986,7 +4986,7 @@ class Song(Composition):
         """
         start_position: ra.Position = None
 
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             # Already includes the Song TimeSignature conversion
             part_start: ra.Position = single_part.start()
             if part_start is not None:
@@ -5012,7 +5012,7 @@ class Song(Composition):
         """
         finish_position: ra.Position = None
 
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             # Already includes the Song TimeSignature conversion
             part_finish: ra.Position = single_part.finish()
             if part_finish is not None:
@@ -5026,7 +5026,7 @@ class Song(Composition):
 
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
-        for part in self._base_container._items:
+        for part in self._dev_base_container()._items:
             part_position: ra.Position = part._base_container.last_position()
             if part_position is not None:
                 if position is None:
@@ -5038,13 +5038,13 @@ class Song(Composition):
 
     def all_elements(self) -> list[oe.Element]:
         elements: list[oe.Element] = []
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             elements.extend(single_part.all_elements())
         return elements
 
     def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
         elements: list[oe.Element] = []
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             elements.extend( single_part.at_position_elements(position) )
         return elements
 
@@ -5076,8 +5076,8 @@ class Song(Composition):
         masked_element_ids: set[int] = set()
         if self.is_a_mask():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_part in self._base_container._items:
-                for masked_clip in masked_part._base_container._items:
+            for masked_part in self._dev_base_container()._items:
+                for masked_clip in masked_part._dev_base_container()._items:
                     masked_element_ids.update({
                         id(masked_item) for masked_item in masked_clip._items
                         if id(masked_item) not in unmasked_ids
@@ -5096,7 +5096,7 @@ class Song(Composition):
         plot_list: list = []
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
-        for single_part in self._base_container._items:
+        for single_part in self._dev_base_container()._items:
             part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids, True)
             # Part uses the Song Time Signature as Elements use the Clip Time Signature, so, no need for conversions
             plot_list.extend( part_plotlist )
@@ -5120,7 +5120,7 @@ class Song(Composition):
             for single_part in self._items:
                 play_list.extend(single_part.getPlaylist(True))
         else:
-            for single_part in self._base_container._items:
+            for single_part in self._dev_base_container()._items:
                 play_list.extend(single_part.getPlaylist(True))
         return play_list
 
