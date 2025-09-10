@@ -365,10 +365,6 @@ class Container(o.Operand):
             case Container():
                 super().__lshift__(operand)
 
-                # DEVELOPING CODE
-                # self._items = self.deep_copy(operand._items)
-                self._mask_items_developing = o.Operand.deep_copy(operand._mask_items_developing)
-
                 if not (self.is_a_mask() or operand.is_a_mask()):
                     self._items = self.deep_copy(operand._items)
 
@@ -395,6 +391,21 @@ class Container(o.Operand):
                     self._items = [
                         self_base._items[index] for index, root_item in enumerate(operand_base._items)
                         if id(root_item) in unmasked_ids
+                    ]
+
+                # DEVELOPING CODE
+                # self._items = self.deep_copy(operand._items)
+                if operand._mask_items_developing is None:
+                    self._mask_items_developing = None
+                else:
+                    items_indexes: list[int] = []
+                    for mask_item in operand._mask_items_developing:
+                        for index, single_item in enumerate(operand._items):
+                            if mask_item is single_item:
+                                items_indexes.append(index)
+                                break
+                    self._mask_items_developing = [
+                        self._items[index] for index in items_indexes
                     ]
 
             case od.Pipe():
