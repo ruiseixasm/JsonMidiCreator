@@ -4430,6 +4430,7 @@ class Part(Composition):
 
         # Makes sure non Operand data is transferred to the existing mask
         self._position_beats = self._base_container._position_beats
+        self._name = self._base_container._name
         return self._sort_items()
 
 
