@@ -4420,7 +4420,7 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                return Song(self, operand)
+                return Song(self, operand)._sort_items()
 
             case Clip():
                 self._append([ operand.copy() ])
@@ -4475,9 +4475,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
+                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))._sort_items()
                 else:
-                    return Song(self._time_signature, self, operand)  # Implicit copy
+                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
 
             case Clip():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4527,9 +4527,9 @@ class Part(Composition):
             case Part():
                 finish_position: ra.Position = self._base_container.finish()
                 if finish_position is not None:
-                    return Song(self._time_signature, self, operand.copy(finish_position))
+                    return Song(self._time_signature, self, operand.copy(finish_position))._sort_items()
                 else:
-                    return Song(self._time_signature, self, operand)  # Implicit copy
+                    return Song(self._time_signature, self, operand)._sort_items()  # Implicit copy
 
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
