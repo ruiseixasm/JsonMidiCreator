@@ -2847,7 +2847,7 @@ class Clip(Composition):  # Just a container of Elements
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
                             # Remove previous Elements from the Container stack
-                            self._delete(self._items, True) # deletes by id, safer
+                            self._delete(self._unmasked_items(), True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
                             self._extend(operand._data)
                             self._set_owner_clip()
@@ -2855,7 +2855,7 @@ class Clip(Composition):  # Just a container of Elements
                             for single_element, locus in zip(self, operand._data):
                                 single_element << locus
                         else:   # Not for me
-                            for item in self._items:
+                            for item in self._unmasked_items():
                                 item <<= operand._data
 
                     case ClipGet():
@@ -2868,7 +2868,7 @@ class Clip(Composition):  # Just a container of Elements
                                 for get_operand_j in range(clip_get_get_len - 1):
                                     clip_get._get[clip_get_get_len - 2 - get_operand_j] <<= element_parameter
                                     element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
-                                self._items[element_i] <<= element_parameter
+                                self._unmasked_items()[element_i] <<= element_parameter
 
                     case _:
                         super().__lshift__(operand)
@@ -2894,7 +2894,7 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack
-                    self._delete(self._items, True) # deletes by id, safer
+                    self._delete(self._unmasked_items(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
                     self._extend(self.deep_copy(operand))
                     self._set_owner_clip()
@@ -2902,15 +2902,15 @@ class Clip(Composition):  # Just a container of Elements
                     for single_element, locus in zip(self, operand):
                         single_element << locus
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
             case dict():
                 if all(isinstance(item, oe.Element) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._items):
-                            self._items[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
+                            self._unmasked_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
 
             case tuple():
@@ -2930,12 +2930,12 @@ class Clip(Composition):  # Just a container of Elements
                         for get_operand_j in range(clip_get_get_len - 1):
                             clip_get._get[clip_get_get_len - 2 - get_operand_j] << element_parameter
                             element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
-                        self._items[element_i] << element_parameter
+                        self._unmasked_items()[element_i] << element_parameter
             
             case _: # Works for Frame too
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
@@ -2947,7 +2947,7 @@ class Clip(Composition):  # Just a container of Elements
     def __irshift__(self, operand) -> Self:
         match operand:
             case oe.Element():  # Element wapping (wrap)
-                for single_element in self._items:
+                for single_element in self._unmasked_items():
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
                 return self
             
@@ -2955,7 +2955,7 @@ class Clip(Composition):  # Just a container of Elements
                 kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
                 ]
-                return self._delete(self._items, True)._extend(kept_elements)._sort_items()
+                return self._delete(self._unmasked_items(), True)._extend(kept_elements)._sort_items()
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -2963,7 +2963,7 @@ class Clip(Composition):  # Just a container of Elements
                 for index, placed in enumerate(elements_place):
                     if placed:
                         kept_elements.append(self[index])    # No need to copy
-                return self._delete(self._items, True)._extend(kept_elements)._sort_items()
+                return self._delete(self._unmasked_items(), True)._extend(kept_elements)._sort_items()
             
         return super().__irshift__(operand)
 
@@ -2999,7 +2999,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item += operand
         return self._sort_items()  # Shall be sorted!
 
@@ -3035,7 +3035,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()  # Shall be sorted!
 
@@ -3095,8 +3095,8 @@ class Clip(Composition):  # Just a container of Elements
                     base_elements.extend(self_segment._dev_base_container()._items)
                     mask_elements.extend(self_segment._items)
                 self._delete()
+                self._extend(mask_elements)
                 self._dev_base_container()._items = base_elements
-                self._items = mask_elements
                 self._set_owner_clip()
 
             case tuple():
