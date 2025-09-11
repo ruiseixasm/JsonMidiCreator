@@ -2656,7 +2656,7 @@ class Clip(Composition):  # Just a container of Elements
                     case ou.MidiTrack():            return self._base_container._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
-                        for single_element in self._items:
+                        for single_element in self._unmasked_items():
                             element_parameter: any = single_element
                             for get_operand in clip_get._get:
                                 element_parameter //= get_operand
@@ -2673,7 +2673,7 @@ class Clip(Composition):  # Just a container of Elements
             case Song():            return Song(self._time_signature, self._base_container)
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
-                for single_element in self._items:
+                for single_element in self._unmasked_items():
                     element_parameter: any = single_element.copy()
                     for get_operand in clip_get._get:
                         element_parameter %= get_operand
@@ -2684,7 +2684,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def get_unmasked_element_ids(self) -> set[int]:
-        return {id(unmasked_item) for unmasked_item in self._items}
+        return {id(unmasked_item) for unmasked_item in self._unmasked_items()}
 
     def get_masked_element_ids(self) -> set[int]:
         if self.is_masked():
@@ -2787,7 +2787,7 @@ class Clip(Composition):  # Just a container of Elements
 
         return [
             single_midilist
-                for single_element in self._items
+                for single_element in self._dev_base_container()._items
                 for single_midilist in single_element.getMidilist(self._midi_track, position_beats)
         ]
 
