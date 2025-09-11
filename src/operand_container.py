@@ -117,7 +117,6 @@ class Container(o.Operand):
         return self._items[index]
     
 
-
     def __setitem__(self, index: int, value) -> Self:
         if AS_MASK_LIST:
             return self.__setitem__developing(index, value)
@@ -172,22 +171,31 @@ class Container(o.Operand):
         return self
 
 
-    def _extend(self, items: list, after_item: any = None) -> Self:
+    def _extend(self, items: list) -> Self:
+        if AS_MASK_LIST:
+            return self._extend_developing(items)
+        return self._extend_original(items)
+
+    def _extend_original(self, items: list) -> Self:
         if self.is_masked():
-            self._base_container._extend(items, after_item)
-        append_at: int = len(self._items)   # By default works as append
-        if after_item is not None:
-            for index, single_item in enumerate(self._items):
-                if single_item is after_item:
-                    append_at = index + 1   # After the item
-                    break
+            self._base_container._extend(items)
+        # Avoids redundant items/objects
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        inexistent_items: list = [inexistent_item for inexistent_item in items if id(inexistent_item) not in existing_ids]
-        self._items = self._items[:append_at] + inexistent_items + self._items[append_at:]
+        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
+        self._items.extend(new_items)
         return self
 
-    def _append(self, item: any, after_item: any = None) -> Self:
-        return self._extend([ item ], after_item)
+    def _extend_developing(self, items: list) -> Self:
+        # Avoids redundant items/objects
+        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
+        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
+        self._items.extend(new_items)
+        self._mask_items.extend(new_items)
+        return self
+
+
+    def _append(self, item: any) -> Self:
+        return self._extend([ item ])
 
     
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
@@ -521,18 +529,14 @@ class Container(o.Operand):
                         # Remove previous Elements from the Container stack
                         self._delete() # deletes all
                         # Finally adds the decomposed elements to the Container stack
-                        self._extend( operand._data )
-                        # for item in operand._data:
-                        #     self._append([ item ])
+                        self._extend(operand._data)
             case od.Serialization():
                 self._dev_base_container().loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
                 self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
-                self._extend([
-                    self.deep_copy(item) for item in operand
-                ])
+                self._extend( [self.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
@@ -593,17 +597,11 @@ class Container(o.Operand):
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand._items
                 ]
-                if self._items:
-                    self_last_item: any = self[-1]
-                    return self._extend(operand_items, self_last_item)
                 return self._extend(operand_items)
             case list():
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand
                 ]
-                if len(operand_items) > 0:
-                    self_last_item: any = self[-1]
-                    return self._extend(operand_items, self_last_item)
                 return self._extend(operand_items)
             case tuple():
                 for single_operand in operand:
@@ -613,10 +611,7 @@ class Container(o.Operand):
                 for item in self._items:
                     item += operand
             case _:
-                if self._items:
-                    self_last_item: any = self[-1]
-                    return self._extend([ self.deep_copy(operand) ], self_last_item)
-                return self._extend([ self.deep_copy(operand) ])
+                return self._append(self.deep_copy(operand))
         return self
 
     def __radd__(self, operand: any) -> Self:
@@ -2768,7 +2763,7 @@ class Clip(Composition):  # Just a container of Elements
                             # Remove previous Elements from the Container stack
                             self._delete(self._items, True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
-                            self._extend( operand._data )
+                            self._extend(operand._data)
                             self._set_owner_clip()
                         elif all(isinstance(item, og.Locus) for item in operand._data):
                             for single_element, locus in zip(self, operand._data):
@@ -2815,7 +2810,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Remove previous Elements from the Container stack
                     self._delete(self._items, True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
-                    self._extend( self.deep_copy(operand) )
+                    self._extend(self.deep_copy(operand))
                     self._set_owner_clip()
                 elif all(isinstance(item, og.Locus) for item in operand):
                     for single_element, locus in zip(self, operand):
@@ -2895,10 +2890,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
-                if self._has_elements():
-                    self_last_element: oe.Element = self[-1]
-                    return self._extend([ new_element ], self_last_element)._sort_items()  # Shall be sorted!
-                return self._extend([ new_element ])._sort_items()  # Shall be sorted!
+                return self._append(new_element)._sort_items()  # Shall be sorted!
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -4665,10 +4657,10 @@ class Part(Composition):
                 return Song(self, operand)
 
             case Clip():
-                self._extend([ operand.copy() ])
+                self._append(operand.copy())
 
             case oe.Element():
-                self._extend([ Clip(operand._time_signature, operand) ])
+                self._append(Clip(operand._time_signature, operand))
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
@@ -4728,9 +4720,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._extend([ operand + ra.Position(finish_length) ])  # Implicit copy
+                    self._append(operand + ra.Position(finish_length))  # Implicit copy
                 else:
-                    self._extend([ operand.copy() ])    # Explicit copy
+                    self._append(operand.copy())    # Explicit copy
 
             case oe.Element():
                 last_position: ra.Position = self._base_container.last_position()
@@ -4739,9 +4731,9 @@ class Part(Composition):
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._extend([ Clip(operand._time_signature, operand + ra.Position(finish_length)) ])   # Implicit copy
+                    self._append(Clip(operand._time_signature, operand + ra.Position(finish_length)))   # Implicit copy
                 else:
-                    self._extend([ Clip(operand._time_signature, operand) ])
+                    self._append(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -4776,12 +4768,12 @@ class Part(Composition):
             case Clip():
                 finish_position: ra.Position = self._base_container.finish()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
-                self._extend([ repositioned_clip ]) # No implicit copy
+                self._append(repositioned_clip) # No implicit copy
 
             case oe.Element():
                 finish_position: ra.Position = self._base_container.finish()
                 repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
-                self._extend([ repositioned_clip ]) # No implicit copy
+                self._append(repositioned_clip) # No implicit copy
 
             case int():
                 if operand > 1:
@@ -4811,10 +4803,10 @@ class Part(Composition):
                     return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
-                self._extend([ operand.copy() ])
+                self._append(operand.copy())
 
             case oe.Element():
-                self._extend([ Clip(operand._time_signature, operand) ])
+                self._append(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
@@ -5309,7 +5301,7 @@ class Song(Composition):
                     self += single_part
 
             case Part():
-                self._extend([ Part(operand)._set_owner_song(self) ])._sort_items()
+                self._append(Part(operand)._set_owner_song(self))._sort_items()
 
             case Clip():
                 self += Part(operand)
@@ -5320,7 +5312,7 @@ class Song(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Part):
-                        self._extend([ item.copy()._set_owner_song(self) ])
+                        self._append(item.copy()._set_owner_song(self))
                 self._sort_items()
             case tuple():
                 for single_operand in operand:
@@ -5594,11 +5586,9 @@ class ClipGet(Container):
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
-                self._delete(self._items, True) # deletes by id, safer
+                self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
-                self._extend([
-                    self.deep_copy(item) for item in operand
-                ])
+                self._extend( [self.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self._items):
@@ -5621,17 +5611,11 @@ class ClipGet(Container):
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand._items
                 ]
-                if self._items:
-                    self_last_item: any = self[-1]
-                    return self._extend(operand_items, self_last_item)
                 return self._extend(operand_items)
             case list():
                 operand_items = [
                     self.deep_copy(single_item) for single_item in operand
                 ]
-                if len(operand_items) > 0:
-                    self_last_item: any = self[-1]
-                    return self._extend(operand_items, self_last_item)
                 return self._extend(operand_items)
             case tuple():
                 for single_operand in operand:
