@@ -4934,7 +4934,7 @@ class Part(Composition):
             `Part` items now selected as a `Mask`.
         """
         part_mask: Part = super().mask_original(*conditions)
-        part_mask._position_beats = self._dev_base_container()._position_beats
+        part_mask._position_beats = self._base_container._position_beats
         part_mask._name = self._base_container._name
         part_mask._owner_song = self._base_container._owner_song
         return part_mask
