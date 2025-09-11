@@ -1085,20 +1085,6 @@ class Container(o.Operand):
         ]
         return container_mask
 
-    def base(self) -> Self:
-        """
-        Returns the base `Container` of a mask or self if already the base `Container`.
-
-        Args:
-            None
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        if AS_MASK_LIST:
-            return self.unmask()
-        return self._base_container
-
 
     def mask_developing(self, *conditions) -> Self:
         """

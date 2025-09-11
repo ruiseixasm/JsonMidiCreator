@@ -2815,10 +2815,10 @@ class Mask(ContainerProcess):
     def _process(self, operand: 'Container') -> 'Container':
         return operand.mask(*self._parameters)
 
-class Base(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Base`
+class Unmask(ContainerProcess):
+    """`Generic -> Process -> ContainerProcess -> Unmask`
 
-    Returns the base `Container` of a mask or self if already the base `Container`.
+    Returns the base `Container` with the mask disabled.
 
     Args:
         None
@@ -2834,7 +2834,7 @@ class Base(ContainerProcess):
         return operand
     
     def _process(self, operand: 'Container') -> 'Container':
-        return operand.base()
+        return operand.unmask()
 
 
 class Filter(ContainerProcess):

@@ -74,7 +74,7 @@ class RS_Solutions:
         if oc.AS_MASK_LIST:
             self._solution.unmask()
         else:
-            self._solution = self._solution.base()
+            self._solution = self._solution._dev_base_container()
         return self
 
 
@@ -222,7 +222,7 @@ class RS_Clip(RS_Solutions):
                 new_durations: list[float] = o.list_choose(durations, results)
                 segmented_composition << of.Foreach(*new_durations)**ra.NoteValue()
                 # These operations shall be done on the base (single Measure)
-                segmented_composition.base().stack().quantize().mul([0]).link()
+                segmented_composition._dev_base_container().stack().quantize().mul([0]).link()
             return segmented_composition
 
         if not isinstance(title, str):
