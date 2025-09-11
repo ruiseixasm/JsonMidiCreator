@@ -4797,9 +4797,9 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                last_position: ra.Position = self._base_container.last_position()
+                last_position: ra.Position = self._dev_base_container().last_position()
                 if last_position is not None:
-                    finish_position: ra.Position = self._base_container.finish()
+                    finish_position: ra.Position = self._dev_base_container().finish()
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
@@ -4808,9 +4808,9 @@ class Part(Composition):
                     return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
-                last_position: ra.Position = self._base_container.last_position()
+                last_position: ra.Position = self._dev_base_container().last_position()
                 if last_position is not None:
-                    finish_position: ra.Position = self._base_container.finish()
+                    finish_position: ra.Position = self._dev_base_container().finish()
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
@@ -4819,9 +4819,9 @@ class Part(Composition):
                     self._append(operand.copy())    # Explicit copy
 
             case oe.Element():
-                last_position: ra.Position = self._base_container.last_position()
+                last_position: ra.Position = self._dev_base_container().last_position()
                 if last_position is not None:
-                    finish_position: ra.Position = self._base_container.finish()
+                    finish_position: ra.Position = self._dev_base_container().finish()
                     if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
@@ -4853,19 +4853,19 @@ class Part(Composition):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Part():
-                finish_position: ra.Position = self._base_container.finish()
+                finish_position: ra.Position = self._dev_base_container().finish()
                 if finish_position is not None:
                     return Song(self._time_signature, self, operand.copy(finish_position))
                 else:
                     return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
-                finish_position: ra.Position = self._base_container.finish()
+                finish_position: ra.Position = self._dev_base_container().finish()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
                 self._append(repositioned_clip) # No implicit copy
 
             case oe.Element():
-                finish_position: ra.Position = self._base_container.finish()
+                finish_position: ra.Position = self._dev_base_container().finish()
                 repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
                 self._append(repositioned_clip) # No implicit copy
 
@@ -4890,7 +4890,7 @@ class Part(Composition):
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Part():
-                start_position: ra.Position = self._base_container.start()
+                start_position: ra.Position = self._dev_base_container().start()
                 if start_position is not None:
                     return Song(self._time_signature, self, operand.copy(start_position))
                 else:
@@ -4934,7 +4934,7 @@ class Part(Composition):
             `Part` items now selected as a `Mask`.
         """
         part_mask: Part = super().mask_original(*conditions)
-        part_mask._position_beats = self._base_container._position_beats
+        part_mask._position_beats = self._dev_base_container()._position_beats
         part_mask._name = self._base_container._name
         part_mask._owner_song = self._base_container._owner_song
         return part_mask
@@ -5025,11 +5025,11 @@ class Song(Composition):
         """
         if owner_song is None:
             for single_part in self._dev_base_container()._items:
-                single_part._set_owner_song(self._base_container)
+                single_part._set_owner_song(self._dev_base_container())
         elif isinstance(owner_song, Song):
             self._time_signature << owner_song._time_signature    # Does a parameters copy
             for single_part in self._dev_base_container()._items:
-                single_part._set_owner_song(owner_song._base_container)
+                single_part._set_owner_song(owner_song._dev_base_container())
         return self
 
 
@@ -5182,7 +5182,7 @@ class Song(Composition):
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for part in self._dev_base_container()._items:
-            part_position: ra.Position = part._base_container.last_position()
+            part_position: ra.Position = part._dev_base_container().last_position()
             if part_position is not None:
                 if position is None:
                     position = part_position
@@ -5384,7 +5384,7 @@ class Song(Composition):
                     single_part << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
-        self._base_container._time_signature    = self._time_signature
+        self._dev_base_container()._time_signature    = self._time_signature
         return self._sort_items()
 
 
@@ -5641,7 +5641,7 @@ class ClipGet(Container):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["get"] = self.serialize(self._base_container._get)
+        serialization["parameters"]["get"] = self.serialize(self._dev_base_container()._get)
         return serialization
 
     # CHAINABLE OPERATIONS
