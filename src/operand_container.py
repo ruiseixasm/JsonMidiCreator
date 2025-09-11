@@ -81,7 +81,7 @@ class Container(o.Operand):
         for single_operand in operands:
             self << single_operand
         
-    def _dev_items(self) -> list:
+    def _unmasked_items(self) -> list:
         if AS_MASK_LIST and self._masked:
             return self._mask_items
         return self._items
