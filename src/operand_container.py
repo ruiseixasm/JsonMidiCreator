@@ -229,8 +229,7 @@ class Container(o.Operand):
     def _delete_developing(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
             self._items.clear()
-            if self._mask_items is not None:
-                self._mask_items.clear()
+            self._mask_items.clear()
         else:
             if by_id:
                 # removes by id instead
@@ -238,27 +237,29 @@ class Container(o.Operand):
                     single_item for single_item in self._items
                     if not any(single_item is item for item in items)
                 ]
-                if self._mask_items is not None:
-                    self._mask_items = [
-                        single_item for single_item in self._mask_items
-                        if not any(single_item is item for item in items)
-                    ]
+                self._mask_items = [
+                    single_item for single_item in self._mask_items
+                    if not any(single_item is item for item in items)
+                ]
             else:
                 # Uses "==" instead of id
                 self._items = [
                     single_item for single_item in self._items
                     if single_item not in items
                 ]
-                if self._mask_items is not None:
-                    self._mask_items = [
-                        single_item for single_item in self._mask_items
-                        if single_item not in items
-                    ]
+                self._mask_items = [
+                    single_item for single_item in self._mask_items
+                    if single_item not in items
+                ]
         return self
 
-
-
+    
     def _delete_by_ids(self, item_ids: set | None = None):
+        if AS_MASK_LIST:
+            return self._delete_by_ids_developing(item_ids)
+        return self._delete_by_ids_original(item_ids)
+
+    def _delete_by_ids_original(self, item_ids: set | None = None):
         if isinstance(item_ids, set):
             if item_ids:
                 self._base_container._items = [
@@ -272,6 +273,22 @@ class Container(o.Operand):
         else:
             self._base_container._items.clear()
             self._items.clear()
+        return self
+
+    def _delete_by_ids_developing(self, item_ids: set | None = None):
+        if isinstance(item_ids, set):
+            if item_ids:
+                self._items = [
+                    base_item for base_item in self._items
+                    if id(base_item) not in item_ids
+                ]
+                self._mask_items = [
+                    mask_item for mask_item in self._mask_items
+                    if id(mask_item) not in item_ids
+                ]
+        else:
+            self._items.clear()
+            self._mask_items.clear()
         return self
 
 
