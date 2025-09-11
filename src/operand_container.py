@@ -3169,16 +3169,16 @@ class Clip(Composition):  # Just a container of Elements
                         self_masked: bool = self._masked
                         self._masked = False
 
-                        left_end_position: ra.Position = self.finish()
-                        if left_end_position is None:
-                            left_end_position = ra.Position(self)
+                        left_finish_position: ra.Position = self.finish()
+                        if left_finish_position is None:
+                            left_finish_position = ra.Position(self)
                         if self._length_beats is not None:
                             self._length_beats += (operand % ra.Length())._rational
                             
                         # operand_elements already sorted by position
-                        right_start_position: ra.Position = operand_elements[0].start()
-                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                        position_shift: Fraction = length_shift._rational
+                        left_finish_position_beats: Fraction = left_finish_position._rational
+                        right_start_position_beats: Fraction = operand_elements[0]._position_beats
+                        position_shift: Fraction = left_finish_position_beats - right_start_position_beats
                         for new_element in operand_elements:
                             new_element._position_beats += position_shift
                         self._masked = self_masked
