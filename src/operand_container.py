@@ -978,29 +978,31 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        excluded_item_ids: set = set()
-        # And type of conditions, not meeting any means excluded
-        for single_condition in conditions:
-            if isinstance(single_condition, Container):
-                excluded_item_ids.update(
-                    id(item) for item in self._items
-                    if not any(item == cond_item for cond_item in single_condition)
-                )
-            else:
-                if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self)
-                excluded_item_ids.update(
-                    id(item) for item in self._items
-                    if not item == single_condition
-                )
-        self._mask_items = [
-            unmasked_item for unmasked_item in self
-            if id(unmasked_item) not in excluded_item_ids
-        ]
+        self._masked = True
+        if conditions:
+            excluded_item_ids: set = set()
+            # And type of conditions, not meeting any means excluded
+            for single_condition in conditions:
+                if isinstance(single_condition, Container):
+                    excluded_item_ids.update(
+                        id(item) for item in self._items
+                        if not any(item == cond_item for cond_item in single_condition)
+                    )
+                else:
+                    if isinstance(single_condition, of.Frame):
+                        single_condition._set_inside_container(self)
+                    excluded_item_ids.update(
+                        id(item) for item in self._items
+                        if not item == single_condition
+                    )
+            self._mask_items = [
+                unmasked_item for unmasked_item in self
+                if id(unmasked_item) not in excluded_item_ids
+            ]
         return self
 
     def unmask_developing(self) -> Self:
-        self._mask_items = None
+        self._masked = False
         return self
     
 
