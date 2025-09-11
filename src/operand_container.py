@@ -947,7 +947,7 @@ class Container(o.Operand):
                 left_mask << right_segment
                 right_mask << left_segment
         else:
-            if self._items and isinstance(what, type):
+            if self._unmasked_items() and isinstance(what, type):
                 if isinstance(left, int):
                     left = self[left]
                 if isinstance(right, int):
@@ -971,10 +971,7 @@ class Container(o.Operand):
         """
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
-            self._swap(self._items[operand_i], self._items[self_len - 1 - operand_i])
-            # tail_operand = self._items[self_len - 1 - operand_i]
-            # self._items[self_len - 1 - operand_i] = self._items[operand_i]
-            # self._items[operand_i] = tail_operand
+            self._swap(self._unmasked_items()[operand_i], self._unmasked_items()[self_len - 1 - operand_i])
         return self._sort_items()
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
@@ -3353,7 +3350,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Container: The same self object with the operands processed.
         """
-        if self._items and isinstance(parameter_type, type):
+        if self._unmasked_items() and isinstance(parameter_type, type):
             if isinstance(left_operand, of.Frame):
                 left_operand = self[left_operand]
             if isinstance(right_operand, of.Frame):
@@ -3395,12 +3392,12 @@ class Clip(Composition):  # Just a container of Elements
             for single_measure in measures_list:
                 # removes all Elements at the Measure
                 elements_to_remove: list[oe.Element] = [
-                    measure_element for measure_element in self._items
+                    measure_element for measure_element in self._unmasked_items()
                     if measure_element == ra.Measure(single_measure)
                 ]
                 self._delete(elements_to_remove, True)
                 # offsets the right side of it to occupy the dropped measure
-                for single_element in self._items:
+                for single_element in self._unmasked_items():
                     if single_element > ra.Measure(single_measure):
                         single_measure -= ra.Measure(1)
 
@@ -3452,7 +3449,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         unique_items: list[oe.Element] = []
         remove_items: list[oe.Element] = []
-        for single_element in self._items:
+        for single_element in self._dev_base_container()._items:
             for unique_element in unique_items:
                 if single_element == unique_element:
                     remove_items.append(single_element)
@@ -3472,10 +3469,10 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         original_positions: list[Fraction] = [
-            element._position_beats for element in self._items
+            element._position_beats for element in self._unmasked_items()
         ]
         super().sort(parameter, reverse)
-        for index, element in enumerate(self._items):
+        for index, element in enumerate(self._unmasked_items()):
             element._position_beats = original_positions[index]
         return self
     
@@ -3671,7 +3668,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with each element having the wave value set on it.
         """
-        for single_element in self._items:
+        for single_element in self._unmasked_items():
             
             element_position: ra.Position = single_element % ra.Position()
             wavelength_duration: Fraction = ra.Duration(wavelength)._rational
@@ -3710,7 +3707,7 @@ class Clip(Composition):  # Just a container of Elements
         if self_finish is None:
             self_finish = ra.Position(self)
         clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for single_element in self._items:
+        for single_element in self._unmasked_items():
             element_position_beats: Fraction = single_element._position_beats
             element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
             # Only changes Positions
@@ -3728,7 +3725,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         position_duration_beats: list[dict[str, Fraction]] = []
-        for index, single_element in enumerate(self._items):
+        for index, single_element in enumerate(self._unmasked_items()):
             position_duration_dict: dict[str, Fraction] = {
                 "duration": single_element._duration_beats
             }
@@ -3739,7 +3736,7 @@ class Clip(Composition):  # Just a container of Elements
                     position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
             position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
 
-        for index, single_element in enumerate(self._items):
+        for index, single_element in enumerate(self._unmasked_items()):
             single_element._position_beats = position_duration_beats[index]["position"]
             single_element._duration_beats = position_duration_beats[index]["duration"]
             
@@ -3760,7 +3757,7 @@ class Clip(Composition):  # Just a container of Elements
         higher_pitch: og.Pitch = None
         lower_pitch: og.Pitch = None
         
-        for item in self._items:
+        for item in self._unmasked_items():
             if isinstance(item, oe.Note):
                 element_pitch: og.Pitch = item._pitch
                 if higher_pitch is None:
@@ -3776,7 +3773,7 @@ class Clip(Composition):  # Just a container of Elements
             top_pitch: int = higher_pitch.pitch_int()
             bottom_pitch: int = lower_pitch.pitch_int()
 
-            for item in self._items:
+            for item in self._unmasked_items():
                 if isinstance(item, oe.Note):
                     element_pitch: og.Pitch = item._pitch
                     note_pitch: int = element_pitch.pitch_int()
@@ -3797,12 +3794,12 @@ class Clip(Composition):  # Just a container of Elements
         """
         center_pitch: int = None
         
-        for item in self._items:
+        for item in self._unmasked_items():
             if isinstance(item, oe.Note):
                 center_pitch = item._pitch.pitch_int()
                 break
 
-        for item in self._items:
+        for item in self._unmasked_items():
             if isinstance(item, oe.Note):
                 note_pitch: int = item._pitch.pitch_int()
                 if note_pitch != center_pitch:
