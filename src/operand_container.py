@@ -2461,7 +2461,7 @@ class Clip(Composition):  # Just a container of Elements
         Read Only method
         """
         frame._set_inside_container(self)
-        for index, single_element in enumerate(self._items):
+        for index, single_element in enumerate(self._unmasked_items()):
             if single_element == frame:
                 return index
         return None
@@ -2470,7 +2470,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         Read Only method
         """
-        for index, single_element in enumerate(self._items):
+        for index, single_element in enumerate(self._unmasked_items()):
             if single_element is element:
                 return index
         return None
@@ -2482,7 +2482,7 @@ class Clip(Composition):  # Just a container of Elements
         if isinstance(index, of.Frame):
             element_index: int = self._index_from_frame(index)
             if element_index is not None:
-                return self._items[element_index]
+                return self._unmasked_items()[element_index]
             return ol.Null()
         return super().__getitem__(index)
     
@@ -2557,9 +2557,22 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def masked_element(self, element: oe.Element) -> bool:
+        if AS_MASK_LIST:
+            return self.masked_element_developing(element)
+        return self.masked_element_original(element)
+
+    def masked_element_original(self, element: oe.Element) -> bool:
         if self.is_masked():
             for single_element in self._items:
                 if single_element is element:
+                    return False
+            return True
+        return False
+
+    def masked_element_developing(self, element: oe.Element) -> bool:
+        if self.is_masked():
+            for single_element in self._mask_items:
+                if element is single_element:
                     return False
             return True
         return False
