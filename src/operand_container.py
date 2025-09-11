@@ -465,11 +465,11 @@ class Container(o.Operand):
     def __eq__(self, other: any) -> bool:
         match other:
             case Container():
-                return self._items == other._items
+                return self._unmasked_items() == other._unmasked_items()
             case od.Conditional():
                 return other == self
             case of.Frame():
-                for single_item in self._items:
+                for single_item in self._unmasked_items():
                     if not single_item == other:
                         return False
                 return True
@@ -1121,7 +1121,7 @@ class Container(o.Operand):
                         if not item == single_condition
                     )
             self._mask_items = [
-                unmasked_item for unmasked_item in self
+                unmasked_item for unmasked_item in self._items
                 if id(unmasked_item) not in excluded_item_ids
             ]
         return self
@@ -3000,7 +3000,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self._dev_base_container()._delete(operand._items)
+                return self._dev_base_container()._delete(operand._unmasked_items())
             case oe.Element():
                 return self._delete([ operand ])
             case list():
