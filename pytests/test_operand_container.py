@@ -1101,7 +1101,7 @@ def test_process_mask():
     copy_clip: Clip = native_clip >> Stack()
     assert copy_clip != native_clip
     masked_native_clip: Clip = native_clip.mask()
-    assert masked_native_clip.is_a_mask()
+    assert masked_native_clip.is_masked()
     assert masked_native_clip == native_clip
     # A >> from a Mask shall not result in a copy!
     same_mask: Clip = masked_native_clip >> Stack()

@@ -74,10 +74,10 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._items: list = []
+        self._mask_items: list = []
+        self._masked: bool = False
         self._items_iterator: int = 0
         self._base_container: Self = self
-        self._mask_items: list | None = None
-        self._masked: bool = False
         for single_operand in operands:
             self << single_operand
         
@@ -122,7 +122,7 @@ class Container(o.Operand):
         return self
 
     def _extend(self, items: list, after_item: any = None) -> Self:
-        if self.is_a_mask():
+        if self.is_masked():
             self._base_container._extend(items, after_item)
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
@@ -282,7 +282,7 @@ class Container(o.Operand):
             case int():
                 return self.len()
             case bool():
-                return not self.is_a_mask()
+                return not self.is_masked()
             case Container():
                 return operand.copy(self)
             case _:
@@ -436,10 +436,10 @@ class Container(o.Operand):
                     self._masked = operand._masked
 
                 else:
-                    if not (self.is_a_mask() or operand.is_a_mask()):
+                    if not (self.is_masked() or operand.is_masked()):
                         self._items = self.deep_copy(operand._items)
 
-                    elif self.is_a_mask() and operand.is_a_mask():
+                    elif self.is_masked() and operand.is_masked():
                         self_base: Container = self._base_container
                         operand_base: Container = operand._base_container
                         self_base._items = self.deep_copy(operand_base._items)
@@ -449,11 +449,11 @@ class Container(o.Operand):
                             if id(root_item) in unmasked_ids
                         ]
 
-                    elif self.is_a_mask():
+                    elif self.is_masked():
                         self._base_container = self # Not a mask anymore
                         self._items = self.deep_copy(operand._items)
 
-                    else:   # operand.is_a_mask(), so, self shall become a mask too
+                    else:   # operand.is_masked(), so, self shall become a mask too
                         self_base: Container = self.empty_copy()
                         self._base_container = self_base
                         operand_base: Container = operand._base_container
@@ -672,7 +672,7 @@ class Container(o.Operand):
         empty_base: Container = self._dev_base_container().__class__()
         for single_parameter in parameters: # Parameters should be set on the base container
             empty_base << single_parameter
-        if self.is_a_mask():
+        if self.is_masked():
             empty_mask: Container = self.__class__()
             empty_mask._base_container = empty_base
             return empty_mask
@@ -695,7 +695,7 @@ class Container(o.Operand):
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
-        if shallow_copy.is_a_mask():
+        if shallow_copy.is_masked():
             shallow_copy._dev_base_container()._items = self._dev_base_container()._items.copy()
         return shallow_copy
     
@@ -725,11 +725,16 @@ class Container(o.Operand):
         return self
 
 
-    def is_a_mask(self) -> bool:
+    def is_masked(self) -> bool:
+        if AS_MASK_LIST:
+            return self.is_masked_developing()
+        return self.is_masked_original()
+    
+    def is_masked_original(self) -> bool:
         return self._base_container is not self
     
-    def is_a_mask_developing(self) -> bool:
-        return self._mask_items is not None
+    def is_masked_developing(self) -> bool:
+        return self._masked
     
 
     def upper(self, level: int = None) -> Self:
@@ -1541,7 +1546,7 @@ class Composition(Container):
 
         # Chart title (TITLE)
         self._ax.set_title(f"{self._title + " - " if self._title != "" else ""}"
-                           f"{"Mask - " if self._iterations[self._iteration].is_a_mask() else ""}"
+                           f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
                            f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0
         }")
 
@@ -2318,7 +2323,7 @@ class Clip(Composition):  # Just a container of Elements
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
-        self._mask_items: list[oe.Element] | None = None
+        self._mask_items: list[oe.Element] = []
         for single_operand in operands:
             self << single_operand
 
@@ -2426,7 +2431,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def masked_element(self, element: oe.Element) -> bool:
-        if self.is_a_mask():
+        if self.is_masked():
             for single_element in self._items:
                 if single_element is element:
                     return False
@@ -2543,7 +2548,7 @@ class Clip(Composition):  # Just a container of Elements
         return {id(unmasked_item) for unmasked_item in self._items}
 
     def get_masked_element_ids(self) -> set[int]:
-        if self.is_a_mask():
+        if self.is_masked():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             return {
                 id(masked_item) for masked_item in self._dev_base_container()._items
@@ -2917,7 +2922,7 @@ class Clip(Composition):  # Just a container of Elements
                     self_base._extend(operand_base._items) # Propagates upwards in the stack
                     if self_base._length_beats is not None:
                         self_base._length_beats += (operand_copy % ra.Length())._rational
-                    if self.is_a_mask() and operand_copy.is_a_mask():
+                    if self.is_masked() and operand_copy.is_masked():
                         self._extend(operand_copy._items)
 
             case oe.Element():
@@ -4160,7 +4165,7 @@ class Part(Composition):
         self._base_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
-        self._mask_items: list[Clip] | None = None
+        self._mask_items: list[Clip] = []
         self._name: str = "Part"
 
         # Song sets the TimeSignature, this is just a reference
@@ -4255,7 +4260,7 @@ class Part(Composition):
 
 
     def masked_element(self, element: oe.Element) -> bool:
-        if self.is_a_mask():
+        if self.is_masked():
             for single_clip in self._items:
                 for single_element in single_clip._items:
                     if single_element is element:
@@ -4416,7 +4421,7 @@ class Part(Composition):
 
     def get_masked_element_ids(self) -> set[int]:
         masked_element_ids: set[int] = set()
-        if self.is_a_mask():
+        if self.is_masked():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             for masked_clip in self._dev_base_container()._items:
                 masked_element_ids.update({
@@ -4849,7 +4854,7 @@ class Song(Composition):
         self._base_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
-        self._mask_items: list[Part] | None = None
+        self._mask_items: list[Part] = []
         for single_operand in operands:
             self << single_operand
 
@@ -4969,7 +4974,7 @@ class Song(Composition):
 
 
     def masked_element(self, element: oe.Element) -> bool:
-        if self.is_a_mask():
+        if self.is_masked():
             for single_part in self._items:
                 for single_clip in single_part._items:
                     for single_element in single_clip._items:
@@ -5080,7 +5085,7 @@ class Song(Composition):
 
     def get_masked_element_ids(self) -> set[int]:
         masked_element_ids: set[int] = set()
-        if self.is_a_mask():
+        if self.is_masked():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
             for masked_part in self._dev_base_container()._items:
                 for masked_clip in masked_part._dev_base_container()._items:
