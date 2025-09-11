@@ -2982,7 +2982,13 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                self += operand._dev_base_container()._items
+                if AS_MASK_LIST:
+                    operand_copy: Clip = operand.copy()._set_owner_clip(self)
+                    # Clip preserves the entirety of the operand Clip as is, unmasked
+                    self._items.extend(operand_copy._items)
+                    self._mask_items.extend(operand_copy._mask_items)
+                else:
+                    self += operand._dev_base_container()._items
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -3060,7 +3066,6 @@ class Clip(Composition):  # Just a container of Elements
                     self._masked = False
 
                     operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
-                    operand_masked: bool = operand_copy._masked
                     operand_copy._masked = False
 
                     operand_position: ra.Position = operand_copy.start()
@@ -3077,7 +3082,6 @@ class Clip(Composition):  # Just a container of Elements
                             self._length_beats += (operand_copy % ra.Length())._rational
 
                     self._masked = self_masked
-                    operand_copy._masked = operand_masked
 
                 else:
                     operand_copy: Clip = operand.copy()._set_owner_clip(self)
