@@ -64,11 +64,17 @@ class RS_Solutions:
         return self._solution
     
     def mask(self, *conditions) -> Self:
-        self._solution = self._solution.mask(*conditions)
+        if oc.AS_MASK_LIST:
+            self._solution.mask(*conditions)
+        else:
+            self._solution = self._solution.mask(*conditions)
         return self
 
     def unmask(self) -> Self:
-        self._solution = self._solution.base()
+        if oc.AS_MASK_LIST:
+            self._solution.unmask()
+        else:
+            self._solution = self._solution.base()
         return self
 
 
@@ -124,16 +130,12 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 # Makes sure the ENTIRE composition is split first by the the given measures
                 if oc.AS_MASK_LIST:
-                    if composition.is_masked():
-                        composition.unmask_developing()
-                        for index, _ in enumerate(self._iterations):
-                            splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))
-                            composition //= splitting_measure
-                        composition.mask_developing()
-                    else:
-                        for index, _ in enumerate(self._iterations):
-                            splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))
-                            composition //= splitting_measure
+                    masked: bool = composition % bool()
+                    measure: ra.Measure = ra.Measure(0)
+                    for _ in self._iterations:
+                        measure += self._measures
+                        composition //= measure
+                    composition << masked
                 else:
                     for index, _ in enumerate(self._iterations):
                         splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))

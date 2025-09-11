@@ -414,6 +414,8 @@ class Container(o.Operand):
             case int():
                 return self.len()
             case bool():
+                if AS_MASK_LIST:
+                    return self._masked
                 return not self.is_masked()
             case Container():
                 return operand.copy(self)
@@ -600,6 +602,9 @@ class Container(o.Operand):
                         self._delete() # deletes all
                         # Finally adds the decomposed elements to the Container stack
                         self._extend(operand._data)
+                    case bool():
+                        self._masked = operand._data
+
             case od.Serialization():
                 self._dev_base_container().loadSerialization( operand.getSerialization() )
             case list():
@@ -611,7 +616,9 @@ class Container(o.Operand):
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
                         self._unmasked_items()[index] = self.deep_copy(item)
-                        
+            case bool():
+                self._masked = operand
+                
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -637,6 +644,8 @@ class Container(o.Operand):
             case tuple():
                 return super().__irshift__(operand)
             case _:
+                if AS_MASK_LIST:
+                    return self.copy().mask(operand)
                 return self.mask(operand)
 
     # Pass trough method that always results in a Container (Self)
@@ -1087,7 +1096,7 @@ class Container(o.Operand):
             Container: The same self object with the items processed.
         """
         if AS_MASK_LIST:
-            return self.unmask_developing()
+            return self.unmask()
         return self._base_container
 
 
@@ -1126,7 +1135,7 @@ class Container(o.Operand):
             ]
         return self
 
-    def unmask_developing(self) -> Self:
+    def unmask(self) -> Self:
         self._masked = False
         return self
     
@@ -3043,7 +3052,10 @@ class Clip(Composition):  # Just a container of Elements
 
                 if operand_position is not None:
 
-                    self_base: Clip = self._base_container
+                    is_masked: bool = self._masked
+                    self._masked = False
+                    
+                    self_base: Clip = self._dev_base_container()
                     self_length: ra.Length = self_base % ra.Length()
                     operand_position = operand_position.roundMeasures()
                     position_offset: ra.Position = operand_position - self_length
@@ -3054,6 +3066,8 @@ class Clip(Composition):  # Just a container of Elements
                         self_base._length_beats += (operand_copy % ra.Length())._rational
                     if self.is_masked() and operand_copy.is_masked():
                         self._extend(operand_copy._items)
+
+                    self._masked = is_masked
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
@@ -3121,7 +3135,7 @@ class Clip(Composition):  # Just a container of Elements
                     position_shift: Fraction = length_shift._rational
                     # Elements to be added and propagated upwards on the stack
                     operand_elements: list[oe.Element] = []
-                    for single_element in operand._items:
+                    for single_element in operand._unmasked_items():
                         element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
                         operand_elements.append(element_copy)
                         element_copy._position_beats += position_shift
