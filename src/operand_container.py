@@ -80,7 +80,22 @@ class Container(o.Operand):
         self._base_container: Self = self
         for single_operand in operands:
             self << single_operand
+
+    def _replicate_to_mask(self) -> Self:
+        mask_ids: set[int] = set()
+        for mask_item in self._mask_items:
+            mask_ids.add(id(mask_item))
+        self._mask_items.clear()
+        for item in self._items:
+            if id(item) in mask_ids:
+                self._mask_items.append(item)
+        return self
+
+    def _replicate_from_mask(self) -> Self:
         
+        return self
+
+
     def _unmasked_items(self) -> list:
         if AS_MASK_LIST and self._masked:
             return self._mask_items
