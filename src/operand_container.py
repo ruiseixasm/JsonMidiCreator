@@ -91,10 +91,6 @@ class Container(o.Operand):
                 self._mask_items.append(item)
         return self
 
-    def _replicate_from_mask(self) -> Self:
-        
-        return self
-
 
     def _unmasked_items(self) -> list:
         if AS_MASK_LIST and self._masked:
@@ -153,21 +149,28 @@ class Container(o.Operand):
             raise StopIteration
 
 
+    def _insert(self, items: list) -> Self:
+        if AS_MASK_LIST:
+            return self._insert_developing(items)
+        return self._insert_original(items)
 
-    def _insert(self, items: list, before_item: any = None) -> Self:
+    def _insert_original(self, items: list) -> Self:
         if self is not self._base_container:
-            self._base_container._insert(items, before_item)
-        insert_at: int = 0                  # By default works as insert
-        if before_item is not None:
-            for index, single_item in enumerate(self._items):
-                # if single_item == before_item:
-                if single_item is before_item:
-                    insert_at = index       # Before the item
-                    break
+            self._base_container._insert(items)
+        # Avoids redundant items/objects
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        inexistent_items: list = [inexistent_item for inexistent_item in items if id(inexistent_item) not in existing_ids]
-        self._items = self._items[:insert_at] + inexistent_items + self._items[insert_at:]
+        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
+        self._items = new_items + self._items
         return self
+
+    def _insert_developing(self, items: list) -> Self:
+        # Avoids redundant items/objects
+        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
+        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
+        self._items = new_items + self._items
+        self._mask_items = new_items + self._mask_items
+        return self
+
 
     def _extend(self, items: list, after_item: any = None) -> Self:
         if self.is_masked():
