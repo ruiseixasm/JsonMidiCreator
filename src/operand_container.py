@@ -167,7 +167,8 @@ class Container(o.Operand):
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items = new_items + self._items
-        self._mask_items = new_items + self._mask_items
+        if self._masked:
+            self._mask_items = new_items + self._mask_items
         return self
 
 
@@ -190,7 +191,8 @@ class Container(o.Operand):
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items.extend(new_items)
-        self._mask_items.extend(new_items)
+        if self._masked:
+            self._mask_items.extend(new_items)
         return self
 
 
