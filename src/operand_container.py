@@ -317,8 +317,19 @@ class Container(o.Operand):
 
 
     def _sort_items(self) -> Self:
+        if AS_MASK_LIST:
+            return self._sort_items_developing()
+        return self._sort_items_original()
+
+    def _sort_items_original(self) -> Self:
         # This works with a list method sort
         self._dev_base_container()._items.sort()  # Operands implement __lt__ and __gt__
+        return self
+
+    def _sort_items_developing(self) -> Self:
+        # This works with a list method sort (Operands implement __lt__ and __gt__)
+        self._items.sort()
+        self._mask_items.sort() # Faster this way
         return self
 
 
