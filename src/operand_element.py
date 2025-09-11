@@ -74,7 +74,7 @@ class Element(o.Operand):
     def _set_owner_clip(self, owner_clip: 'Clip') -> Self:
         import operand_container as oc
         if isinstance(owner_clip, oc.Clip):
-            self._owner_clip = owner_clip._base_container
+            self._owner_clip = owner_clip._dev_base_container()
         return self
 
     def _get_time_signature(self) -> 'og.TimeSignature':

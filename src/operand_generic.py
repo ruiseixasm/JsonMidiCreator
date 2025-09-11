@@ -2560,7 +2560,7 @@ class Play(ReadOnly):
         match operand:
             case oc.Composition():
                 if operand._dev_base_container().len() > 0:
-                    playlist: list[dict] = self._clocked_playlist(operand._base_container)
+                    playlist: list[dict] = self._clocked_playlist(operand._dev_base_container())
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))
