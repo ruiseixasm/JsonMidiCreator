@@ -4997,11 +4997,11 @@ class Song(Composition):
 
     def __getitem__(self, key: int) -> 'Part':
         if isinstance(key, str):
-            for single_part in self._items:
+            for single_part in self._unmasked_items():
                 if single_part._name == key:
                     return single_part
             return ol.Null()
-        return self._items[key]
+        return self._unmasked_items()[key]
 
     def __next__(self) -> 'Part':
         return super().__next__()
@@ -5053,7 +5053,7 @@ class Song(Composition):
 
     def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
-        for single_part in self._items:
+        for single_part in self._dev_base_container()._items:
             part_last_element: oe.Element = single_part._last_element()
             if part_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
@@ -5108,7 +5108,7 @@ class Song(Composition):
 
     def masked_element(self, element: oe.Element) -> bool:
         if self.is_masked():
-            for single_part in self._items:
+            for single_part in self._unmasked_items():
                 for single_clip in single_part._items:
                     for single_element in single_clip._items:
                         if single_element is element:
@@ -5203,7 +5203,7 @@ class Song(Composition):
                 return self._time_signature.copy()
             case od.Names():
                 all_names: list[str] = []
-                for single_part in self._items:
+                for single_part in self._unmasked_items():
                     all_names.append(single_part._name)
                 return od.Names(*tuple(all_names))
             case _:
@@ -5212,7 +5212,7 @@ class Song(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_part in self._items:   # Here self._items is unmasked
+        for unmasked_part in self._unmasked_items():   # Here self._items is unmasked
             unmasked_element_ids.update( unmasked_part.get_unmasked_element_ids() )
         return unmasked_element_ids
 
@@ -5335,7 +5335,7 @@ class Song(Composition):
                             self._items = [item for item in operand._data]
                             self._set_owner_song()
                         else:   # Not for me
-                            for item in self._items:
+                            for item in self._unmasked_items():
                                 item << operand._data
                     case _:
                         super().__lshift__(operand)
@@ -5352,15 +5352,15 @@ class Song(Composition):
                     self._items = [item.copy() for item in operand]
                     self._set_owner_song()
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
             case dict():
                 if all(isinstance(item, Part) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._items):
-                            self._items[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
+                            self._unmasked_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
 
             case tuple():
@@ -5369,7 +5369,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for single_part in self._items:
+                for single_part in self._unmasked_items():
                     single_part << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
@@ -5403,7 +5403,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item += operand
                 self._sort_items()
         return self._sort_items()  # Shall be sorted!
@@ -5429,7 +5429,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()
 
@@ -5474,7 +5474,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()
 
@@ -5518,7 +5518,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()
 
@@ -5550,7 +5550,7 @@ class Song(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -5571,7 +5571,7 @@ class Song(Composition):
             punch_length = ra.Length(self, length)
 
         # No Part is removed, only elements are removed
-        for part_loop in self._items:
+        for part_loop in self._unmasked_items():
             part_loop.loop(position, punch_length)
 
         self._length_beats = punch_length._rational
@@ -5674,15 +5674,15 @@ class ClipGet(Container):
                 self._extend( [self.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._items):
-                        self._items[index] = self.deep_copy(item)
+                    if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
+                        self._unmasked_items()[index] = self.deep_copy(item)
 
             case tuple():
                 self._get = operand
             case _: # Works for Frame too
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item << operand
         return self
 
@@ -5707,7 +5707,7 @@ class ClipGet(Container):
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i] += operand
+                    self._unmasked_items()[item_i] += operand
         return self
 
 
@@ -5719,19 +5719,19 @@ class ClipGet(Container):
                 for single_operand in operand:
                     self -= single_operand
             case int(): # repeat n times the last argument if any
-                if len(self._items) > 0:
-                    while operand > 0 and len(self._items) > 0:
-                        self._delete([ self._items.pop() ], True)
+                if len(self._unmasked_items()) > 0:
+                    while operand > 0 and len(self._unmasked_items()) > 0:
+                        self._delete([ self._unmasked_items().pop() ], True)
                         operand -= 1
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item -= operand
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i] -= operand
+                    self._unmasked_items()[item_i] -= operand
         return self
 
 
@@ -5745,19 +5745,15 @@ class ClipGet(Container):
             case int(): # repeat n times the self content if any
                 if operand > 1:
                     items_copy: list = [
-                        self.deep_copy( data ) for data in self._items
+                        self.deep_copy( data ) for data in self._unmasked_items()
                     ]
                     while operand > 2:
                         new_items: list = [
                             self.deep_copy( data ) for data in items_copy
                         ]
                         self._extend(new_items)  # Propagates upwards in the stack
-                        # self._items.extend(
-                        #     self.deep_copy( data ) for data in items_copy
-                        # )
                         operand -= 1
                     self._extend(items_copy)  # Propagates upwards in the stack
-                    # self._items.extend( items_copy )
                 elif operand == 0:
                     self._delete()
             case ch.Chaos():
@@ -5769,7 +5765,7 @@ class ClipGet(Container):
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i].__imul__(operand)
+                    self._unmasked_items()[item_i].__imul__(operand)
         return self
     
 
@@ -5798,7 +5794,7 @@ class ClipGet(Container):
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
                 for item_i in range(self.len()):
-                    self._items[item_i].__itruediv__(operand)
+                    self._unmasked_items()[item_i].__itruediv__(operand)
         return self
 
 
