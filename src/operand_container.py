@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = False
+AS_MASK_LIST: bool = True
 
 
 
@@ -799,8 +799,14 @@ class Container(o.Operand):
             return empty_mask
         return empty_base
 
-    # A shallow copy isn't the same as a mask!
+
     def shallow_copy(self, *parameters) -> Self:
+        if AS_MASK_LIST:
+            return self.shallow_copy_developing(*parameters)
+        return self.shallow_copy_original(*parameters)
+
+    # A shallow copy isn't the same as a mask!
+    def shallow_copy_original(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters copied, but the list that
         is just a reference of the same list of the original container.
@@ -819,6 +825,23 @@ class Container(o.Operand):
         if shallow_copy.is_masked():
             shallow_copy._dev_base_container()._items = self._dev_base_container()._items.copy()
         return shallow_copy
+    
+    # A shallow copy isn't the same as a mask!
+    def shallow_copy_developing(self, *parameters) -> Self:
+        """
+        Returns a Container with all the same parameters copied, but the list that
+        is just a reference of the same list of the original container.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Container: Returns the copy of self but with a list of the same items of the original one.
+        """
+        shallow_copy: Container = self.empty_copy()
+        shallow_copy._items = self._items.copy()
+        shallow_copy._mask_items = self._mask_items.copy()
+        return shallow_copy << parameters
     
 
     def process(self, input: any = None) -> Self:
@@ -3012,15 +3035,16 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
+                # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
+                masked: bool = self._masked
+                self._masked = False
+
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
                 operand_base: Clip = operand_copy._dev_base_container()
                 operand_position: ra.Position = operand_base.start()
 
                 if operand_position is not None:
 
-                    is_masked: bool = self._masked
-                    self._masked = False
-                    
                     self_base: Clip = self._dev_base_container()
                     self_length: ra.Length = self_base % ra.Length()
                     operand_position = operand_position.roundMeasures()
@@ -3033,12 +3057,16 @@ class Clip(Composition):  # Just a container of Elements
                     if self.is_masked() and operand_copy.is_masked():
                         self._extend(operand_copy._items)
 
-                    self._masked = is_masked
+                self._masked = masked
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
             case int():
+                # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
+                masked: bool = self._masked
+                self._masked = False
+
                 if operand > 1:
                     single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
@@ -3046,6 +3074,7 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete()
                     
+                self._masked = masked
 
             case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
