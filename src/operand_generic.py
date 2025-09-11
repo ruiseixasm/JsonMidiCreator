@@ -2997,21 +2997,6 @@ class Erase(ContainerProcess):
     def _process(self, operand: 'Container') -> 'Container':
         return operand.erase(*self._parameters)
 
-class Upper(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Upper`
-
-    Returns self or the upper container if existent up to the last one if no argument is given, or,
-    up to the one above the level given.
-
-    Args:
-        level: The level at which the upper container is returned.
-    """
-    def __init__(self, level: int = None):
-        super().__init__(level)
-
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.upper(self._parameters)
-
 
 TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
 

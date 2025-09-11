@@ -869,26 +869,6 @@ class Container(o.Operand):
         return self._masked
     
 
-    def upper(self, level: int = None) -> Self:
-        """
-        Returns self or the upper container if existent up to the last one if no argument is given, or,
-        up to the one above the level given.
-
-        Args:
-            level: The level at which the upper container is returned.
-
-        Returns:
-            Clip: Returns the upper container if existent or self otherwise.
-        """
-        if self._base_container is self:
-            return self
-        if isinstance(level, int):
-            if level > 0:
-                level -= 1
-            else:
-                return self
-        return self._base_container.upper(level)
-
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
         Sorts the self list based on a given type of parameter.
