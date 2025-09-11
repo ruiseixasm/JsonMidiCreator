@@ -781,6 +781,11 @@ class Container(o.Operand):
 
 
     def empty_copy(self, *parameters) -> Self:
+        if AS_MASK_LIST:
+            return self.empty_copy_developing(*parameters)
+        return self.empty_copy_original(*parameters)
+
+    def empty_copy_original(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
 
@@ -798,6 +803,19 @@ class Container(o.Operand):
             empty_mask._base_container = empty_base
             return empty_mask
         return empty_base
+
+    def empty_copy_developing(self, *parameters) -> Self:
+        """
+        Returns a Container with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Container: Returns the copy of self but with an empty list of items.
+        """
+        new_container: Container = self.__class__()
+        return new_container << parameters
 
 
     def shallow_copy(self, *parameters) -> Self:
@@ -3286,7 +3304,7 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()  # Shall be sorted!
 
 
-    def empty_copy(self, *parameters) -> Self:
+    def empty_copy_original(self, *parameters) -> Self:
         """
         Returns a Clip with all the same parameters but the list that is empty.
 
@@ -3296,7 +3314,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: Returns the copy of self but with an empty list of items.
         """
-        empty_copy: Clip                = super().empty_copy()
+        empty_copy: Clip                = super().empty_copy_original()
         empty_base: Clip                = empty_copy._dev_base_container()
         self_base: Clip                 = self._dev_base_container()
         empty_base._time_signature      << self_base._time_signature
@@ -3305,8 +3323,25 @@ class Clip(Composition):  # Just a container of Elements
         for single_parameter in parameters: # Parameters should be set on the base container
             empty_base << single_parameter
         return empty_copy
-    
-    def shallow_copy(self, *parameters) -> Self:
+
+    def empty_copy_developing(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with an empty list of items.
+        """
+        new_clip: Clip              = super().empty_copy_developing()
+        new_clip._time_signature    << self._time_signature
+        new_clip._midi_track        << self._midi_track
+        new_clip._length_beats      = self._length_beats
+        return new_clip << parameters
+
+
+    def shallow_copy_original(self, *parameters) -> Self:
         """
         Returns a Clip with all the same parameters copied, but the list that
         is just a reference of the same list of the original Clip.
@@ -3317,7 +3352,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: Returns the copy of self but with a list of the same items of the original one.
         """
-        shallow_copy: Clip              = super().shallow_copy()
+        shallow_copy: Clip              = super().shallow_copy_original()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         shallow_copy._time_signature    << self._time_signature   
         shallow_copy._dev_base_container()._midi_track        << self._base_container._midi_track
@@ -3325,6 +3360,24 @@ class Clip(Composition):  # Just a container of Elements
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
         return shallow_copy
+
+    def shallow_copy_developing(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters copied, but the list that
+        is just a reference of the same list of the original Clip.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with a list of the same items of the original one.
+        """
+        new_clip: Clip              = super().shallow_copy_developing()
+        # It's a shallow copy, so it shares the same TimeSignature and midi track
+        new_clip._time_signature    << self._time_signature   
+        new_clip._midi_track        << self._midi_track
+        new_clip._length_beats      = self._length_beats
+        return new_clip << parameters
 
 
     def mask_original(self, *conditions) -> Self:
