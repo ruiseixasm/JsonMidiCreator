@@ -553,18 +553,15 @@ class Container(o.Operand):
 
                 if AS_MASK_LIST:
                     self._items = self.deep_copy(operand._items)
-                    if operand._mask_items is None:
-                        self._mask_items = None
-                    else:
-                        items_indexes: list[int] = []
-                        for mask_item in operand._mask_items:
-                            for index, single_item in enumerate(operand._items):
-                                if mask_item is single_item:
-                                    items_indexes.append(index)
+                    self._mask_items.clear()
+                    if operand._mask_items:
+                        operand_mask_items: list = operand._mask_items.copy()
+                        for base_index, base_item in enumerate(operand._items):
+                            for mask_item in operand_mask_items:
+                                if mask_item is base_item:
+                                    self._mask_items.append(self._items[base_index])
+                                    operand_mask_items.pop(0)   # Removes the first item
                                     break
-                        self._mask_items = [
-                            self._items[index] for index in items_indexes
-                        ]
                     self._masked = operand._masked
 
                 else:
