@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = False
+AS_MASK_LIST: bool = True
 
 
 
@@ -3053,46 +3053,61 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
-                masked: bool = self._masked
-                self._masked = False
 
-                operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                operand_base: Clip = operand_copy._dev_base_container()
-                operand_position: ra.Position = operand_base.start()
+                if AS_MASK_LIST:
+                    # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
+                    self_masked: bool = self._masked
+                    self._masked = False
 
-                if operand_position is not None:
+                    operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
+                    operand_masked: bool = operand_copy._masked
+                    operand_copy._masked = False
 
-                    self_base: Clip = self._dev_base_container()
-                    self_length: ra.Length = self_base % ra.Length()
-                    operand_position = operand_position.roundMeasures()
-                    position_offset: ra.Position = operand_position - self_length
-                    operand_base -= position_offset   # Does a position offset
-                    
-                    self_base._extend(operand_base._items) # Propagates upwards in the stack
-                    if self_base._length_beats is not None:
-                        self_base._length_beats += (operand_copy % ra.Length())._rational
-                    if self.is_masked() and operand_copy.is_masked():
-                        self._extend(operand_copy._items)
+                    operand_position: ra.Position = operand_copy.start()
+                    if operand_position is not None:
 
-                self._masked = masked
+                        self_length: ra.Length = self % ra.Length()
+                        operand_position = operand_position.roundMeasures()
+                        position_offset: ra.Position = operand_position - self_length
+                        operand_copy -= position_offset   # Does a position offset
+                        
+                        self._items.extend(operand_copy._items)
+                        self._mask_items.extend(operand_copy._mask_items)
+                        if self._length_beats is not None:
+                            self._length_beats += (operand_copy % ra.Length())._rational
+
+                    self._masked = self_masked
+                    operand_copy._masked = operand_masked
+
+                else:
+                    operand_copy: Clip = operand.copy()._set_owner_clip(self)
+                    operand_base: Clip = operand_copy._dev_base_container()
+                    operand_position: ra.Position = operand_base.start()
+
+                    if operand_position is not None:
+
+                        self_base: Clip = self._dev_base_container()
+                        self_length: ra.Length = self_base % ra.Length()
+                        operand_position = operand_position.roundMeasures()
+                        position_offset: ra.Position = operand_position - self_length
+                        operand_base -= position_offset   # Does a position offset
+                        
+                        self_base._extend(operand_base._items) # Propagates upwards in the stack
+                        if self_base._length_beats is not None:
+                            self_base._length_beats += (operand_copy % ra.Length())._rational
+                        if self.is_masked() and operand_copy.is_masked():
+                            self._extend(operand_copy._items)
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
             case int():
-                # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
-                masked: bool = self._masked
-                self._masked = False
-
                 if operand > 1:
                     single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
                     self._delete()
-                    
-                self._masked = masked
 
             case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
