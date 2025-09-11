@@ -87,12 +87,38 @@ class Container(o.Operand):
             return self
         return self._base_container
 
+
     def __getitem__(self, index: int) -> any:
+        if AS_MASK_LIST:
+            return self.__getitem__developing(index)
+        return self.__getitem__original(index)
+    
+    def __getitem__original(self, index: int) -> any:
         return self._items[index]
     
-    def __setitem__(self, index, value) -> Self:
+    def __getitem__developing(self, index: int) -> any:
+        if self._masked:
+            return self._mask_items[index]
+        return self._items[index]
+    
+
+
+    def __setitem__(self, index: int, value) -> Self:
+        if AS_MASK_LIST:
+            return self.__setitem__developing(index, value)
+        return self.__setitem__original(index, value)
+
+    def __setitem__original(self, index: int, value) -> Self:
         self._items[index] = value
         return self
+    
+    def __setitem__developing(self, index: int, value) -> Self:
+        if self._masked:
+            self._mask_items[index] = value
+        else:
+            self._items[index] = value
+        return self
+    
 
     def __iter__(self) -> Self:
         return self
