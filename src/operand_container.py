@@ -4108,7 +4108,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         amount_rational: Fraction = ra.Amount(amount) % Fraction()
-        for single_element in self._items:
+        for single_element in self._unmasked_items():
             element_position: Fraction = single_element._position_beats
             unquantized_amount: Fraction = element_position % quantization_beats
             quantization_limit: int = round(unquantized_amount / quantization_beats)
@@ -4129,12 +4129,12 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Equally sounding Clip but with its elements reduced to their components.
         """
         decomposed_elements: list[oe.Element] = []
-        for single_element in self._items:
+        for single_element in self._unmasked_items():
             component_elements: list[oe.Element] = single_element.get_component_elements()
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
         # Remove previous Elements from the Container stack
-        self._delete(self._items, True) # deletes by id, safer
+        self._delete(self._unmasked_items(), True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
         self._extend(decomposed_elements)
         return self._sort_items()
@@ -4150,7 +4150,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Clip with its elements distributed in an arpeggiated manner.
         """
         arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self._items, self.start(), ra.Length( self.net_duration() ))
+        arpeggio.arpeggiate_source(self._unmasked_items(), self.start(), ra.Length( self.net_duration() ))
         return self
 
 
@@ -4167,7 +4167,7 @@ class Clip(Composition):  # Just a container of Elements
         # Only notes can be tied
         tied_notes: list[oe.Note] = [
             single_note << ou.Tied(True)
-            for single_note in self._items if isinstance(single_note, oe.Note)
+            for single_note in self._unmasked_items() if isinstance(single_note, oe.Note)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
             single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
@@ -4192,7 +4192,7 @@ class Clip(Composition):  # Just a container of Elements
         if decompose:
             self.decompose()
         all_notes: list[oe.Note] = [
-            single_note for single_note in self._items if type(single_note) is oe.Note
+            single_note for single_note in self._unmasked_items() if type(single_note) is oe.Note
         ]
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
@@ -4223,7 +4223,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         last_element = None
-        for item in self._items:
+        for item in self._unmasked_items():
             if isinstance(item, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
@@ -4242,7 +4242,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
-        for item in self._items:
+        for item in self._unmasked_items():
             if isinstance(item, oe.Note):    # Only Note has single Pitch
                 actual_note = item
                 if last_note is not None:
