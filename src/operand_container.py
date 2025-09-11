@@ -81,6 +81,10 @@ class Container(o.Operand):
         for single_operand in operands:
             self << single_operand
         
+    def _dev_items(self) -> list:
+        if AS_MASK_LIST and self._masked:
+            return self._mask_items
+        return self._items
 
     def _dev_base_container(self) -> Self:
         if AS_MASK_LIST:
@@ -123,6 +127,7 @@ class Container(o.Operand):
     def __iter__(self) -> Self:
         return self
     
+    # To be used directly in for loops
     def __next__(self) -> any:
         if self._items_iterator < len(self._items):
             item = self._items[self._items_iterator]
@@ -131,6 +136,8 @@ class Container(o.Operand):
         else:
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
+
+
 
     def _insert(self, items: list, before_item: any = None) -> Self:
         if self is not self._base_container:
