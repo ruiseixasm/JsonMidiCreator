@@ -3063,7 +3063,7 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
 
                 if AS_MASK_LIST:
-                    # Multiply with `Clip` is applicable to the totality of the Clip and NOT just its the mask
+                    # Multiply with `Clip` is applicable to the totality of the self and other Clip and NOT just its the mask
                     self_masked: bool = self._masked
                     self._masked = False
 
@@ -3157,23 +3157,51 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand: Clip = operand._dev_base_container()
-                left_end_position: ra.Position = self.finish()
-                if left_end_position is None:
-                    left_end_position = ra.Position(self)
-                if self._length_beats is not None:
-                    self._length_beats += (operand % ra.Length())._rational
-                right_start_position: ra.Position = operand.start()
-                if right_start_position is not None:
-                    length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                    position_shift: Fraction = length_shift._rational
-                    # Elements to be added and propagated upwards on the stack
-                    operand_elements: list[oe.Element] = []
-                    for single_element in operand._unmasked_items():
-                        element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
-                        operand_elements.append(element_copy)
-                        element_copy._position_beats += position_shift
-                    self._extend(operand_elements)  # Propagates upwards in the stack
+                if AS_MASK_LIST:
+                    # Only the operand unmasked items are considered
+                    operand_elements: list[oe.Element] = [
+                        element.copy()._set_owner_clip(self) for element in operand
+                    ]
+
+                    if operand_elements:
+
+                        # Division with `Clip` is applicable to the totality of the self Clip and NOT just its the mask
+                        self_masked: bool = self._masked
+                        self._masked = False
+
+                        left_end_position: ra.Position = self.finish()
+                        if left_end_position is None:
+                            left_end_position = ra.Position(self)
+                        if self._length_beats is not None:
+                            self._length_beats += (operand % ra.Length())._rational
+                            
+                        # operand_elements already sorted by position
+                        right_start_position: ra.Position = operand_elements[0].start()
+                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                        position_shift: Fraction = length_shift._rational
+                        for new_element in operand_elements:
+                            new_element._position_beats += position_shift
+                        self._masked = self_masked
+                        self._extend(operand_elements)
+                
+                else:
+                    operand: Clip = operand._dev_base_container()
+                    left_end_position: ra.Position = self.finish()
+                    if left_end_position is None:
+                        left_end_position = ra.Position(self)
+                    if self._length_beats is not None:
+                        self._length_beats += (operand % ra.Length())._rational
+                    right_start_position: ra.Position = operand.start()
+                    if right_start_position is not None:
+                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                        position_shift: Fraction = length_shift._rational
+                        # Elements to be added and propagated upwards on the stack
+                        operand_elements: list[oe.Element] = []
+                        for single_element in operand._unmasked_items():
+                            element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
+                            operand_elements.append(element_copy)
+                            element_copy._position_beats += position_shift
+                        self._extend(operand_elements)  # Propagates upwards in the stack
 
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
