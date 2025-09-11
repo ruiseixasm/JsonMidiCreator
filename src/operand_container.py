@@ -4330,11 +4330,11 @@ class Part(Composition):
 
     def __getitem__(self, key: str | int) -> 'Clip':
         if isinstance(key, str):
-            for single_item in self._items:
+            for single_item in self._unmasked_items():
                 if single_item._midi_track._name == key:
                     return single_item
             return ol.Null()
-        return self._items[key]
+        return self._unmasked_items()[key]
 
     def __next__(self) -> 'Clip':
         return super().__next__()
@@ -4367,7 +4367,7 @@ class Part(Composition):
             Element: The last `Element` of all elements in each `Clip`.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
+            clip for clip in self._unmasked_items() if isinstance(clip, Clip)
         ]
 
         part_last: oe.Element = None
@@ -4394,8 +4394,8 @@ class Part(Composition):
 
     def masked_element(self, element: oe.Element) -> bool:
         if self.is_masked():
-            for single_clip in self._items:
-                for single_element in single_clip._items:
+            for single_clip in self._unmasked_items():
+                for single_element in single_clip._unmasked_items():
                     if single_element is element:
                         return False
             return True
@@ -4548,7 +4548,7 @@ class Part(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_clip in self._items:
+        for unmasked_clip in self._unmasked_items():
             unmasked_element_ids.update( unmasked_clip.get_unmasked_element_ids() )
         return unmasked_element_ids
 
@@ -4683,7 +4683,7 @@ class Part(Composition):
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
                         else:   # Not for me
-                            for item in self._items:
+                            for item in self._unmasked_items():
                                 item << operand._data
                     case _:
                         super().__lshift__(operand)
@@ -4703,15 +4703,15 @@ class Part(Composition):
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
             case dict():
                 if all(isinstance(item, Clip) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._items):
-                            self._items[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
+                            self._unmasked_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._items:
+                    for item in self._unmasked_items():
                         item << operand
 
             case str():
@@ -4722,7 +4722,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
@@ -4755,7 +4755,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item += operand
         return self._sort_items()  # Shall be sorted!
 
@@ -4776,7 +4776,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()  # Shall be sorted!
 
@@ -4832,7 +4832,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -4872,7 +4872,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -4905,7 +4905,7 @@ class Part(Composition):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -4951,7 +4951,7 @@ class Part(Composition):
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
         # No Clip is removed, only elements are removed
-        for single_clip in self._items:
+        for single_clip in self._unmasked_items():
             single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
