@@ -319,6 +319,11 @@ class Container(o.Operand):
 
 
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
+        if AS_MASK_LIST:
+            return self._swap_developing(left_item, right_item)
+        return self._swap_original(left_item, right_item)
+
+    def _swap_original(self, left_item: Any = None, right_item: Any = None) -> Self:
         if self is not self._base_container:
             self._base_container._swap(left_item, right_item)
         first_index: int = None
@@ -330,6 +335,28 @@ class Container(o.Operand):
                     temp_item: Any = self._items[first_index]
                     self._items[first_index] = self._items[index]
                     self._items[index] = temp_item
+                    break
+        return self
+
+    def _swap_developing(self, left_item: Any = None, right_item: Any = None) -> Self:
+        first_index: int = None
+        for index, item in enumerate(self._items):
+            if item is left_item or item is right_item:
+                if first_index is None:
+                    first_index = index
+                else:
+                    temp_item: Any = self._items[first_index]
+                    self._items[first_index] = self._items[index]
+                    self._items[index] = temp_item
+                    break
+        for index, item in enumerate(self._mask_items):
+            if item is left_item or item is right_item:
+                if first_index is None:
+                    first_index = index
+                else:
+                    temp_item: Any = self._mask_items[first_index]
+                    self._mask_items[first_index] = self._mask_items[index]
+                    self._mask_items[index] = temp_item
                     break
         return self
 
