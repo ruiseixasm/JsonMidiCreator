@@ -129,8 +129,8 @@ class Container(o.Operand):
     
     # To be used directly in for loops
     def __next__(self) -> any:
-        if self._items_iterator < len(self._items):
-            item = self._items[self._items_iterator]
+        if self._items_iterator < len(self._unmasked_items()):
+            item = self._unmasked_items()[self._items_iterator]
             self._items_iterator += 1
             return item  # It's the data that should be returned
         else:
@@ -296,21 +296,21 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return [
-                            item for item in self._items
+                            item for item in self._unmasked_items()
                         ]
                     case _:
                         return super().__mod__(operand)
             case list():
                 if operand: # Non empty list
                     parameters: list = []
-                    for single_item in self._items:
+                    for single_item in self._unmasked_items():
                         item_parameter: any = single_item
                         for single_parameter in operand:
                             item_parameter = item_parameter % single_parameter
                         parameters.append( item_parameter )
                     return parameters
                 return [
-                    self.deep_copy(item) for item in self._items
+                    self.deep_copy(item) for item in self._unmasked_items()
                 ]
             case int():
                 return self.len()
@@ -331,7 +331,7 @@ class Container(o.Operand):
         Returns:
             int: Returns the equivalent to the len(self._items).
         """
-        return len(self._items)
+        return len(self._unmasked_items())
 
     def first(self) -> Any:
         """
@@ -344,8 +344,8 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self._items:
-            first_item = self._items[0]
+        if self._unmasked_items():
+            first_item = self._unmasked_items()[0]
         return first_item
 
     def last(self) -> Any:
@@ -359,8 +359,8 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self._items:
-            last_item = self._items[-1]
+        if self._unmasked_items():
+            last_item = self._unmasked_items()[-1]
         return last_item
 
     def __eq__(self, other: any) -> bool:
@@ -501,7 +501,7 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         # Remove previous Elements from the Container stack
-                        self._delete(self._items, True) # deletes by id, safer
+                        self._delete() # deletes all
                         # Finally adds the decomposed elements to the Container stack
                         self._extend( operand._data )
                         # for item in operand._data:
@@ -510,22 +510,22 @@ class Container(o.Operand):
                 self._dev_base_container().loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
-                self._delete(self._items, True) # deletes by id, safer
+                self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
                 self._extend([
                     self.deep_copy(item) for item in operand
                 ])
             case dict():
                 for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._items):
-                        self._items[index] = self.deep_copy(item)
+                    if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
+                        self._unmasked_items()[index] = self.deep_copy(item)
                         
             case tuple():
                 for single_operand in operand:
                     self << single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item << operand
             case _:
                 self += operand
