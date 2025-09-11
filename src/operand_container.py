@@ -1162,7 +1162,7 @@ class Container(o.Operand):
                 )
             else:
                 if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self._base_container)
+                    single_condition._set_inside_container(self._dev_base_container())
                 deletable_item_ids.update(
                     id(item) for item in self._dev_base_container()._items
                     if not item == single_condition
@@ -2517,11 +2517,11 @@ class Clip(Composition):  # Just a container of Elements
         """
         if owner_clip is None:
             for single_element in self._dev_base_container()._items:
-                single_element._set_owner_clip(self._base_container)
+                single_element._set_owner_clip(self._dev_base_container())
         elif isinstance(owner_clip, Clip):
             self._time_signature << owner_clip._time_signature    # Does a parameters copy
             for single_element in self._dev_base_container()._items:
-                single_element._set_owner_clip(owner_clip._base_container)
+                single_element._set_owner_clip(owner_clip._dev_base_container())
         return self
 
 
@@ -2537,7 +2537,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def _test_owner_clip(self) -> bool:
         for single_element in self._items:
-            if single_element._owner_clip is not self._base_container:
+            if single_element._owner_clip is not self._dev_base_container():
                 return False
         return True
 
@@ -2656,7 +2656,7 @@ class Clip(Composition):  # Just a container of Elements
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():        return self._time_signature
-                    case ou.MidiTrack():            return self._base_container._midi_track
+                    case ou.MidiTrack():            return self._dev_base_container()._midi_track
                     case ClipGet():
                         clip_get: ClipGet = operand._data
                         for single_element in self._unmasked_items():
@@ -2667,13 +2667,13 @@ class Clip(Composition):  # Just a container of Elements
                         return clip_get
                     case _:                 return super().__mod__(operand)
             case og.TimeSignature():        return self._time_signature.copy()
-            case ou.MidiTrack():    return self._base_container._midi_track.copy()
+            case ou.MidiTrack():    return self._dev_base_container()._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
-                return self._base_container._midi_track % operand
+                return self._dev_base_container()._midi_track % operand
             case og.TimeSignature():
                 return self._time_signature.copy()
-            case Part():            return Part(self._time_signature, self._base_container)
-            case Song():            return Song(self._time_signature, self._base_container)
+            case Part():            return Part(self._time_signature, self._dev_base_container())
+            case Song():            return Song(self._time_signature, self._dev_base_container())
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._unmasked_items():
@@ -2728,7 +2728,7 @@ class Clip(Composition):  # Just a container of Elements
             single_playlist
                 for single_element in self._dev_base_container()._items
                     for single_playlist in single_element.getPlotlist(
-                        self._base_container._midi_track, position_beats, channels, masked_element_ids
+                        self._dev_base_container()._midi_track, position_beats, channels, masked_element_ids
                     )
         )
         # sorted(set) returns the sorted list from set
@@ -2762,13 +2762,13 @@ class Clip(Composition):  # Just a container of Elements
 
         self_playlist: list[dict] = [
             {
-                "devices": self._base_container._midi_track._devices
+                "devices": self._dev_base_container()._midi_track._devices
             }
         ]
     
         for single_element in self._dev_base_container()._items:
             self_playlist.extend(
-                single_element.getPlaylist(self._base_container._midi_track, position_beats, False)
+                single_element.getPlaylist(self._dev_base_container()._midi_track, position_beats, False)
             )
         return self_playlist
 
@@ -2942,8 +2942,8 @@ class Clip(Composition):  # Just a container of Elements
                     item << operand
 
         # Makes sure non Operand mask data is transferred to the existing base
-        self._base_container._midi_track        = self._midi_track
-        self._base_container._time_signature    = self._time_signature
+        self._dev_base_container()._midi_track        = self._midi_track
+        self._dev_base_container()._time_signature    = self._time_signature
         return self._sort_items()
 
     # Works as a Clip transformer
@@ -3047,7 +3047,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                operand_base: Clip = operand_copy._base_container
+                operand_base: Clip = operand_copy._dev_base_container()
                 operand_position: ra.Position = operand_base.start()
 
                 if operand_position is not None:
@@ -3092,14 +3092,14 @@ class Clip(Composition):  # Just a container of Elements
 
             case list():
                 segments_list: list[og.Segment] = [
-                    og.Segment(self._base_container, single_segment) for single_segment in operand
+                    og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
                 ]
                 base_elements: list[oe.Element] = []
                 mask_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
                     # Preserves masked elements by id in base and mask containers
                     self_segment: Clip = self.copy().filter(source_segment)
-                    self_segment._base_container << ra.Measure(target_measure)   # Stacked by measure *
+                    self_segment._dev_base_container() << ra.Measure(target_measure)   # Stacked by measure *
                     base_elements.extend(self_segment._dev_base_container()._items)
                     mask_elements.extend(self_segment._items)
                 self._delete()
@@ -3123,7 +3123,7 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                operand: Clip = operand._base_container
+                operand: Clip = operand._dev_base_container()
                 left_end_position: ra.Position = self.finish()
                 if left_end_position is None:
                     left_end_position = ra.Position(self)
@@ -3162,7 +3162,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case list():
                 segments_list: list[og.Segment] = [
-                    og.Segment(self._base_container, single_segment) for single_segment in operand
+                    og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
                 ]
                 clip_segments: Clip = Clip()
                 for single_segment in segments_list:
@@ -3185,8 +3185,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 # Preserves the Structure (Locus), Wraps the content (Element)
-                self_base: Clip = self._base_container
-                operand_base: Clip = operand._base_container
+                self_base: Clip = self._dev_base_container()
+                operand_base: Clip = operand._dev_base_container()
                 for existent_element, new_element in zip(self_base, operand_base):
                     element_locus: og.Locus = existent_element % og.Locus()
                     self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
@@ -3258,21 +3258,21 @@ class Clip(Composition):  # Just a container of Elements
                 
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Preserves the Structure (Locus), Wraps the content (Element)
-                    self_base: Clip = self._base_container
+                    self_base: Clip = self._dev_base_container()
                     for existent_element, new_element in zip(self_base, operand):
                         element_locus: og.Locus = existent_element % og.Locus()
                         self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
 
                 else:
                     segments_list: list[og.Segment] = [
-                        og.Segment(self._base_container, single_segment) for single_segment in operand
+                        og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
                     ]
                     base_elements: list[oe.Element] = []
                     mask_elements: list[oe.Element] = []
                     for _, source_segment in enumerate(segments_list):
                         # Preserves masked elements by id in base and mask containers
                         self_segment: Clip = self.copy().filter(source_segment)
-                        self_segment._base_container << ra.Measure(0)   # Side by Side
+                        self_segment._dev_base_container() << ra.Measure(0)   # Side by Side
                         base_elements.extend(self_segment._dev_base_container()._items)
                         mask_elements.extend(self_segment._items)
                     self._delete()
@@ -3302,8 +3302,8 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         empty_copy: Clip                = super().empty_copy()
-        empty_base: Clip                = empty_copy._base_container
-        self_base: Clip                 = self._base_container
+        empty_base: Clip                = empty_copy._dev_base_container()
+        self_base: Clip                 = self._dev_base_container()
         empty_base._time_signature      << self_base._time_signature
         empty_base._midi_track          << self_base._midi_track
         empty_base._length_beats        = self_base._length_beats
@@ -3325,7 +3325,7 @@ class Clip(Composition):  # Just a container of Elements
         shallow_copy: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         shallow_copy._time_signature    << self._time_signature   
-        shallow_copy._base_container._midi_track        << self._base_container._midi_track
+        shallow_copy._dev_base_container()._midi_track        << self._base_container._midi_track
         shallow_copy._base_container._length_beats      = self._base_container._length_beats
         for single_parameter in parameters: # Parameters should be set on the base container
             shallow_copy._base_container << single_parameter
