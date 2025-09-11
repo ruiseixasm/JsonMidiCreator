@@ -3105,7 +3105,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -3169,7 +3169,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
 
@@ -3198,7 +3198,7 @@ class Clip(Composition):  # Just a container of Elements
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
-                    for first_element in self._items:
+                    for first_element in self._unmasked_items():
                         first_element._duration_beats /= total_segments
                         first_element_duration: Fraction = first_element._duration_beats
                         for next_element_i in range(1, total_segments):
@@ -3209,7 +3209,7 @@ class Clip(Composition):  # Just a container of Elements
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             case ra.Duration() | ra.TimeValue():    # Single point split if Duration
                 new_elements: list[oe.Element] = []
-                for first_element in self._items:
+                for first_element in self._unmasked_items():
                     group_length: Fraction = first_element._duration_beats
                     segment_duration: Fraction = ra.Duration(self, operand)._rational
                     if segment_duration < group_length:
@@ -3229,7 +3229,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []
-                for existent_element in self._items:
+                for existent_element in self._unmasked_items():
                     existent_start: Fraction = existent_element._position_beats
                     operand_position = ra.Position(self._time_signature, existent_start)
                     operand_position <<= operand    # Strict operand positioning (<<=)
@@ -3268,8 +3268,8 @@ class Clip(Composition):  # Just a container of Elements
                         base_elements.extend(self_segment._dev_base_container()._items)
                         mask_elements.extend(self_segment._items)
                     self._delete()
+                    self._extend(mask_elements)
                     self._dev_base_container()._items = base_elements
-                    self._items = mask_elements
                     self._set_owner_clip()
 
             case tuple():
@@ -3278,7 +3278,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
