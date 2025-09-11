@@ -293,12 +293,30 @@ class Container(o.Operand):
 
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
+        if AS_MASK_LIST:
+            return self._replace_developing(old_item, new_item)
+        return self._replace_original(old_item, new_item)
+
+    def _replace_original(self, old_item: Any = None, new_item: Any = None) -> Self:
         if self is not self._base_container:
             self._base_container._replace(old_item, new_item)
         for index, item in enumerate(self._items):
             if old_item is item:
                 self._items[index] = new_item
+                break   # There is no repeated items
         return self
+
+    def _replace_developing(self, old_item: Any = None, new_item: Any = None) -> Self:
+        for index, item in enumerate(self._items):
+            if old_item is item:
+                self._items[index] = new_item
+                break   # There is no repeated items
+        for index, item in enumerate(self._mask_items):
+            if old_item is item:
+                self._mask_items[index] = new_item
+                break   # There is no repeated items
+        return self
+
 
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
         if self is not self._base_container:
