@@ -614,19 +614,19 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self -= single_operand
             case int(): # repeat n times the last argument if any
-                if len(self._items) > 0:
-                    while operand > 0 and len(self._items) > 0:
-                        self._delete([ self._items.pop() ], True)
+                if len(self._unmasked_items()) > 0:
+                    while operand > 0 and len(self._unmasked_items()) > 0:
+                        self._delete([ self._unmasked_items().pop() ], True)
                         operand -= 1
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item -= operand
             case _:
                 return self._delete([ operand ])
         return self
 
-    # multiply with a scalar 
+    # multiply with a scalar
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Container():
@@ -643,12 +643,8 @@ class Container(o.Operand):
                             self.deep_copy( data ) for data in items_copy
                         ]
                         self._extend(new_items)  # Propagates upwards in the stack
-                        # self._items.extend(
-                        #     self.deep_copy( data ) for data in items_copy
-                        # )
                         operand -= 1
                     self._extend(items_copy)  # Propagates upwards in the stack
-                    # self._items.extend( items_copy )
                 elif operand == 0:
                     self._delete()
             case ch.Chaos():
@@ -659,7 +655,7 @@ class Container(o.Operand):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__imul__(operand)
         return self
     
@@ -687,7 +683,7 @@ class Container(o.Operand):
             case _:
                 if isinstance(operand, of.Frame):
                     operand._set_inside_container(self)
-                for item in self._items:
+                for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self
 
@@ -737,7 +733,18 @@ class Container(o.Operand):
         return self >> input
 
     def clear(self, *parameters) -> Self:
-        self._delete(self._items, True)
+        """
+        Clears all the given items in the present container and propagates the deletion
+        of the same items for the containers above.
+
+        Args:
+            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Container: Returns an empty self but with all the rest parameters untouched except the ones
+            changed by the imputed Args.
+        """
+        self._delete(self._unmasked_items(), True)
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
@@ -749,10 +756,10 @@ class Container(o.Operand):
             *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
 
         Returns:
-            Clip: Returns an empty self but with all the rest parameters untouched except the ones
+            Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self._items, True)
+        self._delete(self._unmasked_items(), True)
         for single_parameter in parameters:
             self << single_parameter
         return self
