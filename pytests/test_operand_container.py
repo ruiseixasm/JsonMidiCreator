@@ -328,6 +328,14 @@ def test_rshift_container():
     assert part_song[3] % Position() == Measures(6) + Beats(0)
     assert part_song._test_owner_song()
 
+
+    all_chords = Chord(1/4) / 7 << Size("7th")
+    first_chords = all_chords >> Beat(0)
+    assert first_chords[0].access(Pitch()).pitch_int() == 60
+    first_chords << Degree(5) << Mode(5)
+    assert first_chords[0].access(Pitch()).pitch_int() == 67
+
+
 # test_rshift_container()
 
 
