@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = False
+AS_MASK_LIST: bool = True
 
 
 
@@ -822,6 +822,7 @@ class Container(o.Operand):
             Container: Returns the copy of self but with an empty list of items.
         """
         new_container: Container = self.__class__()
+        new_container._masked = self._masked
         return new_container << parameters
 
 
