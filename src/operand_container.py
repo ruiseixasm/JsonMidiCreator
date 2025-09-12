@@ -1157,8 +1157,12 @@ class Container(o.Operand):
             return self
         return self._base_container
     
-
     def filter(self, *conditions) -> Self:
+        if AS_MASK_LIST:
+            return self.filter_developing(*conditions)
+        return self.filter_original(*conditions)
+
+    def filter_original(self, *conditions) -> Self:
         """
         A `Filter` works exactly like a `Mask` with the difference of keeping just \
             the matching items and deleting everything else.
@@ -1183,6 +1187,35 @@ class Container(o.Operand):
                     single_condition._set_inside_container(self._dev_base_container())
                 deletable_item_ids.update(
                     id(item) for item in self._dev_base_container()._items
+                    if not item == single_condition
+                )
+        return self._delete_by_ids(deletable_item_ids)
+
+    def filter_developing(self, *conditions) -> Self:
+        """
+        A `Filter` works exactly like a `Mask` with the difference of keeping just \
+            the matching items and deleting everything else.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an `And` alike fashion.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        deletable_item_ids: set = set()
+        # And type of conditions, not meeting any means excluded
+        for single_condition in conditions:
+            if isinstance(single_condition, Container):
+                deletable_item_ids.update(
+                    id(item) for item in self._items
+                    if not any(item == cond_item for cond_item in single_condition._items)
+                )
+            else:
+                if isinstance(single_condition, of.Frame):
+                    single_condition._set_inside_container(self)
+                deletable_item_ids.update(
+                    id(item) for item in self._items
                     if not item == single_condition
                 )
         return self._delete_by_ids(deletable_item_ids)
