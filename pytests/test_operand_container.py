@@ -330,11 +330,21 @@ def test_rshift_container():
 
 
     all_chords = Chord(1/4) / 7 << Size("7th")
+    assert not all_chords.is_masked()
+    assert all_chords[0].access(Pitch()).pitch_int() == 60
     first_chords = all_chords >> Beat(0)
+    # assert not first_chords.is_masked()
+    assert all_chords._test_owner_clip()
+    assert first_chords._test_owner_clip()
+    assert first_chords is not all_chords
     assert first_chords[0].access(Pitch()).pitch_int() == 60
     first_chords << Degree(5) << Mode(5)
+    assert first_chords is not all_chords
+    assert all_chords._test_owner_clip()
+    assert first_chords._test_owner_clip()
+    # assert first_chords[0] is not all_chords[0]
     assert first_chords[0].access(Pitch()).pitch_int() == 67
-
+    # assert all_chords[0].access(Pitch()).pitch_int() == 60
 
 # test_rshift_container()
 

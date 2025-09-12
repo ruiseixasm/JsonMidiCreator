@@ -393,10 +393,10 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.15.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15.2_sequence.json")
 start_time = time.time()
-all_chords = (Chord(1/4) / 7 << Size("7th"))
-first_chords = all_chords >> Beat(0)
+all_chords = Chord(1/4) / 7 << Size("7th")
+first_chords = all_chords >> Beat(0)    # Does a copy resulting in a mask
 first_chords << Degree(5) << Mode(5)
-all_chords >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
+first_chords >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.15.2_first_note_compare.json") >> Export("json/testing/_Export_Play_p.15.2_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -409,9 +409,9 @@ original_save       = Load("json/testing/_Save_Play_p.15.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15.3_sequence.json")
 start_time = time.time()
 first_chords << Degree() << Mode()
-even_chords = all_chords >> Even()**Operand()
+even_chords = all_chords >> Even()**Operand()   # Does a copy resulting in a mask
 even_chords << Degree(5) << Mode(5)
-all_chords >> og.LeftShift(result_save) >> og.LeftShift(result_export)
+even_chords >> og.LeftShift(result_save) >> og.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 6.4",
