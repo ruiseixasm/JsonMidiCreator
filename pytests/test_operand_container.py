@@ -1102,8 +1102,9 @@ def test_process_mask():
     native_clip: Clip = Note() // 4
     copy_clip: Clip = native_clip >> Stack()
     assert copy_clip != native_clip
-    masked_native_clip: Clip = native_clip.mask()
+    masked_native_clip: Clip = native_clip.mask(All())
     assert masked_native_clip.is_masked()
+    # masked_native_clip is native_clip
     assert masked_native_clip == native_clip
     # A >> from a Mask shall not result in a copy!
     same_mask: Clip = masked_native_clip >> Stack()
@@ -1115,6 +1116,7 @@ def test_process_mask():
     long_clip: Clip = Note() / 16
     print(f"long_clip.len: {long_clip.len()}")
     assert long_clip.len() == 16
+    # long_mask is still long_clip
     long_mask: Clip = long_clip.mask(Last())
     print(f"long_mask.len: {long_mask.len()}")
     assert long_mask.len() == 1

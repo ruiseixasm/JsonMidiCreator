@@ -1121,7 +1121,7 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        self._masked = True
+        self._masked = False    # Has to apply to the entire content
         if conditions:
             excluded_item_ids: set = set()
             # And type of conditions, not meeting any means excluded
@@ -1142,6 +1142,7 @@ class Container(o.Operand):
                 unmasked_item for unmasked_item in self._items
                 if id(unmasked_item) not in excluded_item_ids
             ]
+        self._masked = True
         return self
 
     def unmask(self) -> Self:
