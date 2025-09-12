@@ -1152,8 +1152,10 @@ class Container(o.Operand):
         return self
 
     def unmask(self) -> Self:
-        self._masked = False
-        return self
+        if AS_MASK_LIST:
+            self._masked = False
+            return self
+        return self._base_container
     
 
     def filter(self, *conditions) -> Self:

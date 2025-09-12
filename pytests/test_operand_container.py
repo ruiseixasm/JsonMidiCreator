@@ -1207,7 +1207,8 @@ def test_mul_list():
     print(f'new_clip[1] % Velocity(): {new_clip[1] % Velocity() % int()}')
     assert new_clip[0] % Velocity() % int() == 100 - 8 + 1
     assert new_clip[1] % Velocity() % int() == 100 - 4 + 1
-
+    same_as_new_clip = new_clip.unmask()
+    assert same_as_new_clip.len() == 4 * 2
 
 # test_floor_div()
 
