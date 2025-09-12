@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = False
+AS_MASK_LIST: bool = True
 
 
 
@@ -91,6 +91,11 @@ class Container(o.Operand):
                 self._mask_items.append(item)
         return self
 
+
+    def _all_items(self) -> list:
+        if AS_MASK_LIST:
+            return self._items
+        return self._base_container._items
 
     def _unmasked_items(self) -> list:
         if AS_MASK_LIST and self._masked:
@@ -1482,6 +1487,10 @@ class Composition(Container):
                 return self.duration()
             case og.TimeSignature():
                 return self._time_signature % operand
+            case bool():
+                if AS_MASK_LIST:
+                    return self._masked
+                return not self.is_masked()
             case int():
                 if self._dev_base_container()._items:
                     last_element_position: ra.Position = self._dev_base_container()._last_element_position()

@@ -1848,7 +1848,8 @@ class KeyScale(Note):
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
-        self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
+        if self_plotlist:
+            self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.pitch_int()
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -2506,8 +2507,9 @@ class Tuplet(ChannelElement):
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
             # Makes sure the self is correctly set
-            self_plotlist[-1]["note"]["masked"] = id(self) in masked_element_ids
-            self_plotlist[-1]["note"]["self"] = self
+            if self_plotlist:
+                self_plotlist[-1]["note"]["masked"] = id(self) in masked_element_ids
+                self_plotlist[-1]["note"]["self"] = self
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
