@@ -1189,6 +1189,7 @@ def test_checksum():
 
 def test_mul_list():
     long_clip = Note(Velocity(100)) / 4 * 8 # 4 * 8 = 32
+    assert long_clip.len() == 4 * 8
     long_clip -= Iterate()**Velocity()
     assert long_clip[32 - 1] % Velocity() == 100 - 32 + 1
     assert long_clip[2*4 - 1] % Velocity() == 100 - 2*4 + 1
@@ -1198,6 +1199,15 @@ def test_mul_list():
     print(f'new_clip[8 - 1] % Velocity(): {new_clip[8 - 1] % Velocity() % int()}')
     assert new_clip[4 - 1] % Velocity() % int() == 100 - 8 + 1
     assert new_clip[8 - 1] % Velocity() % int() == 100 - 4 + 1
+
+    same_as_long_clip = long_clip.mask(Beat(3))
+    assert same_as_long_clip.len() == 1 * 8
+    new_clip = same_as_long_clip * [1, 0]   # Picks by Measure, where 0 is the first Measure
+    print(f'new_clip[0] % Velocity(): {new_clip[0] % Velocity() % int()}')
+    print(f'new_clip[1] % Velocity(): {new_clip[1] % Velocity() % int()}')
+    assert new_clip[0] % Velocity() % int() == 100 - 8 + 1
+    assert new_clip[1] % Velocity() % int() == 100 - 4 + 1
+
 
 # test_floor_div()
 
