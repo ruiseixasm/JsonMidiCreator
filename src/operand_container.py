@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = True
+AS_MASK_LIST: bool = False
 
 
 
