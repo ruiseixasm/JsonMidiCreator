@@ -130,12 +130,12 @@ class RS_Clip(RS_Solutions):
             if isinstance(composition, oc.Clip):
                 # Makes sure the ENTIRE composition is split first by the the given measures
                 if oc.AS_MASK_LIST:
-                    masked: bool = composition % bool()
+                    masked: bool = composition._masked
                     measure: ra.Measure = ra.Measure(0)
                     for _ in self._iterations:
                         measure += self._measures
                         composition //= measure
-                    composition << masked
+                    composition._masked = masked
                 else:
                     for index, _ in enumerate(self._iterations):
                         splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))

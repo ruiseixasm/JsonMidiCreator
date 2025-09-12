@@ -2935,6 +2935,9 @@ class Clip(Composition):  # Just a container of Elements
                     for item in self._unmasked_items():
                         item << operand
 
+            case bool():
+                self._masked = operand
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -4832,8 +4835,11 @@ class Part(Composition):
                     for item in self._unmasked_items():
                         item << operand
 
+            case bool():
+                self._masked = operand
             case str():
                 self._name = operand
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -5480,6 +5486,9 @@ class Song(Composition):
                 else:   # Not for me
                     for item in self._unmasked_items():
                         item << operand
+
+            case bool():
+                self._masked = operand
 
             case tuple():
                 for single_operand in operand:
