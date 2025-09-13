@@ -648,7 +648,7 @@ class Key(PitchParameter):
         other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
-                return self % int() == other % int()    # This get's in consideration the just final key pressed
+                return self % int() % 12 == other % int() % 12  # This get's in consideration the just final key pressed
             case str():
                 return self % str() == other
             case _:
