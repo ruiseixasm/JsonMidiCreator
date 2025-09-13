@@ -714,12 +714,7 @@ class Pitch(Generic):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             case ou.Key():
-                self_pitch: int = self.pitch_int()
-                key_note: int = self_pitch % 12
-                key_line: int = self._tonic_key // 12
-                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
-                    key_line += 2    # All Sharps/Flats
-                return ou.Key( float(key_note + key_line * 12) )
+                return ou.Key( self % ou.TargetKey() )
             
             case ou.Octave():
                 return ou.Octave(self._octave_0 - 1)
