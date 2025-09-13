@@ -80,7 +80,7 @@ def test_clock_div_floor():
 def test_note_mod():
 
     # Perform the operation
-    note = Note("F")
+    note = Note(TonicKey("F"))
     assert note % Key() % str() == "F"
 
     settings << Tempo(110)
@@ -528,7 +528,7 @@ def test_note_pitch():
     note_copy_2 += Degree(2)
     print(f"Key: {(note_copy_2) % str()}, \
             tone: {(note_copy_2) % Pitch() % int()}, degree: {(note_copy_2) % Degree() % int()}")
-    assert note + Degree(2) == Note("E")    # C - D - E
+    assert note + Degree(2) == Note(TonicKey("E"))    # C - D - E
 
     
     note.clear()    # Becomes like a new note
@@ -595,7 +595,7 @@ def test_chord_element():
 
     # WITH ROOT NOTE
     print("------")
-    triad << Degree("I") << "D" << Scale("Major")
+    triad << Degree("I") << TonicKey("D") << Scale("Major")
     assert Note(triad) % str() == "D"
     triad_notes = triad.get_component_elements()
     #                      +4   +3

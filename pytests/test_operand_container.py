@@ -256,7 +256,7 @@ def test_rshift_container():
     note_clip = Clip(Note())
     assert note_clip[0] % Position() == 0.0
 
-    note_clip *= Note("E")
+    note_clip *= Note(TonicKey("E"))
     assert note_clip[0] != "E"
     assert note_clip[1] == "E"
     assert note_clip[1] % Position() == Measures(1)
@@ -267,7 +267,7 @@ def test_rshift_container():
 
     # Part testing ###################################################
     # Beat sets Position while Beats set Duration
-    note_clip = Clip(Note(), Note("E")) << Iterate()**Beat() # A single Measure clip long!
+    note_clip = Clip(Note(), Note(TonicKey("E"))) << Iterate()**Beat() # A single Measure clip long!
     note_clip % Length() % float() >> Pr
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
@@ -287,7 +287,7 @@ def test_rshift_container():
     assert new_song[0] % Position() == Measures(0) + Beats(0)
     assert new_song[1] % Position() == Measures(2) + Beats(0)
 
-    elements_part = Part(Note(), Note("A"))
+    elements_part = Part(Note(), Note(TonicKey("A")))
     assert elements_part.len() == 2
     assert elements_part[0][0] == "C"
     assert elements_part[1][0] == "A"
