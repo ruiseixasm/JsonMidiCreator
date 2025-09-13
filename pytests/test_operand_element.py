@@ -293,33 +293,37 @@ def test_chord_mod():
 
     triad_c_major: Chord = Chord()  # C Major scale
     three_notes: list[Note] = triad_c_major.get_component_elements()
-    assert three_notes[0] == "C"
-    assert three_notes[1] == "E"
-    assert three_notes[2] == "G"
+    print(f"Key: {three_notes[0] % TargetKey() % str()}")
+    assert three_notes[0] % TargetKey() == "C"
+    print(f"Key: {three_notes[1] % TargetKey() % str()}")
+    assert three_notes[1] % TargetKey() == "E"
+    print(f"Key: {three_notes[2] % TargetKey() % str()}")
+    assert three_notes[2] % TargetKey() == "G"
 
     settings << KeySignature(1, Minor())    # E minor scale
     triad_e_minor: Chord = Chord("minor")
     settings << KeySignature()
 
     three_notes = triad_e_minor.get_component_elements()
-    print(f"Key: {three_notes[0] % str()}")
-    assert three_notes[0] == "E"
-    print(f"Key: {three_notes[1] % str()}")
-    assert three_notes[1] == "G"
-    print(f"Key: {three_notes[2] % str()}")
-    assert three_notes[2] == "B"
+    print(f"Key: {three_notes[0] % TargetKey() % str()}")
+    assert three_notes[0] % TargetKey() == "E"
+    print(f"Key: {three_notes[1] % TargetKey() % str()}")
+    assert three_notes[1] % TargetKey() == "G"
+    print(f"Key: {three_notes[2] % TargetKey() % str()}")
+    assert three_notes[2] % TargetKey() == "B"
 
     print("------")
     settings << KeySignature(1, Minor())    # E minor scale
     triad_e_minor: Chord = Chord()
+    settings << KeySignature() # Resets the default Key Scale to C Major being used by the triad (unowned by any clip)
 
     three_notes = triad_e_minor.get_component_elements()
-    print(f"Key: {three_notes[0] % str()}")
-    assert three_notes[0] == "E"
-    print(f"Key: {three_notes[1] % str()}")
-    assert three_notes[1] == "G"
-    print(f"Key: {three_notes[2] % str()}")
-    assert three_notes[2] == "B"
+    print(f"Key: {three_notes[0] % TargetKey() % str()}")
+    assert three_notes[0] % TargetKey() == "E"
+    print(f"Key: {three_notes[1] % TargetKey() % str()}")
+    assert three_notes[1] % TargetKey() == "G"
+    print(f"Key: {three_notes[2] % TargetKey() % str()}")
+    assert three_notes[2] % TargetKey() == "B"
 
     # KeySignature is also a Pitch parameter, NOT just a settings one!
     settings << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
@@ -329,12 +333,12 @@ def test_chord_mod():
     triad << KeySignature()
     print("------")
     three_notes = triad.get_component_elements()
-    print(f"Key: {three_notes[0] % str()}")
-    assert three_notes[0] == "E"
-    print(f"Key: {three_notes[1] % str()}")
-    assert three_notes[1] == "G#"   # Because defaults Chord is now using the E Major scale
-    print(f"Key: {three_notes[2] % str()}")
-    assert three_notes[2] == "B"
+    print(f"Key: {three_notes[0] % TargetKey() % str()}")
+    assert three_notes[0] % TargetKey() == "E"
+    print(f"Key: {three_notes[1] % TargetKey() % str()}")
+    assert three_notes[1] % TargetKey() == "G#"   # Because defaults Chord is now using the E Major scale
+    print(f"Key: {three_notes[2] % TargetKey() % str()}")
+    assert three_notes[2] % TargetKey() == "B"
 
 # test_chord_mod()
 
