@@ -712,7 +712,7 @@ class Pitch(Generic):
                 key_line: int = self._tonic_key // 12
                 if self._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
-                return ou.Key( float(key_note + key_line * 12) )
+                return ou.TargetKey( float(key_note + key_line * 12) )
             case ou.Key():
                 return ou.Key( self % ou.TargetKey() )
             
