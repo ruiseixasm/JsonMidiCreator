@@ -426,7 +426,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case od.Pipe():
                 match operand._data:
                     case int():     self._unit      = operand._data
-                    # case Major():   self._major     = operand._data.__mod__(od.Pipe( bool() ))
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
             case float():   self._mode_0 = int(operand - 1)
@@ -780,6 +779,8 @@ class Degree(PitchParameter):
             return self % float() == other % float()
         if isinstance(other, od.Conditional):
             return other == self
+        if isinstance(other, str):
+            return (self % other).lower() == other.strip().lower()
         return self % other == other
     
     def __lt__(self, other: any) -> bool:
