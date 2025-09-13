@@ -642,8 +642,8 @@ def test_set_chromatic_pitch():
 
     settings << KeySignature()
 
-    pitch_ab = Pitch(TonicKey("Ab"))
-    pitch_a = Pitch(TonicKey("A"))
+    pitch_ab = Pitch("Ab")
+    pitch_a = Pitch("A")
 
     print(f"Ab scale, octave: {pitch_ab % (list(), (Octave(), int()))}")
     print(f"A scale, octave: {pitch_a % (list(), (Octave(), int()))}")
@@ -725,11 +725,11 @@ def test_pitch_add():
     pitch_b += Semitone(12)
     assert pitch_b % int() == 74
 
-    pitch_1: Pitch = Pitch(TonicKey("A"))
+    pitch_1: Pitch = Pitch("A")
     pitch_1.getSerialization() % Data("degree") >> Print()
     (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
-    assert pitch_1 + 1.0    == Pitch(TonicKey("B"))
-    assert pitch_1 + 2      == Pitch(TonicKey("B"))
+    assert pitch_1 + 1.0    == Pitch("B")
+    assert pitch_1 + 2      == Pitch("B")
 
     settings << KeySignature(1)
     pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
@@ -739,15 +739,15 @@ def test_pitch_add():
             f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
     assert (pitch_2 + 2.0) % Octave() == 5
     pitch_2 % int() >> Print()
-    assert pitch_2 % int() == Pitch(TonicKey("B")) % int()
+    assert pitch_2 % int() == Pitch("B") % int()
     (pitch_2 + 2.0) % int() >> Print()        # 74
-    (Pitch(TonicKey("D")) + 12) % int() >> Print()    # 74
-    assert pitch_2 + 2.0 == Pitch(TonicKey("D")) + 12 # Next octave
+    (Pitch("D") + 12) % int() >> Print()    # 74
+    assert pitch_2 + 2.0 == Pitch("D") + 12 # Next octave
 
     settings << KeySignature()
-    assert pitch_1 << Sharp() == Pitch(TonicKey("A")) + 1
-    assert pitch_1 << Natural() == Pitch(TonicKey("A"))
-    assert Pitch(TonicKey("Ab")) == Pitch(TonicKey("A")) - 1
+    assert pitch_1 << Sharp() == Pitch("A") + 1
+    assert pitch_1 << Natural() == Pitch("A")
+    assert Pitch("Ab") == Pitch("A") - 1
 
     pitch_3: Pitch = Pitch()
     assert pitch_3 % str() == "C"
@@ -905,7 +905,7 @@ def test_staff_output():
 
 
 def test_scale_transposition():
-    pitch_f_major: Pitch = Pitch(TonicKey("F"), Scale("Major"))
+    pitch_f_major: Pitch = Pitch("F", Scale("Major"))
 
     assert pitch_f_major % str() == "F"
     assert pitch_f_major % Scale() % str() == "Major"
@@ -1012,17 +1012,4 @@ def test_time_signature():
 
     default_ts << BeatsPerMeasure(3)
     assert default_ts.copy() == default_ts
-
-
-def test_key_setting():
-    
-    assert Pitch() % Degree() % int() == 1
-
-    assert Pitch(TargetKey("A")) % TonicKey() % int() == 0
-    assert Pitch(TargetKey("A")) % Degree() % int() == 6
-    assert Pitch(TargetKey("A")) % float() == 6.0
-    assert Pitch(TargetKey("Ab")) % float() == 6.1
-    assert Pitch("A") % Degree() % int() == 6
-    assert Pitch("A") % TonicKey() % int() == 0
-
 
