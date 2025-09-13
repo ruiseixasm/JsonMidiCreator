@@ -537,7 +537,7 @@ class Pitch(Generic):
         scale_transposition: int = self.scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + scale_transposition
 
-    def chromatic_int(self) -> int:
+    def chromatic_target_int(self) -> int:
         """
         The configured Degree chromatic transposition in the float number.
         """
@@ -551,7 +551,7 @@ class Pitch(Generic):
         """
         The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
         """
-        chromatic_int: int = self.chromatic_int()
+        chromatic_int: int = self.chromatic_target_int()
         octave_transposition: int = self.octave_transposition()
         return chromatic_int + octave_transposition
 
@@ -705,10 +705,15 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
-                return ou.RootKey( self.root_key() )
+                root_pitch: int = self.chromatic_root_int()
+                key_note: int = root_pitch % 12
+                key_line: int = self._tonic_key // 12
+                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
+                    key_line += 2    # All Sharps/Flats
+                return ou.RootKey( float(key_note + key_line * 12) )
             case ou.TargetKey():
-                self_pitch: int = self.scale_int() + self.degree_accidentals()
-                key_note: int = self_pitch % 12
+                target_pitch: int = self.chromatic_target_int()
+                key_note: int = target_pitch % 12
                 key_line: int = self._tonic_key // 12
                 if self._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
