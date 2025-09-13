@@ -1219,4 +1219,13 @@ def test_floordiv_clip():
     assert just_notes != just_rests
 
     just_rests //= Note()
+    assert just_notes == just_rests
+
+    just_rests = Rest(1/2) / 2
+    assert just_notes != just_rests
+    assert just_notes[0] == Note()
+    assert just_rests[0] == Rest(1/2)
+
+    just_rests //= just_notes
+    assert just_rests[0] == Note(1/2)
 
