@@ -707,7 +707,7 @@ class Pitch(Generic):
             case ou.RootKey():
                 return ou.RootKey( self.root_key() )
             case ou.TargetKey():
-                self_pitch: int = self.pitch_int()
+                self_pitch: int = self.scale_int() + self.degree_accidentals()
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 if self._key_signature.is_enharmonic(self._tonic_key, key_note):
