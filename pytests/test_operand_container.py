@@ -1212,3 +1212,11 @@ def test_mul_list():
 
 # test_floor_div()
 
+
+def test_floordiv_clip():
+    just_notes = Note() / 4
+    just_rests = Rest() / 4
+    assert just_notes != just_rests
+
+    just_rests //= Note()
+

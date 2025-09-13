@@ -746,6 +746,9 @@ class Unison(Element):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._elements == other._elements
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -1049,6 +1052,9 @@ class Clock(DeviceElement):
                     and self._devices == other._devices \
                     and self._clock_ppqn == other._clock_ppqn \
                     and self._clock_stop_mode == other._clock_stop_mode
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -1296,6 +1302,9 @@ class ChannelElement(DeviceElement):
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats \
                     and self._channel_0 == other._channel_0
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
 
@@ -1429,6 +1438,9 @@ class Note(ChannelElement):
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
                     and self._pitch     == other._pitch
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case int():
                 return self._pitch.pitch_int() == other
             case _:
@@ -1804,6 +1816,9 @@ class KeyScale(Note):
                     and self._pitch._scale  == other._pitch._scale \
                     and self._inversion     == other._inversion \
                     and self._arpeggio      == other._arpeggio
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
             
@@ -1942,6 +1957,9 @@ class Cluster(KeyScale):
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._offsets == other._offsets
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -2094,6 +2112,9 @@ class Chord(KeyScale):
                     and self._augmented     == other._augmented \
                     and self._sus2          == other._sus2 \
                     and self._sus4          == other._sus4
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -2481,6 +2502,9 @@ class Tuplet(ChannelElement):
                 return super().__eq__(other) \
                     and self._swing     == other._swing \
                     and self._elements  == other._elements
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -2630,6 +2654,9 @@ class Automation(ChannelElement):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._value == other._value
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
 
@@ -2815,6 +2842,9 @@ class ControlChange(Automation):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._controller == other._controller
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
 
@@ -3383,6 +3413,9 @@ class PitchBend(Automation):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._lsb == other._lsb
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
 
@@ -3548,6 +3581,9 @@ class Aftertouch(Automation):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._value == other._value
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -3711,6 +3747,9 @@ class PolyAftertouch(Aftertouch):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._pitch == other._pitch
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     
@@ -3836,6 +3875,9 @@ class ProgramChange(ChannelElement):
                 return super().__eq__(other) \
                     and self._program_0 == other._program_0 \
                     and self._bank == other._bank and self._high == other._high
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
     

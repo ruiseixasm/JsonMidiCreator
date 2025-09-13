@@ -3303,7 +3303,11 @@ class Clip(Composition):  # Just a container of Elements
                     self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
 
             case oe.Element():
-                self.__ifloordiv__(Clip(operand._time_signature, operand))
+                # Preserves the Structure (Locus), Wraps the content (Element)
+                self_base: Clip = self._dev_base_container()
+                for existent_element in self_base:
+                    element_locus: og.Locus = existent_element % og.Locus()
+                    self._replace(existent_element, operand.copy(element_locus)._set_owner_clip(self))
 
             case int():
                 if operand > 1:
