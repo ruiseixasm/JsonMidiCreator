@@ -719,7 +719,7 @@ class Pitch(Generic):
                     key_line += 2    # All Sharps/Flats
                 return ou.TargetKey( float(key_note + key_line * 12) )
             case ou.Key():
-                return ou.Key( self % ou.TargetKey() )
+                return ou.Key( self % ou.RootKey() )
             
             case ou.Octave():
                 return ou.Octave(self._octave_0 - 1)
@@ -994,7 +994,7 @@ class Pitch(Generic):
                 self.match_octave()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
-            case ou.Transposition():
+            case ou.Transposition() | ou.Tones():
                 self._transposition += operand._unit
                 self.match_octave()
             case ou.Key():
@@ -1025,7 +1025,7 @@ class Pitch(Generic):
                 self.match_octave()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() - operand
-            case ou.Transposition():
+            case ou.Transposition() | ou.Tones():
                 self._transposition -= operand._unit
                 self.match_octave()
             case ou.Key():
