@@ -3296,16 +3296,13 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 # Preserves the Structure (Locus), Wraps the content (Element)
-                self_base: Clip = self._dev_base_container()
-                operand_base: Clip = operand._dev_base_container()
-                for existent_element, new_element in zip(self_base, operand_base):
+                for existent_element, new_element in zip(self, operand):
                     element_locus: og.Locus = existent_element % og.Locus()
-                    self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
+                    self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self))
 
             case oe.Element():
                 # Preserves the Structure (Locus), Wraps the content (Element)
-                self_base: Clip = self._dev_base_container()
-                for existent_element in self_base:
+                for existent_element in self:
                     element_locus: og.Locus = existent_element % og.Locus()
                     self._replace(existent_element, operand.copy(element_locus)._set_owner_clip(self))
 
