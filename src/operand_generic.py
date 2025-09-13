@@ -689,13 +689,13 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 return ou.RootKey( self.root_key() )
-            case ou.Key():  # Includes TargetKey()
+            case ou.Key():
                 self_pitch: int = self.pitch_int()
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 if self._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
-                return operand.copy( float(key_note + key_line * 12) )
+                return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Octave():
                 return ou.Octave(self._octave_0 - 1)
@@ -871,7 +871,7 @@ class Pitch(Generic):
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Degree(degree)
-            case ou.Key():  # Includes TargetKey()
+            case ou.TargetKey():
                 degree: float = 0.0 # No linear accidentals
                 transposition, semitone = self.key_transposition_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -880,6 +880,8 @@ class Pitch(Generic):
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Transposition(transposition) << ou.Degree(degree)
+            case ou.Key():
+                self << ou.TargetKey(operand)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
