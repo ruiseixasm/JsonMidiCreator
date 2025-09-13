@@ -1013,3 +1013,17 @@ def test_time_signature():
     default_ts << BeatsPerMeasure(3)
     assert default_ts.copy() == default_ts
 
+
+def test_key_degrees():
+    pitch_key = Pitch(KeySignature("bbb"), None)
+
+    print(f"pitch_key % Key(): {pitch_key % Key() % str()}")
+    print(f"pitch_key % Degree(): {pitch_key % Degree() % str()}")
+
+    pitch_key << Key("Bb")
+    assert pitch_key % Degree() == "V"
+
+    pitch_key << Key("F")
+    assert pitch_key % Degree() == "ii"
+
+# test_key_degrees()
