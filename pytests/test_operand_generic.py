@@ -1019,6 +1019,7 @@ def test_key_degrees():
     pitch_key = Pitch(KeySignature("bbb"), None)
     print(f"pitch_key % Key(): {pitch_key % Key() % str()}")
     print(f"pitch_key % Degree(): {pitch_key % Degree() % str()}")
+    assert pitch_key % Key() == "Eb"
 
     pitch_key << Key("Bb")
     print(f"pitch_key % Key(): {pitch_key % Key() % str()}")
