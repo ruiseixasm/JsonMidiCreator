@@ -905,7 +905,7 @@ class Pitch(Generic):
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Transposition(transposition) << ou.Degree(degree)
             case ou.Key():
-                self << ou.TargetKey(operand)
+                self << ou.RootKey(operand)
 
             case ou.Degree():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
@@ -964,7 +964,7 @@ class Pitch(Generic):
                 # TO BE REVIEWED
                 # self << ou.Degree(ou.Sharp(max(0, self._sharp)) << string, ou.Flat(max(0, self._sharp * -1)) << string)
                 self << (self % ou.Degree() << string) # Safe, doesn't change the octave
-                self << (self % ou.RootKey() << string)    # Need to change this to just Key
+                self << (self % ou.Key() << string)    # Need to change this to just Key
                 self << Scale(od.Pipe(self._scale), operand)
             case tuple():
                 for single_operand in operand:
