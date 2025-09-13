@@ -56,7 +56,7 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = False
+AS_MASK_LIST: bool = True
 
 
 
@@ -3174,21 +3174,36 @@ class Clip(Composition):  # Just a container of Elements
                 self.__imul__(self_repeating)
 
             case list():
-                segments_list: list[og.Segment] = [
-                    og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
-                ]
-                base_elements: list[oe.Element] = []
-                mask_elements: list[oe.Element] = []
-                for target_measure, source_segment in enumerate(segments_list):
-                    # Preserves masked elements by id in base and mask containers
-                    self_segment: Clip = self.copy().filter(source_segment)
-                    self_segment._dev_base_container() << ra.Measure(target_measure)   # Stacked by measure *
-                    base_elements.extend(self_segment._dev_base_container()._items)
-                    mask_elements.extend(self_segment._items)
-                self._delete()
-                self._extend(mask_elements)
-                self._dev_base_container()._items = base_elements
-                self._set_owner_clip()
+                if AS_MASK_LIST:
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self._time_signature, single_segment) for single_segment in operand
+                    ]
+                    base_elements: list[oe.Element] = []
+                    mask_elements: list[oe.Element] = []
+                    for target_measure, source_segment in enumerate(segments_list):
+                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
+                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
+                        base_elements.extend(self_segment._items)
+                        mask_elements.extend(self_segment._mask_items)
+                    self._items = base_elements
+                    self._mask_items = mask_elements
+
+                else:
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
+                    ]
+                    base_elements: list[oe.Element] = []
+                    mask_elements: list[oe.Element] = []
+                    for target_measure, source_segment in enumerate(segments_list):
+                        # Preserves masked elements by id in base and mask containers
+                        self_segment: Clip = self.copy().filter(source_segment)
+                        self_segment._dev_base_container() << ra.Measure(target_measure)   # Stacked by measure *
+                        base_elements.extend(self_segment._dev_base_container()._items)
+                        mask_elements.extend(self_segment._items)
+                    self._delete()
+                    self._extend(mask_elements)
+                    self._dev_base_container()._items = base_elements
+                    self._set_owner_clip()
 
             case tuple():
                 for single_operand in operand:
