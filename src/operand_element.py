@@ -535,19 +535,17 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__itruediv__(operand)
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
-                for single_segment in segments_list:
-                    if self == single_segment:
-                        if self._owner_clip is not None:    # Owner clip is always the base container
-                            # Starts to cumulate as expected
-                            owner_clip_finish: ra.Position = self._owner_clip.mask(single_segment).finish()
-                            if owner_clip_finish is not None:
-                                self << owner_clip_finish
-                                return self._owner_clip._sort_items()
-                        return oc.Clip(self << ra.Position(Fraction(0)))
-                return oc.Clip()    # Empty Clip, self excluded
+                durations: list[ra.Duration] = o.list_wrap(operand, ra.Duration(self._get_time_signature()))
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    return oc.Clip(self)    # Empty Clip, self excluded
+                else:
+                    new_clip: oc.Clip = oc.Clip(self._time_signature)
+                    for single_duration in durations:
+                        if single_duration == Fraction(0):
+                            new_clip /= self
+                        else:
+                            new_clip /= self << single_duration
+                    return new_clip
 
             case _:
                 if operand != Fraction(0):
