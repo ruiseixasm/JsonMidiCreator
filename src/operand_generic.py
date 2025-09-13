@@ -689,6 +689,13 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 return ou.RootKey( self.root_key() )
+            case ou.TargetKey():
+                self_pitch: int = self.pitch_int()
+                key_note: int = self_pitch % 12
+                key_line: int = self._tonic_key // 12
+                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
+                    key_line += 2    # All Sharps/Flats
+                return ou.Key( float(key_note + key_line * 12) )
             case ou.Key():
                 self_pitch: int = self.pitch_int()
                 key_note: int = self_pitch % 12
@@ -940,7 +947,7 @@ class Pitch(Generic):
                 # TO BE REVIEWED
                 # self << ou.Degree(ou.Sharp(max(0, self._sharp)) << string, ou.Flat(max(0, self._sharp * -1)) << string)
                 self << (self % ou.Degree() << string) # Safe, doesn't change the octave
-                self << (self % ou.TonicKey() << string)
+                self << (self % ou.TonicKey() << string)    # Need to change this to just Key
                 self << Scale(od.Pipe(self._scale), operand)
             case tuple():
                 for single_operand in operand:
