@@ -495,7 +495,7 @@ def test_sub_clip():
     four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
     notes_to_remove: Clip = four_notes >> Nth(1, 3)
-    remaining_notes: Clip = four_notes >> Nth(2, 4)
+    remaining_notes: Clip = four_notes >> Filter(Nth(2, 4))
 
     assert notes_to_remove.len() < four_notes.len()
     assert notes_to_remove.len() == remaining_notes.len()
@@ -1228,4 +1228,8 @@ def test_floordiv_clip():
 
     just_rests //= just_notes
     assert just_rests[0] == Note(1/2)
+
+    just_rests = Rest(1/2) / 2
+    just_rests_mask = Rest(1/2) / 2 >> Beat(2)  # 3rd beat masked
+    assert just_rests_mask == just_rests
 

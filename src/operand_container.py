@@ -474,7 +474,7 @@ class Container(o.Operand):
     def __eq__(self, other: any) -> bool:
         match other:
             case Container():
-                return self._unmasked_items() == other._unmasked_items()
+                return self._all_items() == other._all_items()
             case od.Conditional():
                 return other == self
             case of.Frame():
@@ -1179,14 +1179,14 @@ class Container(o.Operand):
         for single_condition in conditions:
             if isinstance(single_condition, Container):
                 deletable_item_ids.update(
-                    id(item) for item in self._dev_base_container()._items
-                    if not any(item == cond_item for cond_item in single_condition._dev_base_container()._items)
+                    id(item) for item in self._base_container._items
+                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
                 )
             else:
                 if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self._dev_base_container())
+                    single_condition._set_inside_container(self._base_container)
                 deletable_item_ids.update(
-                    id(item) for item in self._dev_base_container()._items
+                    id(item) for item in self._base_container._items
                     if not item == single_condition
                 )
         return self._delete_by_ids(deletable_item_ids)

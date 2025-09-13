@@ -185,6 +185,10 @@ class Frame(o.Operand):
                     previous_frame = single_frame
         return self      
     
+    def copy(self, *parameters) -> Self:
+        # Frame class IS a Read-only class
+        return self
+
     def reset(self, *parameters) -> 'Frame':
         super().reset()
         self.deep_reset(self._named_parameters)
