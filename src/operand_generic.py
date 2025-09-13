@@ -511,6 +511,23 @@ class Pitch(Generic):
         root_key: int = root_int + self._tonic_key // 12 * 12  # key_line * total_keys
         return root_key
 
+    def chromatic_root_int(self) -> int:
+        """
+        Gets the root key int from the tonic_key with accidentals.
+        """
+        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
+        degree_accidentals_transposition: int = self.degree_transposition() + self.degree_accidentals()
+        return tonic_int + degree_accidentals_transposition
+
+    def chromatic_root_key(self) -> int:
+        """
+        root_key takes into consideration the tonic gross value above 11 and accidentals.
+        """
+        chromatic_root_int: int = self.chromatic_root_int()
+        chromatic_root_key: int = chromatic_root_int + self._tonic_key // 12 * 12  # key_line * total_keys
+        return chromatic_root_key
+
+
     def scale_int(self) -> int:
         """
         The target key int after all processing **excluding** accidentals.
