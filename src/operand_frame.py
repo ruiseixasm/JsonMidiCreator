@@ -806,7 +806,7 @@ class InputType(InputFilter):
         for operand_class in self._parameters:
             if isinstance(input, operand_class):
                 return super().__ixor__(input)
-        return super().__ixor__(ol.Null())
+        return ol.Null()
 
 
 class BasicComparison(InputFilter):

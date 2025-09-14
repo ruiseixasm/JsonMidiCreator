@@ -23,8 +23,16 @@ from JsonMidiCreator import *
 
 settings << KeySignature('bbb')
 
-theme_1 = Note(Key('Bb')) / [1/8, 0, 0, 0, 1/4, 0, 1/2, 0, 1/4, 0, 0, 0, 1/1]
+theme_1 = Note(Key('Bb')) / [1/8, 0, 0, 0, 1/4, 0, 1/2, 0, 1/4, 0, 0, 0, 1/1] << TrackName("Theme 1")
 theme_1[0] >>= Rest()
 theme_1[8] >>= Rest()
-theme_1 >> Plot()
+theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
+theme_1 >> Plot(block=False)
+
+theme_2 = Note(Key('F'), Octave(3)) / [1/2 * 3/2, 1/4, 1/2 * 3/2, 1/4, 1/2, 1/4, 0, 1/1] << TrackName("Theme 2")
+theme_2 += Foreach(0, -1, 0, 1, 2, 3, 1, 0)**Degree()
+theme_2 >> Plot(block=False)
+
+
+theme_1 + theme_2 << TrackName("Countersubject") >> Plot(block=True)
 
