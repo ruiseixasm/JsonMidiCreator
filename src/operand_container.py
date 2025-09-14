@@ -40,6 +40,7 @@ RESET = "\033[0m"
         
 try:
     # pip install matplotlib
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
     from matplotlib.backend_bases import MouseEvent
     from matplotlib.widgets import Button
@@ -2380,6 +2381,13 @@ class Composition(Container):
 
         # Where the window title is set too
         self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
+        # Replace handler
+        try:
+            # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
+            mpl.rcParams['keymap.back'].remove('left')
+            mpl.rcParams['keymap.forward'].remove('right')
+        except Exception as e:
+            print(f"Unable to disable default keys!")
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
