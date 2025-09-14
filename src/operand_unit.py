@@ -906,10 +906,9 @@ class Degree(PitchParameter):
                 degree: int = self._unit + number._unit
                 semitones_int: int = self.semitones_int() + number.semitones_int()
                 if degree < 0:
-                    degree_semitone: float = degree - Degree.semitone_float(semitones_int)
+                    self << degree - Degree.semitone_float(semitones_int)
                 else:
-                    degree_semitone: float = degree + Degree.semitone_float(semitones_int)
-                self << degree_semitone
+                    self << degree + Degree.semitone_float(semitones_int)
             case Sharp():
                 self << self % Sharp() + number
             case Flat():
@@ -931,10 +930,9 @@ class Degree(PitchParameter):
                     degree: int = self._unit - number._unit
                 semitones_int: int = self.semitones_int() - number.semitones_int()
                 if degree < 0:
-                    degree_semitone: float = degree - Degree.semitone_float(semitones_int)
+                    self << degree - Degree.semitone_float(semitones_int)
                 else:
-                    degree_semitone: float = degree + Degree.semitone_float(semitones_int)
-                self << degree_semitone
+                    self << degree + Degree.semitone_float(semitones_int)
             case Sharp():
                 self << self % Sharp() - number
             case Flat():
