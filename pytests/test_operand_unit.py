@@ -153,3 +153,20 @@ def test_degree_accidentals():
 
 # test_degree_accidentals()
 
+
+def test_add_degree():
+    sharp_degree = Degree(2.1)
+    flat_degree = Degree(3.2)
+    print(f"(sharp_degree + flat_degree) % Degree(): {(sharp_degree + flat_degree) % Degree() % float()}")
+    assert sharp_degree + flat_degree == Degree(5.0)    # Flat cancels sharp
+
+# test_add_degree()
+
+def test_sub_degree():
+    sharp_degree = Degree(2.1)  # .1 means Sharp
+    flat_degree = Degree(3.2)   # .2 means Flat
+    print(f"(sharp_degree - flat_degree) % Degree(): {(sharp_degree - flat_degree) % Degree() % float()}")
+    assert sharp_degree - flat_degree == Degree(-1.3)    # Sharp plus sharp = 0.3
+
+# test_sub_degree()
+

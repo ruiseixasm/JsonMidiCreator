@@ -802,17 +802,19 @@ class Degree(PitchParameter):
 
     @staticmethod
     def semitone_float(semitone_int: int) -> float:
+        if semitone_int > 0:    # Means Sharps
+            return round((semitone_int * 2 - 1) / 10, 1)    # Odd means Sharp
         if semitone_int < 0:    # Means Flat
-            return round((semitone_int * (-2) - 1) / 10, 1)
-        return round(semitone_int * 2 / 10, 1)
+            return round(semitone_int * -2 / 10, 1)     # Even means Flat
+        return 0.0
 
     def semitones_int(self) -> int:
         semitones_int: int = round(self._semitones * 10)
         if semitones_int > 0:
-            if semitones_int % 2:  # Odd means Flat
-                semitones_int = (semitones_int + 1) // 2 * (-1)
-            else:   # Even means Sharp
-                semitones_int //= 2
+            if semitones_int % 2:  # Odd means Sharp
+                semitones_int = (semitones_int + 1) // 2
+            else:   # Even means Flat
+                semitones_int = semitones_int // 2 * (-1)
             return semitones_int
         return 0
 
@@ -919,7 +921,11 @@ class Degree(PitchParameter):
         number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Degree():
-                degree: int = self._unit - number._unit
+                if number._unit > self._unit:
+                    degree: int = number._unit - self._unit
+                    degree *= -1
+                else:
+                    degree: int = self._unit - number._unit
                 semitone: int = self.semitones_int() + number.semitones_int()
                 degree_semitone: float = degree + Degree.semitone_float(semitone)
                 self << degree_semitone
