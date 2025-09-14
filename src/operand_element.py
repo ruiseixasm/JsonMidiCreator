@@ -536,28 +536,21 @@ class Element(o.Operand):
                     return oc.Clip(self).__itruediv__(operand)
             case list():
                 durations: list[ra.Duration] = o.list_wrap(operand, ra.Duration(self._get_time_signature()))
+                new_elements: list[Element] = []
+                position_beats: Fraction = self._position_beats
+                duration_beats: Fraction = self._duration_beats
+                for single_duration in durations:
+                    new_element: Element = self.copy()
+                    new_elements.append(new_element)
+                    new_element._position_beats = position_beats
+                    if single_duration > Fraction(0):
+                        duration_beats = single_duration._rational
+                    new_element._duration_beats = duration_beats
+                    position_beats += new_element._duration_beats
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    new_elements: list[Element] = []
-                    for single_duration in durations:
-                        new_element: Element = self.copy()
-                        new_elements.append(new_element)
-                        new_element._position_beats = self._position_beats
-                        if single_duration == Fraction(0):
-                            new_element._duration_beats = self._duration_beats
-                            self._position_beats += self._duration_beats
-                        else:
-                            self._duration_beats = single_duration._duration_beats
-                            new_element._duration_beats = single_duration._duration_beats
-                            self._position_beats += single_duration
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._time_signature)
-                    for single_duration in durations:
-                        if single_duration == Fraction(0):
-                            new_clip /= self
-                        else:
-                            new_clip /= self << single_duration
-                    return new_clip
+                    return oc.Clip(self._time_signature)._extend(new_elements)
 
             case _:
                 if operand != Fraction(0):
