@@ -990,6 +990,8 @@ class Pitch(Generic):
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Degree():
+                # new_degree: ou.Degree = self % ou.Degree() + operand
+                # self._degree_0 = round(new_degree % float() - 1, 1)
                 self._degree_0 += operand % float()
                 self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
