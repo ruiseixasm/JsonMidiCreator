@@ -160,6 +160,10 @@ def test_add_degree():
     print(f"(sharp_degree + flat_degree) % Degree(): {(sharp_degree + flat_degree) % Degree() % float()}")
     assert sharp_degree + flat_degree == Degree(5.0)    # Flat cancels sharp
 
+    degree_3 = Degree(3)
+    degree_5 = Degree(5)
+    assert degree_3 + degree_5 == 3 + 5
+
 # test_add_degree()
 
 def test_sub_degree():
@@ -167,6 +171,11 @@ def test_sub_degree():
     flat_degree = Degree(3.2)   # .2 means Flat
     print(f"(sharp_degree - flat_degree) % Degree(): {(sharp_degree - flat_degree) % Degree() % float()}")
     assert sharp_degree - flat_degree == Degree(-1.3)    # Sharp plus sharp = 0.3
+
+    degree_3 = Degree(3)
+    degree_5 = Degree(5)
+    assert degree_5 - degree_3 == 5 - 3
+    assert degree_3 - degree_5 == (5 - 3) * -1
 
 # test_sub_degree()
 
