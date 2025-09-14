@@ -2386,8 +2386,16 @@ class Composition(Container):
         # Replace handler
         try:
             # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
-            mpl.rcParams['keymap.back'].remove('left')
-            mpl.rcParams['keymap.forward'].remove('right')
+            # mpl.rcParams['keymap.back'].remove('left')
+            # mpl.rcParams['keymap.forward'].remove('right')
+
+            # Get the current keymap
+            current_keymap: list = plt.rcParams['keymap.all_axes']
+            # Remove the 'p' key binding
+            current_keymap.remove('p')
+            current_keymap.remove('s')
+            # Update the rcParams
+            plt.rcParams['keymap.all_axes'] = current_keymap
         except Exception as e:
             print(f"Unable to disable default keys!")
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
