@@ -800,6 +800,23 @@ class Degree(PitchParameter):
         return super().__gt__(other)
     
 
+    @staticmethod
+    def semitone_float(semitone_int: int) -> float:
+        if semitone_int < 0:    # Means Flat
+            return round((semitone_int * (-2) - 1) / 10, 1)
+        return round(semitone_int * 2 / 10, 1)
+
+    def semitones_int(self) -> int:
+        semitones_int: int = round(self._semitones * 10)
+        if semitones_int > 0:
+            if semitones_int % 2:  # Odd means Flat
+                semitones_int = (semitones_int + 1) // 2 * (-1)
+            else:   # Even means Sharp
+                semitones_int //= 2
+            return semitones_int
+        return 0
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float():
