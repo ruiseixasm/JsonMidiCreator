@@ -2319,6 +2319,8 @@ class Composition(Container):
                     at_position_notes[0]._channel_0 = int(event.ydata + 0.5)
                     at_position_notes[0]._position_beats = Fraction(0)
                 else:
+                    # Sort by Pitch instead
+                    at_position_notes.sort(key=lambda note:note._pitch.pitch_int())
                     minimum_position: Fraction = None
                     plotting_pitch: int = int(event.ydata + 0.5)
                     for single_note in at_position_notes:
@@ -2326,7 +2328,7 @@ class Composition(Container):
                             minimum_position = single_note._position_beats
                             root_pitch: int = single_note._pitch.pitch_int()
                             single_note._pitch << plotting_pitch
-                            plotting_pitch += root_pitch
+                            plotting_pitch -= root_pitch
                         else:
                             if single_note._position_beats < minimum_position:
                                 minimum_position = single_note._position_beats
