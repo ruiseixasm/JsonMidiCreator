@@ -918,6 +918,7 @@ class Pitch(Generic):
                     self._degree_0 = round(self._degree_0) + operand % float()
                 else:   # operand >= 1
                     new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
+                    # previous_degree_0 here cancels any existent self Degree semitones!
                     self._degree_0 += new_degree_0 - previous_degree_0
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave(False)    # Keep actual octave (False)
