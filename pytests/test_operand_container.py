@@ -1244,7 +1244,7 @@ def test_floordiv_clip():
     eight_notes = Note() / [1/8, 0, 0, 0, 0, 0, 0, 0]
     assert eight_notes.len() == 8
     assert eight_notes[0] == Position(0)
-    assert eight_notes % Length() == 1.0    # 1 Measures
+    assert eight_notes % Duration() == 1.0  # 1 Measures
 
     eight_notes = Note(Position(1/8)) / [1/8, 0, 0, 0, 0, 0, 0, 0]
     assert eight_notes.len() == 8
