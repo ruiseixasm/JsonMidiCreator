@@ -801,11 +801,11 @@ class Degree(PitchParameter):
     
 
     @staticmethod
-    def semitone_float(semitone_int: int) -> float:
-        if semitone_int > 0:    # Means Sharps
-            return round((semitone_int * 2 - 1) / 10, 1)    # Odd means Sharp
-        if semitone_int < 0:    # Means Flat
-            return round(semitone_int * -2 / 10, 1)     # Even means Flat
+    def semitone_float(semitones_int: int) -> float:
+        if semitones_int > 0:    # Means Sharps
+            return round((semitones_int * 2 - 1) / 10, 1)    # Odd means Sharp
+        if semitones_int < 0:    # Means Flat
+            return round(semitones_int * -2 / 10, 1)     # Even means Flat
         return 0.0
 
     def semitones_int(self) -> int:
@@ -904,8 +904,11 @@ class Degree(PitchParameter):
         match number:
             case Degree():
                 degree: int = self._unit + number._unit
-                semitone: int = self.semitones_int() + number.semitones_int()
-                degree_semitone: float = degree + Degree.semitone_float(semitone)
+                semitones_int: int = self.semitones_int() + number.semitones_int()
+                if degree < 0:
+                    degree_semitone: float = degree - Degree.semitone_float(semitones_int)
+                else:
+                    degree_semitone: float = degree + Degree.semitone_float(semitones_int)
                 self << degree_semitone
             case Sharp():
                 self << self % Sharp() + number
@@ -926,8 +929,11 @@ class Degree(PitchParameter):
                     degree *= -1
                 else:
                     degree: int = self._unit - number._unit
-                semitone: int = self.semitones_int() + number.semitones_int()
-                degree_semitone: float = degree + Degree.semitone_float(semitone)
+                semitones_int: int = self.semitones_int() - number.semitones_int()
+                if degree < 0:
+                    degree_semitone: float = degree - Degree.semitone_float(semitones_int)
+                else:
+                    degree_semitone: float = degree + Degree.semitone_float(semitones_int)
                 self << degree_semitone
             case Sharp():
                 self << self % Sharp() - number
