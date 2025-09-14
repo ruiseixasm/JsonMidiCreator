@@ -900,6 +900,11 @@ class Degree(PitchParameter):
     def __iadd__(self, number: any) -> Self:
         number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
         match number:
+            case Degree():
+                degree: int = self._unit + number._unit
+                semitone: int = self.semitones_int() + number.semitones_int()
+                degree_semitone: float = degree + Degree.semitone_float(semitone)
+                self << degree_semitone
             case Sharp():
                 self << self % Sharp() + number
             case Flat():
@@ -913,6 +918,11 @@ class Degree(PitchParameter):
     def __isub__(self, number: any) -> Self:
         number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
         match number:
+            case Degree():
+                degree: int = self._unit - number._unit
+                semitone: int = self.semitones_int() + number.semitones_int()
+                degree_semitone: float = degree + Degree.semitone_float(semitone)
+                self << degree_semitone
             case Sharp():
                 self << self % Sharp() - number
             case Flat():
@@ -920,7 +930,7 @@ class Degree(PitchParameter):
             case Natural():
                 return self # Does nothing
             case _:
-                super().__iadd__(number)
+                super().__isub__(number)
         return self
     
 
