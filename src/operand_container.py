@@ -669,6 +669,8 @@ class Container(o.Operand):
             case tuple():
                 return super().__irshift__(operand)
             case _:
+                if AS_MASK_LIST:
+                    return self.copy().mask(operand)
                 return self.mask(operand)
 
 
