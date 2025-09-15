@@ -194,3 +194,7 @@ def test_sub_degree():
 
 # test_sub_degree()
 
+
+def test_degree_set():
+    assert Degree(-0.8) == +0.8
+    assert Degree(-0.7) == +0.7

@@ -213,7 +213,7 @@ def test_root_key():
     a_degree_c_major_scale: list[str] = [
         "B#", "C#", "D#", "E#", "F##", "G#", "A#"
     ]
-    pitch = Pitch(RootKey("C")) # Shall become C# because in A Major C is sharped
+    pitch = Pitch(RootKey("C")) # B# is equivalent to C
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == a_degree_c_major_scale[degree]  # BUG HERE AT +DEGREE 4
@@ -336,7 +336,20 @@ def test_root_key():
     # Resets the defaults
     settings << KeySignature()
 
-test_root_key()
+# test_root_key()
+
+
+def test_degree_pitch():
+    negative_pitch = Pitch()
+    negative_pitch._degree_0 = -0.1
+    positive_pitch = Pitch()
+    positive_pitch._degree_0 = +0.1
+
+    print(f"{negative_pitch.pitch_int()} VS {positive_pitch.pitch_int()}")
+    print(f"{negative_pitch.pitch_int() % 12} VS {positive_pitch.pitch_int() % 12}")
+    assert negative_pitch.pitch_int() == positive_pitch.pitch_int()
+
+# test_degree_pitch()
 
 
 def test_target_key():

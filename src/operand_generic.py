@@ -460,7 +460,7 @@ class Pitch(Generic):
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
-            return Scale.transpose_key(round(self._degree_0), signature_scale)
+            return Scale.transpose_key(int(round(self._degree_0, 1)), signature_scale)
         return 0
 
     def scale_transposition(self, degree_transposition: int) -> int:
@@ -475,19 +475,13 @@ class Pitch(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: float = round(self._degree_0) + self._transposition
+                degree_0: float = int(round(self._degree_0, 1)) + self._transposition
                 signature_scale: list[int] = self._key_signature.get_scale()
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0
 
     def degree_accidentals(self) -> int:
-        degree_int: int = round(self._degree_0)
-        semitones: int = round((self._degree_0 - degree_int) * 10)
-        if semitones % 2:  # Odd - same direction, same sign
-            semitones = (semitones // 2) + (1 if semitones > 0 else -1)
-        else:  # Even - inverse sign
-            semitones = semitones // (-2)
-        return semitones
+        return ou.Degree(self._degree_0).semitones_int()
 
     def tonic_int(self) -> int:
         """
@@ -583,7 +577,8 @@ class Pitch(Generic):
             # tonic_int is used as octave reference to the root_int octave matching
             degree_key: int = tonic_int + degree_transposition
             octave_offset: int = degree_key // 12
-            self._degree_0 -= octave_offset * 7 # Offsets degree to negative
+            degree_degree_0: ou.Degree = ou.Degree(self._degree_0) - octave_offset * 7 # Offsets degree to negative
+            self._degree_0 = degree_degree_0 % float()
             degree_transposition -= octave_offset * 12  # Offsets transposition too
             if move_octave:
                 self._octave_0 += octave_offset     # matches the Octave with the new Degree
@@ -609,14 +604,14 @@ class Pitch(Generic):
     def key_degree_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
         degree_0: int = 0
-        semitone: int = 0
+        semitones: int = 0
         tonic_offset: int = key_int - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_offset % 12] == 0:
             if tonic_offset < 0:
-                semitone = -1   # Needs to go down further
+                semitones = -1   # Needs to go down further
             else:
-                semitone = +1   # Needs to go up further
+                semitones = +1   # Needs to go up further
         # For Tones
         while tonic_offset > 0:
             degree_0 += signature_scale[tonic_offset % 12]
@@ -624,7 +619,7 @@ class Pitch(Generic):
         while tonic_offset < 0:
             degree_0 -= signature_scale[tonic_offset % 12]
             tonic_offset += 1
-        return degree_0 % 7 + 1, semitone
+        return degree_0 % 7 + 1, semitones
 
     def key_transposition_semitone(self, key_int: int) -> tuple[int, int]:
         transposition: int = 0
@@ -908,24 +903,26 @@ class Pitch(Generic):
                 self << ou.RootKey(operand)
 
             case ou.Degree():
-                # Has to work with increments to keep the same Octave and avoid induced Octave jumps
-                previous_degree_0: int = self._degree_0 % 7
                 if operand < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
-                    self._degree_0 = 0  # Resets the degree to I
+                    self._degree_0 = 0.0    # Resets the degree to I
                 elif operand < 1:
                     # Changes only the chromatic transposition
-                    self._degree_0 = round(self._degree_0) + operand % float()
+                    self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
-                    # previous_degree_0 here cancels any existent self Degree semitones!
-                    self._degree_0 += new_degree_0 - previous_degree_0
+                    # # NEEDS TO BE REVIEWED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    # # Has to work with increments to keep the same Octave and avoid induced Octave jumps
+                    # previous_degree_0: int = self._degree_0 % 7
+                    # new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
+                    # # previous_degree_0 here cancels any existent self Degree semitones!
+                    # self._degree_0 += new_degree_0 - previous_degree_0
+                    self._degree_0 = round(operand % float() - 1.0, 1)
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave(False)    # Keep actual octave (False)
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
-                self._degree_0 = 0  # Resets the degree to I
+                self._degree_0 = 0.0    # Resets the degree to I
                 self._transposition = 0
                 self.match_octave(False)    # Keep actual octave (False)
 
@@ -992,14 +989,20 @@ class Pitch(Generic):
             case ou.Degree():
                 old_degree_0 = self._degree_0 + operand % float()
                 old_degree_0 = round(old_degree_0, 1)
-                if False:
+                if True:
                     new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
                     new_degree_0 = new_degree % float()
                     if new_degree_0 != old_degree_0:
                         print(f"{new_degree_0} VS {old_degree_0}")
                         self._degree_0 = old_degree_0
-                        self._degree_0 = round(self._degree_0, 1)
-                        self.match_octave()
+                        # self.match_octave()
+                        old_pitch = self.pitch_int()
+                        self._degree_0 = new_degree_0
+                        # self.match_octave()
+                        new_pitch = self.pitch_int()
+                        print(f"{new_pitch} VS {old_pitch}")
+                        print(f"{new_pitch % 12} VS {old_pitch % 12}")
+
 
                     self._degree_0 = new_degree_0
                 else:
