@@ -216,7 +216,7 @@ def test_root_key():
     pitch = Pitch(RootKey("C")) # Shall become C# because in A Major C is sharped
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_c_major_scale[degree]
+        assert pitch == a_degree_c_major_scale[degree]  # BUG HERE AT +DEGREE 4
         pitch += 1.0  # One degree each time
 
     print("---")

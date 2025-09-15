@@ -177,6 +177,8 @@ def test_add_degree():
     print(f"new_degree % float(): {new_degree % float()}")
     assert new_degree == -3.8   # -4.8 + 1.0
 
+    assert Degree(-1.8) + Degree(1) == 0.8  # It's positive because the degree is 0 and the semitones are always positive
+
 # test_add_degree()
 
 def test_sub_degree():

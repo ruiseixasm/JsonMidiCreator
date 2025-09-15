@@ -990,12 +990,12 @@ class Pitch(Generic):
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Degree():
-                new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
-                new_degree_0 = new_degree % float()
                 old_degree_0 = self._degree_0 + operand % float()
-                if new_degree_0 != old_degree_0:
-                    print(f"{new_degree_0} VS {old_degree_0}")
-                if True:
+                if False:
+                    new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
+                    new_degree_0 = new_degree % float()
+                    if new_degree_0 != old_degree_0:
+                        print(f"{new_degree_0} VS {old_degree_0}")
                     self._degree_0 = new_degree_0
                 else:
                     self._degree_0 = old_degree_0
