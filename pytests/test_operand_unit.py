@@ -164,6 +164,19 @@ def test_add_degree():
     degree_5 = Degree(5)
     assert degree_3 + degree_5 == 3 + 5
 
+    degree_0: float = -4.8
+    degree_1 = Degree(1)
+    print(f"Degree(degree_0) % int(): {Degree(degree_0) % int()}")
+    assert Degree(degree_0) % int() == -4
+    print(f"Degree(degree_0)._semitones: {Degree(degree_0)._semitones}")
+    assert Degree(degree_0)._semitones == 0.8
+    print(f"Degree(degree_0) % float(): {Degree(degree_0) % float()}")
+    assert Degree(degree_0) % float() == -4.8
+    assert Degree(degree_0) == degree_0
+    new_degree = Degree(degree_0) + degree_1
+    print(f"new_degree % float(): {new_degree % float()}")
+    assert new_degree == -3.8   # -4.8 + 1.0
+
 # test_add_degree()
 
 def test_sub_degree():

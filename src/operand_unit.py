@@ -822,6 +822,8 @@ class Degree(PitchParameter):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case float():
+                if self._unit < 0:
+                    return round(self._unit - self._semitones, 1)
                 return round(self._unit + self._semitones, 1)
             case str():
                 adjusted_degree: int = self._unit
@@ -878,8 +880,11 @@ class Degree(PitchParameter):
                     case _:
                         super().__lshift__(operand)
             case float():
-                self._unit = round(operand)
-                self._semitones = round(operand - self._unit, 1)
+                self._unit = int(round(operand, 1))
+                if operand < 0: # Can't have negative semitones
+                    self._semitones = round(self._unit - operand, 1)
+                else:
+                    self._semitones = round(operand - self._unit, 1)
             case str():
                 self.stringSetDegree(operand)
             case Sharp():
