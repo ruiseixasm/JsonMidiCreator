@@ -553,10 +553,12 @@ class Pitch(Generic):
     Auxiliary methods to get specific data directly
     """
 
-    def absolute_degree_0(self) -> float:
-        relative_degree_0: float = ou.Degree(self._degree_0) % float()
-        default_tonic_key: int = self._key_signature.get_tonic_key()
-        
+    def absolute_degree_0(self) -> ou.Degree:
+        """
+        Degrees are returned relative to the Tonic key in a Octave, this function returns the \
+            absolute Degree rooted in the Octave 0.
+        """
+        return ou.Degree(self._degree_0) + self._octave_0 * 7   # 7 degrees per octave
 
 
     def increment_tonic(self, keys: int) -> Self:

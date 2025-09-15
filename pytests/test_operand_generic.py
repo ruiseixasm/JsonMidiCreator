@@ -861,12 +861,24 @@ def test_pitch_sub():
     assert pitch_b4 != pitch_d5
     assert pitch_b4 != pitch_e5
 
+
+    print("Relative degrees")
     pitch_b4_degree = pitch_b4 % Degree()
     pitch_d5_degree = pitch_d5 % Degree()
     pitch_e5_degree = pitch_e5 % Degree()
     print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  5.0
     print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  7.0
     print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  1.0 !!   (Tonic - Eb)
+
+    print("Absolute degrees")
+    pitch_b4_degree = pitch_b4.absolute_degree_0()
+    pitch_d5_degree = pitch_d5.absolute_degree_0()
+    pitch_e5_degree = pitch_e5.absolute_degree_0()
+    print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  39.0
+    print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  41.0
+    print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  42.0 !!  (Tonic - Eb)
+
+    print("Subtracted degrees")
     degree_distance_b4: ou.Degree = pitch_b4_degree - pitch_b4_degree
     degree_distance_d5: ou.Degree = pitch_d5_degree - pitch_b4_degree
     degree_distance_e5: ou.Degree = pitch_e5_degree - pitch_b4_degree
@@ -877,7 +889,7 @@ def test_pitch_sub():
     new_pitch_b4 = pitch_d5 - degree_distance_d5
     assert new_pitch_b4 == pitch_b4
     new_pitch_b4 = pitch_e5 - degree_distance_e5
-    # assert new_pitch_b4 == pitch_b4
+    assert new_pitch_b4 == pitch_b4
 
 # test_pitch_sub()
 
