@@ -336,7 +336,7 @@ def test_root_key():
     # Resets the defaults
     settings << KeySignature()
 
-# test_root_key()
+test_root_key()
 
 
 def test_target_key():

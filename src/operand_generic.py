@@ -991,15 +991,19 @@ class Pitch(Generic):
                 self += ou.Transposition(operand)
             case ou.Degree():
                 old_degree_0 = self._degree_0 + operand % float()
+                old_degree_0 = round(old_degree_0, 1)
                 if False:
                     new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
                     new_degree_0 = new_degree % float()
                     if new_degree_0 != old_degree_0:
                         print(f"{new_degree_0} VS {old_degree_0}")
+                        self._degree_0 = old_degree_0
+                        self._degree_0 = round(self._degree_0, 1)
+                        self.match_octave()
+
                     self._degree_0 = new_degree_0
                 else:
                     self._degree_0 = old_degree_0
-                self._degree_0 = round(self._degree_0, 1)
                 self.match_octave()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
