@@ -682,7 +682,10 @@ class Pitch(Generic):
                     case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
                     case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
-                    case ou.Degree():       return operand._data << od.Pipe(self._degree_0 + 1)
+                    case ou.Degree():
+                        operand._data << self._degree_0
+                        operand._data += self._octave_0 * 7   # 7 degrees per octave
+                        return operand._data
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
                     case int():             return float(self._tonic_key)
@@ -832,6 +835,10 @@ class Pitch(Generic):
                         self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
+                    case ou.Degree():
+                        self._octave_0 = operand._data % int() // 7
+                        degree_0: ou.Degree = operand._data - operand._data % int()
+                        self._degree_0 = degree_0 % float()
                     case ou.Octave():
                         self._octave_0 = operand._data._unit + 1    # Based 0 octave
                     case int():
