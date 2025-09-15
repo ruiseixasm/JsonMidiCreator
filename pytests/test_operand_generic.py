@@ -851,6 +851,29 @@ def test_pitch_add():
 # test_pitch_add()
 
 
+def test_pitch_sub():
+    settings << KeySignature('bbb')
+    pitch_b4 = Pitch('Bb')
+    pitch_d5 = Pitch('D', Octave(5))
+    pitch_e5 = Pitch('Eb', Octave(5))
+    settings << KeySignature()
+
+    assert pitch_b4 != pitch_e5
+
+    pitch_b4_degree = pitch_b4 % Degree()
+    pitch_d5_degree = pitch_d5 % Degree()
+    pitch_e5_degree = pitch_e5 % Degree()
+    degree_distance_d5: ou.Degree = pitch_d5_degree - pitch_b4_degree
+    degree_distance_e5: ou.Degree = pitch_e5_degree - pitch_b4_degree
+
+    new_pitch_b4 = pitch_d5 - degree_distance_d5
+    assert new_pitch_b4 == pitch_b4
+    new_pitch_b4 = pitch_e5 - degree_distance_e5
+    # assert new_pitch_b4 == pitch_b4
+
+# test_pitch_sub()
+
+
 def test_drum_kit():
 
     settings << KeySignature()
