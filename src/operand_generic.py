@@ -3367,13 +3367,17 @@ class Mirror(ClipProcess):
 class Invert(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Invert`
 
-    `Invert` is similar to 'Mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
+    `invert` is similar to 'mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
 
     Args:
-        None
+        by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+            does a chromatic inversion by pitch like in a piano roll. The default is `True`.
     """
+    def __init__(self, by_degree: bool = True):
+        super().__init__(by_degree)
+
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.invert()
+        return operand.invert(self._parameters)
 
 
 class Snap(ClipProcess):

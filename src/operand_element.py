@@ -1752,7 +1752,7 @@ class Note(ChannelElement):
     def __iadd__(self, operand: any) -> 'Note':
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.PitchParameter() | int():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -1761,7 +1761,7 @@ class Note(ChannelElement):
     def __isub__(self, operand: any) -> 'Note':
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.PitchParameter() | int():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:

@@ -3973,28 +3973,46 @@ class Clip(Composition):  # Just a container of Elements
                 
         return self
 
-    def invert(self) -> Self:
+    def invert(self, by_degree: bool = True) -> Self:
         """
         `invert` is similar to 'mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
 
         Args:
-            None
+            by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+                does a chromatic inversion by pitch like in a piano roll. The default is `True`.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        center_pitch: int = None
-        
-        for item in self._unmasked_items():
-            if isinstance(item, oe.Note):
-                center_pitch = item._pitch.pitch_int()
-                break
+        if by_degree:
+            center_degree: ou.Degree = None
+            
+            for note in self._unmasked_items():
+                if isinstance(note, oe.Note):
+                    center_degree = note % ou.Degree()
+                    break
 
-        for item in self._unmasked_items():
-            if isinstance(item, oe.Note):
-                note_pitch: int = item._pitch.pitch_int()
-                if note_pitch != center_pitch:
-                    item._pitch << 2 * center_pitch - note_pitch
+            for note in self._unmasked_items():
+                if isinstance(note, oe.Note):
+                    note_degree: ou.Degree = note % ou.Degree()
+                    degree_distance: ou.Degree = note_degree - center_degree
+                    # Removes twice, safer than removing 2x
+                    note._pitch -= degree_distance
+                    note._pitch -= degree_distance
+
+        else:
+            center_pitch: int = None
+            
+            for note in self._unmasked_items():
+                if isinstance(note, oe.Note):
+                    center_pitch = note._pitch.pitch_int()
+                    break
+
+            for note in self._unmasked_items():
+                if isinstance(note, oe.Note):
+                    note_pitch: int = note._pitch.pitch_int()
+                    if note_pitch != center_pitch:
+                        note._pitch << 2 * center_pitch - note_pitch
                 
         return self
 
