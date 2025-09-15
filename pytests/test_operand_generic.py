@@ -1088,3 +1088,27 @@ def test_key_degrees():
     assert pitch_key % Degree() == "ii"
 
 # test_key_degrees()
+
+
+def test_pitch_pipe():
+    settings << KeySignature('bbb')
+    pitch_b4 = Pitch('Bb')
+    pitch_d5 = Pitch('D', Octave(5))
+    pitch_e5 = Pitch('Eb', Octave(5))   # The one that fails!
+    dummy_pitch = Pitch()   # Same Key Signature
+    settings << KeySignature()
+
+
+    pitch_b4_degree_0 = pitch_b4 % Pipe(Degree())
+    pitch_d5_degree_0 = pitch_d5 % Pipe(Degree())
+    pitch_e5_degree_0 = pitch_e5 % Pipe(Degree())
+
+    print(f'pitch_b4_degree_0 % float(): {pitch_b4_degree_0 % float()}')    #  39.0
+    dummy_pitch << Pipe(pitch_b4_degree_0)
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  39.0
+    assert dummy_pitch == pitch_b4
+    assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
+    assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
+
+# test_pitch_pipe()
+

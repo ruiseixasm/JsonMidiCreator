@@ -837,7 +837,7 @@ class Pitch(Generic):
                         self._tonic_key = operand._data._unit
                     case ou.Degree():
                         self._octave_0 = operand._data % int() // 7
-                        degree_0: ou.Degree = operand._data - operand._data % int()
+                        degree_0: ou.Degree = operand._data - self._octave_0 * 7
                         self._degree_0 = degree_0 % float()
                     case ou.Octave():
                         self._octave_0 = operand._data._unit + 1    # Based 0 octave
