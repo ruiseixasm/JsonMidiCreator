@@ -195,6 +195,16 @@ def test_sub_degree():
 # test_sub_degree()
 
 
+def test_mul_degree():
+    degree = Degree(2.1)
+
+    assert degree * 2 == Degree(4.3)
+    assert degree * 1 == Degree(2.1)
+    assert degree * 0 == Degree(0)
+    assert degree * -1 == Degree(-2.2)
+    assert degree * -2 == Degree(-4.4)
+
+
 def test_degree_set():
     assert Degree(-0.8) == +0.8
     assert Degree(-0.7) == +0.7

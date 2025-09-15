@@ -951,6 +951,29 @@ class Degree(PitchParameter):
                 super().__isub__(number)
         return self
     
+    def __imul__(self, number: any) -> Self:
+        number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case int():
+                self._unit: int = self.degree_int() * number
+                semitones_int: int = self.semitones_int() * number
+                self._semitones = Degree.semitone_float(semitones_int)
+            case _:
+                super().__imul__(number)
+        return self
+    
+    def __itruediv__(self, number: any) -> Self:
+        number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case int():
+                if number != 0:
+                    self._unit: int = self.degree_int() / number
+                    semitones_int: int = self.semitones_int() / number
+                    self._semitones = Degree.semitone_float(semitones_int)
+            case _:
+                super().__itruediv__(number)
+        return self
+    
 
     def stringSetDegree(self, string: str) -> Self:
         string = string.strip()
