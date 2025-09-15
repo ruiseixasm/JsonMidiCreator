@@ -866,13 +866,13 @@ def test_pitch_sub():
     pitch_e5_degree = pitch_e5 % Degree()
     print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  5.0
     print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  7.0
-    print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  1.0 !!
+    print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  1.0 !!   (Tonic - Eb)
     degree_distance_b4: ou.Degree = pitch_b4_degree - pitch_b4_degree
     degree_distance_d5: ou.Degree = pitch_d5_degree - pitch_b4_degree
     degree_distance_e5: ou.Degree = pitch_e5_degree - pitch_b4_degree
     print(f'degree_distance_b4 % float(): {degree_distance_b4 % float()}')  #  0.0
     print(f'degree_distance_d5 % float(): {degree_distance_d5 % float()}')  #  2.0
-    print(f'degree_distance_e5 % float(): {degree_distance_e5 % float()}')  # -4.0 !!
+    print(f'degree_distance_e5 % float(): {degree_distance_e5 % float()}')  # -4.0 !!   (Tonic - Eb)
 
     new_pitch_b4 = pitch_d5 - degree_distance_d5
     assert new_pitch_b4 == pitch_b4
