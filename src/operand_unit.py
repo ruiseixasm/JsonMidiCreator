@@ -917,6 +917,8 @@ class Degree(PitchParameter):
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
                     self << degree + Degree.semitone_float(semitones_int)
+            case float():
+                self.__iadd__(Degree(number))
             case Sharp():
                 self << self % Sharp() + number
             case Flat():
@@ -931,16 +933,14 @@ class Degree(PitchParameter):
         number = self._tail_lshift(number)      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Degree():
-                if number._unit > self._unit:
-                    degree: int = number._unit - self._unit
-                    degree *= -1
-                else:
-                    degree: int = self._unit - number._unit
+                degree: int = self._unit - number._unit
                 semitones_int: int = self.semitones_int() - number.semitones_int()
                 if degree < 0:
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
                     self << degree + Degree.semitone_float(semitones_int)
+            case float():
+                self.__isub__(Degree(number))
             case Sharp():
                 self << self % Sharp() - number
             case Flat():
