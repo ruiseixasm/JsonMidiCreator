@@ -647,7 +647,7 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-            case list() | str():
+            case list() | oe.Element() | str():
                 return self.copy().__irshift__(operand)
             case tuple():
                 return super().__irshift__(operand)
