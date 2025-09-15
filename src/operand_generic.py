@@ -987,26 +987,8 @@ class Pitch(Generic):
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Degree():
-                old_degree_0 = self._degree_0 + operand % float()
-                old_degree_0 = round(old_degree_0, 1)
-                if True:
-                    new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
-                    new_degree_0 = new_degree % float()
-                    if new_degree_0 != old_degree_0:
-                        print(f"{new_degree_0} VS {old_degree_0}")
-                        self._degree_0 = old_degree_0
-                        # self.match_octave()
-                        old_pitch = self.pitch_int()
-                        self._degree_0 = new_degree_0
-                        # self.match_octave()
-                        new_pitch = self.pitch_int()
-                        print(f"{new_pitch} VS {old_pitch}")
-                        print(f"{new_pitch % 12} VS {old_pitch % 12}")
-
-
-                    self._degree_0 = new_degree_0
-                else:
-                    self._degree_0 = old_degree_0
+                new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
+                self._degree_0 = new_degree % float()
                 self.match_octave()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
@@ -1036,8 +1018,8 @@ class Pitch(Generic):
             case Fraction():
                 self -= ou.Transposition(operand)
             case ou.Degree():
-                self._degree_0 -= operand % float()
-                self._degree_0 = round(self._degree_0, 1)
+                new_degree: ou.Degree = ou.Degree(self._degree_0) - operand
+                self._degree_0 = new_degree % float()
                 self.match_octave()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() - operand
