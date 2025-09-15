@@ -3985,20 +3985,20 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         if by_degree:
-            center_degree: ou.Degree = None
+            center_degree_0: ou.Degree = None
             
             for note in self._unmasked_items():
                 if isinstance(note, oe.Note):
-                    center_degree = note % ou.Degree()
+                    center_degree_0 = note._pitch.absolute_degree_0()
                     break
 
             for note in self._unmasked_items():
                 if isinstance(note, oe.Note):
-                    note_degree: ou.Degree = note % ou.Degree()
-                    degree_distance: ou.Degree = note_degree - center_degree
+                    note_degree_0: ou.Degree = note._pitch.absolute_degree_0()
+                    degree_distance: ou.Degree = note_degree_0 - center_degree_0
                     # Removes twice, safer than removing 2x
-                    note._pitch -= degree_distance
-                    note._pitch -= degree_distance
+                    note._pitch -= degree_distance  # Recenter position
+                    note._pitch -= degree_distance  # Moves in opposite direction
 
         else:
             center_pitch: int = None
