@@ -3975,7 +3975,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def invert(self, by_degree: bool = True) -> Self:
         """
-        `invert` is similar to 'mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
+        `invert` is similar to `mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
 
         Args:
             by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \

@@ -3367,7 +3367,7 @@ class Mirror(ClipProcess):
 class Invert(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Invert`
 
-    `invert` is similar to 'mirror' but based in a center defined by the first note on which all notes are vertically mirrored.
+    `invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
 
     Args:
         by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
