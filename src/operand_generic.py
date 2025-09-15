@@ -553,6 +553,12 @@ class Pitch(Generic):
     Auxiliary methods to get specific data directly
     """
 
+    def absolute_degree_0(self) -> float:
+        relative_degree_0: float = ou.Degree(self._degree_0) % float()
+        default_tonic_key: int = self._key_signature.get_tonic_key()
+        
+
+
     def increment_tonic(self, keys: int) -> Self:
         """
         Increments the tonic key by preserving the tonic in the Key Signature range
