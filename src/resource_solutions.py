@@ -240,10 +240,11 @@ class RS_Clip(RS_Solutions):
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 if pseudo_tamed_chaos._tamer._index > 0:
-                    clip_pattern: ot.Tamer = o.list_get(segmented_composition % [og.Pitch()], int())
+                    clip_pitches: list = (segmented_composition >> of.InputType(oe.Note)) % [og.Pitch(), int()]
+                    clip_pattern: list = o.list_sub(clip_pitches, clip_pitches[0])
                     chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
                     results = [1] * segmented_composition.len() >> chaos
-                    segmented_composition += of.Foreach(*results)**ou.Degree()
+                    segmented_composition += of.InputType(oe.Note)**of.Foreach(*results)**ou.Degree()
                     pseudo_tamed_chaos.reset_tamers()
             return segmented_composition
 
