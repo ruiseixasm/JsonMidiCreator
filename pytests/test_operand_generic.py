@@ -1045,11 +1045,22 @@ def test_octave_matching():
     pitch_c = Pitch()
     pitch_b = pitch_c + Degree(6)   # 1 + 6 = 7
     pitch_bs = pitch_b + Degree(0.1)
+    pitch_bs_set = Pitch(7.1)
+
+    # Testing all still belong to the same Octave 4 except pitch_bs
+    assert pitch_c == Octave(4)
+    assert pitch_b == Octave(4)
+    print(f'pitch_bs % Octave() % int(): {pitch_bs % Octave() % int()}')    # Shall be 4 and not 5 !!
+    assert pitch_bs == Octave(5)
+    print(f'pitch_bs_set % Octave() % int(): {pitch_bs_set % Octave() % int()}')    # Shall be 4 and not 5 !!
+    assert pitch_bs_set == Octave(4)
 
     assert pitch_c == 1.0
     assert pitch_b == 7.0
     print(f'pitch_bs % float(): {pitch_bs % float()}')
-    # assert pitch_bs == 7.1
+    assert pitch_bs == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
+    print(f'pitch_bs_set % float(): {pitch_bs_set % float()}')
+    assert pitch_bs_set == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
 
 # test_octave_matching()
 

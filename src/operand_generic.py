@@ -703,7 +703,7 @@ class Pitch(Generic):
             case int():
                 return self.pitch_int()
             case float():
-                return float((self._degree_0 % 7) + 1)
+                return self % ou.Degree() % float()
             case Fraction():
                 return Fraction(self._transposition)
             
@@ -733,7 +733,10 @@ class Pitch(Generic):
                 return ou.Octave(self._octave_0 - 1)
             
             case ou.Degree():
-                return ou.Degree((self._degree_0 % 7) + 1)
+                formal_degree = ou.Degree(self._degree_0)
+                formal_degree._unit %= 7
+                formal_degree += 1
+                return formal_degree
             case ou.Transposition():
                 return operand.copy(self._transposition)
              
@@ -927,12 +930,6 @@ class Pitch(Generic):
                     # Changes only the chromatic transposition
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    # # NEEDS TO BE REVIEWED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # # Has to work with increments to keep the same Octave and avoid induced Octave jumps
-                    # previous_degree_0: int = self._degree_0 % 7
-                    # new_degree_0: float = ((operand._unit + operand._semitones) - 1) % 7
-                    # # previous_degree_0 here cancels any existent self Degree semitones!
-                    # self._degree_0 += new_degree_0 - previous_degree_0
                     self._degree_0 = round(operand % float() - 1.0, 1)
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave(False)    # Keep actual octave (False)
