@@ -657,10 +657,10 @@ class Pitch(Generic):
         while first_key_offset < 0:
             tone -= transposition_scale[first_key_offset % 12]
             first_key_offset += 1
-        # Finally, transposition needs to be corrected for the usage of the Key Signature scale
-        if not self._scale:
-            # Partial transposition already done by degrees
-            tone -= self.degree_transposition()
+        # # Finally, transposition needs to be corrected for the usage of the Key Signature scale
+        # if not self._scale:
+        #     # Partial transposition already done by degrees
+        #     tone -= self.degree_transposition()
         return tone % scale_degrees, semitone
 
 
