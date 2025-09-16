@@ -455,13 +455,16 @@ class Pitch(Generic):
         """
         Based on the Key Signature, this method gives the degree transposition
         """
-        if self._degree_0 != 0: # Optimization
+        if self._degree_0 != 0.0: # Optimization
             signature_scale: list[int] = self._key_signature.get_scale()
             """
             IN A TRANSPOSITION SCALE ACCIDENTALS **ARE** SUPPOSED TO HAPPEN
             """
             return Scale.transpose_key(int(round(self._degree_0, 1)), signature_scale)
         return 0
+
+    def degree_accidentals(self) -> int:
+        return ou.Degree(self._degree_0).semitones_int()
 
     def scale_transposition(self, degree_transposition: int) -> int:
         """
@@ -479,9 +482,6 @@ class Pitch(Generic):
                 signature_scale: list[int] = self._key_signature.get_scale()
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0
-
-    def degree_accidentals(self) -> int:
-        return ou.Degree(self._degree_0).semitones_int()
 
     def tonic_int(self) -> int:
         """
@@ -611,9 +611,9 @@ class Pitch(Generic):
         return self
 
 
-    def key_degree_semitone(self, key_int: int) -> tuple[int, int]:
+    def degree_tone_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
-        degree_0: int = 0
+        tone: int = 0
         semitones: int = 0
         tonic_offset: int = key_int - self._tonic_key % 12
         # For Semitones
@@ -624,15 +624,15 @@ class Pitch(Generic):
                 semitones = +1   # Needs to go up further
         # For Tones
         while tonic_offset > 0:
-            degree_0 += signature_scale[tonic_offset % 12]
+            tone += signature_scale[tonic_offset % 12]
             tonic_offset -= 1
         while tonic_offset < 0:
-            degree_0 -= signature_scale[tonic_offset % 12]
+            tone -= signature_scale[tonic_offset % 12]
             tonic_offset += 1
-        return degree_0 % 7 + 1, semitones
+        return tone % 7 + 1, semitones
 
-    def key_transposition_semitone(self, key_int: int) -> tuple[int, int]:
-        transposition: int = 0
+    def transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
+        tone: int = 0
         semitone: int = 0
         scale_degrees: int = 7  # Diatonic scales
         if self._scale:
@@ -652,16 +652,16 @@ class Pitch(Generic):
                 semitone = +1   # Needs to go up further
         # For Tones
         while first_key_offset > 0:
-            transposition += transposition_scale[first_key_offset % 12]
+            tone += transposition_scale[first_key_offset % 12]
             first_key_offset -= 1
         while first_key_offset < 0:
-            transposition -= transposition_scale[first_key_offset % 12]
+            tone -= transposition_scale[first_key_offset % 12]
             first_key_offset += 1
         # Finally, transposition needs to be corrected for the usage of the Key Signature scale
         if not self._scale:
             # Partial transposition already done by degrees
-            transposition -= self.degree_transposition()
-        return transposition % scale_degrees, semitone
+            tone -= self.degree_transposition()
+        return tone % scale_degrees, semitone
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -903,7 +903,7 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                degree, semitone = self.key_degree_semitone(operand._unit % 12)
+                degree, semitone = self.degree_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 if semitone > 0:
                     degree += round((semitone * 2 - 1) / 10, 1)
@@ -912,7 +912,7 @@ class Pitch(Generic):
                 self << ou.Degree(degree)
             case ou.TargetKey():
                 degree: float = 0.0 # No linear accidentals
-                transposition, semitone = self.key_transposition_semitone(operand._unit % 12)
+                transposition, semitone = self.transposition_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 if semitone > 0:
                     degree += round((semitone * 2 - 1) / 10, 1)

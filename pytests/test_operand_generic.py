@@ -1062,7 +1062,7 @@ def test_octave_matching():
     print(f'pitch_bs_set % float(): {pitch_bs_set % float()}')
     assert pitch_bs_set == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
 
-# test_octave_matching()
+test_octave_matching()
 
 
 def test_degree_float():
