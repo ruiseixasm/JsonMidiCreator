@@ -230,6 +230,30 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
+    def tonality_pattern(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            title: str | None = None) -> Self:
+        """
+        Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                if pseudo_tamed_chaos._tamer._index > 0:
+                    clip_pattern: ot.Tamer = o.list_get(segmented_composition % [og.Pitch()], int())
+                    chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
+                    results = [1] * segmented_composition.len() >> chaos
+                    segmented_composition += of.Foreach(*results)**ou.Degree()
+                    pseudo_tamed_chaos.reset_tamers()
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Tonality Pattern"
+        chaos << ot.Pattern()**chaos._tamer # Expands tamer with Pattern
+        pseudo_tamed_chaos: ch.Chaos = ch.Chaos(ot.Tamer())
+        return self.iterate(iterations, _iterator, pseudo_tamed_chaos, [1], title)
+
+
     def tonality_conjunct(self,
             iterations: int = 1,
             triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
