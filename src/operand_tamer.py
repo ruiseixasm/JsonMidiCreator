@@ -566,7 +566,7 @@ class Decreasing(Prior):
             if iterate:
                 self.next(numeral)
         return numeral, validated
-    
+
 
 class Motion(Validator):
     """`Tamer -> Validator -> Motion`
@@ -634,6 +634,84 @@ class Motion(Validator):
         self._last_integer = int(numeral)
         return super().next(numeral)
         
+
+class Pattern(Motion):
+    """`Tamer -> Validator -> Motion -> Pattern`
+
+    A `Pattern` validates the given Motion accordingly to a pattern where 1 means up, -1 means down and 0 repeat.
+
+    Parameters
+    ----------
+    list([]), Clip() : A `list` of integers where the positivity or negativity of the integer is used as the motion pattern.
+    Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
+    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._pattern: list[int] = []
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral)
+        if validated:
+            if not self.slack(numeral) and self._last_integer is not None:
+                expected_motion: int = self._pattern[self._index % len(self._pattern)]
+                if expected_motion > 0:
+                    if not int(numeral) > self._last_integer:
+                        return numeral, False    # Breaks the chain
+                elif expected_motion < 0:
+                    if not int(numeral) < self._last_integer:
+                        return numeral, False    # Breaks the chain
+                elif not int(numeral) == self._last_integer:    # Value 0 means repeat previous
+                    return numeral, False    # Breaks the chain
+            if iterate:
+                self.next(numeral)
+        return numeral, validated
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():                return self._pattern
+                    case _:                     return super().__mod__(operand)
+            case list():                return self._pattern
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pattern"] = self.serialize( self._pattern )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pattern" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pattern = self.deserialize( serialization["parameters"]["pattern"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand ^= self    # Processes the Frame operand if any exists
+        match operand:
+            case Pattern():
+                super().__lshift__(operand)
+                self._pattern = operand._pattern.copy()
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._pattern = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                self._pattern = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
 
