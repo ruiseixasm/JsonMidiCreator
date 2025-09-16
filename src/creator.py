@@ -397,7 +397,7 @@ profiling_timer = Timer()
 
         # c.profiling_timer.call_timer_a()
         # c.profiling_timer.call_timer_b()
-
+        # print(c.profiling_timer)
 
 def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
     try:

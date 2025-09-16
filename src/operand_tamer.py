@@ -713,6 +713,15 @@ class Pattern(Motion):
                 super().__lshift__(operand)
         return self
 
+    def next(self, numeral: o.TypeNumeral) -> Self:
+        """Only called by the first link of the chain if all links are validated"""
+        if self._last_integer is None:
+            super().next(numeral)
+            self._last_integer = 0  # The first had no change
+        else:
+            super().next(numeral)
+        return self
+        
 
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
