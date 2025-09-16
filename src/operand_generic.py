@@ -580,18 +580,20 @@ class Pitch(Generic):
         """
         # Matches the Degree firstly
         degree_transposition: int = self.degree_transposition()
-        if degree_transposition != 0:   # Optimization
+        degree_accidentals: int = self.degree_accidentals()
+        degree_transposition_accidentals: int = degree_transposition + degree_accidentals
+        if degree_transposition_accidentals != 0:   # Optimization
             tonic_int: int = self._tonic_key % 12
             # tonic_int is used as octave reference to the root_int octave matching
-            degree_key: int = tonic_int + degree_transposition
+            degree_key: int = tonic_int + degree_transposition_accidentals
             octave_offset: int = degree_key // 12
             degree_degree_0: ou.Degree = ou.Degree(self._degree_0) - octave_offset * 7 # Offsets degree to negative
             self._degree_0 = degree_degree_0 % float()
-            degree_transposition -= octave_offset * 12  # Offsets transposition too
+            degree_transposition_accidentals -= octave_offset * 12  # Offsets transposition too
             if move_octave:
                 self._octave_0 += octave_offset     # matches the Octave with the new Degree
         # Matches the Transposition secondly
-        scale_transposition: int = self.scale_transposition(degree_transposition)
+        scale_transposition: int = self.scale_transposition(degree_transposition_accidentals)
         if scale_transposition != 0:    # Optimization
             # Because a pitch scale may not be a diatonic scale (7 degrees)!
             if self._scale:
@@ -599,7 +601,7 @@ class Pitch(Generic):
             else:
                 scale_degrees: int = 7  # Diatonic scales
             tonic_int: int = self._tonic_key % 12
-            root_int: int = tonic_int + degree_transposition
+            root_int: int = tonic_int + degree_transposition_accidentals
             # root_int is used as octave reference to the scale_int octave matching
             scale_key: int = root_int + scale_transposition
             octave_offset: int = scale_key // 12
