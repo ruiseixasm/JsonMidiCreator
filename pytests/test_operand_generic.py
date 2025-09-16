@@ -1042,6 +1042,15 @@ def test_octave_matching():
     print(f"Octave: {minor_d_pitch % Octave() % int()}")
     assert minor_d_pitch % Octave() == 4
 
+    pitch_c = Pitch()
+    pitch_b = pitch_c + Degree(6)   # 1 + 6 = 7
+    pitch_bs = pitch_b + Degree(0.1)
+
+    assert pitch_c == 1.0
+    assert pitch_b == 7.0
+    print(f'pitch_bs % float(): {pitch_bs % float()}')
+    # assert pitch_bs == 7.1
+
 # test_octave_matching()
 
 
@@ -1111,4 +1120,6 @@ def test_pitch_pipe():
     assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
 
 # test_pitch_pipe()
+
+
 

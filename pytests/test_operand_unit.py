@@ -179,6 +179,14 @@ def test_add_degree():
 
     assert Degree(-1.8) + Degree(1) == 0.8  # It's positive because the degree is 0 and the semitones are always positive
 
+    degree_1 = Degree(1)
+    degree_7 = degree_1 + Degree(6)
+    degree_7_1 = degree_7 + Degree(0.1)
+
+    assert degree_1 == 1.0
+    assert degree_7 == 7.0
+    assert degree_7_1 == 7.1
+
 # test_add_degree()
 
 def test_sub_degree():
