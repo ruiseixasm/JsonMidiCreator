@@ -706,7 +706,9 @@ class Pattern(Motion):
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._pattern = operand.copy()
+                self._pattern = [
+                    number if isinstance(number, int) else 0 for number in operand
+                ]
             case _:
                 super().__lshift__(operand)
         return self
