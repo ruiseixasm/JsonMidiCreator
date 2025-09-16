@@ -655,16 +655,20 @@ class Pattern(Motion):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         if validated:
-            if not self.slack(numeral) and self._last_integer is not None:
-                expected_motion: int = self._pattern[self._index % len(self._pattern)]
-                if expected_motion > 0:
-                    if not int(numeral) > self._last_integer:
-                        return numeral, False    # Breaks the chain
-                elif expected_motion < 0:
-                    if not int(numeral) < self._last_integer:
-                        return numeral, False    # Breaks the chain
-                elif not int(numeral) == self._last_integer:    # Value 0 means repeat previous
-                    return numeral, False    # Breaks the chain
+            if self._last_integer is not None:
+                if not self.slack(numeral):
+                    expected_motion: int = self._pattern[self._index % len(self._pattern)]
+                    if expected_motion > 0:
+                        if not int(numeral) > 0:
+                            return numeral, False   # Breaks the chain
+                    elif expected_motion < 0:
+                        if not int(numeral) < 0:
+                            return numeral, False   # Breaks the chain
+                    elif not int(numeral) == 0: # Value 0 means repeat previous
+                        return numeral, False       # Breaks the chain
+            # Has to be 0, first pattern number must not change
+            elif not int(numeral) == 0: # Value 0 means repeat previous
+                return numeral, False   # Breaks the chain
             if iterate:
                 self.next(numeral)
         return numeral, validated
@@ -716,10 +720,11 @@ class Pattern(Motion):
     def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._last_integer is None:
-            super().next(numeral)
-            self._last_integer = 0  # The first had no change
+            super().next(numeral)   # Updates all indexes
         else:
-            super().next(numeral)
+            cumulative_number: int = self._last_integer + int(numeral)
+            super().next(numeral)   # Updates all indexes
+            self._last_integer = cumulative_number
         return self
         
 
