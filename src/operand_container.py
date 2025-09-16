@@ -1824,7 +1824,7 @@ class Composition(Container):
                                 if note["masked"]:
                                     color_alpha = 0.2
                                 self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
-                                    height=0.30, color='white', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
+                                    height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1937,7 +1937,7 @@ class Composition(Container):
                                 if note["masked"]:
                                     color_alpha = 0.2
                                 self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
-                                    height=0.30, color='white', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
+                                    height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'

@@ -29,8 +29,8 @@ theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-theme_2 = theme_1 * [1, 0, 1, 3] >> Note() << TrackName("Response")
-theme_2 -= Octave(1)
+theme_2 = theme_1 * [1, 0, 1, 3] >> Note() << TrackName("Response") << Key('Eb') << Octave(3) << Channel(2)
+theme_2 += Foreach(0, 3, 2, 4, 3, 2, 3, 4, 5, 4, 2, 1)**Degree()
 theme_2 >> Plot(block=False)
 
 
