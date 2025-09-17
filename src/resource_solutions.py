@@ -241,17 +241,19 @@ class RS_Clip(RS_Solutions):
             if isinstance(segmented_composition, oc.Clip):
                 if pseudo_tamed_chaos._tamer._index > 0:
                     clip_pitches: list = (segmented_composition >> of.InputType(oe.Note)) % [og.Pitch(), int()]
-                    clip_pattern: list = []
-                    for index, pitch in enumerate(clip_pitches):
-                        if index == 0:
-                            clip_pattern.append(0)
-                        else:
-                            clip_pattern.append(clip_pitches[index] - clip_pitches[index - 1])
-                    chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
-                    results = [1] * len(clip_pattern) >> chaos
-
-                    segmented_composition += of.InputType(oe.Note)**of.Previous(ou.Degree())**of.Add(*results)
-                    pseudo_tamed_chaos.reset_tamers()
+                    if clip_pitches:
+                        clip_pattern: list = []
+                        for index, pitch in enumerate(clip_pitches):
+                            if index == 0:
+                                clip_pattern.append(0)
+                            else:
+                                clip_pattern.append(clip_pitches[index] - clip_pitches[index - 1])
+                        chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
+                        results = [1] * len(clip_pattern) >> chaos
+                        first_note = segmented_composition[of.InputType(oe.Note)]
+                        first_degree = first_note % ou.Degree()
+                        segmented_composition += of.InputType(oe.Note)**of.Input(first_degree)**of.Add(*results)
+                        pseudo_tamed_chaos.reset_tamers()
             return segmented_composition
 
         if not isinstance(title, str):
