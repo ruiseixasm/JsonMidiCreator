@@ -431,7 +431,7 @@ class Container(o.Operand):
             case Container():
                 return operand.copy(self)
             
-            case of.Frame():
+            case of.Frame():    # Only applicable to Operand items
                 operand._set_inside_container(self)
                 parameters: list = []
                 for single_operand in self._unmasked_items():
@@ -439,9 +439,12 @@ class Container(o.Operand):
                         operand_parameter: o.Operand = single_operand
                         parameter_getter: list = operand ^ single_operand
                         if isinstance(parameter_getter, list):
-                            for single_parameter in parameter_getter:
-                                operand_parameter %= single_parameter
-                            parameters.append( operand_parameter )
+                            if parameter_getter:    # Non empty list
+                                for single_parameter in parameter_getter:
+                                    operand_parameter %= single_parameter
+                                parameters.append( operand_parameter )
+                            else:
+                                parameters.append( single_operand.copy() )
                 return parameters
 
             case _:
