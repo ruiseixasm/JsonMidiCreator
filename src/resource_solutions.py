@@ -158,8 +158,9 @@ class RS_Clip(RS_Solutions):
                         if measure_iterations > 0:
                             if not isinstance(triggers, list):
                                 measure_triggers: list = [triggers] * segmented_composition.len()
-                            results = measure_triggers >> chaos.reset_tamers().iterate(measure_iterations - 1)
+                            results = measure_triggers >> chaos.iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
+                            chaos.reset_tamers()
                         else:
                             new_composition *= segmented_composition
                 return new_composition
@@ -247,12 +248,12 @@ class RS_Clip(RS_Solutions):
                             if index == 0:
                                 clip_pattern.append(results[0])
                             else:
-                                clip_pattern.append(clip_pitches[index] - clip_pitches[index - 1])
-                        pattern_chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
+                                clip_pattern.append(pitch - clip_pitches[index - 1])
+                        pattern_chaos._tamer << clip_pattern    # Updates the Pattern tamer
                         pattern_results: list[int] = [1] * len(clip_pattern) >> pattern_chaos
                         segmented_composition << \
                             of.InputType(oe.Note)**of.Previous(od.Pipe(ou.Degree()), first_null=False)**of.Add(*pattern_results)**od.Pipe()
-                        chaos.reset_tamers()
+                        pattern_chaos.reset_tamers()
             return segmented_composition
 
         if not isinstance(title, str):
