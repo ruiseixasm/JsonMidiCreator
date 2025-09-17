@@ -496,6 +496,7 @@ class Container(o.Operand):
             case od.Conditional():
                 return other == self
             case of.Frame():
+                other._set_inside_container(self)
                 for single_item in self._unmasked_items():
                     if not single_item == other:
                         return False
@@ -514,6 +515,7 @@ class Container(o.Operand):
 
     def __lt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
+            other._set_inside_container(self)
             for single_clip in self._items:
                 if not single_clip < other:
                     return False
@@ -522,6 +524,7 @@ class Container(o.Operand):
 
     def __gt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
+            other._set_inside_container(self)
             for single_clip in self._items:
                 if not single_clip > other:
                     return False
@@ -4662,6 +4665,7 @@ class Part(Composition):
             case Part():
                 return self._position_beats < other._position_beats
             case of.Frame():
+                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip < other:
                         return False
@@ -4675,6 +4679,7 @@ class Part(Composition):
             case Part():
                 return self._position_beats > other._position_beats
             case of.Frame():
+                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip > other:
                         return False
@@ -5980,8 +5985,6 @@ class ClipGet(Container):
                 for item in self._unmasked_items():
                     item -= operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item_i in range(self.len()):
                     self._unmasked_items()[item_i] -= operand
         return self
