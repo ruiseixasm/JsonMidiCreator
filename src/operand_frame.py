@@ -277,12 +277,12 @@ class Input(Left):
 class Previous(Left):
     """`Frame -> Left -> Previous`
 
-    Represents the previous processed `Element`, returns `Null()` for the first one.
+    Represents the previous processed `Element`, passes `Null()` for the first one.
 
     Parameters
     ----------
     Any(None) : Any type of data to be extracted from the previous `Element`. \
-        If note is given, then is the element itself that is passed.
+        If none is given, then is the element itself that is passed or `Null()` if the first one.
     """
     def __init__(self, *parameters):
         super().__init__()
