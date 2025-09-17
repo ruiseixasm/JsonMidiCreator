@@ -433,9 +433,9 @@ class Container(o.Operand):
             
             case of.Frame():
                 parameters: list = []
-                for single_item in self._unmasked_items():
-                    if isinstance(single_item, o.Operand):
-                        item_parameter: list = operand ^ single_item
+                for single_operand in self._unmasked_items():
+                    if isinstance(single_operand, o.Operand):
+                        item_parameter: list = operand ^ single_operand
                         if isinstance(item_parameter, list) and item_parameter:
                             for single_parameter in item_parameter:
                                 item_parameter = item_parameter % single_parameter
