@@ -438,7 +438,7 @@ class Container(o.Operand):
                         operand_parameter: list = operand ^ single_operand
                         if isinstance(operand_parameter, list) and operand_parameter:
                             for single_parameter in operand_parameter:
-                                operand_parameter = operand_parameter % single_parameter
+                                operand_parameter %= single_parameter
                             parameters.append( operand_parameter )
                 return parameters
 
