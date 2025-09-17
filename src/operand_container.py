@@ -2317,6 +2317,8 @@ class Composition(Container):
             ]
             if at_position_notes:
                 if self._by_channel:
+                    # Sort by Position in reverse instead
+                    at_position_notes.sort(key=lambda note:note._position_beats * -1)
                     at_position_notes = [ at_position_notes[0] ]    # Just a single note is played
                     at_position_notes[0]._channel_0 = int(event.ydata + 0.5)
                     at_position_notes[0]._position_beats = Fraction(0)
