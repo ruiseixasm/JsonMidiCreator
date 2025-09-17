@@ -5027,8 +5027,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self += single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item += operand
         return self._sort_items()  # Shall be sorted!
@@ -5048,8 +5046,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self -= single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()  # Shall be sorted!
@@ -5104,8 +5100,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self.__imul__(single_operand)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -5144,8 +5138,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -5177,8 +5169,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -5673,16 +5663,12 @@ class Song(Composition):
                 for item in operand:
                     if isinstance(item, Part):
                         self._append(item.copy()._set_owner_song(self))
-                self._sort_items()
             case tuple():
                 for single_operand in operand:
                     self += single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item += operand
-                self._sort_items()
         return self._sort_items()  # Shall be sorted!
 
 
@@ -5704,8 +5690,6 @@ class Song(Composition):
                 for single_operand in operand:
                     self -= single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()
@@ -5747,10 +5731,7 @@ class Song(Composition):
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
-
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()
@@ -5793,8 +5774,6 @@ class Song(Composition):
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()
@@ -5825,8 +5804,6 @@ class Song(Composition):
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
