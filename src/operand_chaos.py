@@ -237,6 +237,8 @@ class Chaos(o.Operand):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
     def reset(self, *parameters) -> Self:
@@ -354,6 +356,8 @@ class Cycle(Chaos):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
 class Counter(Cycle):
@@ -392,6 +396,8 @@ class Counter(Cycle):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
 class Ripple(Cycle):
@@ -428,6 +434,8 @@ class Ripple(Cycle):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
 class Spiral(Cycle):
@@ -461,6 +469,8 @@ class Spiral(Cycle):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
 
@@ -635,6 +645,8 @@ class Bouncer(Chaos):
             self._yn._rational = position_y
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
     def __str__(self) -> str:
@@ -727,5 +739,7 @@ class SinX(Chaos):
             self._xn._rational = result
             self._index += increased_index
             self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
