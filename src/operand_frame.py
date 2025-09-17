@@ -281,17 +281,22 @@ class Previous(Left):
 
     Parameters
     ----------
-    Any(None) : Any type of data.
+    Any(None) : Any type of data to be extracted from the previous `Element`. \
+        If note is given, then is the element itself that is passed.
     """
-    def __init__(self, previous: any = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._named_parameters['previous'] = previous
+        self._named_parameters['parameter'] = parameters
+        self._named_parameters['previous'] = None
 
     def __ixor__(self, input: o.T) -> o.T:
         if self._named_parameters['previous'] is None:
             self._named_parameters['previous'] = input
             return ol.Null()
-        parameter: Any = super().__ixor__(self._named_parameters['previous'])
+        previous_parameter = self._named_parameters['previous']
+        for parameter in self._named_parameters['parameter']:
+            previous_parameter %= parameter
+        parameter: Any = super().__ixor__(previous_parameter)
         self._named_parameters['previous'] = input
         return parameter
 
