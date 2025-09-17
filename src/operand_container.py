@@ -873,6 +873,20 @@ class Container(o.Operand):
         return shallow_copy << parameters
     
 
+    def proxy(self) -> Self:
+        """
+        Creates and returns a shallow copy of the left side `>>` Container.
+
+        Parameters
+        ----------
+        Any(None) : The Parameters to be set on the shallow copied `Container`.
+
+        Returns:
+            Container: Returns a shallow copy of the left side `>>` operand.
+        """
+        return self.shallow_copy()
+
+
     def process(self, input: any = None) -> Self:
         return self >> input
 

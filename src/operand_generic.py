@@ -2686,6 +2686,27 @@ class Copy(ReadOnly):
             return operand.copy(*self._parameters)
         return super().__rrshift__(operand)
 
+class Proxy(ReadOnly):
+    """`Generic -> Process -> ReadOnly -> Proxy`
+
+    Creates and returns a shallow copy of the left side `>>` Container.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the shallow copied `Container`.
+
+    Returns:
+        Container: Returns a shallow copy of the left side `>>` operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.shallow_copy(*self._parameters)
+        return super().__rrshift__(operand)
+
 class Reset(Process):
     """`Generic -> Process -> Reset`
 
