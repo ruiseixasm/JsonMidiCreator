@@ -501,7 +501,7 @@ class Container(o.Operand):
             case of.Frame():
                 other._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    other_item = other ^ single_item
+                    other_item = other.__ixor__(single_item)
                     if not single_item == other_item:
                         return False
                 return True
@@ -520,8 +520,9 @@ class Container(o.Operand):
     def __lt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
             other._set_inside_container(self)
-            for single_clip in self._items:
-                if not single_clip < other:
+            for single_item in self._items:
+                other_item = other.__ixor__(single_item)
+                if not single_item < other_item:
                     return False
             return True
         return self % other < other
@@ -529,8 +530,9 @@ class Container(o.Operand):
     def __gt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
             other._set_inside_container(self)
-            for single_clip in self._items:
-                if not single_clip > other:
+            for single_item in self._items:
+                other_item = other.__ixor__(single_item)
+                if not single_item > other_item:
                     return False
             return True
         return self % other > other
@@ -656,8 +658,8 @@ class Container(o.Operand):
                     self << single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._unmasked_items():
-                    item << operand
+                for single_item in self._unmasked_items():
+                    single_item << operand.__ixor__(single_item)
             case _:
                 self += operand
         return self
@@ -721,8 +723,8 @@ class Container(o.Operand):
                     self += single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._items:
-                    item += operand
+                for single_item in self._unmasked_items():
+                    single_item += operand.__ixor__(single_item)
             case _:
                 return self._append(self.deep_copy(operand))
         return self
@@ -746,8 +748,8 @@ class Container(o.Operand):
                         operand -= 1
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._unmasked_items():
-                    item -= operand
+                for single_item in self._unmasked_items():
+                    single_item -= operand.__ixor__(single_item)
             case _:
                 return self._delete([ operand ])
         return self
@@ -778,9 +780,11 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_item in self._unmasked_items():
+                    single_item *= operand.__ixor__(single_item)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__imul__(operand)
         return self
@@ -806,9 +810,11 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_item in self._unmasked_items():
+                    single_item /= operand.__ixor__(single_item)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self
