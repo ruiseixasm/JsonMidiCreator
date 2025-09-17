@@ -3131,9 +3131,11 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self += single_operand
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element += operand.__ixor__(single_element)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item += operand
         return self._sort_items()  # Shall be sorted!
@@ -3167,9 +3169,11 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element -= operand.__ixor__(single_element)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item -= operand
         return self._sort_items()  # Shall be sorted!
@@ -3276,9 +3280,11 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element *= operand.__ixor__(single_element)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__imul__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -3368,9 +3374,11 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element /= operand.__ixor__(single_element)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -3478,9 +3486,11 @@ class Clip(Composition):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element //= operand.__ixor__(single_element)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
