@@ -662,10 +662,12 @@ class Pattern(Motion):
                 if not self.slack(numeral):
                     expected_motion: int = self._pattern[self._index % len(self._pattern)]
                     if expected_motion > 0:
-                        if not int(numeral) > 0:
+                        if not int(numeral) > 0 \
+                            and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
                             return numeral, False   # Breaks the chain
                     elif expected_motion < 0:
-                        if not int(numeral) < 0:
+                        if not int(numeral) < 0 \
+                            and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
                             return numeral, False   # Breaks the chain
                     elif not int(numeral) == 0: # Value 0 means repeat previous
                         return numeral, False       # Breaks the chain
