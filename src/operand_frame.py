@@ -287,12 +287,9 @@ class Previous(Left):
     def __init__(self, *parameters):
         super().__init__()
         self._named_parameters['parameter'] = parameters
-        self._named_parameters['previous'] = None
+        self._named_parameters['previous'] = ol.Null()
 
     def __ixor__(self, input: o.T) -> o.T:
-        if self._named_parameters['previous'] is None:
-            self._named_parameters['previous'] = input
-            return ol.Null()
         previous_parameter = self._named_parameters['previous']
         for parameter in self._named_parameters['parameter']:
             previous_parameter %= parameter

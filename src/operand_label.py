@@ -79,7 +79,14 @@ class Null(Label):
     ----------
     None : `Null` has no parameters.
     """
-    pass
+    def __mod__(self, operand: o.T) -> Self:
+        return self
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        return self
+    
     
 class Dummy(Label):
     """`Label -> Dummy`
