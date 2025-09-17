@@ -643,12 +643,15 @@ class Pattern(Motion):
     Parameters
     ----------
     list([]), Clip() : A `list` of integers where the positivity or negativity of the integer is used as the motion pattern.
+    int(0) : An integer sets an absolute limit where the cumulative numeral can't go above or below. The default is 0, \
+        meaning it has no limit.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def __init__(self, *parameters):
         super().__init__()
         self._pattern: list[int] = []
+        self._limit: int = 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -678,23 +681,27 @@ class Pattern(Motion):
             case od.Pipe():
                 match operand._data:
                     case list():                return self._pattern
+                    case int():                 return self._limit
                     case _:                     return super().__mod__(operand)
-            case list():                return self._pattern
+            case list():                return self._pattern.copy()
+            case int():                 return self._limit
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pattern"] = self.serialize( self._pattern )
+        serialization["parameters"]["pattern"]  = self.serialize( self._pattern )
+        serialization["parameters"]["limit"]    = self.serialize( self._pattern )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pattern" in serialization["parameters"]):
+            "pattern" in serialization["parameters"] and "limit" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pattern = self.deserialize( serialization["parameters"]["pattern"] )
+            self._pattern   = self.deserialize( serialization["parameters"]["pattern"] )
+            self._limit     = self.deserialize( serialization["parameters"]["limit"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -702,17 +709,22 @@ class Pattern(Motion):
         match operand:
             case Pattern():
                 super().__lshift__(operand)
-                self._pattern = operand._pattern.copy()
+                self._pattern   = operand._pattern.copy()
+                self._limit     = operand._limit
             case od.Pipe():
                 match operand._data:
                     case list():
                         self._pattern = operand._data
+                    case int():
+                        self._limit = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
                 self._pattern = [
                     number if isinstance(number, int) else 0 for number in operand
                 ]
+            case int():
+                self._limit = operand
             case _:
                 super().__lshift__(operand)
         return self
