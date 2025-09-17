@@ -1000,9 +1000,20 @@ class BasicOperation(Left):
     ----------
     None : This `Frame` has no parameters.
     """
-    def __init__(self, parameter: any = 1):
+    def __init__(self, *parameters):
         super().__init__()
-        self._named_parameters['parameter'] = parameter
+        self._named_parameters['parameter'] = parameters
+
+    def _next_parameter(self) -> Any:
+        if isinstance(self._named_parameters['parameter'], tuple):
+            if self._named_parameters['parameter']:
+                total_parameters: int = len(self._named_parameters['parameter'])
+                next_parameter = self._named_parameters['parameter'][self._index % total_parameters]
+                self._index += 1
+                return next_parameter
+            else:
+                return ol.Null()
+        return self._named_parameters['parameter']
 
 class Add(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Add`
@@ -1011,10 +1022,10 @@ class Add(BasicOperation):
 
     Parameters
     ----------
-    int(1) : A parameter to do an `+` on input.
+    Any : A parameters to do an `+` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input + self._named_parameters['parameter'])
+        return super().__ixor__(input + self._next_parameter())
 
 class Subtract(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Subtract`
@@ -1023,10 +1034,10 @@ class Subtract(BasicOperation):
 
     Parameters
     ----------
-    int(1) : A parameter to do an `-` on input.
+    Any : A parameters to do an `-` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input - self._named_parameters['parameter'])
+        return super().__ixor__(input - self._next_parameter())
 
 class Multiply(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Multiply`
@@ -1035,10 +1046,10 @@ class Multiply(BasicOperation):
 
     Parameters
     ----------
-    int(1) : A parameter to do an `*` on input.
+    Any : A parameters to do an `*` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input * self._named_parameters['parameter'])
+        return super().__ixor__(input * self._next_parameter())
 
 class Divide(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Divide`
@@ -1047,10 +1058,10 @@ class Divide(BasicOperation):
 
     Parameters
     ----------
-    int(1) : A parameter to do an `/` on input.
+    Any : A parameters to do an `/` on input.
     """
     def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input / self._named_parameters['parameter'])
+        return super().__ixor__(input / self._next_parameter())
 
 
 class Right(Frame):  # RIGHT TO LEFT

@@ -249,7 +249,8 @@ class RS_Clip(RS_Solutions):
                             clip_pattern.append(clip_pitches[index] - clip_pitches[index - 1])
                     chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer
                     results = [1] * len(clip_pattern) >> chaos
-                    segmented_composition += of.InputType(oe.Note)**of.Foreach(*results)**ou.Degree()
+
+                    segmented_composition += of.InputType(oe.Note)**of.Previous(ou.Degree())**of.Add(*results)
                     pseudo_tamed_chaos.reset_tamers()
             return segmented_composition
 
