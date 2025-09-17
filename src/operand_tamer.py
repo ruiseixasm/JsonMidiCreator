@@ -732,11 +732,11 @@ class Pattern(Motion):
     def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._last_integer is None:
-            super().next(numeral)   # Updates all indexes
+            cumulative_number: int = 0
         else:
             cumulative_number: int = self._last_integer + int(numeral)
-            super().next(numeral)   # Updates all indexes
-            self._last_integer = cumulative_number
+        super().next(numeral)   # Updates all indexes
+        self._last_integer = cumulative_number
         return self
         
 
