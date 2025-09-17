@@ -243,14 +243,14 @@ class RS_Clip(RS_Solutions):
                 if chaos._tamer._index > 0:
                     clip_pitches: list = (segmented_composition >> of.InputType(oe.Note)) % [og.Pitch(), int()]
                     if clip_pitches:
-                        clip_pattern: list = []
+                        clip_pattern: list[int] = []
                         for index, pitch in enumerate(clip_pitches):
                             if index == 0:
                                 clip_pattern.append(results[0])
                             else:
                                 clip_pattern.append(pitch - clip_pitches[index - 1])
                         pattern_chaos._tamer << clip_pattern    # Updates the Pattern tamer
-                        pattern_results: list[int] = [1] * len(clip_pattern) >> pattern_chaos
+                        pattern_results: list[int] = clip_pattern >> pattern_chaos
                         segmented_composition << \
                             of.InputType(oe.Note)**of.Previous(od.Pipe(ou.Degree()), first_null=False)**of.Add(*pattern_results)**od.Pipe()
                         pattern_chaos.reset_tamers()
