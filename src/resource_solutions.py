@@ -245,7 +245,7 @@ class RS_Clip(RS_Solutions):
                         clip_pattern: list = []
                         for index, pitch in enumerate(clip_pitches):
                             if index == 0:
-                                clip_pattern.append(0)
+                                clip_pattern.append(results[0])
                             else:
                                 clip_pattern.append(clip_pitches[index] - clip_pitches[index - 1])
                         pattern_chaos._tamer.reset() << clip_pattern    # Resets the Pattern tamer

@@ -671,9 +671,6 @@ class Pattern(Motion):
                             return numeral, False   # Breaks the chain
                     elif not int(numeral) == 0: # Value 0 means repeat previous
                         return numeral, False       # Breaks the chain
-            # Has to be 0, first pattern number must not change
-            elif not int(numeral) == 0: # Value 0 means repeat previous
-                return numeral, False   # Breaks the chain
             if iterate:
                 self.next(numeral)
         return numeral, validated
