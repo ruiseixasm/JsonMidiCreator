@@ -685,10 +685,12 @@ class Pitch(Generic):
                     case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
                     case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
-                    case ou.Degree():
+                    case ou.Degree():   # Returns an absolute degree_0
                         operand._data << self._degree_0
                         operand._data += self._octave_0 * 7   # 7 degrees per octave
                         return operand._data
+                    case ou.Semitone(): # Returns an absolute pitch_int Semitone
+                        return operand._data << self % int()
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
                     case int():             return float(self._tonic_key)
@@ -841,7 +843,7 @@ class Pitch(Generic):
                         self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
-                    case ou.Degree():
+                    case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
                         self._degree_0 = degree_0 % float()
@@ -851,8 +853,8 @@ class Pitch(Generic):
                         self._tonic_key = operand._data
                     case Fraction():
                         self._transposition = int(operand._data)
-                    case ou.Semitone():
-                        self._tonic_key = operand._data._unit
+                    case ou.Semitone(): # Sets an absolute pitch
+                        self << operand._data._unit
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():
