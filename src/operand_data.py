@@ -159,27 +159,10 @@ class Pipe(Data):
     """
     def __init__(self, operand: any = None):
         super().__init__()
-        self._data: any = o.Operand() if operand is None else operand
+        self._data: any = operand
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol will extract the data source value.
-
-        Examples
-        --------
-        >>> dotted_note = Dotted(1/4)
-        >>> dotted_note % float() >> Print()
-        0.25
-        >>> dotted_note % Pipe( float() ) >> Print()
-        0.375
-        """
-        match operand:
-            case Pipe():
-                return self._data
-            case _:
-                if isinstance(self._data, o.Operand):
-                    return self._data % operand
-                return self.deep_copy(operand)
+        return self._data
     
     # CHAINABLE OPERATIONS
 
@@ -187,14 +170,9 @@ class Pipe(Data):
         operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pipe():
-                self._data = self.deep_copy(operand._data)
-            case tuple():
-                if isinstance(self._data, o.Operand):
-                    for single_operand in operand:
-                        self._data << single_operand
+                self._data = operand._data
             case _:
-                if isinstance(self._data, o.Operand):
-                    self._data << operand
+                self._data = operand
         return self
 
 class Inline(Data):
