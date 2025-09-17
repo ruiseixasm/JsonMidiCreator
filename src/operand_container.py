@@ -1254,22 +1254,27 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        deletable_item_ids: set = set()
-        # And type of conditions, not meeting any means excluded
-        for single_condition in conditions:
-            if isinstance(single_condition, Container):
-                deletable_item_ids.update(
-                    id(item) for item in self._items
-                    if not any(item == cond_item for cond_item in single_condition._items)
-                )
-            else:
-                if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self)
-                deletable_item_ids.update(
-                    id(item) for item in self._items
-                    if not item == single_condition
-                )
-        return self._delete_by_ids(deletable_item_ids)
+        excluded_item_ids: set = set()
+        if conditions:
+            # And type of conditions, not meeting any means excluded
+            for single_condition in conditions:
+                match single_condition:
+                    case Container():
+                        excluded_item_ids.update(
+                            id(single_item) for single_item in self._items
+                            if not any(single_item == cond_item for cond_item in single_condition)
+                        )
+                    case of.Frame():
+                        single_condition._set_inside_container(self)
+                        for single_item in self._items:
+                            if not single_item == single_condition.__ixor__(single_item):
+                                excluded_item_ids.add(id(single_item))
+                    case _:
+                        excluded_item_ids.update(
+                            id(single_item) for single_item in self._items
+                            if not single_item == single_condition
+                        )
+        return self._delete_by_ids(excluded_item_ids)
 
 
     def operate(self, operand: Any = None, operator: str = "<<") -> Self:
