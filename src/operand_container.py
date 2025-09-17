@@ -501,7 +501,8 @@ class Container(o.Operand):
             case of.Frame():
                 other._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    if not single_item == other:
+                    other_item = other ^ single_item
+                    if not single_item == other_item:
                         return False
                 return True
         if not isinstance(other, ol.Null):
