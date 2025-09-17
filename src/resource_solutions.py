@@ -235,7 +235,7 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
             title: str | None = None) -> Self:
         """
-        Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
+        Adjusts the `Degree` of each `Note` while respecting the original motion pattern.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
