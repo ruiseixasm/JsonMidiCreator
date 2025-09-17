@@ -411,10 +411,13 @@ class Container(o.Operand):
                 if operand: # Non empty list
                     parameters: list = []
                     for single_item in self._unmasked_items():
-                        item_parameter: any = single_item
-                        for single_parameter in operand:
-                            item_parameter = item_parameter % single_parameter
-                        parameters.append( item_parameter )
+                        if isinstance(single_item, o.Operand):
+                            item_parameter: any = single_item
+                            for single_parameter in operand:
+                                item_parameter = item_parameter % single_parameter
+                            parameters.append( item_parameter )
+                        else:
+                            parameters.append( ol.Null() )
                     return parameters
                 return [
                     self.deep_copy(item) for item in self._unmasked_items()
@@ -427,6 +430,18 @@ class Container(o.Operand):
                 return not self.is_masked()
             case Container():
                 return operand.copy(self)
+            
+            case of.Frame():
+                parameters: list = []
+                for single_item in self._unmasked_items():
+                    if isinstance(single_item, o.Operand):
+                        item_parameter: list = operand ^ single_item
+                        if isinstance(item_parameter, list) and item_parameter:
+                            for single_parameter in item_parameter:
+                                item_parameter = item_parameter % single_parameter
+                            parameters.append( item_parameter )
+                return parameters
+
             case _:
                 return super().__mod__(operand)
 
@@ -2763,8 +2778,10 @@ class Clip(Composition):  # Just a container of Elements
                 return self._dev_base_container()._midi_track % operand
             case og.TimeSignature():
                 return self._time_signature.copy()
+
             case Part():            return Part(self._time_signature, self._dev_base_container())
             case Song():            return Song(self._time_signature, self._dev_base_container())
+
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
                 for single_element in self._unmasked_items():
