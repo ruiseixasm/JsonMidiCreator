@@ -283,18 +283,25 @@ class Previous(Left):
     ----------
     Any(None) : Any type of data to be extracted from the previous `Element`. \
         If none is given, then is the element itself that is passed or `Null()` if the first one.
+    first_null(bool) : Sets if the first input is `Null` or the `Element` imputed. The default is `True`.
     """
-    def __init__(self, *parameters):
+    def __init__(self, *parameters, first_null: bool = True):
         super().__init__()
         self._named_parameters['parameter'] = parameters
-        self._named_parameters['previous'] = ol.Null()
+        self._named_parameters['previous'] = first_null
 
     def __ixor__(self, input: o.T) -> o.T:
+        if self._index == 0:
+            if self._named_parameters['previous']:
+                self._named_parameters['previous'] = ol.Null()
+            else:
+                self._named_parameters['previous'] = input
         previous_parameter = self._named_parameters['previous']
         for parameter in self._named_parameters['parameter']:
             previous_parameter %= parameter
         parameter: Any = super().__ixor__(previous_parameter)
         self._named_parameters['previous'] = input
+        self._index += 1
         return parameter
 
 
