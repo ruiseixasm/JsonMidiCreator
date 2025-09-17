@@ -3061,9 +3061,11 @@ class Clip(Composition):  # Just a container of Elements
                             element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
                         self._unmasked_items()[element_i] << element_parameter
             
-            case _: # Works for Frame too
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self._unmasked_items():
+                    single_element << operand.__ixor__(single_element)
+            case _:
                 for item in self._unmasked_items():
                     item << operand
 
@@ -4994,8 +4996,6 @@ class Part(Composition):
                 for single_operand in operand:
                     self << single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item in self._unmasked_items():
                     item << operand
 
@@ -5634,8 +5634,6 @@ class Song(Composition):
                 for single_operand in operand:
                     self << single_operand
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for single_part in self._unmasked_items():
                     single_part << operand
 
@@ -5933,9 +5931,11 @@ class ClipGet(Container):
 
             case tuple():
                 self._get = operand
-            case _: # Works for Frame too
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_item in self._unmasked_items():
+                    single_item << operand.__ixor__(single_item)
+            case _:
                 for item in self._unmasked_items():
                     item << operand
         return self
