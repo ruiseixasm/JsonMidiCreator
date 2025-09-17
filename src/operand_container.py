@@ -432,6 +432,7 @@ class Container(o.Operand):
                 return operand.copy(self)
             
             case of.Frame():
+                operand._set_inside_container(self)
                 parameters: list = []
                 for single_operand in self._unmasked_items():
                     if isinstance(single_operand, o.Operand):
