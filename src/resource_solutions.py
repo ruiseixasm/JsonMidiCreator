@@ -241,7 +241,7 @@ class RS_Clip(RS_Solutions):
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 if chaos._tamer._index > 0:
-                    clip_pitches: list = (segmented_composition >> of.InputType(oe.Note)) % [og.Pitch(), int()]
+                    clip_pitches: list = segmented_composition % of.InputType(oe.Note)**[og.Pitch(), int()]
                     if clip_pitches:
                         clip_pattern: list[int] = []
                         for index, pitch in enumerate(clip_pitches):

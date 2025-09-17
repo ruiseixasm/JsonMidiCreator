@@ -29,7 +29,7 @@ theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-if True:
+if False:
 
     theme_2 = theme_1 - Octave(1) << Channel(2)
     theme_2 = RS_Clip(theme_2, [1], 4, theme_1).degree_pattern(5).solution() << Name("Similar")
@@ -37,6 +37,7 @@ if True:
 
 else:
 
+    theme_2 = theme_1 - Octave(1) << Channel(2)
     final_composition = theme_1 + theme_2
     final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).degree_pattern(5).unmask().solution()
     final_composition * 2 << Name("Similar Lines") >> Plot(block=True)

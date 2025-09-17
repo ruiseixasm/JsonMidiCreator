@@ -414,7 +414,7 @@ class Container(o.Operand):
                         if isinstance(single_item, o.Operand):
                             operand_parameter: any = single_item
                             for single_parameter in operand:
-                                operand_parameter = operand_parameter % single_parameter
+                                operand_parameter %= single_parameter
                             parameters.append( operand_parameter )
                         else:
                             parameters.append( ol.Null() )
@@ -435,9 +435,10 @@ class Container(o.Operand):
                 parameters: list = []
                 for single_operand in self._unmasked_items():
                     if isinstance(single_operand, o.Operand):
-                        operand_parameter: list = operand ^ single_operand
-                        if isinstance(operand_parameter, list) and operand_parameter:
-                            for single_parameter in operand_parameter:
+                        operand_parameter: o.Operand = single_operand
+                        parameter_getter: list = operand ^ single_operand
+                        if isinstance(parameter_getter, list):
+                            for single_parameter in parameter_getter:
                                 operand_parameter %= single_parameter
                             parameters.append( operand_parameter )
                 return parameters
