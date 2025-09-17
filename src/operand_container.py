@@ -5957,9 +5957,11 @@ class ClipGet(Container):
             case tuple():
                 for single_operand in operand:
                     self += single_operand
+            case of.Frame():
+                operand._set_inside_container(self)
+                for index, single_item in enumerate(self._unmasked_items()):
+                    self._unmasked_items()[index] += operand.__ixor__(single_item)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item_i in range(self.len()):
                     self._unmasked_items()[item_i] += operand
         return self
@@ -5979,8 +5981,8 @@ class ClipGet(Container):
                         operand -= 1
             case of.Frame():
                 operand._set_inside_container(self)
-                for item in self._unmasked_items():
-                    item -= operand
+                for index, single_item in enumerate(self._unmasked_items()):
+                    self._unmasked_items()[index] -= operand.__ixor__(single_item)
             case _:
                 for item_i in range(self.len()):
                     self._unmasked_items()[item_i] -= operand
@@ -6013,9 +6015,11 @@ class ClipGet(Container):
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for index, single_item in enumerate(self._unmasked_items()):
+                    self._unmasked_items()[index] *= operand.__ixor__(single_item)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item_i in range(self.len()):
                     self._unmasked_items()[item_i].__imul__(operand)
         return self
@@ -6042,9 +6046,11 @@ class ClipGet(Container):
             case tuple():
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for index, single_item in enumerate(self._unmasked_items()):
+                    self._unmasked_items()[index] /= operand.__ixor__(single_item)
             case _:
-                if isinstance(operand, of.Frame):
-                    operand._set_inside_container(self)
                 for item_i in range(self.len()):
                     self._unmasked_items()[item_i].__itruediv__(operand)
         return self
