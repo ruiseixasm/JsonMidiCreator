@@ -1017,7 +1017,7 @@ class BasicOperation(Left):
                 self._index += 1
                 return next_parameter
             else:
-                return ol.Null()
+                return 1    # By default processes 1
         return self._named_parameters['parameter']
 
 class Add(BasicOperation):
