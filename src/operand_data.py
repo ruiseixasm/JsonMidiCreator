@@ -358,6 +358,19 @@ class Name(TrackName):
     """
     pass
 
+class Title(TrackName):
+    """`Data -> TrackName -> Title`
+
+    `Clip` parameter that sets the title of the track for the Plotlist exporting.
+    Basically works like a tag on a `Composition`, where multiple elements can share the same track name.
+
+    Parameters
+    ----------
+    str("Track 1") : Title of the `Composition` plotting.
+    """
+    pass
+
+
 class Serialization(Data):
     """`Data -> Serialization`
 
