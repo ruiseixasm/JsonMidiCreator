@@ -230,7 +230,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
-    def tonality_pattern(self,
+    def degree_pattern(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
             title: str | None = None) -> Self:
@@ -255,7 +255,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Tonality Pattern"
+            title = "Degree Pattern"
         chaos << ot.Pattern()**chaos._tamer # Expands tamer with Pattern
         pseudo_tamed_chaos: ch.Chaos = ch.Chaos(ot.Tamer())
         return self.iterate(iterations, _iterator, pseudo_tamed_chaos, [1], title)

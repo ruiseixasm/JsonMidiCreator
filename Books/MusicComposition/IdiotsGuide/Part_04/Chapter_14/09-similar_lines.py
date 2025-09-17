@@ -29,7 +29,7 @@ theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-theme_2 = RS_Clip(theme_1 - Octave(1) << Channel(2), [1], 4, theme_1).tonality_pattern(5).solution() << Name("Similar")
+theme_2 = RS_Clip(theme_1 - Octave(1) << Channel(2), [1], 4, theme_1).degree_pattern(5).solution() << Name("Similar")
 
 
 (theme_1 + theme_2) * 2 << Name("Similar Lines") >> Plot(block=True)
