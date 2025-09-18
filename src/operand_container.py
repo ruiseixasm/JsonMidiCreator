@@ -2761,16 +2761,8 @@ class Clip(Composition):  # Just a container of Elements
             case og.TimeSignature():
                 self._time_signature += operand
 
-            case tuple():
-                for single_operand in operand:
-                    self += single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self._unmasked_items():
-                    single_element += operand.__ixor__(single_element)
             case _:
-                for item in self._unmasked_items():
-                    item += operand
+                super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __isub__(self, operand: any) -> Self:
