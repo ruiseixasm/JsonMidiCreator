@@ -1383,24 +1383,6 @@ class Composition(Container):
         return self
     
 
-    def mask_original(self, *conditions) -> Self:
-        """
-        Masks the items that meet the conditions (equal to). No implicit copies.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an And fashion.
-
-        Returns:
-            Composition Mask: A different object with a shallow copy of the original
-            `Composition` items now selected as a `Mask`.
-        """
-        composition_mask: Composition = super().mask_original(*conditions)
-        composition_mask._time_signature = self._base_container._time_signature
-        composition_mask._length_beats = self._base_container._length_beats
-        return composition_mask
-
-    
     def fit(self, tie_splits: bool = True) -> Self:
         """
         Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
@@ -2388,19 +2370,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def masked_element(self, element: oe.Element) -> bool:
-        if AS_MASK_LIST:
-            return self.masked_element_developing(element)
-        return self.masked_element_original(element)
-
-    def masked_element_original(self, element: oe.Element) -> bool:
-        if self.is_masked():
-            for single_element in self._items:
-                if single_element is element:
-                    return False
-            return True
-        return False
-
-    def masked_element_developing(self, element: oe.Element) -> bool:
         if self.is_masked():
             for single_element in self._mask_items:
                 if element is single_element:
@@ -3221,7 +3190,7 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()  # Shall be sorted!
 
 
-    def empty_copy_original(self, *parameters) -> Self:
+    def empty_copy(self, *parameters) -> Self:
         """
         Returns a Clip with all the same parameters but the list that is empty.
 
@@ -3231,52 +3200,12 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: Returns the copy of self but with an empty list of items.
         """
-        empty_copy: Clip                = super().empty_copy_original()
-        empty_base: Clip                = empty_copy._dev_base_container()
-        self_base: Clip                 = self._dev_base_container()
-        empty_base._time_signature      << self_base._time_signature
-        empty_base._midi_track          << self_base._midi_track
-        empty_base._length_beats        = self_base._length_beats
-        for single_parameter in parameters: # Parameters should be set on the base container
-            empty_base << single_parameter
-        return empty_copy
-
-    def empty_copy_developing(self, *parameters) -> Self:
-        """
-        Returns a Clip with all the same parameters but the list that is empty.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Clip: Returns the copy of self but with an empty list of items.
-        """
-        new_clip: Clip              = super().empty_copy_developing()
+        new_clip: Clip              = super().empty_copy()
         new_clip._time_signature    << self._time_signature
         new_clip._midi_track        << self._midi_track
         new_clip._length_beats      = self._length_beats
         return new_clip << parameters
 
-
-    def shallow_copy_original(self, *parameters) -> Self:
-        """
-        Returns a Clip with all the same parameters copied, but the list that
-        is just a reference of the same list of the original Clip.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Clip: Returns the copy of self but with a list of the same items of the original one.
-        """
-        shallow_copy: Clip              = super().shallow_copy_original()
-        # It's a shallow copy, so it shares the same TimeSignature and midi track
-        shallow_copy._time_signature    << self._time_signature   
-        shallow_copy._dev_base_container()._midi_track        << self._base_container._midi_track
-        shallow_copy._base_container._length_beats      = self._base_container._length_beats
-        for single_parameter in parameters: # Parameters should be set on the base container
-            shallow_copy._base_container << single_parameter
-        return shallow_copy
 
     def shallow_copy(self, *parameters) -> Self:
         """
@@ -3295,23 +3224,6 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._midi_track        << self._midi_track
         new_clip._length_beats      = self._length_beats
         return new_clip << parameters
-
-
-    def mask_original(self, *conditions) -> Self:
-        """
-        Masks the items that meet the conditions (equal to). No implicit copies.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an And fashion.
-
-        Returns:
-            Clip Mask: A different object with a shallow copy of the original
-            `Clip` items now selected as a `Mask`.
-        """
-        clip_mask: Clip = super().mask_original(*conditions)
-        clip_mask._midi_track = self._base_container._midi_track
-        return clip_mask
 
 
     def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
