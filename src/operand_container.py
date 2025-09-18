@@ -2876,48 +2876,27 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
+                # Multiply with `Clip` is applicable to the totality of the self and other Clip and NOT just its the mask
+                self_masked: bool = self._masked
+                self._masked = False
 
-                if AS_MASK_LIST:
-                    # Multiply with `Clip` is applicable to the totality of the self and other Clip and NOT just its the mask
-                    self_masked: bool = self._masked
-                    self._masked = False
+                operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
+                operand_copy._masked = False
 
-                    operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
-                    operand_copy._masked = False
+                operand_position: ra.Position = operand_copy.start()
+                if operand_position is not None:
 
-                    operand_position: ra.Position = operand_copy.start()
-                    if operand_position is not None:
+                    self_length: ra.Length = self % ra.Length()
+                    operand_position = operand_position.roundMeasures()
+                    position_offset: ra.Position = operand_position - self_length
+                    operand_copy -= position_offset   # Does a position offset
+                    
+                    self._items.extend(operand_copy._items)
+                    self._mask_items.extend(operand_copy._mask_items)
+                    if self._length_beats is not None:
+                        self._length_beats += (operand_copy % ra.Length())._rational
 
-                        self_length: ra.Length = self % ra.Length()
-                        operand_position = operand_position.roundMeasures()
-                        position_offset: ra.Position = operand_position - self_length
-                        operand_copy -= position_offset   # Does a position offset
-                        
-                        self._items.extend(operand_copy._items)
-                        self._mask_items.extend(operand_copy._mask_items)
-                        if self._length_beats is not None:
-                            self._length_beats += (operand_copy % ra.Length())._rational
-
-                    self._masked = self_masked
-
-                else:
-                    operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                    operand_base: Clip = operand_copy._dev_base_container()
-                    operand_position: ra.Position = operand_base.start()
-
-                    if operand_position is not None:
-
-                        self_base: Clip = self._dev_base_container()
-                        self_length: ra.Length = self_base % ra.Length()
-                        operand_position = operand_position.roundMeasures()
-                        position_offset: ra.Position = operand_position - self_length
-                        operand_base -= position_offset   # Does a position offset
-                        
-                        self_base._extend(operand_base._items) # Propagates upwards in the stack
-                        if self_base._length_beats is not None:
-                            self_base._length_beats += (operand_copy % ra.Length())._rational
-                        if self.is_masked() and operand_copy.is_masked():
-                            self._extend(operand_copy._items)
+                self._masked = self_masked
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
@@ -2940,36 +2919,18 @@ class Clip(Composition):  # Just a container of Elements
                 self.__imul__(self_repeating)
 
             case list():
-                if AS_MASK_LIST:
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self._time_signature, single_segment) for single_segment in operand
-                    ]
-                    base_elements: list[oe.Element] = []
-                    mask_elements: list[oe.Element] = []
-                    for target_measure, source_segment in enumerate(segments_list):
-                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
-                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
-                        base_elements.extend(self_segment._items)
-                        mask_elements.extend(self_segment._mask_items)
-                    self._items = base_elements
-                    self._mask_items = mask_elements
-
-                else:
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self._dev_base_container(), single_segment) for single_segment in operand
-                    ]
-                    base_elements: list[oe.Element] = []
-                    mask_elements: list[oe.Element] = []
-                    for target_measure, source_segment in enumerate(segments_list):
-                        # Preserves masked elements by id in base and mask containers
-                        self_segment: Clip = self.copy().filter(source_segment)
-                        self_segment._dev_base_container() << ra.Measure(target_measure)   # Stacked by measure *
-                        base_elements.extend(self_segment._dev_base_container()._items)
-                        mask_elements.extend(self_segment._items)
-                    self._delete()
-                    self._extend(mask_elements)
-                    self._dev_base_container()._items = base_elements
-                    self._set_owner_clip()
+                segments_list: list[og.Segment] = [
+                    og.Segment(self._time_signature, single_segment) for single_segment in operand
+                ]
+                base_elements: list[oe.Element] = []
+                mask_elements: list[oe.Element] = []
+                for target_measure, source_segment in enumerate(segments_list):
+                    self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
+                    self_segment << ra.Measure(target_measure)   # Stacked by measure *
+                    base_elements.extend(self_segment._items)
+                    mask_elements.extend(self_segment._mask_items)
+                self._items = base_elements
+                self._mask_items = mask_elements
 
             case tuple():
                 for single_operand in operand:
@@ -2989,52 +2950,32 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                if AS_MASK_LIST:
-                    # Only the operand unmasked items are considered
-                    operand_elements: list[oe.Element] = [
-                        element.copy()._set_owner_clip(self) for element in operand
-                    ]
+                # Only the operand unmasked items are considered
+                operand_elements: list[oe.Element] = [
+                    element.copy()._set_owner_clip(self) for element in operand
+                ]
 
-                    if operand_elements:
+                if operand_elements:
 
-                        # Division with `Clip` is applicable to the totality of the self Clip and NOT just its the mask
-                        self_masked: bool = self._masked
-                        self._masked = False
+                    # Division with `Clip` is applicable to the totality of the self Clip and NOT just its the mask
+                    self_masked: bool = self._masked
+                    self._masked = False
 
-                        left_finish_position: ra.Position = self.finish()
-                        if left_finish_position is None:
-                            left_finish_position = ra.Position(self)
-                        if self._length_beats is not None:
-                            self._length_beats += (operand % ra.Length())._rational
-                            
-                        # operand_elements already sorted by position
-                        left_finish_position_beats: Fraction = left_finish_position._rational
-                        right_start_position_beats: Fraction = operand_elements[0]._position_beats
-                        position_shift: Fraction = left_finish_position_beats - right_start_position_beats
-                        for new_element in operand_elements:
-                            new_element._position_beats += position_shift
-                        self._masked = self_masked
-                        self._extend(operand_elements)
-                
-                else:
-                    operand: Clip = operand._dev_base_container()
-                    left_end_position: ra.Position = self.finish()
-                    if left_end_position is None:
-                        left_end_position = ra.Position(self)
+                    left_finish_position: ra.Position = self.finish()
+                    if left_finish_position is None:
+                        left_finish_position = ra.Position(self)
                     if self._length_beats is not None:
                         self._length_beats += (operand % ra.Length())._rational
-                    right_start_position: ra.Position = operand.start()
-                    if right_start_position is not None:
-                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                        position_shift: Fraction = length_shift._rational
-                        # Elements to be added and propagated upwards on the stack
-                        operand_elements: list[oe.Element] = []
-                        for single_element in operand._unmasked_items():
-                            element_copy: oe.Element = single_element.copy()._set_owner_clip(self)
-                            operand_elements.append(element_copy)
-                            element_copy._position_beats += position_shift
-                        self._extend(operand_elements)  # Propagates upwards in the stack
-
+                        
+                    # operand_elements already sorted by position
+                    left_finish_position_beats: Fraction = left_finish_position._rational
+                    right_start_position_beats: Fraction = operand_elements[0]._position_beats
+                    position_shift: Fraction = left_finish_position_beats - right_start_position_beats
+                    for new_element in operand_elements:
+                        new_element._position_beats += position_shift
+                    self._masked = self_masked
+                    self._extend(operand_elements)
+                
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
@@ -5143,12 +5084,8 @@ class Song(Composition):
         """
         og.settings.reset_notes_on()
         play_list: list = []
-        if AS_MASK_LIST:
-            for single_part in self._items:
-                play_list.extend(single_part.getPlaylist(True))
-        else:
-            for single_part in self._dev_base_container()._items:
-                play_list.extend(single_part.getPlaylist(True))
+        for single_part in self._items:
+            play_list.extend(single_part.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
