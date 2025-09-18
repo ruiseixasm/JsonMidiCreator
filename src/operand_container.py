@@ -2595,7 +2595,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         frame._set_inside_container(self)
         for index, single_element in enumerate(self._unmasked_items()):
-            if single_element == frame:
+            if single_element == frame.__ixor__(single_element):
                 return index
         return None
 
