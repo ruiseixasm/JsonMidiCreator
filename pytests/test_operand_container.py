@@ -48,7 +48,7 @@ def test_staff_parameters():
 
 def test_container_content():
 
-    container = Container("String")
+    container = Container(["String"])
     assert container.len() == 1
     assert isinstance(container[0], str)
 
