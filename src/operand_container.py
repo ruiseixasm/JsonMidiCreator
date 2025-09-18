@@ -4520,12 +4520,8 @@ class Part(Composition):
                 self << self % ra.Position() + operand
             case list():
                 self._extend(self.deep_copy(operand))
-            case tuple():
-                for single_operand in operand:
-                    self += single_operand
             case _:
-                for item in self._unmasked_items():
-                    item += operand
+                super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __isub__(self, operand: any) -> Self:
@@ -5125,12 +5121,8 @@ class Song(Composition):
                 for item in operand:
                     if isinstance(item, Part):
                         self._append(item.copy()._set_owner_song(self))
-            case tuple():
-                for single_operand in operand:
-                    self += single_operand
             case _:
-                for item in self._unmasked_items():
-                    item += operand
+                super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
