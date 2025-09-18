@@ -64,17 +64,11 @@ class RS_Solutions:
         return self._solution
     
     def mask(self, *conditions) -> Self:
-        if oc.AS_MASK_LIST:
-            self._solution.mask(*conditions)
-        else:
-            self._solution = self._solution.mask(*conditions)
+        self._solution.mask(*conditions)
         return self
 
     def unmask(self) -> Self:
-        if oc.AS_MASK_LIST:
-            self._solution.unmask()
-        else:
-            self._solution = self._solution._dev_base_container()
+        self._solution.unmask()
         return self
 
 
@@ -129,19 +123,13 @@ class RS_Clip(RS_Solutions):
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(composition, oc.Clip):
                 # Makes sure the ENTIRE composition is split first by the the given measures
-                if oc.AS_MASK_LIST:
-                    masked: bool = composition._masked
-                    measure: ra.Measure = ra.Measure(0)
-                    for _ in self._iterations:
-                        measure += self._measures
-                        composition //= measure
-                    composition._masked = masked
-                else:
-                    for index, _ in enumerate(self._iterations):
-                        splitting_measure: ra.Measure = ra.Measure(self._measures * (index + 1))
-                        if composition.is_masked():
-                            composition //= splitting_measure
-                        composition._base_container //= splitting_measure
+                masked: bool = composition._masked
+                measure: ra.Measure = ra.Measure(0)
+                for _ in self._iterations:
+                    measure += self._measures
+                    composition //= measure
+                composition._masked = masked
+
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 if isinstance(triggers, list):
                     measure_triggers: list = triggers   # No need to copy, Chaos does the copy
