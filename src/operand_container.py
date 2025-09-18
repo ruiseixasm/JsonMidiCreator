@@ -110,29 +110,11 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: int) -> any:
-        if AS_MASK_LIST:
-            return self.__getitem__developing(index)
-        return self.__getitem__original(index)
-    
-    def __getitem__original(self, index: int) -> any:
-        return self._items[index]
-    
-    def __getitem__developing(self, index: int) -> any:
         if self._masked:
             return self._mask_items[index]
         return self._items[index]
     
-
     def __setitem__(self, index: int, value) -> Self:
-        if AS_MASK_LIST:
-            return self.__setitem__developing(index, value)
-        return self.__setitem__original(index, value)
-
-    def __setitem__original(self, index: int, value) -> Self:
-        self._items[index] = value
-        return self
-    
-    def __setitem__developing(self, index: int, value) -> Self:
         if self._masked:
             self._mask_items[index] = value
         else:
@@ -155,20 +137,6 @@ class Container(o.Operand):
 
 
     def _insert(self, items: list) -> Self:
-        if AS_MASK_LIST:
-            return self._insert_developing(items)
-        return self._insert_original(items)
-
-    def _insert_original(self, items: list) -> Self:
-        if self is not self._base_container:
-            self._base_container._insert(items)
-        # Avoids redundant items/objects
-        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
-        self._items = new_items + self._items
-        return self
-
-    def _insert_developing(self, items: list) -> Self:
         # Avoids redundant items/objects
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
@@ -177,22 +145,7 @@ class Container(o.Operand):
             self._mask_items = new_items + self._mask_items
         return self
 
-
     def _extend(self, items: list) -> Self:
-        if AS_MASK_LIST:
-            return self._extend_developing(items)
-        return self._extend_original(items)
-
-    def _extend_original(self, items: list) -> Self:
-        if self.is_masked():
-            self._base_container._extend(items)
-        # Avoids redundant items/objects
-        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
-        self._items.extend(new_items)
-        return self
-
-    def _extend_developing(self, items: list) -> Self:
         # Avoids redundant items/objects
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
@@ -207,34 +160,6 @@ class Container(o.Operand):
 
     
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
-        if AS_MASK_LIST:
-            return self._delete_developing(items, by_id)
-        return self._delete_original(items, by_id)
-
-
-    def _delete_original(self, items: list = None, by_id: bool = False) -> Self:
-        if self is not self._base_container:
-            self._base_container._delete_original(items)
-        if items is None:
-            self._items.clear()
-            self._base_container._items.clear()
-        else:
-            if by_id:
-                # removes by id instead
-                self._items = [
-                    single_item for single_item in self._items
-                    if not any(single_item is item for item in items)
-                ]
-            else:
-                # Uses "==" instead of id
-                self._items = [
-                    single_item for single_item in self._items
-                    if single_item not in items
-                ]
-        return self
-
-
-    def _delete_developing(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
             self._items.clear()
             self._mask_items.clear()
@@ -263,27 +188,6 @@ class Container(o.Operand):
 
     
     def _delete_by_ids(self, item_ids: set | None = None):
-        if AS_MASK_LIST:
-            return self._delete_by_ids_developing(item_ids)
-        return self._delete_by_ids_original(item_ids)
-
-    def _delete_by_ids_original(self, item_ids: set | None = None):
-        if isinstance(item_ids, set):
-            if item_ids:
-                self._base_container._items = [
-                    base_item for base_item in self._base_container._items
-                    if id(base_item) not in item_ids
-                ]
-                self._items = [
-                    mask_item for mask_item in self._items
-                    if id(mask_item) not in item_ids
-                ]
-        else:
-            self._base_container._items.clear()
-            self._items.clear()
-        return self
-
-    def _delete_by_ids_developing(self, item_ids: set | None = None):
         if isinstance(item_ids, set):
             if item_ids:
                 self._items = [
@@ -301,20 +205,6 @@ class Container(o.Operand):
 
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
-        if AS_MASK_LIST:
-            return self._replace_developing(old_item, new_item)
-        return self._replace_original(old_item, new_item)
-
-    def _replace_original(self, old_item: Any = None, new_item: Any = None) -> Self:
-        if self is not self._base_container:
-            self._base_container._replace(old_item, new_item)
-        for index, item in enumerate(self._items):
-            if old_item is item:
-                self._items[index] = new_item
-                break   # There is no repeated items
-        return self
-
-    def _replace_developing(self, old_item: Any = None, new_item: Any = None) -> Self:
         for index, item in enumerate(self._items):
             if old_item is item:
                 self._items[index] = new_item
@@ -327,26 +217,6 @@ class Container(o.Operand):
 
 
     def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
-        if AS_MASK_LIST:
-            return self._swap_developing(left_item, right_item)
-        return self._swap_original(left_item, right_item)
-
-    def _swap_original(self, left_item: Any = None, right_item: Any = None) -> Self:
-        if self is not self._base_container:
-            self._base_container._swap(left_item, right_item)
-        first_index: int = None
-        for index, item in enumerate(self._items):
-            if item is left_item or item is right_item:
-                if first_index is None:
-                    first_index = index
-                else:
-                    temp_item: Any = self._items[first_index]
-                    self._items[first_index] = self._items[index]
-                    self._items[index] = temp_item
-                    break
-        return self
-
-    def _swap_developing(self, left_item: Any = None, right_item: Any = None) -> Self:
         first_index: int = None
         for index, item in enumerate(self._items):
             if item is left_item or item is right_item:
@@ -370,16 +240,6 @@ class Container(o.Operand):
 
 
     def _sort_items(self) -> Self:
-        if AS_MASK_LIST:
-            return self._sort_items_developing()
-        return self._sort_items_original()
-
-    def _sort_items_original(self) -> Self:
-        # This works with a list method sort
-        self._dev_base_container()._items.sort()  # Operands implement __lt__ and __gt__
-        return self
-
-    def _sort_items_developing(self) -> Self:
         # This works with a list method sort (Operands implement __lt__ and __gt__)
         self._items.sort()
         self._mask_items.sort() # Faster this way
