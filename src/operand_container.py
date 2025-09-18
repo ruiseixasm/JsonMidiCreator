@@ -281,6 +281,22 @@ class Container(o.Operand):
             case Container():
                 return operand.copy(self)
             
+            case of.Frame():    # Only applicable to Operand items
+                operand._set_inside_container(self)
+                parameters: list = []
+                for single_element in self._unmasked_items():
+                    if isinstance(single_element, o.Operand):
+                        operand_parameter: o.Operand = single_element
+                        parameter_getter: list = operand ^ single_element
+                        if isinstance(parameter_getter, list):
+                            if parameter_getter:    # Non empty list
+                                for single_parameter in parameter_getter:
+                                    operand_parameter %= single_parameter
+                                parameters.append( operand_parameter )
+                            else:
+                                parameters.append( single_element.copy() )
+                return parameters
+
             case _:
                 return super().__mod__(operand)
 
@@ -2426,22 +2442,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case Part():            return Part(self._time_signature, self._dev_base_container())
             case Song():            return Song(self._time_signature, self._dev_base_container())
-
-            case of.Frame():    # Only applicable to Operand items
-                operand._set_inside_container(self)
-                parameters: list = []
-                for single_element in self._unmasked_items():
-                    if isinstance(single_element, o.Operand):
-                        operand_parameter: o.Operand = single_element
-                        parameter_getter: list = operand ^ single_element
-                        if isinstance(parameter_getter, list):
-                            if parameter_getter:    # Non empty list
-                                for single_parameter in parameter_getter:
-                                    operand_parameter %= single_parameter
-                                parameters.append( operand_parameter )
-                            else:
-                                parameters.append( single_element.copy() )
-                return parameters
 
             case ClipGet():
                 clip_get: ClipGet = operand.copy()
