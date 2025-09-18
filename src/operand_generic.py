@@ -2251,11 +2251,7 @@ class Process(Generic):
                 default_clock: oe.Clock = settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
-                if isinstance(operand, oc.Composition):
-                    # Makes sure the entire Composition content is used
-                    playlist.extend( operand._dev_base_container().getPlaylist() )    # Operand Playlist
-                else:
-                    playlist.extend( operand.getPlaylist() )    # Operand Playlist
+                playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case od.Playlist():
 
                 operand_playlist = operand.getPlaylist()
@@ -2598,8 +2594,8 @@ class Play(ReadOnly):
         import operand_element as oe
         match operand:
             case oc.Composition():
-                if operand._dev_base_container().len() > 0:
-                    playlist: list[dict] = self._clocked_playlist(operand._dev_base_container())
+                if operand.len() > 0:
+                    playlist: list[dict] = self._clocked_playlist(operand)
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))

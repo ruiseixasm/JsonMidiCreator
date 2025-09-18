@@ -211,7 +211,7 @@ class RS_Clip(RS_Solutions):
                 new_durations: list[float] = o.list_choose(durations, results)
                 segmented_composition << of.Foreach(*new_durations)**ra.NoteValue()
                 # These operations shall be done on the base (single Measure)
-                segmented_composition._dev_base_container().stack().quantize().mul([0]).link()
+                segmented_composition.stack().quantize().mul([0]).link()
             return segmented_composition
 
         if not isinstance(title, str):
