@@ -4687,6 +4687,11 @@ class Part(Composition):
         match other:
             case Part():
                 return super().__eq__(other) and self._position_beats == other._position_beats
+            case of.Frame():
+                for single_clip in self._items:
+                    if not single_clip == other:
+                        return False
+                return True
             case _:
                 return super().__eq__(other)
 
@@ -4696,7 +4701,6 @@ class Part(Composition):
             case Part():
                 return self._position_beats < other._position_beats
             case of.Frame():
-                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip < other:
                         return False
@@ -4710,7 +4714,6 @@ class Part(Composition):
             case Part():
                 return self._position_beats > other._position_beats
             case of.Frame():
-                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip > other:
                         return False
