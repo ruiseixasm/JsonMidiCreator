@@ -537,7 +537,8 @@ class Container(o.Operand):
                 for single_item in self._unmasked_items():
                     single_item += operand.__ixor__(single_item)
             case _:
-                return self._append(self.deep_copy(operand))
+                for single_item in self._unmasked_items():
+                    single_item += operand
         return self
 
     def __radd__(self, operand: any) -> Self:
@@ -557,12 +558,16 @@ class Container(o.Operand):
                     while operand > 0 and len(self._unmasked_items()) > 0:
                         self._delete([ self._unmasked_items().pop() ], True)
                         operand -= 1
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
                     single_item -= operand.__ixor__(single_item)
             case _:
-                return self._delete([ operand ])
+                for single_item in self._unmasked_items():
+                    single_item -= operand
         return self
 
     # multiply with a scalar
