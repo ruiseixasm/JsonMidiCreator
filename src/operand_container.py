@@ -57,10 +57,6 @@ except ImportError:
 
 
 
-AS_MASK_LIST: bool = True
-
-
-
 class Container(o.Operand):
     """`Container`
 
@@ -94,19 +90,15 @@ class Container(o.Operand):
 
 
     def _all_items(self) -> list:
-        if AS_MASK_LIST:
-            return self._items
-        return self._base_container._items
+        return self._items
 
     def _unmasked_items(self) -> list:
-        if AS_MASK_LIST and self._masked:
+        if self._masked:
             return self._mask_items
         return self._items
 
     def _dev_base_container(self) -> Self:
-        if AS_MASK_LIST:
-            return self
-        return self._base_container
+        return self
 
 
     def __getitem__(self, index: int) -> any:
@@ -285,9 +277,7 @@ class Container(o.Operand):
             case int():
                 return self.len()
             case bool():
-                if AS_MASK_LIST:
-                    return self._masked
-                return not self.is_masked()
+                return self._masked
             case Container():
                 return operand.copy(self)
             
@@ -431,47 +421,17 @@ class Container(o.Operand):
             case Container():
                 super().__lshift__(operand)
 
-                if AS_MASK_LIST:
-                    self._items = self.deep_copy(operand._items)
-                    self._mask_items.clear()
-                    if operand._mask_items:
-                        operand_mask_items: list = operand._mask_items.copy()
-                        for base_index, base_item in enumerate(operand._items):
-                            for mask_item in operand_mask_items:
-                                if mask_item is base_item:
-                                    self._mask_items.append(self._items[base_index])
-                                    operand_mask_items.pop(0)   # Removes the first item
-                                    break
-                    self._masked = operand._masked
-
-                else:
-                    if not (self.is_masked() or operand.is_masked()):
-                        self._items = self.deep_copy(operand._items)
-
-                    elif self.is_masked() and operand.is_masked():
-                        self_base: Container = self._base_container
-                        operand_base: Container = operand._base_container
-                        self_base._items = self.deep_copy(operand_base._items)
-                        unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
-                        self._items = [
-                            self_base._items[index] for index, root_item in enumerate(operand_base._items)
-                            if id(root_item) in unmasked_ids
-                        ]
-
-                    elif self.is_masked():
-                        self._base_container = self # Not a mask anymore
-                        self._items = self.deep_copy(operand._items)
-
-                    else:   # operand.is_masked(), so, self shall become a mask too
-                        self_base: Container = self.empty_copy()
-                        self._base_container = self_base
-                        operand_base: Container = operand._base_container
-                        self_base._items = self.deep_copy(operand_base._items)
-                        unmasked_ids: set[int] = {id(unmasked_item) for unmasked_item in operand._items}
-                        self._items = [
-                            self_base._items[index] for index, root_item in enumerate(operand_base._items)
-                            if id(root_item) in unmasked_ids
-                        ]
+                self._items = self.deep_copy(operand._items)
+                self._mask_items.clear()
+                if operand._mask_items:
+                    operand_mask_items: list = operand._mask_items.copy()
+                    for base_index, base_item in enumerate(operand._items):
+                        for mask_item in operand_mask_items:
+                            if mask_item is base_item:
+                                self._mask_items.append(self._items[base_index])
+                                operand_mask_items.pop(0)   # Removes the first item
+                                break
+                self._masked = operand._masked
 
             case od.Pipe():
                 match operand._data:
@@ -522,9 +482,7 @@ class Container(o.Operand):
             case tuple():
                 return super().__irshift__(operand)
             case _:
-                if AS_MASK_LIST:
-                    return self.copy().mask(operand)
-                return self.mask(operand)
+                return self.copy().mask(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
@@ -539,9 +497,7 @@ class Container(o.Operand):
             case tuple():
                 return super().__irshift__(operand)
             case _:
-                if AS_MASK_LIST:
-                    return self.copy().mask(operand)
-                return self.mask(operand)
+                return self.copy().mask(operand)
 
 
     # Pass trough operation as last resort
@@ -1278,9 +1234,7 @@ class Composition(Container):
             case og.TimeSignature():
                 return self._time_signature % operand
             case bool():
-                if AS_MASK_LIST:
-                    return self._masked
-                return not self.is_masked()
+                return self._masked
             case int():
                 if self._dev_base_container()._items:
                     last_element_position: ra.Position = self._dev_base_container()._last_element_position()
@@ -2795,13 +2749,10 @@ class Clip(Composition):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                if AS_MASK_LIST:
-                    operand_copy: Clip = operand.copy()._set_owner_clip(self)
-                    # Clip preserves the entirety of the operand Clip as is, unmasked
-                    self._items.extend(operand_copy._items)
-                    self._mask_items.extend(operand_copy._mask_items)
-                else:
-                    self += operand._dev_base_container()._items
+                operand_copy: Clip = operand.copy()._set_owner_clip(self)
+                # Clip preserves the entirety of the operand Clip as is, unmasked
+                self._items.extend(operand_copy._items)
+                self._mask_items.extend(operand_copy._mask_items)
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
