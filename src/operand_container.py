@@ -481,7 +481,7 @@ class Container(o.Operand):
                 for single_item in self._unmasked_items():
                     single_item << operand.__ixor__(single_item)
             case _:
-                self += operand
+                self._append(o.Operand.deep_copy(operand))
         return self
 
     # Pass trough method that always results in a Container (Self)
