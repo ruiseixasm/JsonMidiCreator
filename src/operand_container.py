@@ -89,9 +89,6 @@ class Container(o.Operand):
         return self
 
 
-    def _all_items(self) -> list:
-        return self._items
-
     def _unmasked_items(self) -> list:
         if self._masked:
             return self._mask_items
@@ -342,7 +339,7 @@ class Container(o.Operand):
     def __eq__(self, other: any) -> bool:
         match other:
             case Container():
-                return self._all_items() == other._all_items()
+                return self._items == other._items
             case od.Conditional():
                 return other == self
             case of.Frame():
