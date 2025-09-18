@@ -805,30 +805,6 @@ class Container(o.Operand):
 
 
     def empty_copy(self, *parameters) -> Self:
-        if AS_MASK_LIST:
-            return self.empty_copy_developing(*parameters)
-        return self.empty_copy_original(*parameters)
-
-    def empty_copy_original(self, *parameters) -> Self:
-        """
-        Returns a Container with all the same parameters but the list that is empty.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Container: Returns the copy of self but with an empty list of items.
-        """
-        empty_base: Container = self._dev_base_container().__class__()
-        for single_parameter in parameters: # Parameters should be set on the base container
-            empty_base << single_parameter
-        if self.is_masked():
-            empty_mask: Container = self.__class__()
-            empty_mask._base_container = empty_base
-            return empty_mask
-        return empty_base
-
-    def empty_copy_developing(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters but the list that is empty.
 
@@ -843,34 +819,8 @@ class Container(o.Operand):
         return new_container << parameters
 
 
+    # A shallow copy isn't the same as a mask!
     def shallow_copy(self, *parameters) -> Self:
-        if AS_MASK_LIST:
-            return self.shallow_copy_developing(*parameters)
-        return self.shallow_copy_original(*parameters)
-
-    # A shallow copy isn't the same as a mask!
-    def shallow_copy_original(self, *parameters) -> Self:
-        """
-        Returns a Container with all the same parameters copied, but the list that
-        is just a reference of the same list of the original container.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Container: Returns the copy of self but with a list of the same items of the original one.
-        """
-        shallow_copy: Container = self.empty_copy()
-        # This copy of a list is a shallow copy, not a deep copy
-        shallow_copy._items = self._items.copy()
-        for single_parameter in parameters: # Parameters should be set on the base container
-            shallow_copy._base_container << single_parameter
-        if shallow_copy.is_masked():
-            shallow_copy._dev_base_container()._items = self._dev_base_container()._items.copy()
-        return shallow_copy
-    
-    # A shallow copy isn't the same as a mask!
-    def shallow_copy_developing(self, *parameters) -> Self:
         """
         Returns a Container with all the same parameters copied, but the list that
         is just a reference of the same list of the original container.
@@ -938,14 +888,6 @@ class Container(o.Operand):
 
 
     def is_masked(self) -> bool:
-        if AS_MASK_LIST:
-            return self.is_masked_developing()
-        return self.is_masked_original()
-    
-    def is_masked_original(self) -> bool:
-        return self._base_container is not self
-    
-    def is_masked_developing(self) -> bool:
         return self._masked
     
 
@@ -1093,60 +1035,8 @@ class Container(o.Operand):
                 left += 1
         return self._sort_items()
 
+
     def mask(self, *conditions) -> Self:
-        """
-        Masks the items that meet the conditions (equal to). No implicit copies.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an And fashion.
-
-        Returns:
-            Container Mask: A different object with a shallow copy of the original
-            `Container` items now selected as a `Mask`.
-        """
-        if AS_MASK_LIST:
-            return self.mask_developing(*conditions)
-        return self.mask_original(*conditions)
-
-    def mask_original(self, *conditions) -> Self:
-        """
-        Masks the items that meet the conditions (equal to). No implicit copies.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an And fashion.
-
-        Returns:
-            Container Mask: A different object with a shallow copy of the original
-            `Container` items now selected as a `Mask`.
-        """
-        container_mask: Container = self._base_container.shallow_copy()
-        # This shallow copy is a mask, so it chains upper containers
-        container_mask._base_container = self._base_container
-        masked_item_ids: set = set()
-        # And type of conditions, not meeting any means excluded
-        for single_condition in conditions:
-            if isinstance(single_condition, Container):
-                masked_item_ids.update(
-                    id(item) for item in self._base_container._items
-                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
-                )
-            else:
-                if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self._base_container)
-                masked_item_ids.update(
-                    id(item) for item in self._base_container._items
-                    if not item == single_condition
-                )
-        container_mask._items = [
-            unmasked_item for unmasked_item in self._base_container
-            if id(unmasked_item) not in masked_item_ids
-        ]
-        return container_mask
-
-
-    def mask_developing(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
 
@@ -1187,46 +1077,10 @@ class Container(o.Operand):
         return self
 
     def unmask(self) -> Self:
-        if AS_MASK_LIST:
-            self._masked = False
-            return self
-        return self._base_container
+        self._masked = False
+        return self
     
     def filter(self, *conditions) -> Self:
-        if AS_MASK_LIST:
-            return self.filter_developing(*conditions)
-        return self.filter_original(*conditions)
-
-    def filter_original(self, *conditions) -> Self:
-        """
-        A `Filter` works exactly like a `Mask` with the difference of keeping just \
-            the matching items and deleting everything else.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an `And` alike fashion.
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        deletable_item_ids: set = set()
-        # And type of conditions, not meeting any means excluded
-        for single_condition in conditions:
-            if isinstance(single_condition, Container):
-                deletable_item_ids.update(
-                    id(item) for item in self._base_container._items
-                    if not any(item == cond_item for cond_item in single_condition._base_container._items)
-                )
-            else:
-                if isinstance(single_condition, of.Frame):
-                    single_condition._set_inside_container(self._base_container)
-                deletable_item_ids.update(
-                    id(item) for item in self._base_container._items
-                    if not item == single_condition
-                )
-        return self._delete_by_ids(deletable_item_ids)
-
-    def filter_developing(self, *conditions) -> Self:
         """
         A `Filter` works exactly like a `Mask` with the difference of keeping just \
             the matching items and deleting everything else.
@@ -3564,7 +3418,7 @@ class Clip(Composition):  # Just a container of Elements
             shallow_copy._base_container << single_parameter
         return shallow_copy
 
-    def shallow_copy_developing(self, *parameters) -> Self:
+    def shallow_copy(self, *parameters) -> Self:
         """
         Returns a Clip with all the same parameters copied, but the list that
         is just a reference of the same list of the original Clip.
@@ -3575,7 +3429,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: Returns the copy of self but with a list of the same items of the original one.
         """
-        new_clip: Clip              = super().shallow_copy_developing()
+        new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._time_signature    << self._time_signature   
         new_clip._midi_track        << self._midi_track
@@ -5184,25 +5038,6 @@ class Part(Composition):
                 for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
-
-
-    def mask_original(self, *conditions) -> Self:
-        """
-        Masks the items that meet the conditions (equal to). No implicit copies.
-
-        Conditions
-        ----------
-        Any : Conditions that need to be matched in an And fashion.
-
-        Returns:
-            Part Mask: A different object with a shallow copy of the original
-            `Part` items now selected as a `Mask`.
-        """
-        part_mask: Part = super().mask_original(*conditions)
-        part_mask._position_beats = self._base_container._position_beats
-        part_mask._name = self._base_container._name
-        part_mask._owner_song = self._base_container._owner_song
-        return part_mask
 
 
     def loop(self, position = 0, length = 4) -> Self:
