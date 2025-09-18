@@ -2421,14 +2421,6 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case og.TimeSignature():        return self._time_signature
                     case ou.MidiTrack():            return self._midi_track
-                    case ClipGet():
-                        clip_get: ClipGet = operand._data
-                        for single_element in self._unmasked_items():
-                            element_parameter: any = single_element
-                            for get_operand in clip_get._get:
-                                element_parameter //= get_operand
-                            clip_get._items.append(element_parameter)
-                        return clip_get
                     case _:                 return super().__mod__(operand)
             case og.TimeSignature():        return self._time_signature.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
@@ -2440,14 +2432,6 @@ class Clip(Composition):  # Just a container of Elements
             case Part():            return Part(self._time_signature, self)
             case Song():            return Song(self._time_signature, self)
 
-            case ClipGet():
-                clip_get: ClipGet = operand.copy()
-                for single_element in self._unmasked_items():
-                    element_parameter: any = single_element.copy()
-                    for get_operand in clip_get._get:
-                        element_parameter %= get_operand
-                    clip_get._items.append(element_parameter)
-                return clip_get
             case _:
                 return super().__mod__(operand)
 
@@ -2627,18 +2611,6 @@ class Clip(Composition):  # Just a container of Elements
                             for item in self._unmasked_items():
                                 item <<= operand._data
 
-                    case ClipGet():
-                        clip_get: ClipGet = operand._data
-                        if self.len() == clip_get.len() and len(clip_get._get) > 0:
-                            for element_i in range(self.len()):
-                                element_parameter: any = clip_get._items[element_i]
-                                clip_get_get_len: int = len(clip_get._get)
-                                # -1 because the last get parameter is the one existent in the list, last one type
-                                for get_operand_j in range(clip_get_get_len - 1):
-                                    clip_get._get[clip_get_get_len - 2 - get_operand_j] <<= element_parameter
-                                    element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
-                                self._unmasked_items()[element_i] <<= element_parameter
-
                     case _:
                         super().__lshift__(operand)
 
@@ -2692,18 +2664,6 @@ class Clip(Composition):  # Just a container of Elements
             case Composition():
                 self._time_signature << operand._time_signature
 
-            case ClipGet():
-                clip_get: ClipGet = operand
-                if self.len() == clip_get.len() and len(clip_get._get) > 0:
-                    for element_i in range(self.len()):
-                        element_parameter: any = clip_get._items[element_i]
-                        clip_get_get_len: int = len(clip_get._get)
-                        # -1 because the last get parameter is the one existent in the list, last one type
-                        for get_operand_j in range(clip_get_get_len - 1):
-                            clip_get._get[clip_get_get_len - 2 - get_operand_j] << element_parameter
-                            element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
-                        self._unmasked_items()[element_i] << element_parameter
-            
             case _:
                 super().__lshift__(operand)
         return self._sort_items()
@@ -5285,223 +5245,5 @@ class Song(Composition):
         self._length_beats = punch_length._rational
 
         return self._sort_items()
-
-
-
-class ClipGet(Container):
-    """`ClipGet`
-
-    ClipGet allows the extraction of multiple elements from a `Clip`.
-
-    Parameters
-    ----------
-    tuple() : The sequence of parameters to be extracted in sequence.
-    """
-    def __init__(self, *operands):
-        super().__init__()
-        self._get: tuple = operands
-        
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, because a Container has
-        only one type of Parameters it should be used in conjugation with list()
-        to extract the Parameter list.
-
-        Examples
-        --------
-        >>> clip = Track(Note("A"), Note("B"))
-        >>> clip % list() >> Print()
-        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
-        """
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case tuple():
-                        return self._get
-                    case _:
-                        return super().__mod__(operand)
-            case tuple():
-                return self._get
-            case _:
-                return super().__mod__(operand)
-
-    def getSerialization(self) -> dict:
-        """
-        Returns the serialization in a form of a dictionary of `Container` parameters.
-
-        Args:
-            None
-
-        Returns:
-            dict: A dictionary with multiple the `Container` configuration.
-        """
-        serialization = super().getSerialization()
-
-        serialization["parameters"]["get"] = self.serialize(self._get)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        """
-        Sets all `Container` parameters based on a dictionary input previously generated by `getSerialization`.
-
-        Args:
-            serialization: A dictionary with all the `Container` parameters.
-
-        Returns:
-            Container: The self Container object with the respective set parameters.
-        """
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "get" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            get_list: list = self.deserialize(serialization["parameters"]["get"])
-            self._get: tuple = tuple(get_list)
-        return self
-    
-
-    def __lshift__(self, operand: any) -> Self:
-        match operand:
-            case ClipGet():
-                super().__lshift__(operand)
-                self._get = operand._get
-            case od.Pipe():
-                match operand._data:
-                    case tuple():
-                        self._get = operand
-                    case _:
-                        super().__lshift__(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case list():
-                # Remove previous Elements from the Container stack
-                self._delete() # deletes all
-                # Finally adds the decomposed elements to the Container stack
-                self._extend( [self.deep_copy(item) for item in operand] )
-            case dict():
-                for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
-                        self._unmasked_items()[index] = self.deep_copy(item)
-
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
-    # Avoids the costly copy of Container self doing +=
-    def __iadd__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                operand_items = [
-                    self.deep_copy(single_item) for single_item in operand._items
-                ]
-                return self._extend(operand_items)
-            case list():
-                operand_items = [
-                    self.deep_copy(single_item) for single_item in operand
-                ]
-                return self._extend(operand_items)
-            case tuple():
-                for single_operand in operand:
-                    self += single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for index, single_item in enumerate(self._unmasked_items()):
-                    self._unmasked_items()[index] += operand.__ixor__(single_item)
-            case _:
-                for item_i in range(self.len()):
-                    self._unmasked_items()[item_i] += operand
-        return self
-
-
-    def __isub__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                return self._delete(operand._items)
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
-            case int(): # repeat n times the last argument if any
-                if len(self._unmasked_items()) > 0:
-                    while operand > 0 and len(self._unmasked_items()) > 0:
-                        self._delete([ self._unmasked_items().pop() ], True)
-                        operand -= 1
-            case of.Frame():
-                operand._set_inside_container(self)
-                for index, single_item in enumerate(self._unmasked_items()):
-                    self._unmasked_items()[index] -= operand.__ixor__(single_item)
-            case _:
-                for item_i in range(self.len()):
-                    self._unmasked_items()[item_i] -= operand
-        return self
-
-
-    # multiply with a scalar 
-    def __imul__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                pass
-            case o.Operand():
-                pass
-            case int(): # repeat n times the self content if any
-                if operand > 1:
-                    items_copy: list = [
-                        self.deep_copy( data ) for data in self._unmasked_items()
-                    ]
-                    while operand > 2:
-                        new_items: list = [
-                            self.deep_copy( data ) for data in items_copy
-                        ]
-                        self._extend(new_items)  # Propagates upwards in the stack
-                        operand -= 1
-                    self._extend(items_copy)  # Propagates upwards in the stack
-                elif operand == 0:
-                    self._delete()
-            case ch.Chaos():
-                return self.shuffle(operand.copy())
-            case tuple():
-                for single_operand in operand:
-                    self.__imul__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for index, single_item in enumerate(self._unmasked_items()):
-                    self._unmasked_items()[index] *= operand.__ixor__(single_item)
-            case _:
-                for item_i in range(self.len()):
-                    self._unmasked_items()[item_i].__imul__(operand)
-        return self
-    
-
-    def __itruediv__(self, operand: any) -> Self:
-        match operand:
-            case Container():
-                pass
-            case o.Operand():
-                pass
-            case int(): # split n times the self content if any
-                if operand > 0:
-                    many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len() % od.Pipe( operand )
-                    nth_item: int = cut_len
-                    while nth_item > 0:
-                        many_operands._items.append(
-                                self.deep_copy( self._items[cut_len - nth_item] )
-                            )
-                        nth_item -= 1
-                    return many_operands
-
-            case tuple():
-                for single_operand in operand:
-                    self.__itruediv__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for index, single_item in enumerate(self._unmasked_items()):
-                    self._unmasked_items()[index] /= operand.__ixor__(single_item)
-            case _:
-                for item_i in range(self.len()):
-                    self._unmasked_items()[item_i].__itruediv__(operand)
-        return self
 
 
