@@ -536,13 +536,15 @@ results_list.append({
 })
 
 total_time: float = 0.0
+export_fails: int = 0
 for test in results_list:
     if test['export']:
         print(f"{test['test']}: \t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
     else:
         print(f"{test['test']}: \t\t\t\t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
+        export_fails += 1
     total_time += test['time_ms']
 
-print(f"Total time: {total_time:.0f} ms")
+print(f"Total time: {total_time:.0f} ms, total failed exports: {export_fails}")
 print(c.profiling_timer)
 

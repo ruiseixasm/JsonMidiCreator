@@ -1341,9 +1341,6 @@ class Composition(Container):
 
             case _:
                 super().__lshift__(operand)
-
-        # Makes sure non Operand mask data is transferred to the existing base
-        self._dev_base_container()._length_beats = self._length_beats
         return self
 
 
@@ -2708,17 +2705,8 @@ class Clip(Composition):  # Just a container of Elements
                             element_parameter = clip_get._get[clip_get_get_len - 2 - get_operand_j]
                         self._unmasked_items()[element_i] << element_parameter
             
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self._unmasked_items():
-                    single_element << operand.__ixor__(single_element)
             case _:
-                for item in self._unmasked_items():
-                    item << operand
-
-        # Makes sure non Operand mask data is transferred to the existing base
-        self._dev_base_container()._midi_track        = self._midi_track
-        self._dev_base_container()._time_signature    = self._time_signature
+                super().__lshift__(operand)
         return self._sort_items()
 
     # Works as a Clip transformer
@@ -4459,9 +4447,6 @@ class Part(Composition):
             super().loadSerialization(serialization)
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._name              = self.deserialize(serialization["parameters"]["name"])
-            # Makes sure non Operand mask data is transferred to the existing base
-            self._base_container._position_beats    = self._position_beats
-            self._base_container._name              = self._name
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -4518,21 +4503,11 @@ class Part(Composition):
                     for item in self._unmasked_items():
                         item << operand
 
-            case bool():
-                self._masked = operand
             case str():
                 self._name = operand
 
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _:
-                for item in self._unmasked_items():
-                    item << operand
-
-        # Makes sure non Operand mask data is transferred to the existing base
-        self._base_container._position_beats    = self._position_beats
-        self._base_container._name              = self._name
+                super().__lshift__(operand)
         return self._sort_items()
 
 
@@ -5135,18 +5110,8 @@ class Song(Composition):
                     for item in self._unmasked_items():
                         item << operand
 
-            case bool():
-                self._masked = operand
-
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _:
-                for single_part in self._unmasked_items():
-                    single_part << operand
-
-        # Makes sure non Operand mask data is transferred to the existing base
-        self._dev_base_container()._time_signature    = self._time_signature
+                super().__lshift__(operand)
         return self._sort_items()
 
 
@@ -5437,15 +5402,8 @@ class ClipGet(Container):
                     if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
                         self._unmasked_items()[index] = self.deep_copy(item)
 
-            case tuple():
-                self._get = operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_item in self._unmasked_items():
-                    single_item << operand.__ixor__(single_item)
             case _:
-                for item in self._unmasked_items():
-                    item << operand
+                super().__lshift__(operand)
         return self
 
 
