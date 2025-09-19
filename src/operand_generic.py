@@ -138,7 +138,6 @@ class Locus(Generic):
 
 
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return self._position_beats == other._position_beats \
@@ -155,7 +154,6 @@ class Locus(Generic):
                 return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 if self._position_beats == other._position_beats:
@@ -165,7 +163,6 @@ class Locus(Generic):
                 return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 if self._position_beats == other._position_beats:
@@ -758,7 +755,6 @@ class Pitch(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         match other:
@@ -771,7 +767,6 @@ class Pitch(Generic):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
                 return self.pitch_int() < other.pitch_int()
@@ -782,7 +777,6 @@ class Pitch(Generic):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Pitch():
                 return self.pitch_int() > other.pitch_int()
@@ -1198,7 +1192,6 @@ class Controller(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Controller):
@@ -1451,7 +1444,6 @@ class Scale(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1824,7 +1816,6 @@ class Arpeggio(Generic):
         return notes
 
     def __eq__(self, other: 'Arpeggio') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
@@ -1984,7 +1975,6 @@ class Segment(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         match other:
@@ -3674,7 +3664,6 @@ class Settings(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Settings') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
