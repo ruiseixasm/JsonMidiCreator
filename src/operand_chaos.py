@@ -71,13 +71,11 @@ class Chaos(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
                     case Fraction():            return self._xn._rational
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
