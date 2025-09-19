@@ -128,7 +128,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand ^= self    # Processes the Frame operand if any exists
+        self.__rxor__(operand)    # Processes the Frame operand if any exists
         match operand:
             case Chaos():
                 super().__lshift__(operand)
@@ -173,7 +173,7 @@ class Chaos(o.Operand):
         return operand
     
     def __imul__(self, number: Union[int, float, Fraction, ou.Unit, ra.Rational]) -> Self:
-        number ^= self # Extracts the Frame operand first
+        self.__rxor__(number) # Extracts the Frame operand first
         number = self.number_to_int(number)
         return self.iterate(number)
     
@@ -318,7 +318,7 @@ class Cycle(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand ^= self    # Processes the Frame operand if any exists
+        self.__rxor__(operand)    # Processes the Frame operand if any exists
         match operand:
             case Cycle():
                 super().__lshift__(operand)
@@ -566,7 +566,7 @@ class Bouncer(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand ^= self    # Processes the Frame operand if any exists
+        self.__rxor__(operand)    # Processes the Frame operand if any exists
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
@@ -706,7 +706,7 @@ class SinX(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand ^= self    # Processes the Frame operand if any exists
+        self.__rxor__(operand)    # Processes the Frame operand if any exists
         match operand:
             case SinX():
                 super().__lshift__(operand)
