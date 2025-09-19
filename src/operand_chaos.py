@@ -128,7 +128,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_shift(operand)    # Processes the Frame operand if any exists
+        self._tail_shift(operand)
         match operand:
             case Chaos():
                 super().__lshift__(operand)
@@ -318,7 +318,7 @@ class Cycle(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_shift(operand)    # Processes the Frame operand if any exists
+        self._tail_shift(operand)
         match operand:
             case Cycle():
                 super().__lshift__(operand)
@@ -566,7 +566,7 @@ class Bouncer(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_shift(operand)    # Processes the Frame operand if any exists
+        self._tail_shift(operand)
         match operand:
             case Bouncer():
                 super().__lshift__(operand)
@@ -706,7 +706,7 @@ class SinX(Chaos):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_shift(operand)    # Processes the Frame operand if any exists
+        self._tail_shift(operand)
         match operand:
             case SinX():
                 super().__lshift__(operand)
