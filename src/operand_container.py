@@ -2995,16 +2995,8 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = base_elements
                     self._set_owner_clip()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__ifloordiv__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self._unmasked_items():
-                    single_element //= operand.__ixor__(single_element)
             case _:
-                for item in self._unmasked_items():
-                    item.__ifloordiv__(operand)
+                super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
@@ -4590,12 +4582,8 @@ class Part(Composition):
                 elif operand == 0:
                     self._delete()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__ifloordiv__(single_operand)
             case _:
-                for item in self._unmasked_items():
-                    item.__ifloordiv__(operand)
+                super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
@@ -5171,12 +5159,8 @@ class Song(Composition):
                 elif operand == 0:
                     self._delete()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__ifloordiv__(single_operand)
             case _:
-                for item in self._unmasked_items():
-                    item.__ifloordiv__(operand)
+                super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
