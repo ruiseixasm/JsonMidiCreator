@@ -326,12 +326,10 @@ class TimeSignature(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case TimeSignature():       return self
                     case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
                     case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             # Direct Values
             case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
             case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
@@ -680,7 +678,6 @@ class Pitch(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():        return self % od.Pipe( operand._data )
                     case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
                     case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
@@ -698,7 +695,6 @@ class Pitch(Generic):
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % operand
             case ou.KeySignature():
                 return self._key_signature.copy()
             
@@ -1182,7 +1178,6 @@ class Controller(Generic):
                     case ou.LSB():              return operand._data << od.Pipe(self._lsb)
                     case ou.NRPN():             return operand._data << od.Pipe(self._nrpn)
                     case ou.HighResolution():   return operand._data << od.Pipe(self._high)
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case bool():                return self._high
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << od.Pipe(self._number_msb)
@@ -1198,7 +1193,6 @@ class Controller(Generic):
                     "HIGH": self._high
                 }
                 return controller_dict
-            case of.Frame():            return self % operand
             case Controller():
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
@@ -1714,7 +1708,6 @@ class Arpeggio(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ou.Order():            return operand._data << od.Pipe( self._order )
                     case ra.Duration():         return operand._data << od.Pipe( self._duration_beats )
                     case ra.Swing():            return operand._data << od.Pipe( self._swing )
@@ -1723,7 +1716,6 @@ class Arpeggio(Generic):
                     case float():               return float( self._duration_beats )
                     case Fraction():            return self._duration_beats
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case ou.Order():            return ou.Order(self._order)
             case str():                 return ou.Order(self._order) % str()
             case ra.Duration():         return ra.Duration( self._duration_beats )
@@ -1945,10 +1937,8 @@ class Segment(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case list():                return self._segment
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case list():                return self._segment.copy()
             case ra.Measure():
                 if len(self._segment) < 1:
@@ -3631,7 +3621,6 @@ class Settings(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case ra.Tempo():            return ra.Tempo(self._tempo)
                     case ra.Quantization():     return operand._data << self._quantization
                     case ra.StepsPerNote():
@@ -3650,7 +3639,6 @@ class Settings(Generic):
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case ra.Tempo():            return ra.Tempo(self._tempo)
             case ra.Quantization():     return operand.copy(self._quantization)
             case ra.StepsPerNote():
