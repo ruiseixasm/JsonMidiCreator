@@ -82,10 +82,6 @@ class Tamer(o.Operand):
             case _:             super().__pow__(operand)
         return self
 
-    # Operand ^= Tamer is taken care above
-    def _tail_set(self, operand: o.T) -> o.T:
-        return operand
-
     def reset(self, *parameters) -> Self:
         self._initiated     = False
         self._set           = False
@@ -166,7 +162,6 @@ class Parallel(Tamer):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case Tamer():
                 super().__lshift__(operand)
@@ -246,7 +241,6 @@ class Validator(Tamer):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case Validator():
                 super().__lshift__(operand)
@@ -307,7 +301,6 @@ class Check(Validator):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -369,7 +362,6 @@ class Boundary(Validator):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -470,7 +462,6 @@ class Prior(Validator):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -607,7 +598,6 @@ class Motion(Validator):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case Motion():
                 super().__lshift__(operand)
@@ -701,7 +691,6 @@ class Pattern(Motion):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case Pattern():
                 super().__lshift__(operand)
@@ -927,7 +916,6 @@ class Manipulator(Tamer):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        self._tail_set(operand)
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
