@@ -120,7 +120,6 @@ class Locus(Generic):
                         return operand._data << ra.Length(self._time_signature_reference, self._duration_beats)
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % operand
             case ra.Position():
                 return operand.copy(self._time_signature_reference, self._position_beats)
             case ra.TimeUnit():
