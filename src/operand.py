@@ -490,7 +490,7 @@ class Operand:
     None : It has no parameters.
     """
     def __init__(self, *parameters):
-        self._next_operand: Operand = None
+        self._next_operand: Operand | None = None
         self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int = 0
@@ -852,7 +852,7 @@ class Operand:
         return operand
     
     def _tail_lshift(self, source: T) -> T:
-        if self._next_operand:
+        if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_lshift(source)
             # Apply << operation between current next_operand and the result
