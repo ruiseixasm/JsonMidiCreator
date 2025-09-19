@@ -848,7 +848,7 @@ class Operand:
             set with `**` operator and returns the result.
 
         This excludes the classes `Frame`, `Chaos` and `Tamer` that have their own means of \
-            processing tailed paramters.
+            processing tailed parameters.
         """
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
