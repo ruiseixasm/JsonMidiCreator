@@ -81,7 +81,6 @@ class Rational(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational == other
@@ -101,7 +100,6 @@ class Rational(o.Operand):
         return False
     
     def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational < other
@@ -116,7 +114,6 @@ class Rational(o.Operand):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int():
                 return self._rational > other
@@ -644,7 +641,6 @@ class Convertible(Rational):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case TimeUnit() | int() | float():
                 return self % other == other
@@ -655,7 +651,6 @@ class Convertible(Rational):
         return False
 
     def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case TimeUnit() | int() | float():
                 return self % other < other
@@ -666,7 +661,6 @@ class Convertible(Rational):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case TimeUnit() | int() | float():
                 return self % other > other
@@ -909,7 +903,6 @@ class Position(Measurement):
 
     def __eq__(self, other: any) -> bool:
         import operand_generic as og
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case og.Segment():
                 return other == self
@@ -1510,7 +1503,6 @@ class TimeUnit(Convertible):
 
     def __eq__(self, other: any) -> bool:
         import operand_generic as og
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
@@ -1522,7 +1514,6 @@ class TimeUnit(Convertible):
         return False
 
     def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
@@ -1532,7 +1523,6 @@ class TimeUnit(Convertible):
         return False
     
     def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
