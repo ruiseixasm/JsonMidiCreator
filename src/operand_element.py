@@ -253,7 +253,7 @@ class Element(o.Operand):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
                 super().__lshift__(operand)
@@ -312,7 +312,7 @@ class Element(o.Operand):
 
 
     def __rshift__(self, operand: o.T) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Serialization():
                 return self << operand % od.Pipe()
@@ -322,7 +322,7 @@ class Element(o.Operand):
         return self.copy().__irshift__(operand)
 
     def __irshift__(self, operand: o.T) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():  # Element wapping (wrap)
                 wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
@@ -375,7 +375,7 @@ class Element(o.Operand):
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
                 return oc.Clip(self, operand)    # Clip does an += for << operator
@@ -393,7 +393,7 @@ class Element(o.Operand):
         return self
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             # For efficient reasons
             case ra.Position():
@@ -408,7 +408,7 @@ class Element(o.Operand):
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 return oc.Clip(self).__imul__(operand)
@@ -479,7 +479,7 @@ class Element(o.Operand):
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 return oc.Clip(self).__itruediv__(operand)
@@ -561,7 +561,7 @@ class Element(o.Operand):
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 return oc.Clip(self).__ifloordiv__(operand)
@@ -797,7 +797,7 @@ class Unison(Element):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Unison():
                 super().__lshift__(operand)
@@ -969,7 +969,7 @@ class DeviceElement(Element):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -1222,7 +1222,7 @@ class Clock(DeviceElement):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Clock():
                 super().__lshift__(operand)
@@ -1362,7 +1362,7 @@ class ChannelElement(DeviceElement):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
@@ -1718,7 +1718,7 @@ class Note(ChannelElement):
 
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Note():
                 super().__lshift__(operand)
@@ -1749,7 +1749,7 @@ class Note(ChannelElement):
         return self
 
     def __iadd__(self, operand: any) -> 'Note':
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case og.Pitch() | ou.PitchParameter():
                 self._pitch += operand  # Specific and compounded parameter
@@ -1758,7 +1758,7 @@ class Note(ChannelElement):
                 return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> 'Note':
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case og.Pitch() | ou.PitchParameter():
                 self._pitch -= operand  # Specific and compounded parameter
@@ -1899,7 +1899,7 @@ class KeyScale(Note):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case KeyScale():
                 super().__lshift__(operand)
@@ -1990,7 +1990,7 @@ class Cluster(KeyScale):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Cluster():
                 super().__lshift__(operand)
@@ -2171,7 +2171,7 @@ class Chord(KeyScale):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Chord():
                 super().__lshift__(operand)
@@ -2346,7 +2346,7 @@ class Retrigger(Note):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Retrigger():
                 super().__lshift__(operand)
@@ -2417,7 +2417,7 @@ class Triplet(Retrigger):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Count():
                 return self # disables the setting of Count, always 3
@@ -2568,7 +2568,7 @@ class Tuplet(ChannelElement):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         if not isinstance(operand, tuple):
             for single_element in self._elements:
                 single_element << operand
@@ -2745,7 +2745,7 @@ class Automation(ChannelElement):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Automation():
                 super().__lshift__(operand)
@@ -2764,7 +2764,7 @@ class Automation(ChannelElement):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._value += operand  # Specific and compounded parameter
@@ -2776,7 +2776,7 @@ class Automation(ChannelElement):
                 return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._value -= operand  # Specific and compounded parameter
@@ -3017,7 +3017,7 @@ class ControlChange(Automation):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case ControlChange():
                 super().__lshift__(operand)
@@ -3076,7 +3076,7 @@ class BankSelect(ControlChange):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             # Bank Select is 1 based and not 0 based
             case int():
@@ -3479,7 +3479,7 @@ class PitchBend(Automation):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case PitchBend():
                 super().__lshift__(operand)
@@ -3504,7 +3504,7 @@ class PitchBend(Automation):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 bend: int = self._get_bend(self._value, self._lsb)
@@ -3520,7 +3520,7 @@ class PitchBend(Automation):
                 return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 bend: int = self._get_bend(self._value, self._lsb)
@@ -3651,7 +3651,7 @@ class Aftertouch(Automation):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Aftertouch():
                 super().__lshift__(operand)
@@ -3669,7 +3669,7 @@ class Aftertouch(Automation):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._value += operand  # Specific and compounded parameter
@@ -3681,7 +3681,7 @@ class Aftertouch(Automation):
                 return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._value -= operand  # Specific and compounded parameter
@@ -3806,7 +3806,7 @@ class PolyAftertouch(Aftertouch):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case PolyAftertouch():
                 super().__lshift__(operand)
@@ -3950,7 +3950,7 @@ class ProgramChange(ChannelElement):
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case ProgramChange():
                 super().__lshift__(operand)
@@ -3974,7 +3974,7 @@ class ProgramChange(ChannelElement):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._program_0 += operand  # Specific and compounded parameter
@@ -3985,7 +3985,7 @@ class ProgramChange(ChannelElement):
         return self
 
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._program_0 -= operand  # Specific and compounded parameter

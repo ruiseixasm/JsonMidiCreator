@@ -4377,7 +4377,7 @@ class Part(Composition):
 
     def __lshift__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Part():
                 super().__lshift__(operand)
@@ -4440,7 +4440,7 @@ class Part(Composition):
     def __iadd__(self, operand: any) -> Union['Song', 'Part']:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Part():
                 return Song(self, operand)
@@ -4462,7 +4462,7 @@ class Part(Composition):
     def __isub__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Clip():
                 return self._delete([ operand ])
@@ -4475,7 +4475,7 @@ class Part(Composition):
     def __imul__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Part():
                 last_position: ra.Position = self.last_position()
@@ -4525,7 +4525,7 @@ class Part(Composition):
     def __itruediv__(self, operand: any) -> Self:
         # A `Part` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Part():
                 finish_position: ra.Position = self.finish()

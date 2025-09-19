@@ -202,7 +202,7 @@ class Locus(Generic):
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         if self._time_signature_reference is None:
             match operand:
                 case ra.Convertible():
@@ -253,7 +253,7 @@ class Locus(Generic):
 
     def __iadd__(self, operand: any) -> Self:
         import operand_container as oc
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case ra.Position():
                 self._position_beats += operand._rational
@@ -266,7 +266,7 @@ class Locus(Generic):
         return self
 
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case ra.Position():
                 self._position_beats -= operand._rational
@@ -279,14 +279,14 @@ class Locus(Generic):
         return self
 
     def __imul__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         self_operand: any = self % operand
         self_operand *= operand # Generic `self_operand`
         self << self_operand
         return self
 
     def __itruediv__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         if operand != Fraction(0):
             self_operand: any = self % operand
             self_operand /= operand # Generic `self_operand`
@@ -295,7 +295,7 @@ class Locus(Generic):
 
 
     def __ifloordiv__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         if operand != Fraction(0):
             self_operand: any = self % operand
             self_operand //= operand # Generic `self_operand`
@@ -337,7 +337,7 @@ class TimeSignature(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_signature: 'TimeSignature') -> bool:
-        other_signature = self._tail_lshift(other_signature)    # Processes the tailed self operands or the Frame operand if any exists
+        other_signature = self._tail_lshift(other_signature)    # Processes the tailed self operands if existent
         if other_signature.__class__ == o.Operand:
             return True
         if type(self) != type(other_signature):
@@ -365,7 +365,7 @@ class TimeSignature(Generic):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case TimeSignature():
                 super().__lshift__(operand)
@@ -816,7 +816,7 @@ class Pitch(Generic):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch():
                 super().__lshift__(operand)
@@ -979,7 +979,7 @@ class Pitch(Generic):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch() | ou.Semitone():
                 self += operand % int()
@@ -1010,7 +1010,7 @@ class Pitch(Generic):
         return self
     
     def __isub__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch() | ou.Semitone():
                 self -= operand % int()
@@ -1041,7 +1041,7 @@ class Pitch(Generic):
         return self
 
     def __mul__(self, operand) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 new_keynote = self.__class__()
@@ -1061,7 +1061,7 @@ class Pitch(Generic):
                 return super().__mul__(operand)
     
     def __div__(self, operand) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         if operand != 0:
             match operand:
                 case int():
@@ -1224,7 +1224,7 @@ class Controller(Generic):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Controller():
                 super().__lshift__(operand)
@@ -1526,7 +1526,7 @@ class Scale(Generic):
     
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Scale():
                 super().__lshift__(operand)
@@ -1851,7 +1851,7 @@ class Arpeggio(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Arpeggio():
                 super().__lshift__(operand)
@@ -2051,7 +2051,7 @@ class Segment(Generic):
     
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Segment():
                 super().__lshift__(operand)
@@ -3733,7 +3733,7 @@ class Settings(Generic):
     
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands or the Frame operand if any exists
+        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
         match operand:
             case Settings():
                 super().__lshift__(operand)
