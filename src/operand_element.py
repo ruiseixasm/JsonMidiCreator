@@ -143,7 +143,6 @@ class Element(o.Operand):
                         return operand._data << ra.Length(self, self._duration_beats)
                     case Fraction():        return self._duration_beats
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % operand
             case og.Locus():
                 locus_copy: og.Locus = operand.copy(self)
                 locus_copy._position_beats = self._position_beats
