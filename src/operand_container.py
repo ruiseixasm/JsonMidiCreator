@@ -4119,7 +4119,6 @@ class Part(Composition):
 
 
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return super().__eq__(other) and self._position_beats == other._position_beats
@@ -4132,7 +4131,6 @@ class Part(Composition):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return self._position_beats < other._position_beats
@@ -4145,7 +4143,6 @@ class Part(Composition):
                 return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Part():
                 return self._position_beats > other._position_beats
