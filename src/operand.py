@@ -838,7 +838,7 @@ class Operand:
         return self
     
 
-    def _tail_shift(self, operand: T) -> T:
+    def _tail_set(self, operand: T) -> T:
         if isinstance(self._next_operand, Operand):
             return self._next_operand << operand
         return operand
