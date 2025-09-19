@@ -595,7 +595,6 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         import operand_data as od
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
@@ -847,7 +846,6 @@ class Operand:
             return operand.__rxor__(self)
         return self
     
-    # Check `operand ^= self`
     def __rxor__(self, operand: T) -> T:
         if isinstance(self._next_operand, Operand):
             return self._next_operand << operand

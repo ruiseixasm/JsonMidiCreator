@@ -87,7 +87,6 @@ class Unit(o.Operand):
     
     def __eq__(self, other: any) -> bool:
         import operand_rational as ra
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit == other
@@ -104,7 +103,6 @@ class Unit(o.Operand):
     
     def __lt__(self, other: any) -> bool:
         import operand_rational as ra
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit < other
@@ -116,7 +114,6 @@ class Unit(o.Operand):
     
     def __gt__(self, other: any) -> bool:
         import operand_rational as ra
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
                 return self._unit > other
@@ -387,7 +384,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, KeySignature):
@@ -640,8 +636,6 @@ class Key(PitchParameter):
                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return self % int() % 12 == other % int() % 12  # This get's in consideration the just final key pressed
@@ -768,7 +762,6 @@ class Degree(PitchParameter):
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Degree):
@@ -780,7 +773,6 @@ class Degree(PitchParameter):
         return self % other == other
     
     def __lt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Degree):
             return self % float() < other % float()
         if isinstance(other, od.Conditional):
@@ -788,7 +780,6 @@ class Degree(PitchParameter):
         return super().__lt__(other)
     
     def __gt__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Degree):
             return self % float() > other % float()
         if isinstance(other, od.Conditional):
@@ -1310,7 +1301,6 @@ class Major(Quality):
     bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as Major the Key Signature
     """
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Minor():
                 return self._unit != other._unit
@@ -1327,7 +1317,6 @@ class Minor(Quality):
     bool(True), int : Accepts a boolean or a numeral (0 or 1) to set as minor the Key Signature
     """
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case Major():
                 return self._unit != other._unit
@@ -1721,7 +1710,6 @@ class MidiTrack(Midi):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
