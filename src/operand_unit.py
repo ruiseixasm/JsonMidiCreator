@@ -66,13 +66,11 @@ class Unit(o.Operand):
                     case int():             return self._unit           # returns a int()
                     case Fraction():        return Fraction(self._unit)
                     case float():           return float(self._unit)
-                    case of.Frame():        return self % od.Pipe( operand._data )
                     case _:                 return super().__mod__(operand)
             case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
             case int():             return self._unit
             case Fraction():        return Fraction(self._unit)
             case float():           return float(self._unit)
-            case of.Frame():        return self % operand
             case ra.Rational():     return operand.copy() << od.Pipe( self._unit )
             case Unit():            return operand.copy(self)
             case str():             return str(self._unit)
@@ -350,11 +348,9 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case KeySignature():        return self
                     case Mode():                return Mode(self._mode_0 + 1)
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % operand
             case int():                 return self._unit
             case float():
                 return float(self._mode_0 + 1)
