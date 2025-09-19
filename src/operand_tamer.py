@@ -61,10 +61,7 @@ class Tamer(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case of.Frame():            return self % od.Pipe( operand._data )
                     case _:                     return super().__mod__(operand)
-            case of.Frame():
-                return self % operand
             case Tamer():
                 return operand.copy(self)
             case _:
