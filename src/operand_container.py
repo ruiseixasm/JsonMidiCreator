@@ -490,6 +490,7 @@ class Container(o.Operand):
                 return self.copy().shuffle(operand)
             case list() | oe.Element() | str():
                 return self.copy().__irshift__(operand)
+            
             case tuple():
                 return super().__irshift__(operand)
             case _:
@@ -505,6 +506,7 @@ class Container(o.Operand):
                 return operand.__irrshift__(self)
             case ch.Chaos():
                 return self.shuffle(operand)
+            
             case tuple():
                 return super().__irshift__(operand)
             case _:
@@ -529,6 +531,7 @@ class Container(o.Operand):
                     self.deep_copy(single_item) for single_item in operand
                 ]
                 return self._extend(operand_items)
+            
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -557,6 +560,7 @@ class Container(o.Operand):
                         operand -= 1
             case list():
                 return self._delete(operand)
+            
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
@@ -574,8 +578,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case o.Operand():
-                pass
             case int(): # repeat n times the self content if any
                 if operand > 1:
                     items_copy: list = [
@@ -592,6 +594,7 @@ class Container(o.Operand):
                     self._delete()
             case ch.Chaos():
                 return self.shuffle(operand.copy())
+            
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
@@ -607,8 +610,6 @@ class Container(o.Operand):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Container():
-                pass
-            case o.Operand():
                 pass
             case int(): # split n times the self content if any
                 if operand > 0:
@@ -2814,16 +2815,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = base_elements
                 self._mask_items = mask_elements
 
-            case tuple():
-                for single_operand in operand:
-                    self.__imul__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self._unmasked_items():
-                    single_element *= operand.__ixor__(single_element)
             case _:
-                for item in self._unmasked_items():
-                    item.__imul__(operand)
+                super().__imul__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __rmul__(self, operand: any) -> Self:
@@ -4534,12 +4527,8 @@ class Part(Composition):
                 elif operand == 0:
                     self._delete()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__imul__(single_operand)
             case _:
-                for item in self._unmasked_items():
-                    item.__imul__(operand)
+                super().__imul__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __itruediv__(self, operand: any) -> Self:
@@ -5120,12 +5109,8 @@ class Song(Composition):
                 elif operand == 0:
                     self._delete()
                 
-            case tuple():
-                for single_operand in operand:
-                    self.__imul__(single_operand)
             case _:
-                for item in self._unmasked_items():
-                    item.__imul__(operand)
+                super().__imul__(operand)
         return self._sort_items()
 
 
