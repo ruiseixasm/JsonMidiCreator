@@ -76,7 +76,6 @@ class Data(o.Operand):
             case _:                         return ol.Null()
             
     def __eq__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Data):
             return self._data == other._data
         if other.__class__ == o.Operand:
@@ -86,13 +85,11 @@ class Data(o.Operand):
         return False
     
     def __lt__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Data):
             return self._data < other._data
         return False
     
     def __gt__(self, other: o.Operand) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Data):
             return self._data > other._data
         return False
@@ -264,7 +261,6 @@ class And(Conditional):
     Any(None) : A sequence of Any type of items that will be processed in bulk.
     """
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, And):
             return self._data == other._data
         for single_condition in self._data:
@@ -282,7 +278,6 @@ class Or(Conditional):
     Any(None) : A sequence of Any type of items that will be processed in bulk.
     """
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if isinstance(other, Or):
             return self._data == other._data
         for single_condition in self._data:
@@ -424,7 +419,6 @@ class Serialization(Data):
         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if self._data is None:
             if isinstance(other, Data) and other._data is None:
                 return True # If both have Null data then they are equal
@@ -569,7 +563,6 @@ class Playlist(Data):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        other ^= self    # Processes the Frame operand if any exists
         if self._data is None:
             if other is None:
                 return True
