@@ -635,6 +635,23 @@ class Container(o.Operand):
                     item.__itruediv__(operand)
         return self
 
+    def __ifloordiv__(self, operand: any) -> Self:
+        match operand:
+            case Container():
+                pass
+
+            case tuple():
+                for single_operand in operand:
+                    self.__ifloordiv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_item in self._unmasked_items():
+                    single_item //= operand.__ixor__(single_item)
+            case _:
+                for item in self._unmasked_items():
+                    item.__ifloordiv__(operand)
+        return self
+
 
     def empty_copy(self, *parameters) -> Self:
         """
