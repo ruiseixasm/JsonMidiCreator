@@ -825,6 +825,10 @@ class Operand:
     def __ritruediv__(self, operand: T) -> T:
         return operand
 
+    # Makes sure no Non Operand has `//= Operand` applied
+    def __rifloordiv__(self, operand: T) -> T:
+        return operand
+
     
     def __pow__(self, operand: 'Operand') -> Self:
         '''
