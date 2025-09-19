@@ -838,23 +838,15 @@ class Operand:
         return self
     
 
-    def __xor__(self, operand) -> Self:
-        return self.__ixor__(operand)
-    
-    def __ixor__(self, operand) -> Self:
-        if isinstance(operand, Operand):
-            return operand.__rxor__(self)
-        return self
-    
     def __rxor__(self, operand: T) -> T:
         if isinstance(self._next_operand, Operand):
             return self._next_operand << operand
         return operand
     
-    def _tail_lshift(self, source: T) -> T:
+    def _tail_wrap(self, source: T) -> T:
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
-            next_result = self._next_operand._tail_lshift(source)
+            next_result = self._next_operand._tail_wrap(source)
             # Apply << operation between current next_operand and the result
             return self._next_operand << next_result     
         return source  # Return source if there is no next operand in the chain

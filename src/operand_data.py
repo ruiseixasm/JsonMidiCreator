@@ -116,7 +116,7 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
@@ -162,7 +162,7 @@ class Pipe(Data):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pipe():
                 self._data = operand._data
@@ -205,7 +205,7 @@ class Inline(Data):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pipe():
                 self._data = self.deep_copy(operand._data)
@@ -467,7 +467,7 @@ class Serialization(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_lshift(operand)    # Processes the tailed self operands if existent
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Serialization():
                 super().__lshift__(operand)
