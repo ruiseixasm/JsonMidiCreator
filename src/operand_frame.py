@@ -157,7 +157,7 @@ class Frame(o.Operand):
     def frame(self, input: Any) -> o.Operand:
         return o.Operand()
     
-    def __rxor__(self, input: Any) -> Any:
+    def _tail_shift(self, input: Any) -> Any:
         return self.frame(input)
     
 

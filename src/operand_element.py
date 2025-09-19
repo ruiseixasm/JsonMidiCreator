@@ -171,7 +171,7 @@ class Element(o.Operand):
         return [ self ]
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Element():
                 return self._position_beats == other._position_beats \
@@ -188,7 +188,7 @@ class Element(o.Operand):
                 return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
@@ -198,7 +198,7 @@ class Element(o.Operand):
                 return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
@@ -743,7 +743,7 @@ class Unison(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1047,7 +1047,7 @@ class Clock(DeviceElement):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1298,7 +1298,7 @@ class ChannelElement(DeviceElement):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case ChannelElement():
                 return self._position_beats == other._position_beats \
@@ -1311,7 +1311,7 @@ class ChannelElement(DeviceElement):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case ChannelElement():
                 if self._position_beats == other._position_beats:
@@ -1323,7 +1323,7 @@ class ChannelElement(DeviceElement):
                 return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case ChannelElement():
                 if self._position_beats == other._position_beats:
@@ -1432,7 +1432,7 @@ class Note(ChannelElement):
 
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1449,7 +1449,7 @@ class Note(ChannelElement):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -1464,7 +1464,7 @@ class Note(ChannelElement):
                 return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -1811,7 +1811,7 @@ class KeyScale(Note):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1955,7 +1955,7 @@ class Cluster(KeyScale):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._offsets == other._offsets
@@ -2104,7 +2104,7 @@ class Chord(KeyScale):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2498,7 +2498,7 @@ class Tuplet(ChannelElement):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2651,7 +2651,7 @@ class Automation(ChannelElement):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -2663,7 +2663,7 @@ class Automation(ChannelElement):
                 return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Automation():
                 # Adds predictability in sorting and consistency in clipping
@@ -2678,7 +2678,7 @@ class Automation(ChannelElement):
                 return self % other < other
     
     def __gt__(self, other: 'o.Operand') -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case Automation():
                 # Adds predictability in sorting and consistency in clipping
@@ -2839,7 +2839,7 @@ class ControlChange(Automation):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3410,7 +3410,7 @@ class PitchBend(Automation):
                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3578,7 +3578,7 @@ class Aftertouch(Automation):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3744,7 +3744,7 @@ class PolyAftertouch(Aftertouch):
                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3871,7 +3871,7 @@ class ProgramChange(ChannelElement):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        self.__rxor__(other)    # Processes the Frame operand if any exists
+        self._tail_shift(other)    # Processes the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
