@@ -554,8 +554,6 @@ class Operand:
         match operand:
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
-            case of.Frame():
-                return self % (operand % Operand())
             case od.Playlist():
                 return od.Playlist() << od.Pipe( self.getPlaylist() )
             case od.Serialization():
