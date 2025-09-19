@@ -54,11 +54,9 @@ class Data(o.Operand):
         match operand:
             case Pipe():
                 match operand._data:
-                    case of.Frame():                return self % Pipe( operand._data )
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
-            case of.Frame():                return self % operand
             case Serialization():           return self.getSerialization()
             case dict():
                 serialization: dict = self.getSerialization()
