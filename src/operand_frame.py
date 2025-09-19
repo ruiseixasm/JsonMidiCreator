@@ -152,13 +152,13 @@ class Frame(o.Operand):
         return self
 
     def __xor__(self, input: Any) -> Any:
-        return self.__ixor__(input)
+        return self.frame(input)
     
-    def __ixor__(self, input: Any) -> o.Operand:
+    def frame(self, input: Any) -> o.Operand:
         return o.Operand()
     
     def __rxor__(self, input: Any) -> Any:
-        return self.__ixor__(input)
+        return self.frame(input)
     
 
     def pop(self, frame: 'Frame') -> 'Frame':
@@ -196,11 +196,11 @@ class Left(Frame):  # LEFT TO RIGHT
     ----------
     Any(None) : Data used in the framing process.
     """
-    def __ixor__(self, input: any) -> any:
+    def frame(self, input: any) -> any:
                 
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand = self_operand.__ixor__(input)
+            self_operand = self_operand.frame(input)
         if isinstance(self_operand, tuple):
             self_operand_tuple: tuple = ()
             for single_operand in self_operand:
@@ -246,20 +246,20 @@ class Input(Left):
         super().__init__()
         self._named_parameters['input'] = input
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         import operand_chaos as ch
         self._increment_index(Input)
         if isinstance(self._named_parameters['input'], oc.Container):
             if self._named_parameters['input'].len() > 0:
                 item = self._named_parameters['input'][(self._index - 1) % self._named_parameters['input'].len()]
-                return super().__ixor__(item)
-            return super().__ixor__(ol.Null())
+                return super().frame(item)
+            return super().frame(ol.Null())
         if isinstance(self._named_parameters['input'], ch.Chaos):
             actual_chaos: ch.Chaos = self._named_parameters['input'] * 0    # Makes a copy without iterating
             self._named_parameters['input'] *= 1    # In order to not result in a copy of Chaos
-            return super().__ixor__(actual_chaos)
-        return super().__ixor__(self._named_parameters['input'])
+            return super().frame(actual_chaos)
+        return super().frame(self._named_parameters['input'])
 
 
 class Previous(Left):
@@ -278,7 +278,7 @@ class Previous(Left):
         self._named_parameters['parameter'] = parameters
         self._named_parameters['previous'] = first_null
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if self._index == 0:
             if self._named_parameters['previous']:
                 self._named_parameters['previous'] = ol.Null()
@@ -287,7 +287,7 @@ class Previous(Left):
         previous_parameter = self._named_parameters['previous']
         for parameter in self._named_parameters['parameter']:
             previous_parameter %= parameter
-        parameter: Any = super().__ixor__(previous_parameter)
+        parameter: Any = super().frame(previous_parameter)
         self._named_parameters['previous'] = input
         self._index += 1
         return parameter
@@ -306,10 +306,10 @@ class PassThrough(Left):
         super().__init__()
         self._named_parameters['operand'] = operand
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(self._named_parameters['operand'], o.Operand):
-            return super().__ixor__(input >> self._named_parameters['operand'])
-        return super().__ixor__(input)
+            return super().frame(input >> self._named_parameters['operand'])
+        return super().frame(input)
 
 class SendTo(Left):
     """`Frame -> Left -> SendTo`
@@ -325,10 +325,10 @@ class SendTo(Left):
         super().__init__()
         self._named_parameters['operand'] = operand
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(self._named_parameters['operand'], o.Operand):
             input >> self._named_parameters['operand']
-        return super().__ixor__(input)
+        return super().frame(input)
 
 class Choice(Left):
     """`Frame -> Left -> Choice`
@@ -339,7 +339,7 @@ class Choice(Left):
     ----------
     Any(None) : Multiple items to be chosen.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if len(self._parameters) > 0:
             choice: int = 0
             match input:
@@ -350,8 +350,8 @@ class Choice(Left):
                     if isinstance(choice_candidate, int):
                         choice = choice_candidate
             choice %= len(self._parameters)
-            return super().__ixor__(self._parameters[choice])
-        return super().__ixor__(ol.Null())
+            return super().frame(self._parameters[choice])
+        return super().frame(ol.Null())
 
 class Pick(Left):
     """`Frame -> Left -> Pick`
@@ -367,7 +367,7 @@ class Pick(Left):
         super().__init__(*parameters)
         self._named_parameters['pick'] = list(self._parameters)
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if len(self._parameters) > 0:
             if len(self._named_parameters['pick']) == 0:
                 self._named_parameters['pick'] = list(self._parameters)
@@ -380,8 +380,8 @@ class Pick(Left):
                     if isinstance(choice_candidate, int):
                         choice = choice_candidate
             choice %= len(self._named_parameters['pick'])
-            return super().__ixor__(self._named_parameters['pick'].pop(choice))
-        return super().__ixor__(ol.Null())
+            return super().frame(self._named_parameters['pick'].pop(choice))
+        return super().frame(ol.Null())
 
 class CountDown(Left):
     """`Frame -> Left -> CountDown`
@@ -402,7 +402,7 @@ class CountDown(Left):
             self._count_down.append(single_parameter)
         self._named_parameters['count_down'] = tuple(self._count_down)  # tuple will be used as data reset
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         pick_choices: any = ol.Null()
         if len(self._named_parameters['count_down']) > 0:
             picker: int = 0
@@ -427,7 +427,7 @@ class CountDown(Left):
             # Trim base, move closer (avoids astronomical distances)
             for index, _ in enumerate(self._named_parameters['count_down']):
                 self._count_down[index] -= max(0, closest_place - 1)
-        return super().__ixor__(pick_choices)
+        return super().frame(pick_choices)
 
 class Frequency(CountDown):
     """`Frame -> Left -> CountDown -> Frequency`
@@ -478,8 +478,8 @@ class Formula(Left):
         super().__init__()
         self._named_parameters['operand'] = operation
 
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(self._named_parameters['operand'](input))
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(self._named_parameters['operand'](input))
     
 class Iterate(Left):
     """`Frame -> Left -> Iterate`
@@ -517,16 +517,16 @@ class Iterate(Left):
                 iterator['current'] = iterator['step'].copy() << iterator['current']
         self._named_parameters['iterator'] = iterator
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         import operand_chaos as ch
         self._increment_index(Iterate)
         if isinstance(input, ch.Chaos):
             if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
                 input *= self._named_parameters['iterator']['start']
-            self_operand = super().__ixor__( input )
+            self_operand = super().frame( input )
             input *= self._named_parameters['iterator']['step']
         else:
-            self_operand = super().__ixor__(
+            self_operand = super().frame(
                 self.deep_copy(self._named_parameters['iterator']['current'])
             )
         # iterates whenever called
@@ -547,14 +547,14 @@ class Drag(Left):
         super().__init__(*parameters)
         self._first_parameter = None
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             if self._first_parameter is None:
                 self._first_parameter = input
                 for single_parameter in self._parameters:
                     self._first_parameter %= single_parameter
-            return super().__ixor__(self._first_parameter)
-        return super().__ixor__(input)
+            return super().frame(self._first_parameter)
+        return super().frame(input)
 
 
 class Mux(Left):
@@ -575,7 +575,7 @@ class Mux(Left):
         self._full_range: int = sum(validated_parameters)
         super().__init__(*validated_parameters)
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         final_remainder: int = 0
         tamed_index: int = self._index % self._full_range
         for multiplex in self._parameters:
@@ -584,7 +584,7 @@ class Mux(Left):
                 break
             tamed_index -= multiplex
         if final_remainder == 0:
-            self._last_parameter = super().__ixor__(input)
+            self._last_parameter = super().frame(input)
         self._increment_index(Mux)
         return self._last_parameter
 
@@ -604,12 +604,12 @@ class Foreach(Left):
             validated_parameters.append(param)
         super().__init__(*validated_parameters)
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         self._increment_index(Foreach)
         operand_len: int = len(self._parameters)
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._parameters[(self._index - 1) % operand_len]
-            return super().__ixor__(input)
+            return super().frame(input)
         return ol.Null()
 
 class Once(Foreach):
@@ -622,10 +622,10 @@ class Once(Foreach):
     ----------
     Any(None) : The set of items to loop through only once.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         operand_len: int = len(self._parameters)
         if self._index < operand_len:   # Does only a single loop!
-            return super().__ixor__(input)
+            return super().frame(input)
         return ol.Null()
 
 
@@ -649,8 +649,8 @@ class All(InputFilter):
     ----------
     None : `All` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input)
 
 class First(InputFilter):
     """`Frame -> Left -> InputFilter -> First`
@@ -661,7 +661,7 @@ class First(InputFilter):
     ----------
     None : `First` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
             first_item = self._inside_container.first()
@@ -680,7 +680,7 @@ class Last(InputFilter):
     ----------
     None : `Last` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
             last_item = self._inside_container.last()
@@ -700,7 +700,7 @@ class Crossing(InputFilter):
     ----------
     None : `Crossing` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         import operand_element as oe
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container) \
@@ -719,7 +719,7 @@ class Odd(InputFilter):
     ----------
     None : `Odd` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         self._increment_index(Odd)
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
@@ -737,7 +737,7 @@ class Even(InputFilter):
     ----------
     None : `Even` doesn't have parameters to be set.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         self._increment_index(Even)
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
@@ -758,7 +758,7 @@ class Every(InputFilter):
         super().__init__()
         self._named_parameters['nths'] = nth
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         self._increment_index(Every)
         if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
             if isinstance(self._next_operand, Frame):
@@ -781,7 +781,7 @@ class Nth(InputFilter):
         super().__init__()
         self._named_parameters['parameters'] = parameters
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         self._increment_index(Nth)
         if self._index in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
@@ -799,10 +799,10 @@ class InputType(InputFilter):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         for operand_class in self._parameters:
             if isinstance(input, operand_class):
-                return super().__ixor__(input)
+                return super().frame(input)
         return ol.Null()
 
 
@@ -819,13 +819,13 @@ class BasicComparison(InputFilter):
         super().__init__(*parameters)
         self._named_parameters['previous'] = []
 
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         for condition in self._parameters:
             if not self._compare(input, condition): # Where the comparison is made
                 return ol.Null()
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand = self_operand.__ixor__(input)
+            self_operand = self_operand.frame(input)
         return self_operand
 
     @staticmethod
@@ -925,13 +925,13 @@ class Get(Left):
     ----------
     Any(None) : An item to get from the input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             parameter = input
             for single_parameter in self._parameters:
                 parameter %= single_parameter
-            return super().__ixor__(parameter)
-        return super().__ixor__(input)
+            return super().frame(parameter)
+        return super().frame(input)
 
 class DeepCopy(Left):
     """`Frame -> Left -> DeepCopy`
@@ -942,9 +942,9 @@ class DeepCopy(Left):
     ----------
     None : This `Frame` has no parameters.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         input_duplication = self.deep_copy(input)
-        return super().__ixor__(input_duplication)
+        return super().frame(input_duplication)
 
 class Inject(Left):
     """`Frame -> Left -> Inject`
@@ -966,11 +966,11 @@ class Set(Inject):
     ----------
     Any(None) : A series of parameters to be injected into the input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             for single_parameter in self._parameters:
                 input << single_parameter
-        return super().__ixor__(input)
+        return super().frame(input)
         
 class Push(Inject):
     """`Frame -> Left -> Inject -> Push`
@@ -981,11 +981,11 @@ class Push(Inject):
     ----------
     Any(None) : A series of parameters to be push into the input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             for single_parameter in self._parameters:
                 single_parameter >> input
-        return super().__ixor__(input)
+        return super().frame(input)
 
 
 class BasicOperation(Left):
@@ -1021,8 +1021,8 @@ class Add(BasicOperation):
     ----------
     Any : A parameters to do an `+` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input + self._next_parameter())
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input + self._next_parameter())
 
 class Subtract(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Subtract`
@@ -1033,8 +1033,8 @@ class Subtract(BasicOperation):
     ----------
     Any : A parameters to do an `-` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input - self._next_parameter())
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input - self._next_parameter())
 
 class Multiply(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Multiply`
@@ -1045,8 +1045,8 @@ class Multiply(BasicOperation):
     ----------
     Any : A parameters to do an `*` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input * self._next_parameter())
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input * self._next_parameter())
 
 class Divide(BasicOperation):
     """`Frame -> Left -> BasicOperation -> Divide`
@@ -1057,8 +1057,8 @@ class Divide(BasicOperation):
     ----------
     Any : A parameters to do an `/` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        return super().__ixor__(input / self._next_parameter())
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input / self._next_parameter())
 
 
 class Right(Frame):  # RIGHT TO LEFT
@@ -1070,11 +1070,11 @@ class Right(Frame):  # RIGHT TO LEFT
     ----------
     Any(None) : Data used in the framing process.
     """
-    def __ixor__(self, input: o.T) -> o.T:
+    def frame(self, input: o.T) -> o.T:
         right_input = self._next_operand
         if isinstance(right_input, Frame):
             # ByPasses a Right frame
-            right_input = right_input.__ixor__(input)
+            right_input = right_input.frame(input)
         if isinstance(right_input, o.Operand) and not right_input._set:
             right_input = right_input.copy(input) # Has to use a copy of the frame operand
             right_input._set = True
@@ -1089,8 +1089,8 @@ class WrapR(Right):
     ----------
     Operand(None) : `Operand` to wrap the right side input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        wrapped_right_input = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        wrapped_right_input = super().frame(input)
         for single_wrapper in self._parameters:
             if isinstance(single_wrapper, o.Operand):
                 wrapped_right_input = single_wrapper.copy(wrapped_right_input)
@@ -1106,8 +1106,8 @@ class GetR(Right):
     ----------
     Any(None) : Item to extract from the right side input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        extracted_data = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        extracted_data = super().frame(input)
         for single_parameter in self._parameters:
             if isinstance(extracted_data, o.Operand):
                 extracted_data %= single_parameter
@@ -1137,8 +1137,8 @@ class AddR(BasicOperationR):
     ----------
     int(1) : A parameter to do an `+` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        extracted_data = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        extracted_data = super().frame(input)
         if isinstance(extracted_data, list):
             for index, _ in enumerate(extracted_data):
                 extracted_data[index] += self._named_parameters['parameter']
@@ -1157,8 +1157,8 @@ class SubtractR(BasicOperationR):
     ----------
     int(1) : A parameter to do an `-` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        extracted_data = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        extracted_data = super().frame(input)
         if isinstance(extracted_data, list):
             for index, _ in enumerate(extracted_data):
                 extracted_data[index] -= self._named_parameters['parameter']
@@ -1177,8 +1177,8 @@ class MultiplyR(BasicOperationR):
     ----------
     int(1) : A parameter to do an `*` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        extracted_data = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        extracted_data = super().frame(input)
         if isinstance(extracted_data, list):
             for index, _ in enumerate(extracted_data):
                 extracted_data[index] *= self._named_parameters['parameter']
@@ -1197,8 +1197,8 @@ class DivideR(BasicOperationR):
     ----------
     int(1) : A parameter to do an `/` on input.
     """
-    def __ixor__(self, input: o.T) -> o.T:
-        extracted_data = super().__ixor__(input)
+    def frame(self, input: o.T) -> o.T:
+        extracted_data = super().frame(input)
         if isinstance(extracted_data, list):
             for index, _ in enumerate(extracted_data):
                 extracted_data[index] /= self._named_parameters['parameter']

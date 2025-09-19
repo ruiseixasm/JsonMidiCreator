@@ -345,7 +345,7 @@ class Container(o.Operand):
             case of.Frame():
                 other._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    other_item = other.__ixor__(single_item)
+                    other_item = other.frame(single_item)
                     if not single_item == other_item:
                         return False
                 return True
@@ -365,7 +365,7 @@ class Container(o.Operand):
         if isinstance(other, of.Frame):
             other._set_inside_container(self)
             for single_item in self._items:
-                other_item = other.__ixor__(single_item)
+                other_item = other.frame(single_item)
                 if not single_item < other_item:
                     return False
             return True
@@ -375,7 +375,7 @@ class Container(o.Operand):
         if isinstance(other, of.Frame):
             other._set_inside_container(self)
             for single_item in self._items:
-                other_item = other.__ixor__(single_item)
+                other_item = other.frame(single_item)
                 if not single_item > other_item:
                     return False
             return True
@@ -473,7 +473,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item << operand.__ixor__(single_item)
+                    single_item << operand.frame(single_item)
             case _:
                 for single_item in self._unmasked_items():
                     single_item << operand
@@ -538,7 +538,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item += operand.__ixor__(single_item)
+                    single_item += operand.frame(single_item)
             case _:
                 for single_item in self._unmasked_items():
                     single_item += operand
@@ -567,7 +567,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item -= operand.__ixor__(single_item)
+                    single_item -= operand.frame(single_item)
             case _:
                 for single_item in self._unmasked_items():
                     single_item -= operand
@@ -601,7 +601,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item *= operand.__ixor__(single_item)
+                    single_item *= operand.frame(single_item)
             case _:
                 for item in self._unmasked_items():
                     item.__imul__(operand)
@@ -629,7 +629,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item /= operand.__ixor__(single_item)
+                    single_item /= operand.frame(single_item)
             case _:
                 for item in self._unmasked_items():
                     item.__itruediv__(operand)
@@ -646,7 +646,7 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    single_item //= operand.__ixor__(single_item)
+                    single_item //= operand.frame(single_item)
             case _:
                 for item in self._unmasked_items():
                     item.__ifloordiv__(operand)
@@ -911,7 +911,7 @@ class Container(o.Operand):
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
-                            if not single_item == single_condition.__ixor__(single_item):
+                            if not single_item == single_condition.frame(single_item):
                                 excluded_item_ids.add(id(single_item))
                     case _:
                         excluded_item_ids.update(
@@ -954,7 +954,7 @@ class Container(o.Operand):
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
-                            if not single_item == single_condition.__ixor__(single_item):
+                            if not single_item == single_condition.frame(single_item):
                                 excluded_item_ids.add(id(single_item))
                     case _:
                         excluded_item_ids.update(
@@ -2252,7 +2252,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         frame._set_inside_container(self)
         for index, single_element in enumerate(self._unmasked_items()):
-            if single_element == frame.__ixor__(single_element):
+            if single_element == frame.frame(single_element):
                 return index
         return None
 
