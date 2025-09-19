@@ -854,7 +854,6 @@ class Operand:
         return operand
     
     def _tail_lshift(self, source: T) -> T:
-        source ^= self # Extracts the Frame operand first
         if self._next_operand:
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_lshift(source)

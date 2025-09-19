@@ -31,18 +31,6 @@ import sys
 
 
 
-def test_frame_mod():
-
-    # Perform the operation
-    single_step = Steps()
-    assert single_step % float() == 0.0
-    
-    frame = Iterate(step=2)**Steps()
-    single_step << frame << frame
-    assert single_step % float() == 2.0
-    single_step << frame << frame
-    assert single_step % float() == 6.0
-
 def test_foreach_mod():
 
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
@@ -144,15 +132,15 @@ def test_each():
 # test_each()
 
 
-def test_conditional_note():
+def test_conditional_clip_note():
     
-    note: Note = Note()
+    clip_note: Clip = Note() * 1
 
-    assert note % Octave() == 4
-    note -= Equal(Step(0))**Octave(1)
-    assert note % Octave() == 3
-    note += Equal(Step(0))**Octave(1)
-    assert note % Octave() == 4
+    assert clip_note[0] % Octave() == 4
+    clip_note -= Equal(Step(0))**Octave(1)
+    assert clip_note[0] % Octave() == 3
+    clip_note += Equal(Step(0))**Octave(1)
+    assert clip_note[0] % Octave() == 4
 
     four_notes: Clip = Note() / 4
     

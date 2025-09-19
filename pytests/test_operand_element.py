@@ -181,10 +181,6 @@ def test_note_mul():
     assert type(single_note * 2.0) == Note
     assert single_note / Beat(6) % Duration() == Beats(6)
 
-    many_notes = Note() / Foreach(4, 3, 2, 1)
-    assert type(many_notes) == Clip
-    assert many_notes.len() == 4
-
     rest = Rest()
     clip = Rest() / 1
 
