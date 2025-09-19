@@ -843,6 +843,13 @@ class Operand:
     
 
     def _tail_wrap(self, source: T) -> T:
+        """
+        While doing a `<<` on self, this wraps the inputted source with the tailed parameters \
+            set with `**` operator and returns the result.
+
+        This excludes the classes `Frame`, `Chaos` and `Tamer` that have their own means of \
+            processing tailed paramters.
+        """
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_wrap(source)
