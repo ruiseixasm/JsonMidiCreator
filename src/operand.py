@@ -842,11 +842,6 @@ class Operand:
         return self
     
 
-    def _tail_set(self, operand: T) -> T:
-        if isinstance(self._next_operand, Operand):
-            return self._next_operand << operand
-        return operand
-    
     def _tail_wrap(self, source: T) -> T:
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
