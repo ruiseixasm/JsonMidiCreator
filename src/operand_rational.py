@@ -70,13 +70,11 @@ class Rational(o.Operand):
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
-                    case of.Frame():        return self % od.Pipe( operand._data )
                     case str():             return str(self._rational)
                     case _:                 return super().__mod__(operand)
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
-            case of.Frame():        return self % operand
             case str():             return str(self._rational)
             case ou.Unit():         return operand.copy() << od.Pipe( self._rational )
             case Rational():        return operand.copy(self)
@@ -334,7 +332,6 @@ class Negative(Rational):
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
             case int():             return int(self._rational * -1)
-            case of.Frame():        return self % operand
             case str():             return str(self._rational * -1)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.Pipe( self._rational )
