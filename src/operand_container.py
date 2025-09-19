@@ -550,14 +550,13 @@ class Container(o.Operand):
         match operand:
             case Container():
                 return self._delete(operand._items)
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
             case int(): # repeat n times the last argument if any
                 if len(self._unmasked_items()) > 0:
                     while operand > 0 and len(self._unmasked_items()) > 0:
                         self._delete([ self._unmasked_items().pop() ], True)
                         operand -= 1
+            case list():
+                return self._delete(operand)
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
@@ -2751,16 +2750,8 @@ class Clip(Composition):  # Just a container of Elements
             case og.TimeSignature():
                 self._time_signature -= operand
 
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self._unmasked_items():
-                    single_element -= operand.__ixor__(single_element)
             case _:
-                for item in self._unmasked_items():
-                    item -= operand
+                super().__isub__(operand)
         return self._sort_items()  # Shall be sorted!
 
     # in-place multiply (NO COPY!)
@@ -4493,14 +4484,8 @@ class Part(Composition):
                 return self._delete([ operand ])
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() - operand
-            case list():
-                return self._delete(operand)
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
             case _:
-                for item in self._unmasked_items():
-                    item -= operand
+                super().__isub__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __imul__(self, operand: any) -> Self:
@@ -5086,7 +5071,6 @@ class Song(Composition):
         return self._sort_items()  # Shall be sorted!
 
 
-    # FROM PART TO BE ADAPTED
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Song():
@@ -5098,14 +5082,8 @@ class Song(Composition):
                 self -= clip_part
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
-            case list():
-                return self._delete(operand)
-            case tuple():
-                for single_operand in operand:
-                    self -= single_operand
             case _:
-                for item in self._unmasked_items():
-                    item -= operand
+                super().__isub__(operand)
         return self._sort_items()
 
 
