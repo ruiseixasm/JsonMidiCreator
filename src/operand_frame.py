@@ -157,9 +157,6 @@ class Frame(o.Operand):
     def frame(self, input: Any) -> o.Operand:
         return o.Operand()
     
-    def _tail_shift(self, input: Any) -> Any:
-        return self.frame(input)
-    
 
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
