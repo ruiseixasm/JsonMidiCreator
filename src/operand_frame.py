@@ -107,18 +107,6 @@ class Frame(o.Operand):
         {'class': 'Step', 'parameters': {'value': 4.0}}
         """
         match operand:
-            case od.Pipe():
-                match operand._data:
-                    case Frame():
-                        for single_operand in self:
-                            if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
-                                return single_operand   # It's a Frame
-                    case ol.Null() | None:      return ol.Null()
-                    case _:
-                        for single_operand in self:
-                            match single_operand:
-                                case Frame():   continue
-                                case _:         return single_operand
             case Frame():
                 return operand.copy(self)
             case _:
