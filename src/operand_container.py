@@ -1343,13 +1343,6 @@ class Composition(Container):
         return self
 
 
-    def __floordiv__(self, operand: any) -> Self:
-        return self.copy().__ifloordiv__(operand)
-    
-    def __ifloordiv__(self, operand: any) -> Self:
-        return self
-    
-
     def fit(self, tie_splits: bool = True) -> Self:
         """
         Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.

@@ -765,11 +765,9 @@ class Operand:
     def __truediv__(self, operand: any) -> Self:
         return self.copy().__itruediv__(operand)
     
-    # # // Still works as % Pipe() for other Operands that not `Composition` or `Element` ones
-    # def __floordiv__(self, operand: T) -> T:
-    #     import operand_data as od
-    #     return self.__mod__( od.Pipe( operand ) )
-
+    def __floordiv__(self, operand: any) -> Self:
+        return self.copy().__ifloordiv__(operand)
+    
     # Makes sure no Non Operand has `// Operand` applied
     def __rfloordiv__(self, operand: any) -> Self:
         import operand_label as ol
