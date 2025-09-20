@@ -1145,8 +1145,20 @@ def test_pitch_pipe():
     print(f'pitch_fs4_key_0 % int(): {pitch_fs4_key_0 % int()}')    # 66
     assert pitch_fs4_key_0 == 66
 
+    pitch_d2 = Pitch(Key("D"), Octave(2))
+    print(f'pitch_d2 % int(): {pitch_d2 % int()}')  # 38
+    assert pitch_d2 == 38
+    pitch_d2 << Pipe(pitch_fs4_key_0)
+    print(f'pitch_d2 % int(): {pitch_d2 % int()}')  # 66
+    assert pitch_d2 == 66
+    pitch_d2 << Pipe(pitch_g4_key_0)
+    print(f'pitch_d2 % int(): {pitch_d2 % int()}')  # 67
+    assert pitch_d2 == 67
+    pitch_d2 << Pipe(pitch_c4_key_0)
+    print(f'pitch_d2 % int(): {pitch_d2 % int()}')  # 60
+    assert pitch_d2 == 60
 
-test_pitch_pipe()
+# test_pitch_pipe()
 
 
 

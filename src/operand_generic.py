@@ -838,6 +838,12 @@ class Pitch(Generic):
                         self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
+                    case ou.TargetKey():
+                        pass
+                    case ou.Key():      # Also applies to RootKey
+                        self._octave_0 = operand._data._unit // 12
+                        octave_key: int = operand._data._unit % 12
+                        self << ou.Key(octave_key)
                     case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
