@@ -1062,7 +1062,7 @@ def test_octave_matching():
     print(f'pitch_bs_set % float(): {pitch_bs_set % float()}')
     assert pitch_bs_set == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
 
-test_octave_matching()
+# test_octave_matching()
 
 
 def test_degree_float():
@@ -1130,7 +1130,23 @@ def test_pitch_pipe():
     assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
     assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
 
-# test_pitch_pipe()
+    pitch_c4    = Pitch(Key("C"))
+    pitch_g4    = Pitch(Key("G"))
+    pitch_fs4   = Pitch(Key("F#"))
+
+    # Test absolute root keys
+    pitch_c4_key_0 = pitch_c4 % Pipe(Key())
+    print(f'pitch_c4_key_0 % int(): {pitch_c4_key_0 % int()}')      # 60
+    assert pitch_c4_key_0 == 60
+    pitch_g4_key_0 = pitch_g4 % Pipe(Key())
+    print(f'pitch_g4_key_0 % int(): {pitch_g4_key_0 % int()}')      # 67
+    assert pitch_g4_key_0 == 67
+    pitch_fs4_key_0 = pitch_fs4 % Pipe(Key())
+    print(f'pitch_fs4_key_0 % int(): {pitch_fs4_key_0 % int()}')    # 66
+    assert pitch_fs4_key_0 == 66
+
+
+test_pitch_pipe()
 
 
 

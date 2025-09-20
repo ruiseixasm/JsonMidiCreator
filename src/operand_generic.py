@@ -678,6 +678,12 @@ class Pitch(Generic):
                     case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
                     case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.TargetKey():
+                        pass
+                    case ou.Key():  # Also applies to RootKey
+                        octave_key: int = self % operand._data % int() % 12
+                        absolute_key: int = octave_key + 12 * self._octave_0
+                        return operand._data << absolute_key
                     case ou.Degree():   # Returns an absolute degree_0
                         operand._data << self._degree_0
                         operand._data += self._octave_0 * 7   # 7 degrees per octave
