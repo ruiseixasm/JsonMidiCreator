@@ -250,6 +250,37 @@ class RS_Clip(RS_Solutions):
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
+    def key_pattern(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            title: str | None = None) -> Self:
+        """
+        Adjusts the `Degree` of each `Note` while respecting the original motion pattern.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                if chaos._tamer._index > 0:
+                    clip_pitches: list = segmented_composition % of.InputType(oe.Note)**[ou.RootKey(), int()]
+                    if clip_pitches:
+                        clip_pattern: list[int] = []
+                        for index, pitch in enumerate(clip_pitches):
+                            if index == 0:
+                                clip_pattern.append(results[0])
+                            else:
+                                clip_pattern.append(pitch - clip_pitches[index - 1])
+                        pattern_chaos._tamer << clip_pattern    # Updates the Pattern tamer
+                        pattern_results: list[int] = clip_pattern >> pattern_chaos
+                        segmented_composition << \
+                            of.InputType(oe.Note)**of.Previous(od.Pipe(ou.RootKey()), first_null=False)**of.Add(*pattern_results)**od.Pipe()
+                        pattern_chaos.reset_tamers()
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Root Key Pattern"
+        pattern_chaos: ch.Chaos = chaos.copy()
+        pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
+        return self.iterate(iterations, _iterator, chaos, [1], title)
+
 
     def tonality_conjunct(self,
             iterations: int = 1,
