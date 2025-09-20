@@ -74,7 +74,6 @@ class Container(o.Operand):
         self._mask_items: list = []
         self._masked: bool = False
         self._items_iterator: int = 0
-        self._base_container: Self = self
         for single_operand in operands:
             self << single_operand
 
@@ -423,7 +422,6 @@ class Container(o.Operand):
             self._items = self.deserialize(serialization["parameters"]["items"])
             self._mask_items = self.deserialize(serialization["parameters"]["mask_items"])
             self._masked = self.deserialize(serialization["parameters"]["masked"])
-            self._base_container = self # Not a mask anymore if one
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1069,7 +1067,6 @@ class Composition(Container):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._base_container: Composition = self
         # Song sets the TimeSignature, this is just a reference
         self._time_signature: og.TimeSignature  = og.settings._time_signature
         self._length_beats: Fraction            = None
@@ -2235,7 +2232,6 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
-        self._base_container: Clip = self
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._items: list[oe.Element]   = []
@@ -4011,7 +4007,6 @@ class Part(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
-        self._base_container: Part = self
         self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
         self._mask_items: list[Clip] = []
@@ -4035,7 +4030,7 @@ class Part(Composition):
 
     def _set_owner_song(self, owner_song: 'Song') -> Self:
         if isinstance(owner_song, Song):
-            self._owner_song = owner_song._base_container
+            self._owner_song = owner_song
         return self
 
     def _get_time_signature(self) -> 'og.TimeSignature':
@@ -4211,7 +4206,7 @@ class Part(Composition):
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for clip in self._items:
-            clip_position: ra.Position = clip._base_container.last_position()
+            clip_position: ra.Position = clip.last_position()
             if clip_position is not None:
                 if position is None:
                     position = clip_position
@@ -4241,15 +4236,15 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case ra.Position():
-                        return operand._data << ra.Position(self._base_container, self._base_container._position_beats)
+                        return operand._data << ra.Position(self, self._position_beats)
                     case str():
-                        return self._base_container._name
+                        return self._name
                     case _:
                         return super().__mod__(operand)
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                return operand.copy( ra.Position(self._time_signature, self._base_container._position_beats) )
+                return operand.copy( ra.Position(self._time_signature, self._position_beats) )
             case str():
-                return self._base_container._name
+                return self._name
             case od.Names():
                 all_names: list[str] = []
                 for single_item in self._items:
@@ -4318,7 +4313,7 @@ class Part(Composition):
             og.settings.reset_notes_on()
         play_list: list = []
         for single_clip in self._items:
-            play_list.extend(single_clip.getPlaylist(self._base_container._position_beats))
+            play_list.extend(single_clip.getPlaylist(self._position_beats))
         return play_list
 
     def getMidilist(self, from_song: bool = False) -> list[dict]:
@@ -4351,8 +4346,8 @@ class Part(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["position"] = self.serialize(self._base_container._position_beats)
-        serialization["parameters"]["name"]     = self.serialize(self._base_container._name)
+        serialization["parameters"]["position"] = self.serialize(self._position_beats)
+        serialization["parameters"]["name"]     = self.serialize(self._name)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4639,7 +4634,6 @@ class Song(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._base_container: Song = self
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
         self._mask_items: list[Part] = []
