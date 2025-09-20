@@ -219,9 +219,10 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
-    def degree_pattern(self,
+    def similar_motion(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            pitch_parameter: ou.PitchParameter = ou.Degree(),
             title: str | None = None) -> Self:
         """
         Adjusts the `Degree` of each `Note` while respecting the original motion pattern.
@@ -240,19 +241,20 @@ class RS_Clip(RS_Solutions):
                         pattern_chaos._tamer << clip_pattern    # Updates the Pattern tamer
                         pattern_results: list[int] = clip_pattern >> pattern_chaos
                         segmented_composition << \
-                            of.InputType(oe.Note)**of.Previous(od.Pipe(ou.Degree()), first_null=False)**of.Add(*pattern_results)**od.Pipe()
+                            of.InputType(oe.Note)**of.Previous(od.Pipe(pitch_parameter), first_null=False)**of.Add(*pattern_results)**od.Pipe()
                         pattern_chaos.reset_tamers()
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Degree Pattern"
+            title = f"Similar Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
         return self.iterate(iterations, _iterator, chaos, [1], title)
 
-    def key_pattern(self,
+    def contrary_motion(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            pitch_parameter: ou.PitchParameter = ou.Degree(),
             title: str | None = None) -> Self:
         """
         Adjusts the `Degree` of each `Note` while respecting the original motion pattern.
@@ -260,7 +262,8 @@ class RS_Clip(RS_Solutions):
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
                 if chaos._tamer._index > 0:
-                    clip_pitches: list = segmented_composition % of.InputType(oe.Note)**[ou.RootKey(), int()]
+                    clip_pitches: list = segmented_composition % of.InputType(oe.Note)**[og.Pitch(), int()]
+                    clip_pitches = o.list_mul(clip_pitches, -1) # Reverses the pitches pattern
                     if clip_pitches:
                         clip_pattern: list[int] = []
                         for index, pitch in enumerate(clip_pitches):
@@ -271,12 +274,12 @@ class RS_Clip(RS_Solutions):
                         pattern_chaos._tamer << clip_pattern    # Updates the Pattern tamer
                         pattern_results: list[int] = clip_pattern >> pattern_chaos
                         segmented_composition << \
-                            of.InputType(oe.Note)**of.Previous(od.Pipe(ou.RootKey()), first_null=False)**of.Add(*pattern_results)**od.Pipe()
+                            of.InputType(oe.Note)**of.Previous(od.Pipe(pitch_parameter), first_null=False)**of.Add(*pattern_results)**od.Pipe()
                         pattern_chaos.reset_tamers()
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Root Key Pattern"
+            title = f"Contrary Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
         return self.iterate(iterations, _iterator, chaos, [1], title)
