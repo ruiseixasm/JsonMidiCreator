@@ -73,7 +73,9 @@ class Frame(o.Operand):
             self._next_operand._set_inside_container(container)
         self._inside_container = container
         # For each container, index needs to be reset
-        self._index = 0
+        self._initiated     = False
+        self._set           = False
+        self._index         = 0
         return self
 
     def __pow__(self, operand: any) -> 'Frame':
