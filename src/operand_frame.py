@@ -52,7 +52,6 @@ class Frame(o.Operand):
         self._named_parameters: dict    = {}
         self._inside_container: oc.Container = None
         self._root_frame: bool = True
-        self._index_iterator: Type = None
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):
@@ -67,12 +66,6 @@ class Frame(o.Operand):
             case Frame():   self._current_node = self._current_node._next_operand
             case _:         self._current_node = None
         return previous_node
-
-    def _increment_index(self, type: Type) -> Self:
-        if self._index_iterator is None or self._index_iterator == type:
-            self._index += 1
-            self._index_iterator = type
-        return self
 
     def _set_inside_container(self, container: 'Container') -> Self:
         # Needs to propagate the settings to the next Frames
@@ -246,7 +239,7 @@ class Input(Left):
     def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         import operand_chaos as ch
-        self._increment_index(Input)
+        self._index += 1
         if isinstance(self._named_parameters['input'], oc.Container):
             if self._named_parameters['input'].len() > 0:
                 item = self._named_parameters['input'][(self._index - 1) % self._named_parameters['input'].len()]
@@ -516,7 +509,7 @@ class Iterate(Left):
 
     def frame(self, input: o.T) -> o.T:
         import operand_chaos as ch
-        self._increment_index(Iterate)
+        self._index += 1
         if isinstance(input, ch.Chaos):
             if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
                 input *= self._named_parameters['iterator']['start']
@@ -582,7 +575,7 @@ class Mux(Left):
             tamed_index -= multiplex
         if final_remainder == 0:
             self._last_parameter = super().frame(input)
-        self._increment_index(Mux)
+        self._index += 1
         return self._last_parameter
 
 
@@ -602,7 +595,7 @@ class Foreach(Left):
         super().__init__(*validated_parameters)
 
     def frame(self, input: o.T) -> o.T:
-        self._increment_index(Foreach)
+        self._index += 1
         operand_len: int = len(self._parameters)
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._parameters[(self._index - 1) % operand_len]
@@ -717,7 +710,7 @@ class Odd(InputFilter):
     None : `Odd` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        self._increment_index(Odd)
+        self._index += 1
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
@@ -735,7 +728,7 @@ class Even(InputFilter):
     None : `Even` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        self._increment_index(Even)
+        self._index += 1
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
@@ -756,7 +749,7 @@ class Every(InputFilter):
         self._named_parameters['nths'] = nth
 
     def frame(self, input: o.T) -> o.T:
-        self._increment_index(Every)
+        self._index += 1
         if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
@@ -779,7 +772,7 @@ class Nth(InputFilter):
         self._named_parameters['parameters'] = parameters
 
     def frame(self, input: o.T) -> o.T:
-        self._increment_index(Nth)
+        self._index += 1
         if self._index in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.__xor__(input)
