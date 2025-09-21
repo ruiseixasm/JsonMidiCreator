@@ -174,6 +174,23 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
 
 
+    def solutions_input_frame(self,
+            iterations: int = 1,
+            input_frame: of.Frame = of.Mux(ra.Measure())**of.Input()**ou.Degree(),
+            title: str | None = None) -> Self:
+        """
+        Processes the user defined `Frame` associated to the `plot` method.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip) and isinstance(input_frame, of.Frame):
+                return segmented_composition
+            return segmented_composition
+        
+        if not isinstance(title, str):
+            title = "Input Frame"
+        return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
+
+
     def multi_splitter(self,
             iterations: int = 1,
             durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2]),
