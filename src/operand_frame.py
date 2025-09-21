@@ -578,20 +578,21 @@ class Mux(Left):
 
     Parameters
     ----------
-    Any(None) : A set of integers by which the elements will be multiplexed by.
+    Any(None) : A set of integers or any other type by which the elements will be multiplexed by.
     """
     def __init__(self, *parameters):
         self._last_parameter: Any = None
         validated_parameters: list[int] = []
         for single_parameter in parameters:
             match single_parameter:
-                case ra.TimeUnit():
+                case int():
+                    if single_parameter > 0:
+                        validated_parameters.append(single_parameter)
+                case _:
                     self._parameters = [single_parameter]
                     self._last_time = None
                     self._full_range: int = 0
                     return
-                case int():
-                    validated_parameters.append(single_parameter)
         self._full_range: int = sum(validated_parameters)
         super().__init__(*validated_parameters)
 
