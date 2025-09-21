@@ -174,21 +174,23 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
 
 
-    def solutions_input_frame(self,
+    def foreach_measure(self,
             iterations: int = 1,
-            input_frame: of.Frame = of.Mux(ra.Measure())**of.Input()**ou.Degree(),
+            chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            element_parameter: any = ou.Degree(),
             title: str | None = None) -> Self:
         """
-        Processes the user defined `Frame` associated to the `plot` method.
+        Processes the imputed parameter to be set for each `Measure`.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip) and isinstance(input_frame, of.Frame):
-                return segmented_composition
+            if isinstance(segmented_composition, oc.Clip):
+                new_foreach_measure: of.Frame = of.Mux(ra.Measure())**of.Foreach(*results)**element_parameter
+                return segmented_composition.add(new_foreach_measure)
             return segmented_composition
         
         if not isinstance(title, str):
-            title = "Input Frame"
-        return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
+            title = "Foreach Measure"
+        return self.iterate(iterations, _iterator, chaos, [1] * self._measures, title)
 
 
     def multi_splitter(self,
