@@ -29,16 +29,7 @@ theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-if False:
-
-    theme_2 = theme_1 - Octave(1) - Degree(2) << Channel(2)
-    theme_2 = RS_Clip(theme_2, [1], 4, theme_1).contrary_motion(5).solution() << Name("Similar")
-    (theme_1 + theme_2) * 2 << Name("Similar Lines") >> Plot(block=True)
-
-else:
-
-    theme_2 = theme_1 - Octave(1) - Degree(2) << Channel(2)
-    final_composition = theme_1 + theme_2
-    final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).contrary_motion(5).unmask().solution()
-    final_composition * 2 << Name("Similar Lines") >> Plot(block=True)
+theme_2 = theme_1.copy(Degree(-1), Octave(3), Channel(2))   # Resets all notes to the same Degree first
+theme_2 = RS_Clip(theme_2, [1], 4, theme_1).foreach_measure(5).solution() << Name("Oblique")
+(theme_1 + theme_2) * 2 << Name("Oblique Lines") >> Plot(block=True)
 

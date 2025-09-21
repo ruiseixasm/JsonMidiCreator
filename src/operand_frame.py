@@ -596,10 +596,10 @@ class Mux(Left):
         super().__init__(*validated_parameters)
 
     def frame(self, input: o.T) -> o.T:
-        final_remainder: int = 0
-        tamed_index: int = self._index % self._full_range
         if self._parameters:
             if self._full_range > 0:
+                final_remainder: int = 0
+                tamed_index: int = self._index % self._full_range
                 for multiplex in self._parameters:
                     if tamed_index // multiplex == 0:
                         final_remainder = tamed_index % multiplex
