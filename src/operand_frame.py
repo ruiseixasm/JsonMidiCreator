@@ -158,14 +158,34 @@ class Frame(o.Operand):
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
         for single_frame in self:
-            if isinstance(single_frame, Frame) and single_frame == frame:
-                if single_frame == self:
-                    self = self._next_operand
-                    previous_frame = self
+            if isinstance(single_frame, Frame) and type(single_frame) == type(frame):
+                if single_frame is self:
+                    next_frame = single_frame._next_operand
+                    if isinstance(next_frame, Frame):
+                        next_frame._root_frame = True
+                    return next_frame
                 else:
                     previous_frame._next_operand = single_frame._next_operand
-                    previous_frame = single_frame
-        return self      
+                    break
+            previous_frame = single_frame
+        return self
+    
+    def replace(self, frame: 'Frame') -> 'Frame':
+        previous_frame: 'Frame' = self
+        for single_frame in self:
+            if isinstance(single_frame, Frame) and type(single_frame) == type(frame):
+                if single_frame is self:
+                    frame._next_operand = self._next_operand
+                    frame._root_frame = True
+                    return frame
+                else:
+                    frame._next_operand = previous_frame._next_operand
+                    previous_frame._next_operand = frame
+                    frame._root_frame = False
+                    break
+            previous_frame = single_frame
+        return self
+    
     
     def copy(self, *parameters) -> Self:
         # Frame class IS a Read-only class
