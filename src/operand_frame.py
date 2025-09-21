@@ -71,11 +71,13 @@ class Frame(o.Operand):
         # Needs to propagate the settings to the next Frames
         if isinstance(self._next_operand, Frame):
             self._next_operand._set_inside_container(container)
+        elif isinstance(self._next_operand, o.Operand):
+            self._next_operand._initiated     = False
+            self._next_operand._set           = False
+            self._next_operand._index         = 0
         self._inside_container = container
         # For each container, index needs to be reset
-        self._initiated     = False
-        self._set           = False
-        self._index         = 0
+        self._index = 0
         return self
 
     def __pow__(self, operand: any) -> 'Frame':
