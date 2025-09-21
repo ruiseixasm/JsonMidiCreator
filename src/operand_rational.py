@@ -1078,7 +1078,7 @@ class Duration(Measurement):
 class TimeValue(Convertible):  # Works as Absolute Beats
     """`Rational -> Convertible -> TimeValue`
 
-    TimeValue() represents any Time variables like `Measure`, `Beat`, `Duration` and `Step`.
+    TimeValue() represents any Time variables like `Measures`, `Beats`, `Steps` and `NoteValue`.
     
     Parameters
     ----------
@@ -1485,6 +1485,12 @@ class Dotted(NoteValue):
 
 class TimeUnit(Convertible):
     """`Rational -> Convertible -> TimeUnit`
+
+    TimeUnit() represents any unitary Time variables like `Measure`, `Beat` and `Step`.
+    
+    Parameters
+    ----------
+    Fraction(0) : The default value is 0.
     """
     def __init__(self, *parameters):
         import operand_generic as og

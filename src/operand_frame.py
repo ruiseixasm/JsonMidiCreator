@@ -559,22 +559,35 @@ class Mux(Left):
     def __init__(self, *parameters):
         self._last_parameter: Any = None
         validated_parameters: list[int] = []
-        for param in parameters:
-            if isinstance(param, int):
-                validated_parameters.append(param)
+        for single_parameter in parameters:
+            match single_parameter:
+                case ra.TimeUnit():
+                    self._parameters = [single_parameter]
+                    self._last_time = None
+                    self._full_range: int = 0
+                    return
+                case int():
+                    validated_parameters.append(single_parameter)
         self._full_range: int = sum(validated_parameters)
         super().__init__(*validated_parameters)
 
     def frame(self, input: o.T) -> o.T:
         final_remainder: int = 0
         tamed_index: int = self._index % self._full_range
-        for multiplex in self._parameters:
-            if tamed_index // multiplex == 0:
-                final_remainder = tamed_index % multiplex
-                break
-            tamed_index -= multiplex
-        if final_remainder == 0:
-            self._last_parameter = super().frame(input)
+        if self._parameters:
+            if self._full_range > 0:
+                for multiplex in self._parameters:
+                    if tamed_index // multiplex == 0:
+                        final_remainder = tamed_index % multiplex
+                        break
+                    tamed_index -= multiplex
+                if final_remainder == 0:    # Works as a filter to update the last parameter
+                    self._last_parameter = super().frame(input)
+            else:
+                actual_time: ra.TimeUnit = input % self._parameters[0]
+                if self._last_time is None or self._last_time != actual_time:
+                    self._last_time = actual_time
+                    self._last_parameter = super().frame(input)
         self._index += 1
         return self._last_parameter
 
