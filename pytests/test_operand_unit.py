@@ -203,8 +203,9 @@ def test_sub_degree():
     zero_degree = Degree(0)
     assert sharp_degree - Degree(2.1) == zero_degree
     assert sharp_degree + Degree(-2.2) == zero_degree
+    assert sharp_degree + Degree(2.1) * -1 == zero_degree
 
-test_sub_degree()
+# test_sub_degree()
 
 
 def test_mul_degree():
