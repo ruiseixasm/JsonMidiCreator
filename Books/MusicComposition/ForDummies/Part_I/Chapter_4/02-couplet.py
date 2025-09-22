@@ -27,5 +27,5 @@ couplet = Note() / [1/4, 1/8, 0, 1/4, 0, 0, 0, 0, 0] >> Equal(Measure(1), Or(Bea
 couplet * 4 << Name("Rhythmic Couplet") >> Plot(block=False)
 
 couplet << Octave(5)
-couplet += InputType(Note)**Foreach(0, -3, -3, -2.1, -3, 0, 1)**Degree()
+couplet += InputType(Note)**Foreach(0, -3, -3, -2.2, -3, 0, 1)**Degree()
 couplet * 4 << Name("Tonal Couplet") >> Plot()
