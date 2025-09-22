@@ -21,8 +21,11 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
+settings << Tempo(180)
+
 couplet = Note() / [1/4, 1/8, 0, 1/4, 0, 0, 0, 0, 0] >> Equal(Measure(1), Or(Beat(0), Beat(3)))**Rest()
+couplet * 4 << Name("Rhythmic Couplet") >> Plot(block=False)
 
-
-couplet * 4 << Name("Couplet") >> Plot()
-
+couplet << Octave(5)
+couplet += InputType(Note)**Foreach(0, -3, -3, -2.1, -3, 0, 1)**Degree()
+couplet * 4 << Name("Tonal Couplet") >> Plot()

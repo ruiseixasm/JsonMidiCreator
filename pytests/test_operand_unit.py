@@ -200,6 +200,9 @@ def test_sub_degree():
     assert degree_5 - degree_3 == 5 - 3
     assert degree_3 - degree_5 == (5 - 3) * -1
 
+    zero_degree = Degree(0)
+    assert sharp_degree - Degree(2.1) == zero_degree
+
 # test_sub_degree()
 
 

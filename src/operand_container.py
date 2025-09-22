@@ -482,14 +482,12 @@ class Container(o.Operand):
         match operand:
             case Container():
                 return self + operand   # Implicit copy of self
-            case og.Process():
+            case og.ReadOnly():
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-            case list() | tuple() | oe.Element() | str() | of.Frame():
-                return self.copy().__irshift__(operand)
             case _:
-                return self.copy().mask(operand)
+                return self.copy().__irshift__(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:

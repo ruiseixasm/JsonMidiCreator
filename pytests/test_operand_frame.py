@@ -182,7 +182,7 @@ def test_even_odd():
     four_notes = 4 / Note()
 
     assert four_notes.len() == 4
-    four_notes >>= Even()
+    four_notes >>= Mask(Even())
     assert four_notes.len() == 2
     # Can't stack multiple masks, a new mask is applicable to the root clip
     four_notes >>= Mask(Odd())

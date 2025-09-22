@@ -178,7 +178,7 @@ def test_or_clip():
     four_notes: Clip = Note(1/8) / 4 << TimeSignature(2, 4)
 
     assert four_notes.len() == 4
-    four_notes >>= Equal(Or(Step(2), Step(4)))
+    four_notes >>= Mask(Equal(Or(Step(2), Step(4))))
     print(four_notes.len())
     assert four_notes.len() == 2
 
@@ -494,7 +494,7 @@ def test_sub_clip():
 
     four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
-    notes_to_remove: Clip = four_notes >> Nth(1, 3)
+    notes_to_remove: Clip = four_notes >> Mask(Nth(1, 3))
     remaining_notes: Clip = four_notes >> Filter(Nth(2, 4))
 
     assert notes_to_remove.len() < four_notes.len()
@@ -564,7 +564,7 @@ def test_mul_clip():
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
     assert hi_hat._test_owner_clip()
-    hi_hat >>= Nth(2, 4)
+    hi_hat >>= Mask(Nth(2, 4))
     assert hi_hat.len() == 2
     assert hi_hat._test_owner_clip()
     hi_hat *= 2
@@ -725,7 +725,7 @@ def test_lshift_clip():
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
-    one_measure: Clip = two_measures >> Less(Measure(1))
+    one_measure: Clip = two_measures >> Mask(Less(Measure(1)))
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60
@@ -1123,14 +1123,15 @@ def test_process_mask():
     assert copy_clip != native_clip
     masked_native_clip: Clip = native_clip.mask(All())
     assert masked_native_clip.is_masked()
+    assert native_clip.is_masked()
     # masked_native_clip is native_clip
-    assert masked_native_clip == native_clip
-    # A >> from a Mask shall not result in a copy!
+    assert masked_native_clip is native_clip
+    # A >> from a Mask shall also result in a copy!
     same_mask: Clip = masked_native_clip >> Stack()
-    assert masked_native_clip == native_clip
-    assert same_mask == native_clip
+    assert masked_native_clip is native_clip
+    assert same_mask is not native_clip
     # Now by using the mask the native_copy was stacked changed
-    assert native_clip == copy_clip
+    assert same_mask == copy_clip
     
     long_clip: Clip = Note() / 16
     print(f"long_clip.len: {long_clip.len()}")
