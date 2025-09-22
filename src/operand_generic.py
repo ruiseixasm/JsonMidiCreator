@@ -2585,7 +2585,7 @@ class Play(ReadOnly):
         import operand_element as oe
         match operand:
             case oc.Composition():
-                if operand.len() > 0:
+                if operand._items:
                     playlist: list[dict] = self._clocked_playlist(operand)
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
