@@ -1680,7 +1680,7 @@ class Composition(Container):
                                                     color='black', linewidth=0.5, alpha=color_alpha)
 
                                 # Where the Key Signature is plotted
-                                if note["key_signature"] != last_key_signature["key_signature"] and int(note["position_on"] / beats_per_measure) > last_key_signature["measure"]:
+                                if note["key_signature"] != last_key_signature["key_signature"]:
                                     last_key_signature["measure"] = int(note["position_on"] / beats_per_measure)
                                     last_key_signature["key_signature"] = note["key_signature"]
                                     sharps_flats: int = note["key_signature"] % int()
