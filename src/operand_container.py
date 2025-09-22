@@ -486,11 +486,8 @@ class Container(o.Operand):
                 return operand.__rrshift__(self)
             case ch.Chaos():
                 return self.copy().shuffle(operand)
-            case list() | oe.Element() | str():
+            case list() | tuple() | oe.Element() | str() | of.Frame():
                 return self.copy().__irshift__(operand)
-            
-            case tuple():
-                return super().__irshift__(operand)
             case _:
                 return self.copy().mask(operand)
 
@@ -507,8 +504,14 @@ class Container(o.Operand):
             
             case tuple():
                 return super().__irshift__(operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                unmasked_items: list = self._unmasked_items()
+                for index, single_item in enumerate(unmasked_items):
+                    unmasked_items[index] >>= operand.frame(single_item)
+                return self
             case _:
-                return self.copy().mask(operand)
+                return self.mask(operand)
 
 
     # Pass trough operation as last resort
