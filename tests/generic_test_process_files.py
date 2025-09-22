@@ -409,7 +409,7 @@ original_save       = Load("json/testing/_Save_Play_p.15.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15.3_sequence.json")
 start_time = time.time()
 first_chords << Degree() << Mode()
-even_chords = all_chords >> Even()**Operand()   # Does a copy resulting in a mask
+even_chords = all_chords >> Mask(Even()**Operand())   # Does a copy resulting in a mask
 even_chords << Degree(5) << Mode(5)
 even_chords >> og.LeftShift(result_save) >> og.LeftShift(result_export)
 results_list.append({
