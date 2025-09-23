@@ -129,6 +129,7 @@ class Locus(Generic):
                 return operand.copy(self._time_signature_reference, self._duration_beats)
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
+            case list():            return [self._position_beats, self._duration_beats]
             case int():             return self % ra.Measure() % int()
             case Segment():         return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
@@ -233,6 +234,13 @@ class Locus(Generic):
             case ra.TimeUnit():
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
+            case list():
+                if operand:
+                    self._position_beats = ra.Beats(operand[0])._rational
+                    if len(operand) > 1:
+                        duration_beats: Fraction = ra.Beats(operand[1])._rational
+                        if duration_beats > 0:
+                            self._duration_beats = duration_beats
             case int():
                 self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
             case Segment():
