@@ -654,16 +654,14 @@ class Element(o.Operand):
                     return oc.Clip(self).__ifloordiv__(operand)
 
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
-                for source_segment in segments_list:
-                    if self == source_segment:
-                        self << ra.Measure(0)   # Side by Side //
-                        if self._owner_clip is not None:    # Owner clip is always the base container
-                            return self._owner_clip._set_owner_clip()._sort_items()
-                        return oc.Clip(self)
-                return oc.Clip()    # Empty Clip, self excluded
+                loci: list[og.Locus] = o.list_wrap(operand, og.Locus(self._get_time_signature()))
+                new_elements: list[Element] = []
+                for single_locus in loci:
+                    new_elements.append(self.copy(single_locus))
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
+                else:
+                    return oc.Clip(self._time_signature)._extend(new_elements)
 
             case _:
                 if operand != Fraction(0):
