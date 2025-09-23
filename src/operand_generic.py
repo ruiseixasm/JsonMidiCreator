@@ -236,9 +236,9 @@ class Locus(Generic):
                 self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
             case list():
                 if operand:
-                    self._position_beats = ra.Beats(operand[0])._rational
+                    self._position_beats = ra.Beats(self._time_signature_reference, operand[0])._rational
                     if len(operand) > 1:
-                        duration_beats: Fraction = ra.Beats(operand[1])._rational
+                        duration_beats: Fraction = ra.Beats(self._time_signature_reference, operand[1])._rational
                         if duration_beats > 0:
                             self._duration_beats = duration_beats
             case int():
