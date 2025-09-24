@@ -180,7 +180,7 @@ class RS_Clip(RS_Solutions):
             element_parameter: any = ou.Degree(),
             title: str | None = None) -> Self:
         """
-        Processes the imputed parameter to be set for each `Measure`.
+        Processes the imputed parameter to be added for each `Measure`.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -333,6 +333,30 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
         return self.tonality_conjunct(iterations, triggers, chaos, title)
+
+
+    def swap_parameter(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(),
+            parameter: Any = og.Locus(),
+            title: str | None = None) -> Self:
+        """
+        Swaps a given parameter among the unmasked elements in the original `Composition`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                nonlocal parameter  # This binds the outer parameter to the inner function
+                existent_parameters: list = segmented_composition % [parameter]
+                picked_parameters: list = []
+                for result in results:
+                    picked_parameters.append( existent_parameters.pop(result % len(existent_parameters)) )
+                for element, parameter in zip(segmented_composition, picked_parameters):
+                    element << parameter
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Swap Parameter"
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def sweep_sharps(self,
