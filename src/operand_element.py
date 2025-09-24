@@ -529,7 +529,7 @@ class Element(o.Operand):
                                 next_element._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self).__itruediv__(operand)
+                    return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
                 durations: list[ra.Duration] = o.list_wrap(operand, ra.Duration(self._get_time_signature()))
                 new_elements: list[Element] = []
@@ -546,7 +546,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
-                    return oc.Clip(self._time_signature)._extend(new_elements)
+                    return oc.Clip(self._time_signature)._extend(new_elements)._set_owner_clip()
 
             case _:
                 if operand != Fraction(0):
