@@ -335,13 +335,13 @@ class RS_Clip(RS_Solutions):
         return self.tonality_conjunct(iterations, triggers, chaos, title)
 
 
-    def swap_parameter(self,
+    def shuffle_parameter(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(),
             parameter: Any = og.Locus(),
             title: str | None = None) -> Self:
         """
-        Swaps a given parameter among the unmasked elements in the original `Composition`.
+        Shuffles a given parameter among the unmasked elements in the original `Composition`.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -355,7 +355,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Swap Parameter"
+            title = "Shuffle Parameter"
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
