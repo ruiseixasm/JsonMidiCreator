@@ -82,6 +82,12 @@ def test_position_lshift():
     position << Beat(0)
     assert position == 1.0
 
+    position_zero = Position(0)
+    position_four = position_zero << Measure(4)
+
+    assert position_four == 4.0 # 4 Measures
+    assert position_four == Fraction(4) * 4 # 16 Beats
+
 # test_position_lshift()
 
 

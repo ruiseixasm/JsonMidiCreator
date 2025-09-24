@@ -125,6 +125,7 @@ class RS_Clip(RS_Solutions):
                 # Makes sure the ENTIRE composition is split first by the the given measures
                 masked: bool = composition._masked
                 measure: ra.Measure = ra.Measure(0)
+                composition._masked = False
                 for _ in self._iterations:
                     measure += self._measures
                     composition //= measure

@@ -31,7 +31,7 @@ theme_1 >> Plot(block=False)
 
 # Splits at measure 2.5, resulting in two half-notes
 theme_2 = Note(1/1, Channel(2), Octave(3)) / 4 // Position(2.5)
-theme_2.mask(Nth(1, 2)).join().unmask()
+theme_2.mask(Nth(1, 2)).join().unmask() # Avoids any implicit copy
 theme_2 = RS_Clip(theme_2, [1], 4, theme_1).shuffle_parameter(5).solution() << Name("Accompaniment")
 (theme_1 + theme_2) * 2 << Name("Harmonization") >> Plot(block=True)
 

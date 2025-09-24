@@ -2951,7 +2951,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []
-                for existent_element in self._unmasked_items():
+                for existent_element in self:
                     existent_start: Fraction = existent_element._position_beats
                     operand_position = ra.Position(self._time_signature, existent_start)
                     operand_position <<= operand    # Strict operand positioning (<<=)
