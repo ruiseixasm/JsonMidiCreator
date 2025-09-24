@@ -1546,11 +1546,11 @@ class Note(ChannelElement):
             pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._position_beats,
+                position_on,
                 pitch_channel_0
             ):
                 print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0 + 1} "
-                    f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
+                    f"and Pitch {pitch_int} with same time start at {round(position_on, 2)} beats!")
                 return []
 
         return self_plotlist
@@ -1561,8 +1561,8 @@ class Note(ChannelElement):
         if not self._enabled:
             return []
         
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
         if self_duration_min == 0:
@@ -1610,22 +1610,22 @@ class Note(ChannelElement):
             pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
             # Record present Note on the TimeSignature stacked notes
             if not og.settings._add_note_on(
-                self._position_beats,
+                absolute_position_beats,
                 pitch_channel_0
             ):
                 print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0 + 1} "
-                    f"and Pitch {pitch_int} with same time start at {round(self._position_beats, 2)} beats!")
+                    f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                 return []
 
             if self._tied:
                 tied_to: list | None = og.settings._add_note_off(
-                    self._position_beats,
-                    self._position_beats + self._duration_beats,
+                    absolute_position_beats,
+                    absolute_position_beats + self._duration_beats,
                     pitch_channel_0,
                     self_playlist[1]
                 )
                 if tied_to is not None:
-                    position_off_min: Fraction = og.settings.beats_to_minutes(self._position_beats + self._duration_beats)
+                    position_off_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats + self._duration_beats)
                     tied_to["time_ms"] = o.minutes_to_time_ms(position_off_min)
 
                     return []   # Discards note

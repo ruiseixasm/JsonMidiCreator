@@ -4516,12 +4516,20 @@ class Part(Composition):
                     self._append(Clip(operand._time_signature, operand))
 
             case int():
-                if operand > 1:
-                    single_shallow_copy: Part = self.shallow_copy()
-                    for _ in range(operand - 1):
-                        self.__imul__(single_shallow_copy)
-                elif operand == 0:
-                    self._delete()
+                new_parts: list[Part] = []
+                if operand > 0:
+                    last_position: ra.Position = self.last_position()
+                    if last_position is not None:
+                        finish_position: ra.Position = self.finish()
+                        if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                            last_position = ra.Position(finish_position % ra.Measure())
+                        single_length: ra.Length = ra.Length(last_position).roundMeasures()
+                        next_position: ra.Position = self % ra.Position()
+                        for _ in range(operand):
+                            self_copy: Part = self.copy(next_position)
+                            new_parts.append(self_copy)
+                            next_position += single_length
+                return Song(self._get_time_signature(), od.Pipe(new_parts))._set_owner_song()._sort_items()
 
             case _:
                 super().__imul__(operand)
