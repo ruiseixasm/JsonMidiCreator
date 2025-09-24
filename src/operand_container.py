@@ -4249,6 +4249,8 @@ class Part(Composition):
                         return super().__mod__(operand)
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 return operand.copy( ra.Position(self._time_signature, self._position_beats) )
+            case od.TrackName():
+                return operand << self._name
             case str():
                 return self._name
             case od.Names():
@@ -4643,6 +4645,7 @@ class Song(Composition):
         self._time_signature = og.settings._time_signature.copy()
         self._items: list[Part] = []
         self._mask_items: list[Part] = []
+        self._name: str = "Song"
         for single_operand in operands:
             self << single_operand
 
@@ -4948,6 +4951,7 @@ class Song(Composition):
         serialization = super().getSerialization()
 
         serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
+        serialization["parameters"]["name"] = self.serialize(self._name)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4963,10 +4967,11 @@ class Song(Composition):
             Song: The self Song object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"] and "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
+            self._name = self.deserialize(serialization["parameters"]["name"])
             self._set_owner_song()
         return self
 
@@ -4975,6 +4980,7 @@ class Song(Composition):
             case Song():
                 super().__lshift__(operand)
                 self._time_signature << operand._time_signature
+                self._name = operand._name
                 self._set_owner_song()
 
             case od.Pipe():
@@ -4988,6 +4994,8 @@ class Song(Composition):
                         else:   # Not for me
                             for item in self._unmasked_items():
                                 item << operand._data
+                    case str():
+                        self._name = operand._data
                     case _:
                         super().__lshift__(operand)
 
