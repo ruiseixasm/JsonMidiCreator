@@ -104,7 +104,7 @@ class Container(o.Operand):
             self._mask_items[index] = value
         else:
             self._items[index] = value
-        return self
+        return self._sort_items()   # Changing a given item should trigger the sorting of the Container
     
 
     def __iter__(self) -> Self:
@@ -112,8 +112,11 @@ class Container(o.Operand):
     
     # To be used directly in for loops
     def __next__(self) -> any:
-        if self._items_iterator < len(self._unmasked_items()):
-            item = self._unmasked_items()[self._items_iterator]
+        items_to_iterate: list = self._items
+        if self._masked:
+            items_to_iterate = self._mask_items
+        if self._items_iterator < len(items_to_iterate):
+            item = items_to_iterate[self._items_iterator]
             self._items_iterator += 1
             return item  # It's the data that should be returned
         else:
