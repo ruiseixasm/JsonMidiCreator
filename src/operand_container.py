@@ -1446,6 +1446,7 @@ class Composition(Container):
 
         # Chart title (TITLE)
         self._ax.set_title(f"{self._title + " - " if self._title != "" else ""}"
+                           f"{self._iterations[self._iteration].__class__.__name__} - "
                            f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
                            f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0
         }")

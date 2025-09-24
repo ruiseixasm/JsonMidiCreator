@@ -44,5 +44,5 @@ cello = Note(Channel(14), 1/2, Velocity(70)) / 8 << Name("Cello")
 cello += Foreach(5, 2, 6, 9, 5, 7, 3, 2)**Degree()
 
 
-quartet: Part = Part([violin_1, violin_2, viola, cello]) << Name("Quartet")
-quartet * 4 >> Plot()
+quartet: Part = Part([violin_1, violin_2, viola, cello])
+quartet * 4 << Name("Quartet") >> Plot()
