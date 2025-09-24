@@ -965,7 +965,7 @@ class DeviceElement(Element):
         import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case self.__class__():
+            case DeviceElement():
                 super().__lshift__(operand)
                 self._enabled               = operand._enabled
             case od.Pipe():
@@ -1354,7 +1354,7 @@ class ChannelElement(DeviceElement):
         import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case self.__class__():
+            case ChannelElement():
                 super().__lshift__(operand)
                 self._channel_0             = operand._channel_0
             case od.Pipe():
