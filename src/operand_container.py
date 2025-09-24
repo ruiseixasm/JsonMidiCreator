@@ -484,8 +484,8 @@ class Container(o.Operand):
                 return self + operand   # Implicit copy of self
             case og.ReadOnly():
                 return operand.__rrshift__(self)
-            case ch.Chaos():
-                return self.copy().shuffle(operand)
+            case od.Inline():
+                return self.__irshift__(operand)
             case _:
                 return self.copy().__irshift__(operand)
 
@@ -497,6 +497,8 @@ class Container(o.Operand):
                 return self
             case og.Process():
                 return operand.__irrshift__(self)
+            case od.Inline():
+                return od.Inline(self)
             case ch.Chaos():
                 return self.shuffle(operand)
             

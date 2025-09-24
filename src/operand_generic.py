@@ -2811,8 +2811,6 @@ class ContainerProcess(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            if operand.is_masked(): # Mask retains the original Container
-                return self.__irrshift__(operand)
             return self.__irrshift__(operand.copy())
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
