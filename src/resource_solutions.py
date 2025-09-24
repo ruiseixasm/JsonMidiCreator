@@ -352,7 +352,7 @@ class RS_Clip(RS_Solutions):
                     picked_parameters.append( existent_parameters.pop(result % len(existent_parameters)) )
                 for element, parameter in zip(segmented_composition, picked_parameters):
                     element << parameter
-            return segmented_composition
+            return segmented_composition._sort_items()  # Necessary because setting the elements directly doesn't do it
 
         if not isinstance(title, str):
             title = "Shuffle Parameter"

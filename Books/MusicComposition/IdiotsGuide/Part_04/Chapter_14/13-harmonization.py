@@ -29,7 +29,9 @@ theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-theme_2 = Note(1/1, Channel(2), Octave(3)) / 4 // Position(2.5)    # Splits at measure 2.5, resulting in two half-notes
+# Splits at measure 2.5, resulting in two half-notes
+theme_2 = Note(1/1, Channel(2), Octave(3)) / 4 // Position(2.5)
+theme_2 >> Proxy() >> Mask(Nth(1, 2)) >> Inline() >> Join()
 theme_2 = RS_Clip(theme_2, [1], 4, theme_1).shuffle_parameter(5).solution() << Name("Accompaniment")
 (theme_1 + theme_2) * 2 << Name("Harmonization") >> Plot(block=True)
 

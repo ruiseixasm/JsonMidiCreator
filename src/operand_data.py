@@ -171,12 +171,13 @@ class Pipe(Data):
         return self
 
 class Inline(Data):
-    """
-    `Inline` disables the `Operand` implicit copy.
+    """`Data -> Inline`
+
+    `Inline` disables the `Operand` implicit copy on basic operations like `+` and `>>`.
     
     Parameters
     ----------
-    Operand() : An `Operand` to temporary disable implicit copies.
+    Operand() : Any `Operand` to temporary disable operator implicit copies.
     """
     def __init__(self, operand: any = None):
         super().__init__()
