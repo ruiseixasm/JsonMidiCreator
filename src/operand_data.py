@@ -63,7 +63,7 @@ class Data(o.Operand):
                 if len(operand) > 0:
                     return o.get_pair_key_data(operand, serialization)
                 return serialization
-            case o.Data():
+            case Data():
                 return operand.copy(self)
             case _:                         return self.deep_copy(self._data)
             

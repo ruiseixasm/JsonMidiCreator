@@ -4432,6 +4432,8 @@ class Part(Composition):
                     for item in self._unmasked_items():
                         item << operand
 
+            case od.TrackName():
+                self._name = operand % str()
             case str():
                 self._name = operand
 
@@ -4856,9 +4858,14 @@ class Song(Composition):
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():        return self._time_signature
+                    case str():                     return self._name
                     case _:                         return super().__mod__(operand)
             case og.TimeSignature():
                 return self._time_signature.copy()
+            case od.TrackName():
+                return operand << self._name
+            case str():
+                return self._name
             case od.Names():
                 all_names: list[str] = []
                 for single_part in self._unmasked_items():
@@ -5021,6 +5028,11 @@ class Song(Composition):
                 else:   # Not for me
                     for item in self._unmasked_items():
                         item << operand
+
+            case od.TrackName():
+                self._name = operand % str()
+            case str():
+                self._name = operand
 
             case _:
                 super().__lshift__(operand)
