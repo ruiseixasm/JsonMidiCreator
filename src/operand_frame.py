@@ -279,7 +279,7 @@ class Input(Left):
 class Previous(Left):
     """`Frame -> Left -> Previous`
 
-    Represents the previous processed `Element`, passes `Null()` for the first one.
+    Represents the previous processed `Element` given parameter, passes `Null()` for the first one if `first_null=True`.
 
     Parameters
     ----------
