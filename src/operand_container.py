@@ -1419,22 +1419,22 @@ class Composition(Container):
 
 
     _channel_colors = [
-        "#4CAF50",  # Green (starting point)
-        "#2196F3",  # Blue
-        "#FF5722",  # Orange
-        "#9C27B0",  # Purple
-        "#FFEB3B",  # Bright Yellow
-        "#FF9800",  # Amber
-        "#E91E63",  # Pink
-        "#00BCD4",  # Cyan
-        "#8BC34A",  # Light Green
-        "#FFC107",  # Gold
-        "#3F51B5",  # Indigo
-        "#FF5252",  # Light Red
-        "#673AB7",  # Deep Purple
-        "#CDDC39",  # Lime
-        "#03A9F4",  # Light Blue
-        "#FF4081",  # Hot Pink
+        "#4CAF50",  # Green (starting point)    01
+        "#2196F3",  # Blue                      02
+        "#FF5722",  # Orange                    03
+        "#9C27B0",  # Purple                    04
+        "#FFEB3B",  # Bright Yellow             05
+        "#FF9800",  # Amber                     06
+        "#E91E63",  # Pink                      07
+        "#00BCD4",  # Cyan                      08
+        "#8BC34A",  # Light Green               09
+        "#FFC107",  # Gold                      10
+        "#4A5ED3",  # Indigo                    11
+        "#FF5252",  # Light Red                 12
+        "#48297E",  # Deep Purple               13
+        "#CDDC39",  # Lime                      14
+        "#03A9F4",  # Light Blue                15
+        "#FF4081",  # Hot Pink                  16
     ]
 
 

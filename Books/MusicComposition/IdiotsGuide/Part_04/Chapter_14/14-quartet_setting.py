@@ -32,12 +32,16 @@ violin_1 = Note(Channel(11)) / [1/4, 1/8, 0, 1/4, 0, 1/8, 0, 1/4, 1/2, 1/4, 1/8,
 violin_1 >>= Equal(1/4, Beat(0))**Rest()
 violin_1 += InputType(Note)**Foreach(2, 3, 2, 1, 0, -1, 0, 1, 0, 1, 2, 4, 2, 1)**Degree()
 
-violin_2 = Note(Channel(12)) / [1/1, 1/2, 0, 1/1, 1/2, 0] << Name("Violin 2")
-violin_2 += Foreach(-3, -2, -1, -3, -4, -2)**Degree()
+violin_2 = Note(Channel(12), Velocity(80)) / [1/1, 1/2, 0, 1/1, 1/2, 0] << Name("Violin 2")
+violin_2 += Foreach(-3, -2, -1, -3, -5, -3)**Degree()
 
-viola = Note(Channel(13)) / [1/1, 1/2]
+viola = Note(Channel(13)) / [1/1, 1/2] << Name("Viola")
 viola[1] /= 6
-viola >> Plot()
+viola += Foreach(-5, -4, -3, -5, -1, 0, 1)**Degree()
 
-quartet: Part = Part([violin_1, violin_2, viola]) << Name("Quartet")
-# quartet * 4 >> Plot()
+cello = Note(Channel(14), 1/2, Velocity(70)) / 8 << Name("Cello")
+cello += Foreach(5, 2, 6, 9, 5, 7, 3, 2)**Degree()
+
+
+quartet: Part = Part([violin_1, violin_2, viola, cello]) << Name("Quartet")
+quartet * 4 >> Plot()
