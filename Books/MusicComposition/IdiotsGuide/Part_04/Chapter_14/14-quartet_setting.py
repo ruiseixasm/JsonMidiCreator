@@ -37,7 +37,8 @@ violin_2 += Foreach(-3, -2, -1, -3, -5, -3)**Degree()
 
 viola = Note(Channel(13)) / [1/1, 1/2] << Name("Viola")
 viola[1] /= 6
-viola += Foreach(-5, -4, -3, -5, -1, 0, 1)**Degree()
+viola << Previous(Pipe(Degree()))**Add(-5, 1, 1, -2, 4, 1, 1)**Pipe()   # Pipe does an Absolute setting of Degree
+# viola += Foreach(-5, -4, -3, -5, -1, 0, 1)**Degree()
 
 cello = Note(Channel(14), 1/2, Velocity(70)) / 8 << Name("Cello")
 cello += Foreach(5, 2, 6, 9, 5, 7, 3, 2)**Degree()

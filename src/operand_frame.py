@@ -285,9 +285,9 @@ class Previous(Left):
     ----------
     Any(None) : Any type of data to be extracted from the previous `Element`. \
         If none is given, then is the element itself that is passed or `Null()` if the first one.
-    first_null(bool) : Sets if the first input is `Null` or the `Element` imputed. The default is `True`.
+    first_null(bool) : Sets if the first input is `Null` (True) or the `Element` imputed (False). The default is `False`.
     """
-    def __init__(self, *parameters, first_null: bool = True):
+    def __init__(self, *parameters, first_null: bool = False):
         super().__init__()
         self._named_parameters['parameter'] = parameters
         self._named_parameters['previous'] = first_null
