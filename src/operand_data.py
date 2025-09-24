@@ -183,6 +183,13 @@ class Inline(Data):
         super().__init__()
         self._data: any = o.Operand() if operand is None else operand
 
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case Inline():
+                return self._data == other._data
+            case _:
+                return self._data == other
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol will extract the data source value.

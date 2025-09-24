@@ -1257,4 +1257,21 @@ def test_floordiv_clip():
 # test_floordiv_clip()
 
 
+def test_clip_proxy():
+    four_notes = Note() / 4
+
+    notes_proxy = four_notes >> Proxy()
+    assert notes_proxy is not four_notes
+
+    inline_notes = notes_proxy >> Inline()
+    assert inline_notes % Pipe() is notes_proxy
+
+    inline_mask = inline_notes >> Mask(Nth(1, 2))
+    assert inline_mask % Pipe() is inline_notes % Pipe()
+    assert inline_notes % Pipe() % bool()   # True means masked
+
+    joined_mask = inline_mask >> Join()
+    assert joined_mask % Pipe() is inline_notes % Pipe()
+
+# test_clip_proxy()
 
