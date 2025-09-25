@@ -1654,6 +1654,8 @@ class Composition(Container):
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
                         ]
+                        key_signature_positions: set[Fraction] = set()
+                        tonic_key_positions: set[Fraction] = set()
 
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
@@ -1705,23 +1707,25 @@ class Composition(Container):
 
                                 # Where the Key Signature is plotted
                                 if note["key_signature"] != last_key_signature["key_signature"]:
-                                    last_key_signature["measure"] = int(note["position_on"] / beats_per_measure)
-                                    last_key_signature["key_signature"] = note["key_signature"]
-                                    sharps_flats: int = note["key_signature"] % int()
-                                    if last_key_signature["measure"] == 0:
-                                        x_pos = -0.50
-                                    else:
-                                        x_pos = float(last_key_signature["measure"] * beats_per_measure) - 0.1
-                                    tonic_key: int = note["key_signature"].get_tonic_key()
-                                    base_pitch: int = max_pitch - 12
-                                    self._ax.text(x_pos - (0.2 if sharps_flats else 0.0), base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
-                                    if sharps_flats:
-                                        symbol: str = '♯'
-                                        if sharps_flats < 0: # Flattened
-                                            symbol = '♭'
-                                        for chromatic_pitch in range(base_pitch, base_pitch + 12):
-                                            if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
-                                                self._ax.text(x_pos, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
+                                    if note["position_on"] not in key_signature_positions:
+                                        key_signature_positions.add(note["position_on"])
+                                        last_key_signature["measure"] = int(note["position_on"] / beats_per_measure)
+                                        last_key_signature["key_signature"] = note["key_signature"]
+                                        tonic_key: int = note["key_signature"].get_tonic_key()
+                                        base_pitch: int = max_pitch - 12
+                                        self._ax.text(-0.50 - 0.5, base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
+
+                                    if note["position_on"] not in tonic_key_positions:
+                                        tonic_key_positions.add(note["position_on"])
+                                        sharps_flats: int = note["key_signature"] % int()
+                                        base_pitch: int = max_pitch - 12
+                                        if sharps_flats:
+                                            symbol: str = '♯'
+                                            if sharps_flats < 0: # Flattened
+                                                symbol = '♭'
+                                            for chromatic_pitch in range(base_pitch, base_pitch + 12):
+                                                if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
+                                                    self._ax.text(-0.50, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
 
                                 # Where the bar accidentals are plotted
                                 if note["accidentals"]:
