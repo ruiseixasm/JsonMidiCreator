@@ -1641,11 +1641,6 @@ class Composition(Container):
                         if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
                             self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
 
-                    last_key_signature: dict[str, int | 'ou.KeySignature' | None] = {
-                        "measure": -1,
-                        "key_signature": None
-                    }
-
                     # Plot notes per Channel
                     for channel_0 in note_channels:
                         printed_channel_number: bool = False
@@ -1655,8 +1650,10 @@ class Composition(Container):
                             if channel_note["channel"] == channel_0
                         ]
                         staff_sharps_and_flats: dict[int, int] = {}
+                        staff_modes: dict[int, int] = {}
                         staff_tonic_keys: dict[int, int] = {}
                         last_sharps_measure: int = -1
+                        last_mode_measure: int = -1
                         last_tonic_key_measure: int = -1
 
                         for note in channel_plotlist:
@@ -1722,17 +1719,50 @@ class Composition(Container):
                                                 symbol = '♭'
                                             for chromatic_pitch in range(base_pitch, base_pitch + 12):
                                                 if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
-                                                    self._ax.text(-0.50, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
+                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, symbol, ha='right', va='center', fontsize=10, fontweight='bold', color='black')
                                         last_sharps_measure = note_measure
                                 else:
                                     last_sharps_measure = note_measure
+
+                                if note_measure not in staff_modes:
+                                    mode: int = note["mode"]
+                                    if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode:
+                                        staff_modes[note_measure] = mode
+                                        base_pitch: int = max_pitch - 12
+                                        mode_marker: str = 'Major'
+                                        match note['mode']:
+                                            case 0:
+                                                pass
+                                            case 5:
+                                                mode_marker = 'minor'
+                                            case 1:
+                                                mode_marker = 'Dorian'
+                                            case 2:
+                                                mode_marker = 'Phrygian'
+                                            case 3:
+                                                mode_marker = 'Lydian'
+                                            case 4:
+                                                mode_marker = 'Mixolydian'
+                                            case 6:
+                                                mode_marker = 'Locrian'
+                                        self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
+                                        last_mode_measure = note_measure
+                                else:
+                                    last_mode_measure = note_measure
 
                                 if note_measure not in staff_tonic_keys:
                                     tonic_key: int = note["tonic_key"]
                                     if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
                                         staff_tonic_keys[note_measure] = tonic_key
                                         base_pitch: int = max_pitch - 12
-                                        self._ax.text(-0.50 - 0.5, base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
+                                        tonic_marker: str = 'T'
+                                        if note['mode'] == 0:
+                                            tonic_marker += 'M'
+                                        elif note['mode'] == 5:
+                                            tonic_marker += 'm'
+                                        else:
+                                            tonic_marker += str(note['mode'])
+                                        self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
                                         last_tonic_key_measure = note_measure
                                 else:
                                     last_tonic_key_measure = note_measure

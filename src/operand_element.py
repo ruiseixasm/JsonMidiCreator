@@ -1526,7 +1526,7 @@ class Note(ChannelElement):
                     "tonic_key": self._pitch._tonic_key % 12,
                     "sharps": self._pitch._key_signature._unit,
                     "mode": self._pitch._key_signature._mode_0,
-                    "key_signature": self._pitch._key_signature,
+                    "key_tonic": self._pitch._key_signature.get_tonic_key(),
                     "accidentals": self._pitch.degree_accidentals(),
                     "velocity": self._velocity,
                     "channel": self._channel_0,
