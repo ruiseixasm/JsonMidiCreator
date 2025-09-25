@@ -1499,8 +1499,6 @@ class Note(ChannelElement):
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_note: 'Note' = None) -> list[dict]:
-        if not self._enabled:
-            return []
         
         if self._duration_beats == 0:
             return []
@@ -1524,6 +1522,7 @@ class Note(ChannelElement):
                 "note": {
                     "position_on": position_on,
                     "position_off": position_off,
+                    "enabled": self._enabled,
                     "pitch": pitch_int,
                     "key_signature": self._pitch._key_signature,
                     "accidentals": self._pitch.degree_accidentals(),
@@ -2677,8 +2676,6 @@ class Automation(ChannelElement):
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_automation: 'Automation' = None) -> list[dict]:
-        if not self._enabled:
-            return []
         
         if channels is not None:
             channels["automation"].add(self._channel_0)
@@ -2695,6 +2692,7 @@ class Automation(ChannelElement):
             {
                 "automation": {
                     "position": position_on,
+                    "enabled": self._enabled,
                     "value": self._get_msb_value(),
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
