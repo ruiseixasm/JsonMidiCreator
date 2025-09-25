@@ -1808,6 +1808,7 @@ class Composition(Container):
 
                 # Plot automations
                 for channel_0 in automation_channels:
+                    printed_channel_number: bool = False
                     channel_color = Clip._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_automation for channel_automation in automation_plotlist
@@ -1850,11 +1851,21 @@ class Composition(Container):
                             channel_plotlist[-1]["value"],
                             channel_plotlist[-1]["value"]
                         ]
+
                         # Stepped line connecting the points
                         self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
                         # Actual data points
                         self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
+                        if not printed_channel_number:
+                            y_pos: int = automation["value"] + 5
+                            x_pos = automation["position"]
+                            self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='center', fontsize=6,
+                                color='black',  # Outline color
+                                path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                                alpha=color_alpha)
+                            printed_channel_number = True
+                                        
 
         # Draw vertical grid lines based on beats and measures
         one_extra_subdivision: float = quantization_beats
