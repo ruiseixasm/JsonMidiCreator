@@ -1514,7 +1514,7 @@ class Composition(Container):
                     f"Measure = {int(x / beats_per_measure)}, "
                     f"Beat = {int(x % beats_per_measure)}, "
                     f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
-                    f"Channel = {int(y + 0.5)}"
+                    f"Channel = {round(y)}"
                 )
 
                 note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]

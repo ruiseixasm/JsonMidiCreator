@@ -835,7 +835,7 @@ class Rest(Element):
             return []
 
         if channels is not None:
-            channels["note"].add(0)
+            channels["note"].add(-1)
 
         if masked_element_ids is None:
             masked_element_ids = set()
