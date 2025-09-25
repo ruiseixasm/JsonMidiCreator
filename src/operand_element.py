@@ -850,9 +850,7 @@ class Rest(Element):
                 "note": {
                     "position_on": position_on,
                     "position_off": position_off,
-                    "pitch": 60,        # Middle C
-                    "velocity": 127,    # Maximum contrast, no transparency
-                    "channel": 0,
+                    "channel": -1,  # Rests have no Channel
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }
