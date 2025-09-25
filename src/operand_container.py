@@ -1822,10 +1822,14 @@ class Composition(Container):
                             color_alpha = 0.2
                         else:
                             color_alpha = 1.0
+
+                        edge_color: str = 'black'
+                        if not automation["enabled"]:
+                            edge_color = 'white'
                                 
                         # Actual data points
                         self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
-                                    markeredgecolor='black', markeredgewidth=1, markersize=8, alpha = color_alpha)
+                                    markeredgecolor=edge_color, markeredgewidth=1, markersize=8, alpha = color_alpha)
 
                         # Add the tailed line up to the end of the chart
                         x = [
