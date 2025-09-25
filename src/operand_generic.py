@@ -1345,7 +1345,7 @@ class Scale(Generic):
         sharps_flats: list[int] = [0] * 12
         major_scale: tuple[int] = ou.KeySignature._major_scale
         tonic_key_accidental: bool = False if major_scale[tonic_key % 12] == 1 else True
-        real_accidental: int = 1
+        real_accidental: int = 0
         if tonic_key_accidental:
             sharps_flats = [1] * 12
             for key_int in range(12):
@@ -1367,10 +1367,11 @@ class Scale(Generic):
                     if not major_accidental:
                         previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
                         sharps_flats[(key_int + tonic_key) % 12] = 1    # An accidental
-                        if previous_major_accidental:
-                            real_accidental = -1        # The initial assumed Sharp accidental was wrongly assumed
-                        elif real_accidental == -1:
-                            print(f"Something wrong with accidentals for the key {key_int}!")
+                        if real_accidental == 0:
+                            if not previous_major_accidental:
+                                real_accidental = 1
+            if real_accidental == 0:
+                real_accidental = -1
         sharps_flats = o.list_mul(sharps_flats, real_accidental)
         return sharps_flats
 

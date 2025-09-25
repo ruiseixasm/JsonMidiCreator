@@ -1166,9 +1166,14 @@ def test_sharps_and_flats():
 
     no_sharps_or_flats = [0] * 12
     assert Scale.sharps_and_flats(0, major_scale) == no_sharps_or_flats
+
     #            C       D       E   F       G       A       B
     d_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
-    assert Scale.sharps_and_flats(0, major_scale) == no_sharps_or_flats
+    assert Scale.sharps_and_flats(2, major_scale) == d_sharps
 
-# test_sharps_and_flats()
+    #            C       D       E   F       G       A       B
+    e_sharps = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0]
+    assert Scale.sharps_and_flats(4, major_scale) == e_sharps
+
+test_sharps_and_flats()
 
