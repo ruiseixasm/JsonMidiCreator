@@ -1345,7 +1345,7 @@ class Scale(Generic):
         sharps_flats: list[int] = [0] * 12
         major_scale: tuple[int] = ou.KeySignature._major_scale
         tonic_key_accidental: bool = False if major_scale[tonic_key % 12] == 1 else True
-        real_accidental: int = -1
+        real_accidental: int = 1    # By default considers accidental as Sharp
         if tonic_key_accidental:
             sharps_flats = [1] * 12
             for key_int in range(12):
@@ -1354,10 +1354,10 @@ class Scale(Generic):
                 if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
                     if major_accidental:
                         sharps_flats[(key_int + tonic_key) % 12] = 0    # Not an accidental
-                        if real_accidental == -1:
-                            previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
-                            if previous_major_accidental:
-                                real_accidental = 1
+                        if real_accidental == 1:
+                            next_major_accidental: bool = False if major_scale[(key_int + 1 + tonic_key) % 12] else True
+                            if next_major_accidental:
+                                real_accidental = -1
         else:
             for key_int in range(12):
                 scale_accidental: bool = False if scale[key_int] == 1 else True
@@ -1365,10 +1365,10 @@ class Scale(Generic):
                 if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
                     if not major_accidental:
                         sharps_flats[(key_int + tonic_key) % 12] = 1    # An accidental
-                        if real_accidental == -1:
-                            previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
-                            if not previous_major_accidental:
-                                real_accidental = 1
+                        if real_accidental == 1:
+                            next_major_accidental: bool = False if major_scale[(key_int + 1 + tonic_key) % 12] else True
+                            if not next_major_accidental:
+                                real_accidental = -1
         sharps_flats = o.list_mul(sharps_flats, real_accidental)
         return sharps_flats
 
