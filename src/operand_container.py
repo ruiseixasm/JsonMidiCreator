@@ -3994,14 +3994,14 @@ class Clip(Composition):  # Just a container of Elements
                     note_pitch: int = note._pitch.pitch_int()
                     delta_pitch: int = note_pitch - reference_pitch
                     octave_offset: int = delta_pitch // 12
-                    note -= ou.Octave(octave_offset)
                     remaining_delta: int = delta_pitch % 12
                     if remaining_delta > 6:
-                        note -= ou.Octave(1)
+                        octave_offset += 1
                     elif remaining_delta < -6:
-                        note += ou.Octave(1)
+                        octave_offset -= 1
+                    note -= ou.Octave(octave_offset)
                     if not first_note_based:
-                        reference_pitch = note._pitch.pitch_int()
+                        reference_pitch = note_pitch - octave_offset * 12
         return self
 
 
