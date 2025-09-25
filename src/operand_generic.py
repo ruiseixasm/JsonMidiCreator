@@ -1350,8 +1350,8 @@ class Scale(Generic):
             sharps_flats = [1] * 12
             for key_int in range(12):
                 scale_accidental: bool = False if scale[key_int] == 1 else True
-                major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
-                if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
+                if scale_accidental:    # In a scale the first key is NEVER an accidental
+                    major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
                     if major_accidental:
                         sharps_flats[(key_int + tonic_key) % 12] = 0    # Not an accidental
                         if real_accidental == 1:
@@ -1361,8 +1361,8 @@ class Scale(Generic):
         else:
             for key_int in range(12):
                 scale_accidental: bool = False if scale[key_int] == 1 else True
-                major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
-                if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
+                if scale_accidental:    # In a scale the first key is NEVER an accidental
+                    major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
                     if not major_accidental:
                         sharps_flats[(key_int + tonic_key) % 12] = 1    # An accidental
                         if real_accidental == 1:
