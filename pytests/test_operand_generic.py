@@ -1161,4 +1161,14 @@ def test_pitch_pipe():
 # test_pitch_pipe()
 
 
+def test_sharps_and_flats():
+    major_scale = Scale("Major") % list()
+
+    no_sharps_or_flats = [0] * 12
+    assert Scale.sharps_and_flats(0, major_scale) == no_sharps_or_flats
+    #            C       D       E   F       G       A       B
+    d_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
+    assert Scale.sharps_and_flats(0, major_scale) == no_sharps_or_flats
+
+# test_sharps_and_flats()
 
