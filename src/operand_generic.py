@@ -1353,26 +1353,24 @@ class Scale(Generic):
                 major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
                 if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
                     if major_accidental:
-                        previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
                         sharps_flats[(key_int + tonic_key) % 12] = 0    # Not an accidental
-                        if not previous_major_accidental:
-                            real_accidental = -1    # The initial assumed Sharp accidental was wrongly assumed
-                        elif real_accidental == -1:
-                            print(f"Something wrong with accidentals for the key {key_int}!")
+                        if real_accidental == 0:
+                            previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
+                            if previous_major_accidental:
+                                real_accidental = 1
         else:
             for key_int in range(12):
                 scale_accidental: bool = False if scale[key_int] == 1 else True
                 major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
                 if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
                     if not major_accidental:
-                        previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
                         sharps_flats[(key_int + tonic_key) % 12] = 1    # An accidental
                         if real_accidental == 0:
+                            previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
                             if not previous_major_accidental:
                                 real_accidental = 1
-            if real_accidental == 0:
-                real_accidental = -1
-        sharps_flats = o.list_mul(sharps_flats, real_accidental)
+        if real_accidental == 0:
+            sharps_flats = o.list_mul(sharps_flats, -1)
         return sharps_flats
 
 
