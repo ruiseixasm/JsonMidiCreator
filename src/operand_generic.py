@@ -1340,6 +1340,47 @@ class Scale(Generic):
                 degrees_0 += scale[ (tonic_offset + tonic_modulation) % 12 ]
         return tonic_modulation
 
+    @staticmethod
+    def sharps_and_flats(tonic_key: int = 0, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
+        sharps_flats: list[int] = []
+        major_scale: tuple[int] = ou.KeySignature._major_scale
+        tonic_key_accidental: bool = False if major_scale[tonic_key % 12] == 1 else True
+        real_accidental: int = 1
+        if tonic_key_accidental:
+            for key_int in range(12):
+                scale_accidental: bool = False if scale[key_int] == 1 else True
+                major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
+                if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
+                    if major_accidental:
+                        previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
+                        sharps_flats.append(0)      # A Natural
+                        if not previous_major_accidental:
+                            real_accidental = -1    # The initial assumed Sharp accidental was wrongly assumed
+                        elif real_accidental == -1:
+                            print(f"Something wrong with accidentals for the key {key_int}!")
+                    else:
+                        sharps_flats.append(1)      # An accidental
+                else:
+                    sharps_flats.append(1)          # An accidental
+        else:
+            for key_int in range(12):
+                scale_accidental: bool = False if scale[key_int] == 1 else True
+                major_accidental: bool = False if major_scale[(key_int + tonic_key) % 12] == 1 else True
+                if key_int > 0 and scale_accidental:    # In a scale the first key is NEVER an accidental
+                    if not major_accidental:
+                        previous_major_accidental: bool = False if major_scale[(key_int - 1 + tonic_key) % 12] else True
+                        sharps_flats.append(1)          # A Sharp
+                        if previous_major_accidental:
+                            real_accidental = -1        # The initial assumed Sharp accidental was wrongly assumed
+                        elif real_accidental == -1:
+                            print(f"Something wrong with accidentals for the key {key_int}!")
+                    else:
+                        sharps_flats.append(0)          # A Natural
+                else:
+                    sharps_flats.append(0)              # A Natural (first key is NEVER an accidental)
+        sharps_flats = o.list_mul(sharps_flats, real_accidental)
+        return sharps_flats
+
 
     @staticmethod
     def plot(block: bool = True, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1], tonic_key: ou.Key = ou.Key(), key_signature: str = None):
