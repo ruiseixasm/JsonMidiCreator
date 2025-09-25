@@ -1654,8 +1654,10 @@ class Composition(Container):
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
                         ]
-                        key_signature_positions: set[Fraction] = set()
-                        tonic_key_positions: set[Fraction] = set()
+                        staff_sharps_and_flats: dict[int, int] = {}
+                        staff_tonic_keys: dict[int, int] = {}
+                        last_sharps_measure: int = -1
+                        last_tonic_key_measure: int = -1
 
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
@@ -1705,13 +1707,14 @@ class Composition(Container):
                                     self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
 
+                                # note Measures to keep track of
+                                note_measure: int = int(note["position_on"] // beats_per_measure)
+
                                 # Where the Key Signature is plotted
-                                if note["key_signature"] != last_key_signature["key_signature"]:
-                                    last_key_signature["key_signature"] = note["key_signature"]
-                                    
-                                    if note["position_on"] not in key_signature_positions:
-                                        key_signature_positions.add(note["position_on"])
-                                        sharps_flats: int = note["key_signature"] % int()
+                                if note_measure not in staff_sharps_and_flats:
+                                    sharps_flats: int = note["sharps"]
+                                    if last_sharps_measure < 0 or staff_sharps_and_flats[last_sharps_measure] != sharps_flats:
+                                        staff_sharps_and_flats[note_measure] = sharps_flats
                                         base_pitch: int = max_pitch - 12
                                         if sharps_flats:
                                             symbol: str = '♯'
@@ -1720,12 +1723,19 @@ class Composition(Container):
                                             for chromatic_pitch in range(base_pitch, base_pitch + 12):
                                                 if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
                                                     self._ax.text(-0.50, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
+                                        last_sharps_measure = note_measure
+                                else:
+                                    last_sharps_measure = note_measure
 
-                                    if note["position_on"] not in tonic_key_positions:
-                                        tonic_key_positions.add(note["position_on"])
-                                        tonic_key: int = note["tonic_key"]
+                                if note_measure not in staff_tonic_keys:
+                                    tonic_key: int = note["tonic_key"]
+                                    if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
+                                        staff_tonic_keys[note_measure] = tonic_key
                                         base_pitch: int = max_pitch - 12
                                         self._ax.text(-0.50 - 0.5, base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
+                                        last_tonic_key_measure = note_measure
+                                else:
+                                    last_tonic_key_measure = note_measure
 
 
                                 # Where the bar accidentals are plotted
