@@ -1646,8 +1646,9 @@ class Composition(Container):
                         "key_signature": None
                     }
 
-                    # Plot notes
+                    # Plot notes per Channel
                     for channel_0 in note_channels:
+                        printed_channel_number: bool = False
                         channel_color = Clip._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
@@ -1735,6 +1736,15 @@ class Composition(Container):
                                         color='black',  # Outline color
                                         path_effects=[patheffects.withStroke(linewidth=1.4, foreground=channel_color)],
                                         alpha=color_alpha)
+
+                                if not printed_channel_number:
+                                    y_pos: int = note["pitch"] + 0.4
+                                    x_pos = (float(note["position_on"]) + float(note["position_off"])) / 2
+                                    self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='center', fontsize=6,
+                                        color='black',  # Outline color
+                                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                                        alpha=color_alpha)
+                                    printed_channel_number = True
                                         
 
                     # Where the VERTICAL axis is defined - Chromatic Keys
