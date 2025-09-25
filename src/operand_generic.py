@@ -1356,9 +1356,8 @@ class Scale(Generic):
             if scale[key_int] == 0: # In a scale the first key is NEVER an accidental
                 if major_scale[(key_int + tonic_key) % 12] == major_tonic_key:
                     sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key
-                    if real_accidental == 1:
-                        if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
-                            real_accidental = -1
+                    if real_accidental == 1 and major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
+                        real_accidental = -1
         sharps_flats = o.list_mul(sharps_flats, real_accidental)
         return sharps_flats
 
