@@ -1343,7 +1343,7 @@ class Scale(Generic):
     @staticmethod
     def sharps_and_flats(tonic_key: int = 0, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
         major_scale: tuple[int] = ou.KeySignature._major_scale
-        major_tonic_key: bool = major_scale[tonic_key % 12]
+        major_tonic_key: int = major_scale[tonic_key % 12]
         sharps_flats: list[int] = [1 ^ major_tonic_key] * 12
         real_accidental: int = 1    # By default considers accidental as Sharp
         if major_tonic_key == 1:
@@ -1353,8 +1353,7 @@ class Scale(Generic):
                     if major_key == 1:
                         sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key    # An accidental
                         if real_accidental == 1:
-                            next_major_accidental: bool = False if major_scale[(key_int + 1 + tonic_key) % 12] else True
-                            if not next_major_accidental:
+                            if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
                                 real_accidental = -1
         else:
             for key_int in range(12):
@@ -1363,8 +1362,7 @@ class Scale(Generic):
                     if major_key == 0:
                         sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key    # Not an accidental
                         if real_accidental == 1:
-                            next_major_accidental: bool = False if major_scale[(key_int + 1 + tonic_key) % 12] else True
-                            if next_major_accidental:
+                            if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
                                 real_accidental = -1
         sharps_flats = o.list_mul(sharps_flats, real_accidental)
         return sharps_flats
