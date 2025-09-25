@@ -1191,5 +1191,12 @@ def test_sharps_and_flats():
     B_sharp  = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +1, +0, +0]
     assert Scale.sharps_or_flats(11, major_scale) == B_sharp
 
+
+
+    # #             C       D       E   F       G       A       B
+    # DS_sharps = [+0, +0, +1, +0, +0, +0, +0, +1, +0, +1, +0, +0]
+    # assert Scale.sharps_or_flats(3, major_scale) == DS_sharps
+
+
 # test_sharps_and_flats()
 
