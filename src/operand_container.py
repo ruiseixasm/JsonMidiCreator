@@ -4512,7 +4512,7 @@ class Part(Composition):
                 last_position: ra.Position = self.last_position()
                 if last_position is not None:
                     finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
                     return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
@@ -4523,7 +4523,7 @@ class Part(Composition):
                 last_position: ra.Position = self.last_position()
                 if last_position is not None:
                     finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
                     self._append(operand + ra.Position(finish_length))  # Implicit copy
@@ -4534,7 +4534,7 @@ class Part(Composition):
                 last_position: ra.Position = self.last_position()
                 if last_position is not None:
                     finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
                         last_position = ra.Position(finish_position % ra.Measure())
                     finish_length: ra.Length = ra.Length(last_position).roundMeasures()
                     self._append(Clip(operand._time_signature, operand + ra.Position(finish_length)))   # Implicit copy
@@ -4547,7 +4547,7 @@ class Part(Composition):
                     last_position: ra.Position = self.last_position()
                     if last_position is not None:
                         finish_position: ra.Position = self.finish()
-                        if finish_position % ra.Measure() > last_position % ra.Measure() + 1:
+                        if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
                             last_position = ra.Position(finish_position % ra.Measure())
                         single_length: ra.Length = ra.Length(last_position).roundMeasures()
                         next_position: ra.Position = self % ra.Position()
