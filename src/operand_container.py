@@ -1601,6 +1601,9 @@ class Composition(Container):
                     f"Pitch = {int(y + 0.5)}"
                 )
 
+                # Solid line at y = 60 the Middle C
+                self._ax.axhline(y=60 - 0.5, color='gray', linestyle='-', linewidth=1.0)
+
                 note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
                 if note_plotlist:
@@ -1654,8 +1657,8 @@ class Composition(Container):
                                 color_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                self._ax.barh(y = 60, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
-                                    height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
+                                self._ax.barh(y = 60 - 0.5, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                    height=0.40, color='none', hatch='', edgecolor='black', linewidth=1.4, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
                                 line_style: str = 'solid'
@@ -1677,7 +1680,7 @@ class Composition(Container):
 
                                 if note["tied"]:
                                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                            height=0.4, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
+                                            height=0.5 - 0.1, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
                                     self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.5, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.4, linestyle=line_style, alpha=color_alpha)
 
