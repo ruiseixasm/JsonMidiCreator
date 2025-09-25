@@ -1498,6 +1498,14 @@ class Composition(Container):
             if self._by_channel:
                 self._ax.set_ylabel("Channels")
 
+                # Set MIDI channel ticks with Middle C in bold
+                self._ax.set_yticks(range(16))
+                y_labels = [
+                    channel_0 + 1 for channel_0 in range(16)
+                ]
+                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+                self._ax.set_ylim(-1 - 0.5, 15 + 0.5)  # Ensure all channels fit
+
                 # Where the corner Coordinates are defined
                 self._ax.format_coord = lambda x, y: (
                     f"Time = {int(x / composition_tempo * 60 // 60)}'"
@@ -1522,9 +1530,9 @@ class Composition(Container):
 
                     # CHANNELS VERTICAL AXIS
 
-                    # Shade black keys
+                    # Shade Odd Channels (1 based)
                     for channel_0 in range(16):
-                        if channel_0 % 2 == 1:
+                        if channel_0 % 2 == 0:
                             self._ax.axhspan(channel_0 - 0.5, channel_0 + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
@@ -1581,14 +1589,6 @@ class Composition(Container):
                                                     color='black', linewidth=0.5, alpha=color_alpha)
                 
                 
-                    # Set MIDI channel ticks with Middle C in bold
-                    self._ax.set_yticks(range(16))
-                    y_labels = [
-                        channel_0 + 1 for channel_0 in range(16)
-                    ]
-                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-                    self._ax.set_ylim(0 - 0.5, 15 + 0.5)  # Ensure all channels fit
-
             # As Chromatic keys
             else:
 
