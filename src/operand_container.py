@@ -3974,29 +3974,34 @@ class Clip(Composition):  # Just a container of Elements
                 last_element = item
         return self
     
-    def smooth(self) -> Self:
+    def smooth(self, first_note_based: bool = False) -> Self:
         """
-        Adjusts the `Note` octave to have the closest pitch to the previous one.
+        Adjusts each `Note` octave to have the closest pitch to the first or previous one.
 
         Args:
-            None
+            first_note_based (bool): Sets if the first note is set as reference or the previous one.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        last_note = None
-        smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
-        for item in self._unmasked_items():
-            if isinstance(item, oe.Note):    # Only Note has single Pitch
-                actual_note = item
-                if last_note is not None:
-                    while actual_note._pitch > last_note._pitch:
-                        actual_note._pitch -= ou.Octave(1)
-                    while actual_note._pitch < last_note._pitch:
-                        actual_note._pitch += ou.Octave(1)
-                    if actual_note._pitch - last_note._pitch > smooth_range:
-                        actual_note._pitch -= ou.Octave(1)
-                last_note = actual_note
+        first_pitch: int | None = None
+        reference_pitch: int | None = None
+        for note in self._unmasked_items():
+            if isinstance(note, oe.Note):    # Only Notes have Pitch
+                if first_pitch is None:
+                    reference_pitch = first_pitch = note._pitch.pitch_int()
+                else:
+                    note_pitch: int = note._pitch.pitch_int()
+                    delta_pitch: int = note_pitch - reference_pitch
+                    octave_offset: int = delta_pitch // 12
+                    note -= ou.Octave(octave_offset)
+                    remaining_delta: int = delta_pitch % 12
+                    if remaining_delta > 6:
+                        note -= ou.Octave(1)
+                    elif remaining_delta < -6:
+                        note += ou.Octave(1)
+                    if not first_note_based:
+                        reference_pitch = note._pitch.pitch_int()
         return self
 
 

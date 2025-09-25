@@ -3345,13 +3345,17 @@ class Slur(ClipProcess):
 class Smooth(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Smooth`
 
-    Adjusts the `Note` octave to have the closest pitch to the previous one.
+    Adjusts each `Note` octave to have the closest pitch to the first or previous one.
 
     Args:
-        None
+        first_note_based (bool): Sets if the first note is set as reference or the previous one.
+
     """
+    def __init__(self, first_note_based: bool = False):
+        super().__init__(first_note_based)
+
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.smooth()
+        return operand.smooth(self._parameters)
 
 
 class Flip(ClipProcess):
