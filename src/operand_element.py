@@ -851,6 +851,7 @@ class Rest(Element):
                     "position_on": position_on,
                     "position_off": position_off,
                     "channel": -1,  # Rests have no Channel
+                    "pitch": 59.5,  # Just to place the Rest
                     "masked": id(self) in masked_element_ids,
                     "self": self
                 }

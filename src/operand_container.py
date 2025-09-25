@@ -1660,7 +1660,7 @@ class Composition(Container):
                                 color_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                self._ax.barh(y = 60 - 0.5, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
                                     height=0.40, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
                             else:
                                 if o.is_black_key(round(note["pitch"])):
