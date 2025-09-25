@@ -920,7 +920,7 @@ class Position(Measurement):
                     case TimeUnit():    # Strict Positioning
                         if self._time_signature_reference is None:
                             self._time_signature_reference = operand._data._time_signature_reference
-                        operand_beats: Fraction = operand % Beats() % Fraction()
+                        operand_beats: Fraction = operand._data % Beats() % Fraction()
                         self_beats: Fraction = self % Beats() % Fraction()
                         self += operand_beats - self_beats
                     case _:

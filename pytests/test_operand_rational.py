@@ -93,6 +93,7 @@ def test_position_lshift():
     position_beat_0 << Measure(2)
     assert position_beat_0 == Measures(2)
     position_beat_0 <<= Measure(2)
+    print(f"position_beat_0 % float(): {position_beat_0 % float()}")
     assert position_beat_0 == Measures(2)
 
     position_beat_2 = Position(0.5)
@@ -100,6 +101,7 @@ def test_position_lshift():
     position_beat_2 << Measure(2)
     assert position_beat_2 == Measures(2.5)
     position_beat_2 <<= Measure(2)
+    print(f"position_beat_2 % float(): {position_beat_2 % float()}")
     assert position_beat_2 == Measures(2.0)
 
 # test_position_lshift()
