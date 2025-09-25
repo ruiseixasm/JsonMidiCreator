@@ -1499,12 +1499,12 @@ class Composition(Container):
                 self._ax.set_ylabel("Channels")
 
                 # Set MIDI channel ticks with Middle C in bold
-                self._ax.set_yticks(range(16))
-                y_labels = [
+                self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
+                y_labels = ['R'] + [
                     channel_0 + 1 for channel_0 in range(16)
                 ]
                 self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-                self._ax.set_ylim(-1 - 0.5, 15 + 0.5)  # Ensure all channels fit
+                self._ax.set_ylim(0 - 0.5, 16 + 0.5)  # Ensure all channels fit
 
                 # Where the corner Coordinates are defined
                 self._ax.format_coord = lambda x, y: (
@@ -1514,7 +1514,7 @@ class Composition(Container):
                     f"Measure = {int(x / beats_per_measure)}, "
                     f"Beat = {int(x % beats_per_measure)}, "
                     f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
-                    f"Channel = {int(y + 0.5 + 1)}"
+                    f"Channel = {int(y + 0.5)}"
                 )
 
                 note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
@@ -1532,7 +1532,7 @@ class Composition(Container):
 
                     # Shade Odd Channels (1 based)
                     for channel_0 in range(16):
-                        if channel_0 % 2 == 0:
+                        if channel_0 % 2 == 1:
                             self._ax.axhspan(channel_0 - 0.5, channel_0 + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
@@ -1549,7 +1549,7 @@ class Composition(Container):
                                 color_alpha: float = 1.0
                                 if note["masked"]:
                                     color_alpha = 0.2
-                                self._ax.barh(y = -0.4, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                self._ax.barh(y = 0.0, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
                                     height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
                             else:
                                 bar_hatch: str = ''
@@ -1575,17 +1575,17 @@ class Composition(Container):
                                     color_alpha = 0.2
                                     
                                 if note["tied"]:
-                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"] + 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.3 - 0.1, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
-                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"] + 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.3, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 else:
-                                    self._ax.barh(y = note["channel"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = note["channel"] + 1, width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
-                                    self._ax.hlines(y=note["channel"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                    self._ax.hlines(y=note["channel"] + 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
                 
                 
@@ -2052,11 +2052,14 @@ class Composition(Container):
             ]
             if at_position_notes:
                 if self._by_channel:
-                    # Sort by Position in reverse instead
-                    at_position_notes.sort(key=lambda note:note._position_beats * -1)
-                    at_position_notes = [ at_position_notes[0] ]    # Just a single note is played
-                    at_position_notes[0]._channel_0 = int(event.ydata + 0.5)
-                    at_position_notes[0]._position_beats = Fraction(0)
+                    if 0 <= round(event.ydata - 1) < 16:
+                        # Sort by Position in reverse instead
+                        at_position_notes.sort(key=lambda note:note._position_beats * -1)
+                        at_position_notes = [ at_position_notes[0] ]    # Just a single note is played
+                        at_position_notes[0]._channel_0 = round(event.ydata - 1)
+                        at_position_notes[0]._position_beats = Fraction(0)
+                    else:
+                        return self
                 else:
                     # Sort by Pitch instead
                     at_position_notes.sort(key=lambda note:note._pitch.pitch_int())
