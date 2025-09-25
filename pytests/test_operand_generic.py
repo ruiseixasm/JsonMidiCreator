@@ -1165,31 +1165,31 @@ def test_sharps_and_flats():
     major_scale = Scale("Major") % list()
 
     no_sharps_or_flats = [0] * 12
-    assert Scale.sharps_and_flats(0, major_scale) == no_sharps_or_flats
+    assert Scale.sharps_or_flats(0, major_scale) == no_sharps_or_flats
 
     #            C       D       E   F       G       A       B
     D_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
-    assert Scale.sharps_and_flats(2, major_scale) == D_sharps
+    assert Scale.sharps_or_flats(2, major_scale) == D_sharps
 
     #            C       D       E   F       G       A       B
     E_sharps = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0]
-    assert Scale.sharps_and_flats(4, major_scale) == E_sharps
+    assert Scale.sharps_or_flats(4, major_scale) == E_sharps
 
     #            C       D       E   F       G       A       B
     F_flats  = [+0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1]
-    assert Scale.sharps_and_flats(5, major_scale) == F_flats
+    assert Scale.sharps_or_flats(5, major_scale) == F_flats
 
     #            C       D       E   F       G       A       B
     G_sharp  = [+0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
-    assert Scale.sharps_and_flats(7, major_scale) == G_sharp
+    assert Scale.sharps_or_flats(7, major_scale) == G_sharp
 
     #            C       D       E   F       G       A       B
     A_sharp  = [+1, +0, +0, +0, +0, +1, +0, +1, +0, +0, +0, +0]
-    assert Scale.sharps_and_flats(9, major_scale) == A_sharp
+    assert Scale.sharps_or_flats(9, major_scale) == A_sharp
 
     #            C       D       E   F       G       A       B
     B_sharp  = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +1, +0, +0]
-    assert Scale.sharps_and_flats(11, major_scale) == B_sharp
+    assert Scale.sharps_or_flats(11, major_scale) == B_sharp
 
 # test_sharps_and_flats()
 

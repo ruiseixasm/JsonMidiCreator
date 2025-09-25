@@ -1341,27 +1341,24 @@ class Scale(Generic):
         return tonic_modulation
 
     @staticmethod
-    def sharps_and_flats(tonic_key: int = 0, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
+    def sharps_or_flats(tonic_key: int = 0, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
+        """
+        This method returns all the Sharps or Flats for a given `tonic_key` on a specified `scale`.
+
+        For example, `Scale.sharps_or_flats(2, major_scale)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
+
+        """
         major_scale: tuple[int] = ou.KeySignature._major_scale
         major_tonic_key: int = major_scale[tonic_key % 12]
         sharps_flats: list[int] = [1 ^ major_tonic_key] * 12
         real_accidental: int = 1    # By default considers accidental as Sharp
-        if major_tonic_key == 1:
-            for key_int in range(12):
-                if scale[key_int] == 0: # In a scale the first key is NEVER an accidental
-                    if major_scale[(key_int + tonic_key) % 12] == major_tonic_key:
-                        sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key    # An accidental
-                        if real_accidental == 1:
-                            if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
-                                real_accidental = -1
-        else:
-            for key_int in range(12):
-                if scale[key_int] == 0: # In a scale the first key is NEVER an accidental
-                    if major_scale[(key_int + tonic_key) % 12] == major_tonic_key:
-                        sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key    # Not an accidental
-                        if real_accidental == 1:
-                            if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
-                                real_accidental = -1
+        for key_int in range(12):
+            if scale[key_int] == 0: # In a scale the first key is NEVER an accidental
+                if major_scale[(key_int + tonic_key) % 12] == major_tonic_key:
+                    sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key
+                    if real_accidental == 1:
+                        if major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
+                            real_accidental = -1
         sharps_flats = o.list_mul(sharps_flats, real_accidental)
         return sharps_flats
 
