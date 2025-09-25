@@ -1707,16 +1707,10 @@ class Composition(Container):
 
                                 # Where the Key Signature is plotted
                                 if note["key_signature"] != last_key_signature["key_signature"]:
+                                    last_key_signature["key_signature"] = note["key_signature"]
+                                    
                                     if note["position_on"] not in key_signature_positions:
                                         key_signature_positions.add(note["position_on"])
-                                        last_key_signature["measure"] = int(note["position_on"] / beats_per_measure)
-                                        last_key_signature["key_signature"] = note["key_signature"]
-                                        tonic_key: int = note["key_signature"].get_tonic_key()
-                                        base_pitch: int = max_pitch - 12
-                                        self._ax.text(-0.50 - 0.5, base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
-
-                                    if note["position_on"] not in tonic_key_positions:
-                                        tonic_key_positions.add(note["position_on"])
                                         sharps_flats: int = note["key_signature"] % int()
                                         base_pitch: int = max_pitch - 12
                                         if sharps_flats:
@@ -1726,6 +1720,13 @@ class Composition(Container):
                                             for chromatic_pitch in range(base_pitch, base_pitch + 12):
                                                 if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
                                                     self._ax.text(-0.50, chromatic_pitch, symbol, ha='center', va='center', fontsize=14, fontweight='bold', color='black')
+
+                                    if note["position_on"] not in tonic_key_positions:
+                                        tonic_key_positions.add(note["position_on"])
+                                        tonic_key: int = note["tonic_key"]
+                                        base_pitch: int = max_pitch - 12
+                                        self._ax.text(-0.50 - 0.5, base_pitch + tonic_key - 0.15, 'T', ha='center', va='center', fontsize=8.5, color='black')
+
 
                                 # Where the bar accidentals are plotted
                                 if note["accidentals"]:
