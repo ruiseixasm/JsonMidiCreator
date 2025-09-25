@@ -1638,8 +1638,8 @@ class Composition(Container):
 
                     # Shade black keys
                     for pitch in range(min_pitch, max_pitch + 1):
-                        if o.is_black_key(pitch):
-                            self._ax.axhspan(pitch - 0.5, pitch + 0.5, color='lightgray', alpha=0.5)
+                        if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
+                            self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
 
                     last_key_signature: dict[str, int | 'ou.KeySignature' | None] = {
                         "measure": -1,
