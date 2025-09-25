@@ -1621,8 +1621,8 @@ class Composition(Container):
                     # PITCHES VERTICAL AXIS
 
                     # Get pitch range
-                    min_pitch: int = min(note["pitch"] for note in note_plotlist) // 12 * 12
-                    max_pitch: int = max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12
+                    min_pitch: int = int(min(note["pitch"] for note in note_plotlist) // 12 * 12)
+                    max_pitch: int = int(max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12)
 
                     pitch_range: int = max_pitch - min_pitch
                     if pitch_range // 12 < 4:   # less than 4 octaves

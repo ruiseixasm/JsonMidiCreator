@@ -57,11 +57,11 @@ class RS_Solutions:
         self._by_channel: bool = by_channel
 
 
-    def seed(self) -> 'oc.Composition':
-        return self._seed
+    def seed(self, *parameters) -> 'oc.Composition':
+        return self._seed << parameters
     
-    def solution(self) -> 'oc.Composition':
-        return self._solution
+    def solution(self, *parameters) -> 'oc.Composition':
+        return self._solution << parameters
     
     def mask(self, *conditions) -> Self:
         self._solution.mask(*conditions)
@@ -107,11 +107,11 @@ class RS_Clip(RS_Solutions):
             ):
         super().__init__(seed, iterations, measures, composition, by_channel)
          
-    def seed(self) -> 'oc.Clip':
-        return self._seed
+    def seed(self, *parameters) -> 'oc.Clip':
+        return self._seed << parameters
     
-    def solution(self) -> 'oc.Clip':
-        return self._solution
+    def solution(self, *parameters) -> 'oc.Clip':
+        return self._solution << parameters
     
     
     def iterate(self, iterations: int,
