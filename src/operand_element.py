@@ -56,8 +56,6 @@ class Element(o.Operand):
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = og.settings._duration
-        self._channel_0: int                = og.settings._channel_0
-        self._enabled: bool                 = True
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
 
         self._owner_clip: oc.Clip           = None
@@ -832,8 +830,6 @@ class Rest(Element):
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
-        if not self._enabled:
-            return []
         
         if self._duration_beats == 0:
             return []
