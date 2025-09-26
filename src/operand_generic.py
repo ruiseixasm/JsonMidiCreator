@@ -1339,35 +1339,13 @@ class Scale(Generic):
                 tonic_modulation -= 1
                 degrees_0 += scale[ (tonic_offset + tonic_modulation) % 12 ]
         return tonic_modulation
-
-    @staticmethod
-    def sharps_or_flats(tonic_key: int = 0, scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
-        """
-        This method returns all the Sharps or Flats for a given `tonic_key` on a specified `scale`.
-
-        For example, `Scale.sharps_or_flats(2, major_scale)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
-
-        """
-        major_scale: tuple[int] = ou.KeySignature._major_scale
-        major_tonic_key: int = major_scale[tonic_key % 12]
-        sharps_flats: list[int] = [1 ^ major_tonic_key] * 12
-        real_accidental: int = 1    # By default considers accidental as Sharp
-        for key_int in range(12):
-            if scale[key_int] == 0: # In a scale the first key is NEVER an accidental
-                if major_scale[(key_int + tonic_key) % 12] == major_tonic_key:
-                    sharps_flats[(key_int + tonic_key) % 12] = major_tonic_key
-                    if real_accidental == 1 and major_scale[(key_int + 1 + tonic_key) % 12] == major_tonic_key:
-                        real_accidental = -1
-        sharps_flats = o.list_mul(sharps_flats, real_accidental)
-        return sharps_flats
-
     
     @staticmethod
     def sharps_or_flats_picker(tonic_key: int = 0, picker_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
         """
         This method returns all the Sharps or Flats for a given `tonic_key` on a specified `picker_scale`.
 
-        For example, `Scale.sharps_or_flats(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
+        For example, `Scale.sharps_or_flats_picker(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
 
         """
         sharps_or_flats: list[int] = [0] * 12
@@ -1375,8 +1353,8 @@ class Scale(Generic):
         source_key: int = 0
         for picker_key in range(12):
             if picker_scale[picker_key] == 1:
-                if source_scale[(tonic_key + source_key) % 12] != 1:    # There is always a white key after a black one (diatonic scales)
-                    source_key += 1
+                # There is always a white key after a black one (diatonic scales)
+                source_key += 1 ^ source_scale[(tonic_key + source_key) % 12]
                 sharps_or_flats[(tonic_key + source_key) % 12] = picker_key - source_key
                 source_key += 1 # Moves to the next key to be available
         return sharps_or_flats
