@@ -1204,6 +1204,13 @@ def test_sharps_and_flats_picker():
     Gb_flats  = [-1, +0, -1, +0, -1, +0, +0, -1, +0, -1, +0, -1]
     assert Scale.sharps_or_flats_picker(6, major_scale) == Gb_flats
 
+    #             C       D       E   F       G       A       B
+    Ab_flats  = [+0, +0, -1, +0, -1, +0, +0, +0, +0, -1, +0, -1]
+    assert Scale.sharps_or_flats_picker(8, major_scale) == Ab_flats
+
+    #             C       D       E   F       G       A       B
+    Bb_flats  = [+0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0, -1]
+    assert Scale.sharps_or_flats_picker(10, major_scale) == Bb_flats
 
 # test_sharps_and_flats_picker()
 
