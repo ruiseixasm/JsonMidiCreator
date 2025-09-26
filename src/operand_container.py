@@ -1709,24 +1709,6 @@ class Composition(Container):
 
                                 # note Measures to keep track of
                                 note_measure: int = int(note["position_on"] // beats_per_measure)
-
-                                # Where the Key Signature is plotted
-                                if note_measure not in staff_sharps_and_flats:
-                                    sharps_flats: int = note["sharps"]
-                                    if last_sharps_measure < 0 or staff_sharps_and_flats[last_sharps_measure] != sharps_flats:
-                                        staff_sharps_and_flats[note_measure] = sharps_flats
-                                        base_pitch: int = max_pitch - 12
-                                        if sharps_flats:
-                                            symbol: str = '♯'
-                                            if sharps_flats < 0: # Flattened
-                                                symbol = '♭'
-                                            for chromatic_pitch in range(base_pitch, base_pitch + 12):
-                                                if ou.KeySignature._sharps_and_flats[sharps_flats][chromatic_pitch % 12]:
-                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, symbol, ha='right', va='center', fontsize=10, fontweight='bold', color='black')
-                                        last_sharps_measure = note_measure
-                                else:
-                                    last_sharps_measure = note_measure
-
                                 flag_update_key_signature: bool = False
 
                                 if note_measure not in staff_modes:
@@ -1774,24 +1756,25 @@ class Composition(Container):
                                 else:
                                     last_tonic_key_measure = note_measure
 
-                                if flag_update_key_signature and note_measure not in staff_sharps_or_flats:
-                                    diatonic_mode_0: int = staff_modes[last_mode_measure]
-                                    diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
-                                    tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
-                                    scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
-                                    if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
-                                        staff_sharps_or_flats[note_measure] = scale_accidentals
-                                        
-                                        for accidental_key, accidental in enumerate(scale_accidentals):
-                                            chromatic_pitch: int = base_pitch + accidental_key
-                                            if accidental > 0:
-                                                chromatic_pitch += 1
-                                                self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
-                                            elif accidental < 0:
-                                                chromatic_pitch -= 1
-                                                self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                if note_measure not in staff_sharps_or_flats:
+                                    if flag_update_key_signature:
+                                        diatonic_mode_0: int = staff_modes[last_mode_measure]
+                                        diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
+                                        tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
+                                        scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
+                                        if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
+                                            staff_sharps_or_flats[note_measure] = scale_accidentals
+                                            
+                                            for accidental_key, accidental in enumerate(scale_accidentals):
+                                                chromatic_pitch: int = base_pitch + accidental_key
+                                                if accidental > 0:
+                                                    chromatic_pitch += 1
+                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                                elif accidental < 0:
+                                                    chromatic_pitch -= 1
+                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
 
-                                        last_sharps_or_flats_measure = note_measure
+                                            last_sharps_or_flats_measure = note_measure
                                 else:
                                     last_sharps_or_flats_measure = note_measure
 
