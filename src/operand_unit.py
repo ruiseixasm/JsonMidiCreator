@@ -761,6 +761,16 @@ class Degree(PitchParameter):
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
+    _string_to_degree: dict[str, int] = {
+        "i": 1,     "1": 1,     "tonic": 1,
+        "ii": 2,    "2": 2,     "supertonic": 2,
+        "iii": 3,   "3": 3,     "mediant": 3,
+        "iv": 4,    "4": 4,     "subdominant": 4,
+        "v": 5,     "5": 5,     "dominant": 5,
+        "vi": 6,    "6": 6,     "submediant": 6,
+        "vii": 7,   "7": 7,     "leading tone": 7
+    }
+
     def __eq__(self, other: any) -> bool:
         if other.__class__ == o.Operand:
             return True
@@ -963,15 +973,9 @@ class Degree(PitchParameter):
     
 
     def stringSetDegree(self, string: str) -> Self:
-        string = string.strip()
-        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
-            case "i"   | "tonic":                   self._unit = 1
-            case "ii"  | "supertonic":              self._unit = 2
-            case "iii" | "mediant":                 self._unit = 3
-            case "iv"  | "subdominant":             self._unit = 4
-            case "v"   | "dominant":                self._unit = 5
-            case "vi"  | "submediant":              self._unit = 6
-            case "vii" | "leading tone":            self._unit = 7
+        string = string.strip().lower()
+        if string in Degree._string_to_degree:
+            self._unit = Degree._string_to_degree[string]
         return self
 
 
