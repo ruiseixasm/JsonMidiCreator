@@ -1782,7 +1782,14 @@ class Composition(Container):
                                     if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
                                         staff_sharps_or_flats[note_measure] = scale_accidentals
                                         
-
+                                        for accidental_key, accidental in enumerate(scale_accidentals):
+                                            chromatic_pitch: int = base_pitch + accidental_key
+                                            if accidental > 0:
+                                                chromatic_pitch += 1
+                                                self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                            elif accidental < 0:
+                                                chromatic_pitch -= 1
+                                                self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
 
                                         last_sharps_or_flats_measure = note_measure
                                 else:
