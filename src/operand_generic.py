@@ -1369,10 +1369,10 @@ class Scale(Generic):
         source_key: int = 0
         for picker_key in range(12):
             if picker_scale[picker_key] == 1:
-                while source_scale[(tonic_key + source_key) % 12] != 1:
+                if source_scale[(tonic_key + source_key) % 12] != 1:    # There is always a white key after a black one (diatonic scales)
                     source_key += 1
                 sharps_or_flats[(tonic_key + source_key) % 12] = picker_key - source_key
-                source_key += 1 # Moves to next key available
+                source_key += 1 # Moves to the next key to be available
         return sharps_or_flats
     
 

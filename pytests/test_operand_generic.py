@@ -1233,9 +1233,9 @@ def test_sharps_and_flats_picker():
 
 
 
-    # #             C       D       E   F       G       A       B
-    # DS_sharps = [+0, +0, +1, +0, +0, +0, +0, +1, +0, +1, +0, +0]
-    # assert Scale.sharps_or_flats_picker(3, major_scale) == DS_sharps
+    #             C       D       E   F       G       A       B
+    DS_sharps = [+0, +0, +0, +0, -1, +0, +0, +0, +0, -1, +0, -1]
+    assert Scale.sharps_or_flats_picker(3, major_scale) == DS_sharps
 
 
 # test_sharps_and_flats_picker()
