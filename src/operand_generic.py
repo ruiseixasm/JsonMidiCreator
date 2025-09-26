@@ -1679,6 +1679,9 @@ class Scale(Generic):
     def get_tonic_key(scale: list[int]) -> int:
         return Scale._tonics[ max(0, Scale.get_scale_number( scale )) ]
 
+    def get_diatonic_scale(mode: int = 1) -> list[int]:
+        return Scale._scales[mode]
+
     @staticmethod
     def get_scale_number(scale: int | str | list = 0) -> int:
         match scale:

@@ -1649,12 +1649,15 @@ class Composition(Container):
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
                         ]
-                        staff_sharps_and_flats: dict[int, int] = {}
                         staff_modes: dict[int, int] = {}
                         staff_tonic_keys: dict[int, int] = {}
-                        last_sharps_measure: int = -1
+                        staff_sharps_or_flats: dict[int, list[int]] = {}
                         last_mode_measure: int = -1
                         last_tonic_key_measure: int = -1
+                        last_sharps_or_flats_measure: int = -1
+
+                        staff_sharps_and_flats: dict[int, int] = {}
+                        last_sharps_measure: int = -1
 
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
@@ -1724,6 +1727,8 @@ class Composition(Container):
                                 else:
                                     last_sharps_measure = note_measure
 
+                                flag_update_key_signature: bool = False
+
                                 if note_measure not in staff_modes:
                                     mode: int = note["mode"]
                                     if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode:
@@ -1746,6 +1751,7 @@ class Composition(Container):
                                             case 6:
                                                 mode_marker = 'Locrian'
                                         self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
+                                        flag_update_key_signature = True
                                         last_mode_measure = note_measure
                                 else:
                                     last_mode_measure = note_measure
@@ -1763,9 +1769,24 @@ class Composition(Container):
                                         else:
                                             tonic_marker += str(note['mode'])
                                         self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
+                                        flag_update_key_signature = True
                                         last_tonic_key_measure = note_measure
                                 else:
                                     last_tonic_key_measure = note_measure
+
+                                if flag_update_key_signature and note_measure not in staff_sharps_or_flats:
+                                    diatonic_mode_0: int = staff_modes[last_mode_measure]
+                                    diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
+                                    tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
+                                    scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
+                                    if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
+                                        staff_sharps_or_flats[note_measure] = scale_accidentals
+                                        
+
+
+                                        last_sharps_or_flats_measure = note_measure
+                                else:
+                                    last_sharps_or_flats_measure = note_measure
 
 
                                 # Where the bar accidentals are plotted
