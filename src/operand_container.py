@@ -1794,9 +1794,9 @@ class Composition(Container):
                                         alpha=color_alpha)
 
                                 if not printed_channel_number:
-                                    y_pos: int = note["pitch"] + 0.4
+                                    y_pos: int = note["pitch"] + 0.2
                                     x_pos = (float(note["position_on"]) + float(note["position_off"])) / 2
-                                    self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='center', fontsize=6,
+                                    self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
                                         color='black',  # Outline color
                                         path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                                         alpha=color_alpha)
@@ -1914,9 +1914,9 @@ class Composition(Container):
                         self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
                         if not printed_channel_number:
-                            y_pos: int = automation["value"] + 5
+                            y_pos: int = automation["value"] + 2
                             x_pos = automation["position"]
-                            self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='center', fontsize=6,
+                            self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
                                 color='black',  # Outline color
                                 path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                                 alpha=color_alpha)
