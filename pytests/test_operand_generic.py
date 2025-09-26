@@ -1200,3 +1200,43 @@ def test_sharps_and_flats():
 
 # test_sharps_and_flats()
 
+
+def test_sharps_and_flats_picker():
+    major_scale = Scale("Major") % list()
+
+    no_sharps_or_flats = [0] * 12
+    assert Scale.sharps_or_flats_picker(0, major_scale) == no_sharps_or_flats
+
+    #            C       D       E   F       G       A       B
+    D_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
+    assert Scale.sharps_or_flats_picker(2, major_scale) == D_sharps
+
+    #            C       D       E   F       G       A       B
+    E_sharps = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0]
+    assert Scale.sharps_or_flats_picker(4, major_scale) == E_sharps
+
+    #            C       D       E   F       G       A       B
+    F_flats  = [+0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1]
+    assert Scale.sharps_or_flats_picker(5, major_scale) == F_flats
+
+    #            C       D       E   F       G       A       B
+    G_sharp  = [+0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
+    assert Scale.sharps_or_flats_picker(7, major_scale) == G_sharp
+
+    #            C       D       E   F       G       A       B
+    A_sharp  = [+1, +0, +0, +0, +0, +1, +0, +1, +0, +0, +0, +0]
+    assert Scale.sharps_or_flats_picker(9, major_scale) == A_sharp
+
+    #            C       D       E   F       G       A       B
+    B_sharp  = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +1, +0, +0]
+    assert Scale.sharps_or_flats_picker(11, major_scale) == B_sharp
+
+
+
+    # #             C       D       E   F       G       A       B
+    # DS_sharps = [+0, +0, +1, +0, +0, +0, +0, +1, +0, +1, +0, +0]
+    # assert Scale.sharps_or_flats_picker(3, major_scale) == DS_sharps
+
+
+# test_sharps_and_flats_picker()
+

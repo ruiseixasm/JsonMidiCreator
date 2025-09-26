@@ -1364,17 +1364,15 @@ class Scale(Generic):
     
     @staticmethod
     def sharps_or_flats_picker(tonic_key: int = 0, picker_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
-        sharps_or_flats: list[int] = []
+        sharps_or_flats: list[int] = [0] * 12
         source_scale: tuple[int] = ou.KeySignature._major_scale
         source_key: int = 0
         for picker_key in range(12):
             if picker_scale[picker_key] == 1:
                 while source_scale[(tonic_key + source_key) % 12] != 1:
                     source_key += 1
-                sharps_or_flats.append(picker_key - source_key)
+                sharps_or_flats[(tonic_key + source_key) % 12] = picker_key - source_key
                 source_key += 1 # Moves to next key available
-            else:   # Picks nothing
-                sharps_or_flats.append(0)
         return sharps_or_flats
     
 
