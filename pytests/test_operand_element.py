@@ -326,7 +326,7 @@ def test_chord_mod():
     triad: Chord = Chord()  # As is it has no Scale, so, it uses the KeySignature
     settings << KeySignature() # Resets the default Key Scale to C Major being used by the triad (unowned by any clip)
     # Now we are using the E Major given the C Major Key Signature by changing the triad KeyScale itself
-    triad << KeySignature()
+    triad <<= KeySignature()
     print("------")
     three_notes = triad.get_component_elements()
     print(f"Key: {three_notes[0] % TargetKey() % str()}")

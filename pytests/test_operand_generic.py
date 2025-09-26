@@ -88,13 +88,17 @@ def test_pitch_tonic():
 
     pitch = Pitch()
     # Pitch keeps its own Key Signature
-    pitch << KeySignature(2) # Dorian is the 2nd in the Circle of fifths
+    pitch <<= KeySignature(2) # Dorian is the 2nd in the Circle of fifths
 
     assert pitch % TonicKey() == "C"
     pitch << None   # Resets the Tonic
     assert pitch % TonicKey() == "D"
 
-    settings << KeySignature()
+    new_pitch = Pitch(KeySignature(2))
+    assert new_pitch == pitch
+    assert new_pitch % TonicKey() == pitch % TonicKey()
+    assert new_pitch % od.Pipe(TonicKey()) == pitch % od.Pipe(TonicKey())
+    assert new_pitch._tonic_key == pitch._tonic_key
 
 # test_pitch_tonic()
 
@@ -1029,7 +1033,7 @@ def test_octave_matching():
     minor_d_pitch = Pitch()
     assert minor_d_pitch % TonicKey() == "C"
 
-    minor_d_pitch << KeySignature(Minor(), "b")
+    minor_d_pitch <<= KeySignature(Minor(), "b")
     assert minor_d_pitch % TonicKey() == "C"
     minor_d_pitch << None   # Resets the Tonic to D
     assert minor_d_pitch % TonicKey() == "D"
