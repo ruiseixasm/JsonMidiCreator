@@ -1364,6 +1364,12 @@ class Scale(Generic):
     
     @staticmethod
     def sharps_or_flats_picker(tonic_key: int = 0, picker_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
+        """
+        This method returns all the Sharps or Flats for a given `tonic_key` on a specified `picker_scale`.
+
+        For example, `Scale.sharps_or_flats(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
+
+        """
         sharps_or_flats: list[int] = [0] * 12
         source_scale: tuple[int] = ou.KeySignature._major_scale
         source_key: int = 0
