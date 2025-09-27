@@ -573,13 +573,13 @@ class Pitch(Generic):
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave_0 += gross_tonic_key // 12
         # There is still the need to match the Octave for the existing transpositions
-        return self.match_octave()
+        return self.match_octave_with_pitch()
 
 
-    def match_octave(self, move_octave = True) -> Self:
+    def match_octave_with_pitch(self, move_octave = True) -> Self:
         """
-        This method makes sure the Degree and Transposition pitches match the same Octave
-        while making degree_key and scale_key being in the same octave as tonic_int.
+        This method makes sure through the Degree and Transposition adjustment, that the Octave \
+            matches the respective pitch.
         """
         # Matches the Degree firstly
         degree_transposition: int = self.degree_transposition()
@@ -898,7 +898,7 @@ class Pitch(Generic):
                 new_tonic: int = (self._tonic_key + tonic_offset) % 12
                 tonic_line: int = self._tonic_key // 12
                 self._tonic_key = new_tonic + tonic_line * 12
-                self.match_octave(False)    # Keep actual octave (False)
+                self.match_octave_with_pitch(False)    # Keep actual octave (False)
 
             case float():
                 self << ou.Degree(operand)
@@ -911,7 +911,7 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
-                    self.match_octave(False)    # Keep actual octave (meaning False)
+                    self.match_octave_with_pitch(False)    # Keep actual octave (meaning False)
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
@@ -947,13 +947,13 @@ class Pitch(Generic):
                     degree_offset: ou.Degree = normalized_degree_8 - actual_degree
                     self += degree_offset
                 # There is still the need to match the Octave for the existing transpositions
-                self.match_octave(False)    # Keep actual octave (False)
+                self.match_octave_with_pitch()
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
                 self._degree_0 = 0.0    # Resets the degree to I
                 self._transposition = 0
-                self.match_octave(False)    # Keep actual octave (False)
+                self.match_octave_with_pitch() # Makes sure the pitch matches the octave
 
             case ou.Transposition():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
@@ -966,7 +966,7 @@ class Pitch(Generic):
                 new_transposition: int = operand._unit % scale_degrees
                 self._transposition += new_transposition - previous_transposition
                 # There is still the need to match the Octave for the existing transpositions
-                self.match_octave(False)    # Keep actual octave (False)
+                self.match_octave_with_pitch(False)    # Keep actual octave (False)
 
             case dict():
                 for octave, value in operand.items():
@@ -1016,12 +1016,12 @@ class Pitch(Generic):
             case ou.Degree():
                 new_degree: ou.Degree = ou.Degree(self._degree_0) + operand
                 self._degree_0 = new_degree % float()
-                self.match_octave()
+                self.match_octave_with_pitch()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
             case ou.Transposition() | ou.Tones():
                 self._transposition += operand._unit
-                self.match_octave()
+                self.match_octave_with_pitch()
             case ou.Key():
                 self.increment_tonic(operand._unit)
             case dict():
@@ -1047,12 +1047,12 @@ class Pitch(Generic):
             case ou.Degree():
                 new_degree: ou.Degree = ou.Degree(self._degree_0) - operand
                 self._degree_0 = new_degree % float()
-                self.match_octave()
+                self.match_octave_with_pitch()
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() - operand
             case ou.Transposition() | ou.Tones():
                 self._transposition -= operand._unit
-                self.match_octave()
+                self.match_octave_with_pitch()
             case ou.Key():
                 self.increment_tonic(-operand._unit)
             case dict():
