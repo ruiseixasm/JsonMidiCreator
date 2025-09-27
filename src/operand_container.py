@@ -1636,7 +1636,25 @@ class Composition(Container):
                             else:
                                 min_pitch -= 12
 
-                    # Shade black keys
+                    # Where the VERTICAL axis is defined - Chromatic Keys
+                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                    # Set MIDI note ticks with Middle C in bold
+                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                    
+                    # # Only show tick marks for octaves (pitch % 12 == 0)
+                    # for tick in self._ax.yaxis.get_major_ticks():
+                    #     if tick.get_loc() % 12 != 0:  # If not an octave
+                    #         tick.tick1line.set_visible(False)  # Hide left tick
+                    #         tick.tick2line.set_visible(False)  # Hide right tick
+
+                    y_labels = [
+                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
+                        for pitch in range(min_pitch, max_pitch + 1)
+                    ]  # Bold Middle C
+                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+                    # Shade and shorten black keys and enlarge B3 and C4 keys
                     for pitch in range(min_pitch, max_pitch + 1):
                         if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
                             self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
@@ -1655,9 +1673,6 @@ class Composition(Container):
                         last_mode_measure: int = -1
                         last_tonic_key_measure: int = -1
                         last_sharps_or_flats_measure: int = -1
-
-                        staff_sharps_and_flats: dict[int, int] = {}
-                        last_sharps_measure: int = -1
 
                         for note in channel_plotlist:
                             if type(note["self"]) is oe.Rest:
@@ -1805,25 +1820,6 @@ class Composition(Container):
                                     printed_channel_number = True
                                         
 
-                    # Where the VERTICAL axis is defined - Chromatic Keys
-                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
-                    # Set MIDI note ticks with Middle C in bold
-                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-                    
-                    # # Only show tick marks for octaves (pitch % 12 == 0)
-                    # for tick in self._ax.yaxis.get_major_ticks():
-                    #     if tick.get_loc() % 12 != 0:  # If not an octave
-                    #         tick.tick1line.set_visible(False)  # Hide left tick
-                    #         tick.tick2line.set_visible(False)  # Hide right tick
-
-                    y_labels = [
-                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
-                        for pitch in range(min_pitch, max_pitch + 1)
-                    ]  # Bold Middle C
-                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
-
-        
         # Plot Automations
         else:
 
