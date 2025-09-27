@@ -39,9 +39,9 @@ viola << Foreach("3", "7", "1", "4")
 cello = Note(Channel(14), Octave(3), 1/1, Velocity(70)) / 4 << Name("Cello")
 cello << Foreach("I", "iii", "vi", "iv")
 
-violin_2 >>= Smooth(True)
-viola >>= Smooth(True)
-cello >>= Smooth(True)
+violin_2 >>= Smooth()
+viola >>= Smooth()
+cello >>= Smooth(3)
 
 static_voicing: Part = Part([violin_1, violin_2, viola, cello])
 static_voicing * 4 << Name("Skip Wise Motion") >> Plot()

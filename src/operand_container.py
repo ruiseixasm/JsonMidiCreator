@@ -4053,34 +4053,56 @@ class Clip(Composition):  # Just a container of Elements
                 last_element = item
         return self
     
-    def smooth(self, first_note_based: bool = False) -> Self:
+    def smooth(self, algorithm_type: int = 1) -> Self:
         """
-        Adjusts each `Note` octave to have the closest pitch to the first or previous one.
+        Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
 
         Args:
-            first_note_based (bool): Sets if the first note is set as reference or the previous one.
+            algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
+
+                +------+---------------------------------------------------------------------------+
+                | Type | Description                                                               |
+                +------+---------------------------------------------------------------------------+
+                | 1    | Considers both pitch distances, from the first note and the previous one. |
+                | 2    | Considers only the previous note pitch distance.                          |
+                | 3    | Considers only the first note pitch distance.                             |
+                +------+---------------------------------------------------------------------------+
 
         Returns:
             Clip: The same self object with the items processed.
         """
         first_pitch: int | None = None
-        reference_pitch: int | None = None
+        previous_pitch: int | None = None
         for note in self._unmasked_items():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
+                note_pitch: int = note._pitch.pitch_int()
                 if first_pitch is None:
-                    reference_pitch = first_pitch = note._pitch.pitch_int()
+                    previous_pitch = first_pitch = note_pitch
                 else:
-                    note_pitch: int = note._pitch.pitch_int()
-                    delta_pitch: int = note_pitch - reference_pitch
+                    delta_pitch: int = note_pitch
+                    if algorithm_type == 3:
+                        delta_pitch -= first_pitch
+                    else:
+                        delta_pitch -= previous_pitch
                     octave_offset: int = delta_pitch // 12
                     remaining_delta: int = delta_pitch % 12
                     if remaining_delta > 6:
                         octave_offset += 1
                     elif remaining_delta < -6:
                         octave_offset -= 1
+                    if algorithm_type == 1:
+                        expected_pitch: int = note_pitch - octave_offset * 12
+                        alternative_pitch: int = expected_pitch
+                        if first_pitch > expected_pitch:
+                            alternative_pitch += 12
+                        else:
+                            alternative_pitch -= 12
+                        delta_expected_pitch: int = abs(expected_pitch - first_pitch) + abs(expected_pitch - previous_pitch)
+                        delta_alternative_pitch: int = abs(alternative_pitch - first_pitch) + abs(alternative_pitch - previous_pitch)
+                        if delta_alternative_pitch < delta_expected_pitch:
+                            octave_offset -= (alternative_pitch - expected_pitch) // 12
                     note -= ou.Octave(octave_offset)
-                    if not first_note_based:
-                        reference_pitch = note_pitch - octave_offset * 12
+                    previous_pitch = note_pitch - octave_offset * 12
         return self
 
 
