@@ -1441,6 +1441,42 @@ class Composition(Container):
         "#FF4081",  # Hot Pink                  16
     ]
 
+    _white_key_heigh: float = 1.0
+    _black_key_heigh: float = 1.0
+    _b3_key_heigh: float = 1.0
+    _c4_key_heigh: float = 1.0
+    _previous_black_keys: tuple[int] = (0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5)
+
+    def _pitch_to_y(pitch: float) -> float:
+        y: float = 0.0
+        pitch_int: int = int(pitch)
+        octaves: int = pitch_int // 12
+        y += octaves * (7 * Composition._white_key_heigh + 5 * Composition._black_key_heigh)
+        if pitch_int > 59:
+            y += Composition._b3_key_heigh - Composition._white_key_heigh
+            if pitch_int > 60:
+                y += Composition._c4_key_heigh - Composition._white_key_heigh
+        pitch_octave: int = pitch_int % 12
+        y += pitch_octave * Composition._white_key_heigh
+        y -= Composition._previous_black_keys[pitch_octave] \
+            * (Composition._white_key_heigh - Composition._black_key_heigh)
+        key_float: float = pitch - pitch_int
+        key_heigh: float = Composition._white_key_heigh
+        if pitch_int == 59:
+            key_heigh = Composition._b3_key_heigh
+        elif pitch_int == 60:
+            key_heigh = Composition._c4_key_heigh
+        elif o.is_black_key(pitch_int):
+            key_heigh = Composition._black_key_heigh
+        y += key_heigh / 2
+        y += key_heigh * key_float
+        return y
+
+    def _y_to_pitch(y: float) -> float:
+        pitch: float = 0.0
+    
+        return pitch
+
 
     def _plot_elements(self, plotlist: list[dict], time_signature: 'og.TimeSignature'):
         """

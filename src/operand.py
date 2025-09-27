@@ -43,10 +43,12 @@ def minutes_to_time_ms(minutes: Fraction) -> float:
     # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
     return round(float(minutes * 60_000), 3)
 
+#                           C      C#    D      D#    E      F      F#    G      G#    A      A#    B
+_black_keys: tuple[bool] = (False, True, False, True, False, False, True, False, True, False, True, False)
+
 def is_black_key(midi_note: int) -> bool:
     """Returns True if the given MIDI note is a black key."""
-    black_keys = {1, 3, 6, 8, 10}  # C#, D#, F#, G#, A#
-    return (midi_note % 12) in black_keys
+    return _black_keys[midi_note % 12]
 
 def list_increment(size: int = 4) -> list[int]:
     return [i for i in range(size)]
