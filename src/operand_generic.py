@@ -593,8 +593,7 @@ class Pitch(Generic):
             degree_degree_0: ou.Degree = ou.Degree(self._degree_0) - octave_offset * 7 # Offsets degree to negative
             self._degree_0 = degree_degree_0 % float()
             degree_transposition_accidentals -= octave_offset * 12  # Offsets transposition too
-            if move_octave:
-                self._octave_0 += octave_offset     # matches the Octave with the new Degree
+            self._octave_0 += octave_offset # matches the Octave with the new Degree
         # Matches the Transposition secondly
         scale_transposition: int = self.scale_transposition(degree_transposition_accidentals)
         if scale_transposition != 0:    # Optimization
@@ -609,8 +608,7 @@ class Pitch(Generic):
             scale_key: int = root_int + scale_transposition
             octave_offset: int = scale_key // 12
             self._transposition -= octave_offset * scale_degrees    # Offsets degree to negative
-            if move_octave:
-                self._octave_0 += octave_offset     # matches the Octave with the new Degree
+            self._octave_0 += octave_offset # matches the Octave with the new Degree
         return self
 
 
