@@ -22,24 +22,25 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
+settings << Tempo(160)
+
 ProgramChange(Channel(11), Program("Violin")) \
     + ProgramChange(Channel(12), Program("Violin")) \
     + ProgramChange(Channel(13), Program("Viola")) \
     + ProgramChange(Channel(14), Program("Cello")) >> Play()   # Sets the instruments
 
-violin_1 = Note(Channel(11), 1/1, Octave(5)) / 4 << Name("Violin 1")
+violin_1 = Note(Channel(11), 1/1, Octave(5), Velocity(90)) / 4 << Name("Violin 1")
 violin_1 << Foreach("1", "3", "6", "1")
 
-violin_2 = Note(Channel(12), Velocity(80), 1/1) / 4 << Name("Violin 2")
-violin_2 << Foreach("V", "vii", "iii", "vi")
+violin_2 = Note(Channel(12), 1/1, Velocity(70)) / 4 << Name("Violin 2")
+violin_2 << Foreach("V", "vii", "iii", "vi") << Nth(3)**Octave(5)
 
-viola = Note(Channel(13), 1/1) / 4 << Name("Viola")
+viola = Note(Channel(13), 1/1, Velocity(60)) / 4 << Name("Viola")
 viola << Foreach("3", "7", "1", "4")
 
-cello = Note(Channel(14), Octave(3), 1/1, Velocity(70)) / 4 << Name("Cello")
+cello = Note(Channel(14), Octave(3), 1/1, Velocity(60)) / 4 << Name("Cello")
 cello << Foreach("I", "iii", "vi", "iv")
 
-violin_2 >>= Smooth()
 viola >>= Smooth()
 cello >>= Smooth(3)
 
