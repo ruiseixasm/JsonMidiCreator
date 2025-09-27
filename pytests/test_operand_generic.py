@@ -757,9 +757,13 @@ def test_pitch_add():
     assert (pitch_2 + 2.0) % Octave() == 5
     pitch_2 % int() >> Print()
     assert pitch_2 % int() == Pitch("B") % int()
-    (pitch_2 + 2.0) % int() >> Print()        # 74
-    (Pitch("D") + 12) % int() >> Print()    # 74
-    assert pitch_2 + 2.0 == Pitch("D") + 12 # Next octave
+    print(f'Pitch("D"): {Pitch("D") % int()}')
+    assert Pitch("D") == 62 + 12    # "D" is set on G Major scale, so, it goes to next Octave (most expected outcome)
+    assert Pitch("D") + Octave(1) == 62 + 12 + 12
+    assert Pitch("D") + 12 == 62 + 12 + 12
+    (pitch_2 + 2.0) % int() >> Print()      # 74
+    (Pitch("D") + 12) % int() >> Print()    # 74 + 12 = 86
+    assert pitch_2 + 2.0 == Pitch("D")      # Next octave
 
     settings << KeySignature()
     assert pitch_1 << Sharp() == Pitch("A") + 1
@@ -1029,6 +1033,11 @@ def test_octave_matching():
             print(f" | Octave_0: {octave_0}, Octave: {pitch_0 % Octave() % int()}")
             assert octave_0 == pitch_int // 12
 
+# test_octave_matching()
+
+
+def test_degree_set():
+
     # Testing for the D minor Key Signature
     minor_d_pitch = Pitch()
     assert minor_d_pitch % TonicKey() == "C"
@@ -1037,19 +1046,22 @@ def test_octave_matching():
     assert minor_d_pitch % TonicKey() == "C"
     minor_d_pitch << None   # Resets the Tonic to D
     assert minor_d_pitch % TonicKey() == "D"
+    minor_d_pitch << KeySignature(Minor(), "b") # Resets the Tonic to D
+    assert minor_d_pitch % TonicKey() == "D"
     assert minor_d_pitch % RootKey() == "D"
     assert minor_d_pitch % Octave() == 4
-    minor_d_pitch << Degree("VII")
+    minor_d_pitch << Degree("VII")  # Because now D is the Tonic, "vii" goes to the next Octave
     assert minor_d_pitch % TonicKey() == "D"
     assert minor_d_pitch % RootKey() == "C"
     # Makes sure changing the Degree doesn't change the Octave
     print(f"Octave: {minor_d_pitch % Octave() % int()}")
-    assert minor_d_pitch % Octave() == 4
+    assert minor_d_pitch % Octave() == 5    # "vii" goes to the next Octave
 
     pitch_c = Pitch()
     pitch_b = pitch_c + Degree(6)   # 1 + 6 = 7
     pitch_bs = pitch_b + Degree(0.1)
-    pitch_bs_set = Pitch(7.1)
+    pitch_bs_set = Pitch(7.1)   # Same as Pitch(Degree(7.1))
+    assert pitch_bs_set == Degree(7.1)
 
     # Testing all still belong to the same Octave 4 except pitch_bs
     assert pitch_c == Octave(4)
@@ -1057,7 +1069,8 @@ def test_octave_matching():
     print(f'pitch_bs % Octave() % int(): {pitch_bs % Octave() % int()}')    # Shall be 4 and not 5 !!
     assert pitch_bs == Octave(5)
     print(f'pitch_bs_set % Octave() % int(): {pitch_bs_set % Octave() % int()}')    # Shall be 4 and not 5 !!
-    assert pitch_bs_set == Octave(4)
+    assert pitch_bs_set == RootKey("C") # B#4, same as the next C5
+    assert pitch_bs_set == Octave(5)    # goes to the next Octave because it's B#4, same as the next C5
 
     assert pitch_c == 1.0
     assert pitch_b == 7.0
@@ -1066,7 +1079,7 @@ def test_octave_matching():
     print(f'pitch_bs_set % float(): {pitch_bs_set % float()}')
     assert pitch_bs_set == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
 
-# test_octave_matching()
+# test_degree_set()
 
 
 def test_degree_float():

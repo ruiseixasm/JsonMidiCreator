@@ -942,7 +942,10 @@ class Pitch(Generic):
                     # Changes only the chromatic transposition
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    self._degree_0 = round(operand % float() - 1.0, 1)
+                    normalized_degree_8: ou.Degree = operand.copy( (operand._unit - 1) % 7 + 1 )
+                    actual_degree: ou.Degree = self % operand
+                    degree_offset: ou.Degree = normalized_degree_8 - actual_degree
+                    self += degree_offset
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave(False)    # Keep actual octave (False)
             
