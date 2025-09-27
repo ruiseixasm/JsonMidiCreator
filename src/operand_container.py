@@ -1470,7 +1470,6 @@ class Composition(Container):
             key_heigh = Composition._c4_key_heigh
         elif o.is_black_key(pitch_int):
             key_heigh = Composition._black_key_heigh
-        # y += key_heigh / 2
         y += key_heigh * key_float
         return y
 
@@ -1754,7 +1753,7 @@ class Composition(Container):
                                             height=bar_height, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 else:
-                                    self._ax.barh(y = self._pitch_to_y(note["pitch"]), width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y=note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
