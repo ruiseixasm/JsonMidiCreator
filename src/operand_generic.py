@@ -909,9 +909,9 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
-                    self.match_octave_with_pitch()
                 else:
                     self._tonic_key = operand._unit % 24
+                self.match_octave_with_pitch()
             case ou.RootKey():
                 degree, semitone = self.degree_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -940,10 +940,7 @@ class Pitch(Generic):
                     # Changes only the chromatic transposition
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    normalized_degree_8: ou.Degree = operand.copy( (operand._unit - 1) % 7 + 1 )
-                    actual_degree: ou.Degree = self % operand
-                    degree_offset: ou.Degree = normalized_degree_8 - actual_degree
-                    self += degree_offset
+                    self._degree_0 = round((operand % float() - 1) % 7, 1)
                 # There is still the need to match the Octave for the existing transpositions
                 self.match_octave_with_pitch()
             
@@ -951,7 +948,7 @@ class Pitch(Generic):
                 self._tonic_key = self._key_signature % ou.Key() % int()
                 self._degree_0 = 0.0    # Resets the degree to I
                 self._transposition = 0
-                self.match_octave_with_pitch() # Makes sure the pitch matches the octave
+                self.match_octave_with_pitch()
 
             case ou.Transposition():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
