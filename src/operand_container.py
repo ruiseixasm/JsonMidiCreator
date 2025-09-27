@@ -1445,21 +1445,23 @@ class Composition(Container):
     _black_key_heigh: float = 1.0
     _b3_key_heigh: float = 1.0
     _c4_key_heigh: float = 1.0
+    _octave_heigh: float = 7 * _white_key_heigh + 5 * _black_key_heigh
+    _white_above_black_heigh: float = _white_key_heigh - _black_key_heigh
     _previous_black_keys: tuple[int] = (0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5)
 
+    @staticmethod
     def _pitch_to_y(pitch: float) -> float:
         y: float = 0.0
         pitch_int: int = int(pitch)
         octaves: int = pitch_int // 12
-        y += octaves * (7 * Composition._white_key_heigh + 5 * Composition._black_key_heigh)
+        y += octaves * Composition._octave_heigh
         if pitch_int > 59:
             y += Composition._b3_key_heigh - Composition._white_key_heigh
             if pitch_int > 60:
                 y += Composition._c4_key_heigh - Composition._white_key_heigh
         pitch_octave: int = pitch_int % 12
         y += pitch_octave * Composition._white_key_heigh
-        y -= Composition._previous_black_keys[pitch_octave] \
-            * (Composition._white_key_heigh - Composition._black_key_heigh)
+        y -= Composition._previous_black_keys[pitch_octave] * Composition._white_above_black_heigh
         key_float: float = pitch - pitch_int
         key_heigh: float = Composition._white_key_heigh
         if pitch_int == 59:
@@ -1468,10 +1470,11 @@ class Composition(Container):
             key_heigh = Composition._c4_key_heigh
         elif o.is_black_key(pitch_int):
             key_heigh = Composition._black_key_heigh
-        y += key_heigh / 2
+        # y += key_heigh / 2
         y += key_heigh * key_float
         return y
 
+    @staticmethod
     def _y_to_pitch(y: float) -> float:
         pitch: float = 0.0
     
@@ -1751,7 +1754,7 @@ class Composition(Container):
                                             height=bar_height, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 else:
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    self._ax.barh(y = self._pitch_to_y(note["pitch"]), width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
                                             height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                                 if "middle_pitch" in note:
