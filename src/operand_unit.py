@@ -759,7 +759,7 @@ class Degree(PitchParameter):
         self._semitones: float = 0.0
         super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
 
-    _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
+    _degree = ("I", "ii", "iii", "IV", "V", "vi", "vii")
 
     _string_to_degree: dict[str, int] = {
         "i": 1,     "1": 1,     "tonic": 1,
@@ -768,7 +768,7 @@ class Degree(PitchParameter):
         "iv": 4,    "4": 4,     "subdominant": 4,
         "v": 5,     "5": 5,     "dominant": 5,
         "vi": 6,    "6": 6,     "submediant": 6,
-        "vii": 7,   "7": 7,     "leading tone": 7
+        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
     }
 
     def __eq__(self, other: any) -> bool:
