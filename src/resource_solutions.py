@@ -370,14 +370,11 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                elements_locus: list[og.Locus] = segmented_composition % [og.Locus()]
                 original_tempo: Fraction = og.settings % ra.Tempo() % Fraction()
                 new_tempo: Fraction = original_tempo + results[0]
                 tempo_ratio: Fraction = new_tempo / original_tempo
-                for locus in elements_locus:
-                    locus *= tempo_ratio
-                for element, locus in zip(segmented_composition, elements_locus):
-                    element << locus
+                for element in segmented_composition:
+                    element *= tempo_ratio
             return segmented_composition
 
         if not isinstance(title, str):
