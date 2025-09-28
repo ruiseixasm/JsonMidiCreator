@@ -22,6 +22,8 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
+settings << Tempo(90)
+
 read_notes = Note().read() << Name("Read Notes")
-read_notes >> Plot()
+read_notes * 4 >> Plot()
 
