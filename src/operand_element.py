@@ -737,8 +737,8 @@ class Element(o.Operand):
             event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
             if event.name in ("shift", "left shift", "right shift"):
                 if start_time is None:  # first press defines zero point
-                    start_time = time.time()
                     timings.append(0.0)
+                    start_time = time.time()
                 else:
                     timings.append((time.time() - start_time) * 1000)
             elif event.name == "enter" and event.event_type == "down":
