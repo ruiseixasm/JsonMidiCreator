@@ -20,6 +20,7 @@ from typing import Self
 from fractions import Fraction
 import enum
 import math
+import time
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -50,6 +51,12 @@ try:
 except ImportError:
     print(f"{RED}Error: The 'numpy' library is not installed.{RESET}")
     print("Please install it by running 'pip install numpy'.")
+try:
+    # pip install keyboard
+    import keyboard as kb
+except ImportError:
+    print(f"{RED}Error: The 'keyboard' library is not installed.{RESET}")
+    print("Please install it by running 'pip install keyboard'.")
 
 
 class Generic(o.Operand):
