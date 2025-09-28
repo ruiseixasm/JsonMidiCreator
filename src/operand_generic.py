@@ -3679,6 +3679,10 @@ class Settings(Generic):
     def beats_to_minutes(self, beats: Fraction) -> Fraction:
         return beats / self._tempo
 
+    def minutes_to_beats(self, minutes: Fraction) -> Fraction:
+        return minutes * self._tempo
+
+
     def __mod__(self, operand: o.T) -> o.T:
         import operand_element as oe
         match operand:
