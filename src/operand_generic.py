@@ -288,26 +288,52 @@ class Locus(Generic):
 
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        self_operand: any = self % operand
-        self_operand *= operand # Generic `self_operand`
-        self << self_operand
+        match operand:
+            case Fraction():
+                self._position_beats = ra.Position(self._position_beats) * operand % Fraction()
+                self._duration_beats = ra.Duration(self._duration_beats) * operand % Fraction()
+            case int():
+                self._position_beats = ra.Position(self._position_beats) * operand % Fraction()
+            case float():
+                self._duration_beats = ra.Duration(self._duration_beats) * operand % Fraction()
+            case _:
+                self_operand: any = self % operand
+                self_operand *= operand # Generic `self_operand`
+                self << self_operand
         return self
 
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if operand != Fraction(0):
-            self_operand: any = self % operand
-            self_operand /= operand # Generic `self_operand`
-            self << self_operand
+            match operand:
+                case Fraction():
+                    self._position_beats = ra.Position(self._position_beats) / operand % Fraction()
+                    self._duration_beats = ra.Duration(self._duration_beats) / operand % Fraction()
+                case int():
+                    self._position_beats = ra.Position(self._position_beats) / operand % Fraction()
+                case float():
+                    self._duration_beats = ra.Duration(self._duration_beats) / operand % Fraction()
+                case _:
+                    self_operand: any = self % operand
+                    self_operand /= operand # Generic `self_operand`
+                    self << self_operand
         return self
-
 
     def __ifloordiv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if operand != Fraction(0):
-            self_operand: any = self % operand
-            self_operand //= operand # Generic `self_operand`
-            self << self_operand
+            match operand:
+                case Fraction():
+                    self._position_beats = ra.Position(self._position_beats) // operand % Fraction()
+                    self._duration_beats = ra.Duration(self._duration_beats) // operand % Fraction()
+                case int():
+                    self._position_beats = ra.Position(self._position_beats) // operand % Fraction()
+                case float():
+                    self._duration_beats = ra.Duration(self._duration_beats) // operand % Fraction()
+                case _:
+                    self_operand: any = self % operand
+                    self_operand //= operand # Generic `self_operand`
+                    self << self_operand
         return self
 
 
