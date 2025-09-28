@@ -426,6 +426,8 @@ class Element(o.Operand):
                             new_clip.__imul__(self)
                     return new_clip
                 
+            case Fraction() | float():
+                self << self % og.Locus() * operand
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_measure: ra.Measure = self % ra.Measure()
@@ -497,6 +499,8 @@ class Element(o.Operand):
                             new_clip.__itruediv__(self)
                     return new_clip
                 
+            case Fraction() | float():
+                self << self % og.Locus() / operand
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_position_beats: Fraction = self._position_beats
@@ -578,6 +582,8 @@ class Element(o.Operand):
                             new_clip.__iadd__(self) # Special case
                     return new_clip
                 
+            case Fraction() | float():
+                self << self % og.Locus() // operand
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_position_beats: Fraction = self._position_beats
