@@ -43,6 +43,11 @@ def minutes_to_time_ms(minutes: Fraction) -> float:
     # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
     return round(float(minutes * 60_000), 3)
 
+def time_ms_to_minutes(time_ms: float) -> Fraction:
+    import operand_rational as ra
+    return ra.Minutes(time_ms / 60_000)._rational
+
+
 #                           C      C#    D      D#    E      F      F#    G      G#    A      A#    B
 _black_keys: tuple[bool] = (False, True, False, True, False, False, True, False, True, False, True, False)
 
