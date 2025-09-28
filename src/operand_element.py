@@ -20,6 +20,7 @@ from typing import Self
 from fractions import Fraction
 import json
 import enum
+import time
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -31,6 +32,17 @@ import operand_frame as of
 import operand_generic as og
 import operand_frame as of
 import operand_chaos as ch
+
+# Define ANSI escape codes for colors
+RED = "\033[91m"
+RESET = "\033[0m"
+
+try:
+    # pip install keyboard
+    import keyboard as kb
+except ImportError:
+    print(f"{RED}Error: The 'keyboard' library is not installed.{RESET}")
+    print("Please install it by running 'pip install keyboard'.")
 
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
