@@ -734,28 +734,30 @@ class Element(o.Operand):
 
         print("Press and release SHIFT for each Element. Press ENTER to stop.")
         while True:
-            event = kb.read_event()  # waits for any keyboard event
-            if event.name == "shift":
+            event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
+            if event.name in ("shift", "left shift", "right shift"):
                 if start_time is None:  # first press defines zero point
                     start_time = time.time()
-                timings.append(int((time.time() - start_time) * 1000))
-            elif event.name == "enter":
+                    timings.append(0.0)
+                else:
+                    timings.append((time.time() - start_time) * 1000)
+            elif event.name == "enter" and event.event_type == "down":
+                # If odd number of entries → last one must be a press without release
+                if len(timings) % 2 != 0:
+                    timings.append((time.time() - start_time) * 1000)
+            elif event.name == "enter" and event.event_type == "up":
                 break
-
-        # If odd number of entries → last one must be a press without release
-        if len(timings) % 2 != 0:
-            timings.append(int((time.time() - start_time) * 1000))
 
         new_elements: list[Element] = []
         for index, timing in enumerate(timings):
             minutes: Fraction = o.time_ms_to_minutes(timing)
             beats: Fraction = og.settings.minutes_to_beats(minutes)
             if index % 2 == 1:
-                new_elements[-1]._duration_beats = beats
+                new_elements[-1]._duration_beats = beats - new_elements[-1]._position_beats
             else:
                 new_elements.append(self.copy( ra.Position(beats) ))
 
-        new_clip: oc.Clip = Clip(self._get_time_signature())._extend(new_elements)
+        new_clip: oc.Clip = oc.Clip(self._get_time_signature())._extend(new_elements)
         return new_clip._sort_items()
 
 
