@@ -602,6 +602,7 @@ class RS_Clip(RS_Solutions):
 
     def set_parameter(self,
             iterations: int = 1,
+            triggers: list[int] | int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
             parameter: any = ou.Velocity(),
             title: str | None = None) -> Self:
@@ -610,13 +611,18 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                for single_element, single_result in zip(segmented_composition, results):
-                    single_element << single_result
+                segmented_composition << of.Foreach(*results)
             return segmented_composition
-
+        
+        if isinstance(triggers, list):
+            triggers = o.list_wrap(triggers, parameter)
+        elif isinstance(parameter, o.Operand):
+            triggers = parameter.copy(triggers)
+        else:
+            triggers = parameter
         if not isinstance(title, str):
             title = "Set Parameter"
-        return self.iterate(iterations, _iterator, chaos, parameter, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def operate_parameter(self,
