@@ -548,7 +548,7 @@ class Load(Serialization):
         folder: str = og.settings._folder
         if not isinstance(file_path, str):
             file_path = None
-        elif file_path.find('/') < 0 and file_path.find('\\') < 0:
+        else: # Folder is just a prefix
             file_path = folder + file_path
         return {} if file_path is None else c.loadJsonMidiCreator(file_path)
 
@@ -775,7 +775,7 @@ class Import(Playlist):
         folder: str = og.settings._folder
         if not isinstance(file_path, str):
             file_path = None
-        elif file_path.find('/') < 0 and file_path.find('\\') < 0:
+        else: # Folder is just a prefix
             file_path = folder + file_path
         return [] if file_path is None else c.loadJsonMidiPlay(file_path)
 
