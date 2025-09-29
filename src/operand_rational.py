@@ -448,7 +448,6 @@ class Tempo(Rational):
         return self
 
     def read(self) -> Self:
-        import operand_generic as og
         timings_ms: list[int] = []
         print("Press and release SHIFT for each Element. Press ENTER to stop.")
         while True:
