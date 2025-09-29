@@ -24,6 +24,9 @@ from JsonMidiCreator import *
 
 settings << Tempo(95) << Folder("examples/")
 
-read_notes = Load("timed_read_notes_clip_18bc_save.json")
-read_notes >> Plot()
+read_notes = Load("timed_read_notes_clip_18bc_save.json") << Title("Read Notes")
+read_notes >> Plot(block=False)
+
+quantized_notes = read_notes >> Quantize() << Steps(1) << Title("Quantized Notes")
+quantized_notes >> Plot()
 
