@@ -2256,10 +2256,12 @@ class Composition(Container):
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
+        # Where the plotting is done
         self._plot_elements(self._plot_lists[self._iteration], self._iterations[self._iteration]._time_signature)
 
         # Where the padding is set
         plt.tight_layout()
+
         plt.subplots_adjust(right=0.975)  # 2.5% right padding
         # Avoids too thick hatch lines
         plt.rcParams['hatch.linewidth'] = 3.00  # Where the HATCH thickness is set

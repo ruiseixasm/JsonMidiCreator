@@ -132,14 +132,14 @@ class RS_Clip(RS_Solutions):
                 composition._masked = masked
 
                 iteration_measures: list[int] = o.list_increment(self._measures)
+                previous_measures: list[int] = iteration_measures.copy()
                 if isinstance(triggers, list):
                     measure_triggers: list = triggers   # No need to copy, Chaos does the copy
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
                 for iteration_i, measure_iterations in enumerate(self._iterations):
-                    if measure_iterations == 0 and iteration_i > 0: # Already set once
-                        previous_measures: list[int] = o.list_add(iteration_measures, self._measures * (iteration_i - 1))
+                    if measure_iterations == 0:
                         new_composition *= new_composition * previous_measures
                     else:
                         composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
@@ -150,8 +150,9 @@ class RS_Clip(RS_Solutions):
                             results = measure_triggers >> chaos.iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
                             chaos.reset_tamers()
-                        else:
+                        else:   # measure_iterations < 0
                             new_composition *= segmented_composition
+                        previous_measures = o.list_add(iteration_measures, self._measures * iteration_i)
                 return new_composition
             return composition
         # Where the solution is set
