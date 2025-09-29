@@ -2405,6 +2405,11 @@ class Clip(Composition):  # Just a container of Elements
                 return index
         return None
 
+    def _unmasked_items(self) -> list['oe.Element']:
+        if self._masked:
+            return self._mask_items
+        return self._items
+
     def __getitem__(self, index: int | of.Frame) -> 'oe.Element':
         """
         Read Only method
@@ -3966,8 +3971,15 @@ class Clip(Composition):  # Just a container of Elements
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         amount_rational: Fraction = ra.Amount(amount) % Fraction()
         for single_element in self._unmasked_items():
-            element_position: Fraction = single_element._position_beats
-            unquantized_amount: Fraction = element_position % quantization_beats
+            # Position On
+            element_position_on: Fraction = single_element._position_beats
+            unquantized_amount: Fraction = element_position_on % quantization_beats
+            quantization_limit: int = round(unquantized_amount / quantization_beats)
+            position_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
+            single_element._position_beats += position_offset
+            # Position Off
+            element_position_off: Fraction = single_element._position_beats
+            unquantized_amount: Fraction = element_position_off % quantization_beats
             quantization_limit: int = round(unquantized_amount / quantization_beats)
             position_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
             single_element._position_beats += position_offset
@@ -4209,6 +4221,12 @@ class Part(Composition):
         if self._owner_song is None:
             return og.settings._time_signature
         return self._owner_song._time_signature
+
+
+    def _unmasked_items(self) -> list['Clip']:
+        if self._masked:
+            return self._mask_items
+        return self._items
 
 
     def __getitem__(self, key: str | int) -> 'Clip':
@@ -4827,6 +4845,12 @@ class Song(Composition):
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
+
+
+    def _unmasked_items(self) -> list['Part']:
+        if self._masked:
+            return self._mask_items
+        return self._items
 
 
     def __getitem__(self, key: int) -> 'Part':
