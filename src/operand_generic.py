@@ -2501,7 +2501,7 @@ class Save(ReadOnly):
                     file_path = folder + operand.composition_filename() + "_save.json"
                 else:
                     file_path = folder + "json/_Save_jsonMidiCreator.json"
-            elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+            elif file_path.find('/') < 0 and file_path.find('\\') < 0:
                 file_path = folder + file_path
             c.saveJsonMidiCreator(operand.getSerialization(), file_path)
             return operand
@@ -2529,7 +2529,7 @@ class Export(ReadOnly):
                         file_path = folder + operand.composition_filename() + "_export.json"
                     else:
                         file_path = folder + "json/_Export_jsonMidiPlayer.json"
-                elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+                elif file_path.find('/') < 0 and file_path.find('\\') < 0:
                     file_path = folder + file_path
                 playlist: list[dict] = self._clocked_playlist(operand)
                 c.saveJsonMidiPlay(playlist, file_path)
@@ -2558,7 +2558,7 @@ class Render(ReadOnly):
                     file_path = folder + operand.composition_filename() + "_render.mid"
                 else:
                     file_path = folder + "midi/_MidiExport_song.mid"
-            elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+            elif file_path.find('/') < 0 and file_path.find('\\') < 0:
                 file_path = folder + file_path
             c.saveMidiFile(operand.getMidilist(), file_path)
             return operand
