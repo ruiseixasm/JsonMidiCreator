@@ -247,6 +247,19 @@ class Inline(Data):
         return self # remains as an Inline operand
 
 
+class Folder(Data):
+    """`Data -> Folder`
+
+    This class sets the Folder path where the files will ba placed whenever just the filename is given.
+
+    Parameters
+    ----------
+    str("") : Sets the folder path where the files will be placed by Default.
+    """
+    def __init__(self, path: str = ""):
+        super().__init__(path)
+
+
 class Conditional(Data):
     """`Data -> Conditional`
 

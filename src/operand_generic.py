@@ -3662,6 +3662,7 @@ class Settings(Generic):
         self._clocked_devices: list[str]            = []
         self._clock_ppqn: int                       = 24
         self._clock_stop_mode: int                  = 0
+        self._folder: str                           = ""
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -3740,6 +3741,7 @@ class Settings(Generic):
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+                    case od.Folder():           return od.Folder(self._folder)
                     case _:                     return super().__mod__(operand)
             case ra.Tempo():            return ra.Tempo(self._tempo)
             case ra.Quantization():     return operand.copy(self._quantization)
@@ -3770,6 +3772,7 @@ class Settings(Generic):
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+            case od.Folder():           return od.Folder(self._folder)
             case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockStopModes())
             case Settings():
                 return operand.copy(self)
@@ -3794,7 +3797,8 @@ class Settings(Generic):
             and self._devices           == other._devices \
             and self._clocked_devices   == other._clocked_devices \
             and self._clock_ppqn        == other._clock_ppqn \
-            and self._clock_stop_mode   == other._clock_stop_mode
+            and self._clock_stop_mode   == other._clock_stop_mode \
+            and self._folder            == other._folder
     
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -3815,6 +3819,7 @@ class Settings(Generic):
         serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
         serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
         serialization["parameters"]["clock_stop_mode"]  = self.serialize( self._clock_stop_mode )
+        serialization["parameters"]["folder"]           = self.serialize( self._folder )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3824,8 +3829,8 @@ class Settings(Generic):
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel_0" in serialization["parameters"] and "devices" in serialization["parameters"] and
-            "clocked_devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"]):
+            "channel_0" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and 
+            "clock_ppqn" in serialization["parameters"] and "clock_stop_mode" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
@@ -3841,6 +3846,7 @@ class Settings(Generic):
             self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
             self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
             self._clock_stop_mode   = self.deserialize( serialization["parameters"]["clock_stop_mode"] )
+            self._folder            = self.deserialize( serialization["parameters"]["folder"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -3862,6 +3868,7 @@ class Settings(Generic):
                 self._clocked_devices   = operand._clocked_devices.copy()
                 self._clock_ppqn        = operand._clock_ppqn
                 self._clock_stop_mode   = operand._clock_stop_mode
+                self._folder            = operand._folder
             case od.Pipe():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
@@ -3877,6 +3884,7 @@ class Settings(Generic):
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
                     case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
+                    case od.Folder():           self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
@@ -3900,6 +3908,7 @@ class Settings(Generic):
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
+            case od.Folder():           self._folder = operand._data
             case oe.Clock():
                 self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockStopModes() )
             case tuple():
