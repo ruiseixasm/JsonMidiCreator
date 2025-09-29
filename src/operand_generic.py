@@ -2494,12 +2494,16 @@ class Save(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            if not isinstance(self._parameters, str):
+            file_path: str = self._parameters
+            folder: str = settings._folder
+            if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
-                    self._parameters = operand.composition_filename() + "_save.json"
+                    file_path = folder + operand.composition_filename() + "_save.json"
                 else:
-                    self._parameters = "json/_Save_jsonMidiCreator.json"
-            c.saveJsonMidiCreator(operand.getSerialization(), self._parameters)
+                    file_path = folder + "json/_Save_jsonMidiCreator.json"
+            elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+                file_path = folder + file_path
+            c.saveJsonMidiCreator(operand.getSerialization(), file_path)
             return operand
         return super().__rrshift__(operand)
 
