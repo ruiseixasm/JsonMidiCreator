@@ -3958,12 +3958,13 @@ class Clip(Composition):  # Just a container of Elements
         
         return self._sort_items()    # May be needed due to upper clips
     
-    def quantize(self, amount: float = 1.0) -> Self:
+    def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
         """
         Quantizes a `Clip` by a given amount from 0.0 to 1.0.
 
         Args:
             amount (float): The amount of quantization to apply from 0.0 to 1.0.
+            quantize_duration (bool): Includes the quantization of the `Duration` too.
 
         Returns:
             Clip: The same self object with the items processed.
@@ -3975,14 +3976,17 @@ class Clip(Composition):  # Just a container of Elements
             element_position_on: Fraction = single_element._position_beats
             unquantized_amount: Fraction = element_position_on % quantization_beats
             quantization_limit: int = round(unquantized_amount / quantization_beats)
-            position_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
-            single_element._position_beats += position_offset
+            position_on_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
+            single_element._position_beats += position_on_offset
             # Position Off
-            element_position_off: Fraction = single_element._position_beats
-            unquantized_amount: Fraction = element_position_off % quantization_beats
-            quantization_limit: int = round(unquantized_amount / quantization_beats)
-            position_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
-            single_element._position_beats += position_offset
+            if quantize_duration:
+                element_position_off: Fraction = single_element._position_beats + single_element._duration_beats
+                unquantized_amount = element_position_off % quantization_beats
+                quantization_limit = round(unquantized_amount / quantization_beats)
+                position_off_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
+                single_element._duration_beats += position_off_offset
+                if single_element._duration_beats == 0:
+                    single_element._duration_beats += quantization_beats
         return self
     
 

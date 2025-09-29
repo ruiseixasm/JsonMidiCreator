@@ -3262,12 +3262,13 @@ class Quantize(ClipProcess):
 
     Args:
         amount (float): The amount of quantization to apply from 0.0 to 1.0.
+        quantize_duration (bool): Includes the quantization of the `Duration` too.
     """
-    def __init__(self, amount: float = 1.0):
-        super().__init__(amount)
+    def __init__(self, amount: float = 1.0, quantize_duration: bool = False):
+        super().__init__((amount, quantize_duration))
 
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.quantize(self._parameters)
+        return operand.quantize(*self._parameters)
 
 
 class Decompose(ClipProcess):
