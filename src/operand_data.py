@@ -251,6 +251,8 @@ class Folder(Data):
     """`Data -> Folder`
 
     This class sets the Folder path where the files will ba placed whenever just the filename is given.
+    Always add the `/` termination char to the given folder path, for example, `improvisation/`, otherwise \
+        it will only change the filename by prepending it to the given one.
 
     Parameters
     ----------
