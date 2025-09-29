@@ -117,7 +117,7 @@ class RS_Clip(RS_Solutions):
     def iterate(self, iterations: int,
                 iterator: Callable[[list | int | float | Fraction, 'oc.Composition'], 'oc.Composition'],
                 chaos: ch.Chaos,
-                triggers: list | int | float | Fraction,
+                triggers_length: int,
                 title: str = "") -> Self:
         
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -133,8 +133,8 @@ class RS_Clip(RS_Solutions):
 
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 previous_measures: list[int] = []
-                if isinstance(triggers, list):
-                    measure_triggers: list = triggers   # No need to copy, Chaos does the copy
+                if triggers_length > 0:
+                    measure_triggers: list = [1] * triggers_length
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
@@ -145,8 +145,8 @@ class RS_Clip(RS_Solutions):
                         composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                         segmented_composition: oc.Composition = composition * composition_measures
                         if measure_iterations > 0:
-                            if not isinstance(triggers, list):
-                                measure_triggers: list = [triggers] * segmented_composition.len()
+                            if not triggers_length > 0:
+                                measure_triggers: list = [1] * segmented_composition.len()
                             results = measure_triggers >> chaos.iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
                             chaos.reset_tamers()
@@ -602,27 +602,24 @@ class RS_Clip(RS_Solutions):
 
     def set_parameter(self,
             iterations: int = 1,
-            triggers: list[int] | int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
             parameter: any = ou.Velocity(),
+            triggers_length: int = 0,
             title: str | None = None) -> Self:
         """
         Applies a given parameter with the given chaos.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                segmented_composition << of.Foreach(*results)
+                parameter_results: list = results
+                if isinstance(parameter, o.Operand):
+                    parameter_results = o.list_wrap(results, parameter)
+                segmented_composition << of.Foreach(*parameter_results)
             return segmented_composition
         
-        if isinstance(triggers, list):
-            triggers = o.list_wrap(triggers, parameter)
-        elif isinstance(parameter, o.Operand):
-            triggers = parameter.copy(triggers)
-        else:
-            triggers = parameter
         if not isinstance(title, str):
             title = "Set Parameter"
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
+        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
 
 
     def operate_parameter(self,
