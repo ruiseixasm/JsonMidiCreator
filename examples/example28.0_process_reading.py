@@ -32,6 +32,6 @@ quantized_notes >> Plot(block=False)
 
 match_pitch = RS_Clip(quantized_notes, [1, 0, 0, 0], 2)\
     .mask(Beat(0))\
-    .set_parameter(10, SinX(Increase(1)**Modulo(7)), Degree(), 3)\
+    .set_parameter(10, Degree(), SinX(Increase(1)**Modulo(7)), 3)\
     .unmask().solution()
 

@@ -173,7 +173,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "My N Button"
-        return self.iterate(iterations, _iterator, ch.Chaos(), [1], title)
+        return self.iterate(iterations, _iterator, ch.Chaos(), 1, title)
 
 
     def foreach_measure(self,
@@ -192,7 +192,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "Foreach Measure"
-        return self.iterate(iterations, _iterator, chaos, [1] * self._measures, title)
+        return self.iterate(iterations, _iterator, chaos, self._measures, title)
 
 
     def multi_splitter(self,
@@ -214,14 +214,12 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Multi Splitter"
-        triggers: list[int] = [1] * len(durations)
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
+        return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
     def rhythm_fast_quantized(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
-            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
@@ -237,7 +235,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Rhythm Fast Quantized"
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
+        return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
     def similar_motion(self,
@@ -270,7 +268,7 @@ class RS_Clip(RS_Solutions):
             title = f"Similar Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
     def contrary_motion(self,
             iterations: int = 1,
@@ -303,13 +301,13 @@ class RS_Clip(RS_Solutions):
             title = f"Contrary Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def tonality_conjunct(self,
             iterations: int = 1,
-            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
+            triggers_length: int = 7,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
@@ -321,20 +319,20 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Tonality Conjunct"
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
+        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
 
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
-            triggers: list[int] = [2, 4, 4, 2, 1, 1, 3],
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
+            triggers_length: int = 7,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each `Note` in Conjunct whole steps of 0 or 1 except in 25% of the times.
         """
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
-        return self.tonality_conjunct(iterations, triggers, chaos, title)
+        return self.tonality_conjunct(iterations, chaos, triggers_length, title)
 
 
     def shuffle_parameter(self,
@@ -359,7 +357,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Shuffle Parameter"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
     def match_time_signature(self,
@@ -380,7 +378,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Match Time Signature"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def sweep_sharps(self,
@@ -398,7 +396,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sweep Sharps"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def sweep_flats(self,
@@ -416,7 +414,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sweep Flats"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def sprinkle_accidentals(self,
@@ -447,7 +445,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Sprinkle Accidentals"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
     def fine_tune(self,
@@ -468,7 +466,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Fine Tune"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def single_wrapper(self,
@@ -492,7 +490,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Single Wrapper"
-        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
+        return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
     def multi_wrapper(self,
@@ -513,7 +511,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Multi Wrapper"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
     def swap_elements(self,
@@ -543,7 +541,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Swap Elements"
-        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
+        return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
     def swap_loci(self,
@@ -575,7 +573,7 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Swap Loci"
-        return self.iterate(iterations, _iterator, chaos, [1, 1], title)
+        return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
     def process_parameterization(self,
@@ -597,13 +595,13 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Process Parameterization"
-        return self.iterate(iterations, _iterator, chaos, [1], title)
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
     def set_parameter(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
             parameter: any = ou.Velocity(),
+            chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
             triggers_length: int = 0,
             title: str | None = None) -> Self:
         """
@@ -627,6 +625,7 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
             parameter: Any = ou.Degree(),
             operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
+            triggers_length: int = 0,
             title: str | None = None) -> Self:
         """
         Applies any operator between elements and computed values.
@@ -640,14 +639,17 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                for single_element, single_result in zip(segmented_composition, results):
-                    operator(single_element, single_result)  # Apply custom operator
+                parameter_results: list = results
+                if isinstance(parameter, o.Operand):
+                    parameter_results = o.list_wrap(results, parameter)
+                for index, single_element in enumerate(segmented_composition):
+                    operator(single_element, parameter_results[index % len(results)])  # Apply custom operator
             return segmented_composition
 
         if not isinstance(title, str):
             title = "Operate Parameter"
         
-        return self.iterate(iterations, _iterator, chaos, parameter, title)
+        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
 
 
 class RS_Part(RS_Solutions):
