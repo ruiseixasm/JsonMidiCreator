@@ -2547,12 +2547,16 @@ class Render(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            if not isinstance(self._parameters, str):
+            file_path: str = self._parameters
+            folder: str = settings._folder
+            if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
-                    self._parameters = operand.composition_filename() + "_render.mid"
+                    file_path = folder + operand.composition_filename() + "_render.mid"
                 else:
-                    self._parameters = "midi/_MidiExport_song.mid"
-            c.saveMidiFile(operand.getMidilist(), self._parameters)
+                    file_path = folder + "midi/_MidiExport_song.mid"
+            elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+                file_path = folder + file_path
+            c.saveMidiFile(operand.getMidilist(), file_path)
             return operand
         return super().__rrshift__(operand)
 
