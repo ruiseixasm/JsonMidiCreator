@@ -337,8 +337,8 @@ class RS_Clip(RS_Solutions):
 
     def shuffle_parameter(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(),
             parameter: Any = og.Locus(),
+            chaos: ch.Chaos = ch.SinX(),
             title: str | None = None) -> Self:
         """
         Shuffles a given parameter among the unmasked elements in the original `Composition`.
@@ -450,8 +450,8 @@ class RS_Clip(RS_Solutions):
 
     def fine_tune(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(33),
             tune_by: ra.Rational = ra.Step(1),
+            chaos: ch.Chaos = ch.SinX(33),
             title: str | None = None) -> Self:
         """
         Does a single tune, intended to do fine tunning in a chained sequence of tiny changes.
@@ -471,8 +471,8 @@ class RS_Clip(RS_Solutions):
 
     def single_wrapper(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(33),
             wrappers: list['oe.Element'] = [oe.Triplet(), oe.Cluster()],
+            chaos: ch.Chaos = ch.SinX(33),
             title: str | None = None) -> Self:
         """
         Wraps a single element in the `Clip` picked by `Chaos`.
@@ -578,9 +578,9 @@ class RS_Clip(RS_Solutions):
 
     def process_parameterization(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
             process: og.Process = og.Swap(),
             parameter: str = 'right',
+            chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
             title: str | None = None) -> Self:
         """
         Applies a given process with chaotic parametrization.
@@ -622,9 +622,9 @@ class RS_Clip(RS_Solutions):
 
     def operate_parameter(self,
             iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
             parameter: Any = ou.Degree(),
             operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
+            chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
             triggers_length: int = 0,
             title: str | None = None) -> Self:
         """
