@@ -28,5 +28,10 @@ read_notes = Load("timed_read_notes_clip_18bc_save.json") << Title("Read Notes")
 read_notes >> Plot(block=False)
 
 quantized_notes = read_notes >> Quantize(quantize_duration=True) << Title("Quantized Notes")
-quantized_notes >> Plot()
+quantized_notes >> Plot(block=False)
+
+match_pitch = RS_Clip(quantized_notes, [1, 0, 0, 0], 2)\
+    .mask(Beat(0))\
+    .set_parameter(10, chaos=SinX(Increase(1)**Modulo(7)), parameter=Degree())\
+    .unmask().solution()
 
