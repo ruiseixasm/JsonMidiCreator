@@ -737,11 +737,10 @@ class Element(o.Operand):
             event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
             if event.name in ("shift", "left shift", "right shift"):
                 timings_ms.append(int(time.time() * 1000))
-            elif event.name == "enter" and event.event_type == "down":
+            elif event.name == "enter":
                 # If odd number of entries → last one must be a press without release
                 if len(timings_ms) % 2 != 0:
                     timings_ms.append(int(time.time() * 1000))
-            elif event.name == "enter" and event.event_type == "up":
                 break
 
         if timings_ms:
