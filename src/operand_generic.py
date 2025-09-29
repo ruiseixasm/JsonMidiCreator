@@ -2518,13 +2518,17 @@ class Export(ReadOnly):
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
-                if not isinstance(self._parameters, str):
+                file_path: str = self._parameters
+                folder: str = settings._folder
+                if not isinstance(file_path, str):
                     if isinstance(operand, oc.Composition):
-                        self._parameters = operand.composition_filename() + "_export.json"
+                        file_path = folder + operand.composition_filename() + "_export.json"
                     else:
-                        self._parameters = "json/_Export_jsonMidiPlayer.json"
+                        file_path = folder + "json/_Export_jsonMidiPlayer.json"
+                elif not (file_path.find('/') < 0 and file_path.find('\\') < 0):
+                    file_path = folder + file_path
                 playlist: list[dict] = self._clocked_playlist(operand)
-                c.saveJsonMidiPlay(playlist, self._parameters)
+                c.saveJsonMidiPlay(playlist, file_path)
                 return operand
             case _:
                 return super().__rrshift__(operand)
