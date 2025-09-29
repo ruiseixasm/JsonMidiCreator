@@ -731,16 +731,16 @@ class Element(o.Operand):
         import operand_container as oc
         new_clip: oc.Clip = oc.Clip(self._get_time_signature())
 
-        timings_ms: list[float] = []
+        timings_ms: list[int] = []
         print("Press and release SHIFT for each Element. Press ENTER to stop.")
         while True:
             event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
             if event.name in ("shift", "left shift", "right shift"):
-                timings_ms.append(time.time() * 1000)
+                timings_ms.append(int(time.time() * 1000))
             elif event.name == "enter" and event.event_type == "down":
                 # If odd number of entries → last one must be a press without release
                 if len(timings_ms) % 2 != 0:
-                    timings_ms.append(time.time() * 1000)
+                    timings_ms.append(int(time.time() * 1000))
             elif event.name == "enter" and event.event_type == "up":
                 break
 
