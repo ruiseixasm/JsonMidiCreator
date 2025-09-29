@@ -543,7 +543,14 @@ class Load(Serialization):
 
     @staticmethod
     def load_operand_data(filename: str) -> dict:
-        return {} if filename is None else c.loadJsonMidiCreator(filename)
+        import operand_generic as og
+        file_path: str = filename
+        folder: str = og.settings._folder
+        if not isinstance(file_path, str):
+            file_path = None
+        elif file_path.find('/') < 0 and file_path.find('\\') < 0:
+            file_path = folder + file_path
+        return {} if file_path is None else c.loadJsonMidiCreator(file_path)
 
 
 class Playlist(Data):
