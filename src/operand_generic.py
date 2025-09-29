@@ -2801,6 +2801,33 @@ class Clear(Process):
             return operand.clear(*self._parameters)
         return super().__rrshift__(operand)
 
+class Read(Process):
+    """`Generic -> Process -> Read`
+
+    Reads the keyboard input. Press and release SHIFT for each Element. Press ENTER to stop.
+
+    Args:
+        None
+    """
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_element as oe
+        if isinstance(operand, (oe.Element, ra.Tempo)):
+            return self.__irrshift__(operand.copy())
+        else:
+            print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
+        return operand
+
+    def __irrshift__(self, operand: o.T) -> o.T:
+        import operand_element as oe
+        if isinstance(operand, (oe.Element, ra.Tempo)):
+            return self._process(operand)
+        else:
+            print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
+        return super().__rrshift__(operand)
+
+    def _process(self, operand: Union['Element', 'ra.Tempo']) -> Union['Clip', 'ra.Tempo']:
+        return operand.read()
+
 
 class ScaleProcess(Process):
     """`Generic -> Process -> ScaleProcess`
@@ -2857,41 +2884,6 @@ class Transpose(ScaleProcess):    # Chromatic Transposition
 
     def _process(self, operand: 'Scale') -> 'Scale':
         return operand.transpose(self._parameters)
-
-
-class ElementProcess(Process):
-    """`Generic -> Process -> ElementProcess`
-
-    Processes applicable exclusively to `Element` operands.
-    """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        if isinstance(operand, oe.Element):
-            return self.__irrshift__(operand.copy())
-        print(f"Warning: Operand is NOT an `Element`!")
-        return operand
-
-    def __irrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        if isinstance(operand, oe.Element):
-            return self._process(operand)
-        else:
-            print(f"Warning: Operand is NOT an `Element`!")
-        return super().__rrshift__(operand)
-
-    def _process(self, operand: o.T) -> o.T:
-        return operand
-
-class Read(ElementProcess):
-    """`Generic -> Process -> ElementProcess -> Read`
-
-    Reads the keyboard input. Press and release SHIFT for each Element. Press ENTER to stop.
-
-    Args:
-        None
-    """
-    def _process(self, operand: 'Element') -> 'Clip':
-        return operand.read()
 
 
 class ContainerProcess(Process):

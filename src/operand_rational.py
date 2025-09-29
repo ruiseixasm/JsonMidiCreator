@@ -19,6 +19,7 @@ from typing import Self
 
 from fractions import Fraction
 import re
+import time
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -27,6 +28,17 @@ import operand_unit as ou
 import operand_data as od
 import operand_frame as of
 import operand_label as ol
+
+# Define ANSI escape codes for colors
+RED = "\033[91m"
+RESET = "\033[0m"
+
+try:
+    # pip install keyboard
+    import keyboard as kb
+except ImportError:
+    print(f"{RED}Error: The 'keyboard' library is not installed.{RESET}")
+    print("Please install it by running 'pip install keyboard'.")
 
 
 class Rational(o.Operand):
@@ -433,6 +445,22 @@ class Tempo(Rational):
         super().__itruediv__(value)
         # Makes sure it's positive
         self._rational = max(Fraction(1), self._rational)
+        return self
+
+    def read(self) -> Self:
+        import operand_generic as og
+        timings_ms: list[int] = []
+        print("Press and release SHIFT for each Element. Press ENTER to stop.")
+        while True:
+            event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
+            if event.name in ("shift", "left shift", "right shift") and event.event_type == "down":
+                timings_ms.append(int(time.time() * 1000))
+                if len(timings_ms) > 1:
+                    time_minutes: Fraction = o.time_ms_to_minutes(timings_ms[-1] - timings_ms[-2])
+                    self._rational = 1 / time_minutes
+                    print(f"Tempo: {round(float(self._rational), 1)} bpm")
+            elif event.name == "enter" and event.event_type == "down":
+                break
         return self
 
 
