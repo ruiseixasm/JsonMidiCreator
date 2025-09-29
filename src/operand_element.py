@@ -729,36 +729,37 @@ class Element(o.Operand):
 
     def read(self) -> 'Clip':
         import operand_container as oc
-        timings: list[float] = []
-        start_time: float | None = None
+        new_clip: oc.Clip = oc.Clip(self._get_time_signature())
 
+        timings_ms: list[float] = []
         print("Press and release SHIFT for each Element. Press ENTER to stop.")
         while True:
             event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
             if event.name in ("shift", "left shift", "right shift"):
-                if start_time is None:  # first press defines zero point
-                    timings.append(0.0)
-                    start_time = time.time()
-                else:
-                    timings.append((time.time() - start_time) * 1000)
+                timings_ms.append(time.time() * 1000)
             elif event.name == "enter" and event.event_type == "down":
                 # If odd number of entries → last one must be a press without release
-                if len(timings) % 2 != 0:
-                    timings.append((time.time() - start_time) * 1000)
+                if len(timings_ms) % 2 != 0:
+                    timings_ms.append(time.time() * 1000)
             elif event.name == "enter" and event.event_type == "up":
                 break
 
-        new_elements: list[Element] = []
-        for index, timing in enumerate(timings):
-            minutes: Fraction = o.time_ms_to_minutes(timing)
-            beats: Fraction = og.settings.minutes_to_beats(minutes)
-            if index % 2 == 1:
-                new_elements[-1]._duration_beats = beats - new_elements[-1]._position_beats
-            else:
-                new_elements.append(self.copy( ra.Position(beats) ))
+        if timings_ms:
 
-        new_clip: oc.Clip = oc.Clip(self._get_time_signature())._extend(new_elements)
-        return new_clip._sort_items()
+            timings_beats: list[Fraction] = [
+                og.settings.minutes_to_beats(o.time_ms_to_minutes(time_ms - timings_ms[0]))
+                for time_ms in timings_ms
+            ]
+            
+            new_elements: list[Element] = []
+            for index, beats in enumerate(timings_beats):
+                if index % 2 == 1:
+                    new_elements[-1]._duration_beats = beats - new_elements[-1]._position_beats
+                else:
+                    new_elements.append(self.copy( ra.Position(beats) ))
+
+            new_clip._extend(new_elements)._sort_items()
+        return new_clip
 
 
 class Unison(Element):
