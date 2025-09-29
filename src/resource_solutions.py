@@ -132,7 +132,7 @@ class RS_Clip(RS_Solutions):
                 composition._masked = masked
 
                 iteration_measures: list[int] = o.list_increment(self._measures)
-                previous_measures: list[int] = iteration_measures.copy()
+                previous_measures: list[int] = []
                 if isinstance(triggers, list):
                     measure_triggers: list = triggers   # No need to copy, Chaos does the copy
                 results: list = None
