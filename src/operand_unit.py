@@ -979,7 +979,7 @@ class Degree(PitchParameter):
             try:
                 self << float(string)
             except ValueError:
-                print(f"Conversion failed: '{string}' is not a valid degree.")
+                pass
         return self
 
 
