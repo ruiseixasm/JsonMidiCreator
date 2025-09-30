@@ -1674,22 +1674,30 @@ class Composition(Container):
                             else:
                                 min_pitch -= 12
 
-                    # Where the VERTICAL axis is defined - Chromatic Keys
-                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
                     # Set MIDI note ticks with Middle C in bold
                     self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-                    
+                    self._ax.tick_params(axis='y', which='both', length=0)
+
                     # # Only show tick marks for octaves (pitch % 12 == 0)
                     # for tick in self._ax.yaxis.get_major_ticks():
                     #     if tick.get_loc() % 12 != 0:  # If not an octave
                     #         tick.tick1line.set_visible(False)  # Hide left tick
                     #         tick.tick2line.set_visible(False)  # Hide right tick
 
+                    # Where the VERTICAL axis is defined - Chromatic Keys
+                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                    
                     y_labels = [
                         chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
                         for pitch in range(min_pitch, max_pitch + 1)
                     ]  # Bold Middle C
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+
+                    # Adjust alignment and shift
+                    for label in self._ax.get_yticklabels():
+                        label.set_horizontalalignment("right")  # right-align text
+                        label.set_x(-0.005)                     # shift a bit left (tweak as needed)
+
                     self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
                     # Shade and shorten black keys and enlarge B3 and C4 keys
@@ -1785,7 +1793,7 @@ class Composition(Container):
                                                 mode_marker = 'Mixolydian'
                                             case 6:
                                                 mode_marker = 'Locrian'
-                                        self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
+                                        self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
                                         flag_update_key_signature = True
                                         last_mode_measure = note_measure
                                 else:
@@ -1796,14 +1804,7 @@ class Composition(Container):
                                     if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
                                         staff_tonic_keys[note_measure] = tonic_key
                                         base_pitch: int = max_pitch - 12
-                                        tonic_marker: str = 'T'
-                                        if note['mode'] == 0:
-                                            tonic_marker += 'M'
-                                        elif note['mode'] == 5:
-                                            tonic_marker += 'm'
-                                        else:
-                                            tonic_marker += str(note['mode'])
-                                        self._ax.text(float(note_measure * beats_per_measure) + 0.1, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
+                                        self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
                                         flag_update_key_signature = True
                                         last_tonic_key_measure = note_measure
                                 else:
@@ -1823,11 +1824,11 @@ class Composition(Container):
                                                 if accidental > 0:
                                                     accidental_key += 1
                                                     chromatic_pitch += accidental_key % 12
-                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
                                                 elif accidental < 0:
                                                     accidental_key -= 1
                                                     chromatic_pitch += accidental_key % 12
-                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.1, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
 
                                             last_sharps_or_flats_measure = note_measure
                                 else:
