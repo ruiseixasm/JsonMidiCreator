@@ -1637,7 +1637,7 @@ class Scale(Generic):
         ["Blues", "blues"],
         ["Whole-tone", "Whole tone", "Whole", "whole"]
     ]
-    
+
     _scales: list[list[int]] = [
     #       Db    Eb       Gb    Ab    Bb
     #       C#    D#       F#    G#    A#
@@ -3103,20 +3103,20 @@ class Recur(ContainerProcess):
 class Rotate(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Rotate`
 
-    Rotates a given parameter by a given offset, by other words,
+    Rotates a given parameter by a given right amount, by other words,
     does a displacement for each Element in the Container list of
-    a chosen parameter by the offset amount.
+    a chosen parameter by the given right amount. Clockwise.
 
     Args:
-        a (int): The offset amount of the list index, displacement.
-        b (type): The type of parameter being displaced, rotated.
+        right (int): The right amount of the list index, displacement.
+        parameter (type): The type of parameter being displaced, rotated.
     """
     from operand_rational import Position
 
-    def __init__(self, offset: int = 1, parameter: type = Position):
-        super().__init__([offset, parameter])
+    def __init__(self, right: int = 1, parameter: type = ra.Position):
+        super().__init__([right, parameter])
         self._indexes = {
-            'offset': 0, 'parameter': 1
+            'left': 0, 'parameter': 1
         }
 
     def _process(self, operand: 'Container') -> 'Container':

@@ -855,14 +855,14 @@ class Container(o.Operand):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
         return self._sort_items()
 
-    def rotate(self, left: int = 1, parameter: type = ra.Position) -> Self:
+    def rotate(self, right: int = 1, parameter: type = ra.Position) -> Self:
         """
-        Rotates a given parameter by a given left amount, by other words,
+        Rotates a given parameter by a given right amount, by other words,
         does a displacement for each Element in the Container list of
-        a chosen parameter by the given left amount. Counterclockwise.
+        a chosen parameter by the given right amount. Clockwise.
 
         Args:
-            left (int): The left amount of the list index, displacement.
+            right (int): The right amount of the list index, displacement.
             parameter (type): The type of parameter being displaced, rotated.
 
         Returns:
@@ -872,24 +872,24 @@ class Container(o.Operand):
         if isinstance(parameter_instance, od.Pipe):
             items: list = []
             for _ in len(self._items):
-                item_index: int = left % len(self._items)
+                item_index: int = right % len(self._items)
                 items.append(self._items[item_index])   # No need to copy
-                left += 1
+                right += 1
             # Remove previous Elements from the Container stack
             self._delete(self._items, True) # deletes by id, safer
             # Finally adds the decomposed elements to the Container stack
             self._extend(items)
         else:
             parameters: list = []
-            for operand in self:
+            for operand in self._unmasked_items():
                 if isinstance(operand, o.Operand):
                     parameters.append( operand % parameter_instance )
                 else:
                     parameters.append( ol.Null() )
-            for operand in self:
+            for operand in self._unmasked_items():
                 if isinstance(operand, o.Operand):
-                    operand << parameters[ left % len(parameters) ]
-                left += 1
+                    operand << parameters[ right % len(parameters) ]
+                right += 1
         return self._sort_items()
 
 
