@@ -908,7 +908,7 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.KeySignature() | ou.Quality():
                 self._key_signature << operand
-                self._tonic_key = operand % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case int():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.pitch_int()
