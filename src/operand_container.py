@@ -3548,12 +3548,15 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The self object with the chosen parameter displaced.
         """
-        if right > Fraction(0):     # Clockwise
-            first_measure: int = self.start() % ra.Measure()
-            
-            ...
-        elif right < Fraction(0):   # Counterclockwise
-            ...
+        if self.len() > 0:
+            if right > Fraction(0):     # Clockwise
+                first_measure: int = self.start() % ra.Measure()
+                last_element_position: ra.Position = self._last_element_position()
+                measures_length: ra.Length = ra.Length(last_element_position)
+                self_finish: ra.Position = self.finish()
+                ...
+            elif right < Fraction(0):   # Counterclockwise
+                ...
 
         return self._sort_items()
 
