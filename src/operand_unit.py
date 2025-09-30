@@ -1558,16 +1558,14 @@ class Size(Unit):
     _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
 
     def stringToNumber(self, string: str):
-        size = re.findall(r"\d+", string)
-        if len(size) > 0:
-            match size[0].lower():
-                case "1st":     self._unit = 1
-                case "3rd":     self._unit = 2
-                case "5th":     self._unit = 3
-                case "7th":     self._unit = 4
-                case "9th":     self._unit = 5
-                case "11th":    self._unit = 6
-                case "13th":    self._unit = 7
+        match string.strip().lower():
+            case "1st":     self._unit = 1
+            case "3rd":     self._unit = 2
+            case "5th":     self._unit = 3
+            case "7th":     self._unit = 4
+            case "9th":     self._unit = 5
+            case "11th":    self._unit = 6
+            case "13th":    self._unit = 7
 
     @staticmethod
     def numberToString(number: int) -> str:

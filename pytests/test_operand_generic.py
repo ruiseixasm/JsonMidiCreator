@@ -1082,6 +1082,12 @@ def test_degree_set():
 # test_degree_set()
 
 
+def test_quality_set():
+
+    default_pitch = Pitch()
+    assert default_pitch._scale == []
+
+
 def test_degree_float():
 
     pitch_degree: Pitch = Pitch()

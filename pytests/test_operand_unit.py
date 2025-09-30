@@ -222,3 +222,14 @@ def test_degree_set():
     assert Degree(-0.8) == +0.8
     assert Degree(-0.7) == +0.7 # 0 is always positive!
     assert Degree(-0.1) == +0.1 # 0 is always positive!
+
+
+def test_size_set():
+    size = Size()
+    assert size % int() == 3
+
+    size << "7th"
+    assert size % int() == 4
+
+# test_size_set()
+
