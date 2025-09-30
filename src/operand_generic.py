@@ -1560,32 +1560,6 @@ class Scale(Generic):
             self._scale    = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
-
-    def modulate(self, mode: int | str = "5th") -> Self: # AKA as remode (remoding)
-        modulated_scale: list[int] = self._scale.copy()
-        if isinstance(self._scale, list) and len(self._scale) == 12:
-            mode_int = 1 if mode is None else ou.Mode(mode) % int()
-            tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
-            modulation = 0
-            if isinstance(self._scale, list) and len(self._scale) == 12:
-                while tones > 0:
-                    modulation += 1
-                    tones -= self._scale[modulation % 12]
-            if modulation != 0:
-                for key_i in range(12):
-                    modulated_scale[key_i] = self._scale[(key_i + modulation) % 12]
-        self._scale = modulated_scale
-        return self
-    
-    def transpose(self, semitones: int = 7) -> Self:
-        if isinstance(self._scale, list) and len(self._scale) == 12:
-            transposed_scale: list[int] = self._scale.copy()
-            for key_i in range(12):
-                transposed_scale[(key_i + semitones) % 12] = self._scale[key_i]
-            self._scale = transposed_scale
-        return self
-    
-
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -1615,16 +1589,42 @@ class Scale(Generic):
             case _: super().__lshift__(operand)
         return self
 
+
+    def modulate(self, mode: int | str = "5th") -> Self: # AKA as remode (remoding)
+        modulated_scale: list[int] = self._scale.copy()
+        if isinstance(self._scale, list) and len(self._scale) == 12:
+            mode_int = 1 if mode is None else ou.Mode(mode) % int()
+            tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
+            modulation = 0
+            if isinstance(self._scale, list) and len(self._scale) == 12:
+                while tones > 0:
+                    modulation += 1
+                    tones -= self._scale[modulation % 12]
+            if modulation != 0:
+                for key_i in range(12):
+                    modulated_scale[key_i] = self._scale[(key_i + modulation) % 12]
+        self._scale = modulated_scale
+        return self
+    
+    def transpose(self, semitones: int = 7) -> Self:
+        if isinstance(self._scale, list) and len(self._scale) == 12:
+            transposed_scale: list[int] = self._scale.copy()
+            for key_i in range(12):
+                transposed_scale[(key_i + semitones) % 12] = self._scale[key_i]
+            self._scale = transposed_scale
+        return self
+    
+
     _names: list[list[str]] = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
-        ["Dorian", "dorian", "D", "2", "2nd", "Second"],
-        ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
-        ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
-        ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
-        ["minor", "min", "m", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
-        ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
+        ["Major", "Maj", "maj", "M", "Ionian", "ionian"],
+        ["Dorian", "dorian"],
+        ["Phrygian", "phrygian"],
+        ["Lydian", "lydian"],
+        ["Mixolydian", "mixolydian"],
+        ["minor", "min", "m", "Aeolian", "aeolian"],
+        ["Locrian", "locrian"],
         # Other Scales
         ["harmonic"],
         ["melodic"],
@@ -1637,6 +1637,7 @@ class Scale(Generic):
         ["Blues", "blues"],
         ["Whole-tone", "Whole tone", "Whole", "whole"]
     ]
+    
     _scales: list[list[int]] = [
     #       Db    Eb       Gb    Ab    Bb
     #       C#    D#       F#    G#    A#

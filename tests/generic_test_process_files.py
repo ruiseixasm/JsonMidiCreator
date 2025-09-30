@@ -351,7 +351,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13.3_sequence.json")
 start_time = time.time()
-Chord("G") << Size("13th") << Scale("5th") << Duration(8.0) << Octave(3) \
+Chord("G") << Size("13th") << Scale("Mixolydian") << Duration(8.0) << Octave(3) \
     >> og.LeftShift(result_save) >> og.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
