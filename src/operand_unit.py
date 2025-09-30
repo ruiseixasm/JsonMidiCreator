@@ -143,7 +143,6 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
-        import operand_element as oe
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Unit():
@@ -976,6 +975,11 @@ class Degree(PitchParameter):
         string = string.strip().lower()
         if string in Degree._string_to_degree:
             self._unit = Degree._string_to_degree[string]
+        else:
+            try:
+                self << float(string)
+            except ValueError:
+                print(f"Conversion failed: '{string}' is not a valid float.")
         return self
 
 
