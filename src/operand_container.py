@@ -3536,6 +3536,27 @@ class Clip(Composition):  # Just a container of Elements
 
         return self
     
+    
+    def shift(self, right: ra.Position | ra.TimeUnit = ra.Step(1)) -> Self:
+        """
+        Does a time shift in a rotative fashion by doing a positional displacement of each `Element`
+        in the `Clip` list by the given amount. Clockwise.
+
+        Args:
+            right (Position(Step(1))): The right amount of the list index, displacement.
+
+        Returns:
+            Clip: The self object with the chosen parameter displaced.
+        """
+        if right > Fraction(0):     # Clockwise
+            first_measure: int = self.start() % ra.Measure()
+            
+            ...
+        elif right < Fraction(0):   # Counterclockwise
+            ...
+
+        return self._sort_items()
+
 
     def reverse(self, ignore_empty_measures: bool = True) -> Self:
         """
