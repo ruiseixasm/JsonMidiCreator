@@ -256,7 +256,7 @@ class Folder(Data):
 
     Parameters
     ----------
-    str("") : Sets the folder path where the files will be placed by Default.
+    str("") : Sets the folder path where the files will be placed by Default (filename prefix).
     """
     def __init__(self, path: str = ""):
         if not isinstance(path, str):
