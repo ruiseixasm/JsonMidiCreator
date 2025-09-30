@@ -117,7 +117,7 @@ class RS_Clip(RS_Solutions):
     def iterate(self, iterations: int,
                 iterator: Callable[[list | int | float | Fraction, 'oc.Composition'], 'oc.Composition'],
                 chaos: ch.Chaos,
-                triggers_length: int,
+                triggers: int,
                 title: str = "") -> Self:
         
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -133,8 +133,8 @@ class RS_Clip(RS_Solutions):
 
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 previous_measures: list[int] = []
-                if triggers_length > 0:
-                    measure_triggers: list = [1] * triggers_length
+                if triggers > 0:
+                    measure_triggers: list = [1] * triggers
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
@@ -145,7 +145,7 @@ class RS_Clip(RS_Solutions):
                         composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
                         segmented_composition: oc.Composition = composition * composition_measures
                         if measure_iterations > 0:
-                            if not triggers_length > 0:
+                            if not triggers > 0:
                                 measure_triggers: list = [1] * segmented_composition.len()
                             results = measure_triggers >> chaos.iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
@@ -307,7 +307,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
-            triggers_length: int = 7,
+            triggers: int = 7,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
@@ -319,20 +319,20 @@ class RS_Clip(RS_Solutions):
 
         if not isinstance(title, str):
             title = "Tonality Conjunct"
-        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
-            triggers_length: int = 7,
+            triggers: int = 7,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each `Note` in Conjunct whole steps of 0 or 1 except in 25% of the times.
         """
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
-        return self.tonality_conjunct(iterations, chaos, triggers_length, title)
+        return self.tonality_conjunct(iterations, chaos, triggers, title)
 
 
     def shuffle_parameter(self,
@@ -602,7 +602,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             parameter: any = ou.Velocity(),
             chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
-            triggers_length: int = 0,
+            triggers: int = 0,
             title: str | None = None) -> Self:
         """
         Applies a given parameter with the given chaos.
@@ -617,7 +617,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "Set Parameter"
-        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
     def operate_parameter(self,
@@ -625,7 +625,7 @@ class RS_Clip(RS_Solutions):
             parameter: Any = ou.Degree(),
             operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
             chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
-            triggers_length: int = 0,
+            triggers: int = 0,
             title: str | None = None) -> Self:
         """
         Applies any operator between elements and computed values.
@@ -649,7 +649,7 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Operate Parameter"
         
-        return self.iterate(iterations, _iterator, chaos, triggers_length, title)
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
 class RS_Part(RS_Solutions):
