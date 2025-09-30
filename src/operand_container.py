@@ -1538,6 +1538,7 @@ class Composition(Container):
 
                 # Set MIDI channel ticks with Middle C in bold
                 self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
+                self._ax.tick_params(axis='y', which='both', length=0)
                 y_labels = ['R'] + [
                     channel_0 + 1 for channel_0 in range(16)
                 ]
