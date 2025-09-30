@@ -1561,13 +1561,13 @@ class Size(Unit):
         size = re.findall(r"\d+", string)
         if len(size) > 0:
             match size[0].lower():
-                case '1'  | "1st":              self._unit = 1
-                case '3'  | "3rd":              self._unit = 2
-                case '5'  | "5th":              self._unit = 3
-                case '7'  | "7th":              self._unit = 4
-                case '9'  | "9th":              self._unit = 5
-                case '11' | "11th":             self._unit = 6
-                case '13' | "13th":             self._unit = 7
+                case "1st":     self._unit = 1
+                case "3rd":     self._unit = 2
+                case "5th":     self._unit = 3
+                case "7th":     self._unit = 4
+                case "9th":     self._unit = 5
+                case "11th":    self._unit = 6
+                case "13th":    self._unit = 7
 
     @staticmethod
     def numberToString(number: int) -> str:

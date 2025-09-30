@@ -28,7 +28,7 @@ ProgramChange(Channel(11), Program("Violin")) \
     + ProgramChange(Channel(14), Program("Cello")) >> Play()   # Sets the instruments
 
 chords = Chord(Channel(11), 1/1, Velocity(90)) / 4 << Name("Chords")
-chords << Nth(3)**(Minor(), TonicKey("E")) << Foreach("I", "4", "I", "5") << Octave(3)
+chords << Nth(3)**(Minor(), TonicKey("E")) << Foreach("I", "4", "1", "5") << Octave(3)
 
 tones = Note(Channel(14), 1/1, Velocity(60)) / 4 << Name("Tones")
 tones << Foreach("I", "1", "7", "7") << Octave(4) << Nth(1, 2)**Octave(5)
