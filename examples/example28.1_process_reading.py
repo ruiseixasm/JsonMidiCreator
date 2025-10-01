@@ -30,7 +30,7 @@ read_notes >> Plot(block=False)
 quantized_notes = read_notes >> Quantize(quantize_duration=True) << Title("Quantized Notes")
 quantized_notes >> Plot(block=False)
 
-rotated_notes = quantized_notes >> Rotate(2) << Title("Rotated Notes")
+rotated_notes = quantized_notes >> Shift(2.0) << Title("Rotated Notes")
 rotated_notes >> Plot(block=False)
 
 match_pitch = RS_Clip(rotated_notes, [1, 0, 0, 0], 2)\

@@ -3434,7 +3434,6 @@ class Smooth(ClipProcess):
 
     Args:
         algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
-
             +------+---------------------------------------------------------------------------+
             | Type | Description                                                               |
             +------+---------------------------------------------------------------------------+
@@ -3448,6 +3447,34 @@ class Smooth(ClipProcess):
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.smooth(self._parameters)
+
+
+class Shift(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> Shift`
+
+    Does a `Position` shift in a rotative fashion by doing a positional displacement of each `Element`
+    in the `Clip` list by the given amount. Clockwise. It does the module of positions by `Length` Measures.
+
+    Args:
+        right (1): The right `Position` amount for the displacement. Numbers are equivalent to:        
+            +----------+-------------+
+            | Type     | Equivalency |
+            +----------+-------------+
+            | int      | Measure     |
+            | float    | Step        |
+            | Fraction | Beat        |
+            +----------+-------------+
+    """
+    from operand_rational import Position
+
+    def __init__(self, right: Union['ra.Position', 'ra.TimeUnit', int, float, Fraction] = 1):
+        super().__init__([right])
+        self._indexes = {
+            'right': 0
+        }
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.shift(*self._parameters)
 
 
 class Flip(ClipProcess):

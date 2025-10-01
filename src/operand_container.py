@@ -3537,18 +3537,32 @@ class Clip(Composition):  # Just a container of Elements
         return self
     
     
-    def shift(self, right: ra.Position | ra.TimeUnit = ra.Step(1)) -> Self:
+    def shift(self, right: Union['ra.Position', 'ra.TimeUnit', int, float, Fraction] = 1) -> Self:
         """
         Does a `Position` shift in a rotative fashion by doing a positional displacement of each `Element`
         in the `Clip` list by the given amount. Clockwise. It does the module of positions by `Length` Measures.
 
         Args:
-            right (Step(1)): The right `Position` amount for the displacement.
+            right (1): The right `Position` amount for the displacement. Numbers are equivalent to:        
+                +----------+-------------+
+                | Type     | Equivalency |
+                +----------+-------------+
+                | int      | Measure     |
+                | float    | Step        |
+                | Fraction | Beat        |
+                +----------+-------------+
 
         Returns:
             Clip: The self object with the chosen parameter displaced.
         """
-        if isinstance(right, (ra.Position, ra.TimeUnit)):
+        if isinstance(right, (ra.Position, ra.TimeUnit, int, float, Fraction)):
+            match right:
+                case int():
+                    right = ra.Measure(right)
+                case float():
+                    right = ra.Step(right)
+                case Fraction():
+                    right = ra.Beat(right)
             self_start: ra.Position = self.start()
             if self_start is not None:
                 self_length: ra.Length = self.length()
