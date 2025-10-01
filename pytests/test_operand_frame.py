@@ -209,3 +209,23 @@ def test_input_clip():
     
 # test_input_clip()
 
+
+def test_on_beat():
+    single_element = Note(Beat(2))
+    on_beat = OnBeat()**True
+    assert on_beat.frame(single_element)
+    off_beat = OffBeat()**True
+    assert not off_beat.frame(single_element)
+
+# test_on_beat()
+
+def test_off_beat():
+    single_element = Note(Beat(2)) + Step(2)
+    on_beat = OnBeat()**True
+    assert not on_beat.frame(single_element)
+    off_beat = OffBeat()**True
+    assert off_beat.frame(single_element)
+
+# test_off_beat()
+
+

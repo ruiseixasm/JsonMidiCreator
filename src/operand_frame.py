@@ -27,6 +27,7 @@ import operand_label as ol
 import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
+import operand_generic as og
 import operand_element as oe
 
 if TYPE_CHECKING:
@@ -237,12 +238,12 @@ class Left(Frame):  # LEFT TO RIGHT
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
-        elif isinstance(self_operand, (int, float, Fraction)):
-            if isinstance(input, (int, float, Fraction)):
-                self_operand = type(self_operand)(input)
-            elif isinstance(input, o.Operand):
-                self_operand = input % self_operand
-            
+        # elif isinstance(self_operand, (int, float, Fraction)):
+        #     if isinstance(input, (int, float, Fraction)):
+        #         self_operand = type(self_operand)(input)    # Like, Foreach(1, 3)**Degree()
+        #     elif isinstance(input, o.Operand):
+        #         self_operand = input % self_operand
+        
         return self_operand
 
 
@@ -845,7 +846,27 @@ class OnBeat(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, oe.Element):
-            return super().frame(input)
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            position_step: int = input % ra.Step() % int()
+            if position_step % steps_per_beat == 0:
+                return super().frame(input)
+        return ol.Null()
+
+class OffBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> OffBeat`
+
+    An `OffBeat` selects only elements with their `Position` off the `Beat`.
+
+    Parameters
+    ----------
+    None : `OffBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            position_step: int = input % ra.Step() % int()
+            if position_step % steps_per_beat == round(steps_per_beat / 2):
+                return super().frame(input)
         return ol.Null()
 
 
