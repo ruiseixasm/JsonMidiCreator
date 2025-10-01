@@ -1209,6 +1209,22 @@ class Composition(Container):
             return position_length
         return ra.Length(self, 0)
     
+    def net_length(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        start_position: ra.Position = self.start()
+        if start_position is not None:
+            self_length: ra.Length = self.length()
+            return self_length - start_position.roundMeasures()
+        return ra.Length(self, 0)
+    
     
     def duration(self) -> 'ra.Duration':
         """
@@ -3565,9 +3581,9 @@ class Clip(Composition):  # Just a container of Elements
                     right = ra.Beat(right)
             self_start: ra.Position = self.start()
             if self_start is not None:
-                self_length: ra.Length = self.length()
+                self_net_length: ra.Length = self.net_length()
                 first_measure: int = self_start % ra.Measure() % int()
-                length_measures: int = self_length % ra.Measure() % int()
+                length_measures: int = self_net_length % ra.Measure() % int()
                 # Shift all items first
                 self += right   # Right changes elements Position
                 # Modulate out of range elements
