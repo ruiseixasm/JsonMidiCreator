@@ -25,10 +25,10 @@ import math
 import creator as c
 import operand as o
 
+import operand_label as ol
+import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
-import operand_data as od
-import operand_label as ol
 import operand_generic as og
 import operand_element as oe
 import operand_frame as of
@@ -1154,7 +1154,7 @@ class Composition(Container):
         return "_".join(filtered_strings)
 
 
-    def masked_element(self, element: oe.Element) -> bool:
+    def masked_element(self, element: 'oe.Element') -> bool:
         return False
 
     # Ignores the self Length
@@ -1261,10 +1261,10 @@ class Composition(Container):
             case _:
                 return super().__eq__(other)
 
-    def all_elements(self) -> list[oe.Element]:
+    def all_elements(self) -> list['oe.Element']:
         return []
 
-    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+    def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         return []
 
 
@@ -2405,7 +2405,7 @@ class Clip(Composition):  # Just a container of Elements
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
 
-    def _index_from_frame(self, frame: of.Frame) -> int:
+    def _index_from_frame(self, frame: 'of.Frame') -> int:
         """
         Read Only method
         """
@@ -2415,7 +2415,7 @@ class Clip(Composition):  # Just a container of Elements
                 return index
         return None
 
-    def _index_from_element(self, element: oe.Element) -> int:
+    def _index_from_element(self, element: 'oe.Element') -> int:
         """
         Read Only method
         """
@@ -2429,7 +2429,7 @@ class Clip(Composition):  # Just a container of Elements
             return self._mask_items
         return self._items
 
-    def __getitem__(self, index: int | of.Frame) -> 'oe.Element':
+    def __getitem__(self, index: Union['of.Frame', int]) -> 'oe.Element':
         """
         Read Only method
         """
@@ -2440,7 +2440,7 @@ class Clip(Composition):  # Just a container of Elements
             return ol.Null()
         return super().__getitem__(index)
     
-    def __setitem__(self, index: int | of.Frame, value: oe.Element) -> Self:
+    def __setitem__(self, index: Union['of.Frame', int], value: 'oe.Element') -> Self:
         """
         Read and Write method
         """
@@ -2510,7 +2510,7 @@ class Clip(Composition):  # Just a container of Elements
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
-    def masked_element(self, element: oe.Element) -> bool:
+    def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
             for single_element in self._mask_items:
                 if element is single_element:
@@ -2567,10 +2567,10 @@ class Clip(Composition):  # Just a container of Elements
         return self._last_element_position()
 
 
-    def all_elements(self) -> list[oe.Element]:
+    def all_elements(self) -> list['oe.Element']:
         return self._items
 
-    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+    def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         position_beats: Fraction = position._rational
         return [
             single_element for single_element in self.all_elements()
@@ -4359,7 +4359,7 @@ class Part(Composition):
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
-    def masked_element(self, element: oe.Element) -> bool:
+    def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
             for single_clip in self._unmasked_items():
                 for single_element in single_clip._unmasked_items():
@@ -4471,13 +4471,13 @@ class Part(Composition):
         return position
 
 
-    def all_elements(self) -> list[oe.Element]:
+    def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
         for single_clip in self._items:
             elements.extend(single_clip.all_elements())
         return elements
 
-    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+    def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         position_beats: Fraction = position._rational - self._position_beats
         if position_beats < 0:
             return []
@@ -5014,7 +5014,7 @@ class Song(Composition):
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
-    def masked_element(self, element: oe.Element) -> bool:
+    def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
             for single_part in self._unmasked_items():
                 for single_clip in single_part._items:
@@ -5088,13 +5088,13 @@ class Song(Composition):
         return position
 
 
-    def all_elements(self) -> list[oe.Element]:
+    def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
         for single_part in self._items:
             elements.extend(single_part.all_elements())
         return elements
 
-    def at_position_elements(self, position: 'ra.Position') -> list[oe.Element]:
+    def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         elements: list[oe.Element] = []
         for single_part in self._items:
             elements.extend( single_part.at_position_elements(position) )

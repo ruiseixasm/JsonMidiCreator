@@ -24,13 +24,10 @@ import math
 import creator as c
 import operand as o
 
+import operand_label as ol
+import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
-import operand_data as od
-import operand_frame as of
-import operand_label as ol
-import operand_chaos as ch
-import operand_container as oc
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"
@@ -582,7 +579,7 @@ class Pitch(Generic):
     Auxiliary methods to get specific data directly
     """
 
-    def absolute_degree_0(self) -> ou.Degree:
+    def absolute_degree_0(self) -> 'ou.Degree':
         """
         Degrees are returned relative to the Tonic key in a Octave, this function returns the \
             absolute Degree rooted in the Octave 0.
@@ -853,7 +850,6 @@ class Pitch(Generic):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch():
@@ -1755,6 +1751,7 @@ class Arpeggio(Generic):
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
+        import operand_chaos as ch
         self._order: int = 1    # "Up" by default
         self._duration_beats: Fraction = ra.Duration(1/16)._rational
         self._swing: Fraction = ra.Swing(0.5)._rational
@@ -1762,6 +1759,7 @@ class Arpeggio(Generic):
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_chaos as ch
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1916,6 +1914,7 @@ class Arpeggio(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
+        import operand_chaos as ch
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Arpeggio():
@@ -2116,6 +2115,7 @@ class Segment(Generic):
     
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
+        import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Segment():
@@ -2590,10 +2590,9 @@ class Plot(ReadOnly):
         }
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        import operand_element as oe
-        import operand_generic as og
         import operand_unit as ou
+        import operand_element as oe
+        import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._parameters)
         if isinstance(operand, Scale):
@@ -2621,8 +2620,8 @@ class Call(ReadOnly):
         }
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
         import operand_element as oe
+        import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.call(*self._parameters)
         return operand
@@ -2646,8 +2645,8 @@ class Play(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import threading
-        import operand_container as oc
         import operand_element as oe
+        import operand_container as oc
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -2834,13 +2833,11 @@ class ScaleProcess(Process):
     """`Generic -> Process -> ScaleProcess`
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         if isinstance(operand, Scale):
             return self.__irrshift__(operand.copy())
         return super().__rrshift__(operand)
 
     def __irrshift__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         if isinstance(operand, Scale):
             return self._process(operand)
         else:
@@ -3754,6 +3751,7 @@ class Settings(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_element as oe
+        import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -3884,6 +3882,7 @@ class Settings(Generic):
     
     def __lshift__(self, operand: any) -> Self:
         import operand_element as oe
+        import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Settings():

@@ -25,10 +25,9 @@ import math
 import creator as c
 import operand as o
 
-import operand_unit as ou
-import operand_data as od
-import operand_frame as of
 import operand_label as ol
+import operand_data as od
+import operand_unit as ou
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"

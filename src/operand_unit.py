@@ -24,8 +24,6 @@ import re
 import creator as c
 import operand as o
 import operand_data as od
-
-import operand_frame as of
 import operand_label as ol
 
 

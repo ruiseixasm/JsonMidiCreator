@@ -23,7 +23,6 @@ import json
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
-import operand_frame as of
 
 
 class Label(o.Operand):

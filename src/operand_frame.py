@@ -23,11 +23,11 @@ import enum
 import creator as c
 import operand as o
 
+import operand_label as ol
+import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
-import operand_data as od
-import operand_frame as of
-import operand_label as ol
+import operand_element as oe
 
 if TYPE_CHECKING:
     from operand_container import Container
@@ -831,6 +831,21 @@ class InputType(InputFilter):
         for operand_class in self._parameters:
             if isinstance(input, operand_class):
                 return super().frame(input)
+        return ol.Null()
+
+
+class OnBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> OnBeat`
+
+    An `OnBeat` selects only elements with their `Position` on the `Beat`.
+
+    Parameters
+    ----------
+    None : `OnBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            return super().frame(input)
         return ol.Null()
 
 
