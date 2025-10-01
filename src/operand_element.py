@@ -1478,8 +1478,6 @@ class Note(ChannelElement):
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case int():
-                return self._pitch.pitch_int() == other
             case _:
                 return super().__eq__(other)
 
