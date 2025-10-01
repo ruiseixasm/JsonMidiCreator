@@ -1202,7 +1202,7 @@ class Composition(Container):
         """
         if self._has_elements():
             last_position: ra.Position = self._last_element_position()
-            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measures(1)
+            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
             finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
             if finish_length > position_length:
                 return finish_length
@@ -3539,25 +3539,30 @@ class Clip(Composition):  # Just a container of Elements
     
     def shift(self, right: ra.Position | ra.TimeUnit = ra.Step(1)) -> Self:
         """
-        Does a time shift in a rotative fashion by doing a positional displacement of each `Element`
-        in the `Clip` list by the given amount. Clockwise.
+        Does a `Position` shift in a rotative fashion by doing a positional displacement of each `Element`
+        in the `Clip` list by the given amount. Clockwise. It does the module of positions by `Length` Measures.
 
         Args:
-            right (Position(Step(1))): The right amount of the list index, displacement.
+            right (Step(1)): The right `Position` amount for the displacement.
 
         Returns:
             Clip: The self object with the chosen parameter displaced.
         """
-        if self.len() > 0:
-            if right > Fraction(0):     # Clockwise
-                first_measure: int = self.start() % ra.Measure()
-                last_element_position: ra.Position = self._last_element_position()
-                measures_length: ra.Length = ra.Length(last_element_position)
-                self_finish: ra.Position = self.finish()
-                ...
-            elif right < Fraction(0):   # Counterclockwise
-                ...
-
+        if isinstance(right, (ra.Position, ra.TimeUnit)):
+            self_start: ra.Position = self.start()
+            if self_start is not None:
+                self_length: ra.Length = self.length()
+                first_measure: int = self_start % ra.Measure() % int()
+                length_measures: int = self_length % ra.Measure() % int()
+                # Shift all items first
+                self += right   # Right changes elements Position
+                # Modulate out of range elements
+                for single_element in self._unmasked_items():
+                    element_measure: int = single_element % ra.Measure() % int()
+                    element_measure -= first_measure
+                    element_measure %= length_measures
+                    element_measure += first_measure
+                    single_element << ra.Measure(element_measure)
         return self._sort_items()
 
 
