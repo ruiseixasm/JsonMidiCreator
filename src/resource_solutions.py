@@ -62,6 +62,11 @@ class RS_Solutions:
     
     def solution(self, *parameters) -> 'oc.Composition':
         return self._solution << parameters
+
+    
+    def set(self, *parameters) -> Self:
+        self._solution << parameters
+        return self
     
     def mask(self, *conditions) -> Self:
         self._solution.mask(*conditions)
