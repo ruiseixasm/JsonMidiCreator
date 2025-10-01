@@ -858,15 +858,16 @@ def test_position_shift():
     assert chords % Position() == 0.0   # Clip has no Position on its own
 
     # To set ALL Chords into the SAME position, Steps need to be wrapped with Position
-    Position(Steps(-3)) >> chords # SETS, doesn't Move!! # Step and NOT Steps is what changes Position
+    Position(Steps(-3)) >> chords # SETS, doesn't Move!! # All Element positions set at Step -3 (Measure -1)
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords[0] % Position() == Steps(-3)
     fifth_measure_chords = chords.copy()
     # To set ALL Chords into the SAME position, Measures need to be wrapped with Position
-    Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move!!
+    Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move, all at Position 4 measure !!
     print(f"Chords Length: {chords % Length() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
-    assert chords % Length() == 1.0 # All Elements became at the same position, 1.0 length each one
+    # chords has ALL notes at negative Measure, so, Length ends up being 0.0 !!
+    assert chords % Length() == 0.0 # All Elements became at the same NEGATIVE position, -1.0 position each one
     print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
@@ -890,17 +891,17 @@ def test_clip_duration():
 
     Beat(2) >> four_notes_1 # SETS common Position!!
     assert four_notes_1 % Position() == Beat(0)    # Clip has no Position on its own
-    Beat(-2) >> four_notes_1 # SETS common Position!!
+    Beat(-2) >> four_notes_1 # SETS common Position (NEGATIVE)!!
     assert four_notes_1 % Position() == Beat(0)    # Always is 0!
 
     print(four_notes_2[0] % Beat() % int())
     assert four_notes_2[0] % Beat() == 0
 
-    eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure
+    eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure (THAT IS 0)
     print(eight_notes[0] % Position() % Beats() % int())
     assert eight_notes[0] % Position() == Beats(-2)
     print(eight_notes[4] % Position() % Beats() % int())
-    assert eight_notes[4] % Position() == Beats(4)
+    assert eight_notes[4] % Position() == Beats(0)  # four_notes_1 is at Measure -1
 
     print(four_notes_2[0] % Beat() % int())
     assert four_notes_2[0] % Beat() == 0
@@ -915,6 +916,10 @@ def test_clip_duration():
     assert four_notes_1.net_duration() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
     print(f"Total Duration: {four_notes_1 % Duration() % float()}")
     assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
+
+    single_beat_note = Clip(Note(Beats(1)))
+    print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
+    assert single_beat_note % Length() == 1.0
 
 # test_clip_duration()
 

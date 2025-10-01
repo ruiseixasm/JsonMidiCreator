@@ -20,6 +20,7 @@ from typing import Self
 from fractions import Fraction
 import re
 import time
+import math
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -643,7 +644,7 @@ class Convertible(Rational):
     @staticmethod
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
-            timeunit._rational = Fraction(int(timeunit._rational), 1)
+            timeunit._rational = Fraction(math.floor(timeunit._rational), 1)
         return timeunit
 
     def roundMeasures(self) -> Self:
@@ -801,7 +802,7 @@ class Measurement(Convertible):
     @staticmethod
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
-            round_timeunit: Fraction = Fraction(int(timeunit._rational), 1)
+            round_timeunit: Fraction = Fraction(math.floor(timeunit._rational), 1)
             if timeunit != round_timeunit:
                 round_timeunit += 1
             timeunit._rational = round_timeunit
@@ -925,7 +926,7 @@ class Position(Measurement):
     def _round_timeunit(timeunit: o.T) -> o.T:
         if isinstance(timeunit, TimeUnit):
             timeunit._set_position_value()  # Because for position TimeUnit is relative to Measure!
-            timeunit._rational = Fraction(int(timeunit._rational), 1)
+            timeunit._rational = Fraction(math.floor(timeunit._rational), 1)
         return timeunit
 
     def __eq__(self, other: any) -> bool:

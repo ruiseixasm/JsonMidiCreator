@@ -3450,7 +3450,7 @@ class Smooth(ClipProcess):
 
 
 class Shift(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> Shift`
+    """`Generic -> Process -> ClipProcess -> Shift`
 
     Does a `Position` shift in a rotative fashion by doing a positional displacement of each `Element`
     in the `Clip` list by the given amount. Clockwise. It does the module of positions by `Length` Measures.

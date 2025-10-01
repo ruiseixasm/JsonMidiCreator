@@ -344,6 +344,15 @@ def test_sub_steps():
     position -= Steps(-4 * 4)
     assert position == Position(1.5)
 
+    position_0 = Position()
+    assert position_0 == Measure(0)
+    position_0 -= Step(2)
+    print(f"position_0 % Measure() % int(): {position_0 % Measure() % int()}")
+    assert position_0 == Measure(-1)
+
+# test_sub_steps()
+
+
 def test_sub_note_value():
 
     position = Position(2)
