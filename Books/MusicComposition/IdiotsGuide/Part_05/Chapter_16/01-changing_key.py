@@ -22,6 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
+settings << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")
+
 seven_notes = Note(1/2) / 7 << Last()**(1/1) << Title("Changing Key")
 
 seven_notes << Equal(Or(0, 1))**KeySignature('b') << Equal(Or(2, 3))**KeySignature('#')
