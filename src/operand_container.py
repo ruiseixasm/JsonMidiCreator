@@ -1219,11 +1219,10 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        start_position: ra.Position = self.start()
-        if start_position is not None:
-            self_length: ra.Length = self.length()
-            return self_length - start_position.roundMeasures()
-        return ra.Length(self, 0)
+        self_length: ra.Length = self.length()
+        if self_length > Fraction(0):
+            self_length -= self.start().roundMeasures()
+        return self_length
     
     
     def duration(self) -> 'ra.Duration':
