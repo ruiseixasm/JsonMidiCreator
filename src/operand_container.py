@@ -4718,47 +4718,31 @@ class Part(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Part():
-                last_position: ra.Position = self.last_position()
-                if last_position is not None:
-                    finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
-                        last_position = ra.Position(finish_position % ra.Measure())
-                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    return Song(self._time_signature, self, operand.copy(ra.Position(finish_length)))
+                self_length: ra.Length = self.length()
+                if self_length is not None:
+                    return Song(self._time_signature, self, operand.copy(ra.Position(self_length)))
                 else:
                     return Song(self._time_signature, self, operand)  # Implicit copy
 
             case Clip():
-                last_position: ra.Position = self.last_position()
-                if last_position is not None:
-                    finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
-                        last_position = ra.Position(finish_position % ra.Measure())
-                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._append(operand + ra.Position(finish_length))  # Implicit copy
+                self_length: ra.Length = self.length()
+                if self_length is not None:
+                    self._append(operand + ra.Position(self_length))  # Implicit copy
                 else:
                     self._append(operand.copy())    # Explicit copy
 
             case oe.Element():
-                last_position: ra.Position = self.last_position()
-                if last_position is not None:
-                    finish_position: ra.Position = self.finish()
-                    if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
-                        last_position = ra.Position(finish_position % ra.Measure())
-                    finish_length: ra.Length = ra.Length(last_position).roundMeasures()
-                    self._append(Clip(operand._time_signature, operand + ra.Position(finish_length)))   # Implicit copy
+                self_length: ra.Length = self.length()
+                if self_length is not None:
+                    self._append(Clip(operand._time_signature, operand + ra.Position(self_length)))   # Implicit copy
                 else:
                     self._append(Clip(operand._time_signature, operand))
 
             case int():
                 new_parts: list[Part] = []
                 if operand > 0:
-                    last_position: ra.Position = self.last_position()
-                    if last_position is not None:
-                        finish_position: ra.Position = self.finish()
-                        if finish_position % ra.Measure() >= last_position % ra.Measure() + 1:
-                            last_position = ra.Position(finish_position % ra.Measure())
-                        single_length: ra.Length = ra.Length(last_position).roundMeasures()
+                    single_length: ra.Length = self.length()
+                    if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
                             self_copy: Part = self.copy(next_position)
