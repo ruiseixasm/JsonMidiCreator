@@ -1190,6 +1190,51 @@ def test_pitch_pipe():
 # test_pitch_pipe()
 
 
+def test_root_key_pipe():
+    pitch_A_minor = Pitch(Minor())
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 69
+
+    pitch_A_minor += RootKey(1)
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 70
+
+    pitch_A_minor << Pipe(RootKey(69))
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 69
+
+    pitch_A_minor << Pipe(RootKey(67))
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 67
+
+    pitch_A_minor._degree_0 = 0.2
+    pitch_A_minor._octave_0 = 5
+    print(f"pitch_A_minor.pitch_int(): {pitch_A_minor.pitch_int()}")
+    assert pitch_A_minor.pitch_int() == 68
+
+    pitch_A_minor << RootKey(8) # Ab
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert pitch_A_minor._degree_0 == 0.2
+    assert pitch_A_minor._octave_0 == 5
+    assert absolute_root_key == 68
+
+    pitch_A_minor << Pipe(RootKey(68))
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert pitch_A_minor._degree_0 == 0.2
+    assert pitch_A_minor._octave_0 == 5
+    assert absolute_root_key == 68
+
+    pitch_A_minor << Pipe(RootKey(69))
+    pitch_A_minor -= RootKey(1)
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert absolute_root_key == 68
+
+# test_root_key_pipe()
+
+
 def test_sharps_and_flats_picker():
     major_scale = Scale("Major") % list()
 
