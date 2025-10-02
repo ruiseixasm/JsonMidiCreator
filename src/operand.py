@@ -604,14 +604,14 @@ class Operand:
         import operand_label as ol
         import operand_data as od
         match other:
-            case self.__class__():
-                return True
             case ol.Null():
                 return False
             case ol.NotNull():
                 return True
             case od.Conditional():
                 return other == self
+            case self.__class__():
+                return True
         return self % other == other
     
     def __ne__(self, other: any) -> bool:
