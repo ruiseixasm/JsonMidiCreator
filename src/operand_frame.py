@@ -149,9 +149,6 @@ class Frame(o.Operand):
         # Frame class IS a Read-only class
         return self
 
-    def __xor__(self, input: Any) -> Any:
-        return self.frame(input)
-    
     def frame(self, input: Any) -> o.Operand:
         return o.Operand()
     
@@ -219,7 +216,7 @@ class Left(Frame):  # LEFT TO RIGHT
         if isinstance(self_operand, tuple):
             self_operand_tuple: tuple = ()
             for single_operand in self_operand:
-                if single_operand.__class__ == o.Operand:
+                if isinstance(single_operand, ol.NotNull) or single_operand.__class__ == o.Operand:
                     single_operand = input
                     if isinstance(single_operand, o.Operand):
                         single_operand._set = True
@@ -231,7 +228,7 @@ class Left(Frame):  # LEFT TO RIGHT
                     if isinstance(input, o.Operand):
                         input._set = True
             self_operand = self_operand_tuple
-        elif self_operand.__class__ == o.Operand:
+        elif isinstance(self_operand, ol.NotNull) or self_operand.__class__ == o.Operand:
             self_operand = input
             if isinstance(self_operand, o.Operand): # Strict operand, the default (validated as true)
                 self_operand._set = True
@@ -696,7 +693,7 @@ class First(InputFilter):
             first_item = self._inside_container.first()
             if input is first_item:    # Selected first call to pass
                 if isinstance(self._next_operand, Frame):
-                    return self._next_operand.__xor__(input)
+                    return self._next_operand.frame(input)
                 return self._next_operand
         return ol.Null()
 
@@ -715,7 +712,7 @@ class Last(InputFilter):
             last_item = self._inside_container.last()
             if input is last_item:    # Selected first call to pass
                 if isinstance(self._next_operand, Frame):
-                    return self._next_operand.__xor__(input)
+                    return self._next_operand.frame(input)
                 return self._next_operand
         return ol.Null()
 
@@ -735,7 +732,7 @@ class Crossing(InputFilter):
         if isinstance(self._inside_container, oc.Container) \
             and isinstance(input, oe.Element) and input.crossing(self._inside_container):
             if isinstance(self._next_operand, Frame):
-                return self._next_operand.__xor__(input)
+                return self._next_operand.frame(input)
             return self._next_operand
         return ol.Null()
 
@@ -752,7 +749,7 @@ class Odd(InputFilter):
         self._index += 1
         if self._index % 2 == 1:    # Selected to pass
             if isinstance(self._next_operand, Frame):
-                return self._next_operand.__xor__(input)
+                return self._next_operand.frame(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -770,7 +767,7 @@ class Even(InputFilter):
         self._index += 1
         if self._index % 2 == 0:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand.__xor__(input)
+                return self._next_operand.frame(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -791,7 +788,7 @@ class Every(InputFilter):
         self._index += 1
         if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand.__xor__(input)
+                return self._next_operand.frame(input)
             return self._next_operand
         else:
             return ol.Null()
@@ -814,7 +811,7 @@ class Nth(InputFilter):
         self._index += 1
         if self._index in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
-                return self._next_operand.__xor__(input)
+                return self._next_operand.frame(input)
             return self._next_operand
         else:
             return ol.Null()
