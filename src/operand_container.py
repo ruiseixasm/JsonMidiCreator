@@ -1850,8 +1850,8 @@ class Composition(Container):
                                     else:                       # Flattened
                                         symbol = '♭' * (note["accidentals"] * -1)
                                     y_pos: int = note["pitch"]
-                                    x_pos = float(note["position_on"]) - 0.1
-                                    self._ax.text(x_pos, y_pos, symbol, ha='center', va='center', fontsize=14, fontweight='bold',
+                                    x_pos = float(note["position_on"]) - 0.15
+                                    self._ax.text(x_pos, y_pos, symbol, ha='center', va='center', fontsize=8, fontweight='bold',
                                         color='black',  # Outline color
                                         path_effects=[patheffects.withStroke(linewidth=1.4, foreground=channel_color)],
                                         alpha=color_alpha)
