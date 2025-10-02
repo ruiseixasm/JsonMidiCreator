@@ -788,6 +788,12 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self.pitch_int() == other.pitch_int()
+            case str():
+                try:
+                    string_degree = ou.Degree(float(other))
+                    return self == string_degree
+                except ValueError:
+                    return self % other == other
             case od.Conditional():
                 return other == self
             case _:
