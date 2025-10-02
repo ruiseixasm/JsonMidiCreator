@@ -423,8 +423,6 @@ class Serialization(Data):
         if isinstance(self._data, o.Operand):
             match operand:
                 case Pipe():
-                    if type(operand._data) == o.Operand:    # Default DataSource content
-                        return self._data
                     return self._data % operand # Already includes the DataSource wrapper
                     # # WHY NOT JUST THIS?
                     # return self._data
@@ -433,8 +431,6 @@ class Serialization(Data):
                         return self._data.getSerialization()
                     return dict()
                 case _:
-                    if type(operand) == o.Operand:    # Default DataSource content
-                        return self._data.copy()
                     return self._data % operand
                     # # WHY NOT JUST THIS?
                     # return self._data.copy()
