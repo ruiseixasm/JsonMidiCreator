@@ -34,10 +34,9 @@ class Label(o.Operand):
     ----------
     None : Labels don't have any parameters.
     """
-
     def __eq__(self, other: 'Label') -> bool:
         import operand_data as od
-        if type(self) == type(other) or type(other) == o.Operand or not other:
+        if type(self) == type(other):
             return True
         if isinstance(other, od.Conditional):
             return other == self
@@ -80,6 +79,15 @@ class Null(Label):
 
     def __not__(self) -> bool:
         return True
+    
+    def __eq__(self, other: 'Label') -> bool:
+        if other is None:
+            return True
+        if other == False:
+            return True
+        if other == True:
+            return False
+        return super().__eq__(other)
     
     def __mod__(self, operand: o.T) -> Self:
         return self
