@@ -889,9 +889,10 @@ class UpBeat(InputFilter):
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, oe.Element):
             steps_per_beat: int = int(1 / og.settings._quantization)
+            steps_per_measure: int = input._get_time_signature()._top * steps_per_beat
             position_step: int = input % ra.Step() % int()
             half_beat_steps: int = round(steps_per_beat / 2)
-            if (position_step + half_beat_steps) % steps_per_beat == 0:
+            if (position_step + half_beat_steps) % steps_per_measure == 0:
                 return super().frame(input)
         return ol.Null()
 
