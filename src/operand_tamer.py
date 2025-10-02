@@ -983,6 +983,36 @@ class Decrease(Manipulator):
         numeral -= self._numeral
         return numeral, validated
 
+class Expand(Manipulator):
+    """`Tamer -> Manipulator -> Expand`
+
+    `Expand` multiplies the given amount by the given `Rational`.
+
+    Parameters
+    ----------
+    Fraction(8), int, float : Sets the respective decrement amount.
+    """
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        numeral *= self._numeral
+        return numeral, validated
+
+class Contract(Manipulator):
+    """`Tamer -> Manipulator -> Contract`
+
+    `Contract` divides the given amount by the given `Rational`.
+
+    Parameters
+    ----------
+    Fraction(8), int, float : Sets the respective decrement amount.
+    """
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        numeral /= self._numeral
+        return numeral, validated
+
 
 class Repeat(Manipulator):
     """`Tamer -> Manipulator -> Repeat`
