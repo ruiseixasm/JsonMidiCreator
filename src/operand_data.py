@@ -211,6 +211,8 @@ class Inline(Data):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
+            case Inline():
+                self._data = self.deep_copy(operand._data)
             case Pipe():
                 self._data = self.deep_copy(operand._data)
             case tuple():
