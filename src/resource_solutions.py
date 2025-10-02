@@ -139,7 +139,7 @@ class RS_Clip(RS_Solutions):
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 previous_measures: list[int] = []
                 if triggers > 0:
-                    measure_triggers: list = [triggers] * triggers
+                    measure_triggers: list = [triggers] * int(triggers)
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
@@ -674,13 +674,13 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "Global Set"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
 
 
     def global_add(self,
             iterations: int = 1,
-            parameter: any = of.Even()**of.DivideR(10)**ra.Position()**ra.Steps(),
-            chaos: ch.Chaos = ch.SinX(25, ot.Modulo(20)),
+            parameter: any = of.Even()**ra.Position()**ra.Steps(),
+            chaos: ch.Chaos = ch.SinX(25, ot.Modulo(3)),
             title: str | None = None) -> Self:
         """
         Adds a given parameter to the entire `Clip`.
@@ -694,7 +694,7 @@ class RS_Clip(RS_Solutions):
         
         if not isinstance(title, str):
             title = "Global Add"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
+        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
 
 
 class RS_Part(RS_Solutions):
