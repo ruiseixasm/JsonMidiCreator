@@ -186,7 +186,10 @@ class Element(o.Operand):
                     and self._duration_beats == other._duration_beats
             case og.Segment():
                 return other == self % ra.Position()
-            case od.Conditional() | of.Frame():
+            case od.Conditional():
+                return other == self
+            case of.Frame():
+                other._set_inside_container(self._owner_clip)
                 return other == self
             case _:
                 return super().__eq__(other)
