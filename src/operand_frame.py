@@ -1171,6 +1171,21 @@ class Right(Frame):  # RIGHT TO LEFT
             right_input._set = True
         return right_input
 
+class IsNull(Right):
+    """`Frame -> Right -> IsNull`
+
+    An `IsNull` converts a `Null` return into a NonNull one and any other to `Null`.
+
+    Parameters
+    ----------
+    None : `IsNull` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        right_input = super().frame(input)
+        if isinstance(right_input, ol.Null):
+            return ol.NonNull()
+        return ol.Null()
+
 class WrapR(Right):
     """`Frame -> Right -> WrapR`
 
