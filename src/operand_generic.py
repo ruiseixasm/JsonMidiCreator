@@ -857,8 +857,10 @@ class Pitch(Generic):
                 match operand._data:
                     case ou.KeySignature():
                         self._key_signature = operand._data
+                        self.match_octave_with_pitch()
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
+                        self.match_octave_with_pitch()
                     case ou.TargetKey():
                         pass
                     case ou.Key():      # Also applies to RootKey
@@ -869,6 +871,7 @@ class Pitch(Generic):
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
                         self._degree_0 = degree_0 % float()
+                        self.match_octave_with_pitch()
                     case ou.Octave():
                         self._octave_0 = operand._data._unit + 1    # Based 0 octave
                     case int():
@@ -898,6 +901,7 @@ class Pitch(Generic):
             case ou.KeySignature() | ou.Quality():
                 self._key_signature << operand
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self.match_octave_with_pitch()
             case int():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 actual_pitch: int = self.pitch_int()
