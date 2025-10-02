@@ -34,6 +34,6 @@ snare >> Mask(DownBeat()) >> Plot(block=False, title="Down Beat")
 snare >> Mask(UpBeat()) >> Plot(block=False, title="Up Beat")
 
 snare >> Mask(IsNull()**OnBeat()) >> Plot(block=False, title="Is Null")
-snare >> Mask(IsNot(OnBeat())) >> Plot(block=False, title="Not Equal to On Beat")
-snare >> Mask(IsNot(First())) >> Plot(block=True, title="Not Equal to First")
+snare >> Mask(IsNot(OnBeat())) >> Plot(block=False, title="Is Not On Beat")
+snare >> Mask(IsNot(First())) >> Plot(block=True, title="Is Not the First")
 
