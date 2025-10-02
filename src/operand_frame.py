@@ -1174,7 +1174,7 @@ class Right(Frame):  # RIGHT TO LEFT
 class IsNot(Right):
     """`Frame -> Right -> IsNot`
 
-    An `IsNot` converts a `Null` return into a NonNull one and any other to `Null`.
+    An `IsNot` converts a `Null` return into a `NonNull` one and any other to `Null`.
 
     Parameters
     ----------
