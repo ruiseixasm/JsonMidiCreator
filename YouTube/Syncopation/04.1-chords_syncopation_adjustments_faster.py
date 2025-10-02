@@ -29,7 +29,7 @@ settings << Tempo(115)     # Same tempo than the video tutorial
 
 
 
-hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
@@ -66,7 +66,7 @@ syncopation_1: Clip = no_syncopation + base_line
 # time.sleep(0.5)
 
 chords: Clip = Chord([]) * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
-chords -= NotEqual(Measure(0))**Octave(1)
+chords -= IsNot(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
 chords << Velocity(80)  # Chords tend to be loud, so they need to be softened

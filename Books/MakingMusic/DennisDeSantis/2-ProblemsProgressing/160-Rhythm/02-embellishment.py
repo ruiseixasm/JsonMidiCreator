@@ -27,7 +27,7 @@ settings << Tempo(140)
 tresillo: Clip = Note(DrumKit("Drum"), 1/16) * 3 << Iterate(3)**Steps()
 tresillo *= 2
 print(tresillo.len())
-tresillo >>= NotEqual(Nth(2))
+tresillo >>= IsNot(Nth(2))
 print(tresillo.len())
 tresillo *= 2
 snare: Clip = Note(DrumKit("Snare"), 1/16) * 2 << Foreach(S5, S13) << Velocity(80)

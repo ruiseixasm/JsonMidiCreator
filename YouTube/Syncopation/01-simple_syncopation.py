@@ -28,7 +28,7 @@ settings << KeySignature(-1)   # Sets the default Key Signature configuration
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
-hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat >> Play()
 

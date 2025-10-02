@@ -26,7 +26,7 @@ settings << Tempo(120)
 
 motif: Clip = Note(1/16) * 12
 motif << Nth(6)**Duration(Steps(3)) << Nth(12)**Duration(Steps(2)) >> Stack() << Octave(3)
-motif += NotEqual(Beat(0))**Step(1)
+motif += IsNot(Beat(0))**Step(1)
 motif % Length() % float() >> Print()
 motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 # motif >> P

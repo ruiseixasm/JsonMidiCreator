@@ -934,10 +934,10 @@ class Equal(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input == condition
 
-class NotEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> NotEqual`
+class IsNot(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> IsNot`
 
-    A `NotEqual` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
+    An `IsNot` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
