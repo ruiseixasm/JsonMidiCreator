@@ -41,3 +41,8 @@ def test_null_mod():
     assert id(null + null) == id(null)
     assert not null
 
+    assert Null() == Null()
+
+
+def test_non_null():
+    assert NonNull() == NonNull()
