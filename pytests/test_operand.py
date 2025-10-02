@@ -213,7 +213,7 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner v: {single_class.__name__}")
                     assert class_object._test_owner_song()
 
-test_operand_copy()
+# test_operand_copy()
 
 
 # Do 'pytest --markers' to see markers
