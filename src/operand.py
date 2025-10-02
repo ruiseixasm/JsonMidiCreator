@@ -603,8 +603,6 @@ class Operand:
     def __eq__(self, other: any) -> bool:
         import operand_label as ol
         import operand_data as od
-        if other.__class__ == Operand:
-            return True
         match other:
             case self.__class__():
                 return True
