@@ -601,13 +601,17 @@ class Operand:
 
 
     def __eq__(self, other: any) -> bool:
+        import operand_label as ol
         import operand_data as od
         if other.__class__ == Operand:
             return True
-        if isinstance(other, self.__class__):
-            return True
-        if isinstance(other, od.Conditional):
-            return other == self
+        match other:
+            case self.__class__():
+                return True
+            case ol.NotNull():
+                return True
+            case od.Conditional():
+                return other == self
         return False
     
     def __ne__(self, other: any) -> bool:
