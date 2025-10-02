@@ -235,11 +235,6 @@ class Left(Frame):  # LEFT TO RIGHT
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
-        # elif isinstance(self_operand, (int, float, Fraction)):
-        #     if isinstance(input, (int, float, Fraction)):
-        #         self_operand = type(self_operand)(input)    # Like, Foreach(1, 3)**Degree()
-        #     elif isinstance(input, o.Operand):
-        #         self_operand = input % self_operand
         
         return self_operand
 
@@ -863,6 +858,40 @@ class OffBeat(InputFilter):
             steps_per_beat: int = int(1 / og.settings._quantization)
             position_step: int = input % ra.Step() % int()
             if position_step % steps_per_beat == round(steps_per_beat / 2):
+                return super().frame(input)
+        return ol.Null()
+
+class DownBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> DownBeat`
+
+    An `DownBeat` selects only elements with their `Position` on the `Step` 0.
+
+    Parameters
+    ----------
+    None : `DownBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            position_step: int = input % ra.Step() % int()
+            if position_step == 0:
+                return super().frame(input)
+        return ol.Null()
+
+class UpBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> UpBeat`
+
+    An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
+
+    Parameters
+    ----------
+    None : `UpBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            position_step: int = input % ra.Step() % int()
+            half_beat_steps: int = round(steps_per_beat / 2)
+            if (position_step + half_beat_steps) % steps_per_beat == 0:
                 return super().frame(input)
         return ol.Null()
 
