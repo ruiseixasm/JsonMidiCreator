@@ -93,15 +93,15 @@ class Null(Label):
         return self
 
 
-class NotNull(Label):
-    """`Label -> NotNull`
+class NonNull(Label):
+    """`Label -> NonNull`
 
-    A `NotNull` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
+    A `NonNull` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
     It is returned by a `Frame` as a validates or passed `Operand`.
 
     Parameters
     ----------
-    None : `NotNull` has no parameters.
+    None : `NonNull` has no parameters.
     """
     pass
 

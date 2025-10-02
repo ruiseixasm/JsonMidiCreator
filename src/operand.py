@@ -606,7 +606,7 @@ class Operand:
         match other:
             case ol.Null():
                 return False
-            case ol.NotNull():
+            case ol.NonNull():
                 return True
             case od.Conditional():
                 return other == self
