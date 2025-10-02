@@ -1529,14 +1529,14 @@ class Note(ChannelElement):
                     case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
                     case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
                     case og.Pitch():        return self._pitch
-                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                     return self._pitch % operand
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch.pitch_int(), ou.Channel(self._channel_0 + 1))
@@ -1766,14 +1766,14 @@ class Note(ChannelElement):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
-                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | ou.Quality() | None | og.Scale() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | list() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
@@ -3754,12 +3754,12 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():    return self._pitch
-                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                         return self._pitch % operand
                     case _:             return super().__mod__(operand)
             case og.Pitch():
                 return self._pitch.copy()
-            case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                 return self._pitch % operand
             case ou.Octave():
                 return self._pitch % ou.Octave()
@@ -3836,10 +3836,10 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
-                    case ou.PitchParameter() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                                 self._pitch << operand
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | ou.Quality() | None | og.Scale() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | list() | str():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
