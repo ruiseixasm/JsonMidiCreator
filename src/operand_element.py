@@ -24,12 +24,11 @@ import time
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
+import operand_label as ol
+import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
-import operand_data as od
-import operand_label as ol
 import operand_generic as og
-import operand_frame as of
 import operand_chaos as ch
 
 # Define ANSI escape codes for colors

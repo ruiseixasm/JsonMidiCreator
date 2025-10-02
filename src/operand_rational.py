@@ -106,9 +106,6 @@ class Rational(o.Operand):
                 return int( self._rational ) == other._unit
             case od.Conditional():
                 return other == self
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
         return False
     
     def __lt__(self, other: any) -> bool:

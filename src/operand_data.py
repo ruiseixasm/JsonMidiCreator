@@ -76,8 +76,6 @@ class Data(o.Operand):
     def __eq__(self, other: o.Operand) -> bool:
         if isinstance(other, Data):
             return self._data == other._data
-        if other.__class__ == o.Operand:
-            return True
         if isinstance(other, Conditional):
             return other == self
         return False

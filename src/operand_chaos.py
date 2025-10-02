@@ -99,8 +99,6 @@ class Chaos(o.Operand):
         return f'{self._index + 1}: {self._xn % float()}'
     
     def __eq__(self, other: 'Chaos') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if type(self) == type(other):
             return self._xn == other._xn    # Only the actual result matters, NOT the x0
         if isinstance(other, od.Conditional):
@@ -520,8 +518,6 @@ class Bouncer(Chaos):
                 return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if type(self) != type(other):
             return False
         return  self._xn == other._xn and self._yn == other._yn
@@ -675,8 +671,6 @@ class SinX(Chaos):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'SinX') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if super().__eq__(other):
             return  self._lambda == other % od.Pipe( ra.Lambda() )
         return False

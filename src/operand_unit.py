@@ -94,9 +94,6 @@ class Unit(o.Operand):
                 return self._unit == int( other._rational )
             case od.Conditional():
                 return other == self
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
         return False
     
     def __lt__(self, other: any) -> bool:
@@ -381,8 +378,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if isinstance(other, KeySignature):
             return self._unit == other._unit and self._mode_0 == other._mode_0
         if isinstance(other, od.Conditional):
@@ -769,8 +764,6 @@ class Degree(PitchParameter):
     }
 
     def __eq__(self, other: any) -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if isinstance(other, Degree):
             return self % float() == other % float()
         if isinstance(other, od.Conditional):

@@ -144,12 +144,9 @@ class Locus(Generic):
                 return other == self % ra.Position()
             case od.Conditional():
                 return other == self
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
-                if type(other) == ol.Null:
-                    return False    # Makes sure ol.Null ends up processed as False
-                return self % other == other
+            case ol.Null():
+                return False    # Makes sure ol.Null ends up processed as False
+        return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
@@ -369,8 +366,6 @@ class TimeSignature(Generic):
 
     def __eq__(self, other_signature: 'TimeSignature') -> bool:
         other_signature = self._tail_wrap(other_signature)    # Processes the tailed self operands if existent
-        if other_signature.__class__ == o.Operand:
-            return True
         if type(self) != type(other_signature):
             return False
         if isinstance(other_signature, od.Conditional):
