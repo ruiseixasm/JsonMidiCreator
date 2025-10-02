@@ -120,7 +120,7 @@ class Frame(o.Operand):
             return self._parameters == other._parameters and self._named_parameters == other._named_parameters
         if isinstance(other, od.Conditional):
             return other == self
-        return self.frame(other) == ol.NonNull()
+        return other == self.frame(other)
     
     def getSerialization(self) -> dict:
         # serialization = {'class': "some", "parameters": {}}
