@@ -884,7 +884,6 @@ class Pitch(Generic):
                     case ou.TargetKey():
                         expected_octave_0: int = operand._data._unit // 12
                         self << operand._data  # Sets the TargetKey on the actual Octave
-                        target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
                         if self._octave_0 != expected_octave_0: # For mismatch Octaves
                             self += ou.Octave( expected_octave_0 - self._octave_0 )
 
