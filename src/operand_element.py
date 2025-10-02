@@ -188,11 +188,7 @@ class Element(o.Operand):
             case od.Conditional():
                 return other == self
             case _:
-                if other.__class__ == o.Operand:
-                    return True
-                if type(other) == ol.Null:
-                    return False    # Makes sure ol.Null ends up processed as False
-                return self % other == other
+                return super().__eq__(other)
 
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
