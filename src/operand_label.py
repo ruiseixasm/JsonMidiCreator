@@ -34,9 +34,6 @@ class Label(o.Operand):
     ----------
     None : Labels don't have any parameters.
     """
-    # By default a Label has no copies as it caries no data
-    def copy(self, *parameters) -> Self:
-        return self
 
     def __eq__(self, other: 'Label') -> bool:
         import operand_data as od
@@ -47,26 +44,27 @@ class Label(o.Operand):
         return False
     
     def __bool__(self) -> bool:  # For Python 3
-        return False
+        return True
 
     def __nonzero__(self) -> bool:  # For Python 2
         return self.__bool__()
     
     def __not__(self) -> bool:
-        return True
+        return False
     
-    def __add__(self, operand: any) -> 'Label':
+    def __mod__(self, operand: o.T) -> o.T:
+        return operand
+    
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
         return self
     
-    def __sub__(self, operand: any) -> 'Label':
+    # By default a Label has no copies as it caries no data
+    def copy(self, *parameters) -> Self:
         return self
-    
-    def __mul__(self, operand: any) -> 'Label':
-        return self
-    
-    def __div__(self, operand: any) -> 'Label':
-        return self
-    
+
+
 class Null(Label):
     """`Label -> Null`
 
@@ -77,14 +75,28 @@ class Null(Label):
     ----------
     None : `Null` has no parameters.
     """
+    def __bool__(self) -> bool:  # For Python 3
+        return False
+
+    def __not__(self) -> bool:
+        return True
+    
     def __mod__(self, operand: o.T) -> Self:
         return self
 
-    # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> Self:
-        return self
-    
+class NotNull(Label):
+    """`Label -> NotNull`
+
+    A `NotNull` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
+    It is returned by a `Frame` as a validates or passed `Operand`.
+
+    Parameters
+    ----------
+    None : `NotNull` has no parameters.
+    """
+    pass
+
     
 class Dummy(Label):
     """`Label -> Dummy`
