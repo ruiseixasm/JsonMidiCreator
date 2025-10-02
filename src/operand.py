@@ -608,11 +608,13 @@ class Operand:
         match other:
             case self.__class__():
                 return True
+            case ol.Null():
+                return False
             case ol.NotNull():
                 return True
             case od.Conditional():
                 return other == self
-        return False
+        return self % other == other
     
     def __ne__(self, other: any) -> bool:
         return not self == other
