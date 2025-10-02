@@ -2269,7 +2269,8 @@ class Composition(Container):
             # Update the rcParams
             plt.rcParams['keymap.all_axes'] = current_keymap
         except Exception as e:
-            print(f"Unable to disable default keys!")
+            pass    # No need to print anything
+            # print(f"Unable to disable default keys!")
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 

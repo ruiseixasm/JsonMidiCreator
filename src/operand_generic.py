@@ -785,8 +785,6 @@ class Pitch(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        if other.__class__ == o.Operand:
-            return True
         match other:
             case Pitch():
                 return self.pitch_int() == other.pitch_int()
@@ -1225,8 +1223,6 @@ class Controller(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if isinstance(other, Controller):
             return self._number_msb == other._number_msb and self._lsb == other._lsb \
                 and self._nrpn == other._nrpn and self._high == other._high
@@ -1496,8 +1492,6 @@ class Scale(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if type(self) != type(other):
             return False
         if isinstance(other, od.Conditional):
@@ -1874,8 +1868,6 @@ class Arpeggio(Generic):
         return notes
 
     def __eq__(self, other: 'Arpeggio') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if type(self) != type(other):
             return False
         if isinstance(other, Arpeggio):
@@ -2034,8 +2026,6 @@ class Segment(Generic):
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        if other.__class__ == o.Operand:
-            return True
         match other:
             case Segment():
                 if len(self._segment) == 3:
@@ -3805,8 +3795,6 @@ class Settings(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Settings') -> bool:
-        if other.__class__ == o.Operand:
-            return True
         if type(self) != type(other):
             return False
         if isinstance(other, od.Conditional):

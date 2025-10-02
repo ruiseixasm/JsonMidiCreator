@@ -183,7 +183,8 @@ class Rational(o.Operand):
                 try:
                     self._rational = Fraction(operand)
                 except ValueError as e:
-                    print(f"Error: {e}, '{operand}' is not a number!")
+                    pass    # No need to print anything
+                    # print(f"Error: {e}, '{operand}' is not a number!")
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ol.Null():
@@ -358,7 +359,8 @@ class Negative(Rational):
                 try:
                     self._rational = Fraction(operand) * -1
                 except ValueError as e:
-                    print(f"Error: {e}, '{operand}' is not a number!")
+                    pass    # No need to print anything
+                    # print(f"Error: {e}, '{operand}' is not a number!")
             case _:
                 super().__lshift__(operand)
         return self
