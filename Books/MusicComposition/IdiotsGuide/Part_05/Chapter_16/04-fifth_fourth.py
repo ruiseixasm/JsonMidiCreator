@@ -32,5 +32,8 @@ chord_progression_modulated = chord_progression.copy(KeySignature('b'))
 melody_modulated = melody.copy(KeySignature('b'))
 major_F = chord_progression_modulated + melody_modulated
 
+chord_progression * chord_progression_modulated % [Degree(), str()] >> Print()
+melody * melody_modulated % [Degree(), str()] >> Print()
+
 major_C * major_F * 4 << Title("Modulating Up a Fourth") >> Plot()
 
