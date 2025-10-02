@@ -1030,8 +1030,30 @@ class Pitch(Generic):
                 self << self % ou.Degree() + operand
             case ou.Transposition() | ou.Tones():
                 self._transposition += operand._unit
-            case ou.Key():
+
+            case ou.TonicKey():
                 self.increment_tonic(operand._unit)
+            case ou.RootKey():
+                degree, semitone = self.degree_tone_semitone(operand._unit)
+                # Uses the Degree Accidental system instead of changing the Tonic key
+                if semitone > 0:
+                    degree += round((semitone * 2 - 1) / 10, 1)
+                elif semitone < 0:
+                    degree += round((-1) * (semitone * 2) / 10, 1)
+                self += ou.Degree(degree)
+            case ou.TargetKey():
+                degree: float = 0.0 # No linear accidentals
+                transposition, semitone = self.transposition_tone_semitone(operand._unit)
+                # Uses the Degree Accidental system instead of changing the Tonic key
+                if semitone > 0:
+                    degree += round((semitone * 2 - 1) / 10, 1)
+                elif semitone < 0:
+                    degree += round((-1) * (semitone * 2) / 10, 1)
+                self += ou.Degree(degree)
+                self += ou.Transposition(transposition)
+            case ou.Key():
+                self += ou.RootKey(operand._unit)
+
             case dict():
                 for octave, value in operand.items():
                     self += value
