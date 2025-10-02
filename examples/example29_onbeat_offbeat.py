@@ -33,5 +33,6 @@ snare >> Mask(OffBeat()) >> Plot(block=False, title="Off Beat")
 snare >> Mask(DownBeat()) >> Plot(block=False, title="Down Beat")
 snare >> Mask(UpBeat()) >> Plot(block=False, title="Up Beat")
 
-snare >> Mask(IsNot()**OnBeat()) >> Plot(block=True, title="Is Not On Beat")
+snare >> Mask(IsNot()**OnBeat()) >> Plot(block=False, title="Is Not On Beat")
+snare >> Mask(NotEqual(OnBeat())) >> Plot(block=True, title="Not Equal to On Beat")
 

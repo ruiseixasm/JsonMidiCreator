@@ -179,13 +179,14 @@ class Element(o.Operand):
         return [ self ]
 
     def __eq__(self, other: o.Operand) -> bool:
+        import operand_frame as of
         match other:
             case Element():
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats
             case og.Segment():
                 return other == self % ra.Position()
-            case od.Conditional():
+            case od.Conditional() | of.Frame():
                 return other == self
             case _:
                 return super().__eq__(other)
