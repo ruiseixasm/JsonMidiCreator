@@ -878,16 +878,15 @@ class Pitch(Generic):
                         expected_octave_0: int = operand._data._unit // 12
                         self << operand._data  # Sets the RootKey on the actual Octave
                         root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
-                        actual_octave_0: int = root_pitch // 12
-                        if actual_octave_0 != expected_octave_0:    # For mismatch Octaves
-                            self += ou.Octave( expected_octave_0 - actual_octave_0 )
+                        root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
+                        if root_octave_0 != expected_octave_0:  # For mismatch Octaves
+                            self += ou.Octave( expected_octave_0 - root_octave_0 )
                     case ou.TargetKey():
                         expected_octave_0: int = operand._data._unit // 12
                         self << operand._data  # Sets the TargetKey on the actual Octave
                         target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
-                        actual_octave_0: int = target_pitch // 12
-                        if actual_octave_0 != expected_octave_0:    # For mismatch Octaves
-                            self += ou.Octave( expected_octave_0 - actual_octave_0 )
+                        if self._octave_0 != expected_octave_0: # For mismatch Octaves
+                            self += ou.Octave( expected_octave_0 - self._octave_0 )
 
                     case ou.Key():
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
