@@ -751,8 +751,6 @@ class Degree(PitchParameter):
         self._semitones: float = 0.0
         super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
 
-    _degree = ("I", "ii", "iii", "IV", "V", "vi", "vii")
-
     _string_to_degree: dict[str, int] = {
         "i": 1,     "1": 1,     "tonic": 1,
         "ii": 2,    "2": 2,     "supertonic": 2,
@@ -816,10 +814,13 @@ class Degree(PitchParameter):
                     return round(self._unit - self._semitones, 1)
                 return round(self._unit + self._semitones, 1)
             case str():
-                adjusted_degree: int = self._unit
-                if adjusted_degree > 0:
-                    adjusted_degree -= 1
-                return str(adjusted_degree % 7 + 1)
+                formal_degree: int = self._unit
+                if formal_degree > 0:
+                    formal_degree -= 1
+                formal_degree = formal_degree % 7 + 1
+                if self._semitones == 0.0:
+                    return str( formal_degree )
+                return str( round(formal_degree + self._semitones, 1) )
             case Sharp():
                 semitones_int: int = round(self._semitones * 10)
                 if semitones_int % 2 == 1:
