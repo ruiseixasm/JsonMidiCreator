@@ -1683,7 +1683,7 @@ class Composition(Container):
 
                     # Set MIDI note ticks with Middle C in bold
                     self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-                    self._ax.tick_params(axis='y', which='both', length=0)
+                    self._ax.tick_params(axis='y', which='both', color='white')
 
                     # # Only show tick marks for octaves (pitch % 12 == 0)
                     # for tick in self._ax.yaxis.get_major_ticks():
@@ -1700,10 +1700,10 @@ class Composition(Container):
                     ]  # Bold Middle C
                     self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
 
-                    # Adjust alignment and shift
-                    for label in self._ax.get_yticklabels():
-                        label.set_horizontalalignment("right")  # right-align text
-                        label.set_x(-0.005)                     # shift a bit left (tweak as needed)
+                    # # Adjust alignment and shift
+                    # for label in self._ax.get_yticklabels():
+                    #     label.set_horizontalalignment("right")  # right-align text
+                    #     label.set_x(-0.005)                     # shift a bit left (tweak as needed)
 
                     self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
 
