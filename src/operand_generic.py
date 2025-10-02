@@ -630,7 +630,7 @@ class Pitch(Generic):
         return self
 
 
-    def degree_tone_semitone(self, key_int: int) -> tuple[int, int]:
+    def tone_and_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
@@ -648,7 +648,7 @@ class Pitch(Generic):
         while tonic_offset < 0:
             tone -= signature_scale[tonic_offset % 12]
             tonic_offset += 1
-        return tone % 7 + 1, semitones
+        return tone, semitones
 
     def transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
         tone: int = 0
@@ -932,7 +932,8 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                degree, semitone = self.degree_tone_semitone(operand._unit % 12)
+                tone, semitone = self.tone_and_semitone(operand._unit % 12)
+                degree: int = tone % 7 + 1
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 if semitone > 0:
                     degree += round((semitone * 2 - 1) / 10, 1)
@@ -1034,23 +1035,15 @@ class Pitch(Generic):
             case ou.TonicKey():
                 self.increment_tonic(operand._unit)
             case ou.RootKey():
-                degree, semitone = self.degree_tone_semitone(operand._unit)
-                # Uses the Degree Accidental system instead of changing the Tonic key
-                if semitone > 0:
-                    degree += round((semitone * 2 - 1) / 10, 1)
-                elif semitone < 0:
-                    degree += round((-1) * (semitone * 2) / 10, 1)
-                self += ou.Degree(degree)
+                new_root_key: ou.RootKey = ou.RootKey(self % operand % int() % 12 + operand._unit)
+                octave_offset: ou.Octave = ou.Octave(new_root_key._unit // 12)
+                self += octave_offset
+                self << new_root_key    # Implicit % 12 in `<<` already
             case ou.TargetKey():
-                degree: float = 0.0 # No linear accidentals
-                transposition, semitone = self.transposition_tone_semitone(operand._unit)
-                # Uses the Degree Accidental system instead of changing the Tonic key
-                if semitone > 0:
-                    degree += round((semitone * 2 - 1) / 10, 1)
-                elif semitone < 0:
-                    degree += round((-1) * (semitone * 2) / 10, 1)
-                self += ou.Degree(degree)
-                self += ou.Transposition(transposition)
+                new_target_key: ou.TargetKey = ou.TargetKey(self % operand % int() % 12 + operand._unit)
+                octave_offset: ou.Octave = ou.Octave(new_target_key._unit // 12)
+                self += octave_offset
+                self << new_target_key  # Implicit % 12 in `<<` already
             case ou.Key():
                 self += ou.RootKey(operand._unit)
 
@@ -1082,8 +1075,22 @@ class Pitch(Generic):
                 self << self % ou.Degree() - operand
             case ou.Transposition() | ou.Tones():
                 self._transposition -= operand._unit
-            case ou.Key():
+
+            case ou.TonicKey():
                 self.increment_tonic(-operand._unit)
+            case ou.RootKey():
+                new_root_key: ou.RootKey = ou.RootKey(self % operand % int() % 12 - operand._unit)
+                octave_offset: ou.Octave = ou.Octave(new_root_key._unit // 12)
+                self += octave_offset
+                self << new_root_key    # Implicit % 12 in `<<` already
+            case ou.TargetKey():
+                new_target_key: ou.TargetKey = ou.TargetKey(self % operand % int() % 12 - operand._unit)
+                octave_offset: ou.Octave = ou.Octave(new_target_key._unit // 12)
+                self += octave_offset
+                self << new_target_key  # Implicit % 12 in `<<` already
+            case ou.Key():
+                self -= ou.RootKey(operand._unit)
+
             case dict():
                 for octave, value in operand.items():
                     self -= value

@@ -24,10 +24,14 @@ from JsonMidiCreator import *
 
 settings << Tempo(160) << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")
 
-melody = Note(Dotted(1/4)) / Note(1/8) / 8 << Foreach("1", "3")
-melody += Mux(2)**Iterate()**RootKey()
+melody_up = Note(Dotted(1/4)) / Note(1/8) / 8 << Foreach("1", "3")
+melody_up += Mux(2)**Iterate()**RootKey()
+melody_up * 4 << Title("Ascending Chromatically") >> Plot(block=False)
 
+melody_down = Note(Dotted(1/4)) / Note(1/8) / 8 << Foreach("1", "3")
+melody_down -= Mux(2)**Iterate()**RootKey()
+melody_down * 4 << Title("Descending Chromatically") >> Plot(block=False)
 
-melody * 4 << Title("Ascending Chromatically") >> Plot()
-
+melody_zig = melody_up * [0, -1, 2, -1] + melody_down * [-1, 1, -1, 3]
+melody_zig * 4 << Title("Zig Zag Chromatically") >> Plot()
 
