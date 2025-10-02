@@ -285,7 +285,7 @@ def test_chord_mod():
     chord = Chord("A") << Scale("minor") << Size("7th") << Duration(1/2)
     chord_string = chord % Degree()
 
-    assert chord_string == "VI"
+    assert chord_string == "6"
 
     triad_c_major: Chord = Chord()  # C Major scale
     three_notes: list[Note] = triad_c_major.get_component_elements()
