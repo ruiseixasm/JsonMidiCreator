@@ -122,7 +122,7 @@ class RS_Clip(RS_Solutions):
     def iterate(self, iterations: int,
                 iterator: Callable[[list | int | float | Fraction, 'oc.Composition'], 'oc.Composition'],
                 chaos: ch.Chaos,
-                triggers: int,
+                triggers: int | float | Fraction,
                 title: str = "") -> Self:
         
         def _n_button(composition: 'oc.Composition') -> 'oc.Composition':
@@ -139,7 +139,7 @@ class RS_Clip(RS_Solutions):
                 iteration_measures: list[int] = o.list_increment(self._measures)
                 previous_measures: list[int] = []
                 if triggers > 0:
-                    measure_triggers: list = [1] * triggers
+                    measure_triggers: list = [triggers] * triggers
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
@@ -151,7 +151,7 @@ class RS_Clip(RS_Solutions):
                         segmented_composition: oc.Composition = composition * composition_measures
                         if measure_iterations > 0:
                             if not triggers > 0:
-                                measure_triggers: list = [1] * segmented_composition.len()
+                                measure_triggers: list = [triggers] * segmented_composition.len()
                             results = measure_triggers >> chaos.iterate(measure_iterations - 1)
                             new_composition *= iterator(results, segmented_composition) * iteration_measures
                             chaos.reset_tamers()
@@ -312,7 +312,7 @@ class RS_Clip(RS_Solutions):
     def tonality_conjunct(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
-            triggers: int = 7,
+            triggers: int | float | Fraction = 7,
             title: str | None = None) -> Self:
         """
         Adjusts the pitch of each Note in Conjunct whole steps of 0 or 1.
@@ -607,7 +607,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             parameter: any = ou.Velocity(),
             chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
-            triggers: int = 0,
+            triggers: int | float | Fraction = 0,
             title: str | None = None) -> Self:
         """
         Applies a given parameter with the given chaos.
@@ -630,7 +630,7 @@ class RS_Clip(RS_Solutions):
             parameter: Any = ou.Degree(),
             operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
             chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
-            triggers: int = 0,
+            triggers: int | float | Fraction = 0,
             title: str | None = None) -> Self:
         """
         Applies any operator between elements and computed values.
