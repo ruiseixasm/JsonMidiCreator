@@ -874,11 +874,11 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.RootKey():
-                        self._octave_0 = operand._data._unit // 12
+                        self._octave_0 = (operand._data._unit - self._tonic_key) // 12
                         octave_key: int = operand._data._unit % 12
                         self << ou.RootKey(octave_key)
                     case ou.TargetKey():
-                        self._octave_0 = operand._data._unit // 12
+                        self._octave_0 = (operand._data._unit - self._tonic_key) // 12
                         octave_key: int = operand._data._unit % 12
                         self << ou.TargetKey(octave_key)
                     case ou.Key():
