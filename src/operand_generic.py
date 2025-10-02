@@ -873,14 +873,22 @@ class Pitch(Generic):
                         self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
+
                     case ou.RootKey():
-                        self._octave_0 = (operand._data._unit - self._tonic_key) // 12
-                        octave_key: int = operand._data._unit % 12
-                        self << ou.RootKey(octave_key)
+                        expected_octave_0: int = operand._data._unit // 12
+                        self << operand._data  # Sets the RootKey on the actual Octave
+                        root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
+                        actual_octave_0: int = root_pitch // 12
+                        if actual_octave_0 != expected_octave_0:    # For mismatch Octaves
+                            self += ou.Octave( expected_octave_0 - actual_octave_0 )
                     case ou.TargetKey():
-                        self._octave_0 = (operand._data._unit - self._tonic_key) // 12
-                        octave_key: int = operand._data._unit % 12
-                        self << ou.TargetKey(octave_key)
+                        expected_octave_0: int = operand._data._unit // 12
+                        self << operand._data  # Sets the TargetKey on the actual Octave
+                        target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
+                        actual_octave_0: int = target_pitch // 12
+                        if actual_octave_0 != expected_octave_0:    # For mismatch Octaves
+                            self += ou.Octave( expected_octave_0 - actual_octave_0 )
+
                     case ou.Key():
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
                     case ou.Degree():   # Sets an absolute degree_0

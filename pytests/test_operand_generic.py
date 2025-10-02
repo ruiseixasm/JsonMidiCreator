@@ -1219,18 +1219,18 @@ def test_root_key_pipe():
     assert pitch_A_minor._octave_0 == 5
     assert absolute_root_key == 68
 
-    # pitch_A_minor << Pipe(RootKey(68))
-    # absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    # print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    # assert pitch_A_minor._degree_0 == 0.2
-    # assert pitch_A_minor._octave_0 == 5
-    # assert absolute_root_key == 68
+    pitch_A_minor << Pipe(RootKey(68))
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert pitch_A_minor._degree_0 == 0.2
+    assert pitch_A_minor._octave_0 == 5
+    assert absolute_root_key == 68
 
-    # pitch_A_minor << Pipe(RootKey(69))
-    # pitch_A_minor -= RootKey(1)
-    # absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    # print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    # assert absolute_root_key == 68
+    pitch_A_minor << Pipe(RootKey(69))
+    pitch_A_minor -= RootKey(1)
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert absolute_root_key == 68
 
 # test_root_key_pipe()
 

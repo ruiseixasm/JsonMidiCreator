@@ -35,11 +35,13 @@ melody_down * 4 << Title("Descending Chromatically") >> Plot(block=False)
 melody_zig = melody_up * [0, -1, 2, -1] + melody_down * [-1, 1, -1, 3]
 melody_zig * 4 << Title("Zig Zag Chromatically") >> Plot(block=False)
 
-melody_up = Note(Dotted(1/4)) / Note(1/8) / 8 * 2 << Foreach("1", "3")
-melody_up += Mux(2)**Iterate()**RootKey()
-melody_up * 2 << Title("Super Ascending") >> Plot(block=False)
+melody_super = Note(Dotted(1/4)) / Note(1/8) / 8 * 2 << Foreach("1", "3")
+melody_super += Mux(2)**Iterate()**RootKey()
+melody_super % [Octave(), int()] >> Print()
+melody_super * 2 << Title("Super Ascending") >> Plot(block=False)
 
-melody_up = Note(Dotted(1/4)) / Note(1/8) / 8 * 2 << Foreach("1", "3") << Minor()
-melody_up += Mux(2)**Iterate()**RootKey()
-melody_up * 2 << Title("Super Minor") >> Plot()
+melody_minor = Note(Dotted(1/4)) / Note(1/8) / 8 * 2 << Foreach("1", "3") << Minor()
+melody_minor += Mux(2)**Iterate()**RootKey()
+melody_minor % [Octave(), int()] >> Print()
+melody_minor * 2 << Title("Minor Ascending") >> Plot()
 
