@@ -351,17 +351,8 @@ class Container(o.Operand):
                     if not single_item == other_item:
                         return False
                 return True
-        if not isinstance(other, ol.Null):
-            if other.__class__ == o.Operand:
-                return True
-            return self % other == other
-        # When comparing lists containing objects in Python using the == operator,
-        # Python will call the __eq__ method on the objects if it is defined,
-        # rather than comparing their references directly.
-        # If the __eq__ method is not defined for the objects, then the default behavior
-        # (which usually involves comparing object identities, like references,
-        # using the is operator) will be used.
-        return False
+            case _:
+                return super().__eq__(other)
 
     def __lt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
@@ -371,7 +362,7 @@ class Container(o.Operand):
                 if not single_item < other_item:
                     return False
             return True
-        return self % other < other
+        return super().__lt__(other)
 
     def __gt__(self, other: any) -> bool:
         if isinstance(other, of.Frame):
@@ -381,7 +372,7 @@ class Container(o.Operand):
                 if not single_item > other_item:
                     return False
             return True
-        return self % other > other
+        return super().__gt__(other)
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
