@@ -701,13 +701,21 @@ class Pitch(Generic):
                 match operand._data:
                     case ou.KeySignature(): return self._key_signature
                     case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
-                    case ou.TonicKey():     return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.TonicKey():
+                        return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
+                    case ou.RootKey():
+                        return operand._data << od.Pipe(
+                            self.chromatic_root_int() + self.octave_transposition()
+                        )
                     case ou.TargetKey():
-                        pass
-                    case ou.Key():  # Also applies to RootKey
-                        octave_key: int = self % operand._data % int() % 12
-                        absolute_key: int = octave_key + 12 * self._octave_0
-                        return operand._data << absolute_key
+                        return operand._data << od.Pipe(
+                            self.chromatic_target_int() + self.octave_transposition()
+                        )
+                    case ou.Key():
+                        return operand._data << self % od.Pipe( ou.RootKey() )
+                        # octave_key: int = self % operand._data % int() % 12
+                        # absolute_key: int = octave_key + 12 * self._octave_0
+                        # return operand._data << absolute_key
                     case ou.Degree():   # Returns an absolute degree_0
                         operand._data << self._degree_0
                         operand._data += self._octave_0 * 7   # 7 degrees per octave
@@ -865,12 +873,16 @@ class Pitch(Generic):
                         self._key_signature = operand._data
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
-                    case ou.TargetKey():
-                        pass
-                    case ou.Key():      # Also applies to RootKey
+                    case ou.RootKey():
                         self._octave_0 = operand._data._unit // 12
                         octave_key: int = operand._data._unit % 12
-                        self << ou.Key(octave_key)
+                        self << ou.RootKey(octave_key)
+                    case ou.TargetKey():
+                        self._octave_0 = operand._data._unit // 12
+                        octave_key: int = operand._data._unit % 12
+                        self << ou.TargetKey(octave_key)
+                    case ou.Key():
+                        self << od.Pipe( ou.RootKey(operand._data._unit) )
                     case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
@@ -1035,15 +1047,13 @@ class Pitch(Generic):
             case ou.TonicKey():
                 self.increment_tonic(operand._unit)
             case ou.RootKey():
-                new_root_key: ou.RootKey = ou.RootKey(self % operand % int() % 12 + operand._unit)
-                octave_offset: ou.Octave = ou.Octave(new_root_key._unit // 12)
-                self += octave_offset
-                self << new_root_key    # Implicit % 12 in `<<` already
+                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
+                absolute_root_key += operand
+                self << od.Pipe( absolute_root_key )
             case ou.TargetKey():
-                new_target_key: ou.TargetKey = ou.TargetKey(self % operand % int() % 12 + operand._unit)
-                octave_offset: ou.Octave = ou.Octave(new_target_key._unit // 12)
-                self += octave_offset
-                self << new_target_key  # Implicit % 12 in `<<` already
+                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
+                absolute_target_key += operand
+                self << od.Pipe( absolute_target_key )
             case ou.Key():
                 self += ou.RootKey(operand._unit)
 
@@ -1079,15 +1089,13 @@ class Pitch(Generic):
             case ou.TonicKey():
                 self.increment_tonic(-operand._unit)
             case ou.RootKey():
-                new_root_key: ou.RootKey = ou.RootKey(self % operand % int() % 12 - operand._unit)
-                octave_offset: ou.Octave = ou.Octave(new_root_key._unit // 12)
-                self += octave_offset
-                self << new_root_key    # Implicit % 12 in `<<` already
+                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
+                absolute_root_key -= operand
+                self << od.Pipe( absolute_root_key )
             case ou.TargetKey():
-                new_target_key: ou.TargetKey = ou.TargetKey(self % operand % int() % 12 - operand._unit)
-                octave_offset: ou.Octave = ou.Octave(new_target_key._unit // 12)
-                self += octave_offset
-                self << new_target_key  # Implicit % 12 in `<<` already
+                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
+                absolute_target_key -= operand
+                self << od.Pipe( absolute_target_key )
             case ou.Key():
                 self -= ou.RootKey(operand._unit)
 
