@@ -197,7 +197,7 @@ class Element(o.Operand):
                     return self._duration_beats > other._duration_beats # Longer duration comes first
                 return self._position_beats < other._position_beats
             case _:
-                return self % other < other
+                return super().__lt__(other)
     
     def __gt__(self, other: 'o.Operand') -> bool:
         match other:
@@ -206,7 +206,7 @@ class Element(o.Operand):
                     return self._duration_beats < other._duration_beats # Longer duration comes first
                 return self._position_beats > other._position_beats
             case _:
-                return self % other > other
+                return super().__gt__(other)
     
     def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
