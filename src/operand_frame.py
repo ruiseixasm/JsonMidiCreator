@@ -81,6 +81,11 @@ class Frame(o.Operand):
         self._index = 0
         return self
 
+    def get_operand(self) -> Any:
+        if isinstance(self._next_operand, Frame):
+            return self._next_operand.get_operand()
+        return self._next_operand
+
     def __pow__(self, operand: any) -> 'Frame':
         if isinstance(operand, o.Operand):
             operand._set = False
@@ -139,7 +144,10 @@ class Frame(o.Operand):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        # Frame class IS a Read-only class
+        # << applies to the first non Frame operand in the tail
+        self_operand: any = self.get_operand()
+        if isinstance(self_operand, o.Operand):
+            self_operand << operand
         return self
 
     def frame(self, input: Any) -> Any:
