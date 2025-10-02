@@ -31,5 +31,7 @@ snare >> Plot(block=False, title="All Beats")
 snare >> Mask(OnBeat()) >> Plot(block=False, title="On Beat")
 snare >> Mask(OffBeat()) >> Plot(block=False, title="Off Beat")
 snare >> Mask(DownBeat()) >> Plot(block=False, title="Down Beat")
-snare >> Mask(UpBeat()) >> Plot(block=True, title="Up Beat")
+snare >> Mask(UpBeat()) >> Plot(block=False, title="Up Beat")
+
+snare >> Mask(IsNot()**OnBeat()) >> Plot(block=True, title="Is Not On Beat")
 

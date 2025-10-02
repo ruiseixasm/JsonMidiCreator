@@ -1171,14 +1171,14 @@ class Right(Frame):  # RIGHT TO LEFT
             right_input._set = True
         return right_input
 
-class IsNull(Right):
-    """`Frame -> Right -> IsNull`
+class IsNot(Right):
+    """`Frame -> Right -> IsNot`
 
-    An `IsNull` converts a `Null` return into a NonNull one and any other to `Null`.
+    An `IsNot` converts a `Null` return into a NonNull one and any other to `Null`.
 
     Parameters
     ----------
-    None : `IsNull` doesn't have parameters to be set.
+    None : `IsNot` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
         right_input = super().frame(input)
