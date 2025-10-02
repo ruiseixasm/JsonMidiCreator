@@ -48,7 +48,7 @@ class Frame(o.Operand):
         import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
-        self._next_operand: any         = o.Operand()
+        self._next_operand: any         = ol.NotNull()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._inside_container: oc.Container = None
@@ -149,8 +149,8 @@ class Frame(o.Operand):
         # Frame class IS a Read-only class
         return self
 
-    def frame(self, input: Any) -> o.Operand:
-        return o.Operand()
+    def frame(self, input: Any) -> Any:
+        return self._next_operand
     
 
     def pop(self, frame: 'Frame') -> 'Frame':
