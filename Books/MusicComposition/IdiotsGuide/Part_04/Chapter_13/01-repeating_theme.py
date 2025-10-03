@@ -41,7 +41,7 @@ clarinet = \
     (Note() * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \
     >> S >> Tie() << Channel(1) << MidiTrack(1, "Clarinet") << Velocity(60)
-clarinet % M1 % NoteValue() >> Print(0)
+clarinet % Measures(0) % NoteValue() >> Print(0)
 # clarinet >> rest_play >> Render("Midi/clarinet.mid")
 trumpet = \
     ProgramChange("Trumpet") + \

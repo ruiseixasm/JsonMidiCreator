@@ -44,7 +44,7 @@ rising >> Rest() >> Play()
 settings << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
-faster = Note() * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
+faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> L >> R >> P
 
 settings << ""
@@ -69,27 +69,27 @@ melodic_line = \
     dotted_rhythm >> sixteenth_group >> dotted_rhythm >> sixteenth_group >> \
     duplet >> dotted_rhythm % Reverse() >> sixteenth_group >> dotted_rhythm >> \
     sixteenth_group * 2 >> (N << half)
-melodic_line % M1 << Foreach(B, C, B, A)
-melodic_line % M2 % B1 << Foreach(G, A, G)
-melodic_line % M2 % B2 << Iterate(F)
-melodic_line % M2 % B3 << Iterate(C, -1)
-melodic_line % M2 % B4 << Iterate(G)
-melodic_line % M3 % B1 << Foreach((D, 5), G)
-melodic_line % M3 % B2 << Iterate(A)
-melodic_line % M3 % B3 << Foreach(D, F, E, C)
-melodic_line % M3 % B4 << Foreach(D, C, D)
-melodic_line % M4 << Foreach((G, 5), E, C, G, B, G, E, B, A)
+melodic_line % Measures(0) << Foreach(B, C, B, A)
+melodic_line % Measures(1) % Beats(0) << Foreach(G, A, G)
+melodic_line % Measures(1) % Beats(1) << Iterate(F)
+melodic_line % Measures(1) % Beats(2) << Iterate(C, -1)
+melodic_line % Measures(1) % Beats(3) << Iterate(G)
+melodic_line % Measures(2) % Beats(0) << Foreach((D, 5), G)
+melodic_line % Measures(2) % Beats(1) << Iterate(A)
+melodic_line % Measures(2) % Beats(2) << Foreach(D, F, E, C)
+melodic_line % Measures(2) % Beats(3) << Foreach(D, C, D)
+melodic_line % Measures(3) << Foreach((G, 5), E, C, G, B, G, E, B, A)
 
-melodic_line % M1 >> Smooth()
-melodic_line % M2 >> Smooth()
-melodic_line % M3 % Greater(B1) >> Smooth()
-melodic_line % M4 >> Smooth()
+melodic_line % Measures(0) >> Smooth()
+melodic_line % Measures(1) >> Smooth()
+melodic_line % Measures(2) % Greater(B1) >> Smooth()
+melodic_line % Measures(3) >> Smooth()
 
-melodic_line % M1 % int() >> Print()
-melodic_line % M2 % int() >> Print()
-melodic_line % M3 % int() >> Print()
-melodic_line % M4 % int() >> Print()
-melodic_line % M5 % int() >> Print()
+melodic_line % Measures(0) % int() >> Print()
+melodic_line % Measures(1) % int() >> Print()
+melodic_line % Measures(2) % int() >> Print()
+melodic_line % Measures(3) % int() >> Print()
+melodic_line % Measures(4) % int() >> Print()
 melodic_line % int() >> Print()
 melodic_line >> R >> P
 
