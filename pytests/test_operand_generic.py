@@ -1247,6 +1247,18 @@ def test_root_key_set():
         root_key += 1
         major_C_pitch_int += 1
 
+
+    minor_C_sharp = Pitch(Minor(), RootKey("C#"))
+    minor_C_sharp_int_1 = minor_C_sharp.pitch_int()
+    print(f"minor_C_sharp_int_1: {minor_C_sharp_int_1}")
+
+    minor_C_sharp = Pitch(Minor(), RootKey("C"), RootKey("C#"))
+    minor_C_sharp_int_2 = minor_C_sharp.pitch_int()
+    print(f"minor_C_sharp_int_2: {minor_C_sharp_int_2}")
+
+    assert minor_C_sharp_int_1 == minor_C_sharp_int_2
+
+
     minor_A = Pitch(Minor())
     minor_A_pitch_int = minor_A.pitch_int()
     print(f"minor_A_pitch_int: {minor_A_pitch_int}")
@@ -1255,12 +1267,13 @@ def test_root_key_set():
     for _ in range(12):
         minor_A << root_key
         key_pitch_int = minor_A.pitch_int()
+        print(f"root_key: {root_key}")
         print(f"key_pitch_int: {key_pitch_int}")
         assert key_pitch_int == minor_A_pitch_int
         root_key += 1
         minor_A_pitch_int += 1
 
-# test_root_key_set()
+test_root_key_set()
 
 
 def test_sharps_and_flats_picker():
