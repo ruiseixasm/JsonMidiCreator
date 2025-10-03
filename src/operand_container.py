@@ -94,7 +94,9 @@ class Container(o.Operand):
         return self._items
 
 
-    def __getitem__(self, index: int) -> any:
+    def __getitem__(self, index: int | str) -> any:
+        if isinstance(index, str):
+            index = o.tag_to_int(index)
         if self._masked:
             return self._mask_items[index]
         return self._items[index]
@@ -2421,7 +2423,7 @@ class Clip(Composition):  # Just a container of Elements
             return self._mask_items
         return self._items
 
-    def __getitem__(self, index: Union['of.Frame', int]) -> 'oe.Element':
+    def __getitem__(self, index: Union['of.Frame', int, str]) -> 'oe.Element':
         """
         Read Only method
         """
@@ -4287,13 +4289,17 @@ class Part(Composition):
         return self._items
 
 
-    def __getitem__(self, key: str | int) -> 'Clip':
-        if isinstance(key, str):
-            for single_item in self._unmasked_items():
-                if single_item._midi_track._name == key:
-                    return single_item
+    def __getitem__(self, index: Union[int, str]) -> 'Clip':
+        if isinstance(index, str):
+            tag_int: int  = o.tag_to_int(index)
+            if tag_int >= 0:
+                return self._unmasked_items()[tag_int]
+            for single_clip in self._unmasked_items():
+                if single_clip._midi_track._name == index:
+                    return single_clip
             return ol.Null()
-        return self._unmasked_items()[key]
+        return super().__getitem__(index)
+    
 
     def __next__(self) -> 'Clip':
         return super().__next__()
@@ -4895,13 +4901,17 @@ class Song(Composition):
         return self._items
 
 
-    def __getitem__(self, key: int) -> 'Part':
-        if isinstance(key, str):
+    def __getitem__(self, index: Union[int, str]) -> 'Part':
+        if isinstance(index, str):
+            tag_int: int  = o.tag_to_int(index)
+            if tag_int >= 0:
+                return self._unmasked_items()[tag_int]
             for single_part in self._unmasked_items():
-                if single_part._name == key:
+                if single_part._name == index:
                     return single_part
             return ol.Null()
-        return self._unmasked_items()[key]
+        return super().__getitem__(index)
+    
 
     def __next__(self) -> 'Part':
         return super().__next__()
@@ -5354,20 +5364,16 @@ class Song(Composition):
                 
             case list():
                 base_parts: list[Part] = []
-                mask_parts: list[Part] = []
                 
-                # TO BE DEVELOPED
-                # Needs the implementation of methods length, net_length, first_measure and last measures
-                # in both Part and Song classes
-
-                # for target_measure, song_index in enumerate(operand):
-                #     self_segment: Clip = self.copy().filter(song_index)._set_owner_clip(self)
-                #     self_segment << ra.Measure(target_measure)   # Stacked by measure *
-                #     base_parts.extend(self_segment._items)
-                #     mask_parts.extend(self_segment._mask_items)
+                position_measure: ra.Position = ra.Position(0)
+                for part_index in operand:
+                    new_part: Part = self[part_index].copy(position_measure)
+                    base_parts.append(new_part)
+                    length_measures: ra.Measure = new_part.length() % ra.Measure()
+                    position_measure += length_measures
 
                 self._items = base_parts
-                self._mask_items = mask_parts
+                self._mask_items = []
             case _:
                 super().__imul__(operand)
         return self._sort_items()
