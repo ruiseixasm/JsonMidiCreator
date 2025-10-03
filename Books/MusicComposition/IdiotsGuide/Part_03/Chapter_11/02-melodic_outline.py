@@ -40,10 +40,10 @@ original_melody << Foreach(
     C) >> Smooth()
 original_melody >> R >> P
 
-melodic_outline = original_melody % S1 + original_melody % M2 % B3 >> LJ
+melodic_outline = original_melody % Steps(0) + original_melody % M2 % B3 >> LJ
 melodic_outline >> R >> P
 
-structural_tones = original_melody % S1 + original_melody % M2 % B3 + original_melody % M3 % B3 >> LJ
+structural_tones = original_melody % Steps(0) + original_melody % M2 % B3 + original_melody % M3 % B3 >> LJ
 structural_tones >> R >> P
 
 chords = Chord(1/1) * 6

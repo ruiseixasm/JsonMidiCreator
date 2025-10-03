@@ -34,15 +34,7 @@ from resource_solutions import *
 from resource_patterns import *
 
 
-# Determine the operating system
-import platform
-current_os = platform.system()
-if current_os == "Windows":
-    settings << Devices(["loopMIDI", "Microsoft"])  # Microsoft GS Wavetable Synth
-elif current_os == "Darwin":  # macOS
-    settings << Devices(["IAC Bus", "Apple"])       # Apple DLS Synthesizer
-else:  # Assume Linux/Unix
-    settings << Devices(["VMPK", "FLUID"])          # FLUID Synth
+settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"])
 
 
 # Set group of constants
