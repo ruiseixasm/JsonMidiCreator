@@ -39,6 +39,18 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 
 # GENERIC HANDY FUNCTIONS
 
+def tag_to_int(tag: str) -> int:
+    tag_string: str = tag.strip().lower()
+    tag_int: int = -1
+    if len(tag_string) == 1:
+        ascii_value: int = ord(tag_string)
+        if 48 <= ascii_value <= 57:     # 0 to 9
+            tag_int = ascii_value - 48
+        elif 97 <= ascii_value <= 122:  # a to z
+            tag_int = ascii_value - 97
+    return tag_int
+
+
 def minutes_to_time_ms(minutes: Fraction) -> float:
     # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
     return round(float(minutes * 60_000), 3)
