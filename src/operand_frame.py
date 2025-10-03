@@ -234,7 +234,10 @@ class Left(Frame):  # LEFT TO RIGHT
             if isinstance(self_operand, o.Operand): # Strict operand, the default (validated as true)
                 self_operand._set = True
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
-            self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
+            if isinstance(input, oe.Element):   # Elements shouldn't set operands but just trigger them
+                self_operand = self_operand.copy()
+            else:
+                self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
         
         return self_operand
