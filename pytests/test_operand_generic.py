@@ -1234,26 +1234,30 @@ def test_root_key_pipe():
 
 # test_root_key_pipe()
 
+
 def test_root_key_set():
 
     major_C = Pitch(Major())
     major_C_pitch_int = major_C.pitch_int()
-    root_key = RootKey()
+    root_key = RootKey("C")
 
-    for key_int in range(12):
-        root_key << key_int
+    for _ in range(12):
         major_C << root_key
         assert major_C.pitch_int() == major_C_pitch_int
+        root_key += 1
         major_C_pitch_int += 1
 
     minor_A = Pitch(Minor())
     minor_A_pitch_int = minor_A.pitch_int()
-    root_key = RootKey()
+    print(f"minor_A_pitch_int: {minor_A_pitch_int}")
+    root_key = RootKey("A")
 
-    for key_int in range(12):
-        root_key << key_int
+    for _ in range(12):
         minor_A << root_key
-        assert minor_A.pitch_int() == minor_A_pitch_int
+        key_pitch_int = minor_A.pitch_int()
+        print(f"key_pitch_int: {key_pitch_int}")
+        assert key_pitch_int == minor_A_pitch_int
+        root_key += 1
         minor_A_pitch_int += 1
 
 # test_root_key_set()
