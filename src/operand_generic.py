@@ -646,7 +646,7 @@ class Pitch(Generic):
         return tone % scale_degrees, semitone
 
 
-    def correct_degree_0(self) -> Self:
+    def normalize_degree_0(self) -> Self:
         floor_degree_0: float = math.floor(self._degree_0) * 1.0
         linear_semitones: float = round((self._degree_0 - floor_degree_0), 1)
         if round(linear_semitones % 0.2, 1) == 0.1:
@@ -958,12 +958,8 @@ class Pitch(Generic):
                     # Changes only the chromatic transposition
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    degree_linear_float: float = ou.Degree.degree_linear_float(operand % float())
-                    degree_octave: int = degree_linear_float // 7
-                    degree_0: float = operand % float() - 1
-                    degree_0 -= 7 * degree_octave
-                    self._degree_0 = round(degree_0, 1)
-                self.correct_degree_0()
+                    self._degree_0 = operand % float() - 1
+                self.normalize_degree_0()
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
