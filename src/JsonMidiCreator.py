@@ -73,18 +73,6 @@ G = Key("G")
 A = Key("A")
 B = Key("B")
 
-# Octaves
-O0 = Octave(0)
-O1 = Octave(1)
-O2 = Octave(2)
-O3 = Octave(3)
-O4 = Octave(4)
-O5 = Octave(5)
-O6 = Octave(6)
-O7 = Octave(7)
-O8 = Octave(8)
-O9 = Octave(9)
-
 # Actions
 L = Link()
 S = Stack()

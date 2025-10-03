@@ -31,7 +31,7 @@ notes % Greater(Position(0, Beats(0))) >> Smooth()
 notes >> R >> P
 
 extended_chords = Chord() * 5 << Nth(3, 4)**half >> S
-extended_chords << Foreach("DM7", "Em7", "GM7", "A7", "Em7") << O3
+extended_chords << Foreach("DM7", "Em7", "GM7", "A7", "Em7") << Octave(3)
 extended_chords >> R >> P
 
 notes + extended_chords >> L >> R >> P

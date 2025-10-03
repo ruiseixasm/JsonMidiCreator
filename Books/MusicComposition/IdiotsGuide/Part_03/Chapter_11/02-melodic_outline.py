@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 
 settings << 60.0 << ""
 Key() % str() >> Print()
-chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), O3), "F")
+chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), Octave(3)), "F")
 chords >> R >> P
 
 settings << 120

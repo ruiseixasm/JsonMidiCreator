@@ -30,7 +30,7 @@ slow_melody << Foreach((G, Gate(1)), G, A, B, G)
 slow_melody >> R >> P
 
 chords = Chord(1/2) * 6 + Chord() >> S
-chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << O3
+chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << Octave(3)
 chords + slow_melody >> L >> R >> P
 
 settings << "b"
@@ -44,6 +44,6 @@ fast_melody = \
 fast_melody >> R >> P
 
 chords = Chord(3/1) + Chord() >> S
-chords << Foreach((Gate(0.99), F), "Gm") << O3
+chords << Foreach((Gate(0.99), F), "Gm") << Octave(3)
 # chords >> L >> R >> P
 chords + fast_melody >> L >> R >> P

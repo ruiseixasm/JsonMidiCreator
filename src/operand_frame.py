@@ -398,7 +398,7 @@ class CountDown(Left):
     """`Frame -> Left -> CountDown`
 
     A `CountDown` is a group of count down numbers that work as selectors when they reach 0.
-    In `CountDown(5, 1, 5)**Choice(O3, O4, O5)` the value `O4` will be chosen in the next call.
+    In `CountDown(5, 1, 5)**Choice(Octave(3), Octave(4), Octave(5))` the value `O4` will be chosen in the next call.
 
     Parameters
     ----------

@@ -26,11 +26,11 @@ settings << 40
 Key() % str() >> Print()
 
 chords_F = Chord(1/1) * 7
-chords_F << Foreach("Bdim", ("Dm", Inversion(2)), (F, Inversion(1)), "G7", "Em9", "CM11", ("Am13", O3, Inversion(1)))
+chords_F << Foreach("Bdim", ("Dm", Inversion(2)), (F, Inversion(1)), "G7", "Em9", "CM11", ("Am13", Octave(3), Inversion(1)))
 chords_F >> R >> P
 
 staff_chords_F = Chord(1/1, []) * 7
 staff_chords_F << Foreach("vii", "ii", "IV", "V", "iii", "I", "vi")**Degree()   # Sets the root notes
 staff_chords_F << Foreach(3, 3, 3, 4, 5, 6, 7)**Size()
-staff_chords_F << Nth(2, 3, 7)**Foreach(Inversion(2), Inversion(1), (O3, Inversion(1)))
+staff_chords_F << Nth(2, 3, 7)**Foreach(Inversion(2), Inversion(1), (Octave(3), Inversion(1)))
 staff_chords_F >> R >> P
