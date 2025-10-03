@@ -40,6 +40,7 @@ settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple
 # Set group of constants
 
 # Class alias, abbreviations
+K = Key
 N = Nt = Note
 R = Rst = Rest
 Ch = Channel
@@ -61,10 +62,9 @@ PC = ProgramChange
 T = Tmp = Tpo = Tempo
 Q = Qtz = Qtzn = Quant = Quantization
 High = HighResolution
-
+Section = Part
 
 # Keys
-K = Key # The class not the object
 C = Key("C")
 D = Key("D")
 E = Key("E")
@@ -94,17 +94,15 @@ Pr = Print()
 Pl = Plot()
 
 # Note Values alias, abbreviations
-NV1 = whole = Duration(1/1)
-NV2 = half = Duration(1/2)
-NV4 = quarter = Duration(1/4)
-NV8 = eight = Duration(1/8)
-NV16 = sixteenth = Duration(1/16)
-NV32 = Duration(1/32)
-Dot1 = dotted_whole = Dotted(1/1)
-Dot2 = dotted_half = Dotted(1/2)
-Dot4 = dotted_quarter = Dotted(1/4)
-Dot8 = dotted_eight = Dotted(1/8)
-Dot16 = dotted_sixteenth = Dotted(1/16)
-Dot32 = Dotted(1/32)
+whole = Duration(1/1)
+half = Duration(1/2)
+quarter = Duration(1/4)
+eight = Duration(1/8)
+sixteenth = Duration(1/16)
+dotted_whole = Dotted(1/1)
+dotted_half = Dotted(1/2)
+dotted_quarter = Dotted(1/4)
+dotted_eight = Dotted(1/8)
+dotted_sixteenth = Dotted(1/16)
 
 
