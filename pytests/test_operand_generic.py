@@ -1267,7 +1267,7 @@ def test_root_key_set():
         root_key += 1
         minor_A_pitch_int += 1
 
-# test_root_key_set()
+test_root_key_set()
 
 
 def test_sharps_and_flats_picker():

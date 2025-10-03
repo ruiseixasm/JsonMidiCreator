@@ -946,7 +946,11 @@ class Pitch(Generic):
                     # Changes only the chromatic transposition
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
-                    self._degree_0 = round((operand % float() - 1) % 7, 1)
+                    degree_linear_float: float = ou.Degree.degree_linear_float(operand % float())
+                    degree_octave: int = degree_linear_float // 7
+                    degree_0: float = operand % float() - 1
+                    degree_0 -= 7 * degree_octave
+                    self._degree_0 = round(degree_0, 1)
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
