@@ -1004,38 +1004,6 @@ def test_pitch_modulation():
 # test_pitch_modulation()
 
 
-def test_octave_matching():
-    pitch_0: Pitch = Pitch(0)
-
-    assert pitch_0 == 0
-
-    for pitch_int in range(128):
-        pitch_0 << pitch_int
-        assert pitch_0 == pitch_int
-        octave_0: int = pitch_0._octave_0
-        assert octave_0 == pitch_int // 12
-
-    pitch_0 << 0
-    print(f"Tonic: {pitch_0 % TonicKey() % int()}, Degree: {pitch_0 % Degree() % int()}")
-    assert pitch_0 == Degree(1)
-
-    total_degrees: int = 128 * 7 // 12
-    for tonic_key in range(12):
-        pitch_0 << Degree(1) << TonicKey(tonic_key)
-        print(f"Tonic: {tonic_key}")
-        assert pitch_0 % TonicKey() == tonic_key
-        for degree_0 in range(total_degrees):
-            pitch_0 += Degree(1)
-            print(f"\tDegree_0: {(degree_0 + 1) % 7}, Degree: {pitch_0 % Degree() % int()}", end = "")
-            assert pitch_0 == Degree((degree_0 + 1) % 7 + 1)
-            octave_0: int = pitch_0._octave_0
-            pitch_int: int = pitch_0.pitch_int()
-            print(f" | Octave_0: {octave_0}, Octave: {pitch_0 % Octave() % int()}")
-            assert octave_0 == pitch_int // 12
-
-# test_octave_matching()
-
-
 def test_degree_set():
 
     # Testing for the D minor Key Signature

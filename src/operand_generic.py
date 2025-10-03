@@ -590,43 +590,6 @@ class Pitch(Generic):
         gross_tonic_key: int = self._tonic_key % 12 + keys
         self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
         self._octave_0 += gross_tonic_key // 12
-        # There is still the need to match the Octave for the existing transpositions
-        return self
-
-
-    def match_octave_with_pitch(self) -> Self:
-        """
-        This method makes sure through the `Degree` and `Transposition` adjustment, that the `Octave` \
-            matches the respective pitch.
-        """
-        # Matches the Degree firstly
-        degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self.degree_accidentals()
-        degree_transposition_accidentals: int = degree_transposition + degree_accidentals
-        if degree_transposition_accidentals != 0:   # Optimization
-            tonic_int: int = self._tonic_key % 12
-            # tonic_int is used as octave reference to the root_int octave matching
-            degree_key: int = tonic_int + degree_transposition_accidentals
-            octave_offset: int = degree_key // 12
-            degree_degree_0: ou.Degree = ou.Degree(self._degree_0) - octave_offset * 7 # Offsets degree to negative
-            self._degree_0 = degree_degree_0 % float()
-            degree_transposition_accidentals -= octave_offset * 12  # Offsets transposition too
-            self._octave_0 += octave_offset # matches the Octave with the new Degree
-        # Matches the Transposition secondly
-        scale_transposition: int = self.scale_transposition(degree_transposition_accidentals)
-        if scale_transposition != 0:    # Optimization
-            # Because a pitch scale may not be a diatonic scale (7 degrees)!
-            if self._scale:
-                scale_degrees: int = sum(self._scale)
-            else:
-                scale_degrees: int = 7  # Diatonic scales
-            tonic_int: int = self._tonic_key % 12
-            root_int: int = tonic_int + degree_transposition_accidentals
-            # root_int is used as octave reference to the scale_int octave matching
-            scale_key: int = root_int + scale_transposition
-            octave_offset: int = scale_key // 12
-            self._transposition -= octave_offset * scale_degrees    # Offsets degree to negative
-            self._octave_0 += octave_offset # matches the Octave with the new Degree
         return self
 
 
@@ -884,8 +847,11 @@ class Pitch(Generic):
                         root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - root_octave_0
                     case ou.TargetKey():
-                        self << operand._data  # Sets the TargetKey on the actual Octave
-                        self._octave_0 = operand._data._unit // 12
+                        expected_octave_0: int = operand._data._unit // 12
+                        self << operand._data  # Sets the RootKey on the actual Octave
+                        target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
+                        target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
+                        self._octave_0 += expected_octave_0 - target_octave_0
 
                     case ou.Key():
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
@@ -894,7 +860,7 @@ class Pitch(Generic):
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
                         self._degree_0 = degree_0 % float()
                     case ou.Octave():
-                        self._octave_0 = operand._data._unit + 1    # Based 0 octave
+                        self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
                         self._tonic_key = operand._data
                     case Fraction():
@@ -1026,8 +992,7 @@ class Pitch(Generic):
                     self << single_operand
             case _:
                 super().__lshift__(operand)
-        # There is still the need to match the Octave for the existing transpositions
-        return self.match_octave_with_pitch()
+        return self
 
 
     def __iadd__(self, operand: any) -> Self:
@@ -1069,8 +1034,7 @@ class Pitch(Generic):
                 for octave, value in operand.items():
                     self += value
                     self += ou.Octave(octave)
-        # There is still the need to match the Octave for the existing transpositions
-        return self.match_octave_with_pitch()
+        return self
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1111,8 +1075,7 @@ class Pitch(Generic):
                 for octave, value in operand.items():
                     self -= value
                     self -= ou.Octave(octave)
-        # There is still the need to match the Octave for the existing transpositions
-        return self.match_octave_with_pitch()
+        return self
 
 
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
