@@ -700,7 +700,8 @@ class Pitch(Generic):
             case od.Pipe():
                 match operand._data:
                     case ou.KeySignature(): return self._key_signature
-                    case ou.Octave():       return operand._data << od.Pipe(self._octave_0 - 1)
+                    case ou.Octave():
+                        return operand._data << od.Pipe(self._octave_0)
                     case ou.TonicKey():
                         return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.RootKey():
@@ -763,7 +764,9 @@ class Pitch(Generic):
                 return ou.Key( self % ou.RootKey() )
             
             case ou.Octave():
-                return ou.Octave(self._octave_0 - 1)
+                target_pitch: int = self.pitch_int()
+                target_octave_0: int = target_pitch // 12
+                return ou.Octave(target_octave_0 - 1)
             
             case ou.Degree():
                 formal_degree = ou.Degree(self._degree_0)
