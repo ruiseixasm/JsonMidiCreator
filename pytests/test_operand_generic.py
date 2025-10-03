@@ -1248,15 +1248,29 @@ def test_root_key_set():
         major_C_pitch_int += 1
 
 
-    minor_C_sharp = Pitch(Minor(), RootKey("C#"))
-    minor_C_sharp_int_1 = minor_C_sharp.pitch_int()
-    print(f"minor_C_sharp_int_1: {minor_C_sharp_int_1}")
+    minor_C_sharp = Pitch(Minor())
+    assert minor_C_sharp % Octave() == 4
 
-    minor_C_sharp = Pitch(Minor(), RootKey("C"), RootKey("C#"))
-    minor_C_sharp_int_2 = minor_C_sharp.pitch_int()
-    print(f"minor_C_sharp_int_2: {minor_C_sharp_int_2}")
+    minor_C_sharp << RootKey("C")
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
+    assert minor_C_sharp % Octave() == 5
+    print(f"minor_C_sharp_int: {minor_C_sharp_int}")
+    assert minor_C_sharp_int == 72
 
-    assert minor_C_sharp_int_1 == minor_C_sharp_int_2
+    minor_C_sharp << RootKey("C#")
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
+    assert minor_C_sharp % Octave() == 5
+    print(f"minor_C_sharp_int: {minor_C_sharp_int}")
+    assert minor_C_sharp_int == 73
+
+    minor_C_sharp << RootKey("C")
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
+    assert minor_C_sharp % Octave() == 5
+    print(f"minor_C_sharp_int: {minor_C_sharp_int}")
+    assert minor_C_sharp_int == 72
 
 
     minor_A = Pitch(Minor())
