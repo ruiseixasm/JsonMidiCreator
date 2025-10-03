@@ -5352,6 +5352,22 @@ class Song(Composition):
                 elif operand == 0:
                     self._delete()
                 
+            case list():
+                base_parts: list[Part] = []
+                mask_parts: list[Part] = []
+                
+                # TO BE DEVELOPED
+                # Needs the implementation of methods length, net_length, first_measure and last measures
+                # in both Part and Song classes
+
+                # for target_measure, song_index in enumerate(operand):
+                #     self_segment: Clip = self.copy().filter(song_index)._set_owner_clip(self)
+                #     self_segment << ra.Measure(target_measure)   # Stacked by measure *
+                #     base_parts.extend(self_segment._items)
+                #     mask_parts.extend(self_segment._mask_items)
+
+                self._items = base_parts
+                self._mask_items = mask_parts
             case _:
                 super().__imul__(operand)
         return self._sort_items()
