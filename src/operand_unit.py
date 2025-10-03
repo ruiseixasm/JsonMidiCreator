@@ -807,16 +807,6 @@ class Degree(PitchParameter):
             return round(semitones_int * -2 / 10, 1)     # Even means Flat
         return 0.0
 
-    @staticmethod
-    def degree_linear_float(degree_float: float) -> float:
-        floor_degree: float = math.floor(degree_float) * 1.0
-        linear_float: int = round((degree_float - floor_degree), 1)
-        floor_degree -= 1.0 # Zero reference degree_0
-        if round(linear_float % 0.2, 1) == 0.1:
-            floor_degree += linear_float
-        else:
-            floor_degree -= linear_float
-        return floor_degree
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
