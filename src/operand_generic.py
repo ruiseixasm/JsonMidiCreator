@@ -942,7 +942,9 @@ class Pitch(Generic):
                 self << ou.Transposition(operand)
                     
             case ou.Octave():
-                self._octave_0 = operand._unit + 1
+                target_octave_0: int = operand._unit + 1
+                target_pitch: int = self.pitch_int()
+                self._octave_0 += target_octave_0 - target_pitch // 12
 
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
