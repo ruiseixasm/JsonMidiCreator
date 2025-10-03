@@ -21,7 +21,6 @@ from operand_label import *
 from operand_data import *
 from operand_unit import *
 from operand_rational import *
-# Container needs to be imported before generic due to Staff
 from operand_generic import *
 from operand_element import *
 from operand_frame import *
