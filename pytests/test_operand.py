@@ -360,3 +360,21 @@ def test_handy_methods():
 # test_handy_methods()
 
 
+def test_tag_to_int():
+
+    assert tag_to_int("0") == 0
+    assert tag_to_int("1") == 1
+    assert tag_to_int("5") == 5
+    assert tag_to_int("7") == 7
+    assert tag_to_int("9") == 9
+
+    assert tag_to_int("a") == 0
+    assert tag_to_int("b") == 1
+    assert tag_to_int("F") == 5
+    assert tag_to_int("h") == 7
+    assert tag_to_int("J") == 9
+
+    assert tag_to_int("honda") == -1
+    assert tag_to_int(".") == -1
+
+
