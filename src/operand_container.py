@@ -2142,7 +2142,7 @@ class Composition(Container):
 
     def _on_key(self, event: MouseEvent) -> Self:
         match event.key:
-            case 'p':
+            case 'p' | 'enter':
                 self._run_play(event)
             case 'c':
                 self._run_composition(event)

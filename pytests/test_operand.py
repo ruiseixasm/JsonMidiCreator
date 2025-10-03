@@ -378,3 +378,7 @@ def test_tag_to_int():
     assert tag_to_int(".") == -1
 
 
+def test_list_chars():
+
+    assert list_chars("hello") == ['h', 'e', 'l', 'l', 'o']
+

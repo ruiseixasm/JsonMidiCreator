@@ -136,6 +136,12 @@ def list_round(list_in: list, ndigits: int = 0) -> list:
             list_out.append(number)
     return list_out
 
+def list_chars(chars: str) -> list[str]:
+    list_out: list[str] = []
+    for single_char in chars:
+        list_out.append(single_char)
+    return list_out
+
 def list_swap(list_in: list, left: int, right: int) -> list:
     list_out: list = list_in.copy() # Shallow copy
     if list_in:
