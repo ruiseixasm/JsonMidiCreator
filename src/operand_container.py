@@ -5374,6 +5374,10 @@ class Song(Composition):
 
                 self._items = base_parts
                 self._mask_items = []
+
+            case str():
+                self *= o.list_chars(operand)
+
             case _:
                 super().__imul__(operand)
         return self._sort_items()

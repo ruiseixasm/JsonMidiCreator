@@ -38,5 +38,8 @@ part_B = Part([kick, snare])
 song_AB = part_A + part_B
 song_sections = song_AB * ['a', 'a', 'b', 'a']
 
-song_sections >> Plot(by_channel=True)
+song_sections >> Plot(by_channel=True, block=False, title="By list")
+
+
+song_AB * "abaa" >> Plot(by_channel=True, title="By string")
 
