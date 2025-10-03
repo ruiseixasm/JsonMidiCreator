@@ -646,6 +646,18 @@ class Pitch(Generic):
         return tone % scale_degrees, semitone
 
 
+    def correct_degree_0(self) -> Self:
+        floor_degree_0: float = math.floor(self._degree_0) * 1.0
+        linear_semitones: float = round((self._degree_0 - floor_degree_0), 1)
+        if round(linear_semitones % 0.2, 1) == 0.1:
+            floor_degree_0 += linear_semitones
+        else:
+            floor_degree_0 -= linear_semitones
+        degree_0_octave: int = floor_degree_0 // 7
+        self._degree_0 = round(self._degree_0 - degree_0_octave * 7, 1)
+        return self
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
@@ -951,6 +963,7 @@ class Pitch(Generic):
                     degree_0: float = operand % float() - 1
                     degree_0 -= 7 * degree_octave
                     self._degree_0 = round(degree_0, 1)
+                self.correct_degree_0()
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
@@ -996,6 +1009,7 @@ class Pitch(Generic):
                     self << single_operand
             case _:
                 super().__lshift__(operand)
+
         return self
 
 

@@ -1160,41 +1160,42 @@ def test_pitch_pipe():
 
 def test_root_key_pipe():
     pitch_A_minor = Pitch(Minor())
+    assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 69
 
     pitch_A_minor += RootKey(1)
+    assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 70
 
     pitch_A_minor << Pipe(RootKey(69))
+    assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 69
 
     pitch_A_minor << Pipe(RootKey(67))
+    assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 67
 
-    pitch_A_minor._degree_0 = 0.2
-    pitch_A_minor._octave_0 = 5
-    print(f"pitch_A_minor.pitch_int(): {pitch_A_minor.pitch_int()}")
-    assert pitch_A_minor.pitch_int() == 68
-
     pitch_A_minor << RootKey(8) # Ab
+    print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
+    assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 0.2
-    assert pitch_A_minor._octave_0 == 5
+    assert pitch_A_minor._degree_0 == 7.2
     assert absolute_root_key == 68
 
-    pitch_A_minor << Pipe(RootKey(68))
+    pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 0.2
-    assert pitch_A_minor._octave_0 == 5
+    assert pitch_A_minor._degree_0 == 7.2
+    assert pitch_A_minor % Octave() == 4
     assert absolute_root_key == 68
 
     pitch_A_minor << Pipe(RootKey(69))
+    assert pitch_A_minor % Octave() == 4
     pitch_A_minor -= RootKey(1)
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
