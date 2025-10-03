@@ -1241,6 +1241,17 @@ def test_root_key_set():
     assert minor_C_sharp_int == 72
 
 
+    minor_A_flat = Pitch(Minor())
+    assert minor_A_flat % Octave() == 4
+
+    minor_A_flat << RootKey("Ab")
+    print(f"minor_A_flat % Octave(): {minor_A_flat % Octave()}")
+    assert minor_A_flat % Octave() == 5
+    minor_A_flat_int = minor_A_flat.pitch_int()
+    print(f"minor_A_flat_int: {minor_A_flat_int}")
+    assert minor_A_flat_int == 80
+
+
     minor_A = Pitch(Minor())
     minor_A_pitch_int = minor_A.pitch_int()
     print(f"minor_A_pitch_int: {minor_A_pitch_int}")
@@ -1250,6 +1261,7 @@ def test_root_key_set():
         minor_A << root_key
         key_pitch_int = minor_A.pitch_int()
         print(f"root_key: {root_key}")
+        print(f"key_octave: {minor_A % Octave()}")
         print(f"key_pitch_int: {key_pitch_int}")
         assert key_pitch_int == minor_A_pitch_int
         root_key += 1
