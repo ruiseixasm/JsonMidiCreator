@@ -1252,23 +1252,23 @@ def test_root_key_set():
     assert minor_C_sharp % Octave() == 4
 
     minor_C_sharp << RootKey("C")
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 5
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 72
 
     minor_C_sharp << RootKey("C#")
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 5
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 73
 
     minor_C_sharp << RootKey("C")
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 5
+    minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 72
 
@@ -1287,7 +1287,7 @@ def test_root_key_set():
         root_key += 1
         minor_A_pitch_int += 1
 
-test_root_key_set()
+# test_root_key_set()
 
 
 def test_sharps_and_flats_picker():
