@@ -1844,7 +1844,7 @@ class Program(Midi):
         {   "instrument": 4,    "names": ["Honky tonk piano"]    },
         {   "instrument": 5,    "names": ["Electric piano 1"]    },
         {   "instrument": 6,    "names": ["Electric piano 2"]    },
-        {   "instrument": 7,    "names": ["Harpsicord"]    },
+        {   "instrument": 7,    "names": ["Harpsichord"]    },
         {   "instrument": 8,    "names": ["Clavinet"]    },
                                                                             # Chromatic percussion
         {   "instrument": 9,    "names": ["Celesta", "Chromatic percussion"]    },
