@@ -1466,7 +1466,7 @@ class Note(ChannelElement):
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
     def center_pitch(self) -> int:
-        return math.floor(self._pitch.pitch_int())
+        return self._pitch.pitch_int()
 
 
     def __eq__(self, other: o.Operand) -> bool:
