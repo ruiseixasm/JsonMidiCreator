@@ -1468,6 +1468,14 @@ class Note(ChannelElement):
     def center_pitch(self) -> int:
         return self._pitch.pitch_int()
 
+    def increase_center_pitch(self) -> Self:
+        self._pitch += ou.Octave(1)
+        return self
+
+    def decrease_center_pitch(self) -> Self:
+        self._pitch -= ou.Octave(1)
+        return self
+
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -1831,21 +1839,29 @@ class KeyScale(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def inversion(self, inversion: int = 1) -> Self:
+        self._inversion = inversion
+        return self
+
+
     def center_pitch(self) -> int:
         pitches: list[int] = [
             single_note._pitch.pitch_int() for single_note in self.get_component_elements()
         ]
-
         if pitches:
             total = sum(pitches)
             count = len(pitches)
             return math.floor(total / count)
-    
         return 60   # Middle C
 
-    def inversion(self, inversion: int = 1) -> Self:
-        self._inversion = inversion
+    def increase_center_pitch(self) -> Self:
+        self += ou.Inversion(1)
         return self
+
+    def decrease_center_pitch(self) -> Self:
+        self -= ou.Inversion(1)
+        return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
