@@ -905,7 +905,7 @@ class Degree(PitchParameter):
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
                     self << degree + Degree.semitone_float(semitones_int)
-            case float():
+            case float() | str():
                 self.__iadd__(Degree(number))
             case Sharp():
                 self << self % Sharp() + number
@@ -927,7 +927,7 @@ class Degree(PitchParameter):
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
                     self << degree + Degree.semitone_float(semitones_int)
-            case float():
+            case float() | str():
                 self.__isub__(Degree(number))
             case Sharp():
                 self << self % Sharp() - number
