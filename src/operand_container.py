@@ -4213,8 +4213,8 @@ class Clip(Composition):  # Just a container of Elements
                 else:   # center pitch based
                     note_pitch: int = note.center_pitch()
                     if first_pitch is None:
-                        first_pitch = note_pitch
-                    else:
+                        previous_pitch = first_pitch = note_pitch
+                    elif note_pitch >= 0:
                         if note_pitch > previous_pitch:
                             above_pitch: int = note_pitch
                             while note_pitch > previous_pitch:
@@ -4229,7 +4229,7 @@ class Clip(Composition):  # Just a container of Elements
                                 note_pitch = note.increase_center_pitch().center_pitch()
                             if previous_pitch - below_pitch <= note_pitch - previous_pitch:
                                 note_pitch = note.decrease_center_pitch().center_pitch()
-                    previous_pitch = note_pitch
+                        previous_pitch = note_pitch
         return self
 
 
