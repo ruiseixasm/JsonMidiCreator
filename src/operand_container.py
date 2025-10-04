@@ -4165,13 +4165,13 @@ class Clip(Composition):  # Just a container of Elements
 
         Args:
             algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
-
                 +------+---------------------------------------------------------------------------+
                 | Type | Description                                                               |
                 +------+---------------------------------------------------------------------------+
                 | 1    | Considers both pitch distances, from the first note and the previous one. |
                 | 2    | Considers only the previous note pitch distance.                          |
                 | 3    | Considers only the first note pitch distance.                             |
+                | 4    | Considers the middle_pitch in relation to the previous one.               |
                 +------+---------------------------------------------------------------------------+
 
         Returns:
@@ -4181,34 +4181,55 @@ class Clip(Composition):  # Just a container of Elements
         previous_pitch: int | None = None
         for note in self._unmasked_items():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
-                note_pitch: int = note._pitch.pitch_int()
-                if first_pitch is None:
-                    previous_pitch = first_pitch = note_pitch
-                else:
-                    delta_pitch: int = note_pitch
-                    if algorithm_type == 3:
-                        delta_pitch -= first_pitch
+                if algorithm_type < 4:
+                    note_pitch: int = note._pitch.pitch_int()
+                    if first_pitch is None:
+                        previous_pitch = first_pitch = note_pitch
                     else:
-                        delta_pitch -= previous_pitch
-                    octave_offset: int = delta_pitch // 12
-                    remaining_delta: int = delta_pitch % 12
-                    if remaining_delta > 6:
-                        octave_offset += 1
-                    elif remaining_delta < -6:
-                        octave_offset -= 1
-                    if algorithm_type == 1:
-                        expected_pitch: int = note_pitch - octave_offset * 12
-                        alternative_pitch: int = expected_pitch
-                        if first_pitch > expected_pitch:
-                            alternative_pitch += 12
+                        delta_pitch: int = note_pitch
+                        if algorithm_type == 3:
+                            delta_pitch -= first_pitch
                         else:
-                            alternative_pitch -= 12
-                        delta_expected_pitch: int = abs(expected_pitch - first_pitch) + abs(expected_pitch - previous_pitch)
-                        delta_alternative_pitch: int = abs(alternative_pitch - first_pitch) + abs(alternative_pitch - previous_pitch)
-                        if delta_alternative_pitch < delta_expected_pitch:
-                            octave_offset -= (alternative_pitch - expected_pitch) // 12
-                    note -= ou.Octave(octave_offset)
-                    previous_pitch = note_pitch - octave_offset * 12
+                            delta_pitch -= previous_pitch
+                        octave_offset: int = delta_pitch // 12
+                        remaining_delta: int = delta_pitch % 12
+                        if remaining_delta > 6:
+                            octave_offset += 1
+                        elif remaining_delta < -6:
+                            octave_offset -= 1
+                        if algorithm_type == 1:
+                            expected_pitch: int = note_pitch - octave_offset * 12
+                            alternative_pitch: int = expected_pitch
+                            if first_pitch > expected_pitch:
+                                alternative_pitch += 12
+                            else:
+                                alternative_pitch -= 12
+                            delta_expected_pitch: int = abs(expected_pitch - first_pitch) + abs(expected_pitch - previous_pitch)
+                            delta_alternative_pitch: int = abs(alternative_pitch - first_pitch) + abs(alternative_pitch - previous_pitch)
+                            if delta_alternative_pitch < delta_expected_pitch:
+                                octave_offset -= (alternative_pitch - expected_pitch) // 12
+                        note -= ou.Octave(octave_offset)
+                        previous_pitch = note_pitch - octave_offset * 12
+                else:   # center pitch based
+                    note_pitch: int = note.center_pitch()
+                    if first_pitch is None:
+                        first_pitch = note_pitch
+                    else:
+                        if note_pitch > previous_pitch:
+                            above_pitch: int = note_pitch
+                            while note_pitch > previous_pitch:
+                                above_pitch = note_pitch
+                                note_pitch = note.decrease_center_pitch().center_pitch()
+                            if above_pitch - previous_pitch <= previous_pitch - note_pitch:
+                                note_pitch = note.increase_center_pitch().center_pitch()
+                        elif note_pitch < previous_pitch:
+                            below_pitch: int = note_pitch
+                            while note_pitch < previous_pitch:
+                                below_pitch = note_pitch
+                                note_pitch = note.increase_center_pitch().center_pitch()
+                            if previous_pitch - below_pitch <= note_pitch - previous_pitch:
+                                note_pitch = note.decrease_center_pitch().center_pitch()
+                    previous_pitch = note_pitch
         return self
 
 

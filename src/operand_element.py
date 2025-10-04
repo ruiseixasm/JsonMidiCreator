@@ -1852,7 +1852,7 @@ class KeyScale(Note):
             total = sum(pitches)
             count = len(pitches)
             return math.floor(total / count)
-        return 60   # Middle C
+        return -1   # Out of scope pitch
 
     def increase_center_pitch(self) -> Self:
         self += ou.Inversion(1)

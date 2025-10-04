@@ -1060,8 +1060,8 @@ class Flat(PitchParameter):   # Flat (b)
 class Order(Unit):
     """`Unit -> Order`
 
-    Sets which order to be used in the Arpeggiator.
-    
+    Sets which order to be used in the Arpeggiator accordingly to the following values:
+
         +-------+---------+
         | Value | Order   |
         +-------+---------+
