@@ -1865,7 +1865,7 @@ class Program(Midi):
         {   "instrument": 23,   "names": ["Harmonica"]    },
         {   "instrument": 24,   "names": ["Tango accordion"]    },
                                                                             # Guitar
-        {   "instrument": 25,   "names": ["Nylon string acoustic guitar", "Guitar"]    },
+        {   "instrument": 25,   "names": ["Acoustic Guitar", "Nylon string acoustic guitar", "Guitar"]    },
         {   "instrument": 26,   "names": ["Steel string acoustic guitar"]    },
         {   "instrument": 27,   "names": ["Jazz electric guitar"]    },
         {   "instrument": 28,   "names": ["Clean electric guitar"]    },
