@@ -1019,7 +1019,7 @@ class Pitch(Generic):
             case int():
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch + operand
-            case float():
+            case float() | str():
                 self += ou.Degree(operand)
             case Fraction():
                 self += ou.Transposition(operand)
@@ -1060,7 +1060,7 @@ class Pitch(Generic):
             case int():
                 actual_pitch: int = self.pitch_int()
                 self << actual_pitch - operand
-            case float():
+            case float() | str():
                 self -= ou.Degree(operand)
             case Fraction():
                 self -= ou.Transposition(operand)
