@@ -21,6 +21,7 @@ from fractions import Fraction
 import json
 import enum
 import time
+import math
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -1464,6 +1465,9 @@ class Note(ChannelElement):
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
+    def center_pitch(self) -> int:
+        return math.floor(self._pitch.pitch_int())
+
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -1827,6 +1831,18 @@ class KeyScale(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def center_pitch(self) -> int:
+        pitches: list[int] = [
+            single_note._pitch.pitch_int() for single_note in self.get_component_elements()
+        ]
+
+        if pitches:
+            total = sum(pitches)
+            count = len(pitches)
+            return math.floor(total / count)
+    
+        return 60   # Middle C
+
     def inversion(self, inversion: int = 1) -> Self:
         self._inversion = inversion
         return self
@@ -1876,7 +1892,7 @@ class KeyScale(Note):
                 single_note += octave_offset
         return notes
             
-    def get_component_elements(self) -> list[Element]:
+    def get_component_elements(self) -> list[Note]:
         scale_notes: list[Note] = []
         active_scale: list[int] = self._pitch._scale
         if not active_scale:
@@ -1997,7 +2013,7 @@ class Cluster(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Element]:
+    def get_component_elements(self) -> list[Note]:
         chord_notes: list[Note] = []
         for pitch_offset in self._offsets:
             single_note: Note = Note(self)  # Owned by same clip
@@ -2151,7 +2167,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Element]:
+    def get_component_elements(self) -> list[Note]:
 
         chord_notes: list[Note] = []
         for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
@@ -2322,7 +2338,7 @@ class Retrigger(Note):
             case float():           return self % ra.NoteValue() % float()
             case _:                 return super().__mod__(operand)
 
-    def get_component_elements(self) -> list[Element]:
+    def get_component_elements(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = ra.Position(self, self._position_beats)
