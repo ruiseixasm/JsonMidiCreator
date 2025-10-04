@@ -1811,7 +1811,7 @@ class Program(Midi):
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit)
                     case _:                         return super().__mod__(operand)
-            case int():                 return self._unit + 1
+            case int():                 return self._unit
             case str():                 return Program.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
@@ -1825,18 +1825,18 @@ class Program(Midi):
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case int():
-                self._unit = operand - 1
+                self._unit = operand
             case str():
                 operand = operand.strip()
                 if operand.isdigit():
-                    self._unit = int(operand) - 1
+                    self._unit = int(operand)
                 else:
                     self.nameToNumber(operand)
             case _:
                 super().__lshift__(operand)
         return self
 
-    _instruments = [
+    _instruments: dict[str, int | list[str]] = [
                                                                             # Piano
         {   "midi_instrument": 0,   "names": ["Acoustic grand piano", "Piano"]    },
         {   "midi_instrument": 1,   "names": ["Bright acoustic piano"]    },
@@ -1991,13 +1991,13 @@ class Program(Midi):
             for instrument_name in instrument["names"]:
                 # Check if all input words are present in the name string
                 if all(word in instrument_name.lower() for word in name_split):
-                    self._unit = instrument["midi_instrument"]
+                    self._unit = instrument["midi_instrument"] + 1
                     return
 
     @staticmethod
     def numberToName(number: int) -> str:
         for instrument in Program._instruments:
-            if instrument["midi_instrument"] == number:
+            if instrument["midi_instrument"] == number - 1:
                 return instrument["names"][0]
         return "Unknown instrument!"
 

@@ -3980,12 +3980,12 @@ class ProgramChange(ChannelElement):
                 self._high      = operand._high
             case od.Pipe():
                 match operand._data:
-                    case ou.Program():          self._program_0 = operand._data._unit
+                    case ou.Program():          self._program_0 = operand._data._unit - 1
                     case ou.Bank():             self._bank = operand._data._unit
                     case ou.HighResolution():   self._high = operand._data % bool()
                     case _:                     super().__lshift__(operand)
             case ou.Program() | int() | str():
-                self._program_0 = ou.Program(operand)._unit
+                self._program_0 = ou.Program(operand)._unit - 1
             case ou.Bank():
                 self._bank = operand._unit
             case ou.HighResolution():
