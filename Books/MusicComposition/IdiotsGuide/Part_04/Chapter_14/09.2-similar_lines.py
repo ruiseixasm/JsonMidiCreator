@@ -32,13 +32,13 @@ theme_1 >> Plot(block=False)
 if False:
 
     theme_2 = theme_1 - Octave(1) << Channel(2)
-    theme_2 = RS_Clip(theme_2, [1], 4, theme_1).similar_motion(5, pitch_parameter=Key()).solution() << Name("Similar")
+    theme_2 = RS_Clip(theme_2, [1], 4, theme_1).pitch_similar_motion(5, pitch_parameter=Key()).solution() << Name("Similar")
     (theme_1 + theme_2) * 2 << Name("Similar Lines") >> Plot(block=True)
 
 else:
 
     theme_2 = theme_1 - Octave(1) << Channel(2)
     final_composition = theme_1 + theme_2
-    final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).similar_motion(5, pitch_parameter=Key()).unmask().solution()
+    final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).pitch_similar_motion(5, pitch_parameter=Key()).unmask().solution()
     final_composition * 2 << Name("Similar Lines") >> Plot(block=True)
 

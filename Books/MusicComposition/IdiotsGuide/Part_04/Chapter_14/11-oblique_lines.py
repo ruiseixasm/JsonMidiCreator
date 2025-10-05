@@ -30,6 +30,6 @@ theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
 theme_2 = theme_1.copy(Degree(-1), Octave(3), Channel(2))   # Resets all notes to the same Degree first
-theme_2 = RS_Clip(theme_2, [1], 4, theme_1).foreach_measure(5).solution() << Name("Oblique")
+theme_2 = RS_Clip(theme_2, [1], 4, theme_1).parameter_measure(5).solution() << Name("Oblique")
 (theme_1 + theme_2) * 2 << Name("Oblique Lines") >> Plot(block=True)
 

@@ -24,7 +24,7 @@ big_rest = Rest(Measures(4))
 
 rests_chopper = RS_Clip(big_rest, [1], 4)
 melody_wanna_be = \
-    rests_chopper.multi_splitter(
+    rests_chopper.duration_splitter(
         9
     ).multi_wrapper(
         10,

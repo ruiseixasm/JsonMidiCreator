@@ -23,6 +23,6 @@ snare = Note(DrumKit("Snare"), 1/16, Velocity(50)) / 16 * 4
 single_seed_note = Note(4/1) * 1
 
 clip_solution = RS_Clip(single_seed_note)
-phrase_notes = clip_solution.multi_splitter(1).multi_wrapper(7).solution()
+phrase_notes = clip_solution.duration_splitter(1).multi_wrapper(7).solution()
 
 

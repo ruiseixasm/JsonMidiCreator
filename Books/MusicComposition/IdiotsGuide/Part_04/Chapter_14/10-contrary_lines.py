@@ -32,13 +32,13 @@ theme_1 >> Plot(block=False)
 if False:
 
     theme_2 = theme_1 - Octave(1) - Degree(2) << Channel(2)
-    theme_2 = RS_Clip(theme_2, [1], 4, theme_1).contrary_motion(5).solution() << Name("Contrary")
+    theme_2 = RS_Clip(theme_2, [1], 4, theme_1).pitch_contrary_motion(5).solution() << Name("Contrary")
     (theme_1 + theme_2) * 2 << Name("Contrary Lines") >> Plot(block=True)
 
 else:
 
     theme_2 = theme_1 - Octave(1) - Degree(2) << Channel(2)
     final_composition = theme_1.copy(Disable()) + theme_2
-    final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).contrary_motion(5).unmask().solution(Enable())
+    final_composition = RS_Clip(final_composition, [1], 4, theme_1).mask(Channel(2)).pitch_contrary_motion(5).unmask().solution(Enable())
     final_composition * 2 << Name("Contrary Lines") >> Plot(block=True)
 

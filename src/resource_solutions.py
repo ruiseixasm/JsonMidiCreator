@@ -163,8 +163,9 @@ class RS_Clip(RS_Solutions):
         # Where the solution is set
         return self.solutionize(iterations, _n_button, title)
 
+# USER METHODS
 
-    def my_n_button(self,
+    def user_n_button(self,
             iterations: int = 1,
             n_button: Callable[['oc.Composition'], 'oc.Composition'] | None = None,
             title: str | None = None) -> Self:
@@ -181,26 +182,30 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, ch.Chaos(), 1, title)
 
 
-    def foreach_measure(self,
+# PARAMETER METHODS
+
+    def parameter_measure(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
-            element_parameter: any = ou.Degree(),
+            parameter: any = ou.Degree(),
             title: str | None = None) -> Self:
         """
         Processes the imputed parameter to be added for each `Measure`.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_foreach_measure: of.Frame = of.Mux(ra.Measure())**of.Foreach(*results)**element_parameter
+                new_foreach_measure: of.Frame = of.Mux(ra.Measure())**of.Foreach(*results)**parameter
                 return segmented_composition.add(new_foreach_measure)
             return segmented_composition
         
         if not isinstance(title, str):
-            title = "Foreach Measure"
+            title = "Parameter Measure"
         return self.iterate(iterations, _iterator, chaos, self._measures, title)
 
 
-    def multi_splitter(self,
+# DURATION METHODS
+
+    def duration_splitter(self,
             iterations: int = 1,
             durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2]),
             chaos: ch.Chaos = ch.SinX(340),
@@ -218,7 +223,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Multi Splitter"
+            title = "Duration Splitter"
         return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
@@ -243,7 +248,9 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
-    def similar_motion(self,
+# PITCH METHODS
+
+    def pitch_similar_motion(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
             pitch_parameter: ou.PitchParameter = ou.Degree(),
@@ -270,12 +277,12 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = f"Similar Motion of {pitch_parameter.__class__.__name__}"
+            title = f"Pitch Similar Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
-    def contrary_motion(self,
+    def pitch_contrary_motion(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
             pitch_parameter: ou.PitchParameter = ou.Degree(),
@@ -303,13 +310,13 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = f"Contrary Motion of {pitch_parameter.__class__.__name__}"
+            title = f"Pitch Contrary Motion of {pitch_parameter.__class__.__name__}"
         pattern_chaos: ch.Chaos = chaos.copy()
         pattern_chaos << ot.Pattern()**pattern_chaos._tamer # Expands tamer with Pattern
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-    def tonality_conjunct(self,
+    def pitch_tonality_conjunct(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct())**ch.SinX(),
             triggers: int | float | Fraction = 7,
@@ -323,7 +330,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Tonality Conjunct"
+            title = "Pitch Tonality Conjunct"
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
@@ -337,8 +344,10 @@ class RS_Clip(RS_Solutions):
         """
         if not isinstance(title, str):
             title = "Tonality Conjunct But Slacked"
-        return self.tonality_conjunct(iterations, chaos, triggers, title)
+        return self.pitch_tonality_conjunct(iterations, chaos, triggers, title)
 
+
+# PARAMETER METHODS
 
     def shuffle_parameter(self,
             iterations: int = 1,
@@ -548,6 +557,8 @@ class RS_Clip(RS_Solutions):
             title = "Swap Elements"
         return self.iterate(iterations, _iterator, chaos, 2, title)
 
+
+# LOCI METHODS
 
     def swap_loci(self,
             iterations: int = 1,
