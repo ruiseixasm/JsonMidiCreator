@@ -21,12 +21,12 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)

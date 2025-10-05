@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << 150
 settings % Key() % str() >> Print()    # Returns the tonic key (I)
 

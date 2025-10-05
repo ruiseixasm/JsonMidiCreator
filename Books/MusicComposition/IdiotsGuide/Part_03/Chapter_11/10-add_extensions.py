@@ -25,13 +25,13 @@ from JsonMidiCreator import *
 settings << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> S
+notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> Stack()
 notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
 notes % Greater(Position(0, Beats(0))) >> Smooth()
-notes >> Rest >> P
+notes >> Rest >> Play()
 
-extended_chords = Chord() * 5 << Nth(3, 4)**half >> S
+extended_chords = Chord() * 5 << Nth(3, 4)**half >> Stack()
 extended_chords << Foreach("DM7", "Em7", "GM7", "A7", "Em7") << Octave(3)
-extended_chords >> Rest >> P
+extended_chords >> Rest >> Play()
 
-notes + extended_chords >> Link() >> Rest >> P
+notes + extended_chords >> Link() >> Rest >> Play()

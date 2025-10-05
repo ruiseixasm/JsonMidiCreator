@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 settings += Device("Blofeld")
-RD_Blofeld.program_change(4, "A") >> P
+RD_Blofeld.program_change(4, "A") >> Play()
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 settings << ClockedDevices("Blofeld")
@@ -49,8 +49,8 @@ if iterations[layer] >= 0:
     part += clip_3
 layer += 1
 
-part >> Pv
+part >> Play(True)
 
 settings << ClockedDevices()
-RD_Blofeld.program_change(1, "A") + AllNotesOff() >> P
+RD_Blofeld.program_change(1, "A") + AllNotesOff() >> Play()
 

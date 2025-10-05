@@ -31,22 +31,22 @@ long_note_c = Note(4/1)
 print("1st LOOP")
 
 level_cc = ControlChange(RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"]) * 16 << Iterate(step=1000)
-level_cc * 4 + long_note_c >> P
+level_cc * 4 + long_note_c >> Play()
 
 print("2nd LOOP")
 
 automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"])
-automation_cc * 4 + long_note_c >> P
+automation_cc * 4 + long_note_c >> Play()
 
 print("3rd LOOP")
 
 automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", RD_Blofeld.midi_cc["FILTER 1"]["Cutoff"], False)
-automation_cc * 4 + long_note_c >> P
+automation_cc * 4 + long_note_c >> Play()
 
 print("4th LOOP")
 
 automation_pitch = Clip() >> Automate([30*64, 75*64, 100*64, 50*64, 0*64], "1... 1.1. .1.. ...1", None)
-automation_pitch * 4 + long_note_c >> P
+automation_pitch * 4 + long_note_c >> Play()
 
 
 

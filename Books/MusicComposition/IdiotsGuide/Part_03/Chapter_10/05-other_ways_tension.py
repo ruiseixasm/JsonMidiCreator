@@ -44,18 +44,18 @@ rising >> Rest() >> Play()
 settings << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
-faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
+faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> Stack() << Foreach(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> Link() >> Rest() >> Play()
 
 settings << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-syncopation = Note() * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
+syncopation = Note() * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> Stack()
 syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
 syncopation >> Rest() >> Play()
 
 settings << "#"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> Stack() >> LJ << Foreach(D, A, B, F, G, C, B)
 volume >> Rest() >> Play()
 
 settings << ""

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 
@@ -31,7 +31,7 @@ linear_drum_pattern = Note(1/16) * 32 << \
         Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
 linear_drum_pattern << Equal(DrumKit("Hi-Hat"))**Velocity(60)
 linear_drum_pattern << Equal(DrumKit("Snare"))**Foreach(60, 110, 65, 70, 60, 65, 105, 70, 70, 110, 75)**Velocity()
-linear_drum_pattern * 8 >> P
+linear_drum_pattern * 8 >> Play()
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
@@ -41,5 +41,5 @@ chaotic_drum_pattern = Note(1/16) * 32 << \
     Input(SinX() * 25)**Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
 chaotic_drum_pattern << Equal(DrumKit("Hi-Hat"))**Velocity(60)
 chaotic_drum_pattern << Equal(DrumKit("Snare"))**Foreach(60, 110, 65, 70, 60, 65, 105)**Velocity()
-chaotic_drum_pattern * 8 >> P
+chaotic_drum_pattern * 8 >> Play()
 

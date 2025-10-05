@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 8 << Iterate(2)**Steps()
@@ -31,6 +31,6 @@ drum = Note(DrumKit("Drum"), 1/16) * 4 << Iterate()**Beat()
 hi_hat /= Mask(Even())
 drum >>= Odd()
 
-(hi_hat + snare + drum) * 8 >> P
+(hi_hat + snare + drum) * 8 >> Play()
 
 

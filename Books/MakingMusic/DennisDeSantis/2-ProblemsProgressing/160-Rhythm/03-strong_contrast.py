@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 tresillo: Clip = Note(DrumKit("Drum"), 1/16) * 6 << Iterate(3)**Steps()
@@ -31,5 +31,5 @@ clap: Clip = Note(DrumKit("Clap"), 1/16) * 4 << Iterate(2)**Add(1)**Beats()
 strong_contrast: Clip = tresillo + clap
 strong_contrast % Length() % Steps() % float() >> Print()
 
-strong_contrast * 8 >> P
+strong_contrast * 8 >> Play()
 

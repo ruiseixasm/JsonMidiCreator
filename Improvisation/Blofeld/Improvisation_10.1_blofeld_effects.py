@@ -31,12 +31,12 @@ long_note_c = Note(4/1)
 print("1st LOOP")
 
 level_cc = ControlChange(RD_Blofeld.midi_cc["EFFECTS"]["Mix 1"]) * 16 << Iterate(step=1000)
-level_cc * 4 + long_note_c >> P
+level_cc * 4 + long_note_c >> Play()
 
 print("2nd LOOP")
 
 automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["EFFECTS"]["Mix 2"])
-automation_cc * 4 + long_note_c >> P
+automation_cc * 4 + long_note_c >> Play()
 
 
 

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(120)
 
 motif: Clip = Note(1/16) * 12
@@ -36,5 +36,5 @@ cut_motif: Clip = motif / Greater(Steps(2))
 repeated_motif: Clip = cut_motif * 3.0
 
 repeated_motif % Length() % float() >> Print()
-repeated_motif >> P
+repeated_motif >> Play()
 

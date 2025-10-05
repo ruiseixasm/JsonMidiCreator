@@ -51,5 +51,5 @@ snare_clip += snare_clip + Beats(2)
 kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick") << Velocity(80)
 
 
-open_hats_clip * 16 >> P
+open_hats_clip * 16 >> Play()
 

@@ -55,9 +55,9 @@ repeated_part = complete_part + Position(4)
 
 complete_part >>= repeated_part
 
-complete_part >> P
+complete_part >> Play()
 
- Rest() >> P
-complete_part["Kick"] >> P
+ Rest() >> Play()
+complete_part["Kick"] >> Play()
 
 

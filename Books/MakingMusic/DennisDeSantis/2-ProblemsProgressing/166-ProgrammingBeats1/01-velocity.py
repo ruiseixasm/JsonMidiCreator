@@ -21,9 +21,9 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 16 << Even()**Velocity(40)
-hi_hat * 8 >> P
+hi_hat * 8 >> Play()
 

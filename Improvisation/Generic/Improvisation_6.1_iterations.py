@@ -34,8 +34,8 @@ for iteration in range(1000):
     eight_notes << chooser**degrees
     first_notes = eight_notes >> Nth(1, 2, 3, 4)
     print(f"Iteration: {iteration}.")
-    eight_notes >> P
-     Rest() >> P
+    eight_notes >> Play()
+     Rest() >> Play()
 
 
 

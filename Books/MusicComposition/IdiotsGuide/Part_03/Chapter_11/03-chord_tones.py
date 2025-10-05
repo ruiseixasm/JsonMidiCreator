@@ -25,14 +25,14 @@ from JsonMidiCreator import *
 settings << "#"
 Key() % str() >> Print()
 
-single_notes = Note() * 12 << Nth(3, 4, 7, 10, 11, 12)**Foreach(dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S
+single_notes = Note() * 12 << Nth(3, 4, 7, 10, 11, 12)**Foreach(dotted_quarter, eight, half, dotted_quarter, eight, whole) >> Stack()
 single_notes << Foreach(B, G, D, G, A, F, D, E, G, E, B, D) >> Smooth()
-single_notes >> Rest >> P
+single_notes >> Rest >> Play()
 chords = Chord() * 4 << 1/1
 chords << Foreach(G, D, "Em", D)
-chords >> Rest >> P
+chords >> Rest >> Play()
 chords << Foreach(1, 5, 6, 5)**(Degree(), Mode())
-chords >> Rest >> P
-single_notes + chords >> Link() >> Rest >> P
-chords + single_notes >> Link() >> Rest >> P
+chords >> Rest >> Play()
+single_notes + chords >> Link() >> Rest >> Play()
+chords + single_notes >> Link() >> Rest >> Play()
 

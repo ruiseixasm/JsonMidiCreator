@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 16 << Even()**Velocity(40)
@@ -34,8 +34,8 @@ hi_hat += 1/10 * Steps(1)   # shifts by 10%
 hi_hat << Length(1.0)
 
 # First clip sets the common parameters (hi-hat)
-(hi_hat + snare + drum) * 8 >> P
+(hi_hat + snare + drum) * 8 >> Play()
 
 hi_hat += 8/10 * Steps(1)   # shifts by more 80% (total 90%)
 hi_hat << Velocity(100) << Odd()**Velocity(40)  # alternates lower velocity
-(hi_hat + snare + drum) * 8 >> P
+(hi_hat + snare + drum) * 8 >> Play()

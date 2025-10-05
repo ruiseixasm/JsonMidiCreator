@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 settings += Device("Blofeld")
-start_program = RD_Blofeld.program_change(4, "A") >> P
+start_program = RD_Blofeld.program_change(4, "A") >> Play()
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 settings << ClockedDevices("Blofeld")
@@ -31,9 +31,9 @@ for degree in range(1, 8):  # 7 degrees in total
     degree >> Pr
     two_notes >> Nth(2) << degree
     try_clip = two_notes * 2 * Rest()
-    try_clip >> P
+    try_clip >> Play()
     
 
 
-reset_program = RD_Blofeld.program_change(1, "B") > P
+reset_program = RD_Blofeld.program_change(1, "B") > Play()
 

@@ -21,12 +21,12 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 motif_key: Clip = motif.copy() << KeySignature("##")
@@ -39,7 +39,7 @@ settings << "#" << 120 << Minor()  # Minor Keys
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
 
 motif_key: Clip = motif.copy() << Sharps(2)

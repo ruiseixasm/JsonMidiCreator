@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 settings += Device("Blofeld")
-AllNotesOff() + RD_Blofeld.program_change(4, "A") >> P
+AllNotesOff() + RD_Blofeld.program_change(4, "A") >> Play()
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 settings << ClockedDevices("Blofeld")
@@ -48,7 +48,7 @@ for key, call in chaotic_calls.items():
 seed * 4 >> Plot(block=False, pause=1.0) >> Play() >> Save("json/_Save_Clip_layering_2.0.json")
 
 settings << ClockedDevices()
-AllNotesOff() + RD_Blofeld.program_change(1, "A") >> P
+AllNotesOff() + RD_Blofeld.program_change(1, "A") >> Play()
 
 clip = Load("json/_Save_Clip_layering_2.0.json")
 # clip >> Pv

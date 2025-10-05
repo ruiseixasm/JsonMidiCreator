@@ -53,8 +53,8 @@ kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick")
 # Extend pattern by 8 measures, each clip is 1 measure long
 complete_part = Part(open_hats_clip, close_hats_clip, tom_clip, snare_clip, kick_clip) * 8
 
-complete_part >> P
+complete_part >> Play()
 
-Rest(1/2) >> P
-complete_part.mask("Snare")[0] >> P
+Rest(1/2) >> Play()
+complete_part.mask("Snare")[0] >> Play()
 

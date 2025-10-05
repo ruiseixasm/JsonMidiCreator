@@ -55,10 +55,10 @@ complete_part = Part(open_hats_clip, close_hats_clip, tom_clip, snare_clip, kick
 
 snare_tom_part = Part(tom_clip, snare_clip) * 4
 
-complete_part + Measure(0) >> snare_tom_part + Measure(4) >> P
+complete_part + Measure(0) >> snare_tom_part + Measure(4) >> Play()
 
 complete_song = Song(complete_part)
 
-Rest(1/2) >> P
-complete_song >> snare_tom_part + Position(4) >> P
+Rest(1/2) >> Play()
+complete_song >> snare_tom_part + Position(4) >> Play()
 

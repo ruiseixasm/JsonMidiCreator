@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(120)
 
 motif: Clip = Note(1/16) * 12
@@ -35,5 +35,5 @@ motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 inverted_motif: Clip = motif / Mirror()
 
 motif * inverted_motif % Length() % float() >> Print()
-motif * inverted_motif * 4 >> P
+motif * inverted_motif * 4 >> Play()
 

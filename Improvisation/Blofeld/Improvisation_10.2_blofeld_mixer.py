@@ -36,12 +36,12 @@ level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(0, 7)
 level_cc *= measure_cc << Iterate(7*16, -7)
 level_cc >> Export("json/_Export_improvisation_10.2.json") >> Plot()
-(level_cc + long_note_c) * 2 >> P
+(level_cc + long_note_c) * 2 >> Play()
 
 print("2nd LOOP")
 
 automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Blofeld.midi_cc["MIXER COMMON"]["Volume"]) >> Plot()
-(automation_cc * 4 + long_note_c) * 2 >> P
+(automation_cc * 4 + long_note_c) * 2 >> Play()
 
 
 

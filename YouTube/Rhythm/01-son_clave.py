@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << KeySignature()   # Sets the default Key Signature configuration
 settings << Tempo(115)
 
@@ -31,9 +31,9 @@ settings << Tempo(115)
 
 son_clave: Clip = Note(dotted_quarter) + Note(eight, Tied()) + Note(quarter, Tied()) + Note(quarter) + Rest() + Note(quarter) * 2 + Rest() >> Stack() << DrumKit("Wood")
 son_clave % Length() >> Print()
-son_clave * 2 >> P
+son_clave * 2 >> Play()
 
 son_clave_flipped: Clip = son_clave.copy().reverse()
 son_clave_flipped % Length() >> Print()
-son_clave_flipped * 2 >> P
+son_clave_flipped * 2 >> Play()
 

@@ -68,9 +68,6 @@ A = Key("A")
 B = Key("B")
 
 # Actions
-S = Stack()
-P = Play(False)
-Pv = Play(True)
 Pr = Print()
 Pl = Plot()
 

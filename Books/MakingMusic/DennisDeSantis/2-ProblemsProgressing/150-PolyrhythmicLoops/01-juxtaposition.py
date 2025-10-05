@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(90)
 
 basic_loop: Clip = Note(1/16) * 4 << Foreach(2, 4, 6, 4) << Octave(3) << Velocity(65)
@@ -32,5 +32,5 @@ out_sync_loop *= 4.0
 basic_loop *= 5.0
 
 juxtaposition: Clip = basic_loop + out_sync_loop
-juxtaposition * 8.0 >> P
+juxtaposition * 8.0 >> Play()
 

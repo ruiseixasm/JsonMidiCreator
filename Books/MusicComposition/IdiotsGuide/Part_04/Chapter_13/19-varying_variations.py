@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << KeySignature(1, Minor())   # Sets the default Key Note configuration
 
 # Original Motif to work on its pitches

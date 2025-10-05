@@ -25,19 +25,19 @@ from JsonMidiCreator import *
 settings << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> S
+notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> Stack()
 notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
 notes % Greater(Position(0, Beats(0))) >> Smooth()
 # notes >> R >> P
 
-original_chords = Chord() * 5 << Nth(3, 4)**half >> S
+original_chords = Chord() * 5 << Nth(3, 4)**half >> Stack()
 original_chords << Foreach("I", "ii", "IV", "V", "ii") << Octave(3)
 # original_chords >> R >> P
 
-notes + original_chords >> Link() >> Rest >> P
+notes + original_chords >> Link() >> Rest >> Play()
 
-reharmonized_chords = Chord() * 5 << Nth(3, 4)**half >> S
+reharmonized_chords = Chord() * 5 << Nth(3, 4)**half >> Stack()
 reharmonized_chords << Foreach("I", "V", "ii", "iii", "vi") << Octave(3)
 # reharmonized_chords >> R >> P
 
-notes + reharmonized_chords >> Link() >> Rest >> P
+notes + reharmonized_chords >> Link() >> Rest >> Play()

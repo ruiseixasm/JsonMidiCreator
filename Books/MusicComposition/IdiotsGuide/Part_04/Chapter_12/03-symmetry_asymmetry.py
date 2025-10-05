@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << 140
 Key() % str() >> Print()    # Returns the tonic key (I)
 
@@ -32,9 +32,9 @@ phrase_2 % NoteValue() >> Print(0)
 symmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
     (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7)**Degree()         >> Slur()) + \
-    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> S
+    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> Stack()
 symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
-symmetrical >> S
+symmetrical >> Stack()
 symmetrical % NoteValue() >> Print(0)
 symmetrical >> rest_play
 
@@ -46,7 +46,7 @@ asymmetrical = \
     (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7, 5, 6, 7)**Degree()) + \
     (phrase_3 % Copy()  << Foreach(8, 6, 7, 8, 9)**Degree()) + \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
-    (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> S
+    (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> Stack()
 asymmetrical % NoteValue() >> Print(0)
 asymmetrical >> rest_play
 

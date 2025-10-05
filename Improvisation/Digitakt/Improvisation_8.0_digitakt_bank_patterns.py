@@ -55,48 +55,48 @@ settings << Tempo(120)
 set_pattern_to_2 = ProgramChange(auto_channel, Program("2"))
 set_pattern_to_3 = ProgramChange(auto_channel, Program("3"))
 
-set_pattern_to_2 >> P
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_2 >> P
+Rest(1/1) >> Play()
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
 
-Rest(2/1) >> P
+Rest(2/1) >> Play()
 set_pattern_to_2 = ProgramChange(auto_channel, 2)
 set_pattern_to_3 = ProgramChange(auto_channel, 3)
 
-set_pattern_to_2 >> P
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_2 >> P
+Rest(1/1) >> Play()
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
 
-Rest(2/1) >> P
+Rest(2/1) >> Play()
 set_pattern_to_2 = ProgramChange(auto_channel, Program(bank_pattern["A"][2]))
 set_pattern_to_3 = ProgramChange(auto_channel, Program(bank_pattern["A"][3]))
 
-set_pattern_to_2 >> P
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_2 >> P
+Rest(1/1) >> Play()
+set_pattern_to_2 >> Play()
 
-Rest(1/1) >> P
-set_pattern_to_3 >> P
+Rest(1/1) >> Play()
+set_pattern_to_3 >> Play()
 
 
 

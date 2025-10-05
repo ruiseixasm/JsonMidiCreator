@@ -32,13 +32,13 @@ long_element = Element(4/1)
 long_rest % Length() % float() >> Print()
 long_element % Length() % float() >> Print()
 
-long_rest >> P
+long_rest >> Play()
 time.sleep(0.5)
-long_element >> P
+long_element >> Play()
 
 half_measure_element = Element(1/2)
 time.sleep(0.5)
-half_measure_element >> P
+half_measure_element >> Play()
 
 
 settings -= RD_Digitakt.device
@@ -46,4 +46,4 @@ settings % Devices() % list() >> Print()
 
 
 settings << ClockedDevices()
-AllNotesOff() >> Pv >> Export("json/_Export_all_notes_off.json")
+AllNotesOff() >> Play(True) >> Export("json/_Export_all_notes_off.json")

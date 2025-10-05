@@ -22,8 +22,8 @@ settings << ClockedDevices(RD_Blofeld.device) << Tempo(90)
 long_chord = Chord(1/1) * 1
 
 long_chord % Length() % float() >> Print()
-long_chord * 5 >> Pv
+long_chord * 5 >> Play(True)
 
 long_chord << Tempo(130)
-long_chord * 5 >> Pv
+long_chord * 5 >> Play(True)
 

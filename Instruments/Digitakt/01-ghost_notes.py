@@ -28,7 +28,7 @@ INSTRUMENT = ["Digitakt", "Elektron"]
 if INSTRUMENT:
     settings << Device(INSTRUMENT)   # Elektron Digitakt
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(105)
 
 
@@ -48,7 +48,7 @@ if INSTRUMENT:
     ghost_notes << Channel(2) << Pitch()
 
 backbeats = hi_hat + snare + drum + ghost_notes
-backbeats * 8 >> P
+backbeats * 8 >> Play()
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
@@ -60,7 +60,7 @@ if INSTRUMENT:
     anticipation << Channel(2) << Pitch()
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> P
+backbeats * 8 >> Play()
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
@@ -70,5 +70,5 @@ anticipation += Steps(1/2)
 anticipation << Duration(0.40 * 1/32)
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> P
+backbeats * 8 >> Play()
 

@@ -48,11 +48,11 @@ cymbal_second = cymbal_ptn + Position(3.0)
 cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal") << Velocity(127)
 complete_part << cymbal_clip
 
-complete_part >> P
+complete_part >> Play()
 
-Rest(1/2) >> P
-complete_part["Kick"] >> P
+Rest(1/2) >> Play()
+complete_part["Kick"] >> Play()
 
-Rest(1/2) >> P
-complete_part["Cymbal"] * 1 >> P
+Rest(1/2) >> Play()
+complete_part["Cymbal"] * 1 >> Play()
 

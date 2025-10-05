@@ -21,7 +21,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 settings << Tempo(120)
 
 # C - G - A# | A minor with Tonic C
-KeyScale(Scale("minor"), TonicKey("C"), 2.0) >> P
+KeyScale(Scale("minor"), TonicKey("C"), 2.0) >> Play()
 first_notes = Note("C", 1/8) * 3 << Minor() << Once("C", "G", "A")**Key() << Duration(1/16)
 first_notes[0] % Degree() % int() >> Print()
 first_notes[1] % Degree() % int() >> Print()
@@ -38,5 +38,5 @@ patter_notes = first_notes + second_notes + Even()**Octave(1)
 final_pattern = patter_notes.mask(Nth(1, 2)) / patter_notes / 2
 
 
-final_pattern * 8 >> P >> Render("Midi/improvisation_4.0.mid")
+final_pattern * 8 >> Play() >> Render("Midi/improvisation_4.0.mid")
 

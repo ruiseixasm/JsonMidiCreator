@@ -27,7 +27,7 @@ variables_decay_cc = ControlChange(
         Channel(1), RD_Blofeld.midi_cc["ENVELOPE FILTER"]["Decay"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 
-variables_decay_cc * 4 + Chord(4/1) >> P
+variables_decay_cc * 4 + Chord(4/1) >> Play()
 
 
 settings -= RD_Blofeld.device

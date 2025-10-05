@@ -28,7 +28,7 @@ if INSTRUMENT:
     settings << Device(INSTRUMENT)   # Waldorf Blofeld
 
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(120)
 
 motif: Clip = Note(1/16) * 12
@@ -47,5 +47,5 @@ repeated_motif % Length() % float() >> Print()
 if INSTRUMENT:
     repeated_motif << Channel(9)
 
-repeated_motif * 8 >> P
+repeated_motif * 8 >> Play()
 

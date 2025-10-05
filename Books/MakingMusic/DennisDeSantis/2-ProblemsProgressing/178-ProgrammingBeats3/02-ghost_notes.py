@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = ( Rest(), P)
+rest_play = ( Rest(), Play())
 settings << Tempo(110)
 
 
@@ -35,7 +35,7 @@ ghost_notes << Length(ghost_notes, 0.5)
 ghost_notes *= 2
 
 backbeats = hi_hat + snare + drum + ghost_notes
-backbeats * 8 >> P
+backbeats * 8 >> Play()
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)

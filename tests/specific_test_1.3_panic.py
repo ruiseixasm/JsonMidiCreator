@@ -17,7 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
-Panic() >> Export("json/_Export_Panic_test_1.3.json") >> Pv
+Panic() >> Export("json/_Export_Panic_test_1.3.json") >> Play(True)
 
 
 

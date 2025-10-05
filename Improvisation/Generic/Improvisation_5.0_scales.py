@@ -22,18 +22,18 @@ settings << Tempo(120)
 
 # All whites
 b_minor_scale = KeyScale(Scale("Dorian"), "D")
-b_minor_scale >> P
- Rest() >> P
+b_minor_scale >> Play()
+ Rest() >> Play()
 
 seven_keys = Note(1/1) / 7 << Iterate()
-seven_keys >> P
- Rest() >> P
+seven_keys >> Play()
+ Rest() >> Play()
 
 seven_keys % Pipe(Staff()) << Scale("Dorian")
-seven_keys >> P
- Rest() >> P
+seven_keys >> Play()
+ Rest() >> Play()
 
 seven_keys << Degree(0) # Degree 0 sets the Scale natural tonic
-seven_keys >> P
- Rest() >> P
+seven_keys >> Play()
+ Rest() >> Play()
 
