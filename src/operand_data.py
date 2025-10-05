@@ -363,30 +363,6 @@ class TrackName(Data):
     def __init__(self, track_name: str = "Track 1"):    # By default is "Track 1"
         super().__init__(track_name)
 
-class Name(TrackName):
-    """`Data -> TrackName -> Name`
-
-    `Clip` parameter that sets the name of the track for the Midilist exporting.
-    Basically works like a tag on a `Clip`, where multiple clips can share the same track name.
-
-    Parameters
-    ----------
-    str("Track 1") : Name of the `Clip` track.
-    """
-    pass
-
-class Title(TrackName):
-    """`Data -> TrackName -> Title`
-
-    `Clip` parameter that sets the title of the track for the Plotlist exporting.
-    Basically works like a tag on a `Composition`, where multiple elements can share the same track name.
-
-    Parameters
-    ----------
-    str("Track 1") : Title of the `Composition` plotting.
-    """
-    pass
-
 
 class Serialization(Data):
     """`Data -> Serialization`

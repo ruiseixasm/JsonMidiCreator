@@ -41,6 +41,7 @@ settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple
 # Class alias, abbreviations
 
 # Data aliases
+Title = Name = TrackName
 # Unit aliases
 K = Key
 W = Tone
