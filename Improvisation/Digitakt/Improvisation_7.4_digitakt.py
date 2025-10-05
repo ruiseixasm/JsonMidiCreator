@@ -59,6 +59,6 @@ complete_part + Measure(0) >> snare_tom_part + Measure(4) >> P
 
 complete_song = Song(complete_part)
 
-R(1/2) >> P
+Rest(1/2) >> P
 complete_song >> snare_tom_part + Position(4) >> P
 

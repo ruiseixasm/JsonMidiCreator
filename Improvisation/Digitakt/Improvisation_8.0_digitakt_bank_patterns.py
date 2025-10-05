@@ -57,45 +57,45 @@ set_pattern_to_3 = ProgramChange(auto_channel, Program("3"))
 
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
 
-R(2/1) >> P
+Rest(2/1) >> P
 set_pattern_to_2 = ProgramChange(auto_channel, 2)
 set_pattern_to_3 = ProgramChange(auto_channel, 3)
 
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
 
-R(2/1) >> P
+Rest(2/1) >> P
 set_pattern_to_2 = ProgramChange(auto_channel, Program(bank_pattern["A"][2]))
 set_pattern_to_3 = ProgramChange(auto_channel, Program(bank_pattern["A"][3]))
 
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_2 >> P
 
-R(1/1) >> P
+Rest(1/1) >> P
 set_pattern_to_3 >> P
 
 

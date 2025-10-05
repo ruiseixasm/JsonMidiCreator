@@ -27,5 +27,5 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note() * 6 << whole << Nth(1, 2, 3, 4)**Foreach(dotted_half, quarter, half, half) >> S
 notes << Foreach("iii", "ii", "iii", "IV", "iii", "I")**Degree()
-notes >> R >> P
+notes >> Rest >> P
 

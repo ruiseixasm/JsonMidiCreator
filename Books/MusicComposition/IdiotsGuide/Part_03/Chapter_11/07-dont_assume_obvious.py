@@ -27,11 +27,11 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 slow_melody = Note() * 5 << 1/1 << Nth(2, 3)**half >> S
 slow_melody << Foreach((G, Gate(1)), G, A, B, G)
-slow_melody >> R >> P
+slow_melody >> Rest >> P
 
 chords = Chord(1/2) * 6 + Chord() >> S
 chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << Octave(3)
-chords + slow_melody >> L >> R >> P
+chords + slow_melody >> L >> Rest >> P
 
 settings << "b"
 Key() % str() >> Print()    # Returns the tonic key (I)
@@ -41,9 +41,9 @@ fast_melody = \
     (Note() * 7 << eight << Nth(5)**quarter      << Foreach(1, -2, 1, 2, 3, -4, 2)**Degree()) + \
     (Note() * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 5, 3, 2, 1)**Degree()) + \
     (Note() * 5 << eight << Nth(5)**half         << Foreach(2, 2, 2, 3, 2)**Degree()) << Gate(0.7) >> S
-fast_melody >> R >> P
+fast_melody >> Rest >> P
 
 chords = Chord(3/1) + Chord() >> S
 chords << Foreach((Gate(0.99), F), "Gm") << Octave(3)
 # chords >> L >> R >> P
-chords + fast_melody >> L >> R >> P
+chords + fast_melody >> L >> Rest >> P

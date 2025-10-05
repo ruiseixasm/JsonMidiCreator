@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R(), P)
+rest_play = ( Rest(), P)
 settings << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
@@ -32,13 +32,13 @@ motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 # rest_motif = R + motif % Copy() >> S >> LJ  # up a half-step
 # rest_motif >> rest_play
 
-displacing_motif = motif >> R + motif % Copy() >> S >> LJ  # up a half-step
+displacing_motif = motif >> Rest + motif % Copy() >> S >> LJ  # up a half-step
 displacing_motif % NoteValue() >> Print(0)
 displacing_motif >> rest_play >> Render("Midi/displacing_motif.mid")
 
 # Equivalent Staff notational format
 displacing_motif = motif \
-    >> ((R + motif % Copy() >> S) + Note(1/8, Degree(3), Position(M2, B1)) >> LJ >> Tie()) \
+    >> ((Rest + motif % Copy() >> S) + Note(1/8, Degree(3), Position(M2, B1)) >> LJ >> Tie()) \
     >> S  # up a half-step
 displacing_motif % NoteValue() >> Print(0)
 displacing_motif >> rest_play

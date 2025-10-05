@@ -35,7 +35,7 @@ for iteration in range(1000):
     first_notes = eight_notes >> Nth(1, 2, 3, 4)
     print(f"Iteration: {iteration}.")
     eight_notes >> P
-    R() >> P
+     Rest() >> P
 
 
 

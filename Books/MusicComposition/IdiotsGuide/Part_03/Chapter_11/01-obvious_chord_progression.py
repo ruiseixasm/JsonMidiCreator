@@ -27,10 +27,10 @@ Key() % str() >> Print()
 single_notes = Note() * 14 << Foreach(quarter, eight, eight, quarter, quarter, dotted_quarter, sixteenth, half,
                                  quarter, eight, eight, quarter, quarter, whole)
 single_notes << Foreach("I", "ii", "I", "viiº", "V", "vi", "viiº", "vi", "IV", "V", "IV", "iii", "IV", "V") << Octave(5)) >> Smooth()
-single_notes >> R >> P
+single_notes >> Rest >> P
 chords = Chord(1/1) * 4
 chords << Foreach("I", "vi", "IV", "V7")
 settings << 60.0
-chords >> R >> P
+chords >> Rest >> P
 settings << 100.0
-single_notes + chords >> L >> R >> P
+single_notes + chords >> L >> Rest >> P

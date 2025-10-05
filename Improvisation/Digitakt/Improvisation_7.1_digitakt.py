@@ -57,7 +57,7 @@ complete_part >>= repeated_part
 
 complete_part >> P
 
-R() >> P
+ Rest() >> P
 complete_part["Kick"] >> P
 
 

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R(), P)
+rest_play = ( Rest(), P)
 settings << "bbb" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
@@ -36,7 +36,7 @@ measure_4 % NoteValue() >> Print(0)
 
 clarinet = \
     ProgramChange("Clarinet") + \
-    (R << whole) + \
+    (Rest << whole) + \
     motif + \
     (Note() * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \

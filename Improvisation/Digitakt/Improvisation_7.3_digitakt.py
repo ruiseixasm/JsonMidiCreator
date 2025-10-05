@@ -55,6 +55,6 @@ complete_part = Part(open_hats_clip, close_hats_clip, tom_clip, snare_clip, kick
 
 complete_part >> P
 
-R(1/2) >> P
+Rest(1/2) >> P
 complete_part.mask("Snare")[0] >> P
 

@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 settings << 60.0 << ""
 Key() % str() >> Print()
 chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), Octave(3)), "F")
-chords >> R >> P
+chords >> Rest >> P
 
 settings << 120
 original_melody = Note() * 14 << Foreach(
@@ -38,17 +38,17 @@ original_melody << Foreach(
     C, D, E, D, E,
     D, E, D, C,
     C) >> Smooth()
-original_melody >> R >> P
+original_melody >> Rest >> P
 
 melodic_outline = original_melody % Steps(0) + original_melody % Measures(1) % Beats(2) >> LJ
-melodic_outline >> R >> P
+melodic_outline >> Rest >> P
 
 structural_tones = original_melody % Steps(0) + original_melody % Measures(1) % Beats(2) + original_melody % Measures(2) % Beats(2) >> LJ
-structural_tones >> R >> P
+structural_tones >> Rest >> P
 
 chords = Chord(1/1) * 6
 chords % Nth(2, 3, 4, 5) << 1/2
 chords >> S << Foreach(C, "Am", "Em", "Dm", G, C)
-chords >> R >> P
-structural_tones + chords >> L >> R >> P
-original_melody + chords >> L >> R >> P
+chords >> Rest >> P
+structural_tones + chords >> L >> Rest >> P
+original_melody + chords >> L >> Rest >> P

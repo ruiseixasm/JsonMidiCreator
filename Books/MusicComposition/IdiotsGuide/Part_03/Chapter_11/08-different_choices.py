@@ -34,10 +34,10 @@ original_chords = Chord() * 5 << Nth(3, 4)**half >> S
 original_chords << Foreach("I", "ii", "IV", "V", "ii") << Octave(3)
 # original_chords >> R >> P
 
-notes + original_chords >> L >> R >> P
+notes + original_chords >> L >> Rest >> P
 
 reharmonized_chords = Chord() * 5 << Nth(3, 4)**half >> S
 reharmonized_chords << Foreach("I", "V", "ii", "iii", "vi") << Octave(3)
 # reharmonized_chords >> R >> P
 
-notes + reharmonized_chords >> L >> R >> P
+notes + reharmonized_chords >> L >> Rest >> P

@@ -31,4 +31,4 @@ phrase_2 = phrase_1 % Copy() << Foreach(-3, -2, 1, 2, 3, 3)**Degree()
 phrase_4 = phrase_1 % Copy() << Foreach(3, 4, 3, 4, 3, 3)**Degree()
 phrase_3 = phrase_1 % Equal(M1, M2) % Copy() \
     + (Note() * 4 << half << Nth(1, 2)**Foreach(dotted_half, quarter) << Foreach(5, 6, 5, 4)**Degree()) >> S
-(phrase_1, phrase_2, phrase_3, phrase_4, R) >> P
+(phrase_1, phrase_2, phrase_3, phrase_4, Rest) >> P

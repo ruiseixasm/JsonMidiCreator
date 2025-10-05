@@ -42,7 +42,7 @@ snare_ptn = Note(snare) * 1
 full_clip = kick_ptn + snare_ptn << Duration(1/16)
 
 # full_clip * 4 >> P
-R() >> P
+ Rest() >> P
 
 closed_hat_ptn = Note(closed_hat, 1/16) * 16
 

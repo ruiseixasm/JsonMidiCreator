@@ -50,9 +50,9 @@ complete_part << cymbal_clip
 
 complete_part >> P
 
-R(1/2) >> P
+Rest(1/2) >> P
 complete_part["Kick"] >> P
 
-R(1/2) >> P
+Rest(1/2) >> P
 complete_part["Cymbal"] * 1 >> P
 

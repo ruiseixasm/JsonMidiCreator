@@ -30,6 +30,6 @@ replacing_notes = \
     (Note() * 4 << Foreach(1, -2, -4, -2)**Degree() << Foreach(None, Flat(), None, None)) \
     >> S
 replacing_notes % NoteValue() >> Print(0)
-replacing_notes >> R >> P
+replacing_notes >> Rest >> P
 
 replacing_notes >> Render("Midi/example_song.mid")

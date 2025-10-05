@@ -48,8 +48,6 @@ Ch = Channel
 Bars = Measures
 Bar = Measure
 # Element aliases
-N = Nt = Note
-R = Rst = Rest
 Dur = Duration
 Vel = Velocity
 Deg = Degree
