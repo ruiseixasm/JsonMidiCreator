@@ -447,16 +447,26 @@ class Tempo(Rational):
         return self
 
     def read(self) -> Self:
-        timings_ms: list[int] = []
+        events_site: int = 10
+        timings_minutes: list[int] = []
+        last_read_event: int = None
         print("Press and release SHIFT for each Element. Press ENTER to stop.")
         while True:
             event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
             if event.name in ("shift", "left shift", "right shift") and event.event_type == "down":
-                timings_ms.append(int(time.time() * 1000))
-                if len(timings_ms) > 1:
-                    time_minutes: Fraction = o.time_ms_to_minutes(timings_ms[-1] - timings_ms[-2])
-                    self._rational = 1 / time_minutes
-                    print(f"Tempo: {round(float(self._rational), 1)} bpm")
+                shift_event_ms: int = int(time.time() * 1000)
+                if last_read_event is None:
+                    last_read_event = shift_event_ms
+                else:
+                    elapsed_minutes: Fraction = o.time_ms_to_minutes(shift_event_ms - last_read_event)
+                    last_read_event = shift_event_ms
+                    timings_minutes.append(elapsed_minutes)
+                    if len(timings_minutes) > 1:
+                        if len(timings_minutes) > events_site:
+                            timings_minutes.pop(0)
+                        average_timings: float = sum(timings_minutes) / len(timings_minutes)
+                        self._rational = 1 / average_timings
+                        print(f"Tempo: {round(float(self._rational), 1)} bpm")
             elif event.name == "enter" and event.event_type == "down":
                 break
         return self

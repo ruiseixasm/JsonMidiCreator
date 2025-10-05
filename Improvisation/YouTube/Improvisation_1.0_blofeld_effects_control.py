@@ -15,15 +15,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
+# This Episode DIDN'T AGE SO WELL - AudioPilz
+# https://youtu.be/d5MURYNbpgo?si=MJiqT9olxOTyvPrB
+
+
 settings % Devices() % list() >> Print()
 settings += RD_Blofeld.device
 settings % Devices() % list() >> Print()
 
 
-settings << Tempo(120).read()
-
-# This Episode DIDN'T AGE SO WELL - AudioPilz
-# https://youtu.be/d5MURYNbpgo?si=MJiqT9olxOTyvPrB
-
+# settings << Tempo(120).read()
+settings << Tempo(140)
 
 
