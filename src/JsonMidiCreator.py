@@ -55,6 +55,8 @@ CC = ControlChange
 PC = ProgramChange
 # Generic aliases
 TS = TimeSignature
+# Frame aliases
+Each = Foreach
 # Container aliases
 Section = Part
 
