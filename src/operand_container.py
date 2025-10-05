@@ -2877,8 +2877,10 @@ class Clip(Composition):  # Just a container of Elements
                     if placed:
                         kept_elements.append(self[index])    # No need to copy
                 return self._delete(self._unmasked_items(), True)._extend(kept_elements)._sort_items()
-            
-        return super().__irshift__(operand)
+
+            case _:
+                super().__irshift__(operand)
+        return self._sort_items()
 
 
     # Avoids the costly copy of Track self doing +=
