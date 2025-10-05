@@ -27,7 +27,7 @@ settings << Tempo(95) << Folder("examples/")
 
 snare = Note(1/4, Channel(2)) / 4 * 4 << Steps(1)
 
-swing_solution = RS_Clip(snare, [1], 4, by_channel=True).global_add(10).solution()
+swing_solution = RS_Clip(snare, [1], 4, by_channel=True).parameter_global_add(10).solution()
 
 list_round(swing_solution % [Position(), Steps(), float()], 2) >> Print()
 

@@ -651,7 +651,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
-    def global_set(self,
+    def parameter_global_set(self,
             iterations: int = 1,
             parameter: any = of.Equal(ra.Measure(1))**ou.KeySignature(),
             chaos: ch.Chaos = ch.SinX(25, ot.Decrease(3)**ot.Modulo(7)),
@@ -667,11 +667,11 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
         
         if not isinstance(title, str):
-            title = "Global Set"
+            title = "Parameter Global Set"
         return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
 
 
-    def global_add(self,
+    def parameter_global_add(self,
             iterations: int = 1,
             parameter: any = of.Even()**ra.Position()**ra.Steps(),
             chaos: ch.Chaos = ch.SinX(25, ot.Modulo(3)),
@@ -687,7 +687,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
         
         if not isinstance(title, str):
-            title = "Global Add"
+            title = "Parameter Global Add"
         return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
 
 
