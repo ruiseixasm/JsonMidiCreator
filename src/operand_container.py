@@ -125,6 +125,26 @@ class Container(o.Operand):
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
 
+    def _previous_item(self, item: Any) -> Any:
+        item_index: int = None
+        for index, single_item in enumerate(self._items):
+            if single_item is item:
+                item_index = index
+                break
+        if item_index is not None and item_index > 0:
+            return self._items[item_index - 1]
+        return None
+
+    def _next_item(self, item: Any) -> Any:
+        item_index: int = None
+        for index, single_item in enumerate(self._items):
+            if single_item is item:
+                item_index = index
+                break
+        if item_index is not None and item_index < len(self._items) - 1:
+            return self._items[item_index + 1]
+        return None
+
 
     def _insert(self, items: list) -> Self:
         # Avoids redundant items/objects
