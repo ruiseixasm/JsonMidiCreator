@@ -19,7 +19,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 def new_tempo(clip: Clip) -> Clip:
 
     clip += Tempo(5)
-    clip % Tempo() % int() >> Pr
+    clip % Tempo() % int() >> Print()
     return clip
 
 many_notes = Note() * 4 << Tempo(90)

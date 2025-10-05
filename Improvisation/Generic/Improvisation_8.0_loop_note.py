@@ -28,7 +28,7 @@ possibilities = Foreach(1, 2, 3, 4, 5, 6, 7)**Degree()
 
 
 for degree in range(1, 8):  # 7 degrees in total
-    degree >> Pr
+    degree >> Print()
     two_notes >> Nth(2) << degree
     try_clip = two_notes * 2 * Rest()
     try_clip >> Play()

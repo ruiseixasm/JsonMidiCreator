@@ -268,7 +268,7 @@ def test_rshift_container():
     # Part testing ###################################################
     # Beat sets Position while Beats set Duration
     note_clip = Clip(Note(), Note("E")) << Iterate()**Beat() # A single Measure clip long!
-    note_clip % Length() % float() >> Pr
+    note_clip % Length() % float() >> Print()
     clip_part = Part(note_clip)
     assert clip_part % Position() == Beats(0)
 

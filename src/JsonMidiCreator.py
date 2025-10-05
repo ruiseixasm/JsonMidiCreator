@@ -67,10 +67,6 @@ G = Key("G")
 A = Key("A")
 B = Key("B")
 
-# Actions
-Pr = Print()
-Pl = Plot()
-
 # Note Values alias, abbreviations
 whole = Duration(1/1)
 half = Duration(1/2)
