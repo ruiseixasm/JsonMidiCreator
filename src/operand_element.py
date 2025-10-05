@@ -325,7 +325,23 @@ class Element(o.Operand):
             case od.Playlist():
                 operand.__rrshift__(self)
                 return self
+            case og.Fit():
+                if self._owner_clip is not None:
+                    next_element: Element | None = self._owner_clip._previous_item(self)
+                    if next_element is not None:
+                        self._position_beats = next_element._position_beats + next_element._duration_beats
+                    else:
+                        self << ra.Position(0)  # Places it at the start of the Clip
+                    next_element: Element | None = self._owner_clip._next_item(self)
+                    if next_element is not None:
+                        self._duration_beats = next_element._position_beats + self._position_beats
+                    else:
+                        self._duration_beats = self._owner_clip.length()._rational + self._position_beats
+                    self._owner_clip._sort_items()
+                return self
+                
         return self.copy().__irshift__(operand)
+
 
     def __irshift__(self, operand: o.T) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
