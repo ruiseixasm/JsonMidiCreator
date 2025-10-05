@@ -30,8 +30,8 @@ settings << Folder("Improvisation/YouTube/") << Tempo(140)
 # melody_6_00 = Note().read()
 # melody_6_00 >> Plot()
 
-melody_6_00 = Load("track_1_clip_0_0_eda8_save.json") + Step(10) >> Quantize()
-melody_6_00 << Foreach("4", "5", "5", "4", "3", "1", "2", "6", "1", "5", "4", "3", "4", "6", "2")
+melody_6_00 = Load("track_1_clip_0_0_eda8_save.json") + Step(10) << Channel(11) >> Quantize()
+melody_6_00 << Foreach(4, 5, 5, 4, 3, 1, 2, 6, 1, 5, 4, 3, 4, 6, 2)**"" # Wrapped as str() in **""
 melody_6_00 << Foreach(3, 3, 4, 4, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3)**Octave()
 melody_6_00 >> Plot(block=False)
 settings << Quantization(1/2)   # After works, before doesn't
