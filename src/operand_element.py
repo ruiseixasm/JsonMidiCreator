@@ -324,22 +324,7 @@ class Element(o.Operand):
                 return self << operand % od.Pipe()
             case od.Playlist():
                 operand.__rrshift__(self)
-                return self
-            case og.Fit():
-                if self._owner_clip is not None:
-                    next_element: Element | None = self._owner_clip._previous_item(self)
-                    if next_element is not None:
-                        self._position_beats = next_element._position_beats + next_element._duration_beats
-                    else:
-                        self << ra.Position(0)  # Places it at the start of the Clip
-                    next_element: Element | None = self._owner_clip._next_item(self)
-                    if next_element is not None:
-                        self._duration_beats = next_element._position_beats + self._position_beats
-                    else:
-                        self._duration_beats = self._owner_clip.length()._rational + self._position_beats
-                    self._owner_clip._sort_items()
-                return self
-                
+                return self   
         return self.copy().__irshift__(operand)
 
 
@@ -359,6 +344,19 @@ class Element(o.Operand):
                         return self.__irshift__(operand[self_index % total_wrappers])
                     else:
                         return self.__irshift__(operand[0])
+                return self
+            case og.Fit():
+                if self._owner_clip is not None:
+                    previous_element: Element | None = self._owner_clip._previous_item(self)
+                    if previous_element is not None:
+                        self._position_beats = previous_element._position_beats + previous_element._duration_beats
+                    else:
+                        self._position_beats = Fraction(0)  # Places it at the start of the Clip
+                    next_element: Element | None = self._owner_clip._next_item(self)
+                    if next_element is not None:
+                        self._duration_beats = next_element._position_beats + self._position_beats
+                    else:
+                        self._duration_beats = self._owner_clip.length()._rational + self._position_beats
                 return self
         return super().__irshift__(operand)
 

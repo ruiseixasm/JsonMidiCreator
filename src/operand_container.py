@@ -3959,11 +3959,11 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         for unmasked_element in self._unmasked_items():
-            next_element: oe.Element | None = self._previous_item(unmasked_element)
-            if next_element is not None:
-                unmasked_element._position_beats = next_element._position_beats + next_element._duration_beats
+            previous_element: oe.Element | None = self._previous_item(unmasked_element)
+            if previous_element is not None:
+                unmasked_element._position_beats = previous_element._position_beats + previous_element._duration_beats
             else:
-                unmasked_element << ra.Position(0)  # Places it at the start of the Clip
+                unmasked_element._position_beats = Fraction(0)  # Places it at the start of the Clip
             next_element: oe.Element | None = self._next_item(unmasked_element)
             if next_element is not None:
                 unmasked_element._duration_beats = next_element._position_beats + unmasked_element._position_beats
