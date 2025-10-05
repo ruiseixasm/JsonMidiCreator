@@ -39,7 +39,9 @@ melody_6_00 << First()**Steps(1)    # Make sure the Steps is in accordance with 
 melody_6_00 >>= Less(Steps(1))**Fit()
 melody_6_00 >> Plot(block=False, title="Fitted")
 melody_6_00 >>= Quantize(quantize_duration=True)
-melody_6_00 >> Plot(title="Fitted and Quantized")
+melody_6_00 >> Plot(block=False, title="Fitted and Quantized")
 # melody_6_00 >>= Nth(2)**Fit()
 
+
+new_durations = RS_Clip(melody_6_00, [1], 8).duration_rearrangement(2, [1/16, 1/8, 1/4, 0]).solution()
 

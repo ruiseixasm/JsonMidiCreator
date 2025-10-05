@@ -236,20 +236,22 @@ class RS_Clip(RS_Solutions):
                                 segmented_composition,
                                 segmented_durations[duration_index % len(segmented_durations)]
                             ) % Fraction()
-                        if next_duration == Fraction(0):
+                        if next_duration <= Fraction(0):
                             next_duration = clip_loci[duration_index % len(clip_loci)]._duration_beats
                         next_position_beats += next_duration
-                        splits_positions.add(
-                            next_position_beats % total_duration_beats
-                        )
+                        if Fraction(0) < next_position_beats % total_duration_beats < total_duration_beats:
+                            splits_positions.add(
+                                next_position_beats % total_duration_beats
+                            )
                         duration_index += 1
                     
+                    splits_positions.add(total_duration_beats)
                     sorted_splits_positions: list[Fraction] = sorted(list(splits_positions))
 
-                    next_position_beats = Fraction(0)
-                    for locus, split_position in zip(clip_loci, sorted_splits_positions):
+                    next_position_beats = clip_loci[0]._position_beats  # Preserves first Position
+                    for locus, split_position_0 in zip(clip_loci, sorted_splits_positions):
                         locus._position_beats = next_position_beats
-                        locus._duration_beats = split_position - locus._position_beats
+                        locus._duration_beats = split_position_0 + clip_loci[0]._position_beats - locus._position_beats
                         next_position_beats += locus._duration_beats
                     
                     for single_element, locus in zip(segmented_composition, clip_loci):
