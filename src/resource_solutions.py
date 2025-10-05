@@ -182,26 +182,6 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, ch.Chaos(), 1, title)
 
 
-# PARAMETER METHODS
-
-    def parameter_measure(self,
-            iterations: int = 1,
-            chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
-            parameter: any = ou.Degree(),
-            title: str | None = None) -> Self:
-        """
-        Processes the imputed parameter to be added for each `Measure`.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                new_foreach_measure: of.Frame = of.Mux(ra.Measure())**of.Foreach(*results)**parameter
-                return segmented_composition.add(new_foreach_measure)
-            return segmented_composition
-        
-        if not isinstance(title, str):
-            title = "Parameter Measure"
-        return self.iterate(iterations, _iterator, chaos, self._measures, title)
-
 
 # DURATION METHODS
 
@@ -347,53 +327,6 @@ class RS_Clip(RS_Solutions):
         return self.pitch_tonality_conjunct(iterations, chaos, triggers, title)
 
 
-# PARAMETER METHODS
-
-    def parameter_shuffled(self,
-            iterations: int = 1,
-            parameter: Any = og.Locus(),
-            chaos: ch.Chaos = ch.SinX(),
-            title: str | None = None) -> Self:
-        """
-        Shuffles a given parameter among the unmasked elements in the original `Composition`.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                nonlocal parameter  # This binds the outer parameter to the inner function
-                existent_parameters: list = segmented_composition % [parameter]
-                picked_parameters: list = []
-                for result in results:
-                    picked_parameters.append( existent_parameters.pop(result % len(existent_parameters)) )
-                for single_element, shuffled_parameter in zip(segmented_composition, picked_parameters):
-                    single_element << shuffled_parameter
-                segmented_composition._sort_items() # Necessary because setting the elements directly doesn't do it
-            return segmented_composition
-
-        if not isinstance(title, str):
-            title = "Parameter Shuffled"
-        return self.iterate(iterations, _iterator, chaos, 0, title)
-
-
-    def match_time_signature(self,
-            iterations: int = 1,
-            chaos: ch.Chaos = ch.Ripple(ra.Steps(5)),
-            title: str | None = None) -> Self:
-        """
-        Readjusts the Time Signature `Tempo` without changing the composition timing.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                original_tempo: Fraction = og.settings % ra.Tempo() % Fraction()
-                new_tempo: Fraction = original_tempo + results[0]
-                tempo_ratio: Fraction = new_tempo / original_tempo
-                for element in segmented_composition:
-                    element *= tempo_ratio
-            return segmented_composition
-
-        if not isinstance(title, str):
-            title = "Match Time Signature"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
-
 
     def pitch_sweep_sharps(self,
             iterations: int = 1,
@@ -460,6 +393,53 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Pitch Sprinkle Accidentals"
         return self.iterate(iterations, _iterator, chaos, 0, title)
+
+
+# PARAMETER METHODS
+
+    def parameter_measure(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.SinX(ot.Decrease(3)**ot.Modulo(6)),
+            parameter: any = ou.Degree(),
+            title: str | None = None) -> Self:
+        """
+        Processes the imputed parameter to be added for each `Measure`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                new_foreach_measure: of.Frame = of.Mux(ra.Measure())**of.Foreach(*results)**parameter
+                return segmented_composition.add(new_foreach_measure)
+            return segmented_composition
+        
+        if not isinstance(title, str):
+            title = "Parameter Measure"
+        return self.iterate(iterations, _iterator, chaos, self._measures, title)
+
+
+    def parameter_shuffled(self,
+            iterations: int = 1,
+            parameter: Any = og.Locus(),
+            chaos: ch.Chaos = ch.SinX(),
+            title: str | None = None) -> Self:
+        """
+        Shuffles a given parameter among the unmasked elements in the original `Composition`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                nonlocal parameter  # This binds the outer parameter to the inner function
+                existent_parameters: list = segmented_composition % [parameter]
+                picked_parameters: list = []
+                for result in results:
+                    picked_parameters.append( existent_parameters.pop(result % len(existent_parameters)) )
+                for single_element, shuffled_parameter in zip(segmented_composition, picked_parameters):
+                    single_element << shuffled_parameter
+                segmented_composition._sort_items() # Necessary because setting the elements directly doesn't do it
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Parameter Shuffled"
+        return self.iterate(iterations, _iterator, chaos, 0, title)
+
 
 
     def parameter_single_element(self,
@@ -530,7 +510,10 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
-    def swap_elements(self,
+
+# LOCUS METHODS
+
+    def locus_swap_elements(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
             title: str | None = None) -> Self:
@@ -556,13 +539,11 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Swap Elements"
+            title = "Locus Swap Elements"
         return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
-# LOCI METHODS
-
-    def swap_loci(self,
+    def locus_swap_loci(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(25, ot.Different()**ot.Modulo(8)),
             title: str | None = None) -> Self:
@@ -590,7 +571,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Swap Loci"
+            title = "Locus Swap Loci"
         return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
@@ -708,6 +689,27 @@ class RS_Clip(RS_Solutions):
         if not isinstance(title, str):
             title = "Global Add"
         return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
+
+
+    def match_time_signature(self,
+            iterations: int = 1,
+            chaos: ch.Chaos = ch.Ripple(ra.Steps(5)),
+            title: str | None = None) -> Self:
+        """
+        Readjusts the Time Signature `Tempo` without changing the composition timing.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                original_tempo: Fraction = og.settings % ra.Tempo() % Fraction()
+                new_tempo: Fraction = original_tempo + results[0]
+                tempo_ratio: Fraction = new_tempo / original_tempo
+                for element in segmented_composition:
+                    element *= tempo_ratio
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Match Time Signature"
+        return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
 class RS_Part(RS_Solutions):
