@@ -731,6 +731,7 @@ class Element(o.Operand):
         import operand_container as oc
         new_clip: oc.Clip = oc.Clip(self._get_time_signature())
         shift_key_down: bool = kb.is_pressed('shift')
+        enter_key_down: bool = kb.is_pressed('enter')
         timings_ms: list[int] = []
         print("Press and release SHIFT or SPACE for each Element. Press ENTER to stop.")
         # Block these keys system-wide
@@ -744,11 +745,13 @@ class Element(o.Operand):
                 shift_key_down = False
                 timings_ms.append(int(time.time() * 1000))
 
-            elif kb.is_pressed('enter'):
+            elif kb.is_pressed('enter') and not enter_key_down:
                 # If odd number of entries → last one must be a press without release
                 if len(timings_ms) % 2 != 0:
                     timings_ms.append(int(time.time() * 1000))
                 break
+            elif not kb.is_pressed('enter') and enter_key_down:
+                enter_key_down = False
 
         if timings_ms:
 
