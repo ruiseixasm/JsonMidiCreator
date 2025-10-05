@@ -44,6 +44,8 @@ settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple
 Title = Name = TrackName
 # Unit aliases
 K = Key
+Root = RootKey
+Tonic = TonicKey
 W = Tone
 H = Semitone
 Ch = Channel
