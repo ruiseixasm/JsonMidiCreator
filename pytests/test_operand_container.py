@@ -800,13 +800,15 @@ def test_clip_filter():
 
 def test_clip_fitting():
 
-    long_notes: Clip = Note(2/1) / Note(2.5)
+    long_notes: Clip = Note(2/1) / Note(2.5)    # Last note equal to 2.0 + 2.5 Measures !!!
     assert long_notes.len() == 2
     assert long_notes % Duration() == 2.0 + 2.5
 
+    print(f"long_notes % Length() % float() {long_notes % Length() % float()}")
+    assert long_notes % Length() == Measures(2.0 + 2.0)
     long_notes.fit()
     assert long_notes.len() == 2
-    assert long_notes % Duration() == 2.0 + 2.0 + 4.0
+    assert long_notes % Duration() == 2.0 + 2.0 # trimmed to the end of last Measure, 4.0 !!
 
 # test_clip_fitting()
 

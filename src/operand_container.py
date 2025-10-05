@@ -3966,9 +3966,9 @@ class Clip(Composition):  # Just a container of Elements
                 unmasked_element._position_beats = Fraction(0)  # Places it at the start of the Clip
             next_element: oe.Element | None = self._next_item(unmasked_element)
             if next_element is not None:
-                unmasked_element._duration_beats = next_element._position_beats + unmasked_element._position_beats
+                unmasked_element._duration_beats = next_element._position_beats - unmasked_element._position_beats
             else:
-                unmasked_element._duration_beats = self.length()._rational + unmasked_element._position_beats
+                unmasked_element._duration_beats = self.length()._rational - unmasked_element._position_beats
         return self._sort_items()
 
 

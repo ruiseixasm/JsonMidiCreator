@@ -34,7 +34,9 @@ melody_6_00 = Load("track_1_clip_0_0_eda8_save.json") + Step(10) >> Quantize()
 melody_6_00 << Foreach("4", "5", "5", "4", "3", "1", "2", "6", "1", "5", "4", "3", "4", "6", "2")
 melody_6_00 << Foreach(3, 3, 4, 4, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3)**Octave()
 melody_6_00 << First()**Steps(2)
+melody_6_00 >> Plot(block=False)
 melody_6_00 >>= Less(Steps(2))**Fit()
-melody_6_00 >> Plot()
+melody_6_00 >> Plot(title="Fitted")
+# melody_6_00 >>= Nth(2)**Fit()
 
 

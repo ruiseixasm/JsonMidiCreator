@@ -354,9 +354,9 @@ class Element(o.Operand):
                         self._position_beats = Fraction(0)  # Places it at the start of the Clip
                     next_element: Element | None = self._owner_clip._next_item(self)
                     if next_element is not None:
-                        self._duration_beats = next_element._position_beats + self._position_beats
+                        self._duration_beats = next_element._position_beats - self._position_beats
                     else:
-                        self._duration_beats = self._owner_clip.length()._rational + self._position_beats
+                        self._duration_beats = self._owner_clip.length()._rational - self._position_beats
                 return self
         return super().__irshift__(operand)
 
