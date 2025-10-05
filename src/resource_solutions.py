@@ -274,12 +274,12 @@ class RS_Clip(RS_Solutions):
                         for index, _ in enumerate(sorted_splits_positions):
                             sorted_splits_positions[index] *= expand_ratio
 
-
-                    next_position_beats = segmented_composition[0]._position_beats  # Preserves first Position
+                    next_position_offset: Fraction = Fraction(0)
                     for element, split_position_0 in zip(segmented_composition, sorted_splits_positions):
-                        element._position_beats = next_position_beats
-                        element._duration_beats = split_position_0 + segmented_composition[0]._position_beats - element._position_beats
-                        next_position_beats += element._duration_beats
+                        split_position: Fraction = segmented_composition[0]._position_beats + split_position_0
+                        element._position_beats += next_position_offset
+                        next_position_offset += split_position - (element._position_beats + element._duration_beats)
+                        element._duration_beats = split_position - element._position_beats
                     
                     segmented_composition._sort_items()
 
