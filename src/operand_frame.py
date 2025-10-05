@@ -239,6 +239,9 @@ class Left(Frame):  # LEFT TO RIGHT
             else:
                 self_operand = self_operand.copy(input) # Has to use a copy of the frame operand
             self_operand._set = True
+        elif isinstance(self_operand, (int, float, Fraction, str)):
+            if not isinstance(input, oe.Element):   # Elements shouldn't set operands but just trigger them
+                self_operand = type(self_operand)(input)    # Has to use a copy of the frame operand
         
         return self_operand
 
