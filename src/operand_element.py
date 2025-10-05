@@ -733,7 +733,7 @@ class Element(o.Operand):
         shift_key_down: bool = kb.is_pressed('shift')
         enter_key_down: bool = kb.is_pressed('enter')
         timings_ms: list[int] = []
-        print("Press and release SHIFT or SPACE for each Element. Press ENTER to stop.")
+        print("Press and release SHIFT for each Element. Press ENTER to stop.")
         # Block these keys system-wide
         kb.block_key('enter')
         kb.block_key('shift')
@@ -768,6 +768,11 @@ class Element(o.Operand):
                     new_elements.append(self.copy( ra.Position(beats) ))
 
             new_clip._extend(new_elements)._sort_items()
+            
+        # Release these keys system-wide
+        kb.unblock_key('enter')
+        kb.unblock_key('shift')
+
         return new_clip
 
 
