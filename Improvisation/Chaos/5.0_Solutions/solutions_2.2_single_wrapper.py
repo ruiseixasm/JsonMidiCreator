@@ -32,5 +32,5 @@ section_a = kick_a + snare_a + open_hat << TrackName("Section A")
 
 
 rhythm_solution = RS_Clip(section_a * 4, by_channel=True)
-moved_beats = rhythm_solution.mask(Channel(1)).single_wrapper(10).unmask().solution()
+moved_beats = rhythm_solution.mask(Channel(1)).wrapper_single_element(10).unmask().solution()
 

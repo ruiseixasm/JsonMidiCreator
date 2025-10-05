@@ -22,10 +22,10 @@ single_seed_note = Note(4/1) * 1
 
 clip_solution = RS_Clip(single_seed_note, iterations=[1, 0], measures=2)
 phrase_notes = clip_solution.duration_splitter(7).mask(Beat(0)) \
-    .tonality_conjunct_but_slacked(3).unmask().solution()
+    .pitch_tonality_conjunct_but_slacked(3).unmask().solution()
 # phrase_notes >> Plot()
 
 key_signatures = RS_Clip(phrase_notes)
-phrase_notes = key_signatures.sweep_sharps(7).solution()
+phrase_notes = key_signatures.pitch_sweep_sharps(7).solution()
 # phrase_notes >> Plot()
 

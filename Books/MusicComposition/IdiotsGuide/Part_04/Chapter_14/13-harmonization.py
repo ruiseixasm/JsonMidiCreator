@@ -33,7 +33,7 @@ theme_1 >> Plot(block=False)
 theme_2 = Note(1/1, Channel(2), Octave(3)) / 4 // Position(2.5)
 theme_2.mask(Nth(1, 2)).join().unmask() # Avoids any implicit copy
 theme_2 += Foreach(0, 1, 2, 0)**Degree()
-theme_2 = RS_Clip(theme_2, [1], 4, theme_1).shuffle_parameter(9).solution() << Name("Accompaniment")
+theme_2 = RS_Clip(theme_2, [1], 4, theme_1).parameter_shuffled(9).solution() << Name("Accompaniment")
 (theme_1 + theme_2) * 2 << Name("Harmonization") >> Plot(block=True)
 
 

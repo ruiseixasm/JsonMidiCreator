@@ -334,7 +334,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, triggers, title)
 
 
-    def tonality_conjunct_but_slacked(self,
+    def pitch_tonality_conjunct_but_slacked(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(ra.Modulus(7), ot.Conjunct(ra.Strictness(.75)))**ch.SinX(),
             triggers: int = 7,
@@ -343,13 +343,13 @@ class RS_Clip(RS_Solutions):
         Adjusts the pitch of each `Note` in Conjunct whole steps of 0 or 1 except in 25% of the times.
         """
         if not isinstance(title, str):
-            title = "Tonality Conjunct But Slacked"
+            title = "Pitch Tonality Conjunct But Slacked"
         return self.pitch_tonality_conjunct(iterations, chaos, triggers, title)
 
 
 # PARAMETER METHODS
 
-    def shuffle_parameter(self,
+    def parameter_shuffled(self,
             iterations: int = 1,
             parameter: Any = og.Locus(),
             chaos: ch.Chaos = ch.SinX(),
@@ -370,7 +370,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Shuffle Parameter"
+            title = "Parameter Shuffled"
         return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
@@ -395,7 +395,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-    def sweep_sharps(self,
+    def pitch_sweep_sharps(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
             title: str | None = None) -> Self:
@@ -409,11 +409,11 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Sweep Sharps"
+            title = "Pitch Sweep Sharps"
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-    def sweep_flats(self,
+    def pitch_sweep_flats(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.Cycle(0, ra.Modulus(8)),
             title: str | None = None) -> Self:
@@ -427,11 +427,11 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Sweep Flats"
+            title = "Pitch Sweep Flats"
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-    def sprinkle_accidentals(self,
+    def pitch_sprinkle_accidentals(self,
             iterations: int = 1,
             chaos: ch.Chaos = ch.SinX(33, ot.Switch()**ot.Modulo(6)),
             title: str | None = None) -> Self:
@@ -458,13 +458,13 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Sprinkle Accidentals"
+            title = "Pitch Sprinkle Accidentals"
         return self.iterate(iterations, _iterator, chaos, 0, title)
 
 
-    def fine_tune(self,
+    def parameter_single_element(self,
             iterations: int = 1,
-            tune_by: ra.Rational = ra.Step(1),
+            parameter: Any = ra.Step(1),
             chaos: ch.Chaos = ch.SinX(33),
             title: str | None = None) -> Self:
         """
@@ -475,15 +475,17 @@ class RS_Clip(RS_Solutions):
                 clip_len: int = segmented_composition.len()
                 if clip_len > 0:
                     clip_pick: int = results[0] % clip_len
-                    segmented_composition[clip_pick] += tune_by
+                    segmented_composition[clip_pick] += parameter
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Fine Tune"
+            title = "Parameter Single Element"
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-    def single_wrapper(self,
+# WRAPPER METHODS
+
+    def wrapper_single_element(self,
             iterations: int = 1,
             wrappers: list['oe.Element'] = [oe.Triplet(), oe.Cluster()],
             chaos: ch.Chaos = ch.SinX(33),
@@ -503,11 +505,11 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Single Wrapper"
+            title = "Wrapper Single Element"
         return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
-    def multi_wrapper(self,
+    def wrapper_multi_element(self,
             iterations: int = 1,
             wrappers: list['oe.Element'] = o.list_repeat([oe.Note(), oe.Triplet(), oe.Cluster()], [6, 1, 2]),
             chaos: ch.Chaos = ch.SinX(340),
@@ -524,7 +526,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Multi Wrapper"
+            title = "Wrapper Multi Element"
         return self.iterate(iterations, _iterator, chaos, 0, title)
 
 

@@ -26,7 +26,7 @@ rests_chopper = RS_Clip(big_rest, [1], 4)
 melody_wanna_be = \
     rests_chopper.duration_splitter(
         9
-    ).multi_wrapper(
+    ).wrapper_multi_element(
         10,
         list_repeat([Note(), Rest(), Null()], [5, 1, 3])
         ).solution()
