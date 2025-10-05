@@ -29,19 +29,19 @@ settings << Tempo(115)     # Same tempo than the video tutorial
 
 
 
-hi_hat: Clip = Note(Duration(settings % Quant()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
+hi_hat: Clip = Note(Duration(settings % Quantization()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Clip = Note(Duration(settings % Quant()), DrumKit("Drum"), Stackable(False)) * 4
+kick: Clip = Note(Duration(settings % Quantization()), DrumKit("Drum"), Stackable(False)) * 4
 kick += Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Velocity(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Clip = Note(Duration(settings % Quant()), DrumKit("Clap"), Stackable(False)) * 2
+clap: Clip = Note(Duration(settings % Quantization()), DrumKit("Clap"), Stackable(False)) * 2
 clap += Iterate(Beats(1))
 clap += Beats(1)
 clap *= 4       # 4 measures long

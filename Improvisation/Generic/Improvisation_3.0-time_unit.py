@@ -28,7 +28,7 @@ filtered_notes = sixteen_notes >> Measure(1)
 filtered_notes << Measure(0)
 filtered_notes += Note(6, Step(10))
 filtered_notes[0] % Position() % float() >> Print()
-filtered_notes >> L >> P
+filtered_notes >> Link() >> P
 filtered_notes << Measure(1)
 filtered_notes[0] % Position() % float() >> Print()
 

@@ -51,4 +51,4 @@ trumpet = \
     (Note() * 2 << half << Foreach(7, 6)**Degree()) \
     >> S << Channel(2) << MidiTrack(2, "Trumpet") << Velocity(30)
 # trumpet >> rest_play
-clarinet + trumpet >> L >> Rest(1/1) >> Render("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> P
+clarinet + trumpet >> Link() >> Rest(1/1) >> Render("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> P

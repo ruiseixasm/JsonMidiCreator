@@ -33,6 +33,6 @@ chords << Foreach(G, D, "Em", D)
 chords >> Rest >> P
 chords << Foreach(1, 5, 6, 5)**(Degree(), Mode())
 chords >> Rest >> P
-single_notes + chords >> L >> Rest >> P
-chords + single_notes >> L >> Rest >> P
+single_notes + chords >> Link() >> Rest >> P
+chords + single_notes >> Link() >> Rest >> P
 

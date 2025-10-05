@@ -50,5 +50,5 @@ chords = Chord(1/1) * 6
 chords % Nth(2, 3, 4, 5) << 1/2
 chords >> S << Foreach(C, "Am", "Em", "Dm", G, C)
 chords >> Rest >> P
-structural_tones + chords >> L >> Rest >> P
-original_melody + chords >> L >> Rest >> P
+structural_tones + chords >> Link() >> Rest >> P
+original_melody + chords >> Link() >> Rest >> P

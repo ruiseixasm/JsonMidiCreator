@@ -43,20 +43,19 @@ settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple
 # Data aliases
 # Unit aliases
 K = Key
+W = Tone
+H = Semitone
 Ch = Channel
+KS = KeySignature
 # Rational aliases
 Bars = Measures
 Bar = Measure
 # Element aliases
-W = Tone
-H = Semitone
-KS = KeySignature
-TS = TimeSignature
 CC = ControlChange
 PC = ProgramChange
-T = Tmp = Tpo = Tempo
-Q = Qtz = Qtzn = Quant = Quantization
-High = HighResolution
+# Generic aliases
+TS = TimeSignature
+# Container aliases
 Section = Part
 
 # Keys
@@ -69,7 +68,6 @@ A = Key("A")
 B = Key("B")
 
 # Actions
-L = Link()
 S = Stack()
 P = Play(False)
 Pv = Play(True)

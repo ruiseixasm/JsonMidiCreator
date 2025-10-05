@@ -22,7 +22,7 @@ settings << Device(device_list)
 
 settings << Tempo(90)
 
-eight_notes = Note(Dotted(1/16)) * 7 << Nth(7)**Dotted(1/4) >> L
+eight_notes = Note(Dotted(1/16)) * 7 << Nth(7)**Dotted(1/4) >> Link()
 eight_notes[6] % Length() % Fraction() >> Print()
 
 

@@ -32,7 +32,7 @@ notes >> Rest >> P
 
 substitutions_chords = Chord() * 5 << Nth(3, 4)**half >> S
 substitutions_chords << Foreach("F#m", G, "Bm", "Em7", G) << Octave(3)
-substitutions_chords = substitutions_chords + Note(A, Chord("Em7", Octave(3)) % Octave() - 1, half, Position(M3, B3)) >> L
+substitutions_chords = substitutions_chords + Note(A, Chord("Em7", Octave(3)) % Octave() - 1, half, Position(M3, B3)) >> Link()
 substitutions_chords >> Rest >> P
 
-notes + substitutions_chords >> L >> Rest >> P
+notes + substitutions_chords >> Link() >> Rest >> P

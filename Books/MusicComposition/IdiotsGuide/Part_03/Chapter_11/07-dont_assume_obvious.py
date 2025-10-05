@@ -31,7 +31,7 @@ slow_melody >> Rest >> P
 
 chords = Chord(1/2) * 6 + Chord() >> S
 chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << Octave(3)
-chords + slow_melody >> L >> Rest >> P
+chords + slow_melody >> Link() >> Rest >> P
 
 settings << "b"
 Key() % str() >> Print()    # Returns the tonic key (I)
@@ -46,4 +46,4 @@ fast_melody >> Rest >> P
 chords = Chord(3/1) + Chord() >> S
 chords << Foreach((Gate(0.99), F), "Gm") << Octave(3)
 # chords >> L >> R >> P
-chords + fast_melody >> L >> Rest >> P
+chords + fast_melody >> Link() >> Rest >> P

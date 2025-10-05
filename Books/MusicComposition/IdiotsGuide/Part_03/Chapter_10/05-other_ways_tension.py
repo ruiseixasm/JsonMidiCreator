@@ -45,7 +45,7 @@ settings << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
 faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
-slower + faster >> L >> Rest() >> Play()
+slower + faster >> Link() >> Rest() >> Play()
 
 settings << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature

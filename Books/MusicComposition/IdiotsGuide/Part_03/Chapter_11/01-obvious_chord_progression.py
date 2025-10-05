@@ -33,4 +33,4 @@ chords << Foreach("I", "vi", "IV", "V7")
 settings << 60.0
 chords >> Rest >> P
 settings << 100.0
-single_notes + chords >> L >> Rest >> P
+single_notes + chords >> Link() >> Rest >> P

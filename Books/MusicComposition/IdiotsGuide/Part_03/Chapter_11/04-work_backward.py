@@ -31,5 +31,5 @@ single_notes >> Rest >> P
 chords = Chord() * 5 << 1/1 << Nth(3, 4)**(1/2) >> S
 chords << Foreach(F, "Dm", "Gm", "C7", F)
 chords >> Rest >> P
-single_notes + chords >> L >> Rest >> P
+single_notes + chords >> Link() >> Rest >> P
 

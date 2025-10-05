@@ -34,4 +34,4 @@ extended_chords = Chord() * 5 << Nth(3, 4)**half >> S
 extended_chords << Foreach("DM7", "Em7", "GM7", "A7", "Em7") << Octave(3)
 extended_chords >> Rest >> P
 
-notes + extended_chords >> L >> Rest >> P
+notes + extended_chords >> Link() >> Rest >> P
