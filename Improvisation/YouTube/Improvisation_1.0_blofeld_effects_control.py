@@ -33,10 +33,10 @@ settings << Folder("Improvisation/YouTube/") << Tempo(140)
 melody_6_00 = Load("track_1_clip_0_0_eda8_save.json") + Step(10) >> Quantize()
 melody_6_00 << Foreach("4", "5", "5", "4", "3", "1", "2", "6", "1", "5", "4", "3", "4", "6", "2")
 melody_6_00 << Foreach(3, 3, 4, 4, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3)**Octave()
-melody_6_00 << First()**Steps(2)
 melody_6_00 >> Plot(block=False)
 settings << Quantization(1/2)   # After works, before doesn't
-melody_6_00 >>= Less(Steps(2))**Fit()
+melody_6_00 << First()**Steps(1)    # Make sure the Steps is in accordance with the set Quantization!
+melody_6_00 >>= Less(Steps(1))**Fit()
 melody_6_00 >> Plot(block=False, title="Fitted")
 melody_6_00 >>= Quantize(quantize_duration=True)
 melody_6_00 >> Plot(title="Fitted and Quantized")
