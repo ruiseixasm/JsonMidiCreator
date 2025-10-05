@@ -26,7 +26,7 @@ SOLUTION = 0
 many_notes = Note() / 8
 rhythm_solution = RS_Clip(many_notes, composition=snare)
 
-rhythm_notes = rhythm_solution.rhythm_fast_quantized(iterations[SOLUTION]).solution()
+rhythm_notes = rhythm_solution.duration_fast_rhythm(iterations[SOLUTION]).solution()
 
 
 SOLUTION = 1

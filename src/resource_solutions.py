@@ -163,6 +163,7 @@ class RS_Clip(RS_Solutions):
         # Where the solution is set
         return self.solutionize(iterations, _n_button, title)
 
+
 # USER METHODS
 
     def user_n_button(self,
@@ -207,7 +208,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
-    def rhythm_fast_quantized(self,
+    def duration_fast_rhythm(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
             chaos: ch.Chaos = ch.SinX(340),
@@ -224,7 +225,7 @@ class RS_Clip(RS_Solutions):
             return segmented_composition
 
         if not isinstance(title, str):
-            title = "Rhythm Fast Quantized"
+            title = "Duration Fast Rhythm"
         return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
@@ -463,6 +464,123 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
+    def parameter_global_set(self,
+            iterations: int = 1,
+            parameter: any = of.Equal(ra.Measure(1))**ou.KeySignature(),
+            chaos: ch.Chaos = ch.SinX(25, ot.Decrease(3)**ot.Modulo(7)),
+            title: str | None = None) -> Self:
+        """
+        Sets a given parameter to the entire `Clip`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                if isinstance(parameter, o.Operand):
+                    parameter << results[0]
+                segmented_composition << parameter
+            return segmented_composition
+        
+        if not isinstance(title, str):
+            title = "Parameter Global Set"
+        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
+
+
+    def parameter_global_add(self,
+            iterations: int = 1,
+            parameter: any = of.Even()**ra.Position()**ra.Steps(),
+            chaos: ch.Chaos = ch.SinX(25, ot.Modulo(3)),
+            title: str | None = None) -> Self:
+        """
+        Adds a given parameter to the entire `Clip`.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                if isinstance(parameter, o.Operand):
+                    parameter << results[0]
+                segmented_composition += parameter
+            return segmented_composition
+        
+        if not isinstance(title, str):
+            title = "Parameter Global Add"
+        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
+
+
+    def process_parameterization(self,
+            iterations: int = 1,
+            process: og.Process = og.Swap(),
+            parameter: str = 'right',
+            chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
+            title: str | None = None) -> Self:
+        """
+        Applies a given process with chaotic parametrization.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                clip_len: int = segmented_composition.len()
+                if clip_len:
+                    process[parameter] = results[0]
+                    segmented_composition >>= process
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Process Parameterization"
+        return self.iterate(iterations, _iterator, chaos, 1, title)
+
+
+    def set_parameter(self,
+            iterations: int = 1,
+            parameter: any = ou.Velocity(),
+            chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
+            triggers: int | float | Fraction = 0,
+            title: str | None = None) -> Self:
+        """
+        Applies a given parameter with the given chaos.
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                parameter_results: list = results
+                if isinstance(parameter, o.Operand):
+                    parameter_results = o.list_wrap(results, parameter)
+                segmented_composition << of.Foreach(*parameter_results)
+            return segmented_composition
+        
+        if not isinstance(title, str):
+            title = "Set Parameter"
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
+
+
+    def operate_parameter(self,
+            iterations: int = 1,
+            parameter: Any = ou.Degree(),
+            operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
+            chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
+            triggers: int | float | Fraction = 0,
+            title: str | None = None) -> Self:
+        """
+        Applies any operator between elements and computed values.
+        
+        Args:
+            iterations: Number of iterations
+            chaos: Chaos generator for values
+            parameter: Parameter to compute values from
+            operator: Function that takes (element, value) and applies operation
+            title: Optional title for the operation
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+                parameter_results: list = results
+                if isinstance(parameter, o.Operand):
+                    parameter_results = o.list_wrap(results, parameter)
+                for index, single_element in enumerate(segmented_composition):
+                    operator(single_element, parameter_results[index % len(results)])  # Apply custom operator
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Operate Parameter"
+        
+        return self.iterate(iterations, _iterator, chaos, triggers, title)
+
+
+
 # WRAPPER METHODS
 
     def wrapper_single_element(self,
@@ -575,120 +693,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, 2, title)
 
 
-    def process_parameterization(self,
-            iterations: int = 1,
-            process: og.Process = og.Swap(),
-            parameter: str = 'right',
-            chaos: ch.Chaos = ch.Cycle(ra.Modulus(4))**ch.SinX(25),
-            title: str | None = None) -> Self:
-        """
-        Applies a given process with chaotic parametrization.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                clip_len: int = segmented_composition.len()
-                if clip_len:
-                    process[parameter] = results[0]
-                    segmented_composition >>= process
-            return segmented_composition
 
-        if not isinstance(title, str):
-            title = "Process Parameterization"
-        return self.iterate(iterations, _iterator, chaos, 1, title)
-
-
-    def set_parameter(self,
-            iterations: int = 1,
-            parameter: any = ou.Velocity(),
-            chaos: ch.Chaos = ch.SinX(25, ot.Minimum(60)**ot.Modulo(120)),
-            triggers: int | float | Fraction = 0,
-            title: str | None = None) -> Self:
-        """
-        Applies a given parameter with the given chaos.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                parameter_results: list = results
-                if isinstance(parameter, o.Operand):
-                    parameter_results = o.list_wrap(results, parameter)
-                segmented_composition << of.Foreach(*parameter_results)
-            return segmented_composition
-        
-        if not isinstance(title, str):
-            title = "Set Parameter"
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
-
-
-    def operate_parameter(self,
-            iterations: int = 1,
-            parameter: Any = ou.Degree(),
-            operator: Callable[['oe.Element', Any], Any] = lambda element, result: element.add(result),
-            chaos: ch.Chaos = ch.SinX(ot.Increase(1)**ot.Modulo(7)),
-            triggers: int | float | Fraction = 0,
-            title: str | None = None) -> Self:
-        """
-        Applies any operator between elements and computed values.
-        
-        Args:
-            iterations: Number of iterations
-            chaos: Chaos generator for values
-            parameter: Parameter to compute values from
-            operator: Function that takes (element, value) and applies operation
-            title: Optional title for the operation
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                parameter_results: list = results
-                if isinstance(parameter, o.Operand):
-                    parameter_results = o.list_wrap(results, parameter)
-                for index, single_element in enumerate(segmented_composition):
-                    operator(single_element, parameter_results[index % len(results)])  # Apply custom operator
-            return segmented_composition
-
-        if not isinstance(title, str):
-            title = "Operate Parameter"
-        
-        return self.iterate(iterations, _iterator, chaos, triggers, title)
-
-
-    def parameter_global_set(self,
-            iterations: int = 1,
-            parameter: any = of.Equal(ra.Measure(1))**ou.KeySignature(),
-            chaos: ch.Chaos = ch.SinX(25, ot.Decrease(3)**ot.Modulo(7)),
-            title: str | None = None) -> Self:
-        """
-        Sets a given parameter to the entire `Clip`.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                if isinstance(parameter, o.Operand):
-                    parameter << results[0]
-                segmented_composition << parameter
-            return segmented_composition
-        
-        if not isinstance(title, str):
-            title = "Parameter Global Set"
-        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
-
-
-    def parameter_global_add(self,
-            iterations: int = 1,
-            parameter: any = of.Even()**ra.Position()**ra.Steps(),
-            chaos: ch.Chaos = ch.SinX(25, ot.Modulo(3)),
-            title: str | None = None) -> Self:
-        """
-        Adds a given parameter to the entire `Clip`.
-        """
-        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
-            if isinstance(segmented_composition, oc.Clip):
-                if isinstance(parameter, o.Operand):
-                    parameter << results[0]
-                segmented_composition += parameter
-            return segmented_composition
-        
-        if not isinstance(title, str):
-            title = "Parameter Global Add"
-        return self.iterate(iterations, _iterator, chaos, Fraction(1), title)
 
 
     def match_time_signature(self,
