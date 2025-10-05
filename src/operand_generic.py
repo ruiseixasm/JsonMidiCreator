@@ -3901,7 +3901,7 @@ class Settings(Generic):
             case ou.Channel():          self._channel_0 = operand._unit
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
+            case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
             case od.Folder():           self._folder = operand._data
@@ -3914,10 +3914,11 @@ class Settings(Generic):
 
     
     def __iadd__(self, operand: any) -> Self:
+        import operand_container as oc
         match operand:
             case od.Device():
                 if isinstance(operand._data, str):
-                    self_devices = self % od.Pipe( oc.Devices() )
+                    self_devices: oc.Devices = self % od.Pipe( oc.Devices() )
                     self_devices += operand
                     self._devices = self_devices % od.Pipe( list() )
                 return self
@@ -3927,9 +3928,10 @@ class Settings(Generic):
         return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
+        import operand_container as oc
         match operand:
             case od.Device():
-                self_devices = self % od.Pipe( oc.Devices() )
+                self_devices: oc.Devices = self % od.Pipe( oc.Devices() )
                 self_devices -= operand
                 self._devices = self_devices % od.Pipe( list() )
                 return self
