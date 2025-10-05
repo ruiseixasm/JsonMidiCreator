@@ -240,7 +240,7 @@ def test_note_scale():
     assert major_note % Pitch() % Key() == "D"
     major_note += Degree(1)
     assert major_note % Pitch() % Key() == "E"
-    major_note += Deg(1)    # Deg alias to Degree
+    major_note += Degree(1)    # Deg alias to Degree
     assert major_note % Pitch() % Key() == "F"
 
     settings << Minor()
@@ -251,7 +251,7 @@ def test_note_scale():
     assert minor_note % Pitch() % Key() == "B"
     minor_note += Degree(1)
     assert minor_note % Pitch() % Key() == "C"
-    minor_note += Deg(1)    # Deg alias to Degree
+    minor_note += Degree(1)    # Deg alias to Degree
     assert minor_note % Pitch() % Key() == "D"
 
     settings << Major()
@@ -515,11 +515,11 @@ def test_note_pitch():
         note += Semitone(1)
 
     print("------")
-    note << Deg(-1)  # Tonic key again
+    note << Degree(-1)  # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        (note + Deg(degree)) % str() >> Print()
-        assert note + Deg(degree) == keys[degree]
+        (note + Degree(degree)) % str() >> Print()
+        assert note + Degree(degree) == keys[degree]
 
     print("------")
     note << None    # Tonic key again and resets the degree to 1

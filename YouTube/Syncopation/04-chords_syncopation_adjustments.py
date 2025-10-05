@@ -38,7 +38,7 @@ hi_hat *= 4     # 4 measures long
 # Stackable being FALSE means all notes start at zero even after the "*" operation on Element
 kick: Clip = Note(Duration(settings % Quant()), DrumKit("Drum")) * 4 << Iterate(Beats(1))
 kick *= 4       # 4 measures long
-kick << Vel(80) # less pronounced kick
+kick << Velocity(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 

@@ -32,7 +32,7 @@ hi_hat *= 4     # 4 measures long
 
 kick: Clip = Note(Duration(settings % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
 kick *= 4       # 4 measures long
-kick << Vel(80) # less pronounced kick
+kick << Velocity(80) # less pronounced kick
 # kick >> Play()
 
 clap: Clip = Note(Duration(settings % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + All()**Beats(1)

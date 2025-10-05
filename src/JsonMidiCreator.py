@@ -48,9 +48,6 @@ Ch = Channel
 Bars = Measures
 Bar = Measure
 # Element aliases
-Dur = Duration
-Vel = Velocity
-Deg = Degree
 W = Tone
 H = Semitone
 KS = KeySignature
