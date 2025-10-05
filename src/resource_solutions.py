@@ -231,22 +231,49 @@ class RS_Clip(RS_Solutions):
                     splits_positions: set[Fraction] = set()
                     next_position_beats: Fraction = Fraction(0)
                     duration_index: int = 0
-                    while len(splits_positions) < total_elements - 1:
-                        next_duration: Fraction = ra.Duration(
-                                segmented_composition,
-                                segmented_durations[duration_index % len(segmented_durations)]
-                            ) % Fraction()
-                        if next_duration <= Fraction(0):
-                            next_duration = segmented_composition[duration_index % total_elements]._duration_beats
-                        next_position_beats += next_duration
-                        if Fraction(0) < next_position_beats % total_duration_beats < total_duration_beats:
-                            splits_positions.add(
-                                next_position_beats % total_duration_beats
-                            )
-                        duration_index += 1
+
+                    if normalize:
+
+                        while len(splits_positions) < total_elements:
+                            next_duration: Fraction = ra.Duration(
+                                    segmented_composition,
+                                    segmented_durations[duration_index % len(segmented_durations)]
+                                ) % Fraction()
+                            if next_duration <= Fraction(0):
+                                next_duration = segmented_composition[duration_index % total_elements]._duration_beats
+                            next_position_beats += next_duration
+                            if Fraction(0) < next_position_beats % total_duration_beats < total_duration_beats:
+                                splits_positions.add(
+                                    next_position_beats % total_duration_beats
+                                )
+                            duration_index += 1
+                        
+                    else:
+
+                        while len(splits_positions) < total_elements - 1:
+                            next_duration: Fraction = ra.Duration(
+                                    segmented_composition,
+                                    segmented_durations[duration_index % len(segmented_durations)]
+                                ) % Fraction()
+                            if next_duration <= Fraction(0):
+                                next_duration = segmented_composition[duration_index % total_elements]._duration_beats
+                            next_position_beats += next_duration
+                            if Fraction(0) < next_position_beats % total_duration_beats < total_duration_beats:
+                                splits_positions.add(
+                                    next_position_beats % total_duration_beats
+                                )
+                            duration_index += 1
+                        
+                        splits_positions.add(total_duration_beats)
                     
-                    splits_positions.add(total_duration_beats)
                     sorted_splits_positions: list[Fraction] = sorted(list(splits_positions))
+
+                    if normalize:
+                        last_split_position: Fraction = sorted_splits_positions[-1]
+                        expand_ratio: Fraction = total_duration_beats / last_split_position
+                        for index, _ in enumerate(sorted_splits_positions):
+                            sorted_splits_positions[index] *= expand_ratio
+
 
                     next_position_beats = segmented_composition[0]._position_beats  # Preserves first Position
                     for element, split_position_0 in zip(segmented_composition, sorted_splits_positions):
@@ -254,7 +281,7 @@ class RS_Clip(RS_Solutions):
                         element._duration_beats = split_position_0 + segmented_composition[0]._position_beats - element._position_beats
                         next_position_beats += element._duration_beats
                     
-                    segmented_composition._sort_items()                  
+                    segmented_composition._sort_items()
 
             return segmented_composition
 
