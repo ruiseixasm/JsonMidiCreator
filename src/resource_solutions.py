@@ -208,6 +208,62 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, len(durations), title)
 
 
+    def duration_rearrangement(self,
+            iterations: int = 1,
+            durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2]),
+            chaos: ch.Chaos = ch.SinX(340),
+            title: str | None = None) -> Self:
+        """
+        Distributes newly obtained Durations
+        """
+        def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
+            if isinstance(segmented_composition, oc.Clip):
+
+                segmented_durations: list[float] = o.list_choose(durations, results)
+                clip_loci: list[og.Locus] = []
+                total_duration_beats: Fraction = Fraction(0)
+                for single_element in segmented_composition:
+                    clip_loci.append(single_element % og.Locus())
+                    total_duration_beats += single_element._duration_beats
+
+                if clip_loci and segmented_durations:
+
+                    splits_positions: set[Fraction] = set()
+                    next_position_beats: Fraction = Fraction(0)
+                    duration_index: int = 0
+                    while len(splits_positions) < len(clip_loci) - 1:
+                        next_duration: Fraction = ra.Duration(
+                                segmented_composition,
+                                segmented_durations[duration_index % len(segmented_durations)]
+                            ) % Fraction()
+                        if next_duration == Fraction(0):
+                            next_duration = clip_loci[duration_index % len(clip_loci)]._duration_beats
+                        next_position_beats += next_duration
+                        splits_positions.add(
+                            next_position_beats % total_duration_beats
+                        )
+                        duration_index += 1
+                    
+                    sorted_splits_positions: list[Fraction] = sorted(list(splits_positions))
+
+                    next_position_beats = Fraction(0)
+                    for locus, split_position in zip(clip_loci, sorted_splits_positions):
+                        locus._position_beats = next_position_beats
+                        locus._duration_beats = split_position - locus._position_beats
+                        next_position_beats += locus._duration_beats
+                    
+                    for single_element, locus in zip(segmented_composition, clip_loci):
+                        single_element << locus
+
+                    segmented_composition._sort_items()                  
+
+            return segmented_composition
+
+        if not isinstance(title, str):
+            title = "Duration Rearrangement"
+        return self.iterate(iterations, _iterator, chaos, len(durations), title)
+
+
     def duration_fast_rhythm(self,
             iterations: int = 1,
             durations: list[float] = [1/8 * 3/2, 1/8, 1/16 * 3/2, 1/16, 1/32 * 3/2, 1/32],
