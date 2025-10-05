@@ -22,7 +22,7 @@ def new_tempo(clip: Clip) -> Clip:
     clip % Tempo() % int() >> Pr
     return clip
 
-many_notes = N() * 4 << Tempo(90)
+many_notes = Note() * 4 << Tempo(90)
 
 many_notes << Velocity(65) << First()**Velocity(100) << 1/8
 

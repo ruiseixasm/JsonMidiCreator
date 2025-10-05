@@ -635,7 +635,7 @@ def test_mul_clip():
 
 def test_clip_composition():
 
-    measure_bell: Clip = Nt(DrumKit(34)) / 1 * 4
+    measure_bell: Clip = Note(DrumKit(34)) / 1 * 4
     print(f"Duration: {measure_bell % Duration() % float()}")
     assert measure_bell % Duration() == Measures(3.25)
     print(f"Length: {measure_bell % Length() % float()}")
@@ -645,7 +645,7 @@ def test_clip_composition():
     assert measure_bell % Position() == 0.0
 
     print("------")
-    beat_tick: Clip = (Nt(DrumKit(35)) / 3 + Beat(1)) * 4   # Position basic operations work on elements
+    beat_tick: Clip = (Note(DrumKit(35)) / 3 + Beat(1)) * 4   # Position basic operations work on elements
     print(f"Net Measures: {beat_tick.net_duration() % Measures() % float()}")
     print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
     assert beat_tick.net_duration() == Measures(3.75)
@@ -666,7 +666,7 @@ def test_clip_composition():
 
     print("---------------------")
     # correct version working with frame All()
-    beat_tick = (Nt(DrumKit(35)) / 3 + All()**Beat(1)) * 4
+    beat_tick = (Note(DrumKit(35)) / 3 + All()**Beat(1)) * 4
     print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
     assert beat_tick % Duration() == Measure(4)
     print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
@@ -709,7 +709,7 @@ def test_element_stacking():
 
 def test_lshift_clip():
 
-    base_line: Clip = Nt(dotted_eight) / Measure(4)
+    base_line: Clip = Note(dotted_eight) / Measure(4)
     print(f"Duration: {base_line % Duration() % float()}")
     assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
     base_line += Step(1)

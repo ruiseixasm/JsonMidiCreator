@@ -29,19 +29,19 @@ settings << Tempo(115)     # Same tempo than the video tutorial
 
 
 
-hi_hat: Clip = Nt(Dur(settings % Quant()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
+hi_hat: Clip = Note(Duration(settings % Quant()), DrumKit("Hi-Hat")) * 16 << IsNot(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Clip = Nt(Dur(settings % Quant()), DrumKit("Drum"), Stackable(False)) * 4
+kick: Clip = Note(Duration(settings % Quant()), DrumKit("Drum"), Stackable(False)) * 4
 kick += Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Clip = Nt(Dur(settings % Quant()), DrumKit("Clap"), Stackable(False)) * 2
+clap: Clip = Note(Duration(settings % Quant()), DrumKit("Clap"), Stackable(False)) * 2
 clap += Iterate(Beats(1))
 clap += Beats(1)
 clap *= 4       # 4 measures long
@@ -52,7 +52,7 @@ no_syncopation: Clip = hi_hat + kick + clap
 # no_syncopation * 2 >> Play()
 
 
-base_line: Clip = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
+base_line: Clip = Note(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
 base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played

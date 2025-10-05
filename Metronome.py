@@ -27,9 +27,9 @@ settings << Measures(4)    # Sets the length in Measures
 
 measures_long: int = settings.__mod__(od.Pipe( Measures() )).__mod__(od.Pipe( int() ))
 
-measure_bell: Clip = Nt(DrumKit(34)) * 1 * measures_long
+measure_bell: Clip = Note(DrumKit(34)) * 1 * measures_long
 # measure_bell >> Play()
-beat_tick: Clip = (Nt(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(80)
+beat_tick: Clip = (Note(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(80)
 # beat_tick >> Play()
 
 metronome: Clip = measure_bell + beat_tick

@@ -29,7 +29,7 @@ settings << Tempo(115)
 
 # AKA Bo Diddley beat
 
-son_clave: Clip = Note(dotted_quarter) + Nt(eight, Tied()) + Nt(quarter, Tied()) + Nt(quarter) + Rest() + Nt(quarter) * 2 + Rest() >> Stack() << DrumKit("Wood")
+son_clave: Clip = Note(dotted_quarter) + Note(eight, Tied()) + Note(quarter, Tied()) + Note(quarter) + Rest() + Note(quarter) * 2 + Rest() >> Stack() << DrumKit("Wood")
 son_clave % Length() >> Print()
 son_clave * 2 >> P
 

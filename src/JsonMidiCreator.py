@@ -39,16 +39,17 @@ settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple
 # Set group of constants
 
 # Class alias, abbreviations
+
+# Data aliases
+# Unit aliases
 K = Key
+Ch = Channel
+# Rational aliases
+Bars = Measures
+Bar = Measure
+# Element aliases
 N = Nt = Note
 R = Rst = Rest
-Ch = Channel
-DS = Src = Pipe
-Bars = Meas = Measures
-Bar = Mea = Measure
-Bts = Beats
-Pt = Pitch
-Pos = Position
 Dur = Duration
 Vel = Velocity
 Deg = Degree

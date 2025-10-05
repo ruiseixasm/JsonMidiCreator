@@ -17,7 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 
 
-many_notes = N(1/16) * 16
+many_notes = Note(1/16) * 16
 
 many_notes << Last()**Key("E") << First()**Key("G")
 
