@@ -3949,28 +3949,27 @@ class Clip(Composition):  # Just a container of Elements
 
     def fit(self, tie_splitted_notes: bool = True) -> Self:
         """
-        Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
+        Fits all the `Element` items into the respective available length between the previous \
+            and the next Element.
 
         Args:
-            tie_splitted_notes (bool): Does a tie of all splitted Notes.
+            None
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        new_elements: list[oe.Element] = []
-        for single_element in self._items:
-            rightest_element: oe.Element = single_element
-            while rightest_element.start().roundMeasures() + ra.Measure(1) < rightest_element.finish():
-                if tie_splitted_notes and isinstance(rightest_element, oe.Note):
-                    rightest_element._tied = True
-                right_element: oe.Element = rightest_element.copy()
-                new_elements.append(right_element)
-                measure_end: ra.Position = rightest_element.start().roundMeasures() + ra.Measure(1)
-                rightest_element._duration_beats = measure_end._rational - rightest_element._position_beats
-                right_element._position_beats = measure_end._rational
-                right_element._duration_beats -= rightest_element._duration_beats
-                rightest_element = right_element
-        return self._extend(new_elements)._sort_items()
+        for unmasked_element in self._unmasked_items():
+            next_element: oe.Element | None = self._previous_item(unmasked_element)
+            if next_element is not None:
+                unmasked_element._position_beats = next_element._position_beats + next_element._duration_beats
+            else:
+                unmasked_element << ra.Position(0)  # Places it at the start of the Clip
+            next_element: oe.Element | None = self._next_item(unmasked_element)
+            if next_element is not None:
+                unmasked_element._duration_beats = next_element._position_beats + unmasked_element._position_beats
+            else:
+                unmasked_element._duration_beats = self.length()._rational + unmasked_element._position_beats
+        return self._sort_items()
 
 
     def link(self, ignore_empty_measures: bool = True) -> Self:

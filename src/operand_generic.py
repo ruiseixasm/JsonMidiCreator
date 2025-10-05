@@ -3035,11 +3035,8 @@ class Reverse(ContainerProcess):
     Args:
         None
     """
-    def __init__(self, ignore_empty_measures: bool = True):
-        super().__init__(ignore_empty_measures)
-
     def _process(self, operand: 'Container') -> 'Container':
-        return operand.reverse(self._parameters)
+        return operand.reverse()
 
 class Recur(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Recur`
@@ -3107,21 +3104,19 @@ class CompositionProcess(ContainerProcess):
     def _process(self, operand: TypeComposition) -> TypeComposition:
         return operand
 
+
 class Fit(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> Fit`
 
-    Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
+        Fits all the `Element` items into the respective available length between the previous \
+            and the next Element.
 
-    Args:
-        tie_splitted_notes (bool): Does a tie of all splitted Notes.
+        Args:
+            None
     """
-    from operand_rational import Length
-
-    def __init__(self, tie_splitted_notes: bool = True):
-        super().__init__(tie_splitted_notes)
-
     def _process(self, operand: TypeComposition) -> TypeComposition:
-        return operand.fit(self._parameters)
+        return operand.fit()
+
 
 class Loop(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Loop`

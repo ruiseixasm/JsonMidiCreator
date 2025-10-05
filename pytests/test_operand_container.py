@@ -805,8 +805,8 @@ def test_clip_fitting():
     assert long_notes % Duration() == 2.0 + 2.5
 
     long_notes.fit()
-    assert long_notes.len() == 1*2 + 1*3
-    assert long_notes % Duration() == 2.0 + 2.5
+    assert long_notes.len() == 2
+    assert long_notes % Duration() == 2.0 + 2.0 + 4.0
 
 # test_clip_fitting()
 
