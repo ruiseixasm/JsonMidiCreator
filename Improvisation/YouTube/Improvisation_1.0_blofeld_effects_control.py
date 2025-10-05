@@ -27,4 +27,7 @@ settings % Devices() % list() >> Print()
 # settings << Tempo(120).read()
 settings << Tempo(140)
 
+melody_6_00 = Note().read()
+
+melody_6_00 >> Plot()
 

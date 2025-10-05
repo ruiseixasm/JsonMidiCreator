@@ -726,17 +726,25 @@ class Element(o.Operand):
         oc.Clip(self).call(iterations, n_button)
         return self
 
+
     def read(self) -> 'Clip':
         import operand_container as oc
         new_clip: oc.Clip = oc.Clip(self._get_time_signature())
-
+        shift_key_down: bool = kb.is_pressed('shift')
         timings_ms: list[int] = []
-        print("Press and release SHIFT for each Element. Press ENTER to stop.")
+        print("Press and release SHIFT or SPACE for each Element. Press ENTER to stop.")
+        # Block these keys system-wide
+        kb.block_key('enter')
+        kb.block_key('shift')
         while True:
-            event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
-            if event.name in ("shift", "left shift", "right shift"):
+            if kb.is_pressed('shift') and not shift_key_down:
+                shift_key_down = True
                 timings_ms.append(int(time.time() * 1000))
-            elif event.name == "enter" and event.event_type == "down":
+            elif not kb.is_pressed('shift') and shift_key_down:
+                shift_key_down = False
+                timings_ms.append(int(time.time() * 1000))
+
+            elif kb.is_pressed('enter'):
                 # If odd number of entries → last one must be a press without release
                 if len(timings_ms) % 2 != 0:
                     timings_ms.append(int(time.time() * 1000))
