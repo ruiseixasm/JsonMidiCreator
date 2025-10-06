@@ -25,7 +25,9 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-settings << KeySignature()
+ProgramChange("Piano") + ProgramChange("Piccolo", Channel(2)) >> Play()
+
+settings << KeySignature() << Tempo(140)
 
 eight_measures = Note(1/4) / 4 * 8
 
@@ -36,8 +38,18 @@ eight_measures >>= Equal(Measure(3), Step(1))**Merge()
 eight_measures >>= Equal(Measure(7))**Merge()
 settings << Quantization(1/4)   # 1/16 note again
 
+eight_measures << Each(
+        3, 2, 1, 2,   3, 3, 3,
+        2, 2, 2,      3, 5, 5,
+        3, 2, 1, 2,   3, 3, 3, 1,
+        2, 2, 3, 2,   1
+    )**""
 
 
-eight_measures >> Plot()
+chords = Chord("C", 2*1.0) * Chord("G") * Chord("C", 3*1.0) * Chord("G") * Chord("C") << Channel(2) << Octave(3) << Velocity(70) >> Smooth(4)
+
+little_lamb = eight_measures + chords << Title("Little Lamb")
+
+little_lamb * 2 >> Plot()
 
 
