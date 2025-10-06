@@ -216,7 +216,7 @@ class RS_Clip(RS_Solutions):
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
-        Distributes newly obtained Durations
+        Distributes the given Durations or existing ones if `0` is given.
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
@@ -299,8 +299,6 @@ class RS_Clip(RS_Solutions):
                             previous_element._duration_beats += position_on_offset
 
                         previous_element = single_element
-
-
 
                     segmented_composition._sort_items()
 
