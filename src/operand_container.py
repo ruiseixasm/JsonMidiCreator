@@ -4061,8 +4061,8 @@ class Clip(Composition):  # Just a container of Elements
                 quantization_limit = round(unquantized_amount / quantization_beats)
                 position_off_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
                 single_element._duration_beats += position_off_offset
-                if single_element._duration_beats == 0:
-                    single_element._duration_beats += quantization_beats
+                if single_element._duration_beats <= Fraction(0):
+                    single_element._duration_beats += quantization_beats - single_element._duration_beats
         return self
     
 

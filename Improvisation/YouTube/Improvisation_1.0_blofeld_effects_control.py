@@ -47,3 +47,5 @@ new_durations = RS_Clip(melody_6_00, [1], 8)\
     .duration_rearrangement(10, [1/16, 1/8, 1/4, 0, 0, 0])\
     .solution()
 
+new_durations % [Position(), float()] >> Print()
+new_durations % [Duration(), float()] >> Print()
