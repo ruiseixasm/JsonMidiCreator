@@ -828,7 +828,9 @@ class Operand:
     def __isub__(self, operand: any) -> Self:
         return self
 
-    def __imul__(self, operand: any) -> Self:
+    def __imul__(self, operand: any) -> Self | list[Self]:
+        if isinstance(operand, int) and operand >= 0:
+            return [self] * operand
         return self
     
     def __itruediv__(self, operand: any) -> Self:

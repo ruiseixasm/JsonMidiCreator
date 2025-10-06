@@ -362,7 +362,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:
                     if operand._previous_element is not None \
                         and operand._previous_element is not None and self.start() == operand._previous_element.finish():
-                        
+
                         operand._previous_element._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)
                         return self
@@ -569,7 +569,10 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
-                durations: list[ra.Duration] = o.list_wrap(operand, ra.Duration(self._get_time_signature()))
+                durations: list[ra.Duration] = [
+                    ra.Duration(single_duration) if not isinstance(single_duration, ol.Null) else single_duration
+                    for single_duration in operand
+                ]
                 new_elements: list[Element] = []
                 position_beats: Fraction = self._position_beats
                 duration_beats: Fraction = self._duration_beats
@@ -577,7 +580,9 @@ class Element(o.Operand):
                     new_element: Element = self.copy()
                     new_elements.append(new_element)
                     new_element._position_beats = position_beats
-                    if single_duration > Fraction(0):
+                    if isinstance(single_duration, ol.Null):
+                        duration_beats = self._duration_beats
+                    elif single_duration > Fraction(0):
                         duration_beats = single_duration._rational
                     new_element._duration_beats = duration_beats
                     position_beats += new_element._duration_beats
