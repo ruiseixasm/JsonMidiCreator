@@ -210,7 +210,10 @@ class Left(Frame):  # LEFT TO RIGHT
     Any(None) : Data used in the framing process.
     """
     def frame(self, input: any) -> any:
-                
+        
+        if isinstance(input, ol.Null):
+            return input
+
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand = self_operand.frame(input)
