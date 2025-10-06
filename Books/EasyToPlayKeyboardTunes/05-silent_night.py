@@ -57,6 +57,8 @@ melody = \
     measure_0 * measure_4 * measure_8 * \
     measure_12 * measure_16 * measure_20 << Title("Melody")
 
+sorted(melody % [Degree(), int()]) >> Print()
+
 
 chord_C_4 = Chord("C", Bars(4)) << Channel(2) << Octave(3) << Velocity(80) << Gate(.99)
 chord_G_2 = chord_C_4.copy("G", Bars(2))
@@ -72,4 +74,4 @@ chords >>= Smooth(4)
 
 
 silent_night = melody + chords << Title("Silent Night")
-melody + chords.copy(Disable()) >> Plot(composition=silent_night * 2)
+melody + chords.copy(Disable()) >> Plot(composition=chords)
