@@ -360,10 +360,13 @@ class Element(o.Operand):
                 return self
             case og.Merge():
                 if self._owner_clip is not None:
-                    previous_element: Element | None = self._owner_clip._previous_item(self)
-                    if previous_element is not None and self.start() == previous_element.finish():
-                        previous_element._duration_beats += self._duration_beats
+                    if operand._previous_element is not None \
+                        and operand._previous_element is not None and self.start() == operand._previous_element.finish():
+                        
+                        operand._previous_element._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)
+                        return self
+                    operand._previous_element = self
                 return self
 
         return super().__irshift__(operand)

@@ -27,14 +27,17 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 settings << KeySignature()
 
-four_notes = Note() / 4
-three_notes = Note() / 2 / Note(1/2)
-two_notes = Note(1/2) * 2
-one_notes = Note(1/1) * 1
+eight_measures = Note(1/4) / 4 * 8
 
-full_track = four_notes * three_notes.copy().mul(3) * four_notes * three_notes * two_notes * two_notes.copy(Each(1/4, 3/4)).stack()
-full_track << Equal(Or(Bar(0), Bar(4)))**Each(3, 4, 3, 2)**""
-full_track << Equal(Or(Bar(1), Bar(2), Bar(3), Bar(5)))**Each(1, 2, 3)**""
-full_track << Equal(Bar(6))**Each(3, 4, 3, 2)**""
-full_track << Equal(Bar(7))**Each(3, 4, 3, 2)**""
+settings << Quantization(2) # Two beats quantization
+eight_measures >>= Equal(Measure(1), Step(1))**Merge()
+eight_measures >>= Equal(Measure(2), Step(1))**Merge()
+eight_measures >>= Equal(Measure(3), Step(1))**Merge()
+eight_measures >>= Equal(Measure(7))**Merge()
+settings << Quantization(1/4)   # 1/16 note again
+
+
+
+eight_measures >> Plot()
+
 

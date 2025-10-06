@@ -3349,6 +3349,11 @@ class Merge(ClipProcess):
     Args:
         None.
     """
+    def __init__(self, parameters: list = []):
+        import operand_element as oe
+        super().__init__()
+        self._previous_element: oe.Element | None = None
+
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.merge()
 
