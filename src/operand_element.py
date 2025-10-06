@@ -574,8 +574,12 @@ class Element(o.Operand):
                 for single_duration_value in operand:
                     if single_duration_value > Fraction(0):
                         durations.append( ra.Duration(single_duration_value) )
-                    elif isinstance(single_duration_value, int) and single_duration_value < 0:
+                    elif single_duration_value < Fraction(0):
                         last_duration = durations[-1]
+                        if isinstance(single_duration_value, o.Operand):
+                            single_duration_value %= int()
+                        else:
+                            single_duration_value = round(single_duration_value)
                         for _ in range(single_duration_value * -1):
                             durations.append(last_duration)
                     else:
