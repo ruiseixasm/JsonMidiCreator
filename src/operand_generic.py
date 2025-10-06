@@ -2854,6 +2854,10 @@ class ContainerProcess(Process):
 
     Processes applicable exclusively to `Container` operands.
     """
+    def __init__(self, parameters: list = []):
+        super().__init__(parameters)
+        self._previous_item: Any = None
+        
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -3172,6 +3176,11 @@ class ClipProcess(CompositionProcess):
 
     Processes applicable exclusively to `Clip` operands.
     """
+    def __init__(self, parameters: list = []):
+        import operand_element as oe
+        super().__init__(parameters)
+        self._previous_item: oe.Element | None = None
+
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -3349,11 +3358,6 @@ class Merge(ClipProcess):
     Args:
         None.
     """
-    def __init__(self, parameters: list = []):
-        import operand_element as oe
-        super().__init__()
-        self._previous_element: oe.Element | None = None
-
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.merge()
 

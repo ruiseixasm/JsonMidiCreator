@@ -360,13 +360,13 @@ class Element(o.Operand):
                 return self
             case og.Merge():
                 if self._owner_clip is not None:
-                    if operand._previous_element is not None \
-                        and operand._previous_element is not None and self.start() == operand._previous_element.finish():
+                    if operand._previous_item is not None \
+                        and operand._previous_item is not None and self.start() == operand._previous_item.finish():
 
-                        operand._previous_element._duration_beats += self._duration_beats
+                        operand._previous_item._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)
                         return self
-                    operand._previous_element = self
+                    operand._previous_item = self
                 return self
 
         return super().__irshift__(operand)
@@ -571,11 +571,6 @@ class Element(o.Operand):
             case list():
                 new_elements: list[Element] = []
 
-                # durations: list[ra.Duration] = [
-                #     ra.Duration(single_duration) if not isinstance(single_duration, ol.Null) else single_duration
-                #     for single_duration in operand
-                # ]
-                
                 durations: list[ra.Duration] = []
                 for single_duration in operand:
                     if isinstance(single_duration, ol.Null):
