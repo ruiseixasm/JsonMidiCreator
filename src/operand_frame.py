@@ -683,6 +683,41 @@ class All(InputFilter):
     def frame(self, input: o.T) -> o.T:
         return super().frame(input)
 
+class Either(InputFilter):
+    """`Frame -> Left -> InputFilter -> Either`
+
+    An `Either` only requires one verified condition to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where **at-least one** needs to be met.
+    """
+    def frame(self, input: o.T) -> o.T:
+        for condition in self._parameters:
+            if input == condition: # Where the comparison is made
+                if isinstance(self._next_operand, Frame):
+                    return self._next_operand.frame(input)
+                return self._next_operand
+        return ol.Null()
+    
+class Neither(InputFilter):
+    """`Frame -> Left -> InputFilter -> Neither`
+
+    A `Neither` requires that no given condition is verified to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where **none** can be met.
+    """
+    def frame(self, input: o.T) -> o.T:
+        for condition in self._parameters:
+            if input == condition: # Where the comparison is made
+                return ol.Null()
+        if isinstance(self._next_operand, Frame):
+            return self._next_operand.frame(input)
+        return self._next_operand
+    
+
 class First(InputFilter):
     """`Frame -> Left -> InputFilter -> First`
 
