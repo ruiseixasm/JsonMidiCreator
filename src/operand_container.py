@@ -168,6 +168,8 @@ class Container(o.Operand):
     def _append(self, item: any) -> Self:
         return self._extend([ item ])
 
+    def _remove(self, item, by_id: bool = True) -> Self:
+        return self._delete([ item ], by_id)
     
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
@@ -2877,7 +2879,7 @@ class Clip(Composition):  # Just a container of Elements
                 return self._delete(self._unmasked_items(), True)._extend(kept_elements)._sort_items()
 
             case og.Process():
-                return super().__irshift__(operand)
+                return super().__irshift__(operand)._sort_items()
             case _:
                 super().__irshift__(operand)
 
@@ -4117,7 +4119,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with its notes joined by pitch and type.
         """
-        previous_element = oe.Element | None = None
+        previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
         for unmasked_element in self._unmasked_items():
             if previous_element is not None and unmasked_element.start() == previous_element.finish():

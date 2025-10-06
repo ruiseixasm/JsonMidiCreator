@@ -358,6 +358,14 @@ class Element(o.Operand):
                     else:
                         self._duration_beats = self._owner_clip.length()._rational - self._position_beats
                 return self
+            case og.Merge():
+                if self._owner_clip is not None:
+                    previous_element: Element | None = self._owner_clip._previous_item(self)
+                    if previous_element is not None and self.start() == previous_element.finish():
+                        previous_element._duration_beats += self._duration_beats
+                        self._owner_clip._remove(self, True)
+                return self
+
         return super().__irshift__(operand)
 
 
