@@ -4106,6 +4106,29 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
+    def merge(self) -> Self:
+        """
+        Merges all elements in sequence, meaning, linked finish to start positions, \
+             by dropping dropping the successive elements and extending the first one.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with its notes joined by pitch and type.
+        """
+        previous_element = oe.Element | None = None
+        elements_to_remove: list[oe.Element] = []
+        for unmasked_element in self._unmasked_items():
+            if previous_element is not None and unmasked_element.start() == previous_element.finish():
+                elements_to_remove.append(unmasked_element)
+                previous_element._duration_beats += unmasked_element._duration_beats
+                continue
+            previous_element = unmasked_element
+
+        return self._delete(elements_to_remove, True)._sort_items()
+
+
     def tie(self) -> Self:
         """
         Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
