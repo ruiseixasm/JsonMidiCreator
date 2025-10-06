@@ -212,6 +212,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2]),
             normalize: bool = True,
+            process: og.Process | None = None,
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
@@ -281,6 +282,7 @@ class RS_Clip(RS_Solutions):
                         next_position_offset += split_position - (element._position_beats + element._duration_beats)
                         element._duration_beats = split_position - element._position_beats
                     
+                    segmented_composition >>= process
                     segmented_composition._sort_items()
 
             return segmented_composition
