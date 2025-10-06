@@ -43,8 +43,7 @@ melody_6_00 >> Plot(block=False, title="Fitted and Quantized")
 # melody_6_00 >>= Nth(2)**Fit()
 
 
-new_durations = RS_Clip(melody_6_00, [1], 8).duration_rearrangement(
-    10, [1/16, 1/8, 1/4, 0, 0, 0],
-    process=(Quantize(quantize_duration=True), Stack())
-    ).solution()
+new_durations = RS_Clip(melody_6_00, [1], 8)\
+    .duration_rearrangement(10, [1/16, 1/8, 1/4, 0, 0, 0])\
+    .solution()
 

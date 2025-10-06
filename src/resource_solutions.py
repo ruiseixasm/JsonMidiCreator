@@ -212,7 +212,7 @@ class RS_Clip(RS_Solutions):
             iterations: int = 1,
             durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2]),
             normalize: bool = True,
-            process: og.Process | None = None,
+            quantization_amount: float = 1.0,
             chaos: ch.Chaos = ch.SinX(340),
             title: str | None = None) -> Self:
         """
@@ -223,7 +223,7 @@ class RS_Clip(RS_Solutions):
 
                 segmented_durations: list[float] = o.list_choose(durations, results)
                 total_duration_beats: Fraction = Fraction(0)
-                for single_element in segmented_composition:
+                for single_element in segmented_composition._unmasked_items():
                     total_duration_beats += single_element._duration_beats
 
                 total_elements: int = segmented_composition.len()
@@ -282,7 +282,26 @@ class RS_Clip(RS_Solutions):
                         next_position_offset += split_position - (element._position_beats + element._duration_beats)
                         element._duration_beats = split_position - element._position_beats
                     
-                    segmented_composition >>= process
+                    quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
+                    amount_rational: Fraction = ra.Amount(quantization_amount) % Fraction()
+                    previous_element: oe.Element | None = None
+                    for index, single_element in enumerate(segmented_composition._unmasked_items()):
+                        if previous_element is not None:
+
+                            element_position_on: Fraction = single_element._position_beats
+                            unquantized_amount: Fraction = element_position_on % quantization_beats
+                            quantization_limit: int = round(unquantized_amount / quantization_beats)
+                            position_on_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
+                            if position_on_offset == single_element._duration_beats:
+                                position_on_offset -= quantization_beats
+                            single_element._position_beats += position_on_offset
+                            single_element._duration_beats -= position_on_offset
+                            previous_element._duration_beats += position_on_offset
+
+                        previous_element = single_element
+
+
+
                     segmented_composition._sort_items()
 
             return segmented_composition

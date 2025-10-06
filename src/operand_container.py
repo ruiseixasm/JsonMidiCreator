@@ -4032,7 +4032,8 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
         return self._sort_items()    # May be needed due to upper clips
-    
+
+
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
         """
         Quantizes a `Clip` by a given amount from 0.0 to 1.0.
