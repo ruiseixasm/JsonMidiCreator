@@ -2164,7 +2164,7 @@ class Composition(Container):
         match event.key:
             case 'p' | 'enter':
                 self._run_play(event)
-            case 'c':
+            case 'c' | ' ':
                 self._run_composition(event)
             case 'S':
                 self._run_save(event)
