@@ -569,30 +569,25 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
-                new_elements: list[Element] = []
 
                 durations: list[ra.Duration] = []
-                for single_duration in operand:
-                    if isinstance(single_duration, ol.Null):
-                        durations.append(single_duration)
-                    elif isinstance(single_duration, int) and single_duration < 0:
+                for single_duration_value in operand:
+                    if single_duration_value > Fraction(0):
+                        durations.append( ra.Duration(single_duration_value) )
+                    elif isinstance(single_duration_value, int) and single_duration_value < 0:
                         last_duration = durations[-1]
-                        for _ in range(single_duration * -1):
+                        for _ in range(single_duration_value * -1):
                             durations.append(last_duration)
                     else:
-                        durations.append(ra.Duration(single_duration))
+                        durations.append( ra.Duration(self._duration_beats) )
 
+                new_elements: list[Element] = []
                 position_beats: Fraction = self._position_beats
-                duration_beats: Fraction = self._duration_beats
                 for single_duration in durations:
                     new_element: Element = self.copy()
                     new_elements.append(new_element)
                     new_element._position_beats = position_beats
-                    if isinstance(single_duration, ol.Null):
-                        duration_beats = self._duration_beats
-                    elif single_duration > Fraction(0):
-                        duration_beats = single_duration._rational
-                    new_element._duration_beats = duration_beats
+                    new_element._duration_beats = single_duration._rational
                     position_beats += new_element._duration_beats
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
