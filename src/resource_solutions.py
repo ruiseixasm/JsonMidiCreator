@@ -292,8 +292,10 @@ class RS_Clip(RS_Solutions):
                             unquantized_amount: Fraction = element_position_on % quantization_beats
                             quantization_limit: int = round(unquantized_amount / quantization_beats)
                             position_on_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
-                            if position_on_offset >= single_element._duration_beats:
-                                position_on_offset -= quantization_beats + position_on_offset - single_element._duration_beats
+                            while position_on_offset <= previous_element._duration_beats:
+                                position_on_offset += quantization_beats    # A simplification
+                            while position_on_offset >= single_element._duration_beats:
+                                position_on_offset -= quantization_beats
                             single_element._position_beats += position_on_offset
                             single_element._duration_beats -= position_on_offset
                             previous_element._duration_beats += position_on_offset

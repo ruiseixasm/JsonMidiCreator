@@ -2876,7 +2876,6 @@ class Clip(Composition):  # Just a container of Elements
                         kept_elements.append(self[index])    # No need to copy
                 return self._delete(self._unmasked_items(), True)._extend(kept_elements)._sort_items()
 
-
             case og.Process():
                 return super().__irshift__(operand)
             case _:
@@ -4065,8 +4064,8 @@ class Clip(Composition):  # Just a container of Elements
                 quantization_limit = round(unquantized_amount / quantization_beats)
                 position_off_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
                 single_element._duration_beats += position_off_offset
-                if single_element._duration_beats <= Fraction(0):
-                    single_element._duration_beats += quantization_beats - single_element._duration_beats
+                while single_element._duration_beats <= Fraction(0):
+                    single_element._duration_beats += quantization_beats
         return self
     
 
