@@ -31,9 +31,9 @@ settings << KeySignature() << Tempo(140)
 
 
 melody = Note() / [
-        *(Nul * 6),                    1/2,
-        *(Nul * 2),  1/2,    Nul, Nul, 1/2,
-        *(Nul * 6),                    1/2,
+        Nul,  -5,                    1/2,
+        Nul, Nul,  1/2,    Nul, Nul, 1/2,
+        Nul,  -5,                    1/2,
         1/2, 1/2,          Nul, 3/4
     ]
 

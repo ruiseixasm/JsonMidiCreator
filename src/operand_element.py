@@ -569,11 +569,24 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
-                durations: list[ra.Duration] = [
-                    ra.Duration(single_duration) if not isinstance(single_duration, ol.Null) else single_duration
-                    for single_duration in operand
-                ]
                 new_elements: list[Element] = []
+
+                # durations: list[ra.Duration] = [
+                #     ra.Duration(single_duration) if not isinstance(single_duration, ol.Null) else single_duration
+                #     for single_duration in operand
+                # ]
+                
+                durations: list[ra.Duration] = []
+                for single_duration in operand:
+                    if isinstance(single_duration, ol.Null):
+                        durations.append(single_duration)
+                    elif isinstance(single_duration, int) and single_duration < 0:
+                        last_duration = durations[-1]
+                        for _ in range(single_duration * -1):
+                            durations.append(last_duration)
+                    else:
+                        durations.append(ra.Duration(single_duration))
+
                 position_beats: Fraction = self._position_beats
                 duration_beats: Fraction = self._duration_beats
                 for single_duration in durations:
