@@ -309,7 +309,15 @@ class Element(o.Operand):
                 self._duration_beats        = ra.Beats(operand)._rational
             case list():
                 if all(isinstance(single_element, Element) for single_element in operand):
-                    ...
+                    if self._owner_clip is not None:
+                        if not self._owner_clip._set:
+                            position_offset: ra.Position = self.start() - operand[0].start()
+                            elements_list: list[Element] = [
+                                element + position_offset for element in operand
+                            ]
+                            self._owner_clip._extend(elements_list)._set_owner_clip()
+                            self._owner_clip._set = True
+                        self._owner_clip._remove(self, True)
 
             case og.TimeSignature():
                 self._time_signature << operand
