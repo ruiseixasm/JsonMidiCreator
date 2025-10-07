@@ -125,6 +125,16 @@ class Container(o.Operand):
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
 
+
+    def _item_index(self, item: Any) -> int | None:
+        """
+        Returns the index of a given item by its id or `None` if nonexistent in the unmasked list.
+        """
+        for index, single_item in enumerate(self._unmasked_items()):
+            if item is single_item:
+                return index
+        return None
+
     def _previous_item(self, item: Any) -> Any:
         item_index: int = None
         for index, single_item in enumerate(self._items):
