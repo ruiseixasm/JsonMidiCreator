@@ -46,6 +46,16 @@ except ImportError:
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
 
+def str_to_tuple(parameters: str) -> tuple | None:
+    if parameters.find("_") != -1:
+        parameters = parameters.strip().lower().replace(" ", "")
+        parameters_list: list[str] = parameters.split("_")
+        text = "hello_world"
+        count = text.count("_")
+        print(count)  # Output: 1
+    return None
+
+
 def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
 

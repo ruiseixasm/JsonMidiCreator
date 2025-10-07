@@ -19,48 +19,58 @@ src_path = os.path.join(os.path.dirname(__file__), '../../', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
+
 from JsonMidiCreator import *
 
 
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Electric piano 2", Channel(1)) + ProgramChange("Contrabass", Channel(2)) >> Play()
+ProgramChange("Harmonica", Channel(1)) + ProgramChange("Accordion", Channel(2)) >> Play()
 
 settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4)
 
 
 
-melody = Note(Beat(3)) / [
-    #   0    1
-        1/8, "2",
-    #   2           3    4    5             6           7    8           9
+upbeat = Note(1/8, Beat(3)) / 2
+phrase_1 = Note() / [
+        "3", "5", 3/8, (1/8, "6"),
+        (1/4, "5"), "3", (3/8, "1"), (1/8, "2"),
+        (1/4, "3"), 1, "2", "1"
+    ]
+phrase_2 = Note() / [
+        (1/2, "2"), Rest(), {0: (1/4, "1")}, "2",
         (1/4, "3"), "5", 3/8, (1/8, "6"),
-                                            (1/4, "5"), "3", (3/8, "G"), (1/8, "2"),
-    #   10          11 12   13              14          15      16         17
-        (1/4, "3"), 1, "2", "1",
-                                            (1/2, "2"), Rest(), {-3: 1/8}, "2",
-        (1/4, "3"), "5", 3/8, (1/8, "6"),
-                                            (1/4, "5"), "3", (3/8, "1"), (1/8, "2"),
-        (1/4, "3"), 1, "2", 1,
-                                            (1/1, "1"),
+        (1/4, "5"), "3", (3/8, "1"), (1/8, "2"),
+        (1/4, "3"), 1, "2", 1
+    ]
+phrase_3 = Note() / [
+        1/1,
         (1/2, "4"), 1,
-                                            (1/4, "6"), 1/2, 1/4,
-        (1/4, "5"), 1, "3", "1",
-                                            (1/2, "2"), Rest(), {0: Nul}, "2",
-        {2: Nul}, {3: Nul}, {4: Nul}, {5: Nul},
-                                            {6: Nul}, {7: Nul}, {8: Nul}, {9: Nul},
-        {10: Nul}, {11: Nul}, {12: Nul}, {13: Nul},
-                                            (3/4, "1")
+        (1/4, "6"), 1/2, 1/4,
+        "5", 1, "3", "1"
+    ]
+phrase_4 = Note(3/4) / [
+        1
+    ]
 
-]
+melody = upbeat * phrase_1 * phrase_2 * phrase_3 * phrase_2 * phrase_4
 melody << Title("Melody") << Velocity(85)
 
 
 
-chords = \
-    Chord("F", Bars(1)) * Chord("C", Bars(2)) * Chord("F", Bars(2)) * Chord("C", Bars(2)) * Chord("F", Bars(1)) \
-        << Title("Chords") << Channel(2) << Octave(2) << Velocity(40) << Gate(.99)
+chords = Chord(1, "G", Bars(3)) / [
+        0,
+        (1/1, "D"),
+        (2/1, "G"),
+        (1/1, "D"), "G",
+        (2/1, "C"),
+        (1/1, "G"), (1/1, "D"),
+        (2/1, "G"),
+        (1/1, "D"), "G"
+    ]
+
+chords << Title("Chords") << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)
 chords >>= Smooth(4)
 
 
