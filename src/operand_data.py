@@ -125,7 +125,8 @@ class Data(o.Operand):
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
-            case _: self._data = self.deep_copy(operand)
+            case _:
+                self._data = self.deep_copy(operand)
         return self
 
 class Pipe(Data):

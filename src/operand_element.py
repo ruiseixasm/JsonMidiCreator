@@ -308,7 +308,8 @@ class Element(o.Operand):
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
             case list():
-                ...
+                if all(isinstance(single_element, Element) for single_element in operand):
+                    ...
 
             case og.TimeSignature():
                 self._time_signature << operand
@@ -836,10 +837,14 @@ class Unison(Element):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case list():            return self._elements
-                    case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._elements)
-            case _:                 return super().__mod__(operand)
+                    case od.Elements():
+                        return operand._data << od.Pipe(self._elements)
+                    case _:
+                        return super().__mod__(operand)
+            case od.Elements():
+                return od.Elements(self._elements)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -902,8 +907,9 @@ class Unison(Element):
                 self._elements = self.deep_copy( operand._elements )
             case od.Pipe():
                 match operand._data:
-                    case list():
-                        self._elements = operand._data
+                    case od.Elements():
+                        if all(isinstance(single_element, Element) for single_element in operand._data._data):
+                            self._elements = list(operand._data._data)
                     case _:
                         super().__lshift__(operand)
             case od.Elements():
@@ -2701,7 +2707,8 @@ class Tuplet(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ra.Swing():            self._swing = operand._data._rational
-                    case list():                self._elements = operand._data
+                    case list():
+                        self._elements = operand._data
                     case _:                     super().__lshift__(operand)
             case ra.Swing():
                 if operand < 0:
