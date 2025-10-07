@@ -30,8 +30,8 @@ matched_phrases = \
     (Note() * 3 << Foreach(dotted_quarter, eight, half)              << Foreach(-3, 1, -4)**Degree()) + \
     (Note() * 4 << Foreach(dotted_quarter, eight, quarter, quarter)  << Foreach(2, 5, 4, 3)**Degree()) + \
     (Note() * 3 << Foreach(dotted_quarter, eight, half)              << Foreach(3, 2, 1)**Degree()) >> Stack()
-matched_phrases % Equal(M1, M2) >> Slur()
-matched_phrases % Equal(M3, M4) >> Slur(0.99)
+matched_phrases % Match(M1, M2) >> Slur()
+matched_phrases % Match(M3, M4) >> Slur(0.99)
 matched_phrases % NoteValue() >> Print(0)
 matched_phrases >> rest_play
 
@@ -40,7 +40,7 @@ unmatched_phrases = \
     (Note() * 3 << Foreach(dotted_quarter, eight, half)      << Foreach(-3, 1, -4)**Degree()) + \
     (Note() * 4 << Foreach(half, eight, eight, quarter)      << Foreach(-3, -4, -3, 1)**Degree()) + \
     (Note() * 1 << whole                                     << Degree(2)) >> Stack()
-unmatched_phrases % Equal(M1, M2) >> Slur()
-unmatched_phrases % Equal(M3, M4) >> Slur()
+unmatched_phrases % Match(M1, M2) >> Slur()
+unmatched_phrases % Match(M3, M4) >> Slur()
 unmatched_phrases % NoteValue() >> Print(0)
 unmatched_phrases >> rest_play

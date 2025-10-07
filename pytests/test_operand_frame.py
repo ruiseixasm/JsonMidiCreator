@@ -137,9 +137,9 @@ def test_conditional_clip_note():
     clip_note: Clip = Note() * 1
 
     assert clip_note[0] % Octave() == 4
-    clip_note -= Equal(Step(0))**Octave(1)
+    clip_note -= Match(Step(0))**Octave(1)
     assert clip_note[0] % Octave() == 3
-    clip_note += Equal(Step(0))**Octave(1)
+    clip_note += Match(Step(0))**Octave(1)
     assert clip_note[0] % Octave() == 4
 
     four_notes: Clip = Note() / 4

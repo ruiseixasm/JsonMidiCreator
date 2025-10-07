@@ -49,14 +49,14 @@ full >> Play()
 settings << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
 outline: Clip = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
-outline + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
+outline + Match(Measures(1), Measures(3))**2 + Match(Measures(2))**4
 (outline - outline[-1] | outline[-1]) << Dotted(1/2)
-outline << Equal(Measures(2))**Equal(Beats(6))**Pitch("A", 4)
+outline << Match(Measures(2))**Match(Beats(6))**Pitch("A", 4)
 outline >> Play()
 
 outline -= outline | Beats(0)
 embellishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
 embellishing += (Measures(1) >> embellishing) + (Measures(2) >> embellishing) + (Measures(3) >> embellishing)
-embellishing + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
+embellishing + Match(Measures(1), Measures(3))**2 + Match(Measures(2))**4
 
 (outline + embellishing >> Link() >> Play() | Measures(3)) % NoteValue() >> Print(0)

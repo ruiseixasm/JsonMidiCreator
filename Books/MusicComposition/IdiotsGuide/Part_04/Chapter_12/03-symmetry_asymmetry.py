@@ -33,7 +33,7 @@ symmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
     (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7)**Degree()         >> Slur()) + \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> Stack()
-symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
+symmetrical += symmetrical % Match(M3, M4) % Copy() + 3
 symmetrical >> Stack()
 symmetrical % NoteValue() >> Print(0)
 symmetrical >> rest_play

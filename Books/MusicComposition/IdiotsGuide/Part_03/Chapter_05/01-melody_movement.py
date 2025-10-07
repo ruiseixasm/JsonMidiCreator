@@ -22,11 +22,11 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 movement = Note() * (3*4 + 1)
-movement << Equal(Measures(3))**Pitch("D", 5) << Equal(Measures(3))**NoteValue(1) \
-         << Equal(Measures(0))**Key("E") << Equal(Measures(1))**Key("G") << Equal(Measures(2))**Key("B")
-movement += Equal(Measures(0))**Iterate()**Key()
-movement += Equal(Measures(1))**Iterate()**Key()
-movement += Equal(Measures(2))**Iterate()**Key()
+movement << Match(Measures(3))**Pitch("D", 5) << Match(Measures(3))**NoteValue(1) \
+         << Match(Measures(0))**Key("E") << Match(Measures(1))**Key("G") << Match(Measures(2))**Key("B")
+movement += Match(Measures(0))**Iterate()**Key()
+movement += Match(Measures(1))**Iterate()**Key()
+movement += Match(Measures(2))**Iterate()**Key()
 movement >> Play(True)
 
 Rest(1) >> Export("json/_Export_Rest_01.1.json") >> Play(True)

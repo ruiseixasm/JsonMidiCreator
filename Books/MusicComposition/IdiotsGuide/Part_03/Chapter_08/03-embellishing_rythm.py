@@ -36,5 +36,5 @@ position_1 = Position(2, Beats(1))
 position_2 = Position(2, Beats(2))
 position_1 += Position()**Duration() << 1/16
 position_2 -= Position()**Duration() << 1/16
-repeated_notes: Clip = short_notes.copy() + Equal(Measures(2))**Even()**Position(Duration(1/16)) >> Link()
+repeated_notes: Clip = short_notes.copy() + Match(Measures(2))**Even()**Position(Duration(1/16)) >> Link()
 repeated_notes >> Rest() >> Play(True)

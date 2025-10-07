@@ -178,7 +178,7 @@ def test_or_clip():
     four_notes: Clip = Note(1/8) / 4 << TimeSignature(2, 4)
 
     assert four_notes.len() == 4
-    four_notes >>= Mask(Equal(Or(Step(2), Step(4))))
+    four_notes >>= Mask(Match(Or(Step(2), Step(4))))
     print(four_notes.len())
     assert four_notes.len() == 2
 

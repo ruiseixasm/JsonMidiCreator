@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 settings << Tempo(180)
 
-couplet = Note() / [1/4, 1/8, 0, 1/4, 0, 0, 0, 0, 0] >> Equal(Measure(1), Or(Beat(0), Beat(3)))**Rest()
+couplet = Note() / [1/4, 1/8, 0, 1/4, 0, 0, 0, 0, 0] >> Match(Measure(1), Or(Beat(0), Beat(3)))**Rest()
 couplet * 4 << Name("Rhythmic Couplet") >> Plot(block=False)
 
 couplet << Octave(5)

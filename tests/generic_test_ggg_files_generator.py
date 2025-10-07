@@ -103,7 +103,7 @@ composition + triplets_one * triplets_two \
     >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
 # triplets remain a clip. Frames don't operate on Songs!!
-triplets = triplets_one * triplets_two + Equal(Beat(1))**Semitone(2)
+triplets = triplets_one * triplets_two + Match(Beat(1))**Semitone(2)
 composition + triplets \
     >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
 

@@ -569,7 +569,7 @@ class RS_Clip(RS_Solutions):
 
     def parameter_global_set(self,
             iterations: int = 1,
-            parameter: any = of.Equal(ra.Measure(1))**ou.KeySignature(),
+            parameter: any = of.Match(ra.Measure(1))**ou.KeySignature(),
             chaos: ch.Chaos = ch.SinX(25, ot.Decrease(3)**ot.Modulo(7)),
             title: str | None = None) -> Self:
         """

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-step_wise = Note("F") * (4*4 - 3) + Nth(2, 3, 4, 7, 8, 9, 10)**Iterate()**0 << Equal(Measures(3))**Duration(1/1)
+step_wise = Note("F") * (4*4 - 3) + Nth(2, 3, 4, 7, 8, 9, 10)**Iterate()**0 << Match(Measures(3))**Duration(1/1)
 (step_wise | Nth(1, 5, 6, 11, 12, 13)) + Foreach(1, 3, 2, 5, 4, 3)
 step_wise >> Play()
 

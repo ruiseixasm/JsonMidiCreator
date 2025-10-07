@@ -22,7 +22,7 @@ many_notes = Note() / 16 << TrackName("Accidentals")
 sharped_degree = Degree(Sharp())
 many_notes << Odd()**sharped_degree
 many_notes.inline() + Crossing()**Flat(1)
-many_notes << Equal(Measure(0))**KeySignature("####") << Equal(Measure(2))**KeySignature("bbbb")
+many_notes << Match(Measure(0))**KeySignature("####") << Match(Measure(2))**KeySignature("bbbb")
 many_notes % [((KeySignature(), str()),)] >> Print()
 many_notes >> Plot()
 

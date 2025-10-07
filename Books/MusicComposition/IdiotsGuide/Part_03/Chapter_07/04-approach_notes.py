@@ -25,8 +25,8 @@ settings << KeySignature("b")
 
 approach: Clip = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach[-1]
-approach << Equal(Measures(3))**Duration(1/1)
-approach - Equal(Measures(1))**2 - Equal(Measures(2), Measures(3))**Equal(Beats(0))**4
+approach << Match(Measures(3))**Duration(1/1)
+approach - Match(Measures(1))**2 - Match(Measures(2), Measures(3))**Match(Beats(0))**4
 approach >> Play()
 
 (approach | Measures(0) | Beats(3)) + 4

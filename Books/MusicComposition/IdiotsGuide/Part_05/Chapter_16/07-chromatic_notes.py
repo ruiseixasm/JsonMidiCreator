@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 settings << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")
 
 melody = Note(1/2) / [0, 0, 0, 1/4, 0, 1/2, 1/8, 0, 1/4, 1/1] << Foreach("1", "7", "1", "4", "4", "5", "6", "7", "6", "5") << Title("Melody")
-melody << Equal("1")**Octave(5)
+melody << Match("1")**Octave(5)
 melody >> Plot(block=False)
 melody << Nth(5)**Sharp() << Nth(8)**Flat()
 

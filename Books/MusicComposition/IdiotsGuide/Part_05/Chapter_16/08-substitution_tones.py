@@ -25,10 +25,10 @@ from JsonMidiCreator import *
 settings << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")
 
 melody = Note(1/2) / [0, 0, 1/1, 1/2, 0, 1/1] << Foreach("1", "7", "6.1", "7", "6", "5")
-melody << Equal("1")**Octave(5)
+melody << Match("1")**Octave(5)
 melody * 4 << Title("Structural Tone") >> Plot(block=False)
 
-melody //= Equal(Measure(1))**Beat(2)
+melody //= Match(Measure(1))**Beat(2)
 melody << Nth(4)**Natural()
 melody * 4 << Title("Chromatic Tension") >> Plot()
 

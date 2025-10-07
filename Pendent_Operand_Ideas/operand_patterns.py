@@ -215,7 +215,7 @@ class Melodies(Patterns):
         """A phrase (Call) is answered by another phrase (Response), often with variation (Antiphony)."""
         pattern: oc.Clip = oe.Note(tonic) * 4 << of.Foreach(1, 2, 3, 5)**ou.Degree()
         pattern *= 2
-        second_measure = pattern | of.Equal(ra.Measure(1))
+        second_measure = pattern | of.Match(ra.Measure(1))
         second_measure += transposition
         two_notes = second_measure | of.Odd()
         two_notes.reverse()

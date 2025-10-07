@@ -30,7 +30,7 @@ ProgramChange("Harpsichord", Channel(1)) + ProgramChange("Bassoon", Channel(2)) 
 settings << Tempo(140) << TimeSignature(3, 4) << KeySignature()
 
 
-melody = Note(3/4) * 16 << Velocity(120) << Equal(Bar(8))**Octave(5)
+melody = Note(3/4) * 16 << Velocity(120) << Match(Bar(8))**Octave(5)
 melody //= Position(Bar(2), Beat(2))
 melody //= Position(Bar(4), Beat(2))
 melody //= Position(Bar(5), Beat(2))
@@ -38,8 +38,8 @@ melody //= Position(Bar(12), Beat(2))
 melody //= Position(Bar(13), Beat(2))
 melody //= Greater(Bar(7))**Less(Bar(12))**Beats(1)
 
-melody >>= Equal(Or(Bar(6), Bar(7)))**Merge()
-melody >>= Equal(Or(Bar(14), Bar(15)))**Merge()
+melody >>= Match(Or(Bar(6), Bar(7)))**Merge()
+melody >>= Match(Or(Bar(14), Bar(15)))**Merge()
 
 melody << Each(
         C, C, C, D,   E, E, D,

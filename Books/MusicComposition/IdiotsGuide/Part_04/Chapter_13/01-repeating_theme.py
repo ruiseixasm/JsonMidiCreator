@@ -27,7 +27,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 motif = Note() * 5 << eight >> LJ << Foreach(9, 6, 8, 9, 9)**Degree() >> Tie()
 # motif >> rest_play
-measure_2 = Note() * 3 << Equal(B1)**half >> Stack() << Foreach(10, 9, 8)**Degree()
+measure_2 = Note() * 3 << Match(B1)**half >> Stack() << Foreach(10, 9, 8)**Degree()
 measure_4 = Note() * 2 << half << Foreach(8, 7)**Degree()
 motif % NoteValue() >> Print(0)
 measure_2 % NoteValue() >> Print(0)

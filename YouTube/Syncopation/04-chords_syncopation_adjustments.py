@@ -121,7 +121,7 @@ for _ in range(2):
 
 lead_notes: Clip = Note() * repeated_chords.len()
 lead_notes << Input(repeated_chords)
-lead_notes << Equal(Degree(5))**Degree(7) << Equal(6)**5
+lead_notes << Match(Degree(5))**Degree(7) << Match(6)**5
 lead_notes += Octave(1)
 # lead_notes += Degree(4)
 # lead_notes >> Play()

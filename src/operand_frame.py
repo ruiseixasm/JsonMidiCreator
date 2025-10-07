@@ -973,10 +973,10 @@ class BasicComparison(InputFilter):
         self._named_parameters['previous'] = []
         return self << parameters
 
-class Equal(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Equal`
+class Match(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Match`
 
-    An `Equal` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
+    An `Match` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------

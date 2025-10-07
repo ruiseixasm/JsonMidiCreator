@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 settings << TimeSignature(2, 4) << KeySignature(-3)   # Same as 'bbb'
 
 rhythmic_motif: Clip = Note("G", 1/8, Position(Duration(1/8))) * 4 >> Link()
-rhythmic_motif - Equal(Measures(1))**2
+rhythmic_motif - Match(Measures(1))**2
 rhythmic_motif >> Rest() >> Play()
 
 settings << TimeSignature(4, 4) << KeySignature(-2)   # Same as 'bb'

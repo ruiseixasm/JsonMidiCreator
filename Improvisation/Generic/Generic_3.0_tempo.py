@@ -29,4 +29,4 @@ many_notes << Velocity(65) << First()**Velocity(100) << 1/8
 
 many_notes * 8 >> Plot(n_button=new_tempo)
 
-many_notes * 8 << Velocity(100) << Equal(Beat(0))**Velocity(65) >> Plot(iterations=10, n_button=new_tempo)
+many_notes * 8 << Velocity(100) << Match(Beat(0))**Velocity(65) >> Plot(iterations=10, n_button=new_tempo)

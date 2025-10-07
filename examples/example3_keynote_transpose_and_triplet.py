@@ -45,5 +45,5 @@ composition + triplets_one * triplets_two >> Play(False)
 # triplets remain a clip. Frames don't operate on Songs!!
 debug_sequence = triplets_one * triplets_two
 # triplets_two % First() % Beats() % float() >> Print()
-triplets = triplets_one * triplets_two + Equal(Beat(1))**Semitone(2)
+triplets = triplets_one * triplets_two + Match(Beat(1))**Semitone(2)
 Part(triplets, single_clock) >> Play(False)

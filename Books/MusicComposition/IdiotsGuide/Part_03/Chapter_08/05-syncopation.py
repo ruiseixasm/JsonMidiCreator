@@ -28,9 +28,9 @@ smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
 smooth >> Rest() >> Play()
 
 syncopated: Clip = smooth.copy() \
-    - Equal(Measures(0))**Even()**Position(Duration(1/8)) \
-    + Equal(Measures(1))**Position(Duration(1/8)) \
-    + Equal(Measures(2))**GreaterOrEqual(Beats(2))**Position(Duration(1/8))
+    - Match(Measures(0))**Even()**Position(Duration(1/8)) \
+    + Match(Measures(1))**Position(Duration(1/8)) \
+    + Match(Measures(2))**GreaterOrEqual(Beats(2))**Position(Duration(1/8))
 (syncopated | Measures(0)) >> Link()
 (syncopated | Measures(1)) >> Link()
 (syncopated | Measures(2) | Greater(Beats(2))) >> Link()
@@ -47,7 +47,7 @@ straight_d: Clip = Note("G", 1/8) * 4 + Foreach(0, 1, 0, -1)
 straight_e: Clip = Note("B", 1/2)
 
 straight: Clip = straight_a + straight_e + straight_d + straight_e + straight_a + straight_c + straight_d + straight_e >> Stack()
-straight - Equal(NoteValue(1/2))**Foreach(0, 5, 2)
+straight - Match(NoteValue(1/2))**Foreach(0, 5, 2)
 straight >> Rest() >> Play()
 
 triple_notes: Clip = Note("A", 1/16) + Note("A", 1/8) + Note("A", 1/16) >> Stack()

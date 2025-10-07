@@ -32,10 +32,10 @@ settings << KeySignature() << Tempo(140)
 eight_measures = Note(1/4) / 4 * 8
 
 settings << Quantization(2) # Two beats quantization
-eight_measures >>= Equal(Measure(1), Step(1))**Merge()
-eight_measures >>= Equal(Measure(2), Step(1))**Merge()
-eight_measures >>= Equal(Measure(3), Step(1))**Merge()
-eight_measures >>= Equal(Measure(7))**Merge()
+eight_measures >>= Match(Measure(1), Step(1))**Merge()
+eight_measures >>= Match(Measure(2), Step(1))**Merge()
+eight_measures >>= Match(Measure(3), Step(1))**Merge()
+eight_measures >>= Match(Measure(7))**Merge()
 settings << Quantization(1/4)   # 1/16 note again
 
 eight_measures << Each(
