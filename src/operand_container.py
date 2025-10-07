@@ -89,7 +89,7 @@ class Container(o.Operand):
 
 
     def _unmasked_items(self) -> list[Any]:
-        if self._masked:
+        if self._masked:    # Has to copy the list in order to keep it unchanged during for iterations
             return self._mask_items.copy()
         return self._items.copy()
 
@@ -509,8 +509,6 @@ class Container(o.Operand):
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    if isinstance(single_item, oe.Chord):
-                        print("Is a chord!")
                     single_item << operand.frame(single_item)
             case _:
                 for single_item in self._unmasked_items():
