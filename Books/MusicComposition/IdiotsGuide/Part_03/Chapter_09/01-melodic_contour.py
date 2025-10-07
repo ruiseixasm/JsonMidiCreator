@@ -34,11 +34,11 @@ arch_contour >> Rest() >> Play()
 
 settings << KeySignature("#")
 inverted_arch_1: Clip = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, Dotted(1/4), 1/8) >> Stack() \
-    << Foreach("C", "A", "B", "G") << Less(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
+    << Foreach("C", "A", "B", "G") << Bellow(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
 inverted_arch_2: Clip = inverted_arch_1 >> Copy() \
-    << Foreach("A", "F", "G", "E") << Less(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
+    << Foreach("A", "F", "G", "E") << Bellow(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
 inverted_arch_3: Clip = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack() \
-    << Foreach("D", "E", "F", "G") << Less(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
+    << Foreach("D", "E", "F", "G") << Bellow(Pitch("D", 4))**Octave(5) << Above(Pitch("D", 5))**Octave(4)
 inverted_arch_4: Clip = Note("A", 1/1) * 1
 (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 

@@ -26,7 +26,7 @@ settings << Tempo(90)
 
 original_measure: Clip = Note(1/16, Velocity(70), Octave(3)) * 16 << Foreach(2, 3, 4, 6, 9, 7, 8, 7, 6, 5, 3, 2, 1, 2, 3, 4) # Degrees of Major Scale
 # original_measure * 4 >> P
-quantized_measure: Clip = original_measure + Steps(2) | Less(Beats(4))   # Implicit copy by + operator
+quantized_measure: Clip = original_measure + Steps(2) | Bellow(Beats(4))   # Implicit copy by + operator
 quantized_measure << Get(Position())**Get(Beat()) << Duration(1/4)
 
 quantized_measure * 8 >> Play()

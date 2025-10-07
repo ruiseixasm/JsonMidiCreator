@@ -32,7 +32,7 @@ embellishing = Note("G") * 9 << Nth(3, 4, 5, 8, 9)**Foreach(1/2, 1/2, 1/2, 1/2, 
 embellishing + Foreach(+3, +4, +3, -2, +2, +3, +2, +3, -3)**Degree()
 embellishing >> Rest() >> Play()
 
-embellishing -= embellishing | Less(Beats(2))**Match(Measures(0), Measures(2))
+embellishing -= embellishing | Bellow(Beats(2))**Match(Measures(0), Measures(2))
 embellishing += Note("B", 1/8) * 4 + Foreach(0, 1, 0, 1)
 embellishing += Note("B", 1/8, Position(2)) * 4 - Foreach(0, 1, 0, 1)
 embellishing >> Link() >> Rest() >> Play()

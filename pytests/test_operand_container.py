@@ -725,7 +725,7 @@ def test_lshift_clip():
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
-    one_measure: Clip = two_measures >> Mask(Less(Measure(1)))
+    one_measure: Clip = two_measures >> Mask(Bellow(Measure(1)))
     assert one_measure.len() == 4
 
     assert two_measures[0] % Pitch() == 60

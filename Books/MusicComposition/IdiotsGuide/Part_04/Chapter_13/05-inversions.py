@@ -45,6 +45,6 @@ mirror_inversion = motif >> motif % Copy() - Get(Pitch())**Subtract(Pitch(E))**M
 mirror_inversion >> rest_play
 
 
-contour_inversion = melodic_inversion - Less(Pitch(E))**Less(B4)**1 + Less(Pitch(E))**Match(B4)**1
+contour_inversion = melodic_inversion - Bellow(Pitch(E))**Bellow(B4)**1 + Bellow(Pitch(E))**Match(B4)**1
 contour_inversion >> rest_play
 

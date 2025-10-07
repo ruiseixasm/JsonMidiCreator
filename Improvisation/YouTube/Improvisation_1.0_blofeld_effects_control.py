@@ -36,7 +36,7 @@ melody_6_00 << Foreach(3, 3, 4, 4, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3)**Octave()
 melody_6_00 >> Plot(block=False)
 settings << Quantization(1/2)   # After works, before doesn't
 melody_6_00 << First()**Steps(1)    # Make sure the Steps is in accordance with the set Quantization!
-melody_6_00 >>= Less(Steps(1))**Fit()
+melody_6_00 >>= Bellow(Steps(1))**Fit()
 melody_6_00 >> Plot(block=False, title="Fitted")
 melody_6_00 >>= Quantize(quantize_duration=True)
 melody_6_00 >> Plot(block=False, title="Fitted and Quantized")

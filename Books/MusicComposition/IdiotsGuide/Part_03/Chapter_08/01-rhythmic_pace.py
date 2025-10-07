@@ -50,7 +50,7 @@ variation_d: Clip = original_phrase.copy() << Match(Measures(0))**Foreach(1/4, 1
 
 variation_e: Clip = Rest() + (original_phrase.copy() << Match(Measures(0))**Duration(1/8)) >> Stack()
 
-variation_f: Clip = ((original_phrase | Measures(0) | Less(Beats(3))).copy() << Gate(1)) + original_phrase << Match(Measures(0))**Duration(1/8) >> Sort()
+variation_f: Clip = ((original_phrase | Measures(0) | Bellow(Beats(3))).copy() << Gate(1)) + original_phrase << Match(Measures(0))**Duration(1/8) >> Sort()
 variation_f = Rest(1/8) + variation_f
 
 variation_a >> variation_b >> variation_c >> variation_d >> variation_e >> variation_f >> Rest() >> Play()

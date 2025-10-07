@@ -36,7 +36,7 @@ melody //= Position(Bar(4), Beat(2))
 melody //= Position(Bar(5), Beat(2))
 melody //= Position(Bar(12), Beat(2))
 melody //= Position(Bar(13), Beat(2))
-melody //= Above(Bar(7))**Less(Bar(12))**Beats(1)
+melody //= Above(Bar(7))**Bellow(Bar(12))**Beats(1)
 
 melody >>= Match(Or(Bar(6), Bar(7)))**Merge()
 melody >>= Match(Or(Bar(14), Bar(15)))**Merge()

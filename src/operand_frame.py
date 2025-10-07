@@ -1012,10 +1012,10 @@ class Above(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input > condition
 
-class Less(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Less`
+class Bellow(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Bellow`
 
-    A `Less` checks if the input is less to **all** the conditions before being passed to the next `Frame`.
+    A `Bellow` checks if the input is less to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------

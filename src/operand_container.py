@@ -4292,7 +4292,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self_left: Clip     = self.copy().filter(of.Less(position))
+        self_left: Clip     = self.copy().filter(of.Bellow(position))
         self_right: Clip    = self.copy().filter(of.GreaterOrEqual(position))
         return self_left, self_right
 
