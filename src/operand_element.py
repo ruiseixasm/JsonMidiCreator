@@ -654,8 +654,6 @@ class Element(o.Operand):
                             new_clip.__iadd__(self) # Special case
                     return new_clip
                 
-            case Fraction() | float():
-                self << self % og.Locus() // operand
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_position_beats: Fraction = self._position_beats
@@ -674,8 +672,8 @@ class Element(o.Operand):
                     new_clip: oc.Clip = oc.Clip()
                     return new_clip._extend(new_elements)._set_owner_clip()
 
-            # Divides the `Duration` by the given `Length` amount as denominator
-            case ra.Length() | ra.Duration():
+            # Divides the Clip `Duration` by the given `Length` amount as denominator
+            case ra.Length():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
                     total_segments: int = operand % int()   # Extracts the original imputed integer
@@ -689,7 +687,7 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.Duration() | ra.NoteValue() | ra.TimeValue() | float():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats

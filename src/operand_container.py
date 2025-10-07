@@ -3110,8 +3110,8 @@ class Clip(Composition):  # Just a container of Elements
                         self += single_shallow_copy
                 elif operand == 0:   # Must be empty
                     self._delete()
-            # Divides the `Duration` by the given `Length` amount as denominator
-            case ra.Length() | ra.Duration():
+            # Divides the Clip `Duration` by the given `Length` amount as denominator
+            case ra.Length():
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
@@ -3124,21 +3124,21 @@ class Clip(Composition):  # Just a container of Elements
                             new_elements.append(next_element)
                     self._extend(new_elements)
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
-            case ra.Duration() | ra.TimeValue():    # Single point split if Duration
+            case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
                 for first_element in self._unmasked_items():
                     group_length: Fraction = first_element._duration_beats
-                    segment_duration: Fraction = ra.Duration(self, operand)._rational
-                    if segment_duration < group_length:
+                    segment_duration_beats: Fraction = ra.Duration(self, operand)._rational
+                    if segment_duration_beats < group_length:
                         group_start: Fraction = first_element._position_beats
                         group_finish: Fraction = group_start + first_element._duration_beats
-                        first_element._duration_beats = segment_duration
-                        next_split: Fraction = group_start + segment_duration
+                        first_element._duration_beats = segment_duration_beats
+                        next_split: Fraction = group_start + segment_duration_beats
                         while group_finish > next_split:
                             next_element: oe.Element = first_element.copy()
                             new_elements.append(next_element)
                             next_element._position_beats = next_split  # Just positions the `Element`
-                            next_split += segment_duration
+                            next_split += segment_duration_beats
                             if next_split > group_finish:
                                 next_element._duration_beats -= next_split - group_finish # Trims the extra `Duration`
                                 break
