@@ -906,9 +906,9 @@ class Unison(Element):
                         self._elements = operand._data
                     case _:
                         super().__lshift__(operand)
-            case list():
-                if all(isinstance(item, Element) for item in operand):
-                    self._elements = self.deep_copy( operand )
+            case od.Elements():
+                if all(isinstance(single_element, Element) for single_element in operand._data):
+                    self._elements = self.deep_copy(list(operand._data))
             case dict():
                 if all(isinstance(item, Element) for item in operand.values()):
                     for index, single_element in operand.items():
@@ -2712,9 +2712,9 @@ class Tuplet(ChannelElement):
                     self._swing = operand._rational
             case ra.Duration() | ra.NoteValue() | ra.TimeValue():
                 self._duration_beats = operand % ra.Beats(self) % Fraction() * 2  # Equivalent to two sized Notes
-            case list():
-                if len(operand) > 0 and all(isinstance(single_element, Element) for single_element in operand):
-                    self._elements = self.deep_copy(operand)
+            case od.Elements():
+                if all(isinstance(single_element, Element) for single_element in operand._data):
+                    self._elements = self.deep_copy(list(operand._data))
             case _:
                 super().__lshift__(operand)
         self.set_elements_duration()
