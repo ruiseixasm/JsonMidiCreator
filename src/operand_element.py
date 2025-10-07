@@ -2124,7 +2124,10 @@ class Cluster(KeyScale):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        self._offsets = operand._data
+                        if not all(isinstance(item, Element) for item in operand._data):
+                            self._offsets = operand._data
+                        else:
+                            super().__lshift__(operand)
                     case _:
                         super().__lshift__(operand)
             case list():
@@ -2616,14 +2619,18 @@ class Tuplet(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-                    case list():            return self._elements
-                    case _:                 return super().__mod__(operand)
+                    case od.Elements():
+                        return operand._data << od.Pipe(self._elements)
+                    case _:
+                        return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             case ou.Count():       return ou.Count() << len(self._elements)
             case ra.Duration() | ra.NoteValue():
                 return operand << od.Pipe( self._duration_beats / 2 )
-            case list():            return self.deep_copy(self._elements)
-            case _:                 return super().__mod__(operand)
+            case od.Elements():
+                return od.Elements(self._elements)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -2707,9 +2714,11 @@ class Tuplet(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ra.Swing():            self._swing = operand._data._rational
-                    case list():
-                        self._elements = operand._data
-                    case _:                     super().__lshift__(operand)
+                    case od.Elements():
+                        if all(isinstance(single_element, Element) for single_element in operand._data._data):
+                            self._elements = list(operand._data._data)
+                    case _:
+                        super().__lshift__(operand)
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
