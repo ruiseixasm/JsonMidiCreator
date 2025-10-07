@@ -314,11 +314,23 @@ class Element(o.Operand):
                             if operand:
                                 position_offset: ra.Position = self.start() - operand[0].start()
                                 elements_list: list[Element] = [
-                                    element + position_offset for element in operand
+                                    element.copy()._set_owner_clip(self._owner_clip) for element in operand
                                 ]
-                                self._owner_clip._extend(elements_list)._set_owner_clip()
+                                self._owner_clip._extend(elements_list)
                             self._owner_clip._set = True
                         self._owner_clip._remove(self, True)
+            case oc.Clip():
+                if self._owner_clip is not None:
+                    if not self._owner_clip._set:
+                        if operand.len() > 0:
+                            position_offset: ra.Position = self.start() - operand.start()
+                            elements_list: list[Element] = [
+                                (element + position_offset)._set_owner_clip(self._owner_clip) for element in operand._unmasked_items()
+                            ]
+                            self._owner_clip._extend(elements_list)
+                        self._owner_clip._set = True
+                    self._owner_clip._remove(self, True)
+
 
             case og.TimeSignature():
                 self._time_signature << operand
