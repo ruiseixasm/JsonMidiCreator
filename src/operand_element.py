@@ -1856,7 +1856,7 @@ class Note(ChannelElement):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
