@@ -25,18 +25,21 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Bright piano", Channel(1)) + ProgramChange("Guitar", Channel(2)) >> Play()
+ProgramChange("Electric piano", Channel(1)) + ProgramChange("Cello", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(3, 4) << KeySignature('')
+settings << Tempo(140) << TimeSignature(3, 4) << KeySignature('') << Quantization(1/2)
 
 
 melody = Note() / 3 * 8 << Title("Melody")
-
+melody //= First(2)**Step(1)
+melody //= Either(Bar(1), Bar(5))**Match(Beat(2))**Beats(1/2)
+melody >>= Last(2)**Merge()
+melody << Each(5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1, 5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1)**Degree()
 
 chords = \
     Chord("C", Bars(2)) * Chord("G", Bars(1)) * Chord("C", Bars(3)) * \
     Chord("G", Bars(1)) * Chord("C", Bars(1)) \
-        << Title("Chords") << Channel(2) << Octave(3) << Velocity(80) << Gate(.99)
+        << Title("Chords") << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
 
 

@@ -721,17 +721,20 @@ class Neither(InputFilter):
 class First(InputFilter):
     """`Frame -> Left -> InputFilter -> First`
 
-    A `First` only lets the first `Element` in a `Clip` to pass to the next `Frame`.
+    A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
-    Parameters
-    ----------
-    None : `First` doesn't have parameters to be set.
+    Args:
+        amount (int): The number of items at the beginning. The default is 1.
     """
+    def __init__(self, amount: int = 1):
+        super().__init__()
+        self._named_parameters['amount'] = amount
+
     def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
-            first_item = self._inside_container.first()
-            if input is first_item:    # Selected first call to pass
+            item_index: int = self._inside_container._item_index(input)
+            if item_index is not None and item_index < self._named_parameters['amount']:
                 if isinstance(self._next_operand, Frame):
                     return self._next_operand.frame(input)
                 return self._next_operand
@@ -740,21 +743,28 @@ class First(InputFilter):
 class Last(InputFilter):
     """`Frame -> Left -> InputFilter -> Last`
 
-    A `Last` only lets the last `Element` in a `Clip` to pass to the next `Frame`.
+    A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
-    Parameters
-    ----------
-    None : `Last` doesn't have parameters to be set.
+    Args:
+        amount (int): The number of items at the end. The default is 1.
     """
+    def __init__(self, amount: int = 1):
+        super().__init__()
+        self._named_parameters['amount'] = amount
+
     def frame(self, input: o.T) -> o.T:
         import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
-            last_item = self._inside_container.last()
-            if input is last_item:    # Selected first call to pass
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
+            item_index: int = self._inside_container._item_index(input)
+            if item_index is not None:  # Empty container returns index None
+                container_len: int = self._inside_container.len()
+                amount_index: int = -1 * self._named_parameters['amount'] % container_len
+                if item_index >= amount_index:
+                    if isinstance(self._next_operand, Frame):
+                        return self._next_operand.frame(input)
+                    return self._next_operand
         return ol.Null()
+
 
 class Crossing(InputFilter):
     """`Frame -> Left -> InputFilter -> Crossing`
