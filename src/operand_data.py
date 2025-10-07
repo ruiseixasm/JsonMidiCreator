@@ -347,6 +347,17 @@ class Performers(DataMany):
                     single_operand.reset()
         return self
 
+class Elements(DataMany):
+    """`Data -> DataMany -> Elements`
+
+    Works as a wrapper of multiple elements needed to be used by multi element elements.
+
+    Parameters
+    ----------
+    Element(None) : Group of elements wrapped altogether.
+    """
+    pass
+
 class Clips(DataMany):
     pass
 

@@ -307,6 +307,9 @@ class Element(o.Operand):
                 self << ra.NoteValue(self, operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
+            case list():
+                ...
+
             case og.TimeSignature():
                 self._time_signature << operand
             case oc.Composition():
@@ -2119,7 +2122,10 @@ class Cluster(KeyScale):
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._offsets = self.deep_copy( operand )
+                if not all(isinstance(item, Element) for item in operand):
+                    self._offsets = self.deep_copy( operand )
+                else:
+                    super().__lshift__(operand)
             case dict():
                 if all(isinstance(key, int) for key in operand.keys()):
                     for index, offset in operand.items():
