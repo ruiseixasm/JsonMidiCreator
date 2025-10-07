@@ -593,30 +593,35 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
-
-                durations: list[ra.Duration] = []
-                for single_duration_value in operand:
-                    if single_duration_value > Fraction(0):
-                        durations.append( ra.Duration(single_duration_value) )
-                    elif single_duration_value < Fraction(0):
-                        last_duration = durations[-1]
-                        if isinstance(single_duration_value, o.Operand):
-                            single_duration_value %= int()
-                        else:
-                            single_duration_value = round(single_duration_value)
-                        for _ in range(single_duration_value * -1):
-                            durations.append(last_duration)
-                    else:
-                        durations.append( ra.Duration(self._duration_beats) )
-
                 new_elements: list[Element] = []
-                position_beats: Fraction = self._position_beats
-                for single_duration in durations:
-                    new_element: Element = self.copy()
-                    new_elements.append(new_element)
-                    new_element._position_beats = position_beats
-                    new_element._duration_beats = single_duration._rational
-                    position_beats += new_element._duration_beats
+                next_position: ra.Position = self.start()
+                for single_duration_value in operand:
+                    match single_duration_value:
+                        case int():
+                            if single_duration_value == 0:
+                                new_elements.append( self.copy(next_position) )
+                            elif single_duration_value < 0:
+                                source_element: Element = new_elements[-1]
+                                for _ in range(single_duration_value * -1):
+                                    new_elements.append(
+                                        source_element.copy(next_position)
+                                    )
+                                    next_position += source_element._duration_beats
+                                continue    # avoids the extra position increment done bellow
+                            else:
+                                new_elements.append(
+                                    self.copy(ra.Duration(single_duration_value), next_position)
+                                )
+                        case Element(): # does an element wrapping
+                            new_elements.append(
+                                single_duration_value.copy(self, next_position)
+                            )
+                        case _:
+                            new_elements.append(
+                                self.copy(ra.Duration(single_duration_value), next_position)
+                            )
+                    next_position += new_elements[-1]._duration_beats
+
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
