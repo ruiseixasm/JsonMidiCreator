@@ -3955,7 +3955,7 @@ class PolyAftertouch(Aftertouch):
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                                 self._pitch << operand
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | list() | str():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
