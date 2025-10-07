@@ -2124,14 +2124,14 @@ class Cluster(KeyScale):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        if not all(isinstance(item, Element) for item in operand._data):
+                        if all(not isinstance(item, Element) for item in operand._data):
                             self._offsets = operand._data
                         else:
                             super().__lshift__(operand)
                     case _:
                         super().__lshift__(operand)
             case list():
-                if not all(isinstance(item, Element) for item in operand):
+                if all(not isinstance(item, Element) for item in operand):
                     self._offsets = self.deep_copy( operand )
                 else:
                     super().__lshift__(operand)
