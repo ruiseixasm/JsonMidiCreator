@@ -1025,10 +1025,10 @@ class Bellow(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input < condition
 
-class GreaterOrEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> GreaterOrEqual`
+class DownTo(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> DownTo`
 
-    A `GreaterOrEqual` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
+    A `DownTo` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -1038,10 +1038,10 @@ class GreaterOrEqual(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input >= condition
 
-class LessOrEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> LessOrEqual`
+class UpTo(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> UpTo`
 
-    A `LessOrEqual` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
+    An `UpTo` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------

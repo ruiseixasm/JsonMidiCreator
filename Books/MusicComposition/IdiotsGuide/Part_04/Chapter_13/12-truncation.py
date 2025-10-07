@@ -29,7 +29,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-truncated_motif = motif.copy() % LessOrEqual(Position(Beats(2))) >> Link()
+truncated_motif = motif.copy() % UpTo(Position(Beats(2))) >> Link()
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 varying_rhythm = motif >> truncated_motif

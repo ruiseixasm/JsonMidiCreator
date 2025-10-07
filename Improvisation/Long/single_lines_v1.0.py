@@ -109,7 +109,7 @@ chord_progression >> Rotate(-1) >> Decompose() >> Plot(block=False)
 # chord_progression % int() >> Print()
 chord_progression += Rest(Measure(3))   # To occupy the 4th Measure
 chord_progression >> Tie()  # Removes notes
-chord_progression << LessOrEqual(Duration(1/1))**Duration(7/8)
+chord_progression << UpTo(Duration(1/1))**Duration(7/8)
 
 entire_part += chord_progression
 entire_part * 4 >> Plot()
