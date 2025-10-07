@@ -88,10 +88,10 @@ class Container(o.Operand):
         return self
 
 
-    def _unmasked_items(self) -> list:
+    def _unmasked_items(self) -> list[Any]:
         if self._masked:
-            return self._mask_items
-        return self._items
+            return self._mask_items.copy()
+        return self._items.copy()
 
 
     def __getitem__(self, index: int | str) -> any:
@@ -509,8 +509,9 @@ class Container(o.Operand):
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._unmasked_items():
-                    framed_data = operand.frame(single_item)
-                    single_item << framed_data
+                    if isinstance(single_item, oe.Chord):
+                        print("Is a chord!")
+                    single_item << operand.frame(single_item)
             case _:
                 for single_item in self._unmasked_items():
                     single_item << operand
@@ -2453,9 +2454,7 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     def _unmasked_items(self) -> list['oe.Element']:
-        if self._masked:
-            return self._mask_items
-        return self._items
+        return super()._unmasked_items()
 
     def __getitem__(self, index: Union['of.Frame', int, str]) -> 'oe.Element':
         """
@@ -4368,9 +4367,7 @@ class Part(Composition):
 
 
     def _unmasked_items(self) -> list['Clip']:
-        if self._masked:
-            return self._mask_items
-        return self._items
+        return super()._unmasked_items()
 
 
     def __getitem__(self, index: Union[int, str]) -> 'Clip':
@@ -4980,9 +4977,7 @@ class Song(Composition):
 
 
     def _unmasked_items(self) -> list['Part']:
-        if self._masked:
-            return self._mask_items
-        return self._items
+        return super()._unmasked_items()
 
 
     def __getitem__(self, index: Union[int, str]) -> 'Part':

@@ -331,7 +331,6 @@ class Element(o.Operand):
                         self._owner_clip._set = True
                     self._owner_clip._remove(self, True)
 
-
             case og.TimeSignature():
                 self._time_signature << operand
             case oc.Composition():

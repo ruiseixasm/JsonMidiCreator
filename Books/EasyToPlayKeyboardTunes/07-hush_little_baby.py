@@ -31,7 +31,8 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantizati
 
 
 melody = Note() / 4 * 8 << Title("Melody")
-melody << Nth(2)**(Note(1/8) / 2)
+melody << DownTo(Beat(2))**Either(Bar(1))**(Chord(1/2) / 1)
+melody << Nth(2)**(Chord(1/8) / 2)
 
 
 chords = \
