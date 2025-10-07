@@ -51,7 +51,7 @@ measure_operations = [
     (Mask(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
     (Mask(Measure(2)), Reverse(), Rotate(-1)),
     (Mask(Measure(3)), Rotate(-1), Mask(Beat(0)), Operate(Octave(1), "+"), Link()),
-    (Mask(Measure(3)), Mask(Greater(Beat(0))), Erase())
+    (Mask(Measure(3)), Mask(Above(Beat(0))), Erase())
 ]
 
 chords_melody = stacked_notes.copy()

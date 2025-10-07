@@ -27,7 +27,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> Stack()
 notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
-notes % Greater(Position(0, Beats(0))) >> Smooth()
+notes % Above(Position(0, Beats(0))) >> Smooth()
 notes >> Rest >> Play()
 
 substitutions_chords = Chord() * 5 << Nth(3, 4)**half >> Stack()

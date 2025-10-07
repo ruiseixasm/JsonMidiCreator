@@ -39,7 +39,7 @@ motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 # motif >> P
 
 # Cut first two notes
-cut_motif: Clip = motif / Greater(Steps(2))
+cut_motif: Clip = motif / Above(Steps(2))
 repeated_motif: Clip = cut_motif * 3.0
 
 repeated_motif % Length() % float() >> Print()

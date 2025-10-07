@@ -999,10 +999,10 @@ class IsNot(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return not input == condition
 
-class Greater(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Greater`
+class Above(BasicComparison):
+    """`Frame -> Left -> InputFilter -> BasicComparison -> Above`
 
-    A `Greater` checks if the input is greater to **all** the conditions before being passed to the next `Frame`.
+    The `Above` checks if the input is greater to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------

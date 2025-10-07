@@ -49,7 +49,7 @@ slower + faster >> Link() >> Rest() >> Play()
 
 settings << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-syncopation = Note() * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> Stack()
+syncopation = Note() * 16 << Above(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> Stack()
 syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
 syncopation >> Rest() >> Play()
 
@@ -82,7 +82,7 @@ melodic_line % Measures(3) << Foreach((G, 5), E, C, G, B, G, E, B, A)
 
 melodic_line % Measures(0) >> Smooth()
 melodic_line % Measures(1) >> Smooth()
-melodic_line % Measures(2) % Greater(Beat(0)) >> Smooth()
+melodic_line % Measures(2) % Above(Beat(0)) >> Smooth()
 melodic_line % Measures(3) >> Smooth()
 
 melodic_line % Measures(0) % int() >> Print()

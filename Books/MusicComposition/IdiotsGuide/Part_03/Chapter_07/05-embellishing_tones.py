@@ -42,7 +42,7 @@ embellishing += Note("A", 1/8, Position(0, Beats(1))) * 2 + Foreach(0, 2)
 embellishing += Note("A", 1/8, Position(2, Beats(1))) * 2 + Foreach(2, 0)
 embellishing >> Link() << Get(NoteValue())**NoteValue() >> Rest() >> Play()
 
-embellishing -= embellishing | Match(Measures(0), Measures(2))**Greater(Beats(0))
+embellishing -= embellishing | Match(Measures(0), Measures(2))**Above(Beats(0))
 embellishing += Note("E", 1/8, Position(0, Beats(3))) * 2 + Foreach(2, 0)
 embellishing += Note("D", 1/8, Position(2, Beats(3))) * 2 + Foreach(2, 0)
 embellishing >> Link() >> Rest() >> Play(True)

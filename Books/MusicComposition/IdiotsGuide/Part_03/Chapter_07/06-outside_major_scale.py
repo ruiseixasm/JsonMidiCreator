@@ -42,5 +42,5 @@ structural_tones + blues_scale >> Link() >> Rest() >> Play()
 
 all_notes: Clip = Note() * (3*3 + 1)
 all_notes << Nth(1, 4, 7)**Duration(1/2) << Nth(10)**Duration(1/1) >> Stack()
-all_notes << Greater(Beats(0))**Scale("Pentatonic")
+all_notes << Above(Beats(0))**Scale("Pentatonic")
 all_notes + Foreach(Octave(1), 3, 4, Degree(5), 0, 1, Degree(3), 3, 4, Degree(5)) >> Rest() >> Play()

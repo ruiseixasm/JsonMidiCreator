@@ -27,13 +27,13 @@ settings << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")
 chords = Chord(1/2, Octave(3), Channel(2)) / 3 << Last()**(1/1)
 chords *= 2
 chords << Foreach("1", "6", "2", "6", "4", "1")
-chords << Greater(Measure(1))**KeySignature(-1)
+chords << Above(Measure(1))**KeySignature(-1)
 chords >>= Smooth()
 
 melody = Note(1/2) / 3 << Last()**(1/1)
 melody *= 2
 melody << Foreach("5", "1", "6", "3", "4", "5")
-melody << Greater(Measure(1))**KeySignature(-1)
+melody << Above(Measure(1))**KeySignature(-1)
 melody >>= Smooth()
 
 

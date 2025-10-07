@@ -61,6 +61,9 @@ PC = ProgramChange
 TS = TimeSignature
 # Frame aliases
 Each = Foreach
+Equal = Match
+Greater = Above
+
 # Container aliases
 Section = Part
 

@@ -51,7 +51,7 @@ measure_operations = [
     (Measure(1), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
     (Measure(2), Reverse(), Rotate(-1)),
     (Measure(3), Rotate(-1), Beat(0), Operate(Octave(1), "+"), Link()),
-    (Measure(3), Greater(Beat(0)), Erase()),
+    (Measure(3), Above(Beat(0)), Erase()),
     (And(Measure(1), Beat(2)), Operate(Octave(1), "-")),
     (And(Measure(2), Beat(2)), Operate(Degree(5)), Operate(Octave(1), "+"))
 ]
