@@ -340,7 +340,7 @@ class Element(o.Operand):
                 total_wrappers: int = len(operand)
                 if total_wrappers > 0:
                     if self._owner_clip is not None:    # Owner clip is always the base container
-                        self_index: int = self._owner_clip._index_from_element(self)
+                        self_index: int = self._owner_clip._item_index(self)
                         return self.__irshift__(operand[self_index % total_wrappers])
                     else:
                         return self.__irshift__(operand[0])

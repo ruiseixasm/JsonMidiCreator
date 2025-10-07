@@ -2439,15 +2439,6 @@ class Clip(Composition):  # Just a container of Elements
                 return index
         return None
 
-    def _index_from_element(self, element: 'oe.Element') -> int:
-        """
-        Read Only method
-        """
-        for index, single_element in enumerate(self._unmasked_items()):
-            if single_element is element:
-                return index
-        return None
-
     def _unmasked_items(self) -> list['oe.Element']:
         if self._masked:
             return self._mask_items
