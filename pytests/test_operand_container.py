@@ -1249,12 +1249,12 @@ def test_floordiv_clip():
     assert just_rests[0] == Rest(1/2)
     assert just_rests[1] == Note(Beat(2), 1/2)
 
-    eight_notes = Note() / [1/8, -7]
+    eight_notes = Note() / [1/8, 7]
     assert eight_notes.len() == 8
     assert eight_notes[0] == Position(0)
     assert eight_notes % Duration() == 1.0  # 1 Measures
 
-    eight_notes = Note(Position(1/8)) / [1/8, -7]
+    eight_notes = Note(Position(1/8)) / [1/8, 7]
     assert eight_notes.len() == 8
     print(f"eight_notes[0] % Position(): {eight_notes[0] % Position() % float()}")
     assert eight_notes[0] == Position(1/8)

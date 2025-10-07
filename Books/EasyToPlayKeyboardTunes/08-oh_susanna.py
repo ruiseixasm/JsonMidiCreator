@@ -27,23 +27,35 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Electric piano 2", Channel(1)) + ProgramChange("Contrabass", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantization(1/4)
+settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4)
 
 
 
-melody = Note() / 4 * 8 << Title("Melody") << Velocity(85)
-melody //= Nth(2, 6)**(1/8)
-melody << Match(Bar(1))**DownTo(Beat(2))**(Note(1/2) / 1)
-melody >>= Either(Bar(3), 5, 7)**DownTo(Beat(2))**Merge()
-melody //= Either(2, 6)**Bellow(Beat(2))**(1/8)
-melody //= Either(2, 6)**Above(Beat(2))**(1/8)
+melody = Note(Beat(3)) / [
+    #   0    1
+        1/8, "2",
+    #   2           3    4    5             6           7    8           9
+        (1/4, "3"), "5", 3/8, (1/8, "6"),
+                                            (1/4, "5"), "3", (3/8, "G"), (1/8, "2"),
+    #   10          11 12   13              14          15      16         17
+        (1/4, "3"), 1, "2", "1",
+                                            (1/2, "2"), Rest(), {-3: 1/8}, "2",
+        (1/4, "3"), "5", 3/8, (1/8, "6"),
+                                            (1/4, "5"), "3", (3/8, "1"), (1/8, "2"),
+        (1/4, "3"), 1, "2", 1,
+                                            (1/1, "1"),
+        (1/2, "4"), 1,
+                                            (1/4, "6"), 1/2, 1/4,
+        (1/4, "5"), 1, "3", "1",
+                                            (1/2, "2"), Rest(), {0: Nul}, "2",
+        {2: Nul}, {3: Nul}, {4: Nul}, {5: Nul},
+                                            {6: Nul}, {7: Nul}, {8: Nul}, {9: Nul},
+        {10: Nul}, {11: Nul}, {12: Nul}, {13: Nul},
+                                            (3/4, "1")
 
-melody += Each(
-        -3, 2, 2, 2, 3,             2, 1, 1, 1,
-        -3, -3, 1, 1, 1, 1, 2,      1, 0, 0,
-        -3, 2, 2, 3,                2, 1, 1,
-        -3, -3, 1, 1, 1, 1, 2,      1, 0, 0
-    )**Degree()
+]
+melody << Title("Melody") << Velocity(85)
+
 
 
 chords = \
@@ -52,7 +64,7 @@ chords = \
 chords >>= Smooth(4)
 
 
-hush_little_baby = melody + chords << Title("Hush Little Baby")
+silent_night = melody + chords << Title("Oh Susanna")
 (melody + chords.copy(Disable())) * 2 >> Plot(composition=chords * 2)
 
 

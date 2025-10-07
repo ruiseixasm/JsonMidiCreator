@@ -31,7 +31,7 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b')
 
 
 melody = Note(1/4) / [
-    0, -5, 1/2, 0, -3, 1/2, -1, 0, -11, 1/2, -1
+    0, 5, 1/2, 0, 3, 1/2, 1, 0, 11, 1/2, 1
 ]
 
 melody << Each(

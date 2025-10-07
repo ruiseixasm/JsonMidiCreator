@@ -286,7 +286,8 @@ class Element(o.Operand):
                 self._position_beats = operand._position_beats
                 self._duration_beats = operand._duration_beats
             case ra.Duration() | ra.Length():
-                self._duration_beats        = operand._rational
+                if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
+                    self._duration_beats    = operand._rational
             case ra.NoteValue() | ra.TimeValue():
                 self << ra.Duration(self, operand)
             case ra.Position():
@@ -306,7 +307,8 @@ class Element(o.Operand):
             case float():
                 self << ra.NoteValue(self, operand)
             case Fraction():
-                self._duration_beats        = ra.Beats(operand)._rational
+                if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
+                    self._duration_beats    = ra.Beats(operand)._rational
             case list():
                 if all(isinstance(single_element, Element) for single_element in operand):
                     if self._owner_clip is not None:
@@ -548,9 +550,9 @@ class Element(o.Operand):
                     new_elements: list[Element] = []
                     if operand > 1:
                         for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()
-                            new_elements.append(next_element)
-                            next_element._position_beats += self._duration_beats * next_element_i
+                            next_position: Element = self.copy()
+                            new_elements.append(next_position)
+                            next_position._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
                     new_clip: oc.Clip = oc.Clip(self)
@@ -567,9 +569,9 @@ class Element(o.Operand):
                 new_elements: list[Element] = []
                 for placed in elements_place:
                     if placed:
-                        next_element: Element = self.copy()
-                        new_elements.append(next_element)
-                        next_element._position_beats = place_position_beats
+                        next_position: Element = self.copy()
+                        new_elements.append(next_position)
+                        next_position._position_beats = place_position_beats
                     place_position_beats += self._duration_beats
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._extend(new_elements)._sort_items()
@@ -586,40 +588,45 @@ class Element(o.Operand):
                         self_repeating = int( operand_duration_value / self_duration )
                         if self_repeating > 1:
                             for next_element_i in range(1, self_repeating):
-                                next_element: Element = self.copy()
-                                new_elements.append(next_element)
-                                next_element._position_beats += self._duration_beats * next_element_i
+                                next_position: Element = self.copy()
+                                new_elements.append(next_position)
+                                next_position._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
                 new_elements: list[Element] = []
                 next_position: ra.Position = self.start()
-                for single_duration_value in operand:
-                    match single_duration_value:
+                for element_parameter in operand:
+                    match element_parameter:
                         case int():
-                            if single_duration_value == 0:
+                            if element_parameter == 0:
                                 new_elements.append( self.copy(next_position) )
-                            elif single_duration_value < 0:
-                                source_element: Element = new_elements[-1]
-                                for _ in range(single_duration_value * -1):
-                                    new_elements.append(
-                                        source_element.copy(next_position)
-                                    )
+                            if element_parameter < 0:
+                                source_element: Element = new_elements[element_parameter]
+                                new_elements.append( source_element.copy(parameter, next_position) )
+                                next_position += source_element._duration_beats
+                            else:
+                                source_element: Element = self
+                                if new_elements:
+                                    source_element = new_elements[-1]
+                                for _ in range(element_parameter):
+                                    new_elements.append( source_element.copy(next_position) )
                                     next_position += source_element._duration_beats
                                 continue    # avoids the extra position increment done bellow
-                            else:
-                                new_elements.append(
-                                    self.copy(ra.Duration(single_duration_value), next_position)
-                                )
+                        case dict():
+                            for index, parameter in element_parameter.items():
+                                source_element: Element = new_elements[index]
+                                new_elements.append( source_element.copy(parameter, next_position) )
+                                next_position += source_element._duration_beats
+                            continue    # avoids the extra position increment done bellow
                         case Element(): # does an element wrapping
-                            new_elements.append(
-                                single_duration_value.copy(self, next_position)
-                            )
+                            new_elements.append( element_parameter.copy(next_position) )
                         case _:
-                            new_elements.append(
-                                self.copy(ra.Duration(single_duration_value), next_position)
-                            )
+                            source_element: Element = self
+                            if new_elements:
+                                source_element = new_elements[-1]
+                            new_elements.append( source_element.copy(element_parameter, next_position) )
                     next_position += new_elements[-1]._duration_beats
 
                 if self._owner_clip is not None:    # Owner clip is always the base container
