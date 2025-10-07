@@ -25,20 +25,30 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Electric piano 2", Channel(1)) + ProgramChange("Cello", Channel(2)) >> Play()
+ProgramChange("Electric piano 2", Channel(1)) + ProgramChange("Contrabass", Channel(2)) >> Play()
 
 settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantization(1/4)
 
 
-melody = Note() / 4 * 8 << Title("Melody")
-melody << Nth(2)**(Note(1/8) / 2)
+
+melody = Note() / 4 * 8 << Title("Melody") << Velocity(85)
+melody //= Nth(2, 6)**(1/8)
 melody << Match(Bar(1))**DownTo(Beat(2))**(Note(1/2) / 1)
 melody >>= Either(Bar(3), 5, 7)**DownTo(Beat(2))**Merge()
-melody //= Match(2)**Bellow(Beat(2))**(1/8)
+melody //= Either(2, 6)**Bellow(Beat(2))**(1/8)
+melody //= Either(2, 6)**Above(Beat(2))**(1/8)
+
+melody += Each(
+        -3, 2, 2, 2, 3,             2, 1, 1, 1,
+        -3, -3, 1, 1, 1, 1, 2,      1, 0, 0,
+        -3, 2, 2, 3,                2, 1, 1,
+        -3, -3, 1, 1, 1, 1, 2,      1, 0, 0
+    )**Degree()
+
 
 chords = \
-    Chord("C", Bars(2)) * 1 \
-        << Title("Chords") << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
+    Chord("F", Bars(1)) * Chord("C", Bars(2)) * Chord("F", Bars(2)) * Chord("C", Bars(2)) * Chord("F", Bars(1)) \
+        << Title("Chords") << Channel(2) << Octave(2) << Velocity(40) << Gate(.99)
 chords >>= Smooth(4)
 
 
