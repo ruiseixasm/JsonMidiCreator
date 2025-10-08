@@ -61,13 +61,13 @@ melody << Title("Melody") << Velocity(85)
 
 chords = Chord(1, "G", Bars(3)) / [
         0,
-        (1/1, "D"),
-        (2/1, "G"),
-        (1/1, "D"), "G",
-        (2/1, "C"),
-        (1/1, "G"), (1/1, "D"),
-        (2/1, "G"),
-        (1/1, "D"), "G"
+        C_1("D"),
+        C_2("G"),
+        C_1("D"), "G",
+        C_2("C"),
+        C_1("G"), C_1("D"),
+        C_2("G"),
+        C_1("D"), "G"
     ]
 
 chords << Title("Chords") << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)
