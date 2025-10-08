@@ -1913,7 +1913,211 @@ class Note(ChannelElement):
                 return self
             case _:
                 return super().__isub__(operand)
-            
+
+
+# PSEUDO-CLASS NOTE WITH PRE-DEFINED DURATIONS
+
+class N1(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N1`
+
+    An `N1` is a `Note` with a default `NoteValue` of `1`, also known as whole-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1), *parameters)
+
+class N2(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N2`
+
+    An `N2` is a `Note` with a default `NoteValue` of `1/2`, also known as half-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/2), *parameters)
+
+class N4(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N4`
+
+    An `N4` is a `Note` with a default `NoteValue` of `1/4`, also known as quarter-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/4), *parameters)
+
+class N8(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N8`
+
+    An `N8` is a `Note` with a default `NoteValue` of `1/8`, also known as eight-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/8), *parameters)
+
+class N16(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N16`
+
+    An `N16` is a `Note` with a default `NoteValue` of `1/16`, also known as sixteenth-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/16), *parameters)
+
+class D1(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> D1`
+
+    An `D1` is a `Note` with a default `Dotted` of `1`, also known as dotted whole-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1), *parameters)
+
+class D2(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> D2`
+
+    An `D2` is a `Note` with a default `Dotted` of `1/2`, also known as dotted half-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/2), *parameters)
+
+class D4(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> D4`
+
+    An `D4` is a `Note` with a default `Dotted` of `1/4`, also known as dotted quarter-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/4), *parameters)
+
+class D8(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> D8`
+
+    An `D8` is a `Note` with a default `Dotted` of `1/8`, also known as eight-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/8), *parameters)
+
+class D16(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> D16`
+
+    An `D16` is a `Note` with a default `Dotted` of `1/16`, also known as dotted sixteenth-note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/16), *parameters)
+
+
 
 class KeyScale(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
