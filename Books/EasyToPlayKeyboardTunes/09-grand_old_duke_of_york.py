@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Harmonica", Channel(1)) + ProgramChange("Accordion", Channel(2)) >> Play()
+ProgramChange("Percussive organ", Channel(1)) + ProgramChange("Bass", Channel(2)) >> Play()
 
 settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantization(1/2)
 
@@ -55,7 +55,7 @@ chords = Chord(1) / [
     C2("C"), C2("G"), C_1("C")  # 7/8
 ]
 
-chords << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)
+chords << Channel(2) << Octave(3) << Velocity(70) << Gate(.99)
 chords >>= Smooth(4)
 
 
