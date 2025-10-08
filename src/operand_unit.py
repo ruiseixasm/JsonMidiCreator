@@ -325,6 +325,10 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0]
             case 6: # locrian     (B)
                 return [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0]
+            case 7: # Harmonic    (A)
+                return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1]
+            case 8: # Melodic     (A)
+                return [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1]
         return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
 
 
