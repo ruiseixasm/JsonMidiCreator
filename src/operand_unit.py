@@ -312,26 +312,9 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return 9    # A key
 
     def get_scale(self) -> list[int]:
-        match self._mode_0 % 7:
-            case 0: # Major Scale (C)
-                return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
-            case 5: # minor scale (A)
-                return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
-            case 1: # 1 dorian    (D)
-                return [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0]
-            case 2: # phrygian    (E)
-                return [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0]
-            case 3: # lydian      (F)
-                return [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-            case 4: # mixolydian  (G)
-                return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0]
-            case 6: # locrian     (B)
-                return [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0]
-            case 7: # Harmonic    (A)
-                return [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1]
-            case 8: # Melodic     (A)
-                return [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1]
-        return [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+        import operand_generic as og
+        scale_mode: int = self._mode_0 % 9 + 1
+        return og.Scale._scales[scale_mode]
 
 
     def is_enharmonic(self, tonic_key: int, key: int) -> bool:

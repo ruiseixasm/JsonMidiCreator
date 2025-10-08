@@ -1837,8 +1837,8 @@ class Composition(Container):
                                     mode_0: int = note["mode"]
                                     if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
                                         staff_modes[note_measure] = mode_0
-                                        mode_scale: int = mode_0 % 9 + 1
-                                        mode_marker: str = og.Scale._names[mode_scale][0]
+                                        scale_mode: int = mode_0 % 9 + 1
+                                        mode_marker: str = og.Scale._names[scale_mode][0]
                                         base_pitch: int = max_pitch - 12
                                         self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
                                         flag_update_key_signature = True
