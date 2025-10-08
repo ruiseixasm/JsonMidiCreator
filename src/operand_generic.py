@@ -1582,6 +1582,7 @@ class Scale(Generic):
 
     _names: list[list[str]] = [
         ["Chromatic", "chromatic"],
+        #                                                               START OF 7 KEYS/DEGREES SCALES
         # Diatonic Scales
         ["Major", "Maj", "maj", "M", "Ionian", "ionian"],
         ["Dorian", "dorian"],
@@ -1593,6 +1594,7 @@ class Scale(Generic):
         # Other Scales
         ["harmonic"],
         ["melodic"],
+        #                                                               END OF 7 KEYS/DEGREES SCALES
         ["octatonic_hw"],
         ["octatonic_wh"],
         ["pentatonic_maj", "Pentatonic"],
@@ -1608,6 +1610,7 @@ class Scale(Generic):
     #       C#    D#       F#    G#    A#
     #    C     D     E  F     G     A     B
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        #                                                               START OF 7 KEYS/DEGREES SCALES
         # Diatonic Scales
         [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],   # Major
         [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],   # Dorian
@@ -1619,7 +1622,8 @@ class Scale(Generic):
         # Other Scales
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],   # Harmonic
         [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],   # Melodic
-        [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0],   # Octatonic HW
+        #                                                               END OF 7 KEYS/DEGREES SCALES
+        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],   # Octatonic HW
         [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],   # Octatonic WH
         [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],   # Pentatonic Major
         [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],   # Pentatonic minor
