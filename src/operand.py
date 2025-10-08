@@ -856,7 +856,7 @@ class Operand:
         return operand
 
     
-    def __pow__(self, operand: 'Operand') -> Self:
+    def __pow__(self, operand: Any) -> Self:
         '''
         This operator ** tags another Operand to self that will be the target of the << operation and \
             be passed to self afterwards in a chained fashion.
@@ -865,6 +865,8 @@ class Operand:
             if isinstance(operand, Operand):
                 self << operand
             self._next_operand = operand
+        elif isinstance(operand, int):
+            return self * operand
         return self
     
 

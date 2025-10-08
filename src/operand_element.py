@@ -408,6 +408,12 @@ class Element(o.Operand):
         return super().__irshift__(operand)
 
 
+    def __pow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
+        if isinstance(operand, int):
+            return self / operand
+        return super().__pow__(operand)
+    
+
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__iadd__(operand)
     
