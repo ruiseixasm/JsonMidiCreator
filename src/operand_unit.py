@@ -305,9 +305,11 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
 
     def get_tonic_key(self) -> int:
         import operand_generic as og
-        zero_tonic_key: int = og.Scale.transpose_key(self._mode_0)
-        circle_fifths_position: int = self._unit
-        return (zero_tonic_key + circle_fifths_position * 7) % 12
+        if self._mode_0 % 7 < 7:    # Diatonic scale
+            zero_tonic_key: int = og.Scale.transpose_key(self._mode_0)
+            circle_fifths_position: int = self._unit
+            return (zero_tonic_key + circle_fifths_position * 7) % 12
+        return 9    # A key
 
     def get_scale(self) -> list[int]:
         match self._mode_0 % 7:
