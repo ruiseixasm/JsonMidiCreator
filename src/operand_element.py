@@ -1012,6 +1012,73 @@ class Rest(Element):
 
         return self_plotlist
 
+# PSEUDO-CLASS REST WITH PRE-DEFINED DURATIONS
+
+class R1(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R1`
+
+    An `R1` is a `Rest` with a default `NoteValue` of `1`, also known as whole-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1), *parameters)
+
+class R2(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R2`
+
+    An `R2` is a `Rest` with a default `NoteValue` of `1/2`, also known as half-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/2)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/2), *parameters)
+
+class R4(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R4`
+
+    An `R4` is a `Rest` with a default `NoteValue` of `1/4`, also known as quarter-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/4)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/4), *parameters)
+
+class R8(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R8`
+
+    An `R8` is a `Rest` with a default `NoteValue` of `1/8`, also known as eight-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/8)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/8), *parameters)
+
+class R16(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R16`
+
+    An `R16` is a `Rest` with a default `NoteValue` of `1/16`, also known as sixteenth-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/16)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/16), *parameters)
+
 
 class DeviceElement(Element):
     """`Element`
