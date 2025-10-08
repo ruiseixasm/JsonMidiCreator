@@ -877,7 +877,8 @@ class Unison(Element):
             case od.Pipe():
                 match operand._data:
                     case od.Elements():
-                        return operand._data << od.Pipe(self._elements)
+                        operand._data._data = self._elements
+                        return operand._data
                     case _:
                         return super().__mod__(operand)
             case od.Elements():
@@ -3311,7 +3312,8 @@ class Tuplet(ChannelElement):
                 match operand._data:
                     case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
                     case od.Elements():
-                        return operand._data << od.Pipe(self._elements)
+                        operand._data._data = self._elements
+                        return operand._data
                     case _:
                         return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
@@ -3401,7 +3403,7 @@ class Tuplet(ChannelElement):
             case Tuplet():
                 super().__lshift__(operand)
                 self._swing     = operand._swing
-                self._elements  = self.deep_copy(operand % od.Pipe( list() ))
+                self._elements  = self.deep_copy(operand._elements)
             case od.Pipe():
                 match operand._data:
                     case ra.Swing():            self._swing = operand._data._rational
