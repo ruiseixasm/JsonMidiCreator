@@ -68,7 +68,7 @@ Less = Bellow
 Section = Part
 
 # Label aliases
-Nul = Null()
+null = Null()
 
 # Note Values alias, abbreviations
 whole = NoteValue(1/1)
