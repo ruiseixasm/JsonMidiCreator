@@ -1078,6 +1078,58 @@ class R16(Rest):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/16), *parameters)
 
+class RD2(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD2`
+
+    An `RD2` is a `Rest` with a default `Dotted` of `1/2`, also known as dotted half-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/2)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/2), *parameters)
+
+class RD4(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD4`
+
+    An `RD4` is a `Rest` with a default `Dotted` of `1/4`, also known as dotted quarter-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/4)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/4), *parameters)
+
+class RD8(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD8`
+
+    An `RD8` is a `Rest` with a default `Dotted` of `1/8`, also known as dotted eight-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/8)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/8), *parameters)
+
+class RD16(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD16`
+
+    An `RD16` is a `Rest` with a default `Dotted` of `1/16`, also known as dotted sixteenth-rest.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/16)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/16), *parameters)
+
 
 class DeviceElement(Element):
     """`Element`
@@ -1245,13 +1297,13 @@ class Clock(DeviceElement):
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
-                    case _:                 return super().__mod__(operand)
+                    case _:                     return super().__mod__(operand)
             case oc.Devices():          return oc.Devices(self._devices)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
             case str():                 return ou.ClockStopModes(self._clock_stop_mode) % str()
-            case _:                 return super().__mod__(operand)
+            case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
