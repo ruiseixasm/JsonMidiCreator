@@ -974,7 +974,10 @@ class Degree(PitchParameter):
             self._unit = Degree._string_to_degree[string]
         else:
             try:
-                self << float(string)
+                if string.count(".") > 0:
+                    self << float(string)
+                else:
+                    self << int(string)
             except ValueError:
                 pass
         return self
