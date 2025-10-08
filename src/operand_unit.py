@@ -968,6 +968,7 @@ class Degree(PitchParameter):
         semitones_offset: int = 0
         semitones_offset += string.count("#")
         semitones_offset -= string.count("b")
+        self._semitones = Degree.semitone_float(semitones_offset)
         string = string.replace("#", "").replace("b", "")
         if string in Degree._string_to_degree:
             self._unit = Degree._string_to_degree[string]
@@ -976,7 +977,6 @@ class Degree(PitchParameter):
                 self << float(string)
             except ValueError:
                 pass
-        self._semitones = Degree.semitone_float(semitones_offset)
         return self
 
 
