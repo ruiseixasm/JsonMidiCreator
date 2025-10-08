@@ -1834,26 +1834,12 @@ class Composition(Container):
                                     if changed_last_mode_measure < note_measure:
                                         last_mode_measure = changed_last_mode_measure
                                 
-                                    mode: int = note["mode"]
-                                    if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode:
-                                        staff_modes[note_measure] = mode
+                                    mode_0: int = note["mode"]
+                                    if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
+                                        staff_modes[note_measure] = mode_0
+                                        mode_scale: int = mode_0 % 9 + 1
+                                        mode_marker: str = og.Scale._names[mode_scale][0]
                                         base_pitch: int = max_pitch - 12
-                                        mode_marker: str = 'Major'
-                                        match note['mode']:
-                                            case 0:
-                                                pass
-                                            case 5:
-                                                mode_marker = 'minor'
-                                            case 1:
-                                                mode_marker = 'Dorian'
-                                            case 2:
-                                                mode_marker = 'Phrygian'
-                                            case 3:
-                                                mode_marker = 'Lydian'
-                                            case 4:
-                                                mode_marker = 'Mixolydian'
-                                            case 6:
-                                                mode_marker = 'Locrian'
                                         self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
                                         flag_update_key_signature = True
                                         last_mode_measure = note_measure
