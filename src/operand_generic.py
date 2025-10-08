@@ -1592,8 +1592,8 @@ class Scale(Generic):
         ["minor", "min", "m", "Aeolian", "aeolian"],
         ["Locrian", "locrian"],
         # Other Scales
-        ["harmonic"],
-        ["melodic"],
+        ["Harmonic", "harmonic"],
+        ["Melodic", "melodic"],
         #                                                               END OF 7 KEYS/DEGREES SCALES
         ["octatonic_hw"],
         ["octatonic_wh"],
