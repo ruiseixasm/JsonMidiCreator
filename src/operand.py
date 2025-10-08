@@ -768,15 +768,12 @@ class Operand:
     
     
     # operand is the pusher
-    def __rrshift__(self, operand: T) -> T:
-        operand_copy = Operand.deep_copy(operand)
-        return self.__irrshift__(operand_copy)
+    # This means: A >> B translates to B.copy(A), similar to B.copy() << A
+    def __rrshift__(self, operand: T) -> Self:
+        return self.copy(operand)
 
-    def __irrshift__(self, operand: T) -> T:
-        if isinstance(operand, tuple):
-            for single_operand in operand:
-                self.__irrshift__(single_operand)
-        return operand
+    def __irrshift__(self, operand: T) -> Self:
+        return self << operand
 
 
     def __add__(self, operand: any) -> Self:
