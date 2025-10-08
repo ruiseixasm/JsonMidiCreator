@@ -1756,6 +1756,10 @@ class Composition(Container):
                         if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
                             self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
 
+                    staff_modes: dict[int, int] = {}
+                    staff_tonic_keys: dict[int, int] = {}
+                    staff_sharps_or_flats: dict[int, list[int]] = {}
+                    
                     # Plot notes per Channel
                     for channel_0 in note_channels:
                         printed_channel_number: bool = False
@@ -1764,9 +1768,6 @@ class Composition(Container):
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
                         ]
-                        staff_modes: dict[int, int] = {}
-                        staff_tonic_keys: dict[int, int] = {}
-                        staff_sharps_or_flats: dict[int, list[int]] = {}
                         last_mode_measure: int = -1
                         last_tonic_key_measure: int = -1
                         last_sharps_or_flats_measure: int = -1
@@ -1823,7 +1824,16 @@ class Composition(Container):
                                 note_measure: int = int(note["position_on"] // beats_per_measure)
                                 flag_update_key_signature: bool = False
 
+
                                 if note_measure not in staff_modes:
+
+                                    # Updates the last_mode_measure
+                                    changed_last_mode_measure: int = last_mode_measure
+                                    while changed_last_mode_measure < note_measure and changed_last_mode_measure not in staff_modes:
+                                        changed_last_mode_measure += 1
+                                    if changed_last_mode_measure < note_measure:
+                                        last_mode_measure = changed_last_mode_measure
+                                
                                     mode: int = note["mode"]
                                     if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode:
                                         staff_modes[note_measure] = mode
@@ -1851,6 +1861,14 @@ class Composition(Container):
                                     last_mode_measure = note_measure
 
                                 if note_measure not in staff_tonic_keys:
+                                    
+                                    # Updates the last_tonic_key_measure
+                                    changed_last_tonic_key_measure: int = last_tonic_key_measure
+                                    while changed_last_tonic_key_measure < note_measure and changed_last_tonic_key_measure not in staff_tonic_keys:
+                                        changed_last_tonic_key_measure += 1
+                                    if changed_last_tonic_key_measure < note_measure:
+                                        last_tonic_key_measure = changed_last_tonic_key_measure
+                                
                                     tonic_key: int = note["tonic_key"]
                                     if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
                                         staff_tonic_keys[note_measure] = tonic_key
