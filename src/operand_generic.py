@@ -1580,30 +1580,30 @@ class Scale(Generic):
         return self
     
 
-    _names: list[list[str]] = [
-        ["Chromatic", "chromatic"],
+    _names: tuple[tuple[str]] = (
+        ("Chromatic", "chromatic"),
         #                                                               START OF 7 KEYS/DEGREES SCALES
         # Diatonic Scales
-        ["Major", "Maj", "maj", "M", "Ionian", "ionian"],
-        ["Dorian", "dorian"],
-        ["Phrygian", "phrygian"],
-        ["Lydian", "lydian"],
-        ["Mixolydian", "mixolydian"],
-        ["minor", "min", "m", "Aeolian", "aeolian"],
-        ["Locrian", "locrian"],
+        ("Major", "Maj", "maj", "M", "Ionian", "ionian"),
+        ("Dorian", "dorian"),
+        ("Phrygian", "phrygian"),
+        ("Lydian", "lydian"),
+        ("Mixolydian", "mixolydian"),
+        ("minor", "min", "m", "Aeolian", "aeolian"),
+        ("Locrian", "locrian"),
         # Other Scales
-        ["Harmonic", "harmonic"],
-        ["Melodic", "melodic"],
+        ("Harmonic", "harmonic"),
+        ("Melodic", "melodic"),
         #                                                               END OF 7 KEYS/DEGREES SCALES
-        ["octatonic_hw"],
-        ["octatonic_wh"],
-        ["pentatonic_maj", "Pentatonic"],
-        ["pentatonic_min", "pentatonic"],
-        ["Diminished", "diminished"],
-        ["Augmented", "augmented"],
-        ["Blues", "blues"],
-        ["Whole-tone", "Whole tone", "Whole", "whole"]
-    ]
+        ("octatonic_hw"),
+        ("octatonic_wh"),
+        ("pentatonic_maj", "Pentatonic"),
+        ("pentatonic_min", "pentatonic"),
+        ("Diminished", "diminished"),
+        ("Augmented", "augmented"),
+        ("Blues", "blues"),
+        ("Whole-tone", "Whole tone", "Whole", "whole")
+    )
 
     _scales: tuple[tuple[int]] = (
     #       Db    Eb       Gb    Ab    Bb
@@ -1633,7 +1633,7 @@ class Scale(Generic):
         (1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0)    # Whole-tone
     )
 
-    _tonics: list[int] = [
+    _tonics: tuple[int] = (
         # Chromatic scale
         0,  # C
         # Diatonic scales
@@ -1665,7 +1665,7 @@ class Scale(Generic):
         9,  # A
         # Whole-tone
         0   # C
-    ]
+    )
 
     @staticmethod
     def get_tonic_key(scale: list[int]) -> int:
@@ -1704,12 +1704,12 @@ class Scale(Generic):
             return Scale._names[scale_number][0]
 
     @staticmethod
-    def get_scale(scale: int | str | list = 0) -> list:
+    def get_scale(scale: int | str | list = 0) -> tuple[int]:
         if scale != [] and scale != -1 and scale != "":
             scale_number = Scale.get_scale_number(scale)
             if scale_number >= 0:
                 return Scale._scales[scale_number]
-        return []   # Has no scale at all
+        return tuple([])    # Has no scale at all
 
 
 class Arpeggio(Generic):
