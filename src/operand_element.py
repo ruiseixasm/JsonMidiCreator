@@ -864,7 +864,7 @@ class Unison(Element):
 
     Parameters
     ----------
-    list([Note(ou.Channel(2)), Note(ou.Channel(6))]) : A list with all the elements grouped by `Unison`.
+    Elements(Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))) : Series of elements grouped by `Unison`.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
@@ -3254,7 +3254,7 @@ class Tuplet(ChannelElement):
 
     Parameters
     ----------
-    list([Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]) : List with all Tuplet elements.
+    Elements(Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))) : Series of elements.
     Swing(0.5) : The ratio of time the `Note` is pressed.
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
