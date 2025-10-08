@@ -75,6 +75,6 @@ chords >>= Smooth(4)
 
 
 silent_night = melody + chords << Title("Oh Susanna")
-(melody + chords.copy(Disable())) / 2 >> Plot(composition=chords / 2)
+melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2)
 
 
