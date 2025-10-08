@@ -2845,6 +2845,209 @@ class C2(Chord):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/2), *parameters)
 
+class C4(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C4`
+
+    A `C4` is a Chord with a default `NoteValue` of `1/4`, also known as quarter-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/4), *parameters)
+
+class C8(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C8`
+
+    A `C8` is a Chord with a default `NoteValue` of `1/8`, also known as eight-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/8), *parameters)
+
+class C16(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C16`
+
+    A `C16` is a Chord with a default `NoteValue` of `1/16`, also known as sixteenth-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(NoteValue(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.NoteValue(1/16), *parameters)
+
+class CD2(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD2`
+
+    A `CD2` is a Chord with a default `Dotted` of `1/2`, also known as dotted half-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/2), *parameters)
+
+class CD4(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD4`
+
+    A `CD4` is a Chord with a default `Dotted` of `1/4`, also known as dotted quarter-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/4), *parameters)
+
+class CD8(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD8`
+
+    A `CD8` is a Chord with a default `Dotted` of `1/8`, also known as dotted eight-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/8), *parameters)
+
+class CD16(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD16`
+
+    A `CD16` is a Chord with a default `Dotted` of `1/16`, also known as dotted sixteenth-note chord.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Dotted(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Dotted(1/16), *parameters)
+
 
 class Retrigger(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Retrigger`
