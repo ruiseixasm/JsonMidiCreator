@@ -612,23 +612,22 @@ class Element(o.Operand):
                         case int():
                             if element_parameter == 0:
                                 new_elements.append( self.copy(next_position) )
-                            if element_parameter < 0:
+                            elif element_parameter < 0:
                                 source_element: Element = new_elements[element_parameter]
                                 new_elements.append( source_element.copy(parameter, next_position) )
-                                next_position += source_element._duration_beats
                             else:
                                 source_element: Element = self
                                 if new_elements:
                                     source_element = new_elements[-1]
                                 for _ in range(element_parameter):
                                     new_elements.append( source_element.copy(next_position) )
-                                    next_position += source_element._duration_beats
+                                    next_position += new_elements[-1]._duration_beats
                                 continue    # avoids the extra position increment done bellow
                         case dict():
                             for index, parameter in element_parameter.items():
                                 source_element: Element = new_elements[index]
                                 new_elements.append( source_element.copy(parameter, next_position) )
-                                next_position += source_element._duration_beats
+                                next_position += new_elements[-1]._duration_beats
                             continue    # avoids the extra position increment done bellow
                         case Element(): # does an element wrapping
                             new_elements.append( element_parameter.copy(next_position) )
@@ -2084,10 +2083,10 @@ class N16(Note):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/16), *parameters)
 
-class D2(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> D2`
+class ND2(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> ND2`
 
-    An `D2` is a `Note` with a default `Dotted` of `1/2`, also known as dotted half-note.
+    An `ND2` is a `Note` with a default `Dotted` of `1/2`, also known as dotted half-note.
 
     Parameters
     ----------
@@ -2104,10 +2103,10 @@ class D2(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/2), *parameters)
 
-class D4(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> D4`
+class ND4(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> ND4`
 
-    An `D4` is a `Note` with a default `Dotted` of `1/4`, also known as dotted quarter-note.
+    An `ND4` is a `Note` with a default `Dotted` of `1/4`, also known as dotted quarter-note.
 
     Parameters
     ----------
@@ -2124,10 +2123,10 @@ class D4(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/4), *parameters)
 
-class D8(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> D8`
+class ND8(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> ND8`
 
-    An `D8` is a `Note` with a default `Dotted` of `1/8`, also known as eight-note.
+    An `ND8` is a `Note` with a default `Dotted` of `1/8`, also known as eight-note.
 
     Parameters
     ----------
@@ -2144,10 +2143,10 @@ class D8(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/8), *parameters)
 
-class D16(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> D16`
+class ND16(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> ND16`
 
-    An `D16` is a `Note` with a default `Dotted` of `1/16`, also known as dotted sixteenth-note.
+    An `ND16` is a `Note` with a default `Dotted` of `1/16`, also known as dotted sixteenth-note.
 
     Parameters
     ----------

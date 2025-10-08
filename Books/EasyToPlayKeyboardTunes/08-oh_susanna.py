@@ -35,13 +35,13 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantizati
 upbeat = Note(1/8, Beat(3)) / 2
 phrase_1 = Note() / [
         "3", "5", 3/8, N8("6"),
-        N4("5"), "3", D4("1"), N8("2"),
+        N4("5"), "3", ND4("1"), N8("2"),
         N4("3"), 1, "2", "1"
     ]
 phrase_2 = Note() / [
-        N2("2"), Rest(), {0: N4("1")}, "2",
+        N2("2"), Rest(), {0: N8("1")}, "2",
         N4("3"), "5", 3/8, N8("6"),
-        N4("5"), "3", D4("1"), N8("2"),
+        N4("5"), "3", ND4("1"), N8("2"),
         N4("3"), 1, "2", 1
     ]
 phrase_3 = Note() / [
@@ -75,6 +75,6 @@ chords >>= Smooth(4)
 
 
 silent_night = melody + chords << Title("Oh Susanna")
-(melody + chords.copy(Disable())) * 2 >> Plot(composition=chords * 2)
+(melody + chords.copy(Disable())) / 2 >> Plot(composition=chords / 2)
 
 
