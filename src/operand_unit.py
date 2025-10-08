@@ -789,14 +789,14 @@ class Degree(PitchParameter):
     def degree_int(self) -> int:
         return self._unit
 
-    def semitones_int(self) -> int:
-        semitones_int: int = round(self._semitones * 10)
-        if semitones_int > 0:
-            if semitones_int % 2:  # Odd means Sharp
-                semitones_int = (semitones_int + 1) // 2
+    def semitones_offset(self) -> int:
+        semitones: int = round(self._semitones * 10)
+        if semitones > 0:
+            if semitones % 2:  # Odd means Sharp
+                semitones = (semitones + 1) // 2
             else:   # Even means Flat
-                semitones_int = semitones_int // 2 * (-1)
-            return semitones_int
+                semitones = semitones // 2 * (-1)
+            return semitones
         return 0
 
     @staticmethod
@@ -819,9 +819,15 @@ class Degree(PitchParameter):
                 if formal_degree > 0:
                     formal_degree -= 1
                 formal_degree = formal_degree % 7 + 1
+                degree_string: str = str( formal_degree )
                 if self._semitones == 0.0:
-                    return str( formal_degree )
-                return str( round(formal_degree + self._semitones, 1) )
+                    return degree_string
+                semitones_offset: int = self.semitones_offset()
+                if semitones_offset > 0:
+                    degree_string += "#" * semitones_offset
+                elif semitones_offset < 0:
+                    degree_string += "b" * (semitones_offset * -1)
+                return degree_string
             case Sharp():
                 semitones_int: int = round(self._semitones * 10)
                 if semitones_int % 2 == 1:
@@ -900,7 +906,7 @@ class Degree(PitchParameter):
         match number:
             case Degree():
                 degree: int = self._unit + number._unit
-                semitones_int: int = self.semitones_int() + number.semitones_int()
+                semitones_int: int = self.semitones_offset() + number.semitones_offset()
                 if degree < 0:
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
@@ -922,7 +928,7 @@ class Degree(PitchParameter):
         match number:
             case Degree():
                 degree: int = self._unit - number._unit
-                semitones_int: int = self.semitones_int() - number.semitones_int()
+                semitones_int: int = self.semitones_offset() - number.semitones_offset()
                 if degree < 0:
                     self << degree - Degree.semitone_float(semitones_int)
                 else:
@@ -944,7 +950,7 @@ class Degree(PitchParameter):
         match number:
             case int():
                 self._unit: int = self.degree_int() * number
-                semitones_int: int = self.semitones_int() * number
+                semitones_int: int = self.semitones_offset() * number
                 self._semitones = Degree.semitone_float(semitones_int)
             case _:
                 super().__imul__(number)
@@ -956,7 +962,7 @@ class Degree(PitchParameter):
             case int():
                 if number != 0:
                     self._unit: int = self.degree_int() / number
-                    semitones_int: int = self.semitones_int() / number
+                    semitones_int: int = self.semitones_offset() / number
                     self._semitones = Degree.semitone_float(semitones_int)
             case _:
                 super().__itruediv__(number)

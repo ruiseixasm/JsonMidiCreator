@@ -481,7 +481,7 @@ class Pitch(Generic):
         return 0
 
     def degree_accidentals(self) -> int:
-        return ou.Degree(self._degree_0).semitones_int()
+        return ou.Degree(self._degree_0).semitones_offset()
 
     def scale_transposition(self, degree_transposition: int) -> int:
         """

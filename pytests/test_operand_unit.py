@@ -157,15 +157,19 @@ def test_degree_accidentals():
 def test_degree_string():
     degree = Degree()
     assert degree == 1.0
+    assert degree == "1"
 
     degree << "2"
     assert degree == 2.0
+    assert degree == "2"
 
     degree << "2#"
     assert degree == 2.1
+    assert degree == "2#"
 
     degree << "2b"
     assert degree == 2.2
+    assert degree == "2b"
 
 # test_degree_string()
 
@@ -204,6 +208,7 @@ def test_add_degree():
     assert degree_7_1 == 7.1
 
 # test_add_degree()
+
 
 def test_sub_degree():
     sharp_degree = Degree(2.1)  # .1 means Sharp
