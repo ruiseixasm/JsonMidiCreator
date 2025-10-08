@@ -1538,9 +1538,9 @@ class Scale(Generic):
             case od.Serialization():
                 self.loadSerialization(operand % od.Pipe( dict() ))
             case str():
-                self_scale = __class__.get_scale(operand)
+                self_scale = Scale.get_scale(operand)
                 if len(self_scale) == 12:
-                    self._scale = self_scale.copy()
+                    self._scale = list(self_scale)
             case list():
                 if len(operand) == 12 and all(x in {0, 1} for x in operand) and any(x == 1 for x in operand):
                     self._scale = operand.copy()
@@ -1605,33 +1605,33 @@ class Scale(Generic):
         ["Whole-tone", "Whole tone", "Whole", "whole"]
     ]
 
-    _scales: list[list[int]] = [
+    _scales: tuple[tuple[int]] = (
     #       Db    Eb       Gb    Ab    Bb
     #       C#    D#       F#    G#    A#
     #    C     D     E  F     G     A     B
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
         #                                                               START OF 7 KEYS/DEGREES SCALES
         # Diatonic Scales
-        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],   # Major
-        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],   # Dorian
-        [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # Phrygian
-        [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],   # Lydian
-        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],   # Mixolydian
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # minor (Aeolian)
-        [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],   # Locrian
+        (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1),   # Major
+        (1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0),   # Dorian
+        (1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0),   # Phrygian
+        (1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1),   # Lydian
+        (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0),   # Mixolydian
+        (1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0),   # minor (Aeolian)
+        (1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0),   # Locrian
         # Other Scales
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],   # Harmonic
-        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],   # Melodic
+        (1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1),   # Harmonic
+        (1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1),   # Melodic
         #                                                               END OF 7 KEYS/DEGREES SCALES
-        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],   # Octatonic HW
-        [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],   # Octatonic WH
-        [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],   # Pentatonic Major
-        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],   # Pentatonic minor
-        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],   # Diminished
-        [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],   # Augmented
-        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],   # Blues
-        [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]    # Whole-tone
-    ]
+        (1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0),   # Octatonic HW
+        (1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1),   # Octatonic WH
+        (1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0),   # Pentatonic Major
+        (1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0),   # Pentatonic minor
+        (1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0),   # Diminished
+        (1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1),   # Augmented
+        (1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0),   # Blues
+        (1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0)    # Whole-tone
+    )
 
     _tonics: list[int] = [
         # Chromatic scale
@@ -1678,36 +1678,37 @@ class Scale(Generic):
     def get_scale_number(scale: int | str | list = 0) -> int:
         match scale:
             case int():
-                total_scales = len(__class__._scales)
+                total_scales = len(Scale._scales)
                 if scale >= 0 and scale < total_scales:
                     return scale
             case str():
                 scale_name = scale.strip()
-                for index, names in enumerate(__class__._names):
+                for index, names in enumerate(Scale._names):
                     for name in names:
                         if name == scale_name:
                             return index
             case list():
                 if len(scale) == 12:
-                    for index, scale_list in enumerate(__class__._scales):
-                        if scale_list == scale:
+                    scale_tuple: tuple = tuple(scale)
+                    for index, scale_mode in enumerate(Scale._scales):
+                        if scale_tuple == scale_mode:
                             return index
         return -1
 
     @staticmethod
     def get_scale_name(scale: int | str | list = 0) -> str:
-        scale_number = __class__.get_scale_number(scale)
+        scale_number = Scale.get_scale_number(scale)
         if scale_number < 0:
             return "Unknown Scale!"
         else:
-            return __class__._names[scale_number][0]
+            return Scale._names[scale_number][0]
 
     @staticmethod
     def get_scale(scale: int | str | list = 0) -> list:
         if scale != [] and scale != -1 and scale != "":
-            scale_number = __class__.get_scale_number(scale)
+            scale_number = Scale.get_scale_number(scale)
             if scale_number >= 0:
-                return __class__._scales[scale_number]
+                return Scale._scales[scale_number]
         return []   # Has no scale at all
 
 

@@ -276,6 +276,8 @@ def test_keyscale_mod():
 
     assert key_scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
 
+# test_keyscale_mod()
+
 
 def test_chord_mod():
 

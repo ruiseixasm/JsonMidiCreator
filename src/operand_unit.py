@@ -311,7 +311,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             return (zero_tonic_key + circle_fifths_position * 7) % 12
         return 9    # A key
 
-    def get_scale(self) -> list[int]:
+    def get_scale(self) -> tuple[int]:
         import operand_generic as og
         scale_mode: int = self._mode_0 % 9 + 1
         return og.Scale._scales[scale_mode]
@@ -359,7 +359,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 return Flats(0)
             case og.Scale():            return og.Scale(self % list())
             case Mode():                return Mode(self._mode_0 + 1)
-            case list():                return self.get_scale()
+            case list():                return list(self.get_scale())
             case str():
                 if self._unit < 0:
                     flats: int = self._unit * -1
