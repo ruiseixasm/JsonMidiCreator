@@ -28,7 +28,7 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Harmonica", Channel(1)) + ProgramChange("Accordion", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4)
+settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantization(1/2)
 
 
 
@@ -55,7 +55,7 @@ phrase_4 = Note(3/4) / [
     ]
 
 melody = upbeat * phrase_1 * phrase_2 * phrase_3 * phrase_2 * phrase_4
-melody << Title("Oh Susanna") << Velocity(85)
+melody << Title("Grand Old Duke of York") << Velocity(85)
 
 
 
