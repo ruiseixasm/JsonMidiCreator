@@ -32,43 +32,28 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantizatio
 
 
 
-upbeat = Note(1/8, Beat(3)) / 2
-phrase_1 = Note() / [
-        "3", "5", 3/8, N8("6"),
-        N4("5"), "3", ND4("1"), N8("2"),
-        N4("3"), 1, "2", "1"
-    ]
-phrase_2 = Note() / [
-        N2("2"), Rest(), {0: N8("1")}, "2",
-        N4("3"), "5", 3/8, N8("6"),
-        N4("5"), "3", ND4("1"), N8("2"),
-        N4("3"), 1, "2", 1
-    ]
-phrase_3 = Note() / [
-        N_1(),
-        N2("4"), 1,
-        N4("6"), 1/2, 1/4,
-        "5", 1, "3", "1"
-    ]
-phrase_4 = Note(3/4) / [
-        1
-    ]
+melody = Note(Beat(3)) / [
+    N8("E"), "D",               # 0
+    N4("C"), 3,                 # 1
+    1/2, R4(), N4("C"),         # 2
+    "D", 3,                     # 3
+    1/2, R4(), N4("D"),         # 4
+    "E", 2, 1/8, 1,             # 5
+    N4("F"), 1/8, 1, 1/4, 1/8, 1,   # 6
+    N4("E"), "C", "D", 1,       # 7
+    N2("C"), R4()               # 8
+]
 
-melody = upbeat * phrase_1 * phrase_2 * phrase_3 * phrase_2 * phrase_4
 melody << Title("Grand Old Duke of York") << Velocity(85)
 
 
 
-chords = Chord(1, "G", Bars(3)) / [
-        0,
-        C_1("D"),
-        C_2("G"),
-        C_1("D"), "G",
-        C_2("C"),
-        C_1("G"), C_1("D"),
-        C_2("G"),
-        C_1("D"), "G"
-    ]
+chords = Chord(1) / [
+    C_2("C"),                   # 1/2
+    C_2("G"),                   # 3/4
+    C_1("C"), C_1("F"),         # 5/6
+    C2("C"), C2("G"), C_1("C")  # 7/8
+]
 
 chords << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)
 chords >>= Smooth(4)

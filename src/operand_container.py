@@ -1759,7 +1759,7 @@ class Composition(Container):
                     staff_modes: dict[int, int] = {}
                     staff_tonic_keys: dict[int, int] = {}
                     staff_sharps_or_flats: dict[int, list[int]] = {}
-                    
+
                     # Plot notes per Channel
                     for channel_0 in note_channels:
                         printed_channel_number: bool = False
@@ -1773,7 +1773,7 @@ class Composition(Container):
                         last_sharps_or_flats_measure: int = -1
 
                         for note in channel_plotlist:
-                            if type(note["self"]) is oe.Rest:
+                            if isinstance(note["self"], oe.Rest):
                                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
                                 color_alpha: float = 1.0
                                 if note["masked"]:
