@@ -70,15 +70,6 @@ Section = Part
 # Label aliases
 Nul = Null()
 
-# Keys
-C = Key("C")
-D = Key("D")
-E = Key("E")
-F = Key("F")
-G = Key("G")
-A = Key("A")
-B = Key("B")
-
 # Note Values alias, abbreviations
 whole = NoteValue(1/1)
 half = NoteValue(1/2)

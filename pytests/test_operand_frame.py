@@ -37,7 +37,7 @@ def test_foreach_mod():
     notes = Note() / 7  # default degree 1 relative to the note C
 
     notes += frame  # Increases the Degree for each **stacked** element
-    clip = Clip() / Note(D) / Note(E) / Note(F) / Note(G) / Note(A) / Note(D) / Note(E)  # Makes sure the notes are **staked**
+    clip = Clip() / Note("D") / Note("E") / Note("F") / Note("G") / Note("A") / Note("D") / Note("E")  # Makes sure the notes are **staked**
               #       1      2      3      4      5      1      2
               # +     1      1      1      1      1      1      1
               # =     2      3      4      5      6      2      3

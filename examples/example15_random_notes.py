@@ -32,6 +32,6 @@ some_notes >> rest_play
 
 some_notes = Note() * Input(Cycle(20))**Choice(3, 4, 5, 6, 7)
 some_notes << Input(SinX() * 4.11)**Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter) >> Stack()
-some_notes << Input(SinX() * 100)**CountDown(5, 1, 5)**Choice(Octave(3), Octave(4), Octave(5)) << Input(SinX())**Choice(C, D, E, F, G, A, B)
+some_notes << Input(SinX() * 100)**CountDown(5, 1, 5)**Choice(Octave(3), Octave(4), Octave(5)) << Input(SinX())**Choice("C", "D", "E", "F", "G", "A", "B")
 some_notes >> rest_play
 

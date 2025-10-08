@@ -26,7 +26,7 @@ settings << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> Stack()
-notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
+notes << Foreach("A", ("F", 5), "E", "D", "C", "A", "B", "C", "B")
 notes % Above(Position(0, Beats(0))) >> Smooth()
 notes >> Rest >> Play()
 

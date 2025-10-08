@@ -503,7 +503,7 @@ def test_note_pitch():
     assert note % str() == "C"
     assert (note + 0.0) % str() == "C"
 
-    note_e: Note = Note(E)
+    note_e: Note = Note("E")
     assert note_e % str() == "E"
 
     # Test all semitones from 0 to 11

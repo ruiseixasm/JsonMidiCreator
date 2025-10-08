@@ -34,6 +34,6 @@ chords = Chord() * 4 << Foreach("Bb", "Gm", "Eb", "Bb") << Octave(3)
 # chords >> Rest() >> Play()
 melody + chords >> Link() >> Rest() >> Play()
 
-chords_2 = Chord(1/2) * 6 + Chord() >> Stack() << Foreach("Bb", "Gm", "Eb", "Dm", "Eb", F, "Bb") << Octave(3)
+chords_2 = Chord(1/2) * 6 + Chord() >> Stack() << Foreach("Bb", "Gm", "Eb", "Dm", "Eb", "F", "Bb") << Octave(3)
 melody + chords_2 >> Link() >> Rest() >> Play()
 

@@ -34,10 +34,10 @@ original_melody = Note() * 14 << Foreach(
     quarter, quarter, dotted_quarter, eight,
     whole) >> Stack() # Foreach requires Stacking!
 original_melody << Foreach(
-    (E, 5), F, E, D,
-    C, D, E, D, E,
-    D, E, D, C,
-    C) >> Smooth()
+    ("E", 5), "F", "E", "D",
+    "C", "D", "E", "D", "E",
+    "D", "E", "D", "C",
+    "C") >> Smooth()
 original_melody >> Rest >> Play()
 
 melodic_outline = original_melody % Steps(0) + original_melody % Measures(1) % Beats(2) >> LJ
@@ -48,7 +48,7 @@ structural_tones >> Rest >> Play()
 
 chords = Chord(1/1) * 6
 chords % Nth(2, 3, 4, 5) << 1/2
-chords >> Stack() << Foreach(C, "Am", "Em", "Dm", G, C)
+chords >> Stack() << Foreach("C", "Am", "Em", "Dm", "G", "C")
 chords >> Rest >> Play()
 structural_tones + chords >> Link() >> Rest >> Play()
 original_melody + chords >> Link() >> Rest >> Play()

@@ -39,10 +39,10 @@ melody = Note() / [
 
 
 melody << Each(
-        G, A, G, F,   E, F, G,
-        D, E, F,      E, F, G,
-        G, A, G, F,   E, F, G,
-        D,    G,      E, C
+        "G", "A", "G", "F",   "E", "F", "G",
+        "D", "E", "F",      "E", "F", "G",
+        "G", "A", "G", "F",   "E", "F", "G",
+        "D",    "G",      "E", "C"
     )**RootKey()
 
 chords = Chord("C", 2*1.0) * Chord("G") * Chord("C") * Chord("C", 2.0) * Chord("G") * Chord("C") << Channel(2) << Octave(3) << Velocity(70) >> Smooth(4)

@@ -984,7 +984,7 @@ def test_scale_transposition():
 
 
 def test_pitch_modulation():
-    pitch_d_major: Pitch = Pitch(TonicKey(D))
+    pitch_d_major: Pitch = Pitch(TonicKey("D"))
     scale_degrees: list[str] = []
     for degree_0 in range(7):
         scale_degrees.append(

@@ -26,13 +26,13 @@ settings << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> Stack()
-notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
+notes << Foreach("A", ("F", 5), "E", "D", "C", "A", "B", "C", "B")
 notes % Above(Position(0, Beats(0))) >> Smooth()
 notes >> Rest >> Play()
 
 substitutions_chords = Chord() * 5 << Nth(3, 4)**half >> Stack()
-substitutions_chords << Foreach("F#m", G, "Bm", "Em7", G) << Octave(3)
-substitutions_chords = substitutions_chords + Note(A, Chord("Em7", Octave(3)) % Octave() - 1, half, Position(M3, B3)) >> Link()
+substitutions_chords << Foreach("F#m", "G", "Bm", "Em7", "G") << Octave(3)
+substitutions_chords = substitutions_chords + Note("A", Chord("Em7", Octave(3)) % Octave() - 1, half, Position(M3, B3)) >> Link()
 substitutions_chords >> Rest >> Play()
 
 notes + substitutions_chords >> Link() >> Rest >> Play()

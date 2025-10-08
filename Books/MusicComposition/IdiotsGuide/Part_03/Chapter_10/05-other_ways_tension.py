@@ -38,24 +38,24 @@ notes >> Rest() >> Play()
 
 settings << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link() >> Smooth()
+rising = Note() * 13 << Foreach("A", "G", "A", "B", "C", "B", "C", "D", "E", "D", "E", "F", "G") >> Link() >> Smooth()
 rising >> Rest() >> Play()
 
 settings << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
-faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> Stack() << Foreach(F, B, A, G, A, B, A, G, A, F)
+slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach("A", "D", "G", "C", "G", ("C", 5)) >> Link()
+faster = Note() * 10 << Measures(2) << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> Stack() << Foreach("F", "B", "A", "G", "A", "B", "A", "G", "A", "F")
 slower + faster >> Link() >> Rest() >> Play()
 
 settings << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 syncopation = Note() * 16 << Above(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> Stack()
-syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
+syncopation << Foreach("G", "A", "G", "B", "C", "B", "A", "B", "G", "A", "G", "F", "G", "C", "E", "D") >> Smooth()
 syncopation >> Rest() >> Play()
 
 settings << "#"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> Stack() >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> Stack() >> LJ << Foreach("D", "A", "B", "F", "G", "C", "B")
 volume >> Rest() >> Play()
 
 settings << ""
@@ -69,16 +69,16 @@ melodic_line = \
     dotted_rhythm >> sixteenth_group >> dotted_rhythm >> sixteenth_group >> \
     duplet >> dotted_rhythm % Reverse() >> sixteenth_group >> dotted_rhythm >> \
     sixteenth_group * 2 >> (Note() << half)
-melodic_line % Measures(0) << Foreach(B, C, B, A)
-melodic_line % Measures(1) % Beats(0) << Foreach(G, A, G)
-melodic_line % Measures(1) % Beats(1) << Iterate(F)
-melodic_line % Measures(1) % Beats(2) << Iterate(C, -1)
-melodic_line % Measures(1) % Beats(3) << Iterate(G)
-melodic_line % Measures(2) % Beats(0) << Foreach((D, 5), G)
-melodic_line % Measures(2) % Beats(1) << Iterate(A)
-melodic_line % Measures(2) % Beats(2) << Foreach(D, F, E, C)
-melodic_line % Measures(2) % Beats(3) << Foreach(D, C, D)
-melodic_line % Measures(3) << Foreach((G, 5), E, C, G, B, G, E, B, A)
+melodic_line % Measures(0) << Foreach("B", "C", "B", "A")
+melodic_line % Measures(1) % Beats(0) << Foreach("G", "A", "G")
+melodic_line % Measures(1) % Beats(1) << Iterate("F")
+melodic_line % Measures(1) % Beats(2) << Iterate("C", -1)
+melodic_line % Measures(1) % Beats(3) << Iterate("G")
+melodic_line % Measures(2) % Beats(0) << Foreach(("D", 5), "G")
+melodic_line % Measures(2) % Beats(1) << Iterate("A")
+melodic_line % Measures(2) % Beats(2) << Foreach("D", "F", "E", "C")
+melodic_line % Measures(2) % Beats(3) << Foreach("D", "C", "D")
+melodic_line % Measures(3) << Foreach(("G", 5), "E", "C", "G", "B", "G", "E", "B", "A")
 
 melodic_line % Measures(0) >> Smooth()
 melodic_line % Measures(1) >> Smooth()

@@ -26,7 +26,7 @@ settings << 40
 Key() % str() >> Print()
 
 chords_F = Chord(1/1) * 7
-chords_F << Foreach("Bdim", ("Dm", Inversion(2)), (F, Inversion(1)), "G7", "Em9", "CM11", ("Am13", Octave(3), Inversion(1)))
+chords_F << Foreach("Bdim", ("Dm", Inversion(2)), ("F", Inversion(1)), "G7", "Em9", "CM11", ("Am13", Octave(3), Inversion(1)))
 chords_F >> Rest >> Play()
 
 staff_chords_F = Chord(1/1, []) * 7
