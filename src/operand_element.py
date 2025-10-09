@@ -1020,6 +1020,19 @@ class Rest(Element):
 
 # PSEUDO-CLASS REST WITH PRE-DEFINED DURATIONS
 
+class R_1(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R_1`
+
+    An `R_1` is a `Rest` with a default duration of 1 `Measures`.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Rest Value, like, 1/4 or 1/16.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Measures(1), *parameters)
+
 class R1(Rest):
     """`Element -> DeviceElement -> ChannelElement -> Rest -> R1`
 
@@ -2042,6 +2055,26 @@ class Note(ChannelElement):
 
 # PSEUDO-CLASS NOTE WITH PRE-DEFINED DURATIONS
 
+class N_1(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N_1`
+
+    An `N_1` is a `Note` with a default duration of 1 `Measures`.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Measures(1), *parameters)
+
 class N1(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> N1`
 
@@ -2793,6 +2826,35 @@ class C_2(Chord):
     """
     def __init__(self, *parameters):
         super().__init__(ra.Measures(2), *parameters)
+
+class C_1(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C_1`
+
+    A `C_1` is a Chord with a default duration of 1 `Measures`.
+
+    Parameters
+    ----------
+    Size(3) : Sets the amount of nots being pressed, the default is a triad.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Dominant(False) : Defines the chord as `Dominant`.
+    Diminished(False) : Defines the chord as `Diminished`.
+    Augmented(False) : Defines the chord as `Augmented`.
+    Sus2(False) : Defines the chord with a 2nd Suspended.
+    Sus4(False) : Defines the chord with a 4th Suspended.
+    Scale([]), KeySignature, list, str, None : Sets the `Scale` to be used, `None` or `[]` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        super().__init__(ra.Measures(1), *parameters)
 
 class C1(Chord):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C1`
