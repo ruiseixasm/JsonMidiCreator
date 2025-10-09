@@ -45,7 +45,7 @@ phrase_2 = Note() / [
         N4("3"), 1, "2", 1
     ]
 phrase_3 = Note() / [
-        N_1(),
+        N1(),
         N2("4"), 1,
         N4("6"), 1/2, 1/4,
         "5", 1, "3", "1"
@@ -61,13 +61,13 @@ melody << Title("Oh Susanna") << Velocity(85)
 
 chords = Chord(1, "G", Bars(3)) / [
         0,
-        C_1("D"),
+        C1("D"),
         C_2("G"),
-        C_1("D"), "G",
+        C1("D"), "G",
         C_2("C"),
-        C_1("G"), C_1("D"),
+        C1("G"), C1("D"),
         C_2("G"),
-        C_1("D"), "G"
+        C1("D"), "G"
     ]
 
 chords << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)

@@ -1020,10 +1020,10 @@ class Rest(Element):
 
 # PSEUDO-CLASS REST WITH PRE-DEFINED DURATIONS
 
-class R_1(Rest):
-    """`Element -> DeviceElement -> ChannelElement -> Rest -> R_1`
+class R1(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R1`
 
-    An `R_1` is a `Rest` with a default `NoteValue` of `1`, also known as whole-rest.
+    An `R1` is a `Rest` with a default `NoteValue` of `1`, also known as whole-rest.
 
     Parameters
     ----------
@@ -2042,10 +2042,10 @@ class Note(ChannelElement):
 
 # PSEUDO-CLASS NOTE WITH PRE-DEFINED DURATIONS
 
-class N_1(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> N_1`
+class N1(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N1`
 
-    An `N_1` is a `Note` with a default `NoteValue` of `1`, also known as whole-note.
+    An `N1` is a `Note` with a default `NoteValue` of `1`, also known as whole-note.
 
     Parameters
     ----------
@@ -2710,7 +2710,7 @@ class Chord(KeyScale):
 class C_4(Chord):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C_4`
 
-    A `C_4` is a Chord with a default `NoteValue` of `4`.
+    A `C_4` is a Chord with a default duration of 4 `Measures`.
 
     Parameters
     ----------
@@ -2729,17 +2729,17 @@ class C_4(Chord):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(NoteValue(4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Measures(4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__(ra.NoteValue(4), *parameters)
+        super().__init__(ra.Measures(4), *parameters)
 
 class C_3(Chord):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C_3`
 
-    A `C_3` is a Chord with a default `NoteValue` of `3`.
+    A `C_3` is a Chord with a default duration of 3 `Measures`.
 
     Parameters
     ----------
@@ -2758,17 +2758,17 @@ class C_3(Chord):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(NoteValue(3)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Measures(3)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__(ra.NoteValue(3), *parameters)
+        super().__init__(ra.Measures(3), *parameters)
 
 class C_2(Chord):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C_2`
 
-    A `C_2` is a Chord with a default `NoteValue` of `2`.
+    A `C_2` is a Chord with a default duration of 2 `Measures`.
 
     Parameters
     ----------
@@ -2787,17 +2787,17 @@ class C_2(Chord):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(NoteValue(2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Measures(2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__(ra.NoteValue(2), *parameters)
+        super().__init__(ra.Measures(2), *parameters)
 
-class C_1(Chord):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C_1`
+class C1(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C1`
 
-    A `C_1` is a Chord with a default `NoteValue` of `1`, also known as whole-note chord.
+    A `C1` is a Chord with a default `NoteValue` of `1`, also known as whole-note chord.
 
     Parameters
     ----------

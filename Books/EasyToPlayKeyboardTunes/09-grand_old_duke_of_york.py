@@ -51,8 +51,8 @@ melody << Title("Grand Old Duke of York") << Velocity(85)
 chords = Chord(1) / [
     C_2("C"),                   # 1/2
     C_2("G"),                   # 3/4
-    C_1("C"), C_1("F"),         # 5/6
-    C2("C"), C2("G"), C_1("C")  # 7/8
+    C1("C"), C1("F"),         # 5/6
+    C2("C"), C2("G"), C1("C")  # 7/8
 ]
 
 chords << Channel(2) << Octave(3) << Velocity(70) << Gate(.99)
