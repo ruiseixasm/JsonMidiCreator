@@ -39,7 +39,7 @@ violin_2 += Foreach(-3, -2, -1, -3, -5, -3)**Degree()
 
 viola = Note(Channel(13)) / [1/1, 1/2] << Name("Viola")
 viola[1] /= 6
-viola << Previous(Pipe(Degree()))**Add(-5, 1, 1, -2, 4, 1, 1)**Pipe()   # Pipe does an Absolute setting of Degree
+viola << Previous(Pipe(Degree()), first_null=False)**Add(-5, 1, 1, -2, 4, 1, 1)**Pipe()   # Pipe does an Absolute setting of Degree
 # viola += Foreach(-5, -4, -3, -5, -1, 0, 1)**Degree()
 # viola >> Plot(block=False)
 
