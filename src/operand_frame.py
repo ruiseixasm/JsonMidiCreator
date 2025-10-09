@@ -671,20 +671,19 @@ class InputFilter(Left):
     """
     pass
 
-class All(InputFilter):
-    """`Frame -> Left -> InputFilter -> All`
+class Selector(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector`
 
-    An `All` lets any input to pass to the next `Frame`.
+    A `Selector` takes into consideration the input data in order to pass it to the next `Frame`.
 
     Parameters
     ----------
-    None : `All` doesn't have parameters to be set.
+    None : `Selector` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
-        return super().frame(input)
+    pass
 
-class Either(InputFilter):
-    """`Frame -> Left -> InputFilter -> Either`
+class Either(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
 
@@ -700,8 +699,8 @@ class Either(InputFilter):
                 return self._next_operand
         return ol.Null()
     
-class Neither(InputFilter):
-    """`Frame -> Left -> InputFilter -> Neither`
+class Neither(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
 
@@ -718,8 +717,8 @@ class Neither(InputFilter):
         return self._next_operand
     
 
-class First(InputFilter):
-    """`Frame -> Left -> InputFilter -> First`
+class First(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -740,8 +739,8 @@ class First(InputFilter):
                 return self._next_operand
         return ol.Null()
 
-class Last(InputFilter):
-    """`Frame -> Left -> InputFilter -> Last`
+class Last(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -766,8 +765,8 @@ class Last(InputFilter):
         return ol.Null()
 
 
-class Crossing(InputFilter):
-    """`Frame -> Left -> InputFilter -> Crossing`
+class Crossing(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Crossing`
 
     A `Crossing` selects all elements that start at the beginning of a Measure or end at the end of one.
     Note that `Crossing` only applies if there is a playable Measure before or after respectively.
@@ -786,88 +785,8 @@ class Crossing(InputFilter):
             return self._next_operand
         return ol.Null()
 
-class Odd(InputFilter):
-    """`Frame -> Left -> InputFilter -> Odd`
-
-    An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `Odd` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        if self._index % 2 == 1:    # Selected to pass
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class Even(InputFilter):
-    """`Frame -> Left -> InputFilter -> Even`
-
-    An `Even` only lets even nth inputs to be passed to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `Even` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        if self._index % 2 == 0:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class Every(InputFilter):
-    """`Frame -> Left -> InputFilter -> Every`
-
-    An `Every` only lets every other nth inputs to be passed to the next `Frame`.
-
-    Args:
-        nth (int): The nth input, as in every other 2nd or 4th.
-    """
-    def __init__(self, nth: int = 4):
-        super().__init__()
-        self._named_parameters['nths'] = nth
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class Nth(InputFilter):
-    """`Frame -> Left -> InputFilter -> Nth`
-
-    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
-    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
-
-    Parameters
-    ----------
-    int(None) : The set of nths to pass to the next `Frame`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._named_parameters['parameters'] = parameters
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        if self._index in self._named_parameters['parameters']:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class InputType(InputFilter):
-    """`Frame -> Left -> InputFilter -> InputType`
+class InputType(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> InputType`
 
     An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
 
@@ -882,8 +801,8 @@ class InputType(InputFilter):
         return ol.Null()
 
 
-class OnBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> OnBeat`
+class OnBeat(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
 
@@ -899,8 +818,8 @@ class OnBeat(InputFilter):
                 return super().frame(input)
         return ol.Null()
 
-class OffBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> OffBeat`
+class OffBeat(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
 
@@ -916,8 +835,8 @@ class OffBeat(InputFilter):
                 return super().frame(input)
         return ol.Null()
 
-class DownBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> DownBeat`
+class DownBeat(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
 
     An `DownBeat` selects only elements with their `Position` on the `Step` 0.
 
@@ -932,8 +851,8 @@ class DownBeat(InputFilter):
                 return super().frame(input)
         return ol.Null()
 
-class UpBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> UpBeat`
+class UpBeat(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
 
     An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
 
@@ -952,8 +871,8 @@ class UpBeat(InputFilter):
         return ol.Null()
 
 
-class BasicComparison(InputFilter):
-    """`Frame -> Left -> InputFilter -> BasicComparison`
+class BasicComparison(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
     A `BasicComparison` checks if the input meets a basic comparison condition before being passed to the next `Frame`.
 
@@ -984,7 +903,7 @@ class BasicComparison(InputFilter):
         return self << parameters
 
 class Match(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Match`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Match`
 
     An `Match` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
 
@@ -997,7 +916,7 @@ class Match(BasicComparison):
         return input == condition
 
 class IsNot(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> IsNot`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> IsNot`
 
     An `IsNot` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
 
@@ -1010,7 +929,7 @@ class IsNot(BasicComparison):
         return not input == condition
 
 class Above(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Above`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Above`
 
     The `Above` checks if the input is greater to **all** the conditions before being passed to the next `Frame`.
 
@@ -1023,7 +942,7 @@ class Above(BasicComparison):
         return input > condition
 
 class Bellow(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> Bellow`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Bellow`
 
     A `Bellow` checks if the input is less to **all** the conditions before being passed to the next `Frame`.
 
@@ -1036,7 +955,7 @@ class Bellow(BasicComparison):
         return input < condition
 
 class DownTo(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> DownTo`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> DownTo`
 
     A `DownTo` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
 
@@ -1049,7 +968,7 @@ class DownTo(BasicComparison):
         return input >= condition
 
 class UpTo(BasicComparison):
-    """`Frame -> Left -> InputFilter -> BasicComparison -> UpTo`
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> UpTo`
 
     An `UpTo` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
 
@@ -1060,6 +979,110 @@ class UpTo(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
+
+class Alternator(InputFilter):
+    """`Frame -> Left -> InputFilter -> Alternator`
+
+    An `Alternator` takes only into consideration its `Frame` state regardless of the input data.
+
+    Parameters
+    ----------
+    None : `Alternator` doesn't have parameters to be set.
+    """
+    pass
+
+class All(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> All`
+
+    An `All` lets any, or all, input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        return super().frame(input)
+
+class Odd(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> Odd`
+
+    An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Odd` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        if self._index % 2 == 1:    # Selected to pass
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.frame(input)
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Even(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> Even`
+
+    An `Even` only lets even nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Even` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        if self._index % 2 == 0:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.frame(input)
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Every(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> Every`
+
+    An `Every` only lets every other nth inputs to be passed to the next `Frame`.
+
+    Args:
+        nth (int): The nth input, as in every other 2nd or 4th.
+    """
+    def __init__(self, nth: int = 4):
+        super().__init__()
+        self._named_parameters['nths'] = nth
+
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.frame(input)
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Nth(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> Nth`
+
+    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
+    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of nths to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        if self._index in self._named_parameters['parameters']:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.frame(input)
+            return self._next_operand
+        else:
+            return ol.Null()
+
 
 
 class Get(Left):

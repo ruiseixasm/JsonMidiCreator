@@ -66,7 +66,7 @@ class Label(o.Operand):
 class Carrier(Label):
     """`Label -> Carrier`
 
-    A `Carrier` is a binary label that signals a successful passtrought or not.
+    A `Carrier` is a binary label that signals a successful passthrough or not.
 
     Parameters
     ----------
