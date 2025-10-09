@@ -2277,7 +2277,7 @@ class KeyScale(Note):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self << ra.Measures(1) % ra.Duration()  # By default a Scale and a Chord has one Measure duration
+        self << ra.Measures(1)  # By default a Scale and a Chord has 1 Measure duration
         self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
