@@ -411,7 +411,7 @@ class Element(o.Operand):
     def __ipow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, (int, list)):
             return self.__itruediv__(operand)
-        return self << operand
+        return super().__ipow__(operand)
     
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:

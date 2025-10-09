@@ -1419,8 +1419,8 @@ class Composition(Container):
 
     def __ipow__(self, operand: Any) -> Self:
         if isinstance(operand, int):
-            return self.__ipow__(operand)
-        return self << operand
+            return self.__imul__(operand)
+        return super().__ipow__(operand)
     
 
     def fit(self, tie_splits: bool = True) -> Self:
