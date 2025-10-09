@@ -2271,13 +2271,12 @@ class KeyScale(Note):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(ra.Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        super().__init__()
-        self << ra.Measures(1)  # By default a Scale and a Chord has 1 Measure duration
+        super().__init__(ra.Measures(1))    # By default a Scale and a Chord has 1 Measure duration
         self._inversion: int        = 0
         self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
