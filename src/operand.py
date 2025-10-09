@@ -865,9 +865,7 @@ class Operand:
             if isinstance(operand, Operand):
                 self << operand
             self._next_operand = operand
-        elif isinstance(operand, int):
-            return self * operand
-        return self
+        return self.copy(operand)
     
 
     def _tail_wrap(self, source: T) -> T:

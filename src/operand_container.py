@@ -1417,6 +1417,12 @@ class Composition(Container):
         return self
 
 
+    def __pow__(self, operand: Any) -> Self:
+        if isinstance(operand, int):
+            return self * operand
+        return self.copy(operand)
+    
+
     def fit(self, tie_splits: bool = True) -> Self:
         """
         Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.

@@ -411,7 +411,7 @@ class Element(o.Operand):
     def __pow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, int):
             return self / operand
-        return super().__pow__(operand)
+        return self.copy(operand)
     
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
