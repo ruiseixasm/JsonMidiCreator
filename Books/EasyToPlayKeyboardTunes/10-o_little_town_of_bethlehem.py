@@ -47,12 +47,9 @@ melody << Title("O Little Town of Bethlehem") << Velocity(85)
 
 
 
-chords = Chord(1) / [
-    C_2("C"),                   # 1/2
-    C_2("G"),                   # 3/4
-    C_1("C"), C_1("F"),         # 5/6
-    C2("C"), C2("G"), C_1("C")  # 7/8
-]
+chords = \
+    C2("D", 3, Beat(2)) / C_3("G") / C2()**["C", "D"] / \
+    C_4("G") / C_1("D") / C_2("G") / C2()**["C", "D"] / C_1("G")
 
 chords << Channel(2) << Octave(3) << Velocity(70) << Gate(.99)
 chords >>= Smooth(4)
