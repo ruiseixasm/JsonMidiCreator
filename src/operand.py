@@ -624,7 +624,7 @@ class Operand:
         match other:
             case ol.Null():
                 return False
-            case ol.NonNull():
+            case ol.Full():
                 return True
             case od.Conditional():
                 return other == self

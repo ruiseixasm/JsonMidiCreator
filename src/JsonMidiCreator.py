@@ -69,6 +69,7 @@ Section = Part
 
 # Label aliases
 null = Null()
+full = Full()
 
 # Note Values alias, abbreviations
 whole = NoteValue(1/1)

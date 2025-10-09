@@ -45,4 +45,4 @@ def test_null_mod():
 
 
 def test_non_null():
-    assert NonNull() == NonNull()
+    assert Full() == Full()

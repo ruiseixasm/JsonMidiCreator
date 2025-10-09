@@ -63,9 +63,19 @@ class Label(o.Operand):
     def copy(self, *parameters) -> Self:
         return self
 
+class Carrier(Label):
+    """`Label -> Carrier`
 
-class Null(Label):
-    """`Label -> Null`
+    A `Carrier` is a binary label that signals a successful passtrought or not.
+
+    Parameters
+    ----------
+    None : `Carrier` has no parameters.
+    """
+    pass
+
+class Null(Carrier):
+    """`Label -> Carrier -> Null`
 
     A `Null` label is an `Operand` that is processed as no data and as no effect when operated with other `Operands`.
     It is returned by a `Frame` as a no `Operand` return.
@@ -93,15 +103,15 @@ class Null(Label):
         return self
 
 
-class NonNull(Label):
-    """`Label -> NonNull`
+class Full(Carrier):
+    """`Label -> Carrier -> Full`
 
-    A `NonNull` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
+    A `Full` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
     It is returned by a `Frame` as a validates or passed `Operand`.
 
     Parameters
     ----------
-    None : `NonNull` has no parameters.
+    None : `Full` has no parameters.
     """
     pass
 

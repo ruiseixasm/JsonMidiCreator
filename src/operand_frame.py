@@ -48,7 +48,7 @@ class Frame(o.Operand):
         import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
-        self._next_operand: any         = ol.NonNull()
+        self._next_operand: any         = ol.Full()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._inside_container: oc.Container = None
@@ -220,7 +220,7 @@ class Left(Frame):  # LEFT TO RIGHT
         if isinstance(self_operand, tuple):
             self_operand_tuple: tuple = ()
             for single_operand in self_operand:
-                if isinstance(single_operand, ol.NonNull):
+                if isinstance(single_operand, ol.Full):
                     single_operand = input
                     if isinstance(single_operand, o.Operand):
                         single_operand._set = True
@@ -232,7 +232,7 @@ class Left(Frame):  # LEFT TO RIGHT
                     if isinstance(input, o.Operand):
                         input._set = True
             self_operand = self_operand_tuple
-        elif isinstance(self_operand, ol.NonNull):
+        elif isinstance(self_operand, ol.Full):
             self_operand = input
             if isinstance(self_operand, o.Operand): # Strict operand, the default (validated as true)
                 self_operand._set = True
@@ -1238,7 +1238,7 @@ class IsNull(Right):
     def frame(self, input: o.T) -> o.T:
         right_input = super().frame(input)
         if isinstance(right_input, ol.Null):
-            return ol.NonNull()
+            return ol.Full()
         return ol.Null()
 
 class WrapR(Right):
