@@ -2271,7 +2271,7 @@ class KeyScale(Note):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(ra.Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """

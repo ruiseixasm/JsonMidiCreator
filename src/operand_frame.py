@@ -1252,7 +1252,7 @@ class Right(Frame):  # RIGHT TO LEFT
 class IsNull(Right):
     """`Frame -> Right -> IsNull`
 
-    An `IsNull` converts a `Null` return into a `NonNull` one and any other to `Null`.
+    An `IsNull` converts a `Null` return into a `Full` one and any other to `Null`.
 
     Parameters
     ----------
