@@ -38,9 +38,8 @@ main_phrase = \
 variant_phrase = \
     N4() / N8()**2 / N4()**2 / ND2() / N4() << Foreach("C", "B", "G", "A", "A", "G", "D")
 central_period = \
-    ND4("D") / N8("E")**5 / N8("G")**4 / N4("D")**2 \
+    ND4("D") / N8("E")**5 / N8()**["G", "A", "B", "C"] / N4("D")**2 \
         << Match(0, "E")**Previous(Pipe(Degree()), True)**Subtract(1)**Pipe() \
-        << Match(1, "G")**Previous(Pipe(Degree()), True)**Add(1)**Pipe() \
         << Match(1, Beat(3))**Octave(4)
 
 melody = pickup_bar * main_phrase * variant_phrase * central_period

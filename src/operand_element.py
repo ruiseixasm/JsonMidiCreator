@@ -409,7 +409,7 @@ class Element(o.Operand):
 
 
     def __pow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
-        if isinstance(operand, int):
+        if isinstance(operand, (int, list)):
             return self / operand
         return self.copy(operand)
     
