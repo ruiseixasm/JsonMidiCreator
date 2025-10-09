@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Electric piano", Channel(1)) + ProgramChange("Cello", Channel(2)) >> Play()
+ProgramChange("Electric piano 1", Channel(1)) + ProgramChange("Cello", Channel(2)) >> Play()
 
 settings << Tempo(140) << TimeSignature(3, 4) << KeySignature('') << Quantization(1/2)
 

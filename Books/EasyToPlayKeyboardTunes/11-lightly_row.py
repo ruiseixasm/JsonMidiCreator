@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 
-ProgramChange("Trumpet", Channel(1)) + ProgramChange("Mandolin", Channel(2)) >> Play()
+ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice", Channel(2)) >> Play()
 
 settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantization(1/2)
 
@@ -36,20 +36,29 @@ whole_note = N1()**1
 
 
 melody = \
-    three_notes**Each("5", "3", "3") >> Plot()
+    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
+    four_notes**Each("1", "2", "3", "4") / three_notes**"5" / \
+    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
+    four_notes**Each("1", "3", "5", "5") / whole_note**"3" / \
+    four_notes**"2" / three_notes**Each("2", "3", "4") / \
+    four_notes**"3" / three_notes**Each("3", "4", "5") / \
+    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
+    four_notes**Each("1", "3", "5", "5") / whole_note
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 
 
 chords = \
-    R_1(1)**2 / R2() / \
-    C2("D") / C_3("G") / C2("C") / C2("D") / \
-    C_4("G") / C_1("D") / C_2("G") / C2("C") / C2("D") / C_1("G")
+    C_1()**["C", "G", "C", "G", "C", "G"] / \
+    C2("C") / C2("G") / C_1("C") / \
+    C_2("G") / C_3("C") / \
+    C_1("G") / \
+    C2("C") / C2("G") / C_1("C")
 
-chords << Channel(2) << Octave(3) << Velocity(90) << Gate(.99)
+chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
 
 
-melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="O Little Town of Bethlehem")
+melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="Lightly Row")
 
 
