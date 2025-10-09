@@ -1417,10 +1417,10 @@ class Composition(Container):
         return self
 
 
-    def __pow__(self, operand: Any) -> Self:
+    def __ipow__(self, operand: Any) -> Self:
         if isinstance(operand, int):
-            return self * operand
-        return self.copy(operand)
+            return self.__ipow__(operand)
+        return self << operand
     
 
     def fit(self, tie_splits: bool = True) -> Self:
