@@ -2914,7 +2914,7 @@ class Clip(Composition):  # Just a container of Elements
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
                 # Clip preserves the entirety of the operand Clip as is, unmasked
                 self._items.extend(operand_copy._items)
-                self._mask_items.extend(operand_copy._mask_items)
+                self._mask_items.extend(operand_copy._unmasked_items())
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -3101,18 +3101,20 @@ class Clip(Composition):  # Just a container of Elements
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
+            # New Clip/Element results in an insertion at the respective operand position
             case Clip():
-                # Preserves the Structure (Locus), Wraps the content (Element)
-                for existent_element, new_element in zip(self, operand):
-                    element_locus: og.Locus = existent_element % og.Locus()
-                    self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self))
-
+                split_position: ra.Position = operand.start()
+                if split_position is not None:
+                    position_offset: ra.Position = operand.finish() - split_position
+                    self //= split_position
+                    self += of.DownTo(split_position)**position_offset
+                    self += operand # Finally adds the Clip elements
             case oe.Element():
-                # Preserves the Structure (Locus), Wraps the content (Element)
-                for existent_element in self:
-                    element_locus: og.Locus = existent_element % og.Locus()
-                    self._replace(existent_element, operand.copy(element_locus)._set_owner_clip(self))
-
+                split_position: ra.Position = operand.start()
+                position_offset: ra.Position = operand.finish() - split_position
+                self //= split_position
+                self += of.DownTo(split_position)**position_offset
+                self += operand # Finally adds the Element
             case int():
                 if operand > 1:
                     single_shallow_copy: Clip = self.shallow_copy()
