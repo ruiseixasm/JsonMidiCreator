@@ -1034,3 +1034,5 @@ class Operand:
                     __class__.deep_clear(single_data)
             case tuple():
                 __class__.deep_clear(list(data))
+
+

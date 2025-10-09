@@ -301,10 +301,10 @@ class Previous(Left):
                 self._named_parameters['previous'] = ol.Null()
             else:
                 self._named_parameters['previous'] = input
-        previous_parameter = self._named_parameters['previous']
+        previous_input: Any = self._named_parameters['previous']
         for parameter in self._named_parameters['parameter']:
-            previous_parameter %= parameter
-        parameter: Any = super().frame(previous_parameter)
+            previous_input %= parameter
+        parameter: Any = super().frame(previous_input)
         self._named_parameters['previous'] = input
         self._index += 1
         return parameter
