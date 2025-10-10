@@ -967,6 +967,8 @@ class Degree(PitchParameter):
         if string in Degree._string_to_degree:
             self._unit = Degree._string_to_degree[string]
             self._semitones = Degree.semitones_float(semitones_offset)
+        elif string == "":
+            self._semitones = Degree.semitones_float(semitones_offset)
         return self
 
 
