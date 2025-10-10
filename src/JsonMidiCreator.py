@@ -71,7 +71,7 @@ Section = Part
 null = Null()
 full = Full()
 
-# Note Values alias, abbreviations
+# Note Values alias objects, abbreviations
 whole = NoteValue(1/1)
 half = NoteValue(1/2)
 quarter = NoteValue(1/4)
@@ -83,4 +83,17 @@ dotted_quarter = Dotted(1/4)
 dotted_eight = Dotted(1/8)
 dotted_sixteenth = Dotted(1/16)
 
+
+# Octaves alias objects
+o_1 = Octave(-1)
+o0 = Octave(0)
+o1 = Octave(1)
+o2 = Octave(2)
+o3 = Octave(3)
+o4 = Octave(4)
+o5 = Octave(5)
+o6 = Octave(6)
+o7 = Octave(7)
+o8 = Octave(8)
+o9 = Octave(9)
 
