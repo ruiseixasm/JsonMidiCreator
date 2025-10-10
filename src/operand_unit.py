@@ -967,15 +967,6 @@ class Degree(PitchParameter):
         if string in Degree._string_to_degree:
             self._unit = Degree._string_to_degree[string]
             self._semitones = Degree.semitones_float(semitones_offset)
-        else:
-            try:
-                if string.count(".") > 0:
-                    self << float(string)
-                else:
-                    self << int(string)
-                self._semitones = Degree.semitones_float(semitones_offset)
-            except ValueError:
-                pass
         return self
 
 
