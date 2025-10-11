@@ -2452,7 +2452,7 @@ _element_notations: dict[str, type] = {
 _parameter_notations: dict[str, type] = {
     'm':    ra.Measure,
     'v':    ra.NoteValue,
-    'd':    ra.Dotted,
+    'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave
 }
@@ -2480,8 +2480,8 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                     break
             elif token != "":
                 token_parameter: str = token[0]
-                if token_parameter in _parameter_notations:
-                    token_value: str = token[1:]
+                token_value: str = token[1:]
+                if token_value != "" and token_parameter in _parameter_notations:
                     element << _parameter_notations[token](token_value)
                 else:
                     element << o.string_or_number(token)
