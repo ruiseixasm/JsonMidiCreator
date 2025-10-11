@@ -2449,12 +2449,15 @@ _element_notations: dict[str, type] = {
     'c':        oe.Chord
 }
 
+# <>?/:;"'|\"}]{[]}+=_-)0(9)*8&7^6%5$4#3@2!1~``
 _parameter_notations: dict[str, type] = {
+    'p':    ra.Position,
     'm':    ra.Measure,
     'v':    ra.NoteValue,
     'd':    ou.Degree,
     't':    ou.TonicKey,
-    'o':    ou.Octave
+    'o':    ou.Octave,
+    ':':    ra.Dotted
 }
 
 def _division_partials(tokens: str) -> list[str]:

@@ -181,7 +181,7 @@ class Rational(o.Operand):
                 self._rational = Fraction(operand._unit)
             case str():
                 try:
-                    self._rational = Fraction(operand)
+                    self << float(Fraction(operand))
                 except ValueError as e:
                     pass    # No need to print anything
                     # print(f"Error: {e}, '{operand}' is not a number!")

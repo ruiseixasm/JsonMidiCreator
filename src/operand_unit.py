@@ -156,6 +156,12 @@ class Unit(o.Operand):
                 self._unit = operand
             case ra.Rational():
                 self._unit = operand % int()
+            case str():
+                try:
+                    self << int(operand)
+                except ValueError as e:
+                    pass    # No need to print anything
+                    # print(f"Error: {e}, '{operand}' is not a number!")
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ol.Null():
