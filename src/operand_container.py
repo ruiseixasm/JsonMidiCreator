@@ -2434,9 +2434,19 @@ _operation_notations: dict[str, type] = {
 
 # Tokens
 _element_notations: dict[str, type] = {
-    'r':    oe.Rest,
-    'n':    oe.Note,
-    'c':    oe.Chord
+    'r':        oe.Rest,
+    'r_1':      oe.R_1,
+    'r1':       oe.R1,
+    'r2':       oe.R2,
+    'r4':       oe.R4,
+    'r8':       oe.R8,
+    'r16':      oe.R16,
+    'rd2':      oe.R2d,
+    'r4d':      oe.R4d,
+    'r8d':      oe.R8d,
+    'r16d':     oe.R16d,
+    'n':        oe.Note,
+    'c':        oe.Chord
 }
 
 _parameter_notations: dict[str, type] = {

@@ -1098,10 +1098,10 @@ class R16(Rest):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/16), *parameters)
 
-class RD2(Rest):
-    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD2`
+class R2d(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R2d`
 
-    An `RD2` is a `Rest` with a default `Dotted` of `1/2`, also known as dotted half-rest.
+    An `R2d` is a `Rest` with a default `Dotted` of `1/2`, also known as dotted half-rest.
 
     Parameters
     ----------
@@ -1111,10 +1111,10 @@ class RD2(Rest):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/2), *parameters)
 
-class RD4(Rest):
-    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD4`
+class R4d(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R4d`
 
-    An `RD4` is a `Rest` with a default `Dotted` of `1/4`, also known as dotted quarter-rest.
+    An `R4d` is a `Rest` with a default `Dotted` of `1/4`, also known as dotted quarter-rest.
 
     Parameters
     ----------
@@ -1124,10 +1124,10 @@ class RD4(Rest):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/4), *parameters)
 
-class RD8(Rest):
-    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD8`
+class R8d(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R8d`
 
-    An `RD8` is a `Rest` with a default `Dotted` of `1/8`, also known as dotted eight-rest.
+    An `R8d` is a `Rest` with a default `Dotted` of `1/8`, also known as dotted eight-rest.
 
     Parameters
     ----------
@@ -1137,10 +1137,10 @@ class RD8(Rest):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/8), *parameters)
 
-class RD16(Rest):
-    """`Element -> DeviceElement -> ChannelElement -> Rest -> RD16`
+class R16d(Rest):
+    """`Element -> DeviceElement -> ChannelElement -> Rest -> R16d`
 
-    An `RD16` is a `Rest` with a default `Dotted` of `1/16`, also known as dotted sixteenth-rest.
+    An `R16d` is a `Rest` with a default `Dotted` of `1/16`, also known as dotted sixteenth-rest.
 
     Parameters
     ----------
