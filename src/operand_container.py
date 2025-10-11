@@ -21,6 +21,7 @@ from fractions import Fraction
 import json
 import enum
 import math
+import operator
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -1100,33 +1101,6 @@ class ClockedDevices(Devices):
 ###########################################  COMPOSITION  ###########################################
 #####################################################################################################
 
-import operator
-
-
-_operation_notations: dict[str, type] = {
-    "/": operator.truediv
-}
-
-# Tokens
-_element_notations: dict[str, type] = {
-    'r':    oe.Rest,
-    'n':    oe.Note,
-    'c':    oe.Chord
-}
-
-_parameter_notations: dict[str, type] = {
-    'm':    ra.Measure,
-    'v':    ra.NoteValue,
-    'd':    ra.Dotted,
-    't':    ou.TonicKey,
-    'o':    ou.Octave
-}
-
-def _division_partials(tokens: str) -> list[str]:
-    return tokens.split('/')
-
-def _element_tokens(tokens: str) -> list[str]:
-    return tokens.split('.')
 
 
 class Composition(Container):
@@ -2454,6 +2428,61 @@ class Composition(Container):
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
 
 
+_operation_notations: dict[str, type] = {
+    "/": operator.truediv
+}
+
+# Tokens
+_element_notations: dict[str, type] = {
+    'r':    oe.Rest,
+    'n':    oe.Note,
+    'c':    oe.Chord
+}
+
+_parameter_notations: dict[str, type] = {
+    'm':    ra.Measure,
+    'v':    ra.NoteValue,
+    'd':    ra.Dotted,
+    't':    ou.TonicKey,
+    'o':    ou.Octave
+}
+
+def _division_partials(tokens: str) -> list[str]:
+    return tokens.split('/')
+
+def _element_tokens(tokens: str) -> list[str]:
+    return tokens.split('.')
+
+def _string_to_elements(string: str) -> list[oe.Element]:
+    division_partials: list[str] = _division_partials(string)
+    string_elements: list[oe.Element] = []
+    next_position_beats: Fraction = Fraction(0)
+    for partial in division_partials:
+        element_tokens: list[str] = _element_tokens(partial)
+        element: oe.Element | None = None
+        for index, token in enumerate(element_tokens):
+            if index == 0:
+                if element_tokens[0] in _element_notations:
+                    element = _element_notations[
+                        element_tokens[0]
+                    ]() # instantiates the Element class
+                else:
+                    break
+            elif token != "":
+                token_parameter: str = token[0]
+                if token_parameter in _parameter_notations:
+                    token_value: str = token[1:]
+                    element << _parameter_notations[token](token_value)
+                else:
+                    element << token
+        if element is not None:
+            element._position_beats = next_position_beats
+            next_position_beats += element._duration_beats
+            string_elements.append(element)
+    return string_elements
+
+
+
 class Clip(Composition):  # Just a container of Elements
     """`Container -> Composition -> Clip`
 
@@ -3059,34 +3088,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._mask_items = mask_elements
 
             case str():
-                division_partials: list[str] = _division_partials(operand)
-                operand_elements: list[oe.Element] = []
-                string_clip: Clip = Clip()
-                next_position_beats: Fraction = Fraction(0)
-                for partial in division_partials:
-                    element_tokens: list[str] = _element_tokens(partial)
-                    element: oe.Element | None = None
-                    for index, token in enumerate(element_tokens):
-                        if index == 0:
-                            if element_tokens[0] in _element_notations:
-                                element = _element_notations[
-                                    element_tokens[0]
-                                ]() # instantiates the Element class
-                            else:
-                                break
-                        elif token != "":
-                            token_parameter: str = token[0]
-                            if token_parameter in _parameter_notations:
-                                token_value: str = token[1:]
-                                element << _parameter_notations[token](token_value)
-                            else:
-                                element << token
-                    if element is not None:
-                        element._position_beats = next_position_beats
-                        next_position_beats += element._duration_beats
-                        operand_elements.append(element)
-                string_clip._extend(operand_elements)._set_owner_clip()._sort_items()
-                self *= string_clip
+                string_elements: list[oe.Element] = _string_to_elements(operand)
+                self *= Clip()._extend(string_elements)._set_owner_clip()._sort_items()
 
             case _:
                 super().__imul__(operand)
