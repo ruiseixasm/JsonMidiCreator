@@ -2469,7 +2469,7 @@ def _element_tokens(tokens: str) -> list[str]:
 def _string_to_elements(string: str) -> list[oe.Element]:
     division_partials: list[str] = _division_partials(string)
     string_elements: list[oe.Element] = []
-    next_position_beats: Fraction = Fraction(0)
+    next_position_beats: ra.Position = ra.Position(0)
     for partial in division_partials:
         element_tokens: list[str] = _element_tokens(partial)
         element: oe.Element | None = None
@@ -2478,7 +2478,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 if element_tokens[0] in _element_notations:
                     element = _element_notations[
                         element_tokens[0]
-                    ]() # instantiates the Element class
+                    ](next_position_beats)  # instantiates the Element class
                 else:
                     break
             elif token != "":
@@ -2489,8 +2489,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 else:
                     element << o.string_or_number(token)
         if element is not None:
-            element._position_beats = next_position_beats
-            next_position_beats += element._duration_beats
+            next_position_beats = element.finish()
             string_elements.append(element)
     return string_elements
 
