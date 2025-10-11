@@ -2441,7 +2441,7 @@ _element_notations: dict[str, type] = {
     'r4':       oe.R4,
     'r8':       oe.R8,
     'r16':      oe.R16,
-    'rd2':      oe.R2d,
+    'r2d':      oe.R2d,
     'r4d':      oe.R4d,
     'r8d':      oe.R8d,
     'r16d':     oe.R16d,
