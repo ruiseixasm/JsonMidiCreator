@@ -2464,7 +2464,7 @@ def _division_partials(tokens: str) -> list[str]:
     return tokens.split(' ')
 
 def _element_tokens(tokens: str) -> list[str]:
-    return tokens.split('.')
+    return tokens.split('_')
 
 def _string_to_elements(string: str) -> list[oe.Element]:
     division_partials: list[str] = _division_partials(string)
