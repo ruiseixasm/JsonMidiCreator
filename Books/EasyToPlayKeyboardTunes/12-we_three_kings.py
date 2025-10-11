@@ -33,27 +33,64 @@ settings << Tempo(140) << TimeSignature(6, 8) << KeySignature('') << Quantizatio
 
 # / has precedence over +
 
-melody =     C_1(0, "A") + \
-                N4(0, "E", o5) / N8("D", o5) / N4("C", o5) / N8("A") \
-            + CD8(1, "G") / C_1(Bars(1.5), "A") + \
-                N8(1)**["B", "C", "B"] / ND4("A") \
-            + N4(2, "E") / N8("D") / N4("C") / N8("A") \
-            + CD8(3, "G") / C_1("A") / C2("G") + \
-                N8(3)**["B", "C", "B"] / ND4("A") / N4("C") / N8("C") / N4("D") / N8("D")
+chords = Clip()
+melody = Clip()
+
+# Measure 0
+chords *= "c,m1,A"
+melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
+# Measure 1
+chords *= "c,:1/4,G          c,b9,A"
+melody *= "n,1/8,B  n,1/8,C  n,1/8,B  n,:1/4,A"
+# Measure 2
+chords *= ""
+melody *= "n,1/4,E  n,1/8,D  n,1/4,C  n,1/8,A"
+# Measure 3
+chords *= "c,:1/4,G          c,:2/4,A"
+melody *= "n,1/8,B  n,1/8,C  n,1/8,B  n,:1/4,A"
+# Measure 4
+chords *= "c,p3/8,:1/4,G"
+melody *= "n,1/4,E  n,1/8,E n,1/8,G  n,1/8,F  n,1/8,E"
+# Measure 5
+chords *= "c,b3,C   c,b3,G"
+melody *= "n,b2,E   n,b1,E   n,b1,G  n,b1,F  n,b1,E"
+# Measure 6
+chords *= "c,b3,D   c,b3,E"
+melody *= "n,b1,D,o5   n,b1,E,o5   n,b1,D,o5  n,b2,C,o5  n,b1,B"
+# Measure 7
+chords *= "c,b3,A   c,b3,G"
+melody *= "n,b3,A   n,b2,B  n,b1,D,o5"
+# Measure 8
+chords *= "c,b6,A"
+melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,G"
+# Measure 9
+chords *= "c,b3,F   c,b3,C"
+melody *= "n,b2,C,o5   n,b1,A  n,b3,C,o5"
+# Measure 10
+chords *= "c,b6,C"
+melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5     n,b1,G"
+# Measure 11
+chords *= "c,b3,F   c,b3,C"
+melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
+# Measure 12
+chords *= "c,b3,A   c,b3,G"
+melody *= "n,b2,C,o5    n,b1,C,o5   n,b2,C,o5   n,b1,E,o5"
+# Measure 13
+chords *= "c,b3,F   c,b3,G"
+melody *= "n,b2,F,o5    n,b1,E,o5   n,b2,D,o5   n,b1,E,o5"
+# Measure 14
+chords *= "c,b6,C"
+melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,C"
+# Measure 15
+chords *= "c,b3,F   c,b3,C"
+melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
+
 
 
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 
-
-chords = \
-    C_1()**["C", "G", "C", "G", "C", "G"] / \
-    C2("C") / C2("G") / C_1("C") / \
-    C_2("G") / C_3("C") / \
-    C_1("G") / \
-    C2("C") / C2("G") / C_1("C")
-
-chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
+chords << Channel(2) << Octave(2) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
 
 

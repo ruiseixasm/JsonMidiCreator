@@ -2452,7 +2452,9 @@ _element_notations: dict[str, type] = {
 # <>?/:;"'|\"}]{[]}+=_-)0(9)*8&7^6%5$4#3@2!1~``
 _parameter_notations: dict[str, type] = {
     'p':    ra.Position,
-    'm':    ra.Measure,
+    'm':    ra.Measures,
+    'b':    ra.Beats,
+    's':    ra.Steps,
     'v':    ra.NoteValue,
     'd':    ou.Degree,
     't':    ou.TonicKey,
@@ -2485,7 +2487,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 token_parameter: str = token[0]
                 token_value: str = token[1:]
                 if token_value != "" and token_parameter in _parameter_notations:
-                    element << _parameter_notations[token](token_value)
+                    element << _parameter_notations[token_parameter](token_value)
                 else:
                     element << o.string_or_number(token)
         if element is not None:
