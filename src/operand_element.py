@@ -46,6 +46,7 @@ except ImportError:
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
 
+
 def str_to_tuple(parameters: str) -> tuple | None:
     if parameters.find("_") != -1:
         parameters = parameters.strip().lower().replace(" ", "")
@@ -82,7 +83,6 @@ class Element(o.Operand):
         self._owner_clip: oc.Clip           = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
 
     def _convert_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         self._position_beats = ra.Position(time_signature, self % od.Pipe( ra.Position() ))._rational
@@ -4943,7 +4943,6 @@ class Panic(DeviceElement):
                 )
 
         return self_playlist
-
 
 
 

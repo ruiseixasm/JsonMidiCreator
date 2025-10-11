@@ -1100,6 +1100,35 @@ class ClockedDevices(Devices):
 ###########################################  COMPOSITION  ###########################################
 #####################################################################################################
 
+import operator
+
+
+_operation_notations: dict[str, type] = {
+    "/": operator.truediv
+}
+
+# Tokens
+_element_notations: dict[str, type] = {
+    'r':    oe.Rest,
+    'n':    oe.Note,
+    'c':    oe.Chord
+}
+
+_parameter_notations: dict[str, type] = {
+    'm':    ra.Measure,
+    'v':    ra.NoteValue,
+    'd':    ra.Dotted,
+    't':    ou.TonicKey,
+    'o':    ou.Octave
+}
+
+def _division_partials(tokens: str) -> list[str]:
+    return tokens.split('/')
+
+def _element_tokens(tokens: str) -> list[str]:
+    return tokens.split('.')
+
+
 class Composition(Container):
     """`Container -> Composition`
 
@@ -3028,6 +3057,33 @@ class Clip(Composition):  # Just a container of Elements
                     mask_elements.extend(self_segment._mask_items)
                 self._items = base_elements
                 self._mask_items = mask_elements
+
+            case str():
+                division_partials: list[str] = _division_partials(operand)
+                operand_elements: list[oe.Element] = []
+                string_clip: Clip = Clip()
+                for partial in division_partials:
+                    element_tokens: list[str] = _element_tokens(partial)
+                    element: oe.Element | None = None
+                    for index, token in enumerate(element_tokens):
+                        if index == 0:
+                            if element_tokens[0] in _element_notations:
+                                element = _element_notations[
+                                    element_tokens[0]
+                                ]() # instantiates the Element class
+                            else:
+                                break
+                        elif token != "":
+                            token_parameter: str = token[0]
+                            if token_parameter in _parameter_notations:
+                                token_value: str = token[1:]
+                                element << _parameter_notations[token](token_value)
+                            else:
+                                element << token
+                    if element is not None:
+                        operand_elements.append(element)
+                string_clip._extend(operand_elements)._set_owner_clip()._sort_items()
+                self *= string_clip
 
             case _:
                 super().__imul__(operand)
