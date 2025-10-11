@@ -3062,6 +3062,7 @@ class Clip(Composition):  # Just a container of Elements
                 division_partials: list[str] = _division_partials(operand)
                 operand_elements: list[oe.Element] = []
                 string_clip: Clip = Clip()
+                next_position_beats: Fraction = Fraction(0)
                 for partial in division_partials:
                     element_tokens: list[str] = _element_tokens(partial)
                     element: oe.Element | None = None
@@ -3081,6 +3082,8 @@ class Clip(Composition):  # Just a container of Elements
                             else:
                                 element << token
                     if element is not None:
+                        element._position_beats = next_position_beats
+                        next_position_beats += element._duration_beats
                         operand_elements.append(element)
                 string_clip._extend(operand_elements)._set_owner_clip()._sort_items()
                 self *= string_clip
