@@ -2898,6 +2898,13 @@ class Clip(Composition):  # Just a container of Elements
             case None:
                 self._length_beats = None
 
+            case str():
+                if operand.find("/") != -1:
+                    string_elements: list[oe.Element] = _string_to_elements(operand)
+                    self._extend(string_elements)._set_owner_clip()._sort_items()
+                else:
+                    super().__lshift__(operand)
+
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
             case og.TimeSignature():
