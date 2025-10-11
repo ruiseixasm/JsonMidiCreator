@@ -39,6 +39,17 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 
 # GENERIC HANDY FUNCTIONS
 
+def string_or_number(string: str) -> int | float | str:
+    try:
+        return int(string)
+    except ValueError:
+        try:    # float is tokened as a fraction '1/8'
+            rational = Fraction(string)
+            return float(rational)
+        except ValueError:
+            return string
+
+
 def tag_to_int(tag: str) -> int:
     tag_string: str = tag.strip().lower()
     tag_int: int = -1

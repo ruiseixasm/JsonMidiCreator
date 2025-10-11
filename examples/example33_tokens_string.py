@@ -33,6 +33,11 @@ two_program_changes >> Play()
 
 
 tokens_clip = Clip()
-tokens_clip *= "n.A/n.C"
+tokens_clip *= "n.A n.C.1/8"
 
-tokens_clip >> Plot()
+tokens_clip >> Plot(block=False, title="Tokens Clip")
+
+new_clip = Clip("n.1/4.E n.1/8")
+new_clip >> Plot(title="New Clip")
+
+
