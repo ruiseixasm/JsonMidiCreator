@@ -635,8 +635,6 @@ class Key(PitchParameter):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        import operand_generic as og
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Pipe():
@@ -732,6 +730,24 @@ class Octave(PitchParameter):
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters) # By default it's 1 to be used in basic operations like + and -
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case str():
+                if len(operand) > 1:
+                    try:
+                        self << int(operand[-1])
+                    except ValueError as e:
+                        super().__lshift__(operand)
+                else:
+                    super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Degree(PitchParameter):
     """`Unit -> PitchParameter -> Degree`

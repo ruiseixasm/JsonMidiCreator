@@ -83,7 +83,7 @@ chords *= "c,b6,C"
 melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,G"
 # Measure 15
 chords *= "c,b3,F   c,b3,C"
-melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
+melody *= "n,b2,C,o5    n,b1,A  n,b3,C5"
 
 
 

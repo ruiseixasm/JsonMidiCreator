@@ -999,6 +999,7 @@ class Pitch(Generic):
                 string: str = operand.strip()
                 self << (self % ou.Degree() << string) # Safe, doesn't change the octave
                 self << (self % ou.Key() << string)
+                self << (self % ou.Octave() << string)
                 self << Scale(od.Pipe(self._scale), operand)
             case tuple():
                 for single_operand in operand:
