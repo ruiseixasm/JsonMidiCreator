@@ -28,7 +28,7 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(6, 8) << KeySignature('') << Quantization(1/2)
+settings << Tempo(240) << TimeSignature(6, 8) << KeySignature('') << Quantization(1/2)
 
 
 # / has precedence over +
@@ -90,7 +90,7 @@ melody *= "n,b2,C,o5    n,b1,A  n,b3,C5"
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 
-chords << Channel(2) << Octave(2) << Velocity(60) << Gate(.99)
+chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(5)
 
 
