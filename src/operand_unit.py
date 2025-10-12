@@ -653,6 +653,12 @@ class Key(PitchParameter):
                         super().__lshift__(operand)
 
             case str():
+                # Remove Octave number first
+                try:
+                    int(operand[-1])
+                    operand = operand[:-1]
+                except ValueError as e:
+                    pass    # No octave set
                 self_unit: int = self.getStringToNumber(operand)
                 if self_unit != -1:
                     self._unit = self_unit
