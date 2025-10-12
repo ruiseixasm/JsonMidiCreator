@@ -4319,6 +4319,7 @@ class Clip(Composition):  # Just a container of Elements
 
         Args:
             algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
+
                 +------+---------------------------------------------------------------------------+
                 | Type | Description                                                               |
                 +------+---------------------------------------------------------------------------+
@@ -4326,6 +4327,7 @@ class Clip(Composition):  # Just a container of Elements
                 | 2    | Considers only the previous note pitch distance.                          |
                 | 3    | Considers only the first note pitch distance.                             |
                 | 4    | Considers the middle_pitch in relation to the previous one.               |
+                | 5    | Considers the middle_pitch in relation to the first note.                 |
                 +------+---------------------------------------------------------------------------+
 
         Returns:
@@ -4384,7 +4386,8 @@ class Clip(Composition):  # Just a container of Elements
                                     note_pitch = note.increase_center_pitch().center_pitch()
                                 if previous_pitch - below_pitch <= note_pitch - previous_pitch:
                                     note_pitch = note.decrease_center_pitch().center_pitch()
-                        previous_pitch = note_pitch
+                        if algorithm_type == 4:
+                            previous_pitch = note_pitch
         return self
 
 

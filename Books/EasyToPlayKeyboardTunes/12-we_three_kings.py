@@ -40,20 +40,20 @@ melody = Clip()
 chords *= "c,m1,A"
 melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
 # Measure 1
-chords *= "c,:1/4,G          c,b9,A"
-melody *= "n,1/8,B  n,1/8,C  n,1/8,B  n,:1/4,A"
+chords *= "c,:1/4,G             c,b9,A"
+melody *= "n,1/8,B  n,1/8,C,o5  n,1/8,B  n,:1/4,A"
 # Measure 2
 chords *= ""
-melody *= "n,1/4,E  n,1/8,D  n,1/4,C  n,1/8,A"
+melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
 # Measure 3
 chords *= "c,:1/4,G          c,:2/4,A"
-melody *= "n,1/8,B  n,1/8,C  n,1/8,B  n,:1/4,A"
+melody *= "n,1/8,B  n,1/8,C,o5  n,1/8,B  n,:1/4,A"
 # Measure 4
 chords *= "c,p3/8,:1/4,G"
-melody *= "n,1/4,E  n,1/8,E n,1/8,G  n,1/8,F  n,1/8,E"
+melody *= "n,b2,C,o5  n,b1,C,o5   n,b2,D,o5  n,b1,D,o5"
 # Measure 5
 chords *= "c,b3,C   c,b3,G"
-melody *= "n,b2,E   n,b1,E   n,b1,G  n,b1,F  n,b1,E"
+melody *= "n,b2,E,o5   n,b1,E,o5   n,b1,G,o5  n,b1,F,o5  n,b1,E,o5"
 # Measure 6
 chords *= "c,b3,D   c,b3,E"
 melody *= "n,b1,D,o5   n,b1,E,o5   n,b1,D,o5  n,b2,C,o5  n,b1,B"
@@ -74,13 +74,13 @@ chords *= "c,b3,F   c,b3,C"
 melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
 # Measure 12
 chords *= "c,b3,A   c,b3,G"
-melody *= "n,b2,C,o5    n,b1,C,o5   n,b2,C,o5   n,b1,E,o5"
+melody *= "n,b2,C,o5    n,b1,C,o5   n,b2,D,o5   n,b1,E,o5"
 # Measure 13
 chords *= "c,b3,F   c,b3,G"
 melody *= "n,b2,F,o5    n,b1,E,o5   n,b2,D,o5   n,b1,E,o5"
 # Measure 14
 chords *= "c,b6,C"
-melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,C"
+melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,G"
 # Measure 15
 chords *= "c,b3,F   c,b3,C"
 melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
@@ -91,7 +91,7 @@ melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 
 chords << Channel(2) << Octave(2) << Velocity(60) << Gate(.99)
-chords >>= Smooth(4)
+chords >>= Smooth(5)
 
 
 melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="Lightly Row")
