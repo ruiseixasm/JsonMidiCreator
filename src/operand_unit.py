@@ -900,6 +900,13 @@ class Degree(PitchParameter):
                 else:
                     self._semitones = round(operand - self._unit, 1)
             case str():
+                # Remove Octave number first
+                if len(operand) > 1:
+                    try:
+                        int(operand[-1])
+                        operand = operand[:-1]
+                    except ValueError as e:
+                        pass    # No octave set
                 self.stringSetDegree(operand)
             case Sharp():
                 if operand < 0:
