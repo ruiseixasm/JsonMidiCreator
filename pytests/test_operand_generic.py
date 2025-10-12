@@ -103,6 +103,16 @@ def test_pitch_tonic():
 # test_pitch_tonic()
 
 
+def test_pitch_str():
+    pitch = Pitch()
+    assert pitch % Degree() == 1
+    assert pitch % Octave() == 4
+
+    pitch << "3"    # Set Degree NOT Octave
+    assert pitch % Degree() == 3
+    assert pitch % Octave() == 4
+
+
 def test_scale_mod():
 
     # Perform the operation
@@ -1268,7 +1278,7 @@ def test_root_key_set():
         root_key += 1
         minor_A_pitch_int += 1
 
-test_root_key_set()
+# test_root_key_set()
 
 
 def test_sharps_and_flats_picker():
