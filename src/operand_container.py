@@ -4319,7 +4319,6 @@ class Clip(Composition):  # Just a container of Elements
 
         Args:
             algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
-
                 +------+---------------------------------------------------------------------------+
                 | Type | Description                                                               |
                 +------+---------------------------------------------------------------------------+
