@@ -2478,10 +2478,11 @@ _parameter_notations: dict[str, type] = {
     'b':    ra.Beats,
     's':    ra.Steps,
     'v':    ra.NoteValue,
+    ':':    ra.Dotted,
     'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave,
-    ':':    ra.Dotted
+    'z':    ou.Size
 }
 
 def _division_partials(tokens: str) -> list[str]:
