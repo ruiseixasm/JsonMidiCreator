@@ -2446,7 +2446,29 @@ _element_notations: dict[str, type] = {
     'r8d':      oe.R8d,
     'r16d':     oe.R16d,
     'n':        oe.Note,
-    'c':        oe.Chord
+    'n1':       oe.N1,
+    'n2':       oe.N2,
+    'n4':       oe.N4,
+    'n8':       oe.N8,
+    'n16':      oe.N16,
+    'n2d':      oe.N2d,
+    'n4d':      oe.N4d,
+    'n8d':      oe.N8d,
+    'n16d':     oe.N16d,
+    'c':        oe.Chord,
+    'c1':       oe.C1,
+    'c2':       oe.C2,
+    'c4':       oe.C4,
+    'c8':       oe.C8,
+    'c16':      oe.C16,
+    'c2d':      oe.C2d,
+    'c4d':      oe.C4d,
+    'c8d':      oe.C8d,
+    'c16d':     oe.C16d,
+    'c_1':      oe.C_1,
+    'c_2':      oe.C_2,
+    'c_3':      oe.C_3,
+    'c_4':      oe.C_4
 }
 
 # <>?/:;"'|\"}]{[]}+=_-)0(9)*8&7^6%5$4#3@2!1~``

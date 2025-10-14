@@ -2175,10 +2175,10 @@ class N16(Note):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/16), *parameters)
 
-class ND2(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> ND2`
+class N2d(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N2d`
 
-    An `ND2` is a `Note` with a default `Dotted` of `1/2`, also known as dotted half-note.
+    An `N2d` is a `Note` with a default `Dotted` of `1/2`, also known as dotted half-note.
 
     Parameters
     ----------
@@ -2195,10 +2195,10 @@ class ND2(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/2), *parameters)
 
-class ND4(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> ND4`
+class N4d(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N4d`
 
-    An `ND4` is a `Note` with a default `Dotted` of `1/4`, also known as dotted quarter-note.
+    An `N4d` is a `Note` with a default `Dotted` of `1/4`, also known as dotted quarter-note.
 
     Parameters
     ----------
@@ -2215,10 +2215,10 @@ class ND4(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/4), *parameters)
 
-class ND8(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> ND8`
+class N8d(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N8d`
 
-    An `ND8` is a `Note` with a default `Dotted` of `1/8`, also known as eight-note.
+    An `N8d` is a `Note` with a default `Dotted` of `1/8`, also known as eight-note.
 
     Parameters
     ----------
@@ -2235,10 +2235,10 @@ class ND8(Note):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/8), *parameters)
 
-class ND16(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> ND16`
+class N16d(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> N16d`
 
-    An `ND16` is a `Note` with a default `Dotted` of `1/16`, also known as dotted sixteenth-note.
+    An `N16d` is a `Note` with a default `Dotted` of `1/16`, also known as dotted sixteenth-note.
 
     Parameters
     ----------
@@ -3000,10 +3000,10 @@ class C16(Chord):
     def __init__(self, *parameters):
         super().__init__(ra.NoteValue(1/16), *parameters)
 
-class CD2(Chord):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD2`
+class C2d(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C2d`
 
-    A `CD2` is a Chord with a default `Dotted` of `1/2`, also known as dotted half-note chord.
+    A `C2d` is a Chord with a default `Dotted` of `1/2`, also known as dotted half-note chord.
 
     Parameters
     ----------
@@ -3029,10 +3029,10 @@ class CD2(Chord):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/2), *parameters)
 
-class CD4(Chord):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD4`
+class C4d(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C4d`
 
-    A `CD4` is a Chord with a default `Dotted` of `1/4`, also known as dotted quarter-note chord.
+    A `C4d` is a Chord with a default `Dotted` of `1/4`, also known as dotted quarter-note chord.
 
     Parameters
     ----------
@@ -3058,10 +3058,10 @@ class CD4(Chord):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/4), *parameters)
 
-class CD8(Chord):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD8`
+class C8d(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C8d`
 
-    A `CD8` is a Chord with a default `Dotted` of `1/8`, also known as dotted eight-note chord.
+    A `C8d` is a Chord with a default `Dotted` of `1/8`, also known as dotted eight-note chord.
 
     Parameters
     ----------
@@ -3087,10 +3087,10 @@ class CD8(Chord):
     def __init__(self, *parameters):
         super().__init__(ra.Dotted(1/8), *parameters)
 
-class CD16(Chord):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> CD16`
+class C16d(Chord):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord -> C16d`
 
-    A `CD16` is a Chord with a default `Dotted` of `1/16`, also known as dotted sixteenth-note chord.
+    A `C16d` is a Chord with a default `Dotted` of `1/16`, also known as dotted sixteenth-note chord.
 
     Parameters
     ----------
