@@ -2482,7 +2482,8 @@ _parameter_notations: dict[str, type] = {
     'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave,
-    'z':    ou.Size
+    'z':    ou.Size,
+    'i':    ou.Inversion
 }
 
 def _division_partials(tokens: str) -> list[str]:
@@ -2501,14 +2502,15 @@ def _string_to_elements(string: str) -> list[oe.Element]:
             element: oe.Element | None = None
             new_elements: list[oe.Element] = []
             for index, token in enumerate(element_tokens):
-                if index == 0:
-                    if element_tokens[0] in _element_notations:
-                        element = _element_notations[
-                            element_tokens[0]
-                        ](next_position_beats)  # instantiates the Element class
-                        continue    # Consumes the Element tag
-                    else:   # Considers a Note by default
-                        element = oe.Note(next_position_beats)
+                if token in _element_notations:
+                    element = _element_notations[
+                        token
+                    ](next_position_beats)  # instantiates the Element class
+                    new_elements.append(element)
+                    continue    # Consumes the Element tag
+                elif index == 0:   # Considers a Note by default
+                    element = oe.Note(next_position_beats)
+                    new_elements.append(element)
                 if token != "":
                     token_parameter: str = token[0]
                     token_value: str = token[1:]
@@ -2516,7 +2518,6 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                         element << _parameter_notations[token_parameter](token_value)
                     else:
                         element << o.string_or_number(token)
-                new_elements.append(element)
             if new_elements is not None:
                 next_position_beats = new_elements[-1].finish()
                 string_elements.extend(new_elements)
