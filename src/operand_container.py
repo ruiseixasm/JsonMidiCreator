@@ -2499,6 +2499,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
         if partial != "":
             element_tokens: list[str] = _element_tokens(partial)
             element: oe.Element | None = None
+            new_elements: list[oe.Element] = []
             for index, token in enumerate(element_tokens):
                 if index == 0:
                     if element_tokens[0] in _element_notations:
@@ -2515,9 +2516,10 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                         element << _parameter_notations[token_parameter](token_value)
                     else:
                         element << o.string_or_number(token)
-            if element is not None:
-                next_position_beats = element.finish()
-                string_elements.append(element)
+                new_elements.append(element)
+            if new_elements is not None:
+                next_position_beats = new_elements[-1].finish()
+                string_elements.extend(new_elements)
     return string_elements
 
 
