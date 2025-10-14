@@ -37,7 +37,7 @@ tokens_clip *= "n,A n,C,1/8"
 
 tokens_clip >> Plot(block=False, title="Tokens Clip")
 
-new_clip = Clip("n,1/4,E n,1/8")
+new_clip = Clip("1/4,E 1/8")
 new_clip >> Plot(title="New Clip")
 
 
