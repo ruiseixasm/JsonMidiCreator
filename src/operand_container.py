@@ -2518,6 +2518,25 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                         element << _parameter_notations[token_parameter](token_value)
                     else:
                         element << o.string_or_number(token)
+
+                # NEEDS TO BE IMPLEMENTED !!!
+
+                # elif index == 0:   # Considers a Note by default
+                #     element = oe.Note(next_position_beats)
+                #     new_elements.append(element)
+                #     # Adds the respective missing Note prefix
+                #     token = 'n' + token
+                # if token != "":
+                #     token_parameter: str = token[0]
+                #     token_value: str = token[1:]
+                #     if token_value != "" and token_parameter in _parameter_notations:
+                #         element << _parameter_notations[token_parameter](token_value)
+                #     elif '.' in token_value or '/' in token_value:
+                #         element << o.string_or_number(token)
+                #     else:
+                #         element << token_value
+
+
             if new_elements is not None:
                 next_position_beats = new_elements[-1].finish()
                 string_elements.extend(new_elements)
