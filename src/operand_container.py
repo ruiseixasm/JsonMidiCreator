@@ -2513,8 +2513,10 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                     new_elements.append(element)
                 if token != "":
                     token_parameter: str = token[0]
-                    token_value: str = token[1:]
-                    if token_value != "" and token_parameter in _parameter_notations:
+                    if token_parameter in _parameter_notations:
+                        token_value: str = ''
+                        if len(token) > 1:
+                            token_value = token[1:]
                         element << _parameter_notations[token_parameter](token_value)
                     elif '.' in token or '/' in token:
                         element << o.string_or_number(token)
