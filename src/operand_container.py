@@ -2477,11 +2477,11 @@ _parameter_notations: dict[str, type] = {
     'm':    ra.Measures,
     'b':    ra.Beats,
     's':    ra.Steps,
-    'v':    ra.NoteValue,
     ':':    ra.Dotted,
     'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave,
+    'v':    ou.Velocity,
     'z':    ou.Size,
     'i':    ou.Inversion
 }
