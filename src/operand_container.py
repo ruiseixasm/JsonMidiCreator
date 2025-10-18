@@ -2931,7 +2931,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._length_beats = None
 
             case str():
-                if operand.find(",") != -1:
+                if operand.find(" ") != -1 or operand.find(",") != -1:
                     string_elements: list[oe.Element] = _string_to_elements(operand)
                     self._extend(string_elements)._set_owner_clip()._sort_items()
                 else:

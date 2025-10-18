@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
+src_path = os.path.join(os.path.dirname(__file__), '../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
@@ -27,5 +27,10 @@ settings << Folder("Books/PianoKeyboardAbsoluteBeginners/PianoKeyboardAbsoluteBe
 
 ProgramChange("Piano") + ProgramChange("Piccolo", Channel(2)) >> Play()
 
+right_hand = Clip("1  2  3  4  5  4  3  2  1")
+left_hand = Clip("G  F  E  D  C  D  E  F  G") << Octave(3)
+left_hand += Measure(2)
 
+
+right_hand + left_hand >> Plot(title="Exercise 1")
 
