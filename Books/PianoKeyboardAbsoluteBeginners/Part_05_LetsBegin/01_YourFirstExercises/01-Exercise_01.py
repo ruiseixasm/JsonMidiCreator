@@ -21,14 +21,16 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-
+settings << Tempo(70)
 settings << Folder("Books/PianoKeyboardAbsoluteBeginners/PianoKeyboardAbsoluteBeginners/01_YourFirstExercises/")
 
 
-ProgramChange("Piano") + ProgramChange("Piccolo", Channel(2)) >> Play()
+ProgramChange("Organ") + ProgramChange("Piccolo", Channel(2)) >> Play()
 
 right_hand = Clip("1  2  3  4  5  4  3  2  1")
+right_hand << Last()**Beats(2)
 left_hand = Clip("G  F  E  D  C  D  E  F  G") << Octave(3)
+left_hand << Last()**Beats(2)
 left_hand += Measure(2)
 
 
