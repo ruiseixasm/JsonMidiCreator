@@ -2474,14 +2474,18 @@ _element_notations: dict[str, type] = {
 # <>?/:;"'|\"}]{[]}+=_-)0(9)*8&7^6%5$4#3@2!1~``
 _parameter_notations: dict[str, type] = {
     'p':    ra.Position,
+    'pm':   ra.Measure,
+    'pb':   ra.Beat,
+    'ps':   ra.Step,
+    'd':    ra.Duration,
     'm':    ra.Measures,
     'b':    ra.Beats,
+    's':    ra.Steps,
     ':':    ra.Dotted,
-    'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave,
     'v':    ou.Velocity,
-    's':    ou.Size,
+    'z':    ou.Size,
     'i':    ou.Inversion
 }
 
