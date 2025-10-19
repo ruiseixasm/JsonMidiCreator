@@ -49,7 +49,7 @@ melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
 chords *= "c,:1/4,G          c,:2/4,A"
 melody *= "n,1/8,B  n,1/8,C,o5  n,1/8,B  n,:1/4,A"
 # Measure 4
-chords *= "c,p3/8,:1/4,G"
+chords *= "c,p0.5,:1/4,G"
 melody *= "n,b2,C,o5  n,b1,C,o5   n,b2,D,o5  n,b1,D,o5"
 # Measure 5
 chords *= "c,b3,C   c,b3,G"
@@ -94,6 +94,6 @@ chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(5)
 
 
-melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="Lightly Row")
+melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="We Three Kings")
 
 
