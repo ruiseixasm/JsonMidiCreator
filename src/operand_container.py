@@ -3821,31 +3821,28 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         if by_degree:
-            higher_absolute_degree: ou.Degree | None = None
-            lower_absolute_degree: ou.Degree | None = None
+            top_absolute_degree: ou.Degree | None = None
+            base_absolute_degree: ou.Degree | None = None
             
             for element in self._unmasked_items():
                 if isinstance(element, oe.Note):
-                    note_absolute_degree: ou.Degree = element % og.Pipe(ou.Degree())
-                    if higher_absolute_degree is None:
-                        higher_absolute_degree = note_absolute_degree
-                        lower_absolute_degree = note_absolute_degree
-                    elif note_absolute_degree > higher_absolute_degree:
-                        higher_absolute_degree = note_absolute_degree
-                    elif note_absolute_degree < lower_absolute_degree:
-                        lower_absolute_degree = note_absolute_degree
+                    note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
+                    if top_absolute_degree is None:
+                        top_absolute_degree = note_absolute_degree
+                        base_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree > top_absolute_degree:
+                        top_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree < base_absolute_degree:
+                        base_absolute_degree = note_absolute_degree
 
-            if higher_absolute_degree is not None:
-
-                top_pitch_int: int = higher_absolute_degree.pitch_int()
-                bottom_pitch_int: int = lower_absolute_degree.pitch_int()
+            if top_absolute_degree is not None:
 
                 for element in self._unmasked_items():
                     if isinstance(element, oe.Note):
-                        note_absolute_degree: og.Pitch = element._pitch
-                        note_pitch: int = note_absolute_degree.pitch_int()
-                        new_pitch: int = top_pitch_int - (note_pitch - bottom_pitch_int)
-                        note_absolute_degree << new_pitch
+                        note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
+                        degree_from_top: ou.Degree = top_absolute_degree - note_absolute_degree
+                        degree_from_base: ou.Degree = note_absolute_degree - base_absolute_degree
+                        element += degree_from_top - degree_from_base
 
         else:
             higher_pitch: og.Pitch | None = None
