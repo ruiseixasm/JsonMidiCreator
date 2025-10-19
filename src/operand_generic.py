@@ -3481,10 +3481,14 @@ class Mirror(ClipProcess):
     Note's respective Pitch, like vertically mirrored.
 
     Args:
-        None
+        by_degree (bool): If `True` a mirror by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+            does a chromatic mirror by pitch like in a piano roll. The default is `True`.
     """
+    def __init__(self, by_degree: bool = True):
+        super().__init__(by_degree)
+
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.mirror()
+        return operand.mirror(self._parameters)
 
 class Invert(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Invert`
