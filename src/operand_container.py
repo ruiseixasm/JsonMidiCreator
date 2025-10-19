@@ -3808,7 +3808,7 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()    # Sorting here is only needed because it may be a mask!
 
 
-    def mirror(self, by_degree: bool = False) -> Self:
+    def mirror(self, by_degree: bool = True) -> Self:
         """
         Mirror is similar to reverse but instead of reversing the elements position it reverses the
         Note's respective Pitch, like vertically mirrored.

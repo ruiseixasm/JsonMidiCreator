@@ -996,7 +996,7 @@ def test_flip_operation():
         assert single_note % od.Pipe( Pitch() ) == actual_pitch
         actual_pitch += 2
     
-    four_notes.mirror()
+    four_notes.mirror(False)
 
     print("------")
     for single_note in four_notes:
