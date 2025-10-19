@@ -2518,8 +2518,10 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                         if len(token) > 1:
                             token_value = token[1:]
                         element << _parameter_notations[token_parameter](token_value)
-                    elif '.' in token or '/' in token:
+                    elif '/' in token:
                         element << o.string_or_number(token)
+                    elif '.' in token:
+                        element << ra.Steps(o.string_or_number(token))
                     else:
                         element << token
 
