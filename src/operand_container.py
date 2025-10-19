@@ -2518,13 +2518,12 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                             if len(token) > prefix_size:
                                 token_value = token[prefix_size:]
                             element << _parameter_notations[token_parameter](token_value)
-                            token = ""
+                            token = ""  # jumps the next element settings
                             break
-                if token != "":
-                    if '/' in token or '.' in token:
-                        element << ra.NoteValue(token)
-                    else:
-                        element << token
+                if '/' in token or '.' in token:
+                    element << ra.NoteValue(token)
+                elif token != "":
+                    element << token
 
             if new_elements is not None:
                 next_position_beats = new_elements[-1].finish()
