@@ -690,10 +690,14 @@ def test_checksum():
 
 def test_chord_inversions():
     chord = Chord()
+    print(f'chord.center_pitch(): {chord.center_pitch()}')
 
-    assert chord.center_pitch() == chord.set(Inversion(3)).center_pitch() + 12
+    chord_inverted = chord.copy().set(Inversion(3))
+    print(f'chord_inverted.center_pitch(): {chord_inverted.center_pitch()}')
 
-test_chord_inversions()
+    assert chord.center_pitch() + 12 == chord.set(Inversion(3)).center_pitch()
+
+# test_chord_inversions()
 
 
 def test_center_pitch():

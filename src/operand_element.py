@@ -2345,8 +2345,9 @@ class KeyScale(Note):
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.Pipe( int() ) < 128:
                             not_first_note = True # to result in another while loop
-            # Final Octave adjustment
-            octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
+        # Final Octave adjustment
+        octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
+        if octave_offset != 0:
             for single_note in notes:
                 single_note += octave_offset
         return notes
