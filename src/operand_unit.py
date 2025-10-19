@@ -791,14 +791,18 @@ class Degree(PitchParameter):
     
     def __lt__(self, other: any) -> bool:
         if isinstance(other, Degree):
-            return self % float() < other % float()
+            if self._unit == other._unit:
+                return self.semitones_offset() < other.semitones_offset()
+            return self._unit < other._unit
         if isinstance(other, od.Conditional):
             return other < self
         return super().__lt__(other)
     
     def __gt__(self, other: any) -> bool:
         if isinstance(other, Degree):
-            return self % float() > other % float()
+            if self._unit == other._unit:
+                return self.semitones_offset() > other.semitones_offset()
+            return self._unit > other._unit
         if isinstance(other, od.Conditional):
             return other > self
         return super().__gt__(other)
@@ -808,6 +812,7 @@ class Degree(PitchParameter):
         return self._unit
 
     def semitones_offset(self) -> int:
+        """CONVERTS THE FLOAT SEMITONES INTO INT SEMITONES"""
         semitones: int = round(self._semitones * 10)
         if semitones > 0:
             if semitones % 2:  # Odd means Sharp
