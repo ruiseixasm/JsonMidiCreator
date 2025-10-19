@@ -33,6 +33,9 @@ left_hand = Clip("G  F  E  D  C  D  E  F  G") << Octave(3)
 left_hand << Last()**Beats(2)
 left_hand += Measure(2)
 
+right_hand_mirrored = right_hand.copy().mirror().add(Measure(4))
+left_hand_mirrored = left_hand.copy().mirror().add(Measure(4))
 
-right_hand + left_hand >> Plot(title="Exercise 1")
+
+right_hand + left_hand + right_hand_mirrored + left_hand_mirrored >> Plot(title="Exercise 1")
 

@@ -2476,13 +2476,12 @@ _parameter_notations: dict[str, type] = {
     'p':    ra.Position,
     'm':    ra.Measures,
     'b':    ra.Beats,
-    's':    ra.Steps,
     ':':    ra.Dotted,
     'd':    ou.Degree,
     't':    ou.TonicKey,
     'o':    ou.Octave,
     'v':    ou.Velocity,
-    'z':    ou.Size,
+    's':    ou.Size,
     'i':    ou.Inversion
 }
 
