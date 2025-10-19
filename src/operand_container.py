@@ -3808,42 +3808,71 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()    # Sorting here is only needed because it may be a mask!
 
 
-    def mirror(self) -> Self:
+    def mirror(self, by_degree: bool = False) -> Self:
         """
         Mirror is similar to reverse but instead of reversing the elements position it reverses the
         Note's respective Pitch, like vertically mirrored.
 
         Args:
-            None
+            by_degree (bool): If `True` a mirror by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+                does a chromatic mirror by pitch like in a piano roll. The default is `True`.
 
         Returns:
             Clip: The same self object with the items processed.
         """
-        higher_pitch: og.Pitch = None
-        lower_pitch: og.Pitch = None
-        
-        for item in self._unmasked_items():
-            if isinstance(item, oe.Note):
-                element_pitch: og.Pitch = item._pitch
-                if higher_pitch is None:
-                    higher_pitch = element_pitch
-                    lower_pitch = element_pitch
-                elif element_pitch > higher_pitch:
-                    higher_pitch = element_pitch
-                elif element_pitch < lower_pitch:
-                    lower_pitch = element_pitch
+        if by_degree:
+            higher_absolute_degree: ou.Degree | None = None
+            lower_absolute_degree: ou.Degree | None = None
+            
+            for element in self._unmasked_items():
+                if isinstance(element, oe.Note):
+                    note_absolute_degree: ou.Degree = element % og.Pipe(ou.Degree())
+                    if higher_absolute_degree is None:
+                        higher_absolute_degree = note_absolute_degree
+                        lower_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree > higher_absolute_degree:
+                        higher_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree < lower_absolute_degree:
+                        lower_absolute_degree = note_absolute_degree
 
-        if higher_pitch is not None:
+            if higher_absolute_degree is not None:
 
-            top_pitch: int = higher_pitch.pitch_int()
-            bottom_pitch: int = lower_pitch.pitch_int()
+                top_pitch_int: int = higher_absolute_degree.pitch_int()
+                bottom_pitch_int: int = lower_absolute_degree.pitch_int()
 
-            for item in self._unmasked_items():
-                if isinstance(item, oe.Note):
-                    element_pitch: og.Pitch = item._pitch
-                    note_pitch: int = element_pitch.pitch_int()
-                    new_pitch: int = top_pitch - (note_pitch - bottom_pitch)
-                    element_pitch << new_pitch
+                for element in self._unmasked_items():
+                    if isinstance(element, oe.Note):
+                        note_absolute_degree: og.Pitch = element._pitch
+                        note_pitch: int = note_absolute_degree.pitch_int()
+                        new_pitch: int = top_pitch_int - (note_pitch - bottom_pitch_int)
+                        note_absolute_degree << new_pitch
+
+        else:
+            higher_pitch: og.Pitch | None = None
+            lower_pitch: og.Pitch | None = None
+            
+            for element in self._unmasked_items():
+                if isinstance(element, oe.Note):
+                    note_pitch: og.Pitch = element._pitch
+                    if higher_pitch is None:
+                        higher_pitch = note_pitch
+                        lower_pitch = note_pitch
+                    elif note_pitch > higher_pitch:
+                        higher_pitch = note_pitch
+                    elif note_pitch < lower_pitch:
+                        lower_pitch = note_pitch
+
+            if higher_pitch is not None:
+
+                top_pitch_int: int = higher_pitch.pitch_int()
+                bottom_pitch_int: int = lower_pitch.pitch_int()
+
+                for element in self._unmasked_items():
+                    if isinstance(element, oe.Note):
+                        note_pitch: og.Pitch = element._pitch
+                        note_pitch_int: int = note_pitch.pitch_int()
+                        new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
+                        note_pitch << new_pitch
                 
         return self
 
