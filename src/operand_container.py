@@ -2514,16 +2514,16 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 elif index == 0:   # Considers a Note by default
                     element = oe.Note(next_position_beats)
                     new_elements.append(element)
-                if token != "":
-                    for prefix_size in range(1, 3):
-                        token_parameter: str = token[:prefix_size]
-                        if token_parameter in _parameter_notations:
-                            token_value: str = ''
-                            if len(token) > prefix_size:
-                                token_value = token[prefix_size:]
-                            element << _parameter_notations[token_parameter](token_value)
-                            token = ""  # jumps the next element settings
-                            break
+                prefix_maximum_size: int = min(2, len(token))
+                for prefix_size in range(prefix_maximum_size, 0, -1):
+                    token_parameter: str = token[:prefix_size]
+                    if token_parameter in _parameter_notations:
+                        token_value: str = ''
+                        if len(token) > prefix_size:
+                            token_value = token[prefix_size:]
+                        element << _parameter_notations[token_parameter](token_value)
+                        token = ""  # jumps the next element settings
+                        break
                 if '/' in token or '.' in token:
                     element << ra.NoteValue(token)
                 elif token != "":
