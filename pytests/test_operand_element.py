@@ -688,6 +688,14 @@ def test_checksum():
 # test_checksum()
 
 
+def test_chord_inversions():
+    chord = Chord()
+
+    assert chord.center_pitch() == chord.set(Inversion(3)).center_pitch() + 12
+
+test_chord_inversions()
+
+
 def test_center_pitch():
     chord = Chord()
 
