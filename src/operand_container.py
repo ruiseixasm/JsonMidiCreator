@@ -2485,8 +2485,8 @@ _parameter_notations: dict[str, type] = {
     'i':    ou.Inversion
 }
 
-def _division_partials(tokens: str) -> list[str]:
-    return tokens.split(' ')
+def _division_partials(partials: str) -> list[str]:
+    return partials.split(' ')
 
 def _element_tokens(tokens: str) -> list[str]:
     return tokens.split(',')
@@ -2511,16 +2511,18 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                     element = oe.Note(next_position_beats)
                     new_elements.append(element)
                 if token != "":
-                    token_parameter: str = token[0]
-                    if token_parameter in _parameter_notations:
-                        token_value: str = ''
-                        if len(token) > 1:
-                            token_value = token[1:]
-                        element << _parameter_notations[token_parameter](token_value)
-                    elif '/' in token:
-                        element << o.string_or_number(token)
-                    elif '.' in token:
-                        element << ra.Steps(o.string_or_number(token))
+                    for prefix_size in range(1, 3):
+                        token_parameter: str = token[:prefix_size]
+                        if token_parameter in _parameter_notations:
+                            token_value: str = ''
+                            if len(token) > prefix_size:
+                                token_value = token[prefix_size:]
+                            element << _parameter_notations[token_parameter](token_value)
+                            token = ""
+                            break
+                if token != "":
+                    if '/' in token or '.' in token:
+                        element << ra.NoteValue(token)
                     else:
                         element << token
 
