@@ -687,3 +687,17 @@ def test_checksum():
 
 # test_checksum()
 
+
+def test_center_pitch():
+    chord = Chord()
+
+    for _ in range(6):
+        assert chord.center_pitch() < chord.increase_center_pitch().center_pitch()
+
+    for _ in range(6):
+        assert chord.center_pitch() > chord.decrease_center_pitch().center_pitch()
+
+# test_center_pitch()
+
+
+
