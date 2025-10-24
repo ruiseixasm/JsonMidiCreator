@@ -347,7 +347,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 tonic_key: int = self.get_tonic_key()
                 key_line: int = 0
                 if self._unit < 0:
-                    key_line = 1
+                    key_line = 1    # To get b instead of #
                 # It happens only for 7 Flats (-7) (Cb)
                 if self.is_enharmonic(tonic_key, tonic_key):
                     key_line += 2    # All Sharps/Flats
@@ -374,11 +374,14 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
-        if isinstance(other, KeySignature):
-            return self._unit == other._unit and self._mode_0 == other._mode_0
-        if isinstance(other, od.Conditional):
-            return other == self
-        return super().__eq__(other)
+        match other:
+            case KeySignature():
+                return self._unit == other._unit and self._mode_0 == other._mode_0
+            case od.Conditional():
+                return other == self
+            case int() | float() | Fraction() | ol.Carrier() | None:
+                return super().__eq__(other)
+        return self % other == other
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -420,14 +423,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 if isinstance(operand, Flats):
                     self._unit *= -1
             case Key():
-                if self._mode_0 == 0:   # Major
-                    self._unit = self._major_keys_accidentals[ operand._unit ]
-                elif self._mode_0 == 5: # minor
-                    self._unit = self._minor_keys_accidentals[ operand._unit ]
-                major_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
-                major_pitch: int = operand._unit % 12
-                if major_scale[major_pitch]:
-                    self._mode_0 = sum(major_scale[:major_pitch]) # for indexes < operand._unit % 12
+                self._unit = sum( og.Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case Mode():
                 self._mode_0 = operand._unit - 1
             case og.Scale():

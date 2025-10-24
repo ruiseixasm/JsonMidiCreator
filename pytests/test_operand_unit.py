@@ -254,3 +254,15 @@ def test_size_set():
 
 # test_size_set()
 
+
+def test_key_signature_by_key():
+
+    A_minor = KeySignature(Minor())
+    print(f"A_minor % str(): {A_minor % str()}")
+    assert A_minor == ''
+    assert A_minor == Key("A")
+
+    A_minor << Key("D")
+    assert A_minor == 'b'
+    assert A_minor == Key("D")
+
