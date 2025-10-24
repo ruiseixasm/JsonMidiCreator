@@ -290,9 +290,9 @@ def test_key_signature_by_key():
         assert A_minor == '#' * sharps
 
     A_key = Key("A")
-    for flats in range(6): # Up to 6 because 6 is considered b
+    for flats in range(7): # Up to 7 because 7 is considered b
         A_minor << A_key + 5 * flats    # next Fourth
         print(f"A_minor % str(): {A_minor % str()}")
         assert A_minor == 'b' * flats
 
-test_key_signature_by_key()
+# test_key_signature_by_key()
