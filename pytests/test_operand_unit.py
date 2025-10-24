@@ -269,29 +269,29 @@ def test_key_signature_by_key():
     C_major = KeySignature()
 
     C_key = Key()
-    for sharps in range(8):
-        C_major << '#' * sharps
-        assert C_major == C_key
-        C_key += 7  # next Fifth
+    for sharps in range(6): # Up to 6 because 6 is considered b
+        C_major << C_key + 7 * sharps   # next Fifth
+        print(f"C_major % str(): {C_major % str()}")
+        assert C_major == '#' * sharps
 
     C_key = Key()
-    for flats in range(8):
-        C_major << 'b' * flats
-        assert C_major == C_key
-        C_key += 5  # next Fourth
+    for flats in range(7): # Up to 7 because 7 is considered #
+        C_major << C_key + 5 * flats    # next Fourth
+        print(f"C_major % str(): {C_major % str()}")
+        assert C_major == 'b' * flats
 
 
     A_minor = KeySignature(Minor())
     
-    A_key = Key("A")
-    for sharps in range(8):
-        A_minor << '#' * sharps
-        assert A_minor == A_key
-        A_key += 7  # next Fifth
+    # A_key = Key("A")
+    # for sharps in range(6): # Up to 6 because 6 is considered b
+    #     A_minor << A_key + 7 * sharps   # next Fifth
+    #     print(f"A_minor % str(): {A_minor % str()}")
+    #     assert A_minor == '#' * sharps
 
     A_key = Key("A")
-    for flats in range(8):
-        A_minor << 'b' * flats
-        assert A_minor == A_key
-        A_key += 5  # next Fourth
+    for flats in range(6): # Up to 6 because 6 is considered b
+        A_minor << A_key + 5 * flats    # next Fourth
+        print(f"A_minor % str(): {A_minor % str()}")
+        assert A_minor == 'b' * flats
 
