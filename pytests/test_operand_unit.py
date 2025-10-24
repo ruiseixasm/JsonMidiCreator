@@ -283,11 +283,11 @@ def test_key_signature_by_key():
 
     A_minor = KeySignature(Minor())
     
-    # A_key = Key("A")
-    # for sharps in range(6): # Up to 6 because 6 is considered b
-    #     A_minor << A_key + 7 * sharps   # next Fifth
-    #     print(f"A_minor % str(): {A_minor % str()}")
-    #     assert A_minor == '#' * sharps
+    A_key = Key("A")
+    for sharps in range(6): # Up to 6 because 6 is considered b
+        A_minor << A_key + 7 * sharps   # next Fifth
+        print(f"A_minor % str(): {A_minor % str()}")
+        assert A_minor == '#' * sharps
 
     A_key = Key("A")
     for flats in range(6): # Up to 6 because 6 is considered b
@@ -295,3 +295,4 @@ def test_key_signature_by_key():
         print(f"A_minor % str(): {A_minor % str()}")
         assert A_minor == 'b' * flats
 
+test_key_signature_by_key()

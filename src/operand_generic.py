@@ -1349,14 +1349,14 @@ class Scale(Generic):
                 sharps_or_flats[(tonic_key + major_key) % 12] = picker_key - major_key
                 major_key += 1 # Moves to the next key to be available
         total_accidentals: int = sum(sharps_or_flats)
-        if total_accidentals < -7 and major_scale[tonic_key % 12] == 0:
+        if major_scale[tonic_key % 12] == 0 and total_accidentals < -7:
             sharps: list[int] = [0] * 12
-            major_key = -1  # starts at the key bellow to be sharped
+            major_key = -1  # Starts by assuming a sharp (it's the case)
             for picker_key in range(12):
                 if picker_scale[picker_key] == 1:
                     # There is always a white key after a black one (diatonic scales)
                     major_key += 1 ^ major_scale[(tonic_key + major_key) % 12]
-                    sharps_or_flats[(tonic_key + major_key) % 12] = picker_key - major_key
+                    sharps[(tonic_key + major_key) % 12] = picker_key - major_key
                     major_key += 1 # Moves to the next key to be available
             return sharps
         return sharps_or_flats
