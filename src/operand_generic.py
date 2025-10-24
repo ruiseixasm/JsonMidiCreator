@@ -1349,7 +1349,7 @@ class Scale(Generic):
                 sharps_or_flats[(tonic_key + major_key) % 12] = picker_key - major_key
                 major_key += 1 # Moves to the next key to be available
         total_accidentals: int = sum(sharps_or_flats)
-        if major_scale[tonic_key % 12] == 0 and total_accidentals < -7:
+        if major_scale[tonic_key % 12] == 0 and total_accidentals < -6:
             sharps: list[int] = [0] * 12
             major_key = -1  # Starts by assuming a sharp (it's the case)
             for picker_key in range(12):
