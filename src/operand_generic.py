@@ -1339,15 +1339,15 @@ class Scale(Generic):
         For example, `Scale.sharps_or_flats_picker(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
 
         """
+        major_scale: tuple[int] = ou.KeySignature._major_scale
         sharps_or_flats: list[int] = [0] * 12
-        source_scale: tuple[int] = ou.KeySignature._major_scale
-        source_key: int = 0
+        major_key: int = 0
         for picker_key in range(12):
             if picker_scale[picker_key] == 1:
                 # There is always a white key after a black one (diatonic scales)
-                source_key += 1 ^ source_scale[(tonic_key + source_key) % 12]
-                sharps_or_flats[(tonic_key + source_key) % 12] = picker_key - source_key
-                source_key += 1 # Moves to the next key to be available
+                major_key += 1 ^ major_scale[(tonic_key + major_key) % 12]
+                sharps_or_flats[(tonic_key + major_key) % 12] = picker_key - major_key
+                major_key += 1 # Moves to the next key to be available
         return sharps_or_flats
     
 
