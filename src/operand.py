@@ -51,16 +51,62 @@ def string_or_number(string: str) -> int | float | str:
             return string
 
 def string_eval(string: str) -> Any:
-    try:
-        return ast.literal_eval(string)
-    except ValueError:
-        if "/" in string:
-            num, denom = string.split("/", 1)
+    """Safely evaluate a string into int, float, Fraction, or list of them.
+       If the string cannot be parsed, return it unchanged.
+    """
+
+    def parse_item(item):
+        """Recursively convert list items, numbers, or fraction strings."""
+        if isinstance(item, list):
+            return [parse_item(sub_item) for sub_item in item]
+        if isinstance(item, (int, float)):
+            return item
+        if isinstance(item, str):
+            item = item.strip()
+            # Try to evaluate nested literals first
             try:
-                return Fraction(int(num.strip()), int(denom.strip()))
-            except ValueError:
-                return string
-        return string
+                literal_value = ast.literal_eval(item)
+                return parse_item(literal_value)
+            except Exception:
+                pass
+            # Try converting to Fraction
+            if "/" in item:
+                try:
+                    numerator, denominator = item.split("/", 1)
+                    return Fraction(int(numerator.strip()), int(denominator.strip()))
+                except Exception:
+                    pass
+        # Return unchanged if nothing worked
+        return item
+
+    stripped = string.strip()
+
+    # --- Step 1: Try literal eval normally ---
+    try:
+        parsed_value = ast.literal_eval(stripped)
+        return parse_item(parsed_value)
+    except Exception:
+        pass
+
+    # --- Step 2: Try to manually interpret list-like strings ---
+    if stripped.startswith("[") and stripped.endswith("]"):
+        # Remove brackets and split by commas
+        inner_content = stripped[1:-1].strip()
+        if inner_content:
+            parts = [part.strip() for part in inner_content.split(",")]
+            return [parse_item(part) for part in parts]
+        return []
+
+    # --- Step 3: Try single fraction as fallback ---
+    if "/" in stripped:
+        try:
+            numerator, denominator = stripped.split("/", 1)
+            return Fraction(int(numerator.strip()), int(denominator.strip()))
+        except Exception:
+            pass
+
+    # --- Step 4: Nothing matched, return unchanged ---
+    return string
 
 
 def tag_to_int(tag: str) -> int:

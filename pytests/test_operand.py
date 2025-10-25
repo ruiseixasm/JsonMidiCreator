@@ -389,4 +389,10 @@ def test_string_eval():
     assert type(string_eval("1.0")) is float
     assert type(string_eval("1/1")) is Fraction
 
+    assert type(string_eval("[1, 3, 5]")) is list
+    assert string_eval("[1, 3, 5]") == [1, 3, 5]
+    assert string_eval("[1.1, 3.1, 5.1]") == [1.1, 3.1, 5.1]
+    assert string_eval("[1/2, 3/2, 5/2]") == [1/2, 3/2, 5/2]
+
+# test_string_eval()
 
