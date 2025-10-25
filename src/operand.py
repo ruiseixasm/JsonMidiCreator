@@ -63,6 +63,12 @@ def string_eval(string: str) -> Any:
             return [parse_item(sub_item) for sub_item in item]
         if isinstance(item, str):
             item = item.strip()
+
+            # Leave quoted literals untouched ('1' or "1")
+            if item.startswith("'") and item.endswith("'") or item.startswith('"') and item.endswith('"'):
+                return item
+                # return stripped[1:-1]
+
             # Try to evaluate nested literals first
             try:
                 literal_value = ast.literal_eval(item)
