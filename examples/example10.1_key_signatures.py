@@ -23,20 +23,10 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-settings << Tempo(120) << Measures(7)
+settings << Tempo(120) << Minor()
 
-# All Sharps(#) of the Major Scale on the Circle of Fifths
-clip = Note("C", NoteValue(4), Velocity(85), Gate(1)) * 8 + Iterate()**0
-clip >> Play(True)
 
-# Global Staff setting up
-settings << KeySignature(1)
-clip >> Play(True)
-settings << KeySignature(6)
-clip >> Play()
-settings << KeySignature(7)
-clip >> Play()
+four_notes = Note(1/1) / 4 << Iterate()**KeySignature(Minor())
 
-settings << KeySignature()
-clip += 1
-clip >> Play()
+four_notes >> Plot(title="F# minor")
+
