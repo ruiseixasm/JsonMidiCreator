@@ -55,12 +55,12 @@ def string_eval(string: str) -> Any:
        If the string cannot be parsed, return it unchanged.
     """
 
-    def parse_item(item):
+    def parse_item(item: any) -> Any:
         """Recursively convert list items, numbers, or fraction strings."""
-        if isinstance(item, list):
-            return [parse_item(sub_item) for sub_item in item]
         if isinstance(item, (int, float)):
             return item
+        if isinstance(item, list):
+            return [parse_item(sub_item) for sub_item in item]
         if isinstance(item, str):
             item = item.strip()
             # Try to evaluate nested literals first
@@ -84,7 +84,7 @@ def string_eval(string: str) -> Any:
     # --- Step 1: Try literal eval normally ---
     try:
         parsed_value = ast.literal_eval(stripped)
-        return parse_item(parsed_value)
+        return parse_item(parsed_value) # It may be a list (with parsable strings)
     except Exception:
         pass
 
