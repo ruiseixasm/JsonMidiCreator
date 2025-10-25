@@ -37,53 +37,53 @@ chords = Clip()
 melody = Clip()
 
 # Measure 0
-chords *= "c,m1,A"
-melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
+chords *= "c;m1;A"
+melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
 # Measure 1
-chords *= "c,:1/4,G             c,b9,A"
-melody *= "n,1/8,B  n,1/8,C,o5  n,1/8,B  n,:1/4,A"
+chords *= "c;:1/4;G             c;b9;A"
+melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;:1/4;A"
 # Measure 2
 chords *= ""
-melody *= "n,1/4,E,o5  n,1/8,D,o5  n,1/4,C,o5  n,1/8,A"
+melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
 # Measure 3
-chords *= "c,:1/4,G          c,:2/4,A"
-melody *= "n,1/8,B  n,1/8,C,o5  n,1/8,B  n,:1/4,A"
+chords *= "c;:1/4;G          c;:2/4;A"
+melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;:1/4;A"
 # Measure 4
-chords *= "c,p0.5,:1/4,G"
-melody *= "n,b2,C,o5  n,b1,C,o5   n,b2,D,o5  n,b1,D,o5"
+chords *= "c;p0.5;:1/4;G"
+melody *= "n;b2;C;o5  n;b1;C;o5   n;b2;D;o5  n;b1;D;o5"
 # Measure 5
-chords *= "c,b3,C   c,b3,G"
-melody *= "n,b2,E,o5   n,b1,E,o5   n,b1,G,o5  n,b1,F,o5  n,b1,E,o5"
+chords *= "c;b3;C   c;b3;G"
+melody *= "n;b2;E;o5   n;b1;E;o5   n;b1;G;o5  n;b1;F;o5  n;b1;E;o5"
 # Measure 6
-chords *= "c,b3,D   c,b3,E"
-melody *= "n,b1,D,o5   n,b1,E,o5   n,b1,D,o5  n,b2,C,o5  n,b1,B"
+chords *= "c;b3;D   c;b3;E"
+melody *= "n;b1;D;o5   n;b1;E;o5   n;b1;D;o5  n;b2;C;o5  n;b1;B"
 # Measure 7
-chords *= "c,b3,A   c,b3,G"
-melody *= "n,b3,A   n,b2,B  n,b1,D,o5"
+chords *= "c;b3;A   c;b3;G"
+melody *= "n;b3;A   n;b2;B  n;b1;D;o5"
 # Measure 8
-chords *= "c,b6,A"
-melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5  n,b1,G"
+chords *= "c;b6;A"
+melody *= "n;b2;C;o5   n;b1;C;o5  n;b2;C;o5  n;b1;G"
 # Measure 9
-chords *= "c,b3,F   c,b3,C"
-melody *= "n,b2,C,o5   n,b1,A  n,b3,C,o5"
+chords *= "c;b3;F   c;b3;C"
+melody *= "n;b2;C;o5   n;b1;A  n;b3;C;o5"
 # Measure 10
-chords *= "c,b6,C"
-melody *= "n,b2,C,o5   n,b1,C,o5  n,b2,C,o5     n,b1,G"
+chords *= "c;b6;C"
+melody *= "n;b2;C;o5   n;b1;C;o5  n;b2;C;o5     n;b1;G"
 # Measure 11
-chords *= "c,b3,F   c,b3,C"
-melody *= "n,b2,C,o5    n,b1,A  n,b3,C,o5"
+chords *= "c;b3;F   c;b3;C"
+melody *= "n;b2;C;o5    n;b1;A  n;b3;C;o5"
 # Measure 12
-chords *= "c,b3,A   c,b3,G"
-melody *= "n,b2,C,o5    n,b1,C,o5   n,b2,D,o5   n,b1,E,o5"
+chords *= "c;b3;A   c;b3;G"
+melody *= "n;b2;C;o5    n;b1;C;o5   n;b2;D;o5   n;b1;E;o5"
 # Measure 13
-chords *= "c,b3,F   c,b3,G"
-melody *= "n,b2,F5    n,b1,E5   n,b2,D5   n,b1,E5"
+chords *= "c;b3;F   c;b3;G"
+melody *= "n;b2;F5    n;b1;E5   n;b2;D5   n;b1;E5"
 # Measure 14
-chords *= "c_1,C"
-melody *= "n4,C5   n8,C5  n4,C5  n8,G"
+chords *= "c_1;C"
+melody *= "n4;C5   n8;C5  n4;C5  n8;G"
 # Measure 15
-chords *= "c4d,F    c4d,C"
-melody *= "b2,C5    b1,A    b3,C5"
+chords *= "c4d;F    c4d;C"
+melody *= "b2;C5    b1;A    b3;C5"
 
 
 

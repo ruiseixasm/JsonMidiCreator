@@ -1294,13 +1294,13 @@ def test_tokens_uniqueness():
 
 
 def test_chord_smooth():
-    chords_G_C = Clip("c,G    c,C")
+    chords_G_C = Clip("c;G    c;C")
 
     assert chords_G_C[1] == Inversion(0)
     chords_G_C.smooth(4)
     assert chords_G_C[1] == Inversion(2)
 
-    chords_F_C = Clip("c,F    c,C")
+    chords_F_C = Clip("c;F    c;C")
 
     assert chords_F_C[1] == Inversion(0)
     chords_F_C.smooth(4)
