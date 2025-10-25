@@ -40,16 +40,16 @@ melody = Clip()
 chords *= "c;m1;A"
 melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
 # Measure 1
-chords *= "c;:1/4;G             c;b9;A"
-melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;:1/4;A"
+chords *= "c;d1/4;G             c;b9;A"
+melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"
 # Measure 2
 chords *= ""
 melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
 # Measure 3
-chords *= "c;:1/4;G          c;:2/4;A"
-melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;:1/4;A"
+chords *= "c;d1/4;G          c;d2/4;A"
+melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"
 # Measure 4
-chords *= "c;p0.5;:1/4;G"
+chords *= "c;p0.5;d1/4;G"
 melody *= "n;b2;C;o5  n;b1;C;o5   n;b2;D;o5  n;b1;D;o5"
 # Measure 5
 chords *= "c;b3;C   c;b3;G"
