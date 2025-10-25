@@ -17,6 +17,7 @@ import logging
 from functools import cache
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
 from typing import Self
+import ast
 
 from fractions import Fraction
 # Json Midi Creator Libraries
@@ -48,6 +49,18 @@ def string_or_number(string: str) -> int | float | str:
             return float(rational)
         except ValueError:
             return string
+
+def string_eval(string: str) -> Any:
+    try:
+        return ast.literal_eval(string)
+    except ValueError:
+        if "/" in string:
+            num, denom = string.split("/", 1)
+            try:
+                return Fraction(int(num.strip()), int(denom.strip()))
+            except ValueError:
+                return string
+        return string
 
 
 def tag_to_int(tag: str) -> int:

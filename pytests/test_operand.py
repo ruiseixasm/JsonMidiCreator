@@ -382,3 +382,11 @@ def test_list_chars():
 
     assert list_chars("hello") == ['h', 'e', 'l', 'l', 'o']
 
+
+def test_string_eval():
+
+    assert type(string_eval("1"))   is int
+    assert type(string_eval("1.0")) is float
+    assert type(string_eval("1/1")) is Fraction
+
+
