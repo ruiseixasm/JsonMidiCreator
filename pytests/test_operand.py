@@ -395,5 +395,5 @@ def test_string_eval():
     assert string_eval("[1/2, 3/2, 5/2]") == [1/2, 3/2, 5/2]
     # assert string_eval("['1', '2', '5']") == ['1', '2', '5']
 
-test_string_eval()
+# test_string_eval()
 
