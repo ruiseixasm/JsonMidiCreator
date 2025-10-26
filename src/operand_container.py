@@ -2468,7 +2468,8 @@ _element_notations: dict[str, type] = {
     'c_1':      oe.C_1,
     'c_2':      oe.C_2,
     'c_3':      oe.C_3,
-    'c_4':      oe.C_4
+    'c_4':      oe.C_4,
+    'cl':       oe.Cluster
 }
 
 # <>?/:;"'|\"}]{[]}+=_-)0(9)*8&7^6%5$4#3@2!1~``
@@ -2494,7 +2495,6 @@ def _division_partials(partials: str) -> list[str]:
 def _element_tokens(tokens: str) -> list[str]:
     return tokens.split(';')
 
-
 def _token_to_parameter(token: str) -> Any:
     prefix_maximum_size: int = min(2, len(token))
     for prefix_size in range(prefix_maximum_size, 0, -1):
@@ -2509,15 +2509,13 @@ def _token_to_parameter(token: str) -> Any:
         inner_content = token[1:-1].strip()
         if inner_content:
             parts = [part.strip() for part in inner_content.split(",")]
-            return [_string_to_elements(part) for part in parts]
+            return [_token_to_parameter(part) for part in parts]
         return []
     elif '/' in token or '.' in token:
         return ra.NoteValue(token)
     elif token != "":
         return token
     return ol.Null()
-
-
 
 def _string_to_elements(string: str) -> list[oe.Element]:
     division_partials: list[str] = _division_partials(string)
@@ -2539,28 +2537,13 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                     element = oe.Note(next_position_beats)
                     new_elements.append(element)
 
-                
-
-                prefix_maximum_size: int = min(2, len(token))
-                for prefix_size in range(prefix_maximum_size, 0, -1):
-                    token_parameter: str = token[:prefix_size]
-                    if token_parameter in _parameter_notations:
-                        token_value: str = ''
-                        if len(token) > prefix_size:
-                            token_value = token[prefix_size:]
-                        element << _parameter_notations[token_parameter](token_value)
-                        token = ""  # jumps the next element settings
-                        break
-                if '/' in token or '.' in token:
-                    element << ra.NoteValue(token)
-                elif token != "":
-                    element << token
+                # Where the element is set with the token
+                element << _token_to_parameter(token)
 
             if new_elements is not None:
                 next_position_beats = new_elements[-1].finish()
                 string_elements.extend(new_elements)
     return string_elements
-
 
 
 class Clip(Composition):  # Just a container of Elements
