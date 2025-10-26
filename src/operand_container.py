@@ -2511,9 +2511,11 @@ def _token_to_parameter(token: str) -> Any:
             parts = [part.strip() for part in inner_content.split(",")]
             return [_token_to_parameter(part) for part in parts]
         return []
-    elif '/' in token or '.' in token:
+    if '\'' in token:
+        token = token.replace('\'', '')
+    if '/' in token or '.' in token:
         return ra.NoteValue(token)
-    elif token != "":
+    if token != "":
         return token
     return ol.Null()
 
