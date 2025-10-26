@@ -2431,12 +2431,12 @@ class KeyScale(Note):
 class Cluster(KeyScale):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Cluster`
 
-    A `Cluster` element allows the triggering of notes concerning specific degrees of a given `Scale`.
+    A `Cluster` element allows the triggering of notes concerning specific pitch parameter (Ex. `Degree`) of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
     Parameters
     ----------
-    list(['1', '3', '5']) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
+    list(['1', '3', '5']) : Sets the specific pitches (list) to result as `Note` for each single pitch parameter.
     Inversion(0) : The number of inversion of the `Chord`.
     Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
@@ -2451,7 +2451,7 @@ class Cluster(KeyScale):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitches: list = [0.0, 2.0, 4.0]
+        self._pitches: list = ['1', '3', '5']
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2475,10 +2475,10 @@ class Cluster(KeyScale):
     
     def get_component_elements(self) -> list[Note]:
         chord_notes: list[Note] = []
-        for pitch_offset in self._pitches:
+        for pitch_parameter in self._pitches:
             single_note: Note = Note(self)  # Owned by same clip
             chord_notes.append( single_note )
-            single_note._pitch << pitch_offset
+            single_note._pitch << pitch_parameter
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
