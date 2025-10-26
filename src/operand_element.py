@@ -2436,7 +2436,7 @@ class Cluster(KeyScale):
 
     Parameters
     ----------
-    list([0.0, 2.0, 4.0]) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
+    list(['1', '3', '5']) : Sets the specific offset pitches (list) to be pressed as `Note` for each `Octave` offset (int).
     Inversion(0) : The number of inversion of the `Chord`.
     Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
     Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
@@ -2451,22 +2451,22 @@ class Cluster(KeyScale):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._offsets: list = [0.0, 2.0, 4.0]
+        self._pitches: list = [0.0, 2.0, 4.0]
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case list():            return self._offsets
+                    case list():            return self._pitches
                     case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._offsets)
+            case list():            return self.deep_copy(self._pitches)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
-                return super().__eq__(other) and self._offsets == other._offsets
+                return super().__eq__(other) and self._pitches == other._pitches
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -2475,26 +2475,26 @@ class Cluster(KeyScale):
     
     def get_component_elements(self) -> list[Note]:
         chord_notes: list[Note] = []
-        for pitch_offset in self._offsets:
+        for pitch_offset in self._pitches:
             single_note: Note = Note(self)  # Owned by same clip
             chord_notes.append( single_note )
-            single_note._pitch += pitch_offset
+            single_note._pitch << pitch_offset
         return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
 
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["offsets"] = self.serialize( self._offsets )
+        serialization["parameters"]["pitches"] = self.serialize( self._pitches )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "offsets" in serialization["parameters"]):
+            "pitches" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._offsets = self.deserialize( serialization["parameters"]["offsets"] )
+            self._pitches = self.deserialize( serialization["parameters"]["pitches"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2502,26 +2502,26 @@ class Cluster(KeyScale):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._offsets = self.deep_copy( operand._offsets )
+                self._pitches = self.deep_copy( operand._pitches )
             case od.Pipe():
                 match operand._data:
                     case list():
                         if all(not isinstance(item, Element) for item in operand._data):
-                            self._offsets = operand._data
+                            self._pitches = operand._data
                         else:
                             super().__lshift__(operand)
                     case _:
                         super().__lshift__(operand)
             case list():
                 if all(not isinstance(item, Element) for item in operand):
-                    self._offsets = self.deep_copy( operand )
+                    self._pitches = self.deep_copy( operand )
                 else:
                     super().__lshift__(operand)
             case dict():
                 if all(isinstance(key, int) for key in operand.keys()):
                     for index, offset in operand.items():
-                        if index >= 0 and index < len(self._offsets):
-                            self._offsets[index] = self.deep_copy(offset)
+                        if index >= 0 and index < len(self._pitches):
+                            self._pitches[index] = self.deep_copy(offset)
                 else:   # Not for me
                     self._pitch << operand
             case _:
