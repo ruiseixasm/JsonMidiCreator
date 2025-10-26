@@ -2511,8 +2511,10 @@ def _token_to_parameter(token: str) -> Any:
             parts = [part.strip() for part in inner_content.split(",")]
             return [_token_to_parameter(part) for part in parts]
         return []
-    if '\'' in token:
-        token = token.replace('\'', '')
+    if token.startswith("(") and token.endswith(")"):
+        inner_as_list = "[" + token[1:-1].strip() + "]"
+        return tuple( _token_to_parameter(inner_as_list) )
+    token = token.replace('\'', '') # Clean up repeated quotation
     if '/' in token or '.' in token:
         return ra.NoteValue(token)
     if token != "":
