@@ -2494,6 +2494,7 @@ def _division_partials(partials: str) -> list[str]:
 def _element_tokens(tokens: str) -> list[str]:
     return tokens.split(';')
 
+
 def _token_to_parameter(token: str) -> Any:
     prefix_maximum_size: int = min(2, len(token))
     for prefix_size in range(prefix_maximum_size, 0, -1):
@@ -2512,7 +2513,9 @@ def _token_to_parameter(token: str) -> Any:
         return []
     elif '/' in token or '.' in token:
         return ra.NoteValue(token)
-    return token
+    elif token != "":
+        return token
+    return ol.Null()
 
 
 
@@ -2535,6 +2538,8 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 elif index == 0:   # Considers a Note by default
                     element = oe.Note(next_position_beats)
                     new_elements.append(element)
+
+                
 
                 prefix_maximum_size: int = min(2, len(token))
                 for prefix_size in range(prefix_maximum_size, 0, -1):
