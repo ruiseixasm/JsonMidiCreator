@@ -2494,6 +2494,28 @@ def _division_partials(partials: str) -> list[str]:
 def _element_tokens(tokens: str) -> list[str]:
     return tokens.split(';')
 
+def _token_to_parameter(token: str) -> Any:
+    prefix_maximum_size: int = min(2, len(token))
+    for prefix_size in range(prefix_maximum_size, 0, -1):
+        token_parameter: str = token[:prefix_size]
+        if token_parameter in _parameter_notations:
+            token_value: str = ''
+            if len(token) > prefix_size:
+                token_value = token[prefix_size:]
+            return _parameter_notations[token_parameter](token_value)
+    if token.startswith("[") and token.endswith("]"):
+        # Remove brackets and split by commas
+        inner_content = token[1:-1].strip()
+        if inner_content:
+            parts = [part.strip() for part in inner_content.split(",")]
+            return [_string_to_elements(part) for part in parts]
+        return []
+    elif '/' in token or '.' in token:
+        return ra.NoteValue(token)
+    return token
+
+
+
 def _string_to_elements(string: str) -> list[oe.Element]:
     division_partials: list[str] = _division_partials(string)
     string_elements: list[oe.Element] = []
@@ -2513,6 +2535,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 elif index == 0:   # Considers a Note by default
                     element = oe.Note(next_position_beats)
                     new_elements.append(element)
+
                 prefix_maximum_size: int = min(2, len(token))
                 for prefix_size in range(prefix_maximum_size, 0, -1):
                     token_parameter: str = token[:prefix_size]
