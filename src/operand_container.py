@@ -2496,14 +2496,13 @@ def _element_tokens(tokens: str) -> list[str]:
     return tokens.split(';')
 
 def _token_to_parameter(token: str) -> Any:
-    prefix_maximum_size: int = min(2, len(token))
-    for prefix_size in range(prefix_maximum_size, 0, -1):
+    prefix_start_size: int = len(token)
+    for prefix_size in range(prefix_start_size, 0, -1):
         token_parameter: str = token[:prefix_size]
         if token_parameter in _parameter_notations:
-            token_value: str = ''
-            if len(token) > prefix_size:
-                token_value = token[prefix_size:]
-            return _parameter_notations[token_parameter](token_value)
+            if prefix_size < prefix_start_size:
+                return _parameter_notations[token_parameter]( token[prefix_size:] )
+            return _parameter_notations[token_parameter]()
     if token.startswith("[") and token.endswith("]"):
         # Remove brackets and split by commas
         inner_content = token[1:-1].strip()
