@@ -2465,7 +2465,7 @@ class Cluster(KeyScale):
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
-            case self.__class__():
+            case Cluster():
                 return super().__eq__(other) and self._pitches == other._pitches
             case Element():
                 # Makes a playlist comparison

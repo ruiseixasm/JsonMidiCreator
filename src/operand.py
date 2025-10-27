@@ -1016,7 +1016,10 @@ class Operand:
                 serialized_list: list = __class__.serialize(list(data))
                 return tuple(serialized_list)
             case Fraction():
-                return str(data)
+                fraction_string: str = str(data)
+                if '/' in fraction_string:
+                    return fraction_string
+                return fraction_string + '/1'
             case _:
                 return data
 
@@ -1038,23 +1041,25 @@ class Operand:
                 deserialized_dict: dict = {}
                 for key, value in data.items(): # Makes sure it processes Operands in dict
                     # Recursively copy each deserialized value
-                    deserialized_dict[key] = __class__.deserialize(value)
+                    deserialized_dict[key] = Operand.deserialize(value)
                 return deserialized_dict
             case Operand(): # just a fail safe
                 return data
             case list():
                 data_list: list[any] = []
                 for single_serialization in data:
-                    data_list.append(__class__.deserialize(single_serialization))
+                    data_list.append(Operand.deserialize(single_serialization))
                 return data_list
             case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
-                data_list: list = __class__.deserialize(list(data))
+                data_list: list = Operand.deserialize(list(data))
                 return tuple(data_list)
             case str():
-                try:
-                    return Fraction(data)
-                except ValueError:
-                    return data
+                if '/' in data:
+                    try:
+                        return Fraction(data)
+                    except ValueError:
+                        pass
+                return data
             case _:
                 return data
 

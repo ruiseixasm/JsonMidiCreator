@@ -207,7 +207,7 @@ class Locus(Generic):
                 case TimeSignature():
                     self._time_signature_reference = operand
         match operand:
-            case self.__class__():
+            case Locus():
                 super().__lshift__(operand)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
