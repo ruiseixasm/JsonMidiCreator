@@ -874,10 +874,8 @@ class Pitch(Generic):
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
-                        # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
-                        actual_pitch: int = self.pitch_int()
-                        pitch_offset: int = operand - actual_pitch
-                        self.increment_tonic(pitch_offset)
+                        # The normal setting of the final pitch int is already absolute
+                        self << operand
                     case Fraction():
                         self._transposition = int(operand._data)
                     case ou.Semitone(): # Sets an absolute pitch
@@ -900,7 +898,7 @@ class Pitch(Generic):
                 self._key_signature << operand
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case int():
-                # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
+                # Setting the final pitch int is done by adjusting the absolute Root key and NOT the Tonic key
                 self << od.Pipe( ou.RootKey(operand) )
 
             case ou.Semitone():
