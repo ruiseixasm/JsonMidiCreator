@@ -849,9 +849,9 @@ class Pitch(Generic):
                 match operand._data:
                     case ou.KeySignature():
                         self._key_signature = operand._data
+
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
-
                     case ou.RootKey():
                         expected_octave_0: int = operand._data._unit // 12
                         self << operand._data  # Sets the RootKey on the actual Octave
@@ -864,9 +864,9 @@ class Pitch(Generic):
                         target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
                         target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - target_octave_0
-
                     case ou.Key():
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
+
                     case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
@@ -889,10 +889,6 @@ class Pitch(Generic):
                     case list():
                         self._scale = operand._data
                     case str():
-                        # TO BE REVIEWED
-                        # self._sharp = \
-                        #     ((operand._data).strip().lower().find("#") != -1) * 1 + \
-                        #     ((operand._data).strip().lower().find("b") != -1) * -1
                         self._degree_0 = abs((self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit) - 1 # 0 based
                         self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
@@ -906,9 +902,6 @@ class Pitch(Generic):
             case int():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
                 self << od.Pipe( ou.RootKey(operand) )
-                # actual_pitch: int = self.pitch_int()
-                # pitch_offset: int = operand - actual_pitch
-                # self.increment_tonic(pitch_offset)
 
             case ou.Semitone():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
