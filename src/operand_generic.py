@@ -874,7 +874,10 @@ class Pitch(Generic):
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
-                        self._tonic_key = operand._data
+                        # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
+                        actual_pitch: int = self.pitch_int()
+                        pitch_offset: int = operand - actual_pitch
+                        self.increment_tonic(pitch_offset)
                     case Fraction():
                         self._transposition = int(operand._data)
                     case ou.Semitone(): # Sets an absolute pitch
