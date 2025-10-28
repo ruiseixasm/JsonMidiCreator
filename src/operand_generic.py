@@ -905,9 +905,10 @@ class Pitch(Generic):
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case int():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
-                actual_pitch: int = self.pitch_int()
-                pitch_offset: int = operand - actual_pitch
-                self.increment_tonic(pitch_offset)
+                self << od.Pipe( ou.RootKey(operand) )
+                # actual_pitch: int = self.pitch_int()
+                # pitch_offset: int = operand - actual_pitch
+                # self.increment_tonic(pitch_offset)
 
             case ou.Semitone():
                 # Now a basic tonic transposition of the tonic key works because degree and transposition are linear operations
