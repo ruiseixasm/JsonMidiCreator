@@ -42,11 +42,11 @@ class Yielder(o.Operand):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
-    list([1/4]) : The parameters for each yield of elements.
+    list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
-        self._parameters: list[Any] = [1/4]
+        self._parameters: list[Any] = [1/4, 1/4, 1/4, 1/4]
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -118,7 +118,7 @@ class GetStackedElements(Yielder):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
-    list([1/4]) : The parameters for each yield of elements.
+    list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -132,6 +132,73 @@ class GetStackedElements(Yielder):
                 return output_yield
             case _:
                 return super().__mod__(operand)
+
+
+class GetStackedNotes(Yielder):
+    """`Yielder -> GetStackedNotes`
+
+    Generates a series of elements with the respective given duration.
+
+    Parameters
+    ----------
+    Element(Note()) : The `Element` to be used as source for all yielded ones.
+    list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
+    Degrees([1, 3, 5]) : The multiple Degrees for each yielded `Note`.
+    """
+    def __init__(self, *parameters):
+        self._degrees: list[Any] = [1, 3, 5]
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case od.Degrees():
+                        return od.Degrees(self._degrees)
+                    case _:
+                        return super().__mod__(operand)
+            case od.Degrees():
+                return od.Degrees(o.Operand.deep_copy(self._degrees))
+            case list():
+                output_yield: list = [
+                    self._element.copy(parameter) for parameter in self._parameters
+                ]
+                return output_yield
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["degrees"]  = self.serialize(self._degrees)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "degrees" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._degrees   = self.deserialize(serialization["parameters"]["degrees"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case GetStackedNotes():
+                super().__lshift__(operand)
+                self._degrees = o.Operand.deep_copy(operand._degrees)
+            case od.Pipe():
+                match operand._data:
+                    case od.Degrees():
+                        self._degrees = operand._data._data
+                    case _:
+                        super().__lshift__(operand)
+            case od.Degrees():
+                self._degrees = o.Operand.deep_copy(operand._data)
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 

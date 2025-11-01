@@ -362,7 +362,10 @@ class Elements(DataMany):
 class Clips(DataMany):
     pass
 
-class YielderParameter(DataMany):
+class Durations(DataMany):
+    pass
+
+class Degrees(DataMany):
     pass
 
 
