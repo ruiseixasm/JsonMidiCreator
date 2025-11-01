@@ -42,6 +42,7 @@ class Yielder(o.Operand):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
+    list([1/4]) : The parameters for each yield of elements.
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
@@ -117,8 +118,21 @@ class GetStackedElements(Yielder):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
+    list([1/4]) : The parameters for each yield of elements.
     """
-    pass
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case list():
+                output_yield: list = []
+                previous_position: ra.Position = self._element.start()
+                for parameter in self._parameters:
+                    new_element: oe.Element = self._element.copy(previous_position, parameter)
+                    output_yield.append(new_element)
+                    previous_position._rational += new_element._duration_beats
+                return output_yield
+            case _:
+                return super().__mod__(operand)
+
 
 
 
