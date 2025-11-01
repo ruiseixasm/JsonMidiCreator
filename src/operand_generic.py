@@ -700,7 +700,7 @@ class Pitch(Generic):
                         return operand._data << self % int()
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
-                    case int():             return float(self._tonic_key)
+                    case int():             return self % int()
                     case float():           return self._degree_0
                     case Fraction():        return Fraction(self._transposition)
                     case Scale():           return operand._data << od.Pipe(self._scale)
@@ -875,7 +875,7 @@ class Pitch(Generic):
                         self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
                         # The normal setting of the final pitch int is already absolute
-                        self << operand
+                        self << operand._data
                     case Fraction():
                         self._transposition = int(operand._data)
                     case ou.Semitone(): # Sets an absolute pitch
