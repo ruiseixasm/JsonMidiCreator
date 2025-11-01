@@ -28,6 +28,7 @@ import operand as o
 import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
+import operand_generic as og
 import operand_element as oe
 import operand_chaos as ch
 import operand_tamer as ot
@@ -40,8 +41,57 @@ class Yielder(o.Operand):
 
     Parameters
     ----------
-    None
+    Element(Note()) : The `Element` to be used as source for all yielded ones.
     """
-    pass
+    def __init__(self, *parameters):
+        self._element: oe.Element = oe.Note()
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case oe.Element():
+                        return self._element
+                    case _:
+                        return super().__mod__(operand)
+            case oe.Element():
+                return self._element.copy()
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["element"] = self.serialize(self._element)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "element" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._element = self.deserialize(serialization["parameters"]["element"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Yielder():
+                super().__lshift__(operand)
+                self._element = operand._element.copy()
+            case od.Pipe():
+                match operand._data:
+                    case oe.Element():
+                        self._element = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case oe.Element():
+                self._element = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 
