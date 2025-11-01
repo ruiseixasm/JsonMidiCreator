@@ -362,6 +362,10 @@ class Elements(DataMany):
 class Clips(DataMany):
     pass
 
+class YielderParameter(DataMany):
+    pass
+
+
 class TrackName(Data):
     """`Data -> TrackName`
 

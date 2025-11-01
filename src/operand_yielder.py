@@ -45,6 +45,7 @@ class Yielder(o.Operand):
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
+        self._parameters: list[Any] = [1/4]
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -53,26 +54,35 @@ class Yielder(o.Operand):
                 match operand._data:
                     case oe.Element():
                         return self._element
+                    case list():
+                        return self._parameters
                     case _:
                         return super().__mod__(operand)
             case oe.Element():
                 return self._element.copy()
+            case list():
+                output_yield: list = [
+                    self._element.copy(parameter) for parameter in self._parameters
+                ]
+                return output_yield
             case _:
                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["element"] = self.serialize(self._element)
+        serialization["parameters"]["element"]      = self.serialize(self._element)
+        serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "element" in serialization["parameters"]):
+            "element" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._element = self.deserialize(serialization["parameters"]["element"])
+            self._element       = self.deserialize(serialization["parameters"]["element"])
+            self._parameters    = self.deserialize(serialization["parameters"]["parameters"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -80,18 +90,35 @@ class Yielder(o.Operand):
         match operand:
             case Yielder():
                 super().__lshift__(operand)
-                self._element = operand._element.copy()
+                self._element       = operand._element.copy()
+                self._parameters    = o.Operand.deep_copy(operand._parameters)
             case od.Pipe():
                 match operand._data:
                     case oe.Element():
                         self._element = operand._data
+                    case list():
+                        self._parameters = operand._data
                     case _:
                         super().__lshift__(operand)
             case oe.Element():
                 self._element = operand.copy()
+            case list():
+                self._parameters = o.Operand.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         return self
+
+
+class GetStackedElements(Yielder):
+    """`Yielder -> GetStackedElements`
+
+    Generates a series of elements with the respective given duration.
+
+    Parameters
+    ----------
+    Element(Note()) : The `Element` to be used as source for all yielded ones.
+    """
+    pass
 
 
 
