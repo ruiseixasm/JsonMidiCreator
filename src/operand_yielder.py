@@ -124,18 +124,19 @@ class GetStackedElements(Yielder):
         match operand:
             case list():
                 output_yield: list = []
-                previous_position: ra.Position = self._element.start()
-                for parameter in self._parameters:
-                    new_element: oe.Element = self._element.copy(previous_position, parameter)
-                    output_yield.append(new_element)
-                    previous_position._rational += new_element._duration_beats
+                if self._parameters:
+                    previous_position: ra.Position = self._element.start()
+                    for parameter in self._parameters:
+                        new_element: oe.Element = self._element.copy(previous_position, parameter)
+                        output_yield.append(new_element)
+                        previous_position._rational += new_element._duration_beats
                 return output_yield
             case _:
                 return super().__mod__(operand)
 
 
-class GetStackedNotes(Yielder):
-    """`Yielder -> GetStackedNotes`
+class GetStackedNotes(GetStackedElements):
+    """`Yielder -> GetStackedElements -> GetStackedNotes`
 
     Generates a series of elements with the respective given duration.
 
@@ -160,9 +161,10 @@ class GetStackedNotes(Yielder):
             case od.Degrees():
                 return od.Degrees(o.Operand.deep_copy(self._degrees))
             case list():
-                output_yield: list = [
-                    self._element.copy(parameter) for parameter in self._parameters
-                ]
+                output_yield: list = super() % list()
+                if self._degrees:
+                    for index, element in enumerate(output_yield):
+                        element << ou.Degree(self._degrees[index % len(self._degrees)])
                 return output_yield
             case _:
                 return super().__mod__(operand)
