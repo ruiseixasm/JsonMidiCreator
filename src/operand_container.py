@@ -34,6 +34,8 @@ import operand_generic as og
 import operand_element as oe
 import operand_frame as of
 import operand_chaos as ch
+import operand_yielder as oy
+
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"
