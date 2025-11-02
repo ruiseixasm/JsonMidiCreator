@@ -111,8 +111,8 @@ class Yielder(o.Operand):
         return self
 
 
-class GetStackedElements(Yielder):
-    """`Yielder -> GetStackedElements`
+class YieldElements(Yielder):
+    """`Yielder -> YieldElements`
 
     Generates a series of elements with the respective given duration.
 
@@ -136,8 +136,8 @@ class GetStackedElements(Yielder):
                 return super().__mod__(operand)
 
 
-class GetStackedNotes(GetStackedElements):
-    """`Yielder -> GetStackedElements -> GetStackedNotes`
+class YieldNotes(YieldElements):
+    """`Yielder -> YieldElements -> YieldNotes`
 
     Generates a series of elements with the respective given duration.
 
@@ -188,7 +188,7 @@ class GetStackedNotes(GetStackedElements):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case GetStackedNotes():
+            case YieldNotes():
                 super().__lshift__(operand)
                 self._degrees = o.Operand.deep_copy(operand._degrees)
             case od.Pipe():
