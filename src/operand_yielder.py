@@ -45,10 +45,12 @@ class Yielder(o.Operand):
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
     list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
+    Length(4) : The `Length` where the Yield will be returned.
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
         self._parameters: list[Any] = [1/4, 1/4, 1/4, 1/4]
+        self._length_beats: Fraction = Fraction(4*4)
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -59,15 +61,23 @@ class Yielder(o.Operand):
                         return self._element
                     case list():
                         return self._parameters
+                    case ra.Length():
+                        return operand << self._length_beats
                     case _:
                         return super().__mod__(operand)
             case oe.Element():
                 return self._element.copy()
             case list():
-                output_yield: list = [
-                    self._element.copy(parameter) for parameter in self._parameters
-                ]
+                output_yield: list[oe.Element] = []
+                if self._parameters:
+                    previous_position: ra.Position | ol.Null = ol.Null
+                    for parameter in self._parameters:
+                        new_element: oe.Element = self._element.copy(previous_position, parameter)
+                        output_yield.append(new_element)
+                        previous_position = new_element.finish()
                 return output_yield
+            case ra.Length():
+                return ra.Length(self._length_beats)
             case _:
                 return super().__mod__(operand)
 
@@ -75,17 +85,19 @@ class Yielder(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["element"]      = self.serialize(self._element)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
+        serialization["parameters"]["length"]       = self.serialize(self._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "element" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+            "element" in serialization["parameters"] and "parameters" in serialization["parameters"] and "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._element       = self.deserialize(serialization["parameters"]["element"])
             self._parameters    = self.deserialize(serialization["parameters"]["parameters"])
+            self._length_beats    = self.deserialize(serialization["parameters"]["length"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -95,48 +107,30 @@ class Yielder(o.Operand):
                 super().__lshift__(operand)
                 self._element       = operand._element.copy()
                 self._parameters    = o.Operand.deep_copy(operand._parameters)
+                self._length_beats  = operand._length_beats
             case od.Pipe():
                 match operand._data:
                     case oe.Element():
                         self._element = operand._data
                     case list():
                         self._parameters = operand._data
+                    case ra.Length():
+                        self._length_beats = operand._data._rational
                     case _:
                         super().__lshift__(operand)
             case oe.Element():
                 self._element = operand.copy()
             case list():
                 self._parameters = o.Operand.deep_copy(operand)
+            case ra.Length():
+                self._length_beats = operand._rational
             case _:
                 super().__lshift__(operand)
         return self
 
 
-class YieldElements(Yielder):
-    """`Yielder -> YieldElements`
-
-    Generates a series of elements with the respective given duration stacked on each other.
-
-    Parameters
-    ----------
-    Element(Note()) : The `Element` to be used as source for all yielded ones.
-    list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
-    """
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case list():
-                output_yield: list = super().__mod__(operand)
-                previous_position: ra.Position | ol.Null = ol.Null
-                for element in output_yield:
-                    element << previous_position
-                    previous_position = element.finish()
-                return output_yield
-            case _:
-                return super().__mod__(operand)
-
-
-class YieldNotesByDegrees(YieldElements):
-    """`Yielder -> YieldElements -> YieldNotesByDegree`
+class YieldNotesByDegrees(Yielder):
+    """`Yielder -> YieldNotesByDegree`
 
     Generates a series of elements with the respective given duration stacked on each other \
         with the respective `Degree`.
@@ -162,7 +156,7 @@ class YieldNotesByDegrees(YieldElements):
             case od.Degrees():
                 return od.Degrees(o.Operand.deep_copy(self._degrees))
             case list():
-                output_yield: list = super().__mod__(operand)
+                output_yield: list[oe.Element] = super().__mod__(operand)
                 if self._degrees:
                     for index, element in enumerate(output_yield):
                         element << ou.Degree(self._degrees[index % len(self._degrees)])
