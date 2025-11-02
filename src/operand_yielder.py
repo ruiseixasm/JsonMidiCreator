@@ -25,6 +25,7 @@ import math
 import creator as c
 import operand as o
 
+import operand_label as ol
 import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
@@ -114,7 +115,7 @@ class Yielder(o.Operand):
 class YieldElements(Yielder):
     """`Yielder -> YieldElements`
 
-    Generates a series of elements with the respective given duration.
+    Generates a series of elements with the respective given duration stacked on each other.
 
     Parameters
     ----------
@@ -124,22 +125,21 @@ class YieldElements(Yielder):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                output_yield: list = []
-                if self._parameters:
-                    previous_position: ra.Position = self._element.start()
-                    for parameter in self._parameters:
-                        new_element: oe.Element = self._element.copy(previous_position, parameter)
-                        output_yield.append(new_element)
-                        previous_position._rational += new_element._duration_beats
+                output_yield: list = super().__mod__(operand)
+                previous_position: ra.Position | ol.Null = ol.Null
+                for element in output_yield:
+                    element << previous_position
+                    previous_position = element.finish()
                 return output_yield
             case _:
                 return super().__mod__(operand)
 
 
-class YieldNotes(YieldElements):
-    """`Yielder -> YieldElements -> YieldNotes`
+class YieldNotesByDegrees(YieldElements):
+    """`Yielder -> YieldElements -> YieldNotesByDegree`
 
-    Generates a series of elements with the respective given duration.
+    Generates a series of elements with the respective given duration stacked on each other \
+        with the respective `Degree`.
 
     Parameters
     ----------
@@ -188,7 +188,7 @@ class YieldNotes(YieldElements):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case YieldNotes():
+            case YieldNotesByDegrees():
                 super().__lshift__(operand)
                 self._degrees = o.Operand.deep_copy(operand._degrees)
             case od.Pipe():

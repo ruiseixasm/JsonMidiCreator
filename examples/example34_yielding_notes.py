@@ -32,7 +32,7 @@ two_program_changes = \
 two_program_changes >> Play()
 
 
-yield_notes = YieldNotes()
+yield_notes = YieldNotesByDegrees()
 yielded_notes = Clip(yield_notes)
 
 yielded_notes >> Plot(title="Yielded Notes")
