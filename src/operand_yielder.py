@@ -50,7 +50,7 @@ class Yielder(o.Operand):
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
         self._parameters: list[Any] = [1/4, 1/4, 1/4, 1/4]
-        self._length_beats: Fraction = Fraction(4*4)
+        self._length_beats: Fraction = ra.Length(4)._rational
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -142,6 +142,7 @@ class YieldNotesByDegrees(Yielder):
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
     list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
+    Length(4) : The `Length` where the Yield will be returned.
     Degrees([1, 3, 5]) : The multiple Degrees for each yielded `Note`.
     """
     def __init__(self, *parameters):
