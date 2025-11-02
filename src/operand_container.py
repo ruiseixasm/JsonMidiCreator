@@ -2974,6 +2974,10 @@ class Clip(Composition):  # Just a container of Elements
             case oe.Element():
                 self += operand
 
+            case oy.Yielder():
+                elements: oe.Element = operand % list()
+                self._delete()._extend(elements)
+
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack
