@@ -251,6 +251,91 @@ class Chaos(o.Operand):
         return self
 
 
+class Sequence(Chaos):
+    """`Chaos -> Sequence`
+
+    Increments the `Xn` by each step and its return it's value without any limit.
+
+    Parameters
+    ----------
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
+    Xn(0), int, float : The resultant value of each iteration.
+    X0(0) : The first value of the multiple iterations where Chaos can be reset to.
+    Steps(1), Step() : The increase amount for each iteration.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._steps: Fraction   = Fraction(1)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Steps():            return operand._data << self._steps
+                    case _:                     return super().__mod__(operand)
+            case ra.Steps():            return ra.Steps(self._steps)
+            case ra.Step():             return ra.Step(self._steps)
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) and self._steps == other._steps
+            case _:
+                return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["steps"]    = self.serialize( self._steps )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "steps" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._steps     = self.deserialize( serialization["parameters"]["steps"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Sequence():
+                super().__lshift__(operand)
+                self._steps     = operand._steps
+            case od.Pipe():
+                match operand._data:
+                    case ra.Steps():            self._steps     = operand._data._rational
+                    case _:                     super().__lshift__(operand)
+            case ra.Steps() | ra.Step():
+                self._steps     = operand._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+        result: Fraction = numeral
+        tamed: bool = False
+        count_down: int = self._max_iterations
+        increased_index: int = 0
+        while not tamed and count_down > 0:
+            for _ in range(iterations):
+                result += self._steps
+                increased_index += 1
+            tamed = self.tame(result)
+            count_down -= 1
+        if tamed:
+            self._xn._rational = result
+            self._index += increased_index
+            self._initiated = True
+        else:
+            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
+        return result, tamed
+    
+
 class Cycle(Chaos):
     """`Chaos -> Cycle`
 
