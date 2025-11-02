@@ -54,6 +54,18 @@ class Yielder(o.Operand):
         self._chaos: ch.Chaos = ch.Sequence()
         super().__init__(*parameters)
 
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case Yielder():
+                return self._element == other._element \
+                    and self._parameters == other._parameters \
+                    and self._length_beats == other._length_beats \
+                    and self._chaos == other._chaos
+            case od.Conditional():
+                return other == self
+            case _:
+                return super().__eq__(other)
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -161,6 +173,13 @@ class YieldNotesByDegrees(Yielder):
     def __init__(self, *parameters):
         self._degrees: list[Any] = [1, 3, 5]
         super().__init__(*parameters)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case YieldNotesByDegrees():
+                return super().__eq__(other) and self._degrees == other._degrees
+            case _:
+                return super().__eq__(other)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
