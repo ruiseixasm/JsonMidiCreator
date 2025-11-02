@@ -35,5 +35,5 @@ two_program_changes >> Play()
 get_notes = GetStackedNotes()
 yielded_notes = Clip(get_notes)
 
-yielded_notes >> Plot()
+yielded_notes >> Plot(title="Yielded Notes")
 
