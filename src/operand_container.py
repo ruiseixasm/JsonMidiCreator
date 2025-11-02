@@ -3053,6 +3053,9 @@ class Clip(Composition):  # Just a container of Elements
                 self._items.extend(operand_copy._items)
                 self._mask_items.extend(operand_copy._unmasked_items())
 
+            case oy.Yielder():
+                return self.__iadd__( Clip(operand) )
+
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
                 return self._append(new_element)._sort_items()  # Shall be sorted!
@@ -3080,6 +3083,8 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 return self._delete(operand._unmasked_items())
+            case oy.Yielder():
+                return self.__isub__( Clip(operand) )
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -3132,6 +3137,8 @@ class Clip(Composition):  # Just a container of Elements
 
                 self._masked = self_masked
 
+            case oy.Yielder():
+                return self.__imul__( Clip(operand) )
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
@@ -3206,6 +3213,8 @@ class Clip(Composition):  # Just a container of Elements
                     self._masked = self_masked
                     self._extend(operand_elements)
                 
+            case oy.Yielder():
+                return self.__itruediv__( Clip(operand) )
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
@@ -3250,6 +3259,8 @@ class Clip(Composition):  # Just a container of Elements
                     self //= split_position
                     self += of.DownTo(split_position)**position_offset
                     self += operand # Finally adds the Clip elements
+            case oy.Yielder():
+                return self.__ifloordiv__( Clip(operand) )
             case oe.Element():
                 split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.finish() - split_position
@@ -4917,11 +4928,8 @@ class Part(Composition):
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self._position_beats = operand % ra.Position(self) % Fraction()
 
-            case Clip():
-                self.__iadd__(operand)
-
-            case oe.Element():
-                self += operand
+            case Clip() | oy.Yielder() | oe.Element():
+                return self.__iadd__(operand)
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -4961,6 +4969,8 @@ class Part(Composition):
             case Clip():
                 self._append(operand.copy())
 
+            case oy.Yielder():
+                return self.__iadd__( Clip(operand) )
             case oe.Element():
                 self._append(Clip(operand._time_signature, operand))
 
@@ -4979,6 +4989,8 @@ class Part(Composition):
         match operand:
             case Clip():
                 return self._delete([ operand ])
+            case oy.Yielder():
+                return self.__isub__( Clip(operand) )
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() - operand
             case _:
@@ -5004,6 +5016,8 @@ class Part(Composition):
                 else:
                     self._append(operand.copy())    # Explicit copy
 
+            case oy.Yielder():
+                return self.__imul__( Clip(operand) )
             case oe.Element():
                 self_length: ra.Length = self.length()
                 if self_length is not None:
@@ -5044,6 +5058,8 @@ class Part(Composition):
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
                 self._append(repositioned_clip) # No implicit copy
 
+            case oy.Yielder():
+                return self.__itruediv__( Clip(operand) )
             case oe.Element():
                 finish_position: ra.Position = self.finish()
                 repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
@@ -5073,6 +5089,8 @@ class Part(Composition):
             case Clip():
                 self._append(operand.copy())
 
+            case oy.Yielder():
+                return self.__ifloordiv__( Clip(operand) )
             case oe.Element():
                 self._append(Clip(operand._time_signature, operand))
 
@@ -5559,6 +5577,8 @@ class Song(Composition):
             case Clip():
                 self += Part(operand)
 
+            case oy.Yielder():
+                return self.__iadd__( Clip(operand) )
             case oe.Element():
                 self += Clip(operand._time_signature, operand)
 
@@ -5580,6 +5600,8 @@ class Song(Composition):
             case Clip():
                 clip_part: Part = Part(operand)
                 self -= clip_part
+            case oy.Yielder():
+                return self.__isub__( Clip(operand) )
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
             case _:
@@ -5609,6 +5631,8 @@ class Song(Composition):
             case Clip():
                 self.__imul__(Part(operand))
 
+            case oy.Yielder():
+                return self.__imul__( Clip(operand) )
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
@@ -5663,6 +5687,8 @@ class Song(Composition):
             case Clip():
                 self.__itruediv__(Part(operand))
 
+            case oy.Yielder():
+                return self.__itruediv__( Clip(operand) )
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
@@ -5689,6 +5715,8 @@ class Song(Composition):
             case Clip():
                 self.__ifloordiv__(Part(operand))
 
+            case oy.Yielder():
+                return self.__ifloordiv__( Clip(operand) )
             case oe.Element():
                 self.__ifloordiv__(Clip(operand._time_signature, operand))
 
