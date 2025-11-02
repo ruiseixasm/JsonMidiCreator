@@ -30,6 +30,7 @@ import operand_unit as ou
 import operand_rational as ra
 import operand_generic as og
 import operand_element as oe
+import operand_frame as of
 import operand_chaos as ch
 import operand_tamer as ot
 
