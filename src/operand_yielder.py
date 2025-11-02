@@ -161,7 +161,7 @@ class GetStackedNotes(GetStackedElements):
             case od.Degrees():
                 return od.Degrees(o.Operand.deep_copy(self._degrees))
             case list():
-                output_yield: list = super() % list()
+                output_yield: list = super().__mod__(operand)
                 if self._degrees:
                     for index, element in enumerate(output_yield):
                         element << ou.Degree(self._degrees[index % len(self._degrees)])
