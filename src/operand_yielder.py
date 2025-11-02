@@ -70,11 +70,14 @@ class Yielder(o.Operand):
             case list():
                 output_yield: list[oe.Element] = []
                 if self._parameters:
-                    previous_position: ra.Position | ol.Null = ol.Null
-                    for parameter in self._parameters:
-                        new_element: oe.Element = self._element.copy(previous_position, parameter)
+                    next_position: ra.Position = self._element.start()
+                    next_index: int = 0
+                    parameters_len: int = len(self._parameters)
+                    while next_position < self._length_beats:
+                        new_element: oe.Element = \
+                            self._element.copy(next_position, self._parameters[next_index % parameters_len])
                         output_yield.append(new_element)
-                        previous_position = new_element.finish()
+                        next_position = new_element.finish()
                 return output_yield
             case ra.Length():
                 return ra.Length(self._length_beats)
@@ -158,8 +161,9 @@ class YieldNotesByDegrees(Yielder):
             case list():
                 output_yield: list[oe.Element] = super().__mod__(operand)
                 if self._degrees:
+                    degrees_len: int = len(self._degrees)
                     for index, element in enumerate(output_yield):
-                        element << ou.Degree(self._degrees[index % len(self._degrees)])
+                        element << ou.Degree(self._degrees[index % degrees_len])
                 return output_yield
             case _:
                 return super().__mod__(operand)
