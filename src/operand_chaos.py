@@ -337,8 +337,8 @@ class Sequence(Chaos):
         return result, tamed
     
 
-class Cycle(Chaos):
-    """`Chaos -> Cycle`
+class Cycle(Sequence):
+    """`Chaos -> Sequence -> Cycle`
 
     Increments the `Xn` by each step and its return is the remainder of the given `Modulus`.
 
@@ -351,47 +351,38 @@ class Cycle(Chaos):
     Steps(1), Step() : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
-        super().__init__()
         self._modulus: Fraction = Fraction(12)
-        self._steps: Fraction   = Fraction(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
                 match operand._data:
                     case ra.Modulus():          return operand._data << self._modulus
-                    case ra.Steps():            return operand._data << self._steps
                     case _:                     return super().__mod__(operand)
             case ra.Modulus():          return ra.Modulus(self._modulus)
-            case ra.Steps():            return ra.Steps(self._steps)
-            case ra.Step():             return ra.Step(self._steps)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._modulus == other._modulus and self._steps == other._steps
+                return super().__eq__(other) and self._modulus == other._modulus
             case _:
                 return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["modulus"]  = self.serialize( self._modulus )
-        serialization["parameters"]["steps"]    = self.serialize( self._steps )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "modulus" in serialization["parameters"] and "steps" in serialization["parameters"]):
+            "modulus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._modulus   = self.deserialize( serialization["parameters"]["modulus"] )
-            self._steps     = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -399,15 +390,11 @@ class Cycle(Chaos):
             case Cycle():
                 super().__lshift__(operand)
                 self._modulus   = operand._modulus
-                self._steps     = operand._steps
             case od.Pipe():
                 match operand._data:
                     case ra.Modulus():          self._modulus   = operand._data._rational
-                    case ra.Steps():            self._steps     = operand._data._rational
                     case _:                     super().__lshift__(operand)
             case ra.Modulus():      self._modulus   = operand._rational
-            case ra.Steps() | ra.Step():
-                self._steps     = operand._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
@@ -435,7 +422,7 @@ class Cycle(Chaos):
         return result, tamed
 
 class Counter(Cycle):
-    """`Chaos -> Cycle -> Counter`
+    """`Chaos -> Sequence -> Cycle -> Counter`
 
     The Xn represents the total number of completed cycles.
     Contrary to modulus, the counter returns the amount of completed cycles.
@@ -474,8 +461,8 @@ class Counter(Cycle):
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
-class Ripple(Cycle):
-    """`Chaos -> Cycle -> Ripple`
+class Ripple(Sequence):
+    """`Chaos -> Sequence -> Ripple`
 
     Similar to the ripple effect in water the result alternates positively and negatively `
         increasing each alternation by the step amount.
@@ -512,8 +499,8 @@ class Ripple(Cycle):
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
 
-class Spiral(Cycle):
-    """`Chaos -> Cycle -> Spiral`
+class Spiral(Sequence):
+    """`Chaos -> Sequence -> Spiral`
 
     Similar to a `Ripple` but always move a step for each iteration and not jus the odd ones.
 
