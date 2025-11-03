@@ -126,7 +126,6 @@ class Yielder(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Yielder():
                 super().__lshift__(operand)
@@ -158,6 +157,15 @@ class Yielder(o.Operand):
                 super().__lshift__(operand)
         return self
 
+    def __pow__(self, operand: 'o.Operand') -> Self:
+        '''
+        This operator ** tags another Operand to self that will be the target of the << operation and \
+            be passed to self afterwards in a chained fashion.
+        '''
+        if isinstance(operand, Yielder):
+            self._next_operand = operand
+        return self
+    
 
 class YieldNotesByDegrees(Yielder):
     """`Yielder -> YieldNotesByDegree`
@@ -220,7 +228,6 @@ class YieldNotesByDegrees(Yielder):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case YieldNotesByDegrees():
                 super().__lshift__(operand)

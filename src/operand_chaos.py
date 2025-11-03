@@ -161,8 +161,7 @@ class Chaos(o.Operand):
         if isinstance(operand, Chaos):
             self << operand % Fraction()    # SETS THE DEFAULT x0 PARAMETER
             self._next_operand = operand
-            return self
-        return self.__pow__(operand)
+        return self
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
         number = self.number_to_int(number)
