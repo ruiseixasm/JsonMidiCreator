@@ -83,13 +83,13 @@ class Yielder(o.Operand):
             case oe.Element():
                 return self._element.copy()
             case list():
-                output_yield: list[oe.Element] = []
+                yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
-                    output_yield = self._next_operand.__mod__(operand)
+                    yielded_elements = self._next_operand.__mod__(operand)
                 if self._parameters:
                     parameters_len: int = len(self._parameters)
-                    if output_yield:
-                        for element in output_yield:
+                    if yielded_elements:
+                        for element in yielded_elements:
                             next_index: int = self._chaos % 0
                             element << self._parameters[next_index % parameters_len]
                             self._chaos.iterate()
@@ -100,11 +100,11 @@ class Yielder(o.Operand):
                             next_index: int = self._chaos % 0
                             new_parameter = self._parameters[next_index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
-                            output_yield.append(new_element << new_parameter)
+                            yielded_elements.append(new_element << new_parameter)
                             next_position = new_element.finish()
                             self._chaos.iterate()
                             self._index += 1
-                return output_yield
+                return yielded_elements
             case ra.Length():
                 return ra.Length(self._length_beats)
             case ch.Chaos():
@@ -191,6 +191,7 @@ class YieldSteps(Yielder):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._element << ra.Steps(1)
         self._parameters = [0, 4, 8, 12]
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -198,13 +199,13 @@ class YieldSteps(Yielder):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                output_yield: list[oe.Element] = []
+                yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
-                    output_yield = self._next_operand.__mod__(operand)
+                    yielded_elements = self._next_operand.__mod__(operand)
                 if self._parameters:
                     parameters_len: int = len(self._parameters)
-                    if output_yield:
-                        for element in output_yield:
+                    if yielded_elements:
+                        for element in yielded_elements:
                             next_index: int = self._chaos % 0
                             step_parameter = self._parameters[next_index % parameters_len]
                             element << ra.Step(step_parameter)
@@ -214,14 +215,14 @@ class YieldSteps(Yielder):
                         next_position: ra.Position = self._element.start()
                         while next_position < self._length_beats:
                             next_index: int = self._chaos % 0
-                            if self._index % parameters_len == 0 and self._index > 0:
-                                next_position += ra.Measure(1)
                             step_parameter = self._parameters[next_index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
-                            output_yield.append(new_element << ra.Step(step_parameter))
+                            yielded_elements.append(new_element << ra.Step(step_parameter))
                             self._chaos.iterate()
                             self._index += 1
-                return output_yield
+                            if self._index % parameters_len == 0:
+                                next_position += ra.Measure(1)
+                return yielded_elements
             case _:
                 return super().__mod__(operand)
 
@@ -247,13 +248,13 @@ class YieldDegrees(Yielder):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                output_yield: list[oe.Element] = []
+                yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
-                    output_yield = self._next_operand.__mod__(operand)
+                    yielded_elements = self._next_operand.__mod__(operand)
                 if self._parameters:
                     parameters_len: int = len(self._parameters)
-                    if output_yield:
-                        for element in output_yield:
+                    if yielded_elements:
+                        for element in yielded_elements:
                             next_index: int = self._chaos % 0
                             degree_parameter = self._parameters[next_index % parameters_len]
                             element << ou.Degree(degree_parameter)
@@ -265,11 +266,11 @@ class YieldDegrees(Yielder):
                             next_index: int = self._chaos % 0
                             degree_parameter = self._parameters[next_index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
-                            output_yield.append(new_element << ou.Degree(degree_parameter))
+                            yielded_elements.append(new_element << ou.Degree(degree_parameter))
                             next_position = new_element.finish()
                             self._chaos.iterate()
                             self._index += 1
-                return output_yield
+                return yielded_elements
             case _:
                 return super().__mod__(operand)
 

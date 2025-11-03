@@ -40,6 +40,10 @@ yielded_notes >> Plot(title="Yielded Notes", block=False)
 
 chained_yield = YieldDegrees()**Yielder([1/8, 1/4, 1/8, 1/2])
 chained_notes = Clip(chained_yield)
-chained_notes >> Plot(title="Chained Notes")
+chained_notes >> Plot(title="Chained Notes", block=False)
 
+
+stepped_yield = YieldDegrees()**YieldSteps()
+stepped_notes = Clip(stepped_yield)
+stepped_notes >> Plot(title="Stepped Notes")
 
