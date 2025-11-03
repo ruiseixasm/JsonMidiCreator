@@ -265,10 +265,8 @@ class Sequence(Chaos):
     Steps(1), Step() : The increase amount for each iteration.
     """
     def __init__(self, *parameters):
-        super().__init__()
-        self._steps: Fraction   = Fraction(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        self._steps: Fraction = Fraction(1)
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
