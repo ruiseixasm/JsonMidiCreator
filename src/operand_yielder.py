@@ -84,16 +84,24 @@ class Yielder(o.Operand):
                 return self._element.copy()
             case list():
                 output_yield: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    output_yield = self._next_operand.__mod__(operand)
                 if self._parameters:
                     parameters_len: int = len(self._parameters)
-                    next_position: ra.Position = self._element.start()
-                    while next_position < self._length_beats:
-                        next_index: int = self._chaos % 0
-                        new_parameter = self._parameters[next_index % parameters_len]
-                        new_element: oe.Element = self._element.copy(next_position)
-                        output_yield.append(new_element << new_parameter)
-                        next_position = new_element.finish()
-                        self._chaos.iterate()
+                    if output_yield:
+                        for element in output_yield:
+                            next_index: int = self._chaos % 0
+                            element << self._parameters[next_index % parameters_len]
+                            self._chaos.iterate()
+                    else:
+                        next_position: ra.Position = self._element.start()
+                        while next_position < self._length_beats:
+                            next_index: int = self._chaos % 0
+                            new_parameter = self._parameters[next_index % parameters_len]
+                            new_element: oe.Element = self._element.copy(next_position)
+                            output_yield.append(new_element << new_parameter)
+                            next_position = new_element.finish()
+                            self._chaos.iterate()
                 return output_yield
             case ra.Length():
                 return ra.Length(self._length_beats)
