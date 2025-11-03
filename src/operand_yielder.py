@@ -175,73 +175,32 @@ class YieldNotesByDegrees(Yielder):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
-    list([1/4, 1/4, 1/4, 1/4]) : The parameters for each yield of elements.
+    list([1, 3, 5]) : The `Degree` parameters for each yield of elements.
     Length(4) : The `Length` where the Yield will be returned.
-    Degrees([1, 3, 5]) : The multiple Degrees for each yielded `Note`.
     """
     def __init__(self, *parameters):
-        self._degrees: list[Any] = [1, 3, 5]
-        super().__init__(*parameters)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case YieldNotesByDegrees():
-                return super().__eq__(other) and self._degrees == other._degrees
-            case _:
-                return super().__eq__(other)
+        super().__init__()
+        self._parameters = [1, 3, 5]
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case od.Pipe():
-                match operand._data:
-                    case od.Degrees():
-                        return od.Degrees(self._degrees)
-                    case _:
-                        return super().__mod__(operand)
-            case od.Degrees():
-                return od.Degrees(o.Operand.deep_copy(self._degrees))
             case list():
-                output_yield: list[oe.Element] = super().__mod__(operand)
-                if self._degrees:
-                    degrees_len: int = len(self._degrees)
-                    for index, element in enumerate(output_yield):
-                        degree_parameter = self._degrees[index % degrees_len]
-                        element << ou.Degree(degree_parameter)
+                output_yield: list[oe.Element] = []
+                if self._parameters:
+                    next_position: ra.Position = self._element.start()
+                    parameters_len: int = len(self._parameters)
+                    while next_position < self._length_beats:
+                        next_index: int = self._chaos % 0
+                        degree_parameter = self._parameters[next_index % parameters_len]
+                        new_element: oe.Element = self._element.copy(next_position)
+                        output_yield.append(new_element << ou.Degree(degree_parameter))
+                        next_position = new_element.finish()
+                        self._chaos.iterate()
                 return output_yield
             case _:
                 return super().__mod__(operand)
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["degrees"]  = self.serialize(self._degrees)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "degrees" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._degrees   = self.deserialize(serialization["parameters"]["degrees"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        match operand:
-            case YieldNotesByDegrees():
-                super().__lshift__(operand)
-                self._degrees = o.Operand.deep_copy(operand._degrees)
-            case od.Pipe():
-                match operand._data:
-                    case od.Degrees():
-                        self._degrees = operand._data._data
-                    case _:
-                        super().__lshift__(operand)
-            case od.Degrees():
-                self._degrees = o.Operand.deep_copy(operand._data)
-            case _:
-                super().__lshift__(operand)
-        return self
 
 
 
