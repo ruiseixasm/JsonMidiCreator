@@ -85,8 +85,8 @@ class Yielder(o.Operand):
             case list():
                 output_yield: list[oe.Element] = []
                 if self._parameters:
-                    next_position: ra.Position = self._element.start()
                     parameters_len: int = len(self._parameters)
+                    next_position: ra.Position = self._element.start()
                     while next_position < self._length_beats:
                         next_index: int = self._chaos % 0
                         new_parameter = self._parameters[next_index % parameters_len]
@@ -163,6 +163,8 @@ class Yielder(o.Operand):
         '''
         if isinstance(operand, Yielder):
             self._next_operand = operand
+        elif operand is None:
+            self._next_operand = None
         return self
     
 
@@ -188,16 +190,25 @@ class YieldNotesByDegrees(Yielder):
         match operand:
             case list():
                 output_yield: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    output_yield = self._next_operand.__mod__(operand)
                 if self._parameters:
-                    next_position: ra.Position = self._element.start()
                     parameters_len: int = len(self._parameters)
-                    while next_position < self._length_beats:
-                        next_index: int = self._chaos % 0
-                        degree_parameter = self._parameters[next_index % parameters_len]
-                        new_element: oe.Element = self._element.copy(next_position)
-                        output_yield.append(new_element << ou.Degree(degree_parameter))
-                        next_position = new_element.finish()
-                        self._chaos.iterate()
+                    if output_yield:
+                        for element in output_yield:
+                            next_index: int = self._chaos % 0
+                            degree_parameter = self._parameters[next_index % parameters_len]
+                            element << ou.Degree(degree_parameter)
+                            self._chaos.iterate()
+                    else:
+                        next_position: ra.Position = self._element.start()
+                        while next_position < self._length_beats:
+                            next_index: int = self._chaos % 0
+                            degree_parameter = self._parameters[next_index % parameters_len]
+                            new_element: oe.Element = self._element.copy(next_position)
+                            output_yield.append(new_element << ou.Degree(degree_parameter))
+                            next_position = new_element.finish()
+                            self._chaos.iterate()
                 return output_yield
             case _:
                 return super().__mod__(operand)

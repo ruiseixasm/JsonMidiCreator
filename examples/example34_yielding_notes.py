@@ -35,5 +35,11 @@ two_program_changes >> Play()
 yield_notes = YieldNotesByDegrees()
 yielded_notes = Clip(yield_notes)
 
-yielded_notes >> Plot(title="Yielded Notes")
+yielded_notes >> Plot(title="Yielded Notes", block=False)
+
+
+chained_yield = YieldNotesByDegrees()**Yielder([1/8, 1/4, 1/8, 1/2])
+chained_notes = Clip(chained_yield)
+chained_notes >> Plot(title="Chained Notes")
+
 
