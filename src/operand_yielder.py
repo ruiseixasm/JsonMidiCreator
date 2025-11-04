@@ -49,7 +49,7 @@ class Yielder(o.Operand):
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
-        self._parameters: list[Any] = [1/4, 1/4, 1/4, 1/4]
+        self._parameters: list[Any] = []
         self._length_beats: Fraction = ra.Length(4)._rational
         self._chaos: ch.Chaos = ch.Sequence()
         super().__init__(*parameters)
@@ -104,6 +104,12 @@ class Yielder(o.Operand):
                             next_position = new_element.finish()
                             self._chaos.iterate()
                             self._index += 1
+                elif not yielded_elements:
+                    while next_position < self._length_beats:
+                        new_element: oe.Element = self._element.copy(next_position)
+                        yielded_elements.append(new_element)
+                        next_position = new_element.finish()
+                        self._index += 1
                 return yielded_elements
             case ra.Length():
                 return ra.Length(self._length_beats)
@@ -222,6 +228,8 @@ class YieldSteps(Yielder):
                             self._index += 1
                             if self._index % parameters_len == 0:
                                 next_position += ra.Measure(1)
+                else:
+                    return super().__mod__(operand)
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
@@ -270,6 +278,8 @@ class YieldDegrees(Yielder):
                             next_position = new_element.finish()
                             self._chaos.iterate()
                             self._index += 1
+                else:
+                    return super().__mod__(operand)
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
