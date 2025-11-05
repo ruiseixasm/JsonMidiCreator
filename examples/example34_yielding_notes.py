@@ -38,7 +38,7 @@ yielded_notes = Clip(yield_notes)
 yielded_notes >> Plot(title="Yielded Notes", block=False)
 
 
-chained_yield = YieldDegrees()**Yielder([1/8, 1/4, 1/8, 1/2])
+chained_yield = YieldDegrees()**YieldDurations([1/8, 1/4, 1/8, 1/2])
 chained_notes = Clip(chained_yield)
 chained_notes >> Plot(title="Chained Notes", block=False)
 
