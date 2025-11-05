@@ -150,7 +150,100 @@ class Yielder(o.Operand):
         elif operand is None:
             self._next_operand = None
         return self
-    
+
+
+
+class YieldPattern(Yielder):
+    """`Yielder -> YieldPattern`
+
+    Places the given `Element` stacked accordingly to each given `Duration`!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    list([1/4, 1/4, 1/4, 1/4]) : The given parameters for each yield of elements.
+    """
+    def __init__(self, *parameters):
+        self._pattern: list[Any] = [1/4, 1/4, 1/4, 1/4]
+        super().__init__(*parameters)
+
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case YieldPattern():
+                return super().__eq__(other) and self._pattern == other._pattern
+            case _:
+                return super().__eq__(other)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        return self._pattern
+                    case _:
+                        return super().__mod__(operand)
+            case list():
+                self._index = 0
+                yielded_elements: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    yielded_elements = self._next_operand.__mod__(operand)
+                element_duration: ra.Duration = self._element % ra.Duration()
+                if self._pattern:
+                    parameters_len: int = len(self._pattern)
+                    if yielded_elements:
+                        for element in yielded_elements:
+                            duration_parameter = element_duration << self._pattern[self._index % parameters_len]
+                            element << duration_parameter
+                            self._index += 1
+                    else:
+                        next_position: ra.Position = self._element.start()
+                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                        while next_position < end_position:
+                            new_element: oe.Element = self._element.copy(next_position)
+                            duration_parameter = element_duration << self._pattern[self._index % parameters_len]
+                            yielded_elements.append(new_element << duration_parameter)
+                            next_position = new_element.finish()
+                            self._index += 1
+                else:
+                    return super().__mod__(operand)
+                return yielded_elements
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pattern"] = self.serialize(self._pattern)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pattern" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pattern = self.deserialize(serialization["parameters"]["pattern"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case YieldPattern():
+                super().__lshift__(operand)
+                self._pattern = o.Operand.deep_copy(operand._pattern)
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._pattern = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                self._pattern = o.Operand.deep_copy(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class YieldDurations(Yielder):
     """`Yielder -> YieldDurations`
