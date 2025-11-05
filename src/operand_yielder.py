@@ -155,7 +155,7 @@ class Yielder(o.Operand):
 class YieldPattern(Yielder):
     """`Yielder -> YieldPattern`
 
-    Places the given `Element` stacked accordingly to each given `Duration`!
+    Places the given `Element` stacked accordingly to each given item in the pattern!
 
     Parameters
     ----------
