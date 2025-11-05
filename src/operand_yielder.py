@@ -88,6 +88,8 @@ class Yielder(o.Operand):
                 return yielded_elements
             case ra.Measures() | ra.Measure():
                 return operand.copy(self._measures)
+            case int():
+                return self._measures
             case _:
                 return super().__mod__(operand)
 
@@ -120,12 +122,16 @@ class Yielder(o.Operand):
                         self._element = operand._data
                     case ra.Measures() | ra.Measure():
                         self._measures = operand._data % int()
+                    case int():
+                        self._measures = operand._data
                     case _:
                         super().__lshift__(operand)
             case oe.Element():
                 self._element = operand.copy()
             case ra.Measures() | ra.Measure():
                 self._measures = operand % int()
+            case int():
+                self._measures = operand
             case og.TimeSignature():
                 if isinstance(self._next_operand, Yielder):
                     self._next_operand << operand
