@@ -2975,7 +2975,6 @@ class Clip(Composition):  # Just a container of Elements
                 self += operand
 
             case oy.Yielder():
-                operand._chaos.reset_tamers()   # Needs to reset the tamers on each usage
                 elements: oe.Element = operand % list()
                 self._delete()._extend(elements)
 

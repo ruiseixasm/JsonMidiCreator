@@ -59,8 +59,7 @@ class Yielder(o.Operand):
             case Yielder():
                 return self._element == other._element \
                     and self._parameters == other._parameters \
-                    and self._length_beats == other._length_beats \
-                    and self._chaos == other._chaos
+                    and self._length_beats == other._length_beats
             case od.Conditional():
                 return other == self
             case _:
@@ -83,6 +82,7 @@ class Yielder(o.Operand):
             case oe.Element():
                 return self._element.copy()
             case list():
+                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
@@ -90,19 +90,15 @@ class Yielder(o.Operand):
                     parameters_len: int = len(self._parameters)
                     if yielded_elements:
                         for element in yielded_elements:
-                            next_index: int = self._chaos % 0
-                            element << self._parameters[next_index % parameters_len]
-                            self._chaos.iterate()
+                            element << self._parameters[self._index % parameters_len]
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         while next_position < self._length_beats:
-                            next_index: int = self._chaos % 0
-                            new_parameter = self._parameters[next_index % parameters_len]
+                            new_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << new_parameter)
                             next_position = new_element.finish()
-                            self._chaos.iterate()
                             self._index += 1
                 elif not yielded_elements:
                     while next_position < self._length_beats:
@@ -168,6 +164,8 @@ class Yielder(o.Operand):
                 self._length_beats = operand._rational
             case ch.Chaos():
                 self._chaos = operand.copy()
+            case og.TimeSignature():
+                self._element << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -205,6 +203,7 @@ class YieldSteps(Yielder):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
+                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
@@ -212,19 +211,15 @@ class YieldSteps(Yielder):
                     parameters_len: int = len(self._parameters)
                     if yielded_elements:
                         for element in yielded_elements:
-                            next_index: int = self._chaos % 0
-                            step_parameter = self._parameters[next_index % parameters_len]
+                            step_parameter = self._parameters[self._index % parameters_len]
                             element << ra.Step(step_parameter)
-                            self._chaos.iterate()
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         while next_position < self._length_beats:
-                            next_index: int = self._chaos % 0
-                            step_parameter = self._parameters[next_index % parameters_len]
+                            step_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ra.Step(step_parameter))
-                            self._chaos.iterate()
                             self._index += 1
                             if self._index % parameters_len == 0:
                                 next_position += ra.Measure(1)
@@ -256,6 +251,7 @@ class YieldDegrees(Yielder):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
+                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
@@ -263,20 +259,16 @@ class YieldDegrees(Yielder):
                     parameters_len: int = len(self._parameters)
                     if yielded_elements:
                         for element in yielded_elements:
-                            next_index: int = self._chaos % 0
-                            degree_parameter = self._parameters[next_index % parameters_len]
+                            degree_parameter = self._parameters[self._index % parameters_len]
                             element << ou.Degree(degree_parameter)
-                            self._chaos.iterate()
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         while next_position < self._length_beats:
-                            next_index: int = self._chaos % 0
-                            degree_parameter = self._parameters[next_index % parameters_len]
+                            degree_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ou.Degree(degree_parameter))
                             next_position = new_element.finish()
-                            self._chaos.iterate()
                             self._index += 1
                 else:
                     return super().__mod__(operand)
