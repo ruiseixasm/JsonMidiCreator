@@ -257,14 +257,14 @@ class YieldDurations(Yielder):
     list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
     """
     def __init__(self, *parameters):
-        self._durations: list[float] = [1/4, 1/4, 1/4, 1/4]
+        self._pattern: list[float] = [1/4, 1/4, 1/4, 1/4]
         super().__init__(*parameters)
 
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case YieldDurations():
-                return super().__eq__(other) and self._durations == other._durations
+                return super().__eq__(other) and self._pattern == other._pattern
             case _:
                 return super().__eq__(other)
 
@@ -273,7 +273,7 @@ class YieldDurations(Yielder):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        return self._durations
+                        return self._pattern
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -282,11 +282,11 @@ class YieldDurations(Yielder):
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
                 element_duration: ra.Duration = self._element % ra.Duration()
-                if self._durations:
-                    parameters_len: int = len(self._durations)
+                if self._pattern:
+                    parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
-                            duration_parameter = element_duration << self._durations[self._index % parameters_len]
+                            duration_parameter = element_duration << self._pattern[self._index % parameters_len]
                             element << duration_parameter
                             self._index += 1
                     else:
@@ -294,7 +294,7 @@ class YieldDurations(Yielder):
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
-                            duration_parameter = element_duration << self._durations[self._index % parameters_len]
+                            duration_parameter = element_duration << self._pattern[self._index % parameters_len]
                             yielded_elements.append(new_element << duration_parameter)
                             next_position = new_element.finish()
                             self._index += 1
@@ -306,7 +306,7 @@ class YieldDurations(Yielder):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["durations"] = self.serialize(self._durations)
+        serialization["parameters"]["durations"] = self.serialize(self._pattern)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -316,22 +316,22 @@ class YieldDurations(Yielder):
             "durations" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._durations = self.deserialize(serialization["parameters"]["durations"])
+            self._pattern = self.deserialize(serialization["parameters"]["durations"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case YieldDurations():
                 super().__lshift__(operand)
-                self._durations = o.Operand.deep_copy(operand._durations)
+                self._pattern = o.Operand.deep_copy(operand._pattern)
             case od.Pipe():
                 match operand._data:
                     case list():
-                        self._durations = operand._data
+                        self._pattern = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._durations = o.Operand.deep_copy(operand)
+                self._pattern = o.Operand.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -349,14 +349,14 @@ class YieldSteps(Yielder):
     list([0, 4, 8, 12]) : The `Steps` parameters for each yield of elements.
     """
     def __init__(self, *parameters):
-        self._steps: list[int] = [0, 4, 8, 12]
+        self._pattern: list[int] = [0, 4, 8, 12]
         super().__init__(oe.Note(ra.Steps(1)), *parameters)
 
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case YieldSteps():
-                return super().__eq__(other) and self._steps == other._steps
+                return super().__eq__(other) and self._pattern == other._pattern
             case _:
                 return super().__eq__(other)
 
@@ -365,7 +365,7 @@ class YieldSteps(Yielder):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        return self._steps
+                        return self._pattern
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -373,18 +373,18 @@ class YieldSteps(Yielder):
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
-                if self._steps:
-                    parameters_len: int = len(self._steps)
+                if self._pattern:
+                    parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
-                            step_parameter = self._steps[self._index % parameters_len]
+                            step_parameter = self._pattern[self._index % parameters_len]
                             element << ra.Step(step_parameter)
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
-                            step_parameter = self._steps[self._index % parameters_len]
+                            step_parameter = self._pattern[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ra.Step(step_parameter))
                             self._index += 1
@@ -398,7 +398,7 @@ class YieldSteps(Yielder):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["steps"] = self.serialize(self._steps)
+        serialization["parameters"]["steps"] = self.serialize(self._pattern)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -408,22 +408,22 @@ class YieldSteps(Yielder):
             "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._steps = self.deserialize(serialization["parameters"]["steps"])
+            self._pattern = self.deserialize(serialization["parameters"]["steps"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case YieldSteps():
                 super().__lshift__(operand)
-                self._steps = o.Operand.deep_copy(operand._steps)
+                self._pattern = o.Operand.deep_copy(operand._pattern)
             case od.Pipe():
                 match operand._data:
                     case list():
-                        self._steps = operand._data
+                        self._pattern = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._steps = o.Operand.deep_copy(operand)
+                self._pattern = o.Operand.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -442,14 +442,14 @@ class YieldDegrees(Yielder):
     list([1, 3, 5]) : The `Degree` parameters for each yield of elements.
     """
     def __init__(self, *parameters):
-        self._degrees: list[int] = [1, 3, 5]
+        self._pattern: list[int] = [1, 3, 5]
         super().__init__(*parameters)
 
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case YieldDegrees():
-                return super().__eq__(other) and self._degrees == other._degrees
+                return super().__eq__(other) and self._pattern == other._pattern
             case _:
                 return super().__eq__(other)
 
@@ -458,7 +458,7 @@ class YieldDegrees(Yielder):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        return self._degrees
+                        return self._pattern
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -466,18 +466,18 @@ class YieldDegrees(Yielder):
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
-                if self._degrees:
-                    parameters_len: int = len(self._degrees)
+                if self._pattern:
+                    parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
-                            degree_parameter = self._degrees[self._index % parameters_len]
+                            degree_parameter = self._pattern[self._index % parameters_len]
                             element << ou.Degree(degree_parameter)
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
-                            degree_parameter = self._degrees[self._index % parameters_len]
+                            degree_parameter = self._pattern[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ou.Degree(degree_parameter))
                             next_position = new_element.finish()
@@ -490,7 +490,7 @@ class YieldDegrees(Yielder):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["degrees"] = self.serialize(self._degrees)
+        serialization["parameters"]["degrees"] = self.serialize(self._pattern)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -500,22 +500,22 @@ class YieldDegrees(Yielder):
             "degrees" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._degrees = self.deserialize(serialization["parameters"]["degrees"])
+            self._pattern = self.deserialize(serialization["parameters"]["degrees"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case YieldDegrees():
                 super().__lshift__(operand)
-                self._degrees = o.Operand.deep_copy(operand._degrees)
+                self._pattern = o.Operand.deep_copy(operand._pattern)
             case od.Pipe():
                 match operand._data:
                     case list():
-                        self._degrees = operand._data
+                        self._pattern = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._degrees = o.Operand.deep_copy(operand)
+                self._pattern = o.Operand.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         return self
