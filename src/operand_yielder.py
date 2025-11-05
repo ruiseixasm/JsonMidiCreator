@@ -341,16 +341,16 @@ class YieldSteps(YieldPositions):
                 return super().__mod__(operand)
 
 
-class YieldPitches(YieldPattern):
-    """`Yielder -> YieldPattern -> YieldPitches`
+class YieldParameters(YieldPattern):
+    """`Yielder -> YieldPattern -> YieldParameters`
 
-    Sets the `Element` pitches accordingly to each given pattern!
+    Sets the `Element` non positional parameters accordingly to each given pattern!
 
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4) : The `Measures` sets the length where the Yield will be returned.
-    list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
+    list([1/4, 1/4, 1/4, 1/4]) : The non positional parameters for each yield of elements.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -365,15 +365,13 @@ class YieldPitches(YieldPattern):
                         new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
                         next_position = new_element.finish()
-                else:
-                    return super().__mod__(operand)
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
 
 
-class YieldDegrees(YieldPitches):
-    """`Yielder -> YieldPattern -> YieldPitches -> YieldDegrees`
+class YieldDegrees(YieldParameters):
+    """`Yielder -> YieldPattern -> YieldParameters -> YieldDegrees`
 
     Generates a series of elements with the respective given duration stacked on each other \
         with the respective `Degree`.
