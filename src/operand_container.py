@@ -2975,7 +2975,7 @@ class Clip(Composition):  # Just a container of Elements
                 self += operand
 
             case oy.Yielder():
-                elements: oe.Element = operand % list()
+                elements: oe.Element = operand.copy(self._time_signature) % list()
                 self._delete()._extend(elements)
 
             case list():

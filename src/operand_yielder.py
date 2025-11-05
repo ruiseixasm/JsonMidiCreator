@@ -155,6 +155,8 @@ class Yielder(o.Operand):
             case ra.Length():
                 self._measures = operand._rational
             case og.TimeSignature():
+                if isinstance(self._next_operand, Yielder):
+                    self._next_operand << operand
                 self._element << operand
             case _:
                 super().__lshift__(operand)
