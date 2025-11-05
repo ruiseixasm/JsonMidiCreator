@@ -51,7 +51,6 @@ class Yielder(o.Operand):
         self._element: oe.Element = oe.Note()
         self._parameters: list[Any] = []
         self._length_beats: Fraction = ra.Length(4)._rational
-        self._chaos: ch.Chaos = ch.Sequence()
         super().__init__(*parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -75,8 +74,6 @@ class Yielder(o.Operand):
                         return self._parameters
                     case ra.Length():
                         return operand << self._length_beats
-                    case ch.Chaos():
-                        return self._chaos
                     case _:
                         return super().__mod__(operand)
             case oe.Element():
@@ -109,8 +106,6 @@ class Yielder(o.Operand):
                 return yielded_elements
             case ra.Length():
                 return ra.Length(self._length_beats)
-            case ch.Chaos():
-                return self._chaos.copy()
             case _:
                 return super().__mod__(operand)
 
@@ -119,21 +114,18 @@ class Yielder(o.Operand):
         serialization["parameters"]["element"]      = self.serialize(self._element)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
         serialization["parameters"]["length"]       = self.serialize(self._length_beats)
-        serialization["parameters"]["chaos"]        = self.serialize(self._chaos)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "element" in serialization["parameters"] and "parameters" in serialization["parameters"] and
-            "length" in serialization["parameters"] and "chaos" in serialization["parameters"]):
+            "element" in serialization["parameters"] and "parameters" in serialization["parameters"] and "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._element       = self.deserialize(serialization["parameters"]["element"])
             self._parameters    = self.deserialize(serialization["parameters"]["parameters"])
             self._length_beats  = self.deserialize(serialization["parameters"]["length"])
-            self._chaos         = self.deserialize(serialization["parameters"]["chaos"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -143,7 +135,6 @@ class Yielder(o.Operand):
                 self._element       = operand._element.copy()
                 self._parameters    = o.Operand.deep_copy(operand._parameters)
                 self._length_beats  = operand._length_beats
-                self._chaos         = operand._chaos.copy()
             case od.Pipe():
                 match operand._data:
                     case oe.Element():
@@ -152,8 +143,6 @@ class Yielder(o.Operand):
                         self._parameters = operand._data
                     case ra.Length():
                         self._length_beats = operand._data._rational
-                    case ch.Chaos():
-                        self._chaos = operand._data
                     case _:
                         super().__lshift__(operand)
             case oe.Element():
@@ -162,8 +151,6 @@ class Yielder(o.Operand):
                 self._parameters = o.Operand.deep_copy(operand)
             case ra.Length():
                 self._length_beats = operand._rational
-            case ch.Chaos():
-                self._chaos = operand.copy()
             case og.TimeSignature():
                 self._element << operand
             case _:
