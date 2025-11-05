@@ -32,19 +32,12 @@ two_program_changes = \
 two_program_changes >> Play()
 
 
-yield_notes = YieldDegrees()
-yielded_notes = Clip(yield_notes)
 
-yielded_notes >> Plot(title="Yielded Notes", block=False)
+on_beat_yield = YieldOnBeat(Duration(1/8))
+on_beat_notes = Clip(on_beat_yield)
+on_beat_notes >> Plot(title="On Beat Notes", block=False)
 
-
-chained_yield = YieldDegrees()**YieldDurations([1/8, 1/4, 1/8, 1/2])
-chained_notes = Clip(chained_yield)
-chained_notes >> Plot(title="Chained Notes", block=False)
-
-
-stepped_yield = YieldDegrees()**YieldSteps()
-stepped_notes = Clip(stepped_yield)
-stepped_notes >> Plot(title="Stepped Notes")
-
+off_beat_yield = YieldOffBeat(Duration(1/8))
+off_beat_notes = Clip(off_beat_yield)
+off_beat_notes >> Plot(title="Off Beat Notes")
 
