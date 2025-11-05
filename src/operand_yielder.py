@@ -73,7 +73,6 @@ class Yielder(o.Operand):
             case oe.Element():
                 return self._element.copy()
             case list():
-                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
@@ -84,7 +83,6 @@ class Yielder(o.Operand):
                         new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
                         next_position = new_element.finish()
-                        self._index += 1
                 return yielded_elements
             case ra.Measures() | ra.Measure():
                 return operand.copy(self._measures)
@@ -183,11 +181,11 @@ class YieldPattern(Yielder):
                     case _:
                         return super().__mod__(operand)
             case list():
-                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
                 if self._pattern:
+                    self._index = 0
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
@@ -270,12 +268,12 @@ class YieldDurations(YieldPositions):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
                 element_duration: ra.Duration = self._element % ra.Duration()
                 if self._pattern:
+                    self._index = 0
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
@@ -315,11 +313,11 @@ class YieldSteps(YieldPositions):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
                 if self._pattern:
+                    self._index = 0
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
                         for element in yielded_elements:
@@ -354,7 +352,24 @@ class YieldPitches(YieldPattern):
     Measures(4) : The `Measures` sets the length where the Yield will be returned.
     list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
     """
-    pass
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case list():
+                yielded_elements: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    yielded_elements = self._next_operand.__mod__(operand)
+                if not yielded_elements:
+                    next_position: ra.Position = self._element.start()
+                    end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    while next_position < end_position:
+                        new_element: oe.Element = self._element.copy(next_position)
+                        yielded_elements.append(new_element)
+                        next_position = new_element.finish()
+                else:
+                    return super().__mod__(operand)
+                return yielded_elements
+            case _:
+                return super().__mod__(operand)
 
 
 class YieldDegrees(YieldPitches):
@@ -375,28 +390,18 @@ class YieldDegrees(YieldPitches):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
-                self._index = 0
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
+                if not yielded_elements:
+                    yielded_elements = super().__mod__(operand)
                 if self._pattern:
+                    self._index = 0
                     parameters_len: int = len(self._pattern)
-                    if yielded_elements:
-                        for element in yielded_elements:
-                            degree_parameter = self._pattern[self._index % parameters_len]
-                            element << ou.Degree(degree_parameter)
-                            self._index += 1
-                    else:
-                        next_position: ra.Position = self._element.start()
-                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
-                        while next_position < end_position:
-                            degree_parameter = self._pattern[self._index % parameters_len]
-                            new_element: oe.Element = self._element.copy(next_position)
-                            yielded_elements.append(new_element << ou.Degree(degree_parameter))
-                            next_position = new_element.finish()
-                            self._index += 1
-                else:
-                    return super().__mod__(operand)
+                    for element in yielded_elements:
+                        degree_parameter = self._pattern[self._index % parameters_len]
+                        element << ou.Degree(degree_parameter)
+                        self._index += 1
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
