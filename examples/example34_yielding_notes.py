@@ -45,5 +45,10 @@ chained_notes >> Plot(title="Chained Notes", block=False)
 
 stepped_yield = YieldDegrees()**YieldSteps()
 stepped_notes = Clip(stepped_yield)
-stepped_notes >> Plot(title="Stepped Notes")
+stepped_notes >> Plot(title="Stepped Notes", block=False)
+
+
+on_beat_yield = YieldOnBeat(Duration(1/8))
+on_beat_notes = Clip(on_beat_yield)
+on_beat_notes >> Plot(title="On Beat Notes")
 
