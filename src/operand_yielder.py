@@ -50,7 +50,7 @@ class Yielder(o.Operand):
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
         self._parameters: list[Any] = []
-        self._length_beats: Fraction = ra.Length(4)._rational
+        self._measures: int = 4
         super().__init__(*parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -58,7 +58,7 @@ class Yielder(o.Operand):
             case Yielder():
                 return self._element == other._element \
                     and self._parameters == other._parameters \
-                    and self._length_beats == other._length_beats
+                    and self._measures == other._measures
             case od.Conditional():
                 return other == self
             case _:
@@ -72,8 +72,8 @@ class Yielder(o.Operand):
                         return self._element
                     case list():
                         return self._parameters
-                    case ra.Length():
-                        return operand << self._length_beats
+                    case ra.Measures() | ra.Measure():
+                        return operand << self._measures
                     case _:
                         return super().__mod__(operand)
             case oe.Element():
@@ -91,21 +91,24 @@ class Yielder(o.Operand):
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
-                        while next_position < self._length_beats:
+                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                        while next_position < end_position:
                             new_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << new_parameter)
                             next_position = new_element.finish()
                             self._index += 1
                 elif not yielded_elements:
-                    while next_position < self._length_beats:
+                    next_position: ra.Position = self._element.start()
+                    end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    while next_position < end_position:
                         new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
                         next_position = new_element.finish()
                         self._index += 1
                 return yielded_elements
-            case ra.Length():
-                return ra.Length(self._length_beats)
+            case ra.Measures() | ra.Measure():
+                return operand.copy(self._measures)
             case _:
                 return super().__mod__(operand)
 
@@ -113,19 +116,19 @@ class Yielder(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["element"]      = self.serialize(self._element)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
-        serialization["parameters"]["length"]       = self.serialize(self._length_beats)
+        serialization["parameters"]["measures"]     = self.serialize(self._measures)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "element" in serialization["parameters"] and "parameters" in serialization["parameters"] and "length" in serialization["parameters"]):
+            "element" in serialization["parameters"] and "parameters" in serialization["parameters"] and "measures" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._element       = self.deserialize(serialization["parameters"]["element"])
             self._parameters    = self.deserialize(serialization["parameters"]["parameters"])
-            self._length_beats  = self.deserialize(serialization["parameters"]["length"])
+            self._measures      = self.deserialize(serialization["parameters"]["measures"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -134,7 +137,7 @@ class Yielder(o.Operand):
                 super().__lshift__(operand)
                 self._element       = operand._element.copy()
                 self._parameters    = o.Operand.deep_copy(operand._parameters)
-                self._length_beats  = operand._length_beats
+                self._measures  = operand._measures
             case od.Pipe():
                 match operand._data:
                     case oe.Element():
@@ -142,7 +145,7 @@ class Yielder(o.Operand):
                     case list():
                         self._parameters = operand._data
                     case ra.Length():
-                        self._length_beats = operand._data._rational
+                        self._measures = operand._data._rational
                     case _:
                         super().__lshift__(operand)
             case oe.Element():
@@ -150,7 +153,7 @@ class Yielder(o.Operand):
             case list():
                 self._parameters = o.Operand.deep_copy(operand)
             case ra.Length():
-                self._length_beats = operand._rational
+                self._measures = operand._rational
             case og.TimeSignature():
                 self._element << operand
             case _:
@@ -203,7 +206,8 @@ class YieldSteps(Yielder):
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
-                        while next_position < self._length_beats:
+                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                        while next_position < end_position:
                             step_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ra.Step(step_parameter))
@@ -251,7 +255,8 @@ class YieldDegrees(Yielder):
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
-                        while next_position < self._length_beats:
+                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                        while next_position < end_position:
                             degree_parameter = self._parameters[self._index % parameters_len]
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element << ou.Degree(degree_parameter))
