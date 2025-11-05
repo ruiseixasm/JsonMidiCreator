@@ -187,7 +187,6 @@ class YieldPattern(Yielder):
                 yielded_elements: list[oe.Element] = []
                 if isinstance(self._next_operand, Yielder):
                     yielded_elements = self._next_operand.__mod__(operand)
-                element_duration: ra.Duration = self._element % ra.Duration()
                 if self._pattern:
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
@@ -241,9 +240,21 @@ class YieldPattern(Yielder):
                 super().__lshift__(operand)
         return self
 
+class YieldPositions(YieldPattern):
+    """`Yielder -> YieldPattern -> YieldPositions`
 
-class YieldDurations(YieldPattern):
-    """`Yielder -> YieldPattern -> YieldDurations`
+    Places the given `Element` stacked accordingly to each given pattern!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
+    """
+    pass
+
+class YieldDurations(YieldPositions):
+    """`Yielder -> YieldPattern -> YieldPositions -> YieldDurations`
 
     Places the given `Element` stacked accordingly to each given `Duration`!
 
@@ -287,8 +298,8 @@ class YieldDurations(YieldPattern):
                 return super().__mod__(operand)
 
 
-class YieldSteps(YieldPattern):
-    """`Yielder -> YieldPattern -> YieldSteps`
+class YieldSteps(YieldPositions):
+    """`Yielder -> YieldPattern -> YieldPositions -> YieldSteps`
 
     Places the given `Element` in each of the set Steps. Steps are 0 based!
 
@@ -332,8 +343,22 @@ class YieldSteps(YieldPattern):
                 return super().__mod__(operand)
 
 
-class YieldDegrees(YieldPattern):
-    """`Yielder -> YieldPattern -> YieldDegrees`
+class YieldPitches(YieldPattern):
+    """`Yielder -> YieldPattern -> YieldPitches`
+
+    Sets the `Element` pitches accordingly to each given pattern!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
+    """
+    pass
+
+
+class YieldDegrees(YieldPitches):
+    """`Yielder -> YieldPattern -> YieldPitches -> YieldDegrees`
 
     Generates a series of elements with the respective given duration stacked on each other \
         with the respective `Degree`.
