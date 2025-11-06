@@ -293,6 +293,9 @@ class YieldPattern(Yielder):
             case _:
                 return super().__eq__(other)
 
+    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
+        return self._pattern[parameter_i % parameters_len]
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -315,8 +318,7 @@ class YieldPattern(Yielder):
                             if next_measure > previous_measure and next_measure == 0:
                                 _parameter_i = 0
                             previous_measure = next_measure
-                            element_parameter = self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
@@ -324,8 +326,7 @@ class YieldPattern(Yielder):
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element)
-                            element_parameter = self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             next_position = new_element.finish()
                             _parameter_i += 1
                 return yielded_elements
@@ -391,6 +392,10 @@ class YieldDurations(YieldPositions):
     def __init__(self, *parameters):
         super().__init__([1/4, 1/4, 1/4, 1/4], *parameters)
 
+    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
+        element_duration: ra.Duration = self._element % ra.Duration()
+        return element_duration << self._pattern[parameter_i % parameters_len]
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
@@ -398,7 +403,6 @@ class YieldDurations(YieldPositions):
                 if self._pattern:
                     if isinstance(self._next_operand, Yielder):
                         yielded_elements = self._next_operand.__mod__(operand)
-                    element_duration: ra.Duration = self._element % ra.Duration()
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
@@ -408,8 +412,7 @@ class YieldDurations(YieldPositions):
                             if next_measure > previous_measure and next_measure == 0:
                                 _parameter_i = 0
                             previous_measure = next_measure
-                            element_parameter = element_duration << self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
@@ -417,8 +420,7 @@ class YieldDurations(YieldPositions):
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element)
-                            element_parameter = element_duration << self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             next_position = new_element.finish()
                             _parameter_i += 1
                 return yielded_elements
