@@ -54,6 +54,21 @@ class Yielder(o.Operand):
         self._measures: int = 4
         super().__init__(*parameters)
 
+    def _yield_elements(self) -> list['oe.Element']:
+        yielded_elements: list[oe.Element] = []
+        if isinstance(self._next_operand, Yielder):
+            yielded_elements = self._next_operand.__mod__(yielded_elements)
+            if yielded_elements:    # Stretches the elements like a Drum Machine
+                target_beats_per_measure: int = self._element._get_time_signature()._top
+                for new_element in yielded_elements:
+                    source_beats_per_measure: int = new_element._get_time_signature()._top
+                    if source_beats_per_measure != target_beats_per_measure:
+                        new_element._position_beats *= target_beats_per_measure
+                        new_element._position_beats /= source_beats_per_measure
+                        new_element._duration_beats *= target_beats_per_measure
+                        new_element._duration_beats /= source_beats_per_measure
+        return yielded_elements
+
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case Yielder():
@@ -76,9 +91,7 @@ class Yielder(o.Operand):
             case oe.Element():
                 return self._element.copy()
             case list():
-                yielded_elements: list[oe.Element] = []
-                if isinstance(self._next_operand, Yielder):
-                    yielded_elements = self._next_operand.__mod__(operand)
+                yielded_elements: list[oe.Element] = self._yield_elements()
                 if not yielded_elements:
                     next_position: ra.Position = self._element.start()
                     end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
@@ -133,10 +146,10 @@ class Yielder(o.Operand):
                 self._measures = operand % int()
             case int():
                 self._measures = operand
-            case og.TimeSignature():    # Only TimeSignature is propagated
-                if isinstance(self._next_operand, Yielder):
-                    self._next_operand << operand
-                self._element << operand
+            # case og.TimeSignature():    # Only TimeSignature is propagated
+            #     if isinstance(self._next_operand, Yielder):
+            #         self._next_operand << operand
+            #     self._element << operand
             case _:
                 self._element << operand
         return self
@@ -171,7 +184,7 @@ class Yielder(o.Operand):
     def __floordiv__(self, operand: any) -> 'Clip':
         import operand_container as oc
         return oc.Clip(self).__ifloordiv__(operand)
-    
+
 
 class YieldOnBeat(Yielder):
     """`Yielder -> YieldOnBeat`
