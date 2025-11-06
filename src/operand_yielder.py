@@ -123,7 +123,7 @@ class Yielder(o.Operand):
             case int():
                 return self._measures
             case _:
-                return super().__mod__(operand)
+                return self._element.__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -183,23 +183,23 @@ class Yielder(o.Operand):
 
     def __add__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self).__iadd__(operand)
+        return oc.Clip(self._element._time_signature, self).__iadd__(operand)
     
     def __sub__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self).__isub__(operand)
+        return oc.Clip(self._element._time_signature, self).__isub__(operand)
     
     def __mul__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self).__imul__(operand)
+        return oc.Clip(self._element._time_signature, self).__imul__(operand)
     
     def __truediv__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self).__itruediv__(operand)
+        return oc.Clip(self._element._time_signature, self).__itruediv__(operand)
     
     def __floordiv__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self).__ifloordiv__(operand)
+        return oc.Clip(self._element._time_signature, self).__ifloordiv__(operand)
 
 
 class YieldOnBeat(Yielder):
