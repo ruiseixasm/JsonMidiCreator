@@ -377,16 +377,20 @@ class YieldDurations(YieldPositions):
         match operand:
             case list():
                 yielded_elements: list[oe.Element] = []
+                yielded_positions: list[ra.Position] = []
                 if isinstance(self._next_operand, Yielder):
-                    yielded_elements = self._next_operand.__mod__(operand)
+                    yielded_positions = [
+                        element % ra.Position() for element in self._next_operand.__mod__(operand)
+                    ]
                 element_duration: ra.Duration = self._element % ra.Duration()
                 if self._pattern:
                     self._index = 0
                     parameters_len: int = len(self._pattern)
-                    if yielded_elements:
-                        for element in yielded_elements:
-                            duration_parameter = element_duration << self._pattern[self._index % parameters_len]
-                            element << duration_parameter
+                    if yielded_positions:
+                        for next_position in yielded_positions:
+                            new_element: oe.Element = self._element.copy(next_position)
+                            element_parameter = element_duration << self._pattern[self._index % parameters_len]
+                            yielded_elements.append(new_element << element_parameter)
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
