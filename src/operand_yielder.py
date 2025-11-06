@@ -309,9 +309,13 @@ class YieldPattern(Yielder):
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
+                        element_measure: int = 0
                         for index, new_element in enumerate(yielded_elements):
-                            element_parameter = self._pattern[index % parameters_len]
+                            if new_element.start() % int() % self._measures == 0:
+                                element_measure = new_element.start() % int()
+                            element_parameter = self._pattern[_parameter_i % parameters_len]
                             new_element << element_parameter
+                            _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
