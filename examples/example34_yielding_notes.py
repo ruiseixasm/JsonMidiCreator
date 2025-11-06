@@ -46,6 +46,7 @@ duration_notes >> Plot(title="Duration Notes", block=False)
 
 stepped_yield = YieldDegrees()**YieldSteps()
 stepped_notes = Clip(stepped_yield)
-stepped_notes >> Plot(title="Stepped Notes")
+stepped_notes >> Plot(title="Stepped Notes", block=False)
 
+YieldDegrees()**YieldPattern() >> Plot(title="Triplet Notes")
 

@@ -255,10 +255,10 @@ class YieldPattern(Yielder):
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4) : The `Measures` sets the length where the Yield will be returned.
-    list([1/4, 1/4, 1/4, 1/4]) : The given parameters for each yield of elements.
+    list([ra.Beats(2/3)]) : The given parameters for each yield of elements.
     """
     def __init__(self, *parameters):
-        self._pattern: list[Any] = [1/4, 1/4, 1/4, 1/4]
+        self._pattern: list[Any] = [ra.Beats(2/3)]
         super().__init__(*parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
