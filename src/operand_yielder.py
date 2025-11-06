@@ -64,12 +64,12 @@ class Yielder(o.Operand):
                 for new_element in yielded_elements:
                     new_element._owner_clip = None  # Safe code
                     source_beats_per_measure: int = new_element._time_signature._top
-                    if source_beats_per_measure != target_beats_per_measure:
-                        new_element._position_beats *= target_beats_per_measure
-                        new_element._position_beats /= source_beats_per_measure
-                        new_element._duration_beats *= target_beats_per_measure
-                        new_element._duration_beats /= source_beats_per_measure
                     new_element._time_signature << self._element._time_signature
+                    if source_beats_per_measure != target_beats_per_measure:
+                        new_element._position_beats \
+                            = new_element._position_beats * target_beats_per_measure / source_beats_per_measure
+                        new_element._duration_beats \
+                            = new_element._duration_beats * target_beats_per_measure / source_beats_per_measure
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
                 extended_elements: list[oe.Element] = []
