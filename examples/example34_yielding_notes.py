@@ -48,5 +48,7 @@ stepped_yield = YieldDegrees()**YieldSteps()
 stepped_notes = Clip(stepped_yield)
 stepped_notes >> Plot(title="Stepped Notes", block=False)
 
-YieldDegrees()**YieldPattern() >> Plot(title="Triplet Notes")
+YieldDegrees()**YieldPattern() >> Plot(title="Triplet Notes", block=False)
 
+# Equivalent to the previous YieldPattern
+Note(Beats(2/3)) / Measure(4) << Each(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes")
