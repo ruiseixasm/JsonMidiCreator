@@ -318,10 +318,8 @@ class YieldPattern(Yielder):
                     case _:
                         return super().__mod__(operand)
             case list():
-                yielded_elements: list[oe.Element] = []
+                yielded_elements: list[oe.Element] = self._yield_elements()
                 if self._pattern:
-                    if isinstance(self._next_operand, Yielder):
-                        yielded_elements = self._next_operand.__mod__(operand)
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
