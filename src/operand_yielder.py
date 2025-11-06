@@ -450,9 +450,10 @@ class YieldSteps(YieldPositions):
                     end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                     _parameter_i: int = 0
                     while next_position < end_position:
-                        step_parameter = self._pattern[_parameter_i % parameters_len]
                         new_element: oe.Element = self._element.copy(next_position)
-                        yielded_elements.append(new_element << ra.Step(step_parameter))
+                        yielded_elements.append(new_element)
+                        element_parameter = ra.Step() << self._pattern[_parameter_i % parameters_len]
+                        new_element << element_parameter
                         _parameter_i += 1
                         if _parameter_i % parameters_len == 0:
                             next_position += ra.Measure(1)
