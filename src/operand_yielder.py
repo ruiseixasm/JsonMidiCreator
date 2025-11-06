@@ -468,36 +468,5 @@ class YieldDegrees(YieldParameters):
     def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
         return ou.Degree() << self._pattern[parameter_i % parameters_len]
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case list():
-                yielded_elements: list[oe.Element] = []
-                if self._pattern:
-                    if isinstance(self._next_operand, Yielder):
-                        yielded_elements = self._next_operand.__mod__(operand)
-                    parameters_len: int = len(self._pattern)
-                    _parameter_i: int = 0
-                    if yielded_elements:
-                        previous_measure: int = 0
-                        for new_element in yielded_elements:
-                            next_measure: int = new_element.start() % int() % self._measures
-                            if next_measure > previous_measure and next_measure == 0:
-                                _parameter_i = 0
-                            previous_measure = next_measure
-                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
-                            _parameter_i += 1
-                    else:
-                        next_position: ra.Position = self._element.start()
-                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
-                        while next_position < end_position:
-                            new_element: oe.Element = self._element.copy(next_position)
-                            yielded_elements.append(new_element)
-                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
-                            next_position = new_element.finish()
-                            _parameter_i += 1
-                return yielded_elements
-            case _:
-                return super().__mod__(operand)
-
 
 
