@@ -2567,8 +2567,11 @@ class Plot(ReadOnly):
         import operand_unit as ou
         import operand_element as oe
         import operand_container as oc
+        import operand_yielder as oy
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.plot(*self._parameters)
+        if isinstance(operand, oy.Yielder):
+            return oc.Clip(operand).plot(*self._parameters)
         if isinstance(operand, Scale):
             Scale.plot(self._parameters[1], operand % list())
         elif isinstance(operand, ou.KeySignature):
@@ -2621,6 +2624,7 @@ class Play(ReadOnly):
         import threading
         import operand_element as oe
         import operand_container as oc
+        import operand_yielder as oy
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -2636,6 +2640,9 @@ class Play(ReadOnly):
                         c.jsonMidiPlay(playlist, self._parameters[0])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
+                return operand
+            case oy.Yielder():
+                self.__rrshift__(oc.Clip(operand))
                 return operand
             case oe.Element():
                 playlist: list[dict] = self._clocked_playlist(operand)
