@@ -74,16 +74,9 @@ class Yielder(o.Operand):
                 return self._element.copy()
             case list():
                 yielded_elements: list[oe.Element] = []
-                yielded_positions: list[ra.Position] = []
                 if isinstance(self._next_operand, Yielder):
-                    yielded_positions = [
-                        element % ra.Position() for element in self._next_operand.__mod__(operand)
-                    ]
-                if yielded_positions:
-                    for next_position in yielded_positions:
-                        new_element: oe.Element = self._element.copy(next_position)
-                        yielded_elements.append(new_element)
-                else:
+                    yielded_elements = self._next_operand.__mod__(operand)
+                if not yielded_elements:
                     next_position: ra.Position = self._element.start()
                     end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                     while next_position < end_position:
@@ -285,31 +278,25 @@ class YieldPattern(Yielder):
                         return super().__mod__(operand)
             case list():
                 yielded_elements: list[oe.Element] = []
-                yielded_positions: list[ra.Position] = []
-                if isinstance(self._next_operand, Yielder):
-                    yielded_positions = [
-                        element % ra.Position() for element in self._next_operand.__mod__(operand)
-                    ]
                 if self._pattern:
-                    self._index = 0
+                    if isinstance(self._next_operand, Yielder):
+                        yielded_elements = self._next_operand.__mod__(operand)
                     parameters_len: int = len(self._pattern)
-                    if yielded_positions:
-                        for next_position in yielded_positions:
-                            new_element: oe.Element = self._element.copy(next_position)
-                            element_parameter = self._pattern[self._index % parameters_len]
-                            yielded_elements.append(new_element << element_parameter)
-                            self._index += 1
+                    if yielded_elements:
+                        for index, new_element in enumerate(yielded_elements):
+                            element_parameter = self._pattern[index % parameters_len]
+                            new_element << element_parameter
                     else:
+                        self._index = 0
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
+                            yielded_elements.append(new_element)
                             element_parameter = self._pattern[self._index % parameters_len]
-                            yielded_elements.append(new_element << element_parameter)
+                            new_element << element_parameter
                             next_position = new_element.finish()
                             self._index += 1
-                else:
-                    return super().__mod__(operand)
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
@@ -381,14 +368,13 @@ class YieldDurations(YieldPositions):
                     if isinstance(self._next_operand, Yielder):
                         yielded_elements = self._next_operand.__mod__(operand)
                     element_duration: ra.Duration = self._element % ra.Duration()
-                    self._index = 0
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
-                        for new_element in yielded_elements:
-                            element_parameter = element_duration << self._pattern[self._index % parameters_len]
+                        for index, new_element in enumerate(yielded_elements):
+                            element_parameter = element_duration << self._pattern[index % parameters_len]
                             new_element << element_parameter
-                            self._index += 1
                     else:
+                        self._index = 0
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
@@ -475,14 +461,13 @@ class YieldDegrees(YieldParameters):
                 if self._pattern:
                     if isinstance(self._next_operand, Yielder):
                         yielded_elements = self._next_operand.__mod__(operand)
-                    self._index = 0
                     parameters_len: int = len(self._pattern)
                     if yielded_elements:
-                        for new_element in yielded_elements:
-                            element_parameter = ou.Degree() << self._pattern[self._index % parameters_len]
+                        for index, new_element in enumerate(yielded_elements):
+                            element_parameter = ou.Degree() << self._pattern[index % parameters_len]
                             new_element << element_parameter
-                            self._index += 1
                     else:
+                        self._index = 0
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                         while next_position < end_position:
