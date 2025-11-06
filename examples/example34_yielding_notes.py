@@ -51,4 +51,8 @@ stepped_notes >> Plot(title="Stepped Notes", block=False)
 YieldDegrees()**YieldPattern() >> Plot(title="Triplet Notes", block=False)
 
 # Equivalent to the previous YieldPattern
-Note(Beats(2/3)) / Measure(4) << Each(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes")
+Note(Beats(2/3)) / Measure(4) << Each(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes", block=False)
+
+
+YieldDegrees()**YieldPattern(Channel(2), Octave(3)) + YieldDegrees() >> Plot(title="Added Yields")
+
