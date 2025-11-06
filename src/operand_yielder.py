@@ -73,6 +73,7 @@ class Yielder(o.Operand):
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
                 extended_elements: list[oe.Element] = []
+                _extended_measure: ra.Measure = ra.Measure(0)
                 while _last_measure < self._measures - 1:
                     for new_element in yielded_elements:
                         element_measure: ra.Measure = new_element % ra.Measure()
@@ -80,9 +81,9 @@ class Yielder(o.Operand):
                         if target_measure < self._measures:
                             copied_element: oe.Element = new_element.copy(target_measure)
                             extended_elements.append(copied_element)
-                    for copied_element in extended_elements:
-                        if copied_element % ra.Measure() > _last_measure:
-                            _last_measure = copied_element % ra.Measure()
+                            if copied_element % ra.Measure() > _extended_measure:
+                                _extended_measure = copied_element % ra.Measure()
+                    _last_measure = _extended_measure
                 yielded_elements.extend(extended_elements)
         return yielded_elements
 
