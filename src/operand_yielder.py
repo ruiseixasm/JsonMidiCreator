@@ -59,14 +59,27 @@ class Yielder(o.Operand):
         if isinstance(self._next_operand, Yielder):
             yielded_elements = self._next_operand.__mod__(yielded_elements)
             if yielded_elements:    # Stretches the elements like a Drum Machine
-                target_beats_per_measure: int = self._element._get_time_signature()._top
+                target_beats_per_measure: int = self._element._time_signature._top
+                _last_measure: ra.Measure = ra.Measure(0)
                 for new_element in yielded_elements:
-                    source_beats_per_measure: int = new_element._get_time_signature()._top
+                    source_beats_per_measure: int = new_element._time_signature._top
                     if source_beats_per_measure != target_beats_per_measure:
                         new_element._position_beats *= target_beats_per_measure
                         new_element._position_beats /= source_beats_per_measure
                         new_element._duration_beats *= target_beats_per_measure
                         new_element._duration_beats /= source_beats_per_measure
+                    new_element._time_signature << self._element._time_signature
+                    if new_element % ra.Measure() > _last_measure:
+                        _last_measure = new_element % ra.Measure()
+                if _last_measure < self._measures - 1:
+                    extended_elements: list[oe.Element] = []
+                    for new_element in yielded_elements:
+                        element_measure: ra.Measure = new_element % ra.Measure()
+                        target_measure: ra.Measure = _last_measure + element_measure + 1
+                        if target_measure < self._measures:
+                            copied_element: oe.Element = new_element.copy(target_measure)
+                            extended_elements.append(copied_element)
+                    yielded_elements.extend(extended_elements)
         return yielded_elements
 
     def __eq__(self, other: o.Operand) -> bool:

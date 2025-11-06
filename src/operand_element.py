@@ -118,6 +118,14 @@ class Element(o.Operand):
         self._duration_beats = ra.Duration(self, note_value)._rational
         return self
 
+    def last_measure(self) -> ra.Measure:
+        # Starts by checking if it's a starting measure Element
+        start_measure: int = self.start() % ra.Measure() % int()
+        finish_measure: int = self.finish() % ra.Measure() % int()
+        if finish_measure > start_measure + 1:
+            return ra.Measure(finish_measure - 1)
+        return ra.Measure(start_measure)
+
 
     def crossing(self, composition: 'Composition' = None) -> bool:
         if composition is None:
