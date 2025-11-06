@@ -494,6 +494,9 @@ class YieldDegrees(YieldParameters):
     def __init__(self, *parameters):
         super().__init__([1, 3, 5], *parameters)
 
+    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
+        return ou.Degree() << self._pattern[parameter_i % parameters_len]
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
@@ -510,8 +513,7 @@ class YieldDegrees(YieldParameters):
                             if next_measure > previous_measure and next_measure == 0:
                                 _parameter_i = 0
                             previous_measure = next_measure
-                            element_parameter = ou.Degree() << self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
@@ -519,8 +521,7 @@ class YieldDegrees(YieldParameters):
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element)
-                            element_parameter = ou.Degree() << self._pattern[_parameter_i % parameters_len]
-                            new_element << element_parameter
+                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
                             next_position = new_element.finish()
                             _parameter_i += 1
                 return yielded_elements
