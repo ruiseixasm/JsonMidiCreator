@@ -130,9 +130,11 @@ class Yielder(o.Operand):
                 self._measures = operand % int()
             case int():
                 self._measures = operand
-            case _:
+            case og.TimeSignature():    # Only TimeSignature is propagated
                 if isinstance(self._next_operand, Yielder):
                     self._next_operand << operand
+                self._element << operand
+            case _:
                 self._element << operand
         return self
 
