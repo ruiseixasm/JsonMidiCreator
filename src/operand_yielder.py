@@ -310,7 +310,7 @@ class YieldPattern(Yielder):
                     _parameter_i: int = 0
                     if yielded_elements:
                         previous_measure: int = 0
-                        for index, new_element in enumerate(yielded_elements):
+                        for new_element in yielded_elements:
                             next_measure: int = new_element.start() % int() % self._measures
                             if next_measure > previous_measure and next_measure == 0:
                                 _parameter_i = 0
