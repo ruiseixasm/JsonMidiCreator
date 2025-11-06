@@ -62,6 +62,7 @@ class Yielder(o.Operand):
                 target_beats_per_measure: int = self._element._time_signature._top
                 _last_measure: ra.Measure = ra.Measure(0)
                 for new_element in yielded_elements:
+                    new_element._owner_clip = None  # Safe code
                     source_beats_per_measure: int = new_element._time_signature._top
                     if source_beats_per_measure != target_beats_per_measure:
                         new_element._position_beats *= target_beats_per_measure
