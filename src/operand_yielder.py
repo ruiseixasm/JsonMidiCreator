@@ -426,28 +426,18 @@ class YieldSteps(YieldPositions):
         match operand:
             case list():
                 yielded_elements: list[oe.Element] = []
-                if isinstance(self._next_operand, Yielder):
-                    yielded_elements = self._next_operand.__mod__(operand)
                 if self._pattern:
                     self._index = 0
                     parameters_len: int = len(self._pattern)
-                    if yielded_elements:
-                        for element in yielded_elements:
-                            step_parameter = self._pattern[self._index % parameters_len]
-                            element << ra.Step(step_parameter)
-                            self._index += 1
-                    else:
-                        next_position: ra.Position = self._element.start()
-                        end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
-                        while next_position < end_position:
-                            step_parameter = self._pattern[self._index % parameters_len]
-                            new_element: oe.Element = self._element.copy(next_position)
-                            yielded_elements.append(new_element << ra.Step(step_parameter))
-                            self._index += 1
-                            if self._index % parameters_len == 0:
-                                next_position += ra.Measure(1)
-                else:
-                    return super().__mod__(operand)
+                    next_position: ra.Position = self._element.start()
+                    end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    while next_position < end_position:
+                        step_parameter = self._pattern[self._index % parameters_len]
+                        new_element: oe.Element = self._element.copy(next_position)
+                        yielded_elements.append(new_element << ra.Step(step_parameter))
+                        self._index += 1
+                        if self._index % parameters_len == 0:
+                            next_position += ra.Measure(1)
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
