@@ -440,6 +440,9 @@ class YieldSteps(YieldPositions):
     def __init__(self, *parameters):
         super().__init__(oe.Note(ra.Steps(1)), [0, 4, 8, 12], *parameters)
 
+    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
+        return ra.Step() << self._pattern[parameter_i % parameters_len]
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case list():
@@ -452,8 +455,7 @@ class YieldSteps(YieldPositions):
                     while next_position < end_position:
                         new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
-                        element_parameter = ra.Step() << self._pattern[_parameter_i % parameters_len]
-                        new_element << element_parameter
+                        new_element << self._get_element_parameter(_parameter_i, parameters_len)
                         _parameter_i += 1
                         if _parameter_i % parameters_len == 0:
                             next_position += ra.Measure(1)
