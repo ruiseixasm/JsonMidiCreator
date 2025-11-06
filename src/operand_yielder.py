@@ -71,15 +71,18 @@ class Yielder(o.Operand):
                     new_element._time_signature << self._element._time_signature
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
-                if _last_measure < self._measures - 1:
-                    extended_elements: list[oe.Element] = []
+                extended_elements: list[oe.Element] = []
+                while _last_measure < self._measures - 1:
                     for new_element in yielded_elements:
                         element_measure: ra.Measure = new_element % ra.Measure()
                         target_measure: ra.Measure = _last_measure + element_measure + 1
                         if target_measure < self._measures:
                             copied_element: oe.Element = new_element.copy(target_measure)
                             extended_elements.append(copied_element)
-                    yielded_elements.extend(extended_elements)
+                    for copied_element in extended_elements:
+                        if copied_element % ra.Measure() > _last_measure:
+                            _last_measure = copied_element % ra.Measure()
+                yielded_elements.extend(extended_elements)
         return yielded_elements
 
     def __eq__(self, other: o.Operand) -> bool:
