@@ -202,6 +202,61 @@ class YieldOffBeat(Yielder):
             case _:
                 return super().__mod__(operand)
 
+class YieldDownBeat(Yielder):
+    """`Yielder -> YieldDownBeat`
+
+    Places the given `Element` on each Down Beat (the first `Beat` in each `Measure`)!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    """
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case list():
+                yielded_elements: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    yielded_elements = self._next_operand.__mod__(operand)
+                if not yielded_elements:
+                    next_position: ra.Position = self._element.start() << ra.Beats(0)
+                    end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    while next_position < end_position:
+                        new_element: oe.Element = self._element.copy(next_position)
+                        yielded_elements.append(new_element)
+                        next_position += ra.Measures(1)
+                return yielded_elements
+            case _:
+                return super().__mod__(operand)
+
+class YieldUpBeat(Yielder):
+    """`Yielder -> YieldUpBeat`
+
+    Places the given `Element` on each Up Beat (the last off Beat in each `Measure`)!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    """
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case list():
+                yielded_elements: list[oe.Element] = []
+                if isinstance(self._next_operand, Yielder):
+                    yielded_elements = self._next_operand.__mod__(operand)
+                if not yielded_elements:
+                    next_position: ra.Position = self._element.start() << ra.Measures(1)
+                    next_position -= ra.Beats(1/2)
+                    end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    while next_position < end_position:
+                        new_element: oe.Element = self._element.copy(next_position)
+                        yielded_elements.append(new_element)
+                        next_position += ra.Measures(1)
+                return yielded_elements
+            case _:
+                return super().__mod__(operand)
+
 
 class YieldPattern(Yielder):
     """`Yielder -> YieldPattern`

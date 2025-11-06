@@ -39,5 +39,13 @@ on_beat_notes >> Plot(title="On Beat Notes", block=False)
 
 off_beat_yield = YieldOffBeat(Duration(1/8))
 off_beat_notes = Clip(off_beat_yield)
-off_beat_notes >> Plot(title="Off Beat Notes")
+off_beat_notes >> Plot(title="Off Beat Notes", block=False)
+
+down_beat_yield = YieldDownBeat(Duration(1/8))
+down_beat_notes = Clip(down_beat_yield)
+down_beat_notes >> Plot(title="Down Beat Notes", block=False)
+
+up_beat_yield = YieldUpBeat(Duration(1/8))
+up_beat_notes = Clip(up_beat_yield)
+up_beat_notes >> Plot(title="Up Beat Notes")
 
