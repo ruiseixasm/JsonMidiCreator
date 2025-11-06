@@ -1827,6 +1827,18 @@ class Velocity(Midi):
     def __init__(self, *parameters):
         super().__init__(100, *parameters)         # By default is velocity 100
 
+class Accent(Velocity):
+    """`Unit -> Midi -> Velocity -> Accent`
+
+    Accent() represents a velocity of 120.
+    
+    Parameters
+    ----------
+    int(120) : A key velocity varies from 0 to 127
+    """
+    def __init__(self, *parameters):
+        super().__init__(120, *parameters)
+
 class Program(Midi):
     """`Unit -> Midi -> Program`
 
