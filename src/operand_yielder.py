@@ -151,6 +151,7 @@ class Yielder(o.Operand):
                 match operand._data:
                     case oe.Element():
                         self._element = operand._data
+                        self._element._owner_clip = None  # Safe code
                     case ra.Measures() | ra.Measure():
                         self._measures = operand._data % int()
                     case int():
@@ -159,6 +160,7 @@ class Yielder(o.Operand):
                         super().__lshift__(operand)
             case oe.Element():
                 self._element = operand.copy()
+                self._element._owner_clip = None  # Safe code
             case ra.Measures() | ra.Measure():
                 self._measures = operand % int()
             case int():
