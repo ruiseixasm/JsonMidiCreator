@@ -35,6 +35,9 @@ import operand_frame as of
 import operand_chaos as ch
 import operand_tamer as ot
 
+if TYPE_CHECKING:
+    from operand_container import Clip
+
 
 class Yielder(o.Operand):
     """`Yielder`
@@ -149,6 +152,26 @@ class Yielder(o.Operand):
             self._next_operand = None
         return self
 
+    def __add__(self, operand: any) -> 'Clip':
+        import operand_container as oc
+        return oc.Clip(self).__iadd__(operand)
+    
+    def __sub__(self, operand: any) -> 'Clip':
+        import operand_container as oc
+        return oc.Clip(self).__isub__(operand)
+    
+    def __mul__(self, operand: any) -> 'Clip':
+        import operand_container as oc
+        return oc.Clip(self).__imul__(operand)
+    
+    def __truediv__(self, operand: any) -> 'Clip':
+        import operand_container as oc
+        return oc.Clip(self).__itruediv__(operand)
+    
+    def __floordiv__(self, operand: any) -> 'Clip':
+        import operand_container as oc
+        return oc.Clip(self).__ifloordiv__(operand)
+    
 
 class YieldOnBeat(Yielder):
     """`Yielder -> YieldOnBeat`
