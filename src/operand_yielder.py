@@ -402,9 +402,10 @@ class YieldDurations(YieldPositions):
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
-                        for index, new_element in enumerate(yielded_elements):
-                            element_parameter = element_duration << self._pattern[index % parameters_len]
+                        for new_element in yielded_elements:
+                            element_parameter = element_duration << self._pattern[_parameter_i % parameters_len]
                             new_element << element_parameter
+                            _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
@@ -439,10 +440,10 @@ class YieldSteps(YieldPositions):
             case list():
                 yielded_elements: list[oe.Element] = []
                 if self._pattern:
-                    _parameter_i: int = 0
                     parameters_len: int = len(self._pattern)
                     next_position: ra.Position = self._element.start()
                     end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
+                    _parameter_i: int = 0
                     while next_position < end_position:
                         step_parameter = self._pattern[_parameter_i % parameters_len]
                         new_element: oe.Element = self._element.copy(next_position)
@@ -495,9 +496,10 @@ class YieldDegrees(YieldParameters):
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
-                        for index, new_element in enumerate(yielded_elements):
-                            element_parameter = ou.Degree() << self._pattern[index % parameters_len]
+                        for new_element in yielded_elements:
+                            element_parameter = ou.Degree() << self._pattern[_parameter_i % parameters_len]
                             new_element << element_parameter
+                            _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
                         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
