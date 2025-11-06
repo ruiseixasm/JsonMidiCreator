@@ -402,7 +402,12 @@ class YieldDurations(YieldPositions):
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
+                        previous_measure: int = 0
                         for new_element in yielded_elements:
+                            next_measure: int = new_element.start() % int() % self._measures
+                            if next_measure > previous_measure and next_measure == 0:
+                                _parameter_i = 0
+                            previous_measure = next_measure
                             element_parameter = element_duration << self._pattern[_parameter_i % parameters_len]
                             new_element << element_parameter
                             _parameter_i += 1
@@ -496,7 +501,12 @@ class YieldDegrees(YieldParameters):
                     parameters_len: int = len(self._pattern)
                     _parameter_i: int = 0
                     if yielded_elements:
+                        previous_measure: int = 0
                         for new_element in yielded_elements:
+                            next_measure: int = new_element.start() % int() % self._measures
+                            if next_measure > previous_measure and next_measure == 0:
+                                _parameter_i = 0
+                            previous_measure = next_measure
                             element_parameter = ou.Degree() << self._pattern[_parameter_i % parameters_len]
                             new_element << element_parameter
                             _parameter_i += 1
