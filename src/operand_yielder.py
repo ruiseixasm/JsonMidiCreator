@@ -80,8 +80,8 @@ class Yielder(o.Operand):
                         element % ra.Position() for element in self._next_operand.__mod__(operand)
                     ]
                 if yielded_positions:
-                    for position in yielded_positions:
-                        new_element: oe.Element = self._element.copy(position)
+                    for next_position in yielded_positions:
+                        new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
                 else:
                     next_position: ra.Position = self._element.start()
@@ -285,14 +285,19 @@ class YieldPattern(Yielder):
                         return super().__mod__(operand)
             case list():
                 yielded_elements: list[oe.Element] = []
+                yielded_positions: list[ra.Position] = []
                 if isinstance(self._next_operand, Yielder):
-                    yielded_elements = self._next_operand.__mod__(operand)
+                    yielded_positions = [
+                        element % ra.Position() for element in self._next_operand.__mod__(operand)
+                    ]
                 if self._pattern:
                     self._index = 0
                     parameters_len: int = len(self._pattern)
-                    if yielded_elements:
-                        for element in yielded_elements:
-                            element << self._pattern[self._index % parameters_len]
+                    if yielded_positions:
+                        for next_position in yielded_positions:
+                            new_element: oe.Element = self._element.copy(next_position)
+                            element_parameter = self._pattern[self._index % parameters_len]
+                            yielded_elements.append(new_element << element_parameter)
                             self._index += 1
                     else:
                         next_position: ra.Position = self._element.start()
