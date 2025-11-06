@@ -74,9 +74,16 @@ class Yielder(o.Operand):
                 return self._element.copy()
             case list():
                 yielded_elements: list[oe.Element] = []
+                yielded_positions: list[ra.Position] = []
                 if isinstance(self._next_operand, Yielder):
-                    yielded_elements = self._next_operand.__mod__(operand)
-                if not yielded_elements:
+                    yielded_positions = [
+                        element % ra.Position() for element in self._next_operand.__mod__(operand)
+                    ]
+                if yielded_positions:
+                    for position in yielded_positions:
+                        new_element: oe.Element = self._element.copy(position)
+                        yielded_elements.append(new_element)
+                else:
                     next_position: ra.Position = self._element.start()
                     end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                     while next_position < end_position:
