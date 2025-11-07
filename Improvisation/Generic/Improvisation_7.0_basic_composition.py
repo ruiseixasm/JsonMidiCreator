@@ -30,7 +30,7 @@ pattern_change_2 = Clip(ProgramChange(1, RD_Digitakt.auto_channel), Measures(3.5
 # virtual_pattern_change = pattern_change_1 * pattern_change_2 << Device("Virtual")
 
 # Cycle patterns change
-entire_part = Part() << pattern_change_1 * pattern_change_2 * 12
+entire_part = Section() << pattern_change_1 * pattern_change_2 * 12
 # entire_part = Part() << virtual_pattern_change
 entire_part >> Play(1)
 # entire_part >> Export("json/_Export_Clock_basic.json")

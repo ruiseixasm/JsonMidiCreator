@@ -107,7 +107,7 @@ second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 first_sequence = Rest(2/1, Channel(10)) / first_sequence
 
 # Creations, aggregation of both Sequences in a Track element and respective Play
-all_elements = Part(first_sequence) + second_sequence
+all_elements = Section(first_sequence) + second_sequence
 first_note += Beat(2)
 all_elements += first_note + single_clock
 all_elements >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Export("json/testing/_Export_1.2_all_elements.json") \
@@ -181,7 +181,7 @@ results_list.append({
 # Global Staff setting up
 settings << Tempo(120)
 single_clock: Clip = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
-composition: Part = Part(single_clock)
+composition: Section = Section(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.7.2_sequence.json")

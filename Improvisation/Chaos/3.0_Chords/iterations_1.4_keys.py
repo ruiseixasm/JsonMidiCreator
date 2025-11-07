@@ -33,7 +33,7 @@ triads = Chord(Length(Beats(1))) * 7 << Input(modulus)**Choice("C", "D", "E", "F
 triads >> Link()
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
-snare_part = Part(ghost_notes)
+snare_part = Section(ghost_notes)
 
 triads / 2 >> Plot(iterations=1, n_button=new_clip, composition=snare_part)
 

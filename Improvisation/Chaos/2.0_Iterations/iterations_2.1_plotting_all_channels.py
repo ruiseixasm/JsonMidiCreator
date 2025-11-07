@@ -22,7 +22,7 @@ def new_clip(clip: Clip) -> Clip:
     return clip
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
-snare_part = Part(ghost_notes)
+snare_part = Section(ghost_notes)
 
 volume_automation = ControlChange("Volume", 100, 1/4) * 4 * 4 + Get(Beats())**Channel()
 

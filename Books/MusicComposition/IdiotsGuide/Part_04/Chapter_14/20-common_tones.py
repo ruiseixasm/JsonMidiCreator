@@ -33,6 +33,6 @@ chords << Nth(3)**(Minor(), TonicKey("E")) << Foreach("I", "4", "1", "5") << Oct
 tones = Note(Channel(14), 1/1, Velocity(60)) / 4 << Name("Tones")
 tones << Foreach("I", "1", "7", "7") << Octave(4) << Nth(1, 2)**Octave(5)
 
-skip_wise: Part = Part([chords, tones])
+skip_wise: Section = Section([chords, tones])
 skip_wise * 4 << Name("Common Tones") >> Plot()
 

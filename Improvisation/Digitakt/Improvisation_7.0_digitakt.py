@@ -52,7 +52,7 @@ full_clip += closed_hat_ptn
 
 # Extend pattern by 16 measures
 full_clip *= 4
-complete_part = Part(full_clip)
+complete_part = Section(full_clip)
 
 cymbal_ptn = Note(cymbal, 1/1) * 1
 cymbal_first = cymbal_ptn + Position(1.0)

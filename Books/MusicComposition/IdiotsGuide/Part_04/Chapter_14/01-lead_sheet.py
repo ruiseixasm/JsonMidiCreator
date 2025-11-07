@@ -42,5 +42,5 @@ melody * 4 >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/ex
 chords: Clip = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << MidiTrack("chords") << Octave(3)
 # chords * 4 >> Play()
 
-lead_sheet: Part = melody + chords
+lead_sheet: Section = melody + chords
 lead_sheet >> Play()

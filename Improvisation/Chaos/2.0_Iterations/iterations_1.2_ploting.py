@@ -23,7 +23,7 @@ def new_clip(clip: Clip) -> Clip:
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) / 16 * 8 << Velocity(50)
 
-snare_part = Part(ghost_notes) >> Plot(block=False)
+snare_part = Section(ghost_notes) >> Plot(block=False)
 
 
 four_notes = Note() * 4 << Key("A") << Duration(1/8) << Channel(2)

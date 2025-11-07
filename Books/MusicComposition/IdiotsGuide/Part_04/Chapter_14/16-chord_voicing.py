@@ -45,7 +45,7 @@ violin_2 >>= Smooth()
 viola >>= Smooth()
 cello >>= Smooth()
 
-static_voicing: Part = Part([violin_1, violin_2, viola, cello])
+static_voicing: Section = Section([violin_1, violin_2, viola, cello])
 static_voicing * 4 << Name("Static Voicing") >> Plot(block=False)
 
 
@@ -59,6 +59,6 @@ violin_2 >>= Smooth()
 viola >>= Smooth()
 cello >>= Smooth()
 
-different_voicing: Part = Part([violin_1, violin_2, viola, cello])
+different_voicing: Section = Section([violin_1, violin_2, viola, cello])
 different_voicing * 4 << Name("Different Voicing") >> Plot()
 

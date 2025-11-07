@@ -551,7 +551,7 @@ class Load(Serialization):
 class Playlist(Data):
     """`Data -> Playlist`
 
-    Operand representing a Playlist that can be played or used as a `Clip` in a `Part`.
+    Operand representing a Playlist that can be played or used as a `Clip` in a `Section`.
 
     Parameters
     ----------

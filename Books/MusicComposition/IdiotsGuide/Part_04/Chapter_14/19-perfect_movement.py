@@ -41,7 +41,7 @@ viola << Foreach("iii", "3", "4", "2")
 cello = Note(Channel(14), 1/1, Velocity(60)) / 4 << Name("Cello")
 cello << Foreach("I", "6", "4", "5") << Octave(3) << Nth(1)**Octave(4)
 
-skip_wise: Part = Part([violin_1, violin_2, viola, cello])
+skip_wise: Section = Section([violin_1, violin_2, viola, cello])
 skip_wise * 4 << Name("Parallel Fourths") >> Plot(block=False)
 
 
@@ -50,7 +50,7 @@ violin_2    << Octave(4)    << Foreach("1", "6", "4", "5")          << Nth(1)**O
 viola       << Octave(4)    << Foreach("3", "3", "4", "2")
 cello       << Octave(3)    << Foreach("1", "6", "4", "5")          << Nth(1)**Octave(4)
 
-step_wise: Part = Part([violin_1, violin_2, viola, cello])
+step_wise: Section = Section([violin_1, violin_2, viola, cello])
 step_wise * 4 << Name("Parallel Thirds and Sixths") >> Plot()
 
 

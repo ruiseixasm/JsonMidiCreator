@@ -3625,14 +3625,14 @@ class Fill(ClipProcess):
 class PartProcess(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> PartProcess`
 
-    Processes applicable exclusively to `Part` operands.
+    Processes applicable exclusively to `Section` operands.
     """
     def __irrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        if isinstance(operand, oc.Part):
+        if isinstance(operand, oc.Section):
             return self._process(operand)
         else:
-            print(f"Warning: Operand is NOT a `Part`!")
+            print(f"Warning: Operand is NOT a `Section`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:

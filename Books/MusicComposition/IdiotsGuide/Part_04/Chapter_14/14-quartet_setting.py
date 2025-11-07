@@ -48,5 +48,5 @@ cello += Foreach(0, -3, 1, 4, 0, 2, -2, -3)**Degree()
 # cello >> Plot(block=False)
 
 
-quartet: Part = Part([violin_1, violin_2, viola, cello])
+quartet: Section = Section([violin_1, violin_2, viola, cello])
 quartet * 4 << Name("Quartet") >> Plot()

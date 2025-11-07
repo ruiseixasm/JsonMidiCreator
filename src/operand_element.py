@@ -61,7 +61,7 @@ def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
 
 if TYPE_CHECKING:
-    from operand_container import Composition, Clip, Part, Song
+    from operand_container import Composition, Clip, Section, Song
 
 class Element(o.Operand):
     """`Element`
@@ -281,7 +281,7 @@ class Element(o.Operand):
         match operand:
             case Element():
                 super().__lshift__(operand)
-                # No conversion is done, beat and note_value values are directly copied (Same for Part)
+                # No conversion is done, beat and note_value values are directly copied (Same for Section)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
                 self._time_signature        << operand._time_signature

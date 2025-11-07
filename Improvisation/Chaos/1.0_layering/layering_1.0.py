@@ -29,7 +29,7 @@ iterations: list[int] = [-1, 2, 8]
 clip_1 = Note(Channel(1)) * 4
 clip_2 = Note(Channel(2)) * 4 + Steps(2)
 clip_3 = Note(Channel(3)) * 4 + Steps(3)
-part: Part = Part()
+part: Section = Section()
 chaos: Chaos = Chaos() * 1233
 layer: int = 0
 

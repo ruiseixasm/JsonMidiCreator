@@ -56,13 +56,13 @@ def test_container_content():
     assert clip.len() == 1
     assert isinstance(clip[0], Element)
 
-    part = Part(clip)
+    part = Section(clip)
     assert part.len() == 1
     assert isinstance(part[0], Clip)
 
     song = Song(part)
     assert song.len() == 1
-    assert isinstance(song[0], Part)
+    assert isinstance(song[0], Section)
 
 # test_container_content()
 
@@ -191,11 +191,11 @@ def test_copy_container():
     assert clip.len() == 1
     assert clip.copy() == clip
 
-    part = Part(clip)
+    part = Section(clip)
     assert part.len() == 1
     assert part.copy() == part
 
-    song = Part(part)
+    song = Section(part)
     assert song.len() == 1
     assert song.copy() == song
 
@@ -210,11 +210,11 @@ def test_add_container():
     assert type(clip) is Clip
     assert clip.len() == 1
 
-    part = Part() + clip
-    assert type(part) is Part
+    part = Section() + clip
+    assert type(part) is Section
     assert part.len() == 1
-    part = Part() + Note()
-    assert type(part) is Part
+    part = Section() + Note()
+    assert type(part) is Section
     assert part.len() == 1
 
     song = Song() + part
@@ -235,9 +235,9 @@ def test_new_container():
     clip = Clip(Note())
     assert clip.len() == 1
 
-    part = Part(clip)
+    part = Section(clip)
     assert part.len() == 1
-    part = Part(Note())
+    part = Section(Note())
     assert part.len() == 1
 
     song = Song(part)
@@ -269,7 +269,7 @@ def test_rshift_container():
     # Beat sets Position while Beats set Duration
     note_clip = Clip(Note(), Note("E")) << Iterate()**Beat() # A single Measure clip long!
     note_clip % Length() % float() >> Print()
-    clip_part = Part(note_clip)
+    clip_part = Section(note_clip)
     assert clip_part % Position() == Beats(0)
 
     clip_part *= note_clip  # Moves to the next Measure
@@ -287,7 +287,7 @@ def test_rshift_container():
     assert new_song[0] % Position() == Measures(0) + Beats(0)
     assert new_song[1] % Position() == Measures(2) + Beats(0)
 
-    elements_part = Part(Note(), Note("A"))
+    elements_part = Section(Note(), Note("A"))
     assert elements_part.len() == 2
     assert elements_part[0][0] == "C"
     assert elements_part[1][0] == "A"
@@ -1047,8 +1047,8 @@ def test_part_operations():
     clip_1: Clip = Clip([Clock()])
     clip_2: Clip = Clip([Note()])
 
-    part_1: Part = Part(clip_1, clip_2)
-    part_2: Part = Part(clip_2, clip_1)
+    part_1: Section = Section(clip_1, clip_2)
+    part_2: Section = Section(clip_2, clip_1)
 
     assert part_1.len() == 2
     assert part_2.len() == 2
@@ -1085,8 +1085,8 @@ def test_part_position():
     note_clip_120 = Note() / 1
     note_clip_60 = note_clip_120 / 1 * Duration(2.0)  # Twice the duration
 
-    part_120 = Part(note_clip_120) << Measures(2)
-    part_60 = Part(note_clip_60)
+    part_120 = Section(note_clip_120) << Measures(2)
+    part_60 = Section(note_clip_60)
 
     assert part_120 % Position() != part_60 % Position()
     part_60 << Measures(2)
@@ -1188,7 +1188,7 @@ def test_checksum():
     four_notes = Note() / 4
     assert four_notes.checksum() == "8904"
 
-    part_notes = Part(four_notes)
+    part_notes = Section(four_notes)
     assert part_notes.checksum() == "8905"
 
     song_notes = Song(part_notes)

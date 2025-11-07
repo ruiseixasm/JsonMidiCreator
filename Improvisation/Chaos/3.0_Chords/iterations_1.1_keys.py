@@ -24,7 +24,7 @@ def new_clip(clip: Clip) -> Clip:
 triads = Chord(1/2) * 7    # Equivalent to 3 Measures and 2 Beats
 
 ghost_notes = Note(DrumKit("Snare"), 1/16) * 16 * 8 << Velocity(50)
-snare_part = Part(ghost_notes)
+snare_part = Section(ghost_notes)
 
 triads / 2 >> Plot(iterations=1, n_button=new_clip, composition=snare_part)
 

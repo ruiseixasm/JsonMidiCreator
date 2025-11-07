@@ -28,12 +28,12 @@ settings << Tempo(160) << Folder("examples/")
 kick = Note(1/2, Channel(1)) / 2 * 4 << Steps(1)
 snare = Note(1/4, Channel(2)) / 4 * 4 << Steps(1) << Velocity(80)
 
-part_A = Part([kick, snare])
+part_A = Section([kick, snare])
 
 kick += Beat(1)
 snare += IsNot(Step(0))**Step(1)
 snare << Velocity(60) << DownBeat()**Channel(3)
-part_B = Part([kick, snare])
+part_B = Section([kick, snare])
 
 song_AB = part_A + part_B
 song_sections = song_AB * ['a', 'a', 'b', 'a']

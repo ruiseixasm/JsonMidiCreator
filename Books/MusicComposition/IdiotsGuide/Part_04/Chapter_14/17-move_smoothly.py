@@ -44,7 +44,7 @@ cello << Foreach("I", "iii", "vi", "iv")
 viola >>= Smooth()
 cello >>= Smooth(3)
 
-skip_wise: Part = Part([violin_1, violin_2, viola, cello])
+skip_wise: Section = Section([violin_1, violin_2, viola, cello])
 skip_wise * 4 << Name("Skip-Wise Motion") >> Plot(block=False)
 
 
@@ -53,7 +53,7 @@ violin_2    << Octave(4)    << Foreach("5", "5", "6", "6")
 viola       << Octave(4)    << Foreach("3", "3", "1", "1")
 cello       << Octave(3)    << Foreach("1", "3", "6", "4")          << Nth(3, 4)**Octave(2)
 
-step_wise: Part = Part([violin_1, violin_2, viola, cello])
+step_wise: Section = Section([violin_1, violin_2, viola, cello])
 step_wise * 4 << Name("Step-Wise Motion") >> Plot()
 
 

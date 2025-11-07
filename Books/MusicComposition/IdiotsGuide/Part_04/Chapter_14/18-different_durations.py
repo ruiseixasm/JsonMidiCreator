@@ -44,7 +44,7 @@ cello << Foreach("I", "2", "3", "4")
 viola >>= Smooth()
 cello >>= Smooth(3)
 
-skip_wise: Part = Part([violin_1, violin_2, viola, cello])
+skip_wise: Section = Section([violin_1, violin_2, viola, cello])
 skip_wise * 4 << Name("Same Direction") >> Plot(block=False)
 
 
@@ -53,7 +53,7 @@ violin_2    << Octave(4)    << Foreach("1", "6", "7", "6")          << Nth(1)**O
 viola       << Octave(4)    << Foreach("3", "4", "3", "1")
 cello       << Octave(3)    << Foreach("1", "2", "3", "4")
 
-step_wise: Part = Part([violin_1, violin_2, viola, cello])
+step_wise: Section = Section([violin_1, violin_2, viola, cello])
 step_wise * 4 << Name("Opposite Directions") >> Plot()
 
 

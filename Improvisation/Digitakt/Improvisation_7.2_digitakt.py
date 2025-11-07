@@ -40,7 +40,7 @@ snare_clip = Note(snare, 1/16) * 1 << TrackName("Snare")
 closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 
 # Extend pattern by 4 measures, each clip is 1 measure long
-complete_part = Part(kick_clip, snare_clip, closed_hat_clip) * 4
+complete_part = Section(kick_clip, snare_clip, closed_hat_clip) * 4
 
 cymbal_ptn = Note(cymbal, 1/16) * 1
 cymbal_first = cymbal_ptn + Position(1.0)
