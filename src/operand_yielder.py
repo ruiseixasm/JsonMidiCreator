@@ -59,17 +59,15 @@ class Yielder(o.Operand):
         if isinstance(self._next_operand, Yielder):
             yielded_elements = self._next_operand._yield_elements()
             if yielded_elements:    # Stretches the elements like a Drum Machine
-                target_beats_per_measure: int = self._element._time_signature._top
+                target_beats_per_measure: Fraction = self._element._time_signature % ra.BeatsPerMeasure() % Fraction()
                 _last_measure: ra.Measure = ra.Measure(0)
                 for new_element in yielded_elements:
                     new_element._owner_clip = None  # Safe code
-                    source_beats_per_measure: int = new_element._time_signature._top
+                    beats_per_measure_ratio: Fraction = target_beats_per_measure / new_element._time_signature._top
                     new_element._time_signature << self._element._time_signature
-                    if source_beats_per_measure != target_beats_per_measure:
-                        new_element._position_beats \
-                            = new_element._position_beats * target_beats_per_measure / source_beats_per_measure
-                        new_element._duration_beats \
-                            = new_element._duration_beats * target_beats_per_measure / source_beats_per_measure
+                    if beats_per_measure_ratio != 1:
+                        new_element._position_beats *= beats_per_measure_ratio
+                        new_element._duration_beats *= beats_per_measure_ratio
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
                 if _last_measure > self._measures - 1:
