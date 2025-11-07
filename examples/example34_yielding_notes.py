@@ -36,11 +36,11 @@ yield_notes = YieldDegree()
 yielded_notes = Clip(yield_notes)
 yielded_notes >> Plot(title="Yielded Notes", block=False)
 
-chained_yield = YieldDegree()**YieldDurations([1/8, 1/4, 1/8, 1/2])
+chained_yield = YieldDegree()**YieldDuration([1/8, 1/4, 1/8, 1/2])
 chained_notes = Clip(chained_yield)
 chained_notes >> Plot(title="Chained Notes", block=False)
 
-duration_yield = YieldDurations([1/16])**YieldDegree()**YieldDurations([1/8, 1/4, 1/8, 1/2])
+duration_yield = YieldDuration([1/16])**YieldDegree()**YieldDuration([1/8, 1/4, 1/8, 1/2])
 duration_notes = Clip(duration_yield)
 duration_notes >> Plot(title="Duration Notes", block=False)
 

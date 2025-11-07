@@ -236,6 +236,7 @@ class YieldOnBeat(Yielder):
             case _:
                 return super().__mod__(operand)
 
+
 class YieldOffBeat(Yielder):
     """`Yielder -> YieldOffBeat`
 
@@ -260,6 +261,7 @@ class YieldOffBeat(Yielder):
             case _:
                 return super().__mod__(operand)
 
+
 class YieldDownBeat(Yielder):
     """`Yielder -> YieldDownBeat`
 
@@ -283,6 +285,7 @@ class YieldDownBeat(Yielder):
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
+
 
 class YieldUpBeat(Yielder):
     """`Yielder -> YieldUpBeat`
@@ -404,6 +407,7 @@ class YieldPattern(Yielder):
                 super().__lshift__(operand)
         return self
 
+
 class YieldPositions(YieldPattern):
     """`Yielder -> YieldPattern -> YieldPositions`
 
@@ -416,23 +420,6 @@ class YieldPositions(YieldPattern):
     list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
     """
     pass
-
-class YieldDurations(YieldPositions):
-    """`Yielder -> YieldPattern -> YieldPositions -> YieldDurations`
-
-    Places the given `Element` stacked accordingly to each given `Duration`!
-
-    Parameters
-    ----------
-    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
-    list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
-    """
-    def __init__(self, *parameters):
-        super().__init__([1/4, 1/4, 1/4, 1/4], *parameters)
-
-    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
-        return element << (element % ra.Duration() << parameter)
 
 
 class YieldSteps(YieldPositions):
@@ -472,6 +459,7 @@ class YieldSteps(YieldPositions):
                 return yielded_elements
             case _:
                 return super().__mod__(operand)
+
 
 class YieldParameter(YieldPattern):
     """`Yielder -> YieldPattern -> YieldParameter`
@@ -561,4 +549,18 @@ class YieldDegree(YieldParameter):
     def __init__(self, *parameters):
         super().__init__(od.Parameter(ou.Degree()), *parameters)
 
+
+class YieldDuration(YieldParameter):
+    """`Yielder -> YieldPattern -> YieldParameter -> YieldDurations`
+
+    Places the given `Element` stacked accordingly to each given `Duration`!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
+    list([1/4]) : The `Duration` parameters for each yield of elements.
+    """
+    def __init__(self, *parameters):
+        super().__init__([1/4], od.Parameter(ra.Duration()), *parameters)
 

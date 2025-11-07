@@ -41,6 +41,17 @@ def test_degrees():
 # test_degrees()
 
 
+def test_durations():
+
+    four_measures = Note() / [1/8, 1/4, 1/8, 1/2] * 4
+    duration_yielder = YieldDuration([1/8, 1/4, 1/8, 1/2])
+    # four_measures >> Plot(title="Four Measures", block=False)
+    # duration_yielder >> Plot(title="Duration Yielder")
+    assert duration_yielder == four_measures
+
+# test_durations()
+
+
 def test_stretching():
 
     triad_clip = Note(1/3) / 3 * 4
