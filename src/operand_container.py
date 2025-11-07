@@ -5305,7 +5305,7 @@ class Song(Composition):
 
     def start(self) -> ra.Position:
         """
-        Gets the starting position of all its Parts.
+        Gets the starting position of all its Sections.
         This is the same as the minimum `Position` of all `Section` positions, which ones,
         share the same common Song TimeSignature reference.
 
@@ -5313,7 +5313,7 @@ class Song(Composition):
             None
 
         Returns:
-            Position: The minimum `Position` of all Parts.
+            Position: The minimum `Position` of all Sections.
         """
         start_position: ra.Position = None
 
@@ -5331,7 +5331,7 @@ class Song(Composition):
 
     def finish(self) -> ra.Position:
         """
-        Gets the finishing position of all its Parts.
+        Gets the finishing position of all its Sections.
         This is the same as the maximum `Position` of all `Section` positions, which ones,
         share the same common Song TimeSignature reference.
 
@@ -5339,7 +5339,7 @@ class Song(Composition):
             None
 
         Returns:
-            Position: The maximum `Position` of all Parts.
+            Position: The maximum `Position` of all Sections.
         """
         finish_position: ra.Position = None
 
