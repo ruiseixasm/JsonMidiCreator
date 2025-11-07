@@ -4527,7 +4527,7 @@ class Section(Composition):
 
     This type of `Container` aggregates `Clip` items. This type of `Composition` has \
         a `Position` working similarly to `Element` operands.
-    A `Section` works similarly like an `Element`, meaning that adding two parts will result \
+    A `Section` works similarly like an `Element`, meaning that adding two sections will result \
         in a `Song` as adding two elements result in a `Clip`.
 
     Parameters
@@ -4628,18 +4628,18 @@ class Section(Composition):
             clip for clip in self._unmasked_items() if isinstance(clip, Clip)
         ]
 
-        part_last: oe.Element = None
+        last_element: oe.Element = None
         if len(clips_list) > 0:
             for clip in clips_list:
                 clip_last: oe.Element = clip._last_element()
                 if clip_last:
-                    if part_last:
+                    if last_element:
                         # Implicit conversion
-                        if clip_last > part_last:
-                            part_last = clip_last
+                        if clip_last > last_element:
+                            last_element = clip_last
                     else:
-                        part_last = clip_last
-        return part_last
+                        last_element = clip_last
+        return last_element
 
 
     def checksum(self) -> str:
@@ -5048,16 +5048,16 @@ class Section(Composition):
                     self._append(Clip(operand._time_signature, operand))
 
             case int():
-                new_parts: list[Section] = []
+                new_sections: list[Section] = []
                 if operand > 0:
                     single_length: ra.Length = self.length()
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
                             self_copy: Section = self.copy(next_position)
-                            new_parts.append(self_copy)
+                            new_sections.append(self_copy)
                             next_position += single_length
-                return Song(self._get_time_signature(), od.Pipe(new_parts))._set_owner_song()._sort_items()
+                return Song(self._get_time_signature(), od.Pipe(new_sections))._set_owner_song()._sort_items()
 
             case _:
                 super().__imul__(operand)
@@ -5155,7 +5155,7 @@ class Section(Composition):
             single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
-            self._position_beats = Fraction(0) # Positions all parts at the start
+            self._position_beats = Fraction(0) # Positions all sections at the start
         else:
             self._position_beats -= punch_in._rational
         self._length_beats = punch_length._rational
@@ -5268,11 +5268,11 @@ class Song(Composition):
     def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for section in self._items:
-            part_last_element: oe.Element = section._last_element()
-            if part_last_element is not None:
+            section_last_element: oe.Element = section._last_element()
+            if section_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
-                    ( section % ra.Position() + part_last_element % ra.Position(), part_last_element )
+                    ( section % ra.Position() + section_last_element % ra.Position(), section_last_element )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
         last_elements_list.sort(key=lambda pair: pair[0])
@@ -5346,9 +5346,9 @@ class Song(Composition):
 
         for section in self._items:
             # Already includes the Song TimeSignature conversion
-            part_start: ra.Position = section.start()
-            if part_start is not None:
-                absolute_start: ra.Position = section % ra.Position() + part_start
+            section_start: ra.Position = section.start()
+            if section_start is not None:
+                absolute_start: ra.Position = section % ra.Position() + section_start
                 if start_position is not None:
                     if absolute_start < start_position:
                         start_position = absolute_start
@@ -5372,9 +5372,9 @@ class Song(Composition):
 
         for section in self._items:
             # Already includes the Song TimeSignature conversion
-            part_finish: ra.Position = section.finish()
-            if part_finish is not None:
-                absolute_finish: ra.Position = section % ra.Position() + part_finish
+            section_finish: ra.Position = section.finish()
+            if section_finish is not None:
+                absolute_finish: ra.Position = section % ra.Position() + section_finish
                 if finish_position is not None:
                     if absolute_finish > finish_position:
                         finish_position = absolute_finish
@@ -5385,12 +5385,12 @@ class Song(Composition):
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for section in self._items:
-            part_position: ra.Position = section.last_position()
-            if part_position is not None:
+            section_position: ra.Position = section.last_position()
+            if section_position is not None:
                 if position is None:
-                    position = part_position
-                elif part_position > position:
-                    position = part_position
+                    position = section_position
+                elif section_position > position:
+                    position = section_position
         return position
 
 
@@ -5431,16 +5431,16 @@ class Song(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_part in self._unmasked_items():   # Here self._items is unmasked
-            unmasked_element_ids.update( unmasked_part.get_unmasked_element_ids() )
+        for unmasked_section in self._unmasked_items():   # Here self._items is unmasked
+            unmasked_element_ids.update( unmasked_section.get_unmasked_element_ids() )
         return unmasked_element_ids
 
     def get_masked_element_ids(self) -> set[int]:
         masked_element_ids: set[int] = set()
         if self.is_masked():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_part in self._items:
-                for masked_clip in masked_part._items:
+            for masked_section in self._items:
+                for masked_clip in masked_section._items:
                     masked_element_ids.update({
                         id(masked_item) for masked_item in masked_clip._items
                         if id(masked_item) not in unmasked_ids
@@ -5460,9 +5460,9 @@ class Song(Composition):
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
         for section in self._items:
-            part_plotlist: list[dict] = section.getPlotlist(masked_element_ids, True)
+            section_plotlist: list[dict] = section.getPlotlist(masked_element_ids, True)
             # Section uses the Song Time Signature as Elements use the Clip Time Signature, so, no need for conversions
-            plot_list.extend( part_plotlist )
+            plot_list.extend( section_plotlist )
 
         return plot_list
 
@@ -5626,8 +5626,8 @@ class Song(Composition):
             case Section():
                 return self._delete([ operand ])
             case Clip():
-                clip_part: Section = Section(operand)
-                self -= clip_part
+                clip_section: Section = Section(operand)
+                self -= clip_section
             case oy.Yielder():
                 return self.__isub__( operand % Clip() )
             case ra.Position() | ra.TimeValue():
@@ -5673,16 +5673,16 @@ class Song(Composition):
                     self._delete()
                 
             case list():
-                base_parts: list[Section] = []
+                base_sections: list[Section] = []
                 
                 position_measure: ra.Position = ra.Position(0)
-                for part_index in operand:
-                    new_part: Section = self[part_index].copy(position_measure)
-                    base_parts.append(new_part)
-                    length_measures: ra.Measure = new_part.length() % ra.Measure()
+                for section_index in operand:
+                    new_section: Section = self[section_index].copy(position_measure)
+                    base_sections.append(new_section)
+                    length_measures: ra.Measure = new_section.length() % ra.Measure()
                     position_measure += length_measures
 
-                self._items = base_parts
+                self._items = base_sections
                 self._mask_items = []
 
             case str():
@@ -5777,8 +5777,8 @@ class Song(Composition):
             punch_length = ra.Length(self, length)
 
         # No Section is removed, only elements are removed
-        for part_loop in self._unmasked_items():
-            part_loop.loop(position, punch_length)
+        for section_loop in self._unmasked_items():
+            section_loop.loop(position, punch_length)
 
         self._length_beats = punch_length._rational
 
