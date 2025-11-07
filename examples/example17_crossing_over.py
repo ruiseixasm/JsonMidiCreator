@@ -35,10 +35,6 @@ fast_melody = \
     (Note() * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 5, 3, 2, 1)**Degree()) + \
     (Note() * 5 << eight << Nth(5)**half         << Foreach(2, 2, 2, 3, 2)**Degree()) << Gate(0.7) >> Stack()
 
-sequences = Clips(
-    single_notes, slow_melody, fast_melody
-)
-
 clip = Note() * 12   # blank clip to work on
 
 

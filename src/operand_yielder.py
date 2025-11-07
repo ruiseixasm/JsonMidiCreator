@@ -47,7 +47,7 @@ class Yielder(o.Operand):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     """
     def __init__(self, *parameters):
         self._element: oe.Element = oe.Note()
@@ -95,9 +95,12 @@ class Yielder(o.Operand):
         return yielded_elements
 
     def __eq__(self, other: o.Operand) -> bool:
+        import operand_container as oc
         match other:
             case Yielder():
                 return self._element == other._element and self._measures == other._measures
+            case oc.Composition():
+                return oc.Clip(self._element._time_signature, self) == other
             case od.Conditional():
                 return other == self
             case _:
@@ -217,7 +220,7 @@ class YieldOnBeat(Yielder):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -241,7 +244,7 @@ class YieldOffBeat(Yielder):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -265,7 +268,7 @@ class YieldDownBeat(Yielder):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -289,7 +292,7 @@ class YieldUpBeat(Yielder):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     """
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -315,7 +318,7 @@ class YieldPattern(Yielder):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([ra.Beats(2/3)]) : The given parameters for each yield of elements.
     """
     def __init__(self, *parameters):
@@ -409,7 +412,7 @@ class YieldPositions(YieldPattern):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
     """
     pass
@@ -422,7 +425,7 @@ class YieldDurations(YieldPositions):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([1/4, 1/4, 1/4, 1/4]) : The `Duration` parameters for each yield of elements.
     """
     def __init__(self, *parameters):
@@ -440,7 +443,7 @@ class YieldSteps(YieldPositions):
     Parameters
     ----------
     Element(oe.Note(ra.Steps(1))) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([0, 4, 8, 12]) : The `Steps` parameters for each yield of elements.
     """
     def __init__(self, *parameters):
@@ -479,7 +482,7 @@ class YieldParameters(YieldPattern):
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list(['1', '3', '5']) : The non positional parameters for each yield of elements.
     """
     def __init__(self, *parameters):
@@ -495,7 +498,7 @@ class YieldDegrees(YieldParameters):
     Parameters
     ----------
     Element(Note()) : The `Element` to be used as source for all yielded ones.
-    Measures(4) : The `Measures` sets the length where the Yield will be returned.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([1, 3, 5]) : The `Degree` parameters for each yield of elements.
     """
     def __init__(self, *parameters):

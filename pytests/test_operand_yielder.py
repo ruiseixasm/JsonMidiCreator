@@ -32,6 +32,11 @@ import sys
 
 def test_degrees():
 
-    four_measures = Note() / 4 * 4 << Each(1, 3, 5)**Degrees()
-    
+    four_measures = Note() / 4 * 4 << Each(1, 3, 5)**Degree()
+    degree_yielder = YieldDegrees()
+    # four_measures >> Plot(title="Four Measures", block=False)
+    # degree_yielder >> Plot(title="Degree Yielder")
+    assert degree_yielder == four_measures
+
+# test_degrees()
 

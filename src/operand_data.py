@@ -359,15 +359,6 @@ class Elements(DataMany):
     """
     pass
 
-class Clips(DataMany):
-    pass
-
-class Durations(DataMany):
-    pass
-
-class Degrees(DataMany):
-    pass
-
 
 class TrackName(Data):
     """`Data -> TrackName`
