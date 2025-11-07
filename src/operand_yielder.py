@@ -72,6 +72,13 @@ class Yielder(o.Operand):
                             = new_element._duration_beats * target_beats_per_measure / source_beats_per_measure
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
+                if _last_measure > self._measures - 1:
+                    truncated_elements: list[oe.Element] = []
+                    for new_element in yielded_elements:
+                        element_measure: ra.Measure = new_element % ra.Measure()
+                        if element_measure < self._measures:
+                            truncated_elements.append(new_element)
+                    return truncated_elements
                 extended_elements: list[oe.Element] = []
                 _extended_measure: ra.Measure = ra.Measure(0)
                 while _last_measure < self._measures - 1:
