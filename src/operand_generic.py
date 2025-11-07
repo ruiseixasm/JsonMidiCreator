@@ -3622,8 +3622,8 @@ class Fill(ClipProcess):
         return operand.fill()
 
 
-class PartProcess(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> PartProcess`
+class SectionProcess(CompositionProcess):
+    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> SectionProcess`
 
     Processes applicable exclusively to `Section` operands.
     """
