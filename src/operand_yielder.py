@@ -378,6 +378,8 @@ class YieldPattern(Yielder):
                         return self._pattern
                     case _:
                         return super().__mod__(operand)
+            case list():
+                return o.Operand.deep_copy(self._pattern)
             case _:
                 return super().__mod__(operand)
 
