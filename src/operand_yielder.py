@@ -57,7 +57,7 @@ class Yielder(o.Operand):
     def _get_yielded_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
         if isinstance(self._next_operand, Yielder):
-            yielded_elements = self._next_operand.__mod__(yielded_elements)
+            yielded_elements = self._next_operand._yield_elements()
             if yielded_elements:    # Stretches the elements like a Drum Machine
                 target_beats_per_measure: int = self._element._time_signature._top
                 _last_measure: ra.Measure = ra.Measure(0)
@@ -131,8 +131,6 @@ class Yielder(o.Operand):
                         return super().__mod__(operand)
             case oe.Element():
                 return self._element.copy()
-            case list():
-                return self._yield_elements()
             case ra.Measures() | ra.Measure():
                 return operand.copy(self._measures)
             case int():
