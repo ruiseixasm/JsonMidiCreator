@@ -2983,8 +2983,8 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
             case og.TimeSignature():
-                self._match_time_signature(operand)
-                # self._time_signature << operand  # TimeSignature has no clock!
+                self._match_time_signature(operand) # Includes time signature setting with `<<`
+                
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -5567,7 +5567,8 @@ class Song(Composition):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case og.TimeSignature():
-                self._time_signature << operand
+                self._match_time_signature(operand) # Includes time signature setting with `<<`
+                
             case list():
                 if all(isinstance(item, Section) for item in operand):
                     self._items = [item.copy() for item in operand]
