@@ -2568,14 +2568,15 @@ class Plot(ReadOnly):
         import operand_element as oe
         import operand_container as oc
         import operand_yielder as oy
-        if isinstance(operand, (oc.Composition, oe.Element)):
-            return operand.plot(*self._parameters)
-        if isinstance(operand, oy.Yielder):
-            return oc.Clip(operand._element._time_signature, operand).plot(*self._parameters)
-        if isinstance(operand, Scale):
-            Scale.plot(self._parameters[1], operand % list())
-        elif isinstance(operand, ou.KeySignature):
-            Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+        match operand:
+            case oc.Composition() | oe.Element():
+                return operand.plot(*self._parameters)
+            case oy.Yielder():
+                return (operand % Clip()).plot(*self._parameters)
+            case Scale():
+                Scale.plot(self._parameters[1], operand % list())
+            case ou.KeySignature():
+                Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
         return operand
 
 
@@ -2642,7 +2643,7 @@ class Play(ReadOnly):
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oy.Yielder():
-                self.__rrshift__(oc.Clip(operand._element._time_signature, operand))
+                self.__rrshift__(operand % Clip())
                 return operand
             case oe.Element():
                 playlist: list[dict] = self._clocked_playlist(operand)
