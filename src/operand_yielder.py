@@ -119,6 +119,7 @@ class Yielder(o.Operand):
                 return super().__eq__(other)
 
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -136,6 +137,11 @@ class Yielder(o.Operand):
                 return operand.copy(self._measures)
             case int():
                 return self._measures
+            case oc.Clip():
+                yielded_elements: list[oe.Element] = self._yield_elements()
+                yielded_clip: oc.Clip = oc.Clip(self._element._time_signature)
+                yielded_clip._items = yielded_elements
+                return yielded_clip._set_owner_clip()._sort_items()
             case _:
                 return self._element.__mod__(operand)
 
