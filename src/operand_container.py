@@ -5384,8 +5384,8 @@ class Song(Composition):
 
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
-        for part in self._items:
-            part_position: ra.Position = part.last_position()
+        for section in self._items:
+            part_position: ra.Position = section.last_position()
             if part_position is not None:
                 if position is None:
                     position = part_position
