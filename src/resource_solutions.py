@@ -820,7 +820,7 @@ class RS_Clip(RS_Solutions):
         return self.iterate(iterations, _iterator, chaos, 1, title)
 
 
-class RS_Part(RS_Solutions):
+class RS_Section(RS_Solutions):
     pass
 
 
