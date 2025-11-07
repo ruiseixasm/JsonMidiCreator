@@ -5210,9 +5210,9 @@ class Song(Composition):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
                 return self._unmasked_items()[tag_int]
-            for single_part in self._unmasked_items():
-                if single_part._name == index:
-                    return single_part
+            for section in self._unmasked_items():
+                if section._name == index:
+                    return section
             return ol.Null()
         return super().__getitem__(index)
     
@@ -5227,19 +5227,19 @@ class Song(Composition):
         with a shallow `Song`.
         """
         if owner_song is None:
-            for single_part in self._items:
-                single_part._set_owner_song(self)
+            for section in self._items:
+                section._set_owner_song(self)
         elif isinstance(owner_song, Song):
             self._time_signature << owner_song._time_signature    # Does a parameters copy
-            for single_part in self._items:
-                single_part._set_owner_song(owner_song)
+            for section in self._items:
+                section._set_owner_song(owner_song)
         return self
 
 
     def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
         if isinstance(time_signature, og.TimeSignature):
-            for single_part in self:
-                single_part._convert_time_signature_reference(self._time_signature)
+            for section in self:
+                section._convert_time_signature_reference(self._time_signature)
             if self._length_beats is not None:
                 self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
             self._time_signature << time_signature  # Does a copy
@@ -5247,32 +5247,32 @@ class Song(Composition):
 
 
     def _test_owner_song(self) -> bool:
-        for single_part in self:
-            if single_part._owner_song is not self:
+        for section in self:
+            if section._owner_song is not self:
                 return False
         return True
 
 
     def _has_elements(self) -> bool:
-        for single_part in self._items:
-            if single_part._has_elements():
+        for section in self._items:
+            if section._has_elements():
                 return True
         return False
 
     def _total_elements(self) -> int:
         total_elements: int = 0
-        for single_part in self._items:
-            total_elements += single_part._total_elements()
+        for section in self._items:
+            total_elements += section._total_elements()
         return total_elements
 
     def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
-        for single_part in self._items:
-            part_last_element: oe.Element = single_part._last_element()
+        for section in self._items:
+            part_last_element: oe.Element = section._last_element()
             if part_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
-                    ( single_part % ra.Position() + part_last_element % ra.Position(), part_last_element )
+                    ( section % ra.Position() + part_last_element % ra.Position(), part_last_element )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
         last_elements_list.sort(key=lambda pair: pair[0])
@@ -5315,15 +5315,15 @@ class Song(Composition):
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Song, combining Section checksums."""
         master: int = len(self._items)
-        for single_part in self._items:
-            master += int(single_part.checksum(), 16)   # XOR 16-bit
+        for section in self._items:
+            master += int(section.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
-            for single_part in self._unmasked_items():
-                for single_clip in single_part._items:
+            for section in self._unmasked_items():
+                for single_clip in section._items:
                     for single_element in single_clip._items:
                         if single_element is element:
                             return False
@@ -5344,11 +5344,11 @@ class Song(Composition):
         """
         start_position: ra.Position = None
 
-        for single_part in self._items:
+        for section in self._items:
             # Already includes the Song TimeSignature conversion
-            part_start: ra.Position = single_part.start()
+            part_start: ra.Position = section.start()
             if part_start is not None:
-                absolute_start: ra.Position = single_part % ra.Position() + part_start
+                absolute_start: ra.Position = section % ra.Position() + part_start
                 if start_position is not None:
                     if absolute_start < start_position:
                         start_position = absolute_start
@@ -5370,11 +5370,11 @@ class Song(Composition):
         """
         finish_position: ra.Position = None
 
-        for single_part in self._items:
+        for section in self._items:
             # Already includes the Song TimeSignature conversion
-            part_finish: ra.Position = single_part.finish()
+            part_finish: ra.Position = section.finish()
             if part_finish is not None:
-                absolute_finish: ra.Position = single_part % ra.Position() + part_finish
+                absolute_finish: ra.Position = section % ra.Position() + part_finish
                 if finish_position is not None:
                     if absolute_finish > finish_position:
                         finish_position = absolute_finish
@@ -5396,14 +5396,14 @@ class Song(Composition):
 
     def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for single_part in self._items:
-            elements.extend(single_part.all_elements())
+        for section in self._items:
+            elements.extend(section.all_elements())
         return elements
 
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for single_part in self._items:
-            elements.extend( single_part.at_position_elements(position) )
+        for section in self._items:
+            elements.extend( section.at_position_elements(position) )
         return elements
 
 
@@ -5422,8 +5422,8 @@ class Song(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for single_part in self._unmasked_items():
-                    all_names.append(single_part._name)
+                for section in self._unmasked_items():
+                    all_names.append(section._name)
                 return od.Names(*tuple(all_names))
             case _:
                 return super().__mod__(operand)
@@ -5459,8 +5459,8 @@ class Song(Composition):
         plot_list: list = []
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
-        for single_part in self._items:
-            part_plotlist: list[dict] = single_part.getPlotlist(masked_element_ids, True)
+        for section in self._items:
+            part_plotlist: list[dict] = section.getPlotlist(masked_element_ids, True)
             # Section uses the Song Time Signature as Elements use the Clip Time Signature, so, no need for conversions
             plot_list.extend( part_plotlist )
 
@@ -5479,8 +5479,8 @@ class Song(Composition):
         """
         og.settings.reset_notes_on()
         play_list: list = []
-        for single_part in self._items:
-            play_list.extend(single_part.getPlaylist(True))
+        for section in self._items:
+            play_list.extend(section.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -5495,8 +5495,8 @@ class Song(Composition):
         """
         og.settings.reset_notes_on()
         midi_list: list = []
-        for single_part in self:
-            midi_list.extend(single_part.getMidilist(True))
+        for section in self:
+            midi_list.extend(section.getMidilist(True))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -5596,8 +5596,8 @@ class Song(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Song():
-                for single_part in operand:
-                    self += single_part
+                for section in operand:
+                    self += section
 
             case Section():
                 self._append(Section(operand)._set_owner_song(self))._sort_items()
@@ -5645,8 +5645,8 @@ class Song(Composition):
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
-                for single_part in right_song:
-                    single_part += position_offset
+                for section in right_song:
+                    section += position_offset
 
                 self._extend(right_song._items)
                 
@@ -5701,8 +5701,8 @@ class Song(Composition):
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
-                for single_part in right_song:
-                    single_part += position_offset
+                for section in right_song:
+                    section += position_offset
 
                 self._extend(right_song._items)  # Propagates upwards in the stack
                 
