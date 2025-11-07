@@ -329,8 +329,8 @@ class YieldPattern(Yielder):
             case _:
                 return super().__eq__(other)
 
-    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
-        return self._pattern[parameter_i % parameters_len]
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << parameter
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -352,7 +352,8 @@ class YieldPattern(Yielder):
                             if next_measure > previous_measure and next_measure == 0:
                                 _parameter_i = 0
                             previous_measure = next_measure
-                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
+                            parameter: Any = self._pattern[_parameter_i % parameters_len]
+                            self._set_element_parameter(new_element, parameter)
                             _parameter_i += 1
                     else:
                         next_position: ra.Position = self._element.start()
@@ -360,7 +361,8 @@ class YieldPattern(Yielder):
                         while next_position < end_position:
                             new_element: oe.Element = self._element.copy(next_position)
                             yielded_elements.append(new_element)
-                            new_element << self._get_element_parameter(_parameter_i, parameters_len)
+                            parameter: Any = self._pattern[_parameter_i % parameters_len]
+                            self._set_element_parameter(new_element, parameter)
                             next_position = new_element.finish()
                             _parameter_i += 1
                 return yielded_elements
@@ -426,9 +428,8 @@ class YieldDurations(YieldPositions):
     def __init__(self, *parameters):
         super().__init__([1/4, 1/4, 1/4, 1/4], *parameters)
 
-    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
-        element_duration: ra.Duration = self._element % ra.Duration()
-        return element_duration << self._pattern[parameter_i % parameters_len]
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << (element % ra.Duration() << parameter)
 
 
 class YieldSteps(YieldPositions):
@@ -445,8 +446,8 @@ class YieldSteps(YieldPositions):
     def __init__(self, *parameters):
         super().__init__(oe.Note(ra.Steps(1)), [0, 4, 8, 12], *parameters)
 
-    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
-        return ra.Step() << self._pattern[parameter_i % parameters_len]
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << ra.Step(parameter)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -460,7 +461,8 @@ class YieldSteps(YieldPositions):
                     while next_position < end_position:
                         new_element: oe.Element = self._element.copy(next_position)
                         yielded_elements.append(new_element)
-                        new_element << self._get_element_parameter(_parameter_i, parameters_len)
+                        parameter: Any = self._pattern[_parameter_i % parameters_len]
+                        self._set_element_parameter(new_element, parameter)
                         _parameter_i += 1
                         if _parameter_i % parameters_len == 0:
                             next_position += ra.Measure(1)
@@ -499,8 +501,8 @@ class YieldDegrees(YieldParameters):
     def __init__(self, *parameters):
         super().__init__([1, 3, 5], *parameters)
 
-    def _get_element_parameter(self, parameter_i: int, parameters_len: int) -> Any:
-        return ou.Degree() << self._pattern[parameter_i % parameters_len]
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << ou.Degree(parameter)
 
 
 
