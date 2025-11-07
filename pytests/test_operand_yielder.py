@@ -40,3 +40,22 @@ def test_degrees():
 
 # test_degrees()
 
+
+def test_stretching():
+
+    triad_clip = Note(1/3) / 3 * 4
+    stretched_yielder = Yielder()**Yielder(TimeSignature(3))
+    # triad_clip >> Plot(title="Triad Clip", block=False)
+    # stretched_yielder >> Plot(title="Stretched Yielder")
+    assert stretched_yielder == triad_clip
+
+
+def test_extending():
+
+    four_measures = Note() / 4 << Each(1, 3, 5)**Degree()
+    four_measures *= 6
+    extended_yielder = Yielder(6)**YieldDegrees(1)
+    # four_measures >> Plot(title="Four Measures", block=False)
+    # extended_yielder >> Plot(title="Extended Yielder")
+    assert extended_yielder == four_measures
+
