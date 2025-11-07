@@ -564,6 +564,7 @@ class YieldDuration(YieldParameter):
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([1/4]) : The `Duration` parameters for each yield of elements.
+    Parameter(Duration()) : Parameter that is intended to be set on each Yielded `Element`.
     """
     def __init__(self, *parameters):
         super().__init__([1/4], od.Parameter(ra.Duration()), *parameters)
