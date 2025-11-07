@@ -537,6 +537,7 @@ class YieldParameter(YieldPattern):
                 super().__lshift__(operand)
         return self
 
+
 class YieldDegree(YieldParameter):
     """`Yielder -> YieldPattern -> YieldParameter -> YieldDegree`
 
@@ -551,7 +552,7 @@ class YieldDegree(YieldParameter):
     Parameter(Degree()) : Parameter that is intended to be set on each Yielded `Element`.
     """
     def __init__(self, *parameters):
-        super().__init__(od.Parameter(ou.Degree()), *parameters)
+        super().__init__([1, 3, 5], od.Parameter(ou.Degree()), *parameters)
 
 
 class YieldDuration(YieldParameter):
