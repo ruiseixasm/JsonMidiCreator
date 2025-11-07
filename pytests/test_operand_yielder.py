@@ -70,3 +70,13 @@ def test_extending():
     # extended_yielder >> Plot(title="Extended Yielder")
     assert extended_yielder == four_measures
 
+
+def test_off_beat():
+
+    four_measures = Note() / 4 * 4 << Steps(1)
+    four_measures += Step(2)
+    off_beat_yielder = YieldOffBeat()
+    # four_measures >> Plot(title="Four Measures", block=False)
+    # off_beat_yielder >> Plot(title="Up Beat Yielder")
+    assert off_beat_yielder == four_measures
+
