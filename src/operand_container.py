@@ -1298,6 +1298,8 @@ class Composition(Container):
             case Composition():
                 return self._time_signature == other._time_signature \
                     and super().__eq__(other)
+            case oy.Yielder():
+                return self.__eq__( Clip(other._element._time_signature, other) )
             case _:
                 return super().__eq__(other)
 
@@ -3054,7 +3056,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._mask_items.extend(operand_copy._unmasked_items())
 
             case oy.Yielder():
-                return self.__iadd__( Clip(self._time_signature, operand) )
+                return self.__iadd__( Clip(operand._element._time_signature, operand) )
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -3084,7 +3086,7 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 return self._delete(operand._unmasked_items())
             case oy.Yielder():
-                return self.__isub__( Clip(self._time_signature, operand) )
+                return self.__isub__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -3138,7 +3140,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._masked = self_masked
 
             case oy.Yielder():
-                return self.__imul__( Clip(self._time_signature, operand) )
+                return self.__imul__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
@@ -3214,7 +3216,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._extend(operand_elements)
                 
             case oy.Yielder():
-                return self.__itruediv__( Clip(self._time_signature, operand) )
+                return self.__itruediv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
@@ -3260,7 +3262,7 @@ class Clip(Composition):  # Just a container of Elements
                     self += of.DownTo(split_position)**position_offset
                     self += operand # Finally adds the Clip elements
             case oy.Yielder():
-                return self.__ifloordiv__( Clip(self._time_signature, operand) )
+                return self.__ifloordiv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.finish() - split_position
@@ -4970,7 +4972,7 @@ class Part(Composition):
                 self._append(operand.copy())
 
             case oy.Yielder():
-                return self.__iadd__( Clip(self._time_signature, operand) )
+                return self.__iadd__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self._append(Clip(operand._time_signature, operand))
 
@@ -4990,7 +4992,7 @@ class Part(Composition):
             case Clip():
                 return self._delete([ operand ])
             case oy.Yielder():
-                return self.__isub__( Clip(self._time_signature, operand) )
+                return self.__isub__( Clip(operand._element._time_signature, operand) )
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() - operand
             case _:
@@ -5017,7 +5019,7 @@ class Part(Composition):
                     self._append(operand.copy())    # Explicit copy
 
             case oy.Yielder():
-                return self.__imul__( Clip(self._time_signature, operand) )
+                return self.__imul__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self_length: ra.Length = self.length()
                 if self_length is not None:
@@ -5059,7 +5061,7 @@ class Part(Composition):
                 self._append(repositioned_clip) # No implicit copy
 
             case oy.Yielder():
-                return self.__itruediv__( Clip(self._time_signature, operand) )
+                return self.__itruediv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 finish_position: ra.Position = self.finish()
                 repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
@@ -5090,7 +5092,7 @@ class Part(Composition):
                 self._append(operand.copy())
 
             case oy.Yielder():
-                return self.__ifloordiv__( Clip(self._time_signature, operand) )
+                return self.__ifloordiv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self._append(Clip(operand._time_signature, operand))
 
@@ -5578,7 +5580,7 @@ class Song(Composition):
                 self += Part(operand)
 
             case oy.Yielder():
-                return self.__iadd__( Clip(self._time_signature, operand) )
+                return self.__iadd__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self += Clip(operand._time_signature, operand)
 
@@ -5601,7 +5603,7 @@ class Song(Composition):
                 clip_part: Part = Part(operand)
                 self -= clip_part
             case oy.Yielder():
-                return self.__isub__( Clip(self._time_signature, operand) )
+                return self.__isub__( Clip(operand._element._time_signature, operand) )
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
             case _:
@@ -5632,7 +5634,7 @@ class Song(Composition):
                 self.__imul__(Part(operand))
 
             case oy.Yielder():
-                return self.__imul__( Clip(self._time_signature, operand) )
+                return self.__imul__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
@@ -5688,7 +5690,7 @@ class Song(Composition):
                 self.__itruediv__(Part(operand))
 
             case oy.Yielder():
-                return self.__itruediv__( Clip(self._time_signature, operand) )
+                return self.__itruediv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
@@ -5716,7 +5718,7 @@ class Song(Composition):
                 self.__ifloordiv__(Part(operand))
 
             case oy.Yielder():
-                return self.__ifloordiv__( Clip(self._time_signature, operand) )
+                return self.__ifloordiv__( Clip(operand._element._time_signature, operand) )
             case oe.Element():
                 self.__ifloordiv__(Clip(operand._time_signature, operand))
 
