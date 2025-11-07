@@ -148,7 +148,7 @@ def test_time_signature():
     four_notes: Note = Note() / 4
     print(four_notes[2] % Position() % float())
     assert four_notes[2] % Position() == 0.5    # Measures
-    four_notes << TimeSignature(2, 4)
+    four_notes << Pipe(TimeSignature(2, 4))
     print(four_notes[2] % Position() % float())
     assert four_notes[2] % Position() == 1.0    # Measures
 
@@ -157,7 +157,7 @@ def test_time_signature():
 
 def test_measurements_composition():
 
-    clip_2_4 = Clip() << TimeSignature(2, 4)
+    clip_2_4 = Clip() << Pipe(TimeSignature(2, 4))
 
     # Here the measurements still use the default staff 4/4
     assert Measures(1) == Beats(4)
@@ -175,7 +175,7 @@ def test_measurements_composition():
 def test_or_clip():
 
     # A Clip with a Measure of only 2 Beats
-    four_notes: Clip = Note(1/8) / 4 << TimeSignature(2, 4)
+    four_notes: Clip = Note(1/8) / 4 << Pipe(TimeSignature(2, 4))
 
     assert four_notes.len() == 4
     four_notes >>= Mask(Match(Or(Step(2), Step(4))))
@@ -561,7 +561,7 @@ def test_mul_clip():
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Duration() == Measures(1.5) # Measures
 
-    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << TimeSignature(2, 4)
+    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << Pipe(TimeSignature(2, 4))
     assert hi_hat.len() == 4
     assert hi_hat._test_owner_clip()
     hi_hat >>= Mask(Nth(2, 4))
@@ -580,7 +580,7 @@ def test_mul_clip():
     assert hi_hat[3] % Position() % Steps() == 14.0
 
     # Test empty Clip
-    empty_clip = hi_hat * 0 << TimeSignature(2, 4)
+    empty_clip = hi_hat * 0 << Pipe(TimeSignature(2, 4))
     assert empty_clip.len() == 0
     equally_hi_hat: Clip = empty_clip * hi_hat
     assert hi_hat.len() == 4
