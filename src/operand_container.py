@@ -1125,6 +1125,10 @@ class Composition(Container):
     def _get_time_signature(self) -> 'og.TimeSignature':
         return og.settings._time_signature
 
+    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+        self._time_signature = time_signature
+        return self
+
 
     def _has_elements(self) -> bool:
         return False
@@ -2578,6 +2582,17 @@ class Clip(Composition):  # Just a container of Elements
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
+
+    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+        beats_per_measure_ratio: Fraction \
+            = (time_signature % ra.BeatsPerMeasure() % Fraction()) / (self._time_signature % ra.BeatsPerMeasure() % Fraction())
+        if beats_per_measure_ratio != 1:
+            for element in self._items:
+                element._position_beats *= beats_per_measure_ratio
+                element._duration_beats *= beats_per_measure_ratio
+        self._time_signature << time_signature
+        return self
+
 
     def _index_from_frame(self, frame: 'of.Frame') -> int:
         """
@@ -4556,6 +4571,12 @@ class Section(Composition):
             return og.settings._time_signature
         return self._owner_song._time_signature
 
+    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+        for clip in self._items:
+            clip._match_time_signature(time_signature)
+        self._time_signature = time_signature
+        return self
+
 
     def _unmasked_items(self) -> list['Clip']:
         return super()._unmasked_items()
@@ -5172,6 +5193,12 @@ class Song(Composition):
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
+
+    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+        self._time_signature << time_signature
+        for section in self._items:
+            section._match_time_signature(self._time_signature)
+        return self
 
 
     def _unmasked_items(self) -> list['Section']:
