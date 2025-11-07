@@ -112,7 +112,7 @@ class Yielder(o.Operand):
             case Yielder():
                 return self._element == other._element and self._measures == other._measures
             case oc.Composition():
-                return oc.Clip(self._element._time_signature, self) == other
+                return self.__mod__(oc.Clip()) == other
             case od.Conditional():
                 return other == self
             case _:
@@ -203,23 +203,23 @@ class Yielder(o.Operand):
 
     def __add__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self._element._time_signature, self).__iadd__(operand)
+        return self.__mod__(oc.Clip()).__iadd__(operand)
     
     def __sub__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self._element._time_signature, self).__isub__(operand)
+        return self.__mod__(oc.Clip()).__isub__(operand)
     
     def __mul__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self._element._time_signature, self).__imul__(operand)
+        return self.__mod__(oc.Clip()).__imul__(operand)
     
     def __truediv__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self._element._time_signature, self).__itruediv__(operand)
+        return self.__mod__(oc.Clip()).__itruediv__(operand)
     
     def __floordiv__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        return oc.Clip(self._element._time_signature, self).__ifloordiv__(operand)
+        return self.__mod__(oc.Clip()).__ifloordiv__(operand)
 
 
 class YieldOnBeat(Yielder):

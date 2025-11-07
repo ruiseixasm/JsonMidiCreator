@@ -2572,7 +2572,7 @@ class Plot(ReadOnly):
             case oc.Composition() | oe.Element():
                 return operand.plot(*self._parameters)
             case oy.Yielder():
-                return (operand % Clip()).plot(*self._parameters)
+                return operand.__mod__(oc.Clip()).plot(*self._parameters)
             case Scale():
                 Scale.plot(self._parameters[1], operand % list())
             case ou.KeySignature():
