@@ -474,7 +474,7 @@ class YieldSteps(YieldPositions):
                 return super().__mod__(operand)
 
 class YieldParameter(YieldPattern):
-    """`Yielder -> YieldPattern -> YieldParameters`
+    """`Yielder -> YieldPattern -> YieldParameter`
 
     Generates a series of elements with the respective duration stacked on each other \
         where each one are set with the given Parameter.
