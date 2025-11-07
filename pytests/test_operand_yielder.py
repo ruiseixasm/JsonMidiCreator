@@ -33,7 +33,7 @@ import sys
 def test_degrees():
 
     four_measures = Note() / 4 * 4 << Each(1, 3, 5)**Degree()
-    degree_yielder = YieldDegrees()
+    degree_yielder = YieldDegree()
     # four_measures >> Plot(title="Four Measures", block=False)
     # degree_yielder >> Plot(title="Degree Yielder")
     assert degree_yielder == four_measures
@@ -54,7 +54,7 @@ def test_extending():
 
     four_measures = Note() / 4 << Each(1, 3, 5)**Degree()
     four_measures *= 6
-    extended_yielder = Yielder(6)**YieldDegrees(1)
+    extended_yielder = Yielder(6)**YieldDegree(1)
     # four_measures >> Plot(title="Four Measures", block=False)
     # extended_yielder >> Plot(title="Extended Yielder")
     assert extended_yielder == four_measures

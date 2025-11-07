@@ -473,24 +473,80 @@ class YieldSteps(YieldPositions):
             case _:
                 return super().__mod__(operand)
 
-
-class YieldParameters(YieldPattern):
+class YieldParameter(YieldPattern):
     """`Yielder -> YieldPattern -> YieldParameters`
 
-    Sets the `Element` non positional parameters accordingly to each given pattern!
+    Generates a series of elements with the respective duration stacked on each other \
+        where each one are set with the given Parameter.
 
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list(['1', '3', '5']) : The non positional parameters for each yield of elements.
+    Parameter(Pitch()) : Parameter that is intended to be set on each Yielded `Element`.
     """
     def __init__(self, *parameters):
+        self._parameter: Any = og.Pitch()
         super().__init__(['1', '3', '5'], *parameters)
 
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case YieldParameter():
+                return super().__eq__(other) and self._parameter == other._parameter
+            case _:
+                return super().__eq__(other)
 
-class YieldDegrees(YieldParameters):
-    """`Yielder -> YieldPattern -> YieldParameters -> YieldDegrees`
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << (element % self._parameter << parameter)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case od.Parameter():
+                        return operand._data << self._parameter
+                    case _:
+                        return super().__mod__(operand)
+            case od.Parameter():
+                return od.Parameter(o.Operand.deep_copy(self._parameter))
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["parameter"] = self.serialize(self._parameter)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "parameter" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._parameter = self.deserialize(serialization["parameters"]["parameter"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case YieldParameter():
+                super().__lshift__(operand)
+                self._parameter = o.Operand.deep_copy(operand._parameter)
+            case od.Pipe():
+                match operand._data:
+                    case od.Parameter():
+                        self._parameter = operand._data._data
+                    case _:
+                        super().__lshift__(operand)
+            case od.Parameter():
+                self._parameter = o.Operand.deep_copy(operand._data)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+class YieldDegree(YieldParameter):
+    """`Yielder -> YieldPattern -> YieldParameter -> YieldDegree`
 
     Generates a series of elements with the respective given duration stacked on each other \
         with the respective `Degree`.
@@ -500,12 +556,9 @@ class YieldDegrees(YieldParameters):
     Element(Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
     list([1, 3, 5]) : The `Degree` parameters for each yield of elements.
+    Parameter(Degree()) : Parameter that is intended to be set on each Yielded `Element`.
     """
     def __init__(self, *parameters):
-        super().__init__([1, 3, 5], *parameters)
-
-    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
-        return element << ou.Degree(parameter)
-
+        super().__init__(od.Parameter(ou.Degree()), *parameters)
 
 

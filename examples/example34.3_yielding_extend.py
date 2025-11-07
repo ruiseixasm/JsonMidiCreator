@@ -33,9 +33,9 @@ two_program_changes >> Play()
 
 
 # Triplets from different TimeSignature and length
-Yielder(Measures(6))**YieldDegrees(Measures(2)) >> Plot(title="Extended Notes", block=False)
+Yielder(Measures(6))**YieldDegree(Measures(2)) >> Plot(title="Extended Notes", block=False)
 
 
 # Triplets from different TimeSignature and length
-Yielder(Measures(6))**YieldDegrees(TimeSignature(3), Measures(2)) >> Plot(title="Extended and Stretched Notes")
+Yielder(Measures(6))**YieldDegree(TimeSignature(3), Measures(2)) >> Plot(title="Extended and Stretched Notes")
 

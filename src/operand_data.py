@@ -166,6 +166,18 @@ class Pipe(Data):
             case _:
                 self._data = operand
         return self
+    
+class Parameter(Data):
+    """`Data -> Parameter`
+
+    `Parameter` allows a class to receive items as parameters.
+    
+    Parameters
+    ----------
+    Any() : Any type of operand.
+    """
+    pass
+
 
 class Inline(Data):
     """`Data -> Inline`

@@ -32,15 +32,15 @@ two_program_changes = \
 two_program_changes >> Play()
 
 
-YieldDegrees()**YieldPattern() >> Plot(title="Triplet Notes", block=False)
+YieldDegree()**YieldPattern() >> Plot(title="Triplet Notes", block=False)
 
 # Equivalent to the previous YieldPattern
 Note(Beats(2/3)) / Measure(4) << Each(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes", block=False)
 
 
-YieldDegrees()**YieldPattern(Channel(2), Octave(3)) + YieldDegrees() >> Plot(title="Added Yields", block=False)
+YieldDegree()**YieldPattern(Channel(2), Octave(3)) + YieldDegree() >> Plot(title="Added Yields", block=False)
 
 
 # Triplets from different TimeSignature
-Yielder()**YieldDegrees(TimeSignature(3)) >> Plot(title="Stretched Notes")
+Yielder()**YieldDegree(TimeSignature(3)) >> Plot(title="Stretched Notes")
 
