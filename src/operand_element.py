@@ -459,7 +459,7 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
-                return oc.Clip(self, operand)    # Clip does an += for << operator
+                return oc.Clip(self._get_time_signature(), self, operand)    # Clip does an += for << operator
             case oc.Clip():
                 return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
@@ -492,7 +492,7 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self).__imul__(operand)
+                return oc.Clip(self._get_time_signature(), self).__imul__(operand)
             case oc.Clip():
                 return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
@@ -506,7 +506,7 @@ class Element(o.Operand):
                             next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip(self)
+                    new_clip: oc.Clip = oc.Clip(self._get_time_signature(), self)
                     if operand > 1:
                         for _ in range(operand - 1):
                             new_clip.__imul__(self)
@@ -565,7 +565,7 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self).__itruediv__(operand)
+                return oc.Clip(self._get_time_signature(), self).__itruediv__(operand)
             case oc.Clip():
                 return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
@@ -579,7 +579,7 @@ class Element(o.Operand):
                             next_position._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip(self)
+                    new_clip: oc.Clip = oc.Clip(self._get_time_signature(), self)
                     if operand > 1:
                         for _ in range(operand - 1):
                             new_clip.__itruediv__(self)
@@ -670,7 +670,7 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self).__ifloordiv__(operand)
+                return oc.Clip(self._get_time_signature(), self).__ifloordiv__(operand)
             case oc.Clip():
                 return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
@@ -683,7 +683,7 @@ class Element(o.Operand):
                             new_elements.append(next_element)
                     return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip()
+                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
                     if operand > 0:
                         for _ in range(operand):
                             new_clip.__iadd__(self) # Special case

@@ -1308,3 +1308,16 @@ def test_chord_smooth():
 
 # test_chord_smooth()
 
+
+def test_match_time_signature():
+    three_quarters = Note() / 3
+    stretched_triplets = Note(1/3) / 3
+    assert three_quarters != stretched_triplets # Both have a Time Signature of 4/4
+
+    time_signature_3_4 = Note(TimeSignature(3)) / 3
+    assert time_signature_3_4 % list() == three_quarters % list()
+    time_signature_3_4 << three_quarters % TimeSignature()
+    assert time_signature_3_4 == stretched_triplets
+
+# test_match_time_signature()
+
