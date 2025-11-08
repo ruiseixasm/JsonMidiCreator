@@ -1118,7 +1118,7 @@ class Composition(Container):
     def __init__(self, *operands):
         super().__init__()
         # Song sets the TimeSignature, this is just a reference
-        self._time_signature: og.TimeSignature  = og.settings._time_signature
+        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._length_beats: Fraction            = None
 
 
@@ -1322,6 +1322,8 @@ class Composition(Container):
                         if self._length_beats is not None:
                             return operand._data << ra.Length(self, self._length_beats)
                         return None
+                    case og.TimeSignature():
+                        return self._time_signature
                     case _:                 return super().__mod__(operand)
             # By definition Clips are always at Position 0
             case ra.Position():
@@ -1414,16 +1416,18 @@ class Composition(Container):
                         if self._length_beats < 0:
                             self._length_beats = None
                     case None:              self._length_beats = None
+                    case og.TimeSignature():
+                        self._time_signature = operand._data
                     case _:                 super().__lshift__(operand)
 
-            case og.TimeSignature():
-                self._match_time_signature(operand) # Includes time signature setting with `<<` or `=`
             case ra.Length():
                 self._length_beats = operand._rational
                 if self._length_beats < 0:
                     self._length_beats = None
             case None:
                 self._length_beats = None
+            case og.TimeSignature():
+                self._match_time_signature(operand) # Includes time signature setting with `<<` or `=`
 
             case _:
                 super().__lshift__(operand)
