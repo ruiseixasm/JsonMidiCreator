@@ -1416,6 +1416,8 @@ class Composition(Container):
                     case None:              self._length_beats = None
                     case _:                 super().__lshift__(operand)
 
+            case og.TimeSignature():
+                self._match_time_signature(operand) # Includes time signature setting with `<<` or `=`
             case ra.Length():
                 self._length_beats = operand._rational
                 if self._length_beats < 0:
@@ -2969,8 +2971,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
-            case og.TimeSignature():
-                self._match_time_signature(operand) # Includes time signature setting with `<<`
                 
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
@@ -5553,8 +5553,6 @@ class Song(Composition):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case og.TimeSignature():
-                self._match_time_signature(operand) # Includes time signature setting with `<<`
                 
             case list():
                 if all(isinstance(item, Section) for item in operand):
