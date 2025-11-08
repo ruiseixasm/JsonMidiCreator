@@ -1123,7 +1123,7 @@ class Composition(Container):
 
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        return og.settings._time_signature
+        return self._time_signature
 
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         self._time_signature << time_signature
@@ -2602,9 +2602,6 @@ class Clip(Composition):  # Just a container of Elements
         self._mask_items: list[oe.Element] = []
         for single_operand in operands:
             self << single_operand
-
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._time_signature
 
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         beats_per_measure_ratio: Fraction \
@@ -4557,7 +4554,7 @@ class Section(Composition):
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_song is None:
-            return og.settings._time_signature
+            return self._time_signature
         return self._owner_song._time_signature
 
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
@@ -5176,9 +5173,6 @@ class Song(Composition):
         self._name: str = "Song"
         for single_operand in operands:
             self << single_operand
-
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        return self._time_signature
 
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         self._time_signature << time_signature
