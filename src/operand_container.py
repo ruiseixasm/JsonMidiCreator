@@ -2767,16 +2767,18 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._time_signature
-                    case ou.MidiTrack():            return self._midi_track
-                    case _:                 return super().__mod__(operand)
-            case og.TimeSignature():        return self._time_signature.copy()
-            case ou.MidiTrack():    return self._midi_track.copy()
+                    case ou.MidiTrack():
+                        return self._midi_track
+                    case _:
+                        return super().__mod__(operand)
+            case ou.MidiTrack():
+                return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
-            case Section():            return Section(self._time_signature, self)
-            case Song():            return Song(self._time_signature, self)
-
+            case Section():
+                return Section(self._time_signature, self)
+            case Song():
+                return Song(self._time_signature, self)
             case _:
                 return super().__mod__(operand)
 
@@ -2938,9 +2940,6 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.MidiTrack():
                         self._midi_track = operand._data
-
-                    case og.TimeSignature():
-                        self._time_signature = operand._data
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -5397,11 +5396,8 @@ class Song(Composition):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():        return self._time_signature
                     case str():                     return self._name
                     case _:                         return super().__mod__(operand)
-            case og.TimeSignature():
-                return self._time_signature.copy()
             case od.TrackName():
                 return operand << self._name
             case str():
@@ -5532,8 +5528,6 @@ class Song(Composition):
 
             case od.Pipe():
                 match operand._data:
-                    case og.TimeSignature():
-                        self._time_signature = operand._data
                     case list():
                         if all(isinstance(item, Section) for item in operand._data):
                             self._items = [item for item in operand._data]
