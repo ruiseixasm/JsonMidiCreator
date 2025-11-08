@@ -96,14 +96,6 @@ class Element(o.Operand):
             return self._time_signature
         return self._owner_clip._time_signature
 
-    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        beats_per_measure_ratio: Fraction \
-            = time_signature % ra.BeatsPerMeasure() % Fraction() / self._time_signature._top
-        self._position_beats *= beats_per_measure_ratio
-        self._duration_beats *= beats_per_measure_ratio
-        self._time_signature << time_signature
-        return self
-
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for an Element."""

@@ -4556,12 +4556,6 @@ class Section(Composition):
             return self._time_signature
         return self._owner_song._time_signature
 
-    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        for clip in self._items:
-            clip._match_time_signature(time_signature)
-        self._time_signature << time_signature
-        return self
-
 
     def _unmasked_items(self) -> list['Clip']:
         return super()._unmasked_items()
@@ -5172,12 +5166,6 @@ class Song(Composition):
         self._name: str = "Song"
         for single_operand in operands:
             self << single_operand
-
-    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        for section in self._items:
-            section._match_time_signature(time_signature)
-        self._time_signature << time_signature
-        return self
 
 
     def _unmasked_items(self) -> list['Section']:
