@@ -2972,10 +2972,6 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
                 
-            # Use Frame objects to bypass this parameter into elements (Setting Position)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-
             case oe.Element():
                 self += operand
 
@@ -5551,9 +5547,6 @@ class Song(Composition):
             case Section() | Clip() | oe.Element():
                 self += operand
 
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-                
             case list():
                 if all(isinstance(item, Section) for item in operand):
                     self._items = [item.copy() for item in operand]
