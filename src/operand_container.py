@@ -1427,10 +1427,28 @@ class Composition(Container):
             case None:
                 self._length_beats = None
             case og.TimeSignature():
-                self._match_time_signature(operand) # Includes time signature setting with `<<` or `=`
+                self._match_time_signature(operand) # Includes time signature setting with `<<`
 
             case _:
                 super().__lshift__(operand)
+        return self
+
+
+    # Avoids the costly copy of Track self doing +=
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case og.TimeSignature():
+                self._time_signature += operand
+            case _:
+                super().__iadd__(operand)
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case og.TimeSignature():
+                self._time_signature -= operand
+            case _:
+                super().__isub__(operand)
         return self
 
 
@@ -3075,9 +3093,6 @@ class Clip(Composition):  # Just a container of Elements
                     ]
                 self._extend(new_elements)
                 
-            case og.TimeSignature():
-                self._time_signature += operand
-
             case _:
                 super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -3107,9 +3122,6 @@ class Clip(Composition):  # Just a container of Elements
                         elements_to_delete.append(self[index])    # Shouldn't be copied
                 return self._delete(elements_to_delete, True)
             
-            case og.TimeSignature():
-                self._time_signature -= operand
-
             case _:
                 super().__isub__(operand)
         return self._sort_items()  # Shall be sorted!
