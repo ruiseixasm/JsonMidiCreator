@@ -64,10 +64,9 @@ class Yielder(o.Operand):
                 for new_element in yielded_elements:
                     new_element._owner_clip = None  # Safe code
                     beats_per_measure_ratio: Fraction = target_beats_per_measure / new_element._time_signature._top
+                    new_element._position_beats *= beats_per_measure_ratio
+                    new_element._duration_beats *= beats_per_measure_ratio
                     new_element._time_signature << self._element._time_signature
-                    if beats_per_measure_ratio != 1:
-                        new_element._position_beats *= beats_per_measure_ratio
-                        new_element._duration_beats *= beats_per_measure_ratio
                     if new_element % ra.Measure() > _last_measure:
                         _last_measure = new_element % ra.Measure()
                 if _last_measure > self._measures - 1:
