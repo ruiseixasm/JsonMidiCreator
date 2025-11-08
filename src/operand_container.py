@@ -2586,7 +2586,7 @@ class Clip(Composition):  # Just a container of Elements
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         beats_per_measure_ratio: Fraction \
             = time_signature % ra.BeatsPerMeasure() % Fraction() / self._time_signature._top
-        if beats_per_measure_ratio != 1:
+        if beats_per_measure_ratio != 1:    # Avoids recursion among many items
             for element in self._items:
                 element._position_beats *= beats_per_measure_ratio
                 element._duration_beats *= beats_per_measure_ratio
