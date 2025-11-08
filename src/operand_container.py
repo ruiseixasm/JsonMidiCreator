@@ -1333,7 +1333,7 @@ class Composition(Container):
             case ra.Duration():
                 return self.duration()
             case og.TimeSignature():
-                return self._time_signature % operand
+                return self._time_signature.copy()
             case bool():
                 return self._masked
             case int():
@@ -2654,16 +2654,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
-        if isinstance(time_signature, og.TimeSignature):
-            for single_element in self:
-                single_element._convert_time_signature(self._time_signature)
-            if self._length_beats is not None:
-                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature << time_signature  # Does a copy
-        return self
-
-
     def _test_owner_clip(self) -> bool:
         for single_element in self._items:
             if single_element._owner_clip is not self:
@@ -2778,9 +2768,6 @@ class Clip(Composition):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
-            case og.TimeSignature():
-                return self._time_signature.copy()
-
             case Section():            return Section(self._time_signature, self)
             case Song():            return Song(self._time_signature, self)
 
