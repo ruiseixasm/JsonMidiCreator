@@ -1125,7 +1125,7 @@ class Composition(Container):
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
 
-    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         self._time_signature << time_signature
         return self
 
@@ -1427,7 +1427,7 @@ class Composition(Container):
             case None:
                 self._length_beats = None
             case og.TimeSignature():
-                self._match_time_signature(operand) # Includes time signature setting with `<<`
+                self._set_time_signature(operand) # Includes time signature setting with `<<`
 
             case _:
                 super().__lshift__(operand)
@@ -2603,7 +2603,7 @@ class Clip(Composition):  # Just a container of Elements
         for single_operand in operands:
             self << single_operand
 
-    def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         beats_per_measure_ratio: Fraction \
             = time_signature % ra.BeatsPerMeasure() % Fraction() / self._time_signature._top
         if beats_per_measure_ratio != 1:    # Avoids recursion among many items
