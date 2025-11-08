@@ -4560,7 +4560,7 @@ class Section(Composition):
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
         for clip in self._items:
             clip._match_time_signature(time_signature)
-        self._time_signature = time_signature
+        self._time_signature << time_signature
         return self
 
 
@@ -5175,9 +5175,9 @@ class Song(Composition):
             self << single_operand
 
     def _match_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        self._time_signature << time_signature
         for section in self._items:
-            section._match_time_signature(self._time_signature)
+            section._match_time_signature(time_signature)
+        self._time_signature << time_signature
         return self
 
 
