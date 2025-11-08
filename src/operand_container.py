@@ -4535,7 +4535,6 @@ class Section(Composition):
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
-        self._time_signature = og.settings._time_signature
         self._items: list[Clip] = []
         self._mask_items: list[Clip] = []
         self._name: str = "Section"
