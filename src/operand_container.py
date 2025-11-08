@@ -4551,15 +4551,6 @@ class Section(Composition):
             self << single_operand
 
 
-    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
-        if isinstance(time_signature, og.TimeSignature):
-            self._position_beats = ra.Position(time_signature, self % od.Pipe( ra.Position() ))._rational
-            if self._length_beats is not None:
-                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature = time_signature  # Does an assignment
-        return self
-
-
     def _set_owner_song(self, owner_song: 'Song') -> Self:
         if isinstance(owner_song, Song):
             self._owner_song = owner_song
@@ -5230,16 +5221,6 @@ class Song(Composition):
             self._time_signature << owner_song._time_signature    # Does a parameters copy
             for section in self._items:
                 section._set_owner_song(owner_song)
-        return self
-
-
-    def _convert_time_signature_reference(self, time_signature: 'og.TimeSignature') -> Self:
-        if isinstance(time_signature, og.TimeSignature):
-            for section in self:
-                section._convert_time_signature_reference(self._time_signature)
-            if self._length_beats is not None:
-                self._length_beats = ra.Length(time_signature, self % od.Pipe( ra.Length() ))._rational
-            self._time_signature << time_signature  # Does a copy
         return self
 
 
