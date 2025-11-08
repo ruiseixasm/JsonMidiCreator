@@ -4937,8 +4937,6 @@ class Section(Composition):
             case Clip() | oy.Yielder() | oe.Element():
                 return self.__iadd__(operand)
 
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
             case list():
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
