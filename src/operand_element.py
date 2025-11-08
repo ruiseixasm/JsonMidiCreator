@@ -84,11 +84,6 @@ class Element(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def _convert_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        self._position_beats = ra.Position(time_signature, self % od.Pipe( ra.Position() ))._rational
-        self._duration_beats = ra.Duration(time_signature, self % od.Pipe( ra.Duration() ))._rational
-        return self
-
 
     def _set_owner_clip(self, owner_clip: 'Clip') -> Self:
         import operand_container as oc
