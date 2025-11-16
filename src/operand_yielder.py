@@ -54,6 +54,9 @@ class Yielder(o.Operand):
         self._measures: int = 4
         super().__init__(*parameters)
 
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << parameter
+
     def _get_yielded_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
         if isinstance(self._next_operand, Yielder):
@@ -336,9 +339,6 @@ class YieldPattern(Yielder):
             case _:
                 return super().__eq__(other)
 
-    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
-        return element << parameter
-
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = self._get_yielded_elements()
         if self._pattern:
@@ -566,4 +566,87 @@ class YieldDuration(YieldParameter):
     """
     def __init__(self, *parameters):
         super().__init__([1/4], od.Parameter(ra.Duration()), *parameters)
+
+
+
+class YieldGrid(Yielder):
+    """`Yielder -> YieldGrid`
+
+    Places the given `Element` stacked accordingly to each given item in the pattern!
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
+    list([ra.Beats(2/3)]) : The given parameters for each yield of elements.
+    """
+    def __init__(self, *parameters):
+        self._grid: dict[int, list[int]] = {
+            1: [0, 8],
+            2: [4, 12],
+            7: [0, 2, 4, 6, 8, 10, 12, 14]
+        }
+        super().__init__(*parameters)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case YieldGrid():
+                return super().__eq__(other) and self._grid == other._grid
+            case _:
+                return super().__eq__(other)
+
+    def _yield_elements(self) -> list['oe.Element']:
+        yielded_elements: list[oe.Element] = []
+        for channel, step in self._grid.items():
+            new_element: oe.Element = self._element.copy()
+            yielded_elements.append(new_element)
+            parameter: Any = (ou.Channel(channel), ra.Step(step))
+            self._set_element_parameter(new_element, parameter)
+        return yielded_elements
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case dict():
+                        return self._grid
+                    case _:
+                        return super().__mod__(operand)
+            case dict():
+                return o.Operand.deep_copy(self._grid)
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["grid"] = self.serialize(self._grid)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "grid" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._grid = self.deserialize(serialization["parameters"]["grid"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case YieldGrid():
+                super().__lshift__(operand)
+                self._grid = o.Operand.deep_copy(operand._grid)
+            case od.Pipe():
+                match operand._data:
+                    case dict():
+                        self._grid = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case dict():
+                self._grid = o.Operand.deep_copy(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
 
