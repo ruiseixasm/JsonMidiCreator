@@ -581,13 +581,12 @@ class YieldGrid(Yielder):
     dict({1:[0, 8], 2:[4, 12], 7:[0, 2, 4, 6, 8, 10, 12, 14]}) : The steps as list in each channel as index.
     """
     def __init__(self, *parameters):
-        og.settings << ra.Quantization(1/4) # By default it uses a quantization of 1/4 Beat
         self._grid: dict[int, list[int]] = {
             1: [0, 8],
             2: [4, 12],
             7: [0, 2, 4, 6, 8, 10, 12, 14]
         }
-        super().__init__(og.TimeSignature(4, 4), ra.Steps(1), *parameters)
+        super().__init__(og.TimeSignature(4, 4), ra.Beats(1/4), *parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -600,10 +599,9 @@ class YieldGrid(Yielder):
         yielded_elements: list[oe.Element] = []
         for channel, steps in self._grid.items():
             for step in steps:
-                new_element: oe.Element = self._element.copy()
+                new_element: oe.Element = self._element.copy(ou.Channel(channel))
                 yielded_elements.append(new_element)
-                parameter: Any = (ou.Channel(channel), ra.Step(step))
-                self._set_element_parameter(new_element, parameter)
+                new_element._position_beats = Fraction(step, 4)
         return yielded_elements
 
 
