@@ -586,7 +586,7 @@ class YieldGrid(Yielder):
             2: [4, 12],
             7: [0, 2, 4, 6, 8, 10, 12, 14]
         }
-        super().__init__(*parameters)
+        super().__init__(ra.Steps(1), *parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -597,11 +597,12 @@ class YieldGrid(Yielder):
 
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
-        for channel, step in self._grid.items():
-            new_element: oe.Element = self._element.copy()
-            yielded_elements.append(new_element)
-            parameter: Any = (ou.Channel(channel), ra.Step(step))
-            self._set_element_parameter(new_element, parameter)
+        for channel, steps in self._grid.items():
+            for step in steps:
+                new_element: oe.Element = self._element.copy()
+                yielded_elements.append(new_element)
+                parameter: Any = (ou.Channel(channel), ra.Step(step))
+                self._set_element_parameter(new_element, parameter)
         return yielded_elements
 
 
