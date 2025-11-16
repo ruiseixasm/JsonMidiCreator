@@ -31,6 +31,6 @@ two_program_changes = \
 
 two_program_changes >> Play()
 
-YieldGrid() * 4 >> Plot(by_channel=True, title="Grid of Notes")
+YieldGrid() * 4 >> Plot(by_channel=True, title="Grid of Notes", block=False)
 
-
+YieldAfroCub1() * 4 >> Plot(by_channel=True, title="Afro-cub 1")

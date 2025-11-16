@@ -651,3 +651,31 @@ class YieldGrid(Yielder):
                 super().__lshift__(operand)
         return self
 
+
+class YieldAfroCub1(YieldGrid):
+    """`Yielder -> YieldGrid -> YieldAfroCub1`
+
+    Places the given `Element` on each Step given by a grid of `channel: step`.
+
+    Parameters
+    ----------
+    Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
+    Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
+    dict({
+            1: [0, 8, 10, 14],
+            2: [3, 6, 12],
+            7: [0, 2, 3, 4, 6, 8, 10, 12, 14]
+        }) : The steps as list in each channel as index.
+    """
+    def __init__(self, *parameters):
+        og.settings << ra.Quantization(1/4)
+        super().__init__(
+            og.TimeSignature(4, 4),
+            {
+                1: [0, 8, 10, 14],
+                2: [3, 6, 12],
+                7: [0, 2, 3, 4, 6, 8, 10, 12, 14]
+            },
+            *parameters)
+
+
