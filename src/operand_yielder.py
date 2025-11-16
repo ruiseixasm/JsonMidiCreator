@@ -572,13 +572,13 @@ class YieldDuration(YieldParameter):
 class YieldGrid(Yielder):
     """`Yielder -> YieldGrid`
 
-    Places the given `Element` stacked accordingly to each given item in the pattern!
+    Places the given `Element` on each Step given by a grid of `channel: step`.
 
     Parameters
     ----------
     Element(oe.Note()) : The `Element` to be used as source for all yielded ones.
     Measures(4), Measure(4), int(4) : The `Measures` sets the length where the Yield will be returned.
-    list([ra.Beats(2/3)]) : The given parameters for each yield of elements.
+    dict({1:[0, 8], 2:[4, 12], 7:[0, 2, 4, 6, 8, 10, 12, 14]}) : The steps as list in each channel as index.
     """
     def __init__(self, *parameters):
         self._grid: dict[int, list[int]] = {
