@@ -581,12 +581,13 @@ class YieldGrid(Yielder):
     dict({1:[0, 8], 2:[4, 12], 7:[0, 2, 4, 6, 8, 10, 12, 14]}) : The steps as list in each channel as index.
     """
     def __init__(self, *parameters):
+        og.settings << ra.Quantization(1/4) # By default it uses a quantization of 1/4 Beat
         self._grid: dict[int, list[int]] = {
             1: [0, 8],
             2: [4, 12],
             7: [0, 2, 4, 6, 8, 10, 12, 14]
         }
-        super().__init__(ra.Steps(1), *parameters)
+        super().__init__(og.TimeSignature(4, 4), ra.Steps(1), *parameters)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -668,9 +669,7 @@ class YieldAfroCub1(YieldGrid):
         }) : The steps as list in each channel as index.
     """
     def __init__(self, *parameters):
-        og.settings << ra.Quantization(1/4)
         super().__init__(
-            og.TimeSignature(4, 4),
             {
                 1: [0, 8, 10, 14],
                 2: [3, 6, 12],
