@@ -54,9 +54,6 @@ class Yielder(o.Operand):
         self._measures: int = 4
         super().__init__(*parameters)
 
-    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
-        return element << parameter
-
     def _get_yielded_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
         if isinstance(self._next_operand, Yielder):
@@ -331,6 +328,9 @@ class YieldPattern(Yielder):
     def __init__(self, *parameters):
         self._pattern: list[Any] = [ra.Beats(2/3)]
         super().__init__(*parameters)
+
+    def _set_element_parameter(self, element: 'oe.Element', parameter: Any) -> 'oe.Element':
+        return element << parameter
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
