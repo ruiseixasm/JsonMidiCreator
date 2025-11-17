@@ -23,7 +23,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 settings << Tempo(90) << Folder("examples/")
-settings << ClockedDevices(od.Device("loopMIDI"))
+settings << ClockedDevices(["loopMIDI"])
 
 
 long_chord = Chord(1/1) * 1
