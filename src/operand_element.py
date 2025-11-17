@@ -1319,12 +1319,12 @@ class Clock(DeviceElement):
                     case oc.Devices():          return oc.Devices(self._devices)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-                    case ou.ClockMMCMode():   return ou.ClockMMCMode(self._mmc_mode)
+                    case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
                     case _:                     return super().__mod__(operand)
             case oc.Devices():          return oc.Devices(self._devices)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-            case ou.ClockMMCMode():   return ou.ClockMMCMode(self._mmc_mode)
+            case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
             case str():                 return ou.ClockMMCMode(self._mmc_mode) % str()
             case _:                     return super().__mod__(operand)
 
@@ -1404,29 +1404,15 @@ class Clock(DeviceElement):
                         }
                     )
 
-                if self._mmc_mode == 2:  # 2 - "Continue"
-
-                    # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                    self_playlist.append(
-                        {
-                            "time_ms": o.minutes_to_time_ms(self_position_min),
-                            "midi_message": {
-                                "status_byte": 0xFB     # Continue Track
-                            }
+                # First quarter note pulse (total 1 in 24 pulses per quarter note)
+                self_playlist.append(
+                    {
+                        "time_ms": o.minutes_to_time_ms(self_position_min),
+                        "midi_message": {
+                            "status_byte": 0xFA     # Start Track
                         }
-                    )
-            
-                else:
-
-                    # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                    self_playlist.append(
-                        {
-                            "time_ms": o.minutes_to_time_ms(self_position_min),
-                            "midi_message": {
-                                "status_byte": 0xFA     # Start Track
-                            }
-                        }
-                    )
+                    }
+                )
             
                 single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
@@ -1451,33 +1437,17 @@ class Clock(DeviceElement):
                     }
                 )
 
-                if self._mmc_mode == 0 or self._mmc_mode == 3:
-
-                    # Resets the position back to 0
-                    self_playlist.append(
-                        {
-                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
-                            "midi_message": {
-                                "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
-                                "data_byte_1": 0,       # Reset
-                                "data_byte_2": 0        # Reset
-                            }
+                # Resets the position back to 0
+                self_playlist.append(
+                    {
+                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
+                        "midi_message": {
+                            "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
+                            "data_byte_1": 0,       # Reset
+                            "data_byte_2": 0        # Reset
                         }
-                    )
-
-                if self._mmc_mode == 3:  # 3 - "Total"
-
-                    # Sends a SysEx Stop Message
-                    self_playlist.append(
-                        {
-                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
-                            "midi_message": {
-                                "status_byte": 0xF0,    # Start of SysEx
-                                "data_bytes": [0x7F, 0x7F, 0x06, 0x01]  # Universal Stop command
-                                                    # Byte 0xF7 Ends the SysEx stream (implicit)
-                            }
-                        }
-                    )
+                    }
+                )
 
         return self_playlist
 
@@ -1507,21 +1477,21 @@ class Clock(DeviceElement):
         match operand:
             case Clock():
                 super().__lshift__(operand)
-                self._devices           = operand._devices.copy()
-                self._clock_ppqn        = operand._clock_ppqn
-                self._mmc_mode   = operand._mmc_mode
+                self._devices       = operand._devices.copy()
+                self._clock_ppqn    = operand._clock_ppqn
+                self._mmc_mode   	= operand._mmc_mode
             case od.Pipe():
                 match operand._data:
                     case oc.ClockedDevices():   self._devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   self._mmc_mode = operand._data._unit
+                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data % bool()
                     case _:                     super().__lshift__(operand)
             case oc.ClockedDevices():   self._devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockMMCMode():   self._mmc_mode = operand._unit
+            case ou.ClockMMCMode():   	self._mmc_mode = operand % bool()
             case str():                 self._mmc_mode = ou.ClockMMCMode(operand)._unit
             case _:                     super().__lshift__(operand)
         return self
