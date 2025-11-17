@@ -3694,7 +3694,7 @@ class Settings(Generic):
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
         self._clock_ppqn: int                       = 24
-        self._mmc_mode: bool                  		= False
+        self._mmc_mode: int                  		= 0
         self._folder: str                           = ""
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -3916,7 +3916,7 @@ class Settings(Generic):
                     case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data % bool()
+                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data._unit
                     case od.Folder():           self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -3940,7 +3940,7 @@ class Settings(Generic):
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockMMCMode():   	self._mmc_mode = operand % bool()
+            case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case od.Folder():           self._folder = operand._data
             case oe.Clock():
                 self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockMMCMode() )

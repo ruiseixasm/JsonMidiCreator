@@ -1292,7 +1292,7 @@ class Clock(DeviceElement):
         self._duration_beats        = ra.Measures(self, 1) % ra.Beats() % Fraction()
         self._devices: list[str]    = []
         self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
-        self._mmc_mode: bool  		= False
+        self._mmc_mode: int  		= 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1485,14 +1485,13 @@ class Clock(DeviceElement):
                     case oc.ClockedDevices():   self._devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data % bool()
+                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case oc.ClockedDevices():   self._devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockMMCMode():   	self._mmc_mode = operand % bool()
-            case str():                 self._mmc_mode = ou.ClockMMCMode(operand)._unit
+            case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case _:                     super().__lshift__(operand)
         return self
 
