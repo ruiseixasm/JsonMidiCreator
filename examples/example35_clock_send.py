@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
+import time
 src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 
 if src_path not in sys.path:
@@ -22,12 +23,13 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-settings << Tempo(90) << Folder("examples/")
-settings << ClockedDevices(["Microsoft"])
+settings << Tempo(60) << Folder("examples/") << ClockedDevices(["loopMIDI"])
 
 
 long_chord = Chord(1/1) * 1
 long_chord * 5 >> Play(True)
 
+time.sleep(2)
+
 settings << Tempo(130) << ClockMMCMode()
-long_chord * 5 >> Play(True)
+long_chord * 5 << Channel(2) >> Play(True)
