@@ -425,9 +425,9 @@ def test_milliseconds_duration():
 
 def test_clock_element():
 
-    clock_measure = Clock(Length(1), ClockMMCMode("Pause"))
+    clock_measure = Clock(Length(1), ClockMMCMode())
     clock_playlist: list = playlist_time_ms( clock_measure.getPlaylist() )
-    expected_messages: int = 1 * 4 * 24 + 1 # +1 for the Stop clock message
+    expected_messages: int = 1 * 4 * 24 + 2 # +2 for the Stop and Position clock message
     total_messages: int = len(clock_playlist)
     print(f"{total_messages} / {expected_messages}")
     assert total_messages == expected_messages
