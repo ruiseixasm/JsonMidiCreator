@@ -1325,6 +1325,10 @@ class Quality(Boolean):
     """`Unit -> Boolean -> Quality`"""
     pass
 
+class ClockMMCMode(Boolean):
+    """`Unit -> Boolean -> ClockMMCMode`"""
+    
+
 class Major(Quality):
     """`Unit -> Boolean -> Quality -> Major`
 
@@ -1654,51 +1658,6 @@ class PPQN(Midi):
     """
     def __init__(self, *parameters):
         super().__init__(24, *parameters)
-
-class ClockStopModes(Midi):
-    """`Unit -> Midi -> ClockStopModes`"""
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case str():                     return ClockStopModes._stop_modes_int[self._unit % 4]
-                    case _:                         return super().__mod__(operand)
-            case str():                 return ClockStopModes._stop_modes_int[self._unit % 4]
-            case _:                     return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case str():
-                        mode_name: str = operand._data.strip()
-                        if mode_name in ClockStopModes._stop_modes_str:
-                            self._unit = ClockStopModes._stop_modes_str[mode_name]
-                    case _:                         super().__lshift__(operand)
-            case str():
-                mode_name: str = operand.strip()
-                if mode_name in ClockStopModes._stop_modes_str:
-                    self._unit = ClockStopModes._stop_modes_str[mode_name]
-            case _:                 super().__lshift__(operand)
-        return self
-
-    _stop_modes_str: dict[str, int] = {
-        "Stop":     0,
-        "Pause":    1,
-        "Continue": 2,
-        "Total":    3
-    }
-
-    _stop_modes_int: dict[int, str] = {
-        0:          "Stop",
-        1:          "Pause",
-        2:          "Continue",
-        3:          "Total"
-    }
 
 
 class MidiTrack(Midi):

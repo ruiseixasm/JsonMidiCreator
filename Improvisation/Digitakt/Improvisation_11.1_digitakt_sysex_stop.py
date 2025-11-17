@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 # Sets SysEx stop
-settings << ClockStopModes("Total")
+settings << ClockMMCMode("Total")
 
 
 settings % Devices() % list() >> Print()

@@ -3774,7 +3774,7 @@ class Settings(Generic):
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-                    case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+                    case ou.ClockMMCMode():   return ou.ClockMMCMode(self._clock_stop_mode)
                     case od.Folder():           return od.Folder(self._folder)
                     case _:                     return super().__mod__(operand)
             case ra.Tempo():            return ra.Tempo(self._tempo)
@@ -3805,9 +3805,9 @@ class Settings(Generic):
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-            case ou.ClockStopModes():   return ou.ClockStopModes(self._clock_stop_mode)
+            case ou.ClockMMCMode():   return ou.ClockMMCMode(self._clock_stop_mode)
             case od.Folder():           return od.Folder(self._folder)
-            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockStopModes())
+            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockMMCMode())
             case Settings():
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
@@ -3916,7 +3916,7 @@ class Settings(Generic):
                     case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockStopModes():   self._clock_stop_mode = operand._data._unit
+                    case ou.ClockMMCMode():   self._clock_stop_mode = operand._data._unit
                     case od.Folder():           self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -3940,10 +3940,10 @@ class Settings(Generic):
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockStopModes():   self._clock_stop_mode = operand._unit
+            case ou.ClockMMCMode():   self._clock_stop_mode = operand._unit
             case od.Folder():           self._folder = operand._data
             case oe.Clock():
-                self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockStopModes() )
+                self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockMMCMode() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand

@@ -1319,13 +1319,13 @@ class Clock(DeviceElement):
                     case oc.Devices():          return oc.Devices(self._devices)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-                    case ou.ClockStopModes():   return ou.ClockStopModes(self._mmc_mode)
+                    case ou.ClockMMCMode():   return ou.ClockMMCMode(self._mmc_mode)
                     case _:                     return super().__mod__(operand)
             case oc.Devices():          return oc.Devices(self._devices)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-            case ou.ClockStopModes():   return ou.ClockStopModes(self._mmc_mode)
-            case str():                 return ou.ClockStopModes(self._mmc_mode) % str()
+            case ou.ClockMMCMode():   return ou.ClockMMCMode(self._mmc_mode)
+            case str():                 return ou.ClockMMCMode(self._mmc_mode) % str()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1515,14 +1515,14 @@ class Clock(DeviceElement):
                     case oc.ClockedDevices():   self._devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockStopModes():   self._mmc_mode = operand._data._unit
+                    case ou.ClockMMCMode():   self._mmc_mode = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case oc.ClockedDevices():   self._devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockStopModes():   self._mmc_mode = operand._unit
-            case str():                 self._mmc_mode = ou.ClockStopModes(operand)._unit
+            case ou.ClockMMCMode():   self._mmc_mode = operand._unit
+            case str():                 self._mmc_mode = ou.ClockMMCMode(operand)._unit
             case _:                     super().__lshift__(operand)
         return self
 
