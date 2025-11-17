@@ -1282,7 +1282,7 @@ class Clock(DeviceElement):
     ----------
     list([]), Devices, ClockedDevices : The `Devices` to which the clock messages are sent.
     PPQN(24) : Pulses Per Quarter Note.
-    ClockStopModes(0), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
+    ClockMMCMode(False), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
