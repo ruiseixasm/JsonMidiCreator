@@ -31,5 +31,5 @@ long_chord * 5 >> Play(True)
 
 time.sleep(2)
 
-settings << Tempo(130) << ClockMMCMode()
+settings << Tempo(130) << ControlledDevices(["loopMIDI"]) << ClockedDevices([])
 long_chord * 5 << Channel(2) >> Play(True)
