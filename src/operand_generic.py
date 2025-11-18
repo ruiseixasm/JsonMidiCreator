@@ -3696,7 +3696,6 @@ class Settings(Generic):
         self._clocked_devices: list[str]            = []
         self._controlled_devices: list[str]         = []
         self._clock_ppqn: int                       = 24
-        self._mmc_mode: int                  		= 0
         self._folder: str                           = ""
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -3778,7 +3777,6 @@ class Settings(Generic):
                                                 return oc.ControlledDevices(self._controlled_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-                    case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
                     case od.Folder():           return od.Folder(self._folder)
                     case _:                     return super().__mod__(operand)
             case ra.Tempo():            return ra.Tempo(self._tempo)
@@ -3811,7 +3809,6 @@ class Settings(Generic):
                                         return oc.ControlledDevices(self._controlled_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-            case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
             case od.Folder():           return od.Folder(self._folder)
             case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % oc.ControlledDevices(), self % ou.PPQN())
             case Settings():
@@ -3836,7 +3833,6 @@ class Settings(Generic):
             and self._clocked_devices       == other._clocked_devices \
             and self._controlled_devices    == other._controlled_devices \
             and self._clock_ppqn            == other._clock_ppqn \
-            and self._mmc_mode   		    == other._mmc_mode \
             and self._folder                == other._folder
     
 
@@ -3858,7 +3854,6 @@ class Settings(Generic):
         serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
         serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
         serialization["parameters"]["clock_ppqn"]           = self.serialize( self._clock_ppqn )
-        serialization["parameters"]["mmc_mode"]  		    = self.serialize( self._mmc_mode )
         serialization["parameters"]["folder"]               = self.serialize( self._folder )
         return serialization
 
@@ -3871,7 +3866,7 @@ class Settings(Generic):
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel_0" in serialization["parameters"] and 
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and  "controlled_devices" in serialization["parameters"] and 
-            "clock_ppqn" in serialization["parameters"] and "mmc_mode" in serialization["parameters"] and "folder" in serialization["parameters"]):
+            "clock_ppqn" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo                 = self.deserialize( serialization["parameters"]["tempo"] )
@@ -3887,7 +3882,6 @@ class Settings(Generic):
             self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
             self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
             self._clock_ppqn            = self.deserialize( serialization["parameters"]["clock_ppqn"] )
-            self._mmc_mode   		    = self.deserialize( serialization["parameters"]["mmc_mode"] )
             self._folder                = self.deserialize( serialization["parameters"]["folder"] )
         return self
     
@@ -3911,7 +3905,6 @@ class Settings(Generic):
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._controlled_devices    = operand._controlled_devices.copy()
                 self._clock_ppqn            = operand._clock_ppqn
-                self._mmc_mode   		    = operand._mmc_mode
                 self._folder                = operand._folder
             case od.Pipe():
                 match operand._data:
@@ -3928,7 +3921,6 @@ class Settings(Generic):
                     case oc.ControlledDevices():    self._controlled_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():                 self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   	    self._mmc_mode = operand._data._unit
                     case od.Folder():               self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -3954,7 +3946,6 @@ class Settings(Generic):
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case od.Folder():           self._folder = operand._data
             case oe.Clock():
                 self << ( operand % oc.ClockedDevices(), operand % oc.ControlledDevices(), operand % ou.PPQN() )

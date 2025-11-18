@@ -1324,15 +1324,12 @@ class Clock(DeviceElement):
                                                 return oc.ControlledDevices(self._controlled_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-                    case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
                     case _:                     return super().__mod__(operand)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.ControlledDevices():
                                         return oc.ControlledDevices(self._controlled_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
-            case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
-            case str():                 return ou.ClockMMCMode(self._mmc_mode) % str()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1455,7 +1452,6 @@ class Clock(DeviceElement):
         serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
         serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
         serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
-        serialization["parameters"]["mmc_mode"]  		= self.serialize( self._mmc_mode )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1463,14 +1459,13 @@ class Clock(DeviceElement):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "controlled_devices" in serialization["parameters"] and
-            "clock_ppqn" in serialization["parameters"] and "mmc_mode" in serialization["parameters"]):
+            "clock_ppqn" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._devices           = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
             self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
             self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
-            self._mmc_mode   		= self.deserialize( serialization["parameters"]["mmc_mode"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1483,14 +1478,12 @@ class Clock(DeviceElement):
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._controlled_devices    = operand._controlled_devices.copy()
                 self._clock_ppqn    = operand._clock_ppqn
-                self._mmc_mode   	= operand._mmc_mode
             case od.Pipe():
                 match operand._data:
                     case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.ControlledDevices():   self._controlled_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.ControlledDevices():
@@ -1498,7 +1491,6 @@ class Clock(DeviceElement):
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
-            case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case _:                     super().__lshift__(operand)
         return self
 

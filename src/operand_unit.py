@@ -1325,9 +1325,6 @@ class Quality(Boolean):
     """`Unit -> Boolean -> Quality`"""
     pass
 
-class ClockMMCMode(Boolean):
-    """`Unit -> Boolean -> ClockMMCMode`"""
-    
 
 class Major(Quality):
     """`Unit -> Boolean -> Quality -> Major`
