@@ -1373,19 +1373,21 @@ class Clock(DeviceElement):
 
                 for devices_list in (self._clocked_devices, self._controlled_devices):
 
-                    single_devices: list[str] = list(set(devices_list))
-                    self_playlist.append(
-                        {
-                            "clock": {
-                                # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                                "total_clock_pulses": total_clock_pulses,
-                                "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                                "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                                "mmc_mode": mmc_mode,
-                                "devices": single_devices
+                    if devices_list:
+                        single_devices: list[str] = list(set(devices_list))
+                        self_playlist.append(
+                            {
+                                "clock": {
+                                    # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                                    "total_clock_pulses": total_clock_pulses,
+                                    "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                                    "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                                    "mmc_mode": mmc_mode,
+                                    "devices": single_devices
+                                }
                             }
-                        }
-                    )
+                        )
+                        
                     mmc_mode += 1
 
         # NORMAL use case scenario
