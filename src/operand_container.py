@@ -1098,6 +1098,20 @@ class ClockedDevices(Devices):
     """
     pass
 
+class ControlledDevices(Devices):
+    """`Container -> Devices -> ControlledDevices`
+
+    Represents a list of Devices passed to the clip `Track`, all these devices are intended
+    to be connected as destiny of the generated MMC Transport messages by the JsonMidiPlayer.
+
+    Parameters
+    ----------
+    list([]) : A list of Devices names, str, are intended to be considered Items.
+    str : A device name to be added to the beginning of the Devices list.
+    int : Returns the len of the list.
+    """
+    pass
+
 
 #####################################################################################################
 ###########################################  COMPOSITION  ###########################################

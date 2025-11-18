@@ -3677,6 +3677,7 @@ class Settings(Generic):
     Channel(1) : The default `Channel is the midi channel 1.
     Devices(["Microsoft", "FLUID", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : By default no devices are set to receive clocking messages.
+    ControlledDevices([]) : By default no devices are set to receive controlling messages (for DAWs).
     PPQN(24) : The default for clocking midi messages is 24 Pulses Per Quarter Note.
     ClockMMCMode(False) : The default clock stop mode is the one that sends a song position signal back to 0.
     """
@@ -3693,6 +3694,7 @@ class Settings(Generic):
         self._channel_0: int                        = 0 # Default is channel 1 base 1 same as 0 base 0
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
+        self._controlled_devices: list[str]         = []
         self._clock_ppqn: int                       = 24
         self._mmc_mode: int                  		= 0
         self._folder: str                           = ""
@@ -3772,6 +3774,8 @@ class Settings(Generic):
                     case Controller():          return self._controller
                     case ou.Channel():          return ou.Channel(self._channel_0)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+                    case oc.ControlledDevices():
+                                                return oc.ControlledDevices(self._controlled_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
@@ -3803,10 +3807,13 @@ class Settings(Generic):
             case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())
             case ou.Channel():          return ou.Channel(self._channel_0)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+            case oc.ControlledDevices():
+                                        return oc.ControlledDevices(self._controlled_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
             case od.Folder():           return od.Folder(self._folder)
+            # TO BE REVIEWED !!!
             case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockMMCMode())
             case Settings():
                 return operand.copy(self)
@@ -3817,20 +3824,21 @@ class Settings(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._tempo             == other._tempo \
-            and self._quantization      == other._quantization \
-            and self._time_signature    == other._time_signature \
-            and self._key_signature     == other._key_signature \
-            and self._duration          == other._duration \
-            and self._octave            == other._octave \
-            and self._velocity          == other._velocity \
-            and self._controller        == other._controller \
-            and self._channel_0         == other._channel_0 \
-            and self._devices           == other._devices \
-            and self._clocked_devices   == other._clocked_devices \
-            and self._clock_ppqn        == other._clock_ppqn \
-            and self._mmc_mode   		== other._mmc_mode \
-            and self._folder            == other._folder
+        return  self._tempo                 == other._tempo \
+            and self._quantization          == other._quantization \
+            and self._time_signature        == other._time_signature \
+            and self._key_signature         == other._key_signature \
+            and self._duration              == other._duration \
+            and self._octave                == other._octave \
+            and self._velocity              == other._velocity \
+            and self._controller            == other._controller \
+            and self._channel_0             == other._channel_0 \
+            and self._devices               == other._devices \
+            and self._clocked_devices       == other._clocked_devices \
+            and self._controlled_devices    == other._controlled_devices \
+            and self._clock_ppqn            == other._clock_ppqn \
+            and self._mmc_mode   		    == other._mmc_mode \
+            and self._folder                == other._folder
     
 
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -3838,20 +3846,21 @@ class Settings(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
-        serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
-        serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
-        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["duration"]         = self.serialize( self._duration )
-        serialization["parameters"]["octave"]           = self.serialize( self._octave )
-        serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
-        serialization["parameters"]["controller"]       = self.serialize( self._controller )
-        serialization["parameters"]["channel_0"]        = self.serialize( self._channel_0 )
-        serialization["parameters"]["devices"]          = self.serialize( self._devices )
-        serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
-        serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
-        serialization["parameters"]["mmc_mode"]  		= self.serialize( self._mmc_mode )
-        serialization["parameters"]["folder"]           = self.serialize( self._folder )
+        serialization["parameters"]["tempo"]                = self.serialize( self._tempo )
+        serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
+        serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
+        serialization["parameters"]["key_signature"]        = self.serialize( self._key_signature )
+        serialization["parameters"]["duration"]             = self.serialize( self._duration )
+        serialization["parameters"]["octave"]               = self.serialize( self._octave )
+        serialization["parameters"]["velocity"]             = self.serialize( self._velocity )
+        serialization["parameters"]["controller"]           = self.serialize( self._controller )
+        serialization["parameters"]["channel_0"]            = self.serialize( self._channel_0 )
+        serialization["parameters"]["devices"]              = self.serialize( self._devices )
+        serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
+        serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
+        serialization["parameters"]["clock_ppqn"]           = self.serialize( self._clock_ppqn )
+        serialization["parameters"]["mmc_mode"]  		    = self.serialize( self._mmc_mode )
+        serialization["parameters"]["folder"]               = self.serialize( self._folder )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3861,24 +3870,26 @@ class Settings(Generic):
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel_0" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and 
+            "channel_0" in serialization["parameters"] and 
+            "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and  "controlled_devices" in serialization["parameters"] and 
             "clock_ppqn" in serialization["parameters"] and "mmc_mode" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
-            self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
-            self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
-            self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._duration          = self.deserialize( serialization["parameters"]["duration"] )
-            self._octave            = self.deserialize( serialization["parameters"]["octave"] )
-            self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
-            self._controller        = self.deserialize( serialization["parameters"]["controller"] )
-            self._channel_0         = self.deserialize( serialization["parameters"]["channel_0"] )
-            self._devices           = self.deserialize( serialization["parameters"]["devices"] )
-            self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
-            self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
-            self._mmc_mode   		= self.deserialize( serialization["parameters"]["mmc_mode"] )
-            self._folder            = self.deserialize( serialization["parameters"]["folder"] )
+            self._tempo                 = self.deserialize( serialization["parameters"]["tempo"] )
+            self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
+            self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
+            self._key_signature         = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._duration              = self.deserialize( serialization["parameters"]["duration"] )
+            self._octave                = self.deserialize( serialization["parameters"]["octave"] )
+            self._velocity              = self.deserialize( serialization["parameters"]["velocity"] )
+            self._controller            = self.deserialize( serialization["parameters"]["controller"] )
+            self._channel_0             = self.deserialize( serialization["parameters"]["channel_0"] )
+            self._devices               = self.deserialize( serialization["parameters"]["devices"] )
+            self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
+            self._clock_ppqn            = self.deserialize( serialization["parameters"]["clock_ppqn"] )
+            self._mmc_mode   		    = self.deserialize( serialization["parameters"]["mmc_mode"] )
+            self._folder                = self.deserialize( serialization["parameters"]["folder"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -3888,36 +3899,38 @@ class Settings(Generic):
         match operand:
             case Settings():
                 super().__lshift__(operand)
-                self._tempo             = operand._tempo
-                self._quantization      = operand._quantization
-                self._time_signature    << operand._time_signature
-                self._key_signature     << operand._key_signature
-                self._duration          = operand._duration
-                self._octave            = operand._octave
-                self._velocity          = operand._velocity
-                self._controller        << operand._controller
-                self._channel_0         = operand._channel_0
-                self._devices           = operand._devices.copy()
-                self._clocked_devices   = operand._clocked_devices.copy()
-                self._clock_ppqn        = operand._clock_ppqn
-                self._mmc_mode   		= operand._mmc_mode
-                self._folder            = operand._folder
+                self._tempo                 = operand._tempo
+                self._quantization          = operand._quantization
+                self._time_signature        << operand._time_signature
+                self._key_signature         << operand._key_signature
+                self._duration              = operand._duration
+                self._octave                = operand._octave
+                self._velocity              = operand._velocity
+                self._controller            << operand._controller
+                self._channel_0             = operand._channel_0
+                self._devices               = operand._devices.copy()
+                self._clocked_devices       = operand._clocked_devices.copy()
+                self._controlled_devices    = operand._controlled_devices.copy()
+                self._clock_ppqn            = operand._clock_ppqn
+                self._mmc_mode   		    = operand._mmc_mode
+                self._folder                = operand._folder
             case od.Pipe():
                 match operand._data:
-                    case ra.Tempo():            self._tempo = operand._data._rational
-                    case ra.Quantization():     self._quantization = operand._data._rational
-                    case TimeSignature():       self._time_signature = operand._data
-                    case ou.KeySignature():     self._key_signature = operand._data
-                    case ra.Duration():         self._duration = operand._data._rational
-                    case ou.Octave():           self._octave = operand._data._unit
-                    case ou.Velocity():         self._velocity = operand._data._unit
-                    case Controller():          self._controller = operand._data
-                    case ou.Channel():          self._channel_0 = operand._data._unit
-                    case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
-                    case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
-                    case ou.PPQN():             self._clock_ppqn = operand._data._unit
-                    case ou.ClockMMCMode():   	self._mmc_mode = operand._data._unit
-                    case od.Folder():           self._folder = operand._data._data
+                    case ra.Tempo():                self._tempo = operand._data._rational
+                    case ra.Quantization():         self._quantization = operand._data._rational
+                    case TimeSignature():           self._time_signature = operand._data
+                    case ou.KeySignature():         self._key_signature = operand._data
+                    case ra.Duration():             self._duration = operand._data._rational
+                    case ou.Octave():               self._octave = operand._data._unit
+                    case ou.Velocity():             self._velocity = operand._data._unit
+                    case Controller():              self._controller = operand._data
+                    case ou.Channel():              self._channel_0 = operand._data._unit
+                    case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
+                    case oc.ControlledDevices():    self._controlled_devices = operand._data % od.Pipe( list() )
+                    case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
+                    case ou.PPQN():                 self._clock_ppqn = operand._data._unit
+                    case ou.ClockMMCMode():   	    self._mmc_mode = operand._data._unit
+                    case od.Folder():               self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
@@ -3937,11 +3950,14 @@ class Settings(Generic):
                                         self._controller << operand
             case ou.Channel():          self._channel_0 = operand._unit
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
+            case oc.ControlledDevices():
+                                        self._controlled_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case od.Folder():           self._folder = operand._data
+            # TO BE REVIEWED !!
             case oe.Clock():
                 self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockMMCMode() )
             case tuple():
