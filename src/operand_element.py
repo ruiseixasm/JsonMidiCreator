@@ -1280,9 +1280,10 @@ class Clock(DeviceElement):
 
     Parameters
     ----------
-    list([]), Devices, ClockedDevices : The `Devices` to which the clock messages are sent.
+    Devices([]) : The `Devices` to which the clock messages are sent.
+    ClockedDevices([]) : The `Devices` to which the clock messages are auto generated.
+    ControlledDevices([]) : The `Devices` to which the control messages are auto generated (for DAWs).
     PPQN(24) : Pulses Per Quarter Note.
-    ClockMMCMode(False), str : Sets the following Stop modes, 0 - "Stop", 1 - "Pause", 2 - "Continue", 3 - "Total".
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1351,7 +1352,7 @@ class Clock(DeviceElement):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                                                                     time_signature: og.TimeSignature = None) -> list[dict]:
-        if not self._enabled:
+        if not self._enabled or self._duration_beats < 1:
             return []
 
         self_playlist: list[dict] = []
@@ -1364,31 +1365,30 @@ class Clock(DeviceElement):
             notes_per_beat: Fraction = time_signature % ra.BeatNoteValue() % Fraction()
             pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
             total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
+            # Global duration of the entire clocking period
+            self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
+            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-            if total_clock_pulses > 0:
-                
-                self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
-                mmc_mode: int = 0
+            mmc_mode: int = 0
 
-                for devices_list in (self._clocked_devices, self._controlled_devices):
+            for devices_list in (self._clocked_devices, self._controlled_devices):
 
-                    if devices_list:
-                        single_devices: list[str] = list(set(devices_list))
-                        self_playlist.append(
-                            {
-                                "clock": {
-                                    # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                                    "total_clock_pulses": total_clock_pulses,
-                                    "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                                    "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                                    "mmc_mode": mmc_mode,
-                                    "devices": single_devices
-                                }
+                if devices_list:
+                    single_devices: list[str] = list(set(devices_list))
+                    self_playlist.append(
+                        {
+                            "clock": {
+                                # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                                "total_clock_pulses": total_clock_pulses,
+                                "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                                "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                                "mmc_mode": mmc_mode,
+                                "devices": single_devices
                             }
-                        )
-                        
-                    mmc_mode += 1
+                        }
+                    )
+                    
+                mmc_mode += 1
 
         # NORMAL use case scenario
         else:
@@ -1396,65 +1396,62 @@ class Clock(DeviceElement):
             notes_per_beat: Fraction = self._get_time_signature() % ra.BeatNoteValue() % Fraction()
             pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
             total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
+            # Global duration of the entire clocking period
+            self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+            self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
-            if total_clock_pulses > 0:
-
-                # Global duration of the entire clocking period
-                self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
-                self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-
-                # Starts by setting the Devices
-                if devices_header and isinstance(midi_track, ou.MidiTrack):
-                    self_playlist.append(
-                        {
-                            "devices": midi_track._devices if midi_track else og.defaults._devices
-                        }
-                    )
-
-                # First quarter note pulse (total 1 in 24 pulses per quarter note)
+            # Starts by setting the Devices
+            if devices_header and isinstance(midi_track, ou.MidiTrack):
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(self_position_min),
-                        "midi_message": {
-                            "status_byte": 0xFA     # Start Track
-                        }
+                        "devices": midi_track._devices if midi_track else og.defaults._devices
                     }
                 )
-            
-                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-                # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-                for clock_pulse in range(1, total_clock_pulses):
-                    self_playlist.append(
-                        {
-                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * clock_pulse),
-                            "midi_message": {
-                                "status_byte": 0xF8     # Timing Clock
-                            }
-                        }
-                    )
+            # First quarter note pulse (total 1 in 24 pulses per quarter note)
+            self_playlist.append(
+                {
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0xFA     # Start Track
+                    }
+                }
+            )
+        
+            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-                # Last quarter note pulse (45 pulses where this last one sets the stop)
+            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+            for clock_pulse in range(1, total_clock_pulses):
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
+                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * clock_pulse),
                         "midi_message": {
-                            "status_byte": 0xFC         # Stop Track
+                            "status_byte": 0xF8     # Timing Clock
                         }
                     }
                 )
 
-                # Resets the position back to 0
-                self_playlist.append(
-                    {
-                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
-                        "midi_message": {
-                            "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
-                            "data_byte_1": 0,       # Reset
-                            "data_byte_2": 0        # Reset
-                        }
+            # Last quarter note pulse (45 pulses where this last one sets the stop)
+            self_playlist.append(
+                {
+                    "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
+                    "midi_message": {
+                        "status_byte": 0xFC         # Stop Track
                     }
-                )
+                }
+            )
+
+            # Resets the position back to 0
+            self_playlist.append(
+                {
+                    "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
+                    "midi_message": {
+                        "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
+                        "data_byte_1": 0,       # Reset
+                        "data_byte_2": 0        # Reset
+                    }
+                }
+            )
 
         return self_playlist
 
