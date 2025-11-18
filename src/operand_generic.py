@@ -3813,8 +3813,7 @@ class Settings(Generic):
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
             case od.Folder():           return od.Folder(self._folder)
-            # TO BE REVIEWED !!!
-            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % ou.PPQN(), self % ou.ClockMMCMode())
+            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % oc.ControlledDevices(), self % ou.PPQN())
             case Settings():
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
@@ -3957,9 +3956,8 @@ class Settings(Generic):
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case od.Folder():           self._folder = operand._data
-            # TO BE REVIEWED !!
             case oe.Clock():
-                self << ( operand % oc.ClockedDevices(), operand % ou.PPQN(), operand % ou.ClockMMCMode() )
+                self << ( operand % oc.ClockedDevices(), operand % oc.ControlledDevices(), operand % ou.PPQN() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand

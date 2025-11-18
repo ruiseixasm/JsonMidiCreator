@@ -1291,6 +1291,8 @@ class Clock(DeviceElement):
         super().__init__()
         self._duration_beats        = ra.Measures(self, 1) % ra.Beats() % Fraction()
         self._devices: list[str]    = []
+        self._clocked_devices: list[str]    = []
+        self._controlled_devices: list[str] = []
         self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
         self._mmc_mode: int  		= 0
         for single_parameter in parameters: # Faster than passing a tuple
@@ -1316,13 +1318,17 @@ class Clock(DeviceElement):
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+                    case oc.ControlledDevices():
+                                                return oc.ControlledDevices(self._controlled_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
-                    case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
                     case _:                     return super().__mod__(operand)
+            case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+            case oc.ControlledDevices():
+                                        return oc.ControlledDevices(self._controlled_devices)
             case oc.Devices():          return oc.Devices(self._devices)
-            case oc.ClockedDevices():   return oc.ClockedDevices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case ou.ClockMMCMode():   	return ou.ClockMMCMode(self._mmc_mode)
             case str():                 return ou.ClockMMCMode(self._mmc_mode) % str()
@@ -1332,6 +1338,8 @@ class Clock(DeviceElement):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
+                    and self._clocked_devices == other._clocked_devices \
+                    and self._controlled_devices == other._controlled_devices \
                     and self._devices == other._devices \
                     and self._clock_ppqn == other._clock_ppqn \
                     and self._mmc_mode == other._mmc_mode
@@ -1346,20 +1354,12 @@ class Clock(DeviceElement):
         if not self._enabled:
             return []
 
-        pulses_per_note: int = self._clock_ppqn * 4
-
         self_playlist: list[dict] = []
+
+        pulses_per_note: int = self._clock_ppqn * 4
 
         # Set to be used as a Global clock !
         if isinstance(time_signature, og.TimeSignature):
-
-            single_devices: set[str] = set()
-            self_clock_devices: list[list[str]] = []
-
-            for clocked_device in self._devices:
-                if clocked_device not in single_devices:
-                    self_clock_devices.append(clocked_device)
-                    single_devices.add(clocked_device)
 
             notes_per_beat: Fraction = time_signature % ra.BeatNoteValue() % Fraction()
             pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
@@ -1369,19 +1369,24 @@ class Clock(DeviceElement):
                 
                 self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
                 single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+                mmc_mode: int = 0
 
-                self_playlist.append(
-                    {
-                        "clock": {
-                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                            "total_clock_pulses": total_clock_pulses,
-                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                            "mmc_mode": self._mmc_mode,
-                            "devices": self_clock_devices
+                for devices_list in (self._clocked_devices, self._controlled_devices):
+
+                    single_devices: list[str] = list(set(devices_list))
+                    self_playlist.append(
+                        {
+                            "clock": {
+                                # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                                "total_clock_pulses": total_clock_pulses,
+                                "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                                "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                                "mmc_mode": mmc_mode,
+                                "devices": single_devices
+                            }
                         }
-                    }
-                )
+                    )
+                    mmc_mode += 1
 
         # NORMAL use case scenario
         else:
@@ -1455,6 +1460,8 @@ class Clock(DeviceElement):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["devices"]          = self.serialize( self._devices )
+        serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
+        serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
         serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
         serialization["parameters"]["mmc_mode"]  		= self.serialize( self._mmc_mode )
         return serialization
@@ -1463,10 +1470,13 @@ class Clock(DeviceElement):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "devices" in serialization["parameters"] and "clock_ppqn" in serialization["parameters"] and "mmc_mode" in serialization["parameters"]):
+            "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "controlled_devices" in serialization["parameters"] and
+            "clock_ppqn" in serialization["parameters"] and "mmc_mode" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._devices           = self.deserialize( serialization["parameters"]["devices"] )
+            self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
             self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
             self._mmc_mode   		= self.deserialize( serialization["parameters"]["mmc_mode"] )
         return self
@@ -1478,22 +1488,28 @@ class Clock(DeviceElement):
             case Clock():
                 super().__lshift__(operand)
                 self._devices       = operand._devices.copy()
+                self._clocked_devices       = operand._clocked_devices.copy()
+                self._controlled_devices    = operand._controlled_devices.copy()
                 self._clock_ppqn    = operand._clock_ppqn
                 self._mmc_mode   	= operand._mmc_mode
             case od.Pipe():
                 match operand._data:
-                    case oc.ClockedDevices():   self._devices = operand._data % od.Pipe( list() )
+                    case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
+                    case oc.ControlledDevices():   self._controlled_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
                     case ou.ClockMMCMode():   	self._mmc_mode = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case oc.ClockedDevices():   self._devices = operand % list()
+            case oc.ClockedDevices():   self._clocked_devices = operand % list()
+            case oc.ControlledDevices():
+                                        self._controlled_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case ou.ClockMMCMode():   	self._mmc_mode = operand._unit
             case _:                     super().__lshift__(operand)
         return self
+
 
 class ChannelElement(DeviceElement):
     """`Element -> DeviceElement -> ChannelElement`
