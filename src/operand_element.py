@@ -1194,13 +1194,13 @@ class Talkie(Element):
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Port():         return ou.Port(self._port)
                     case ou.Channel():      return ou.Channel(self._channel_0)
-                    case str():             return self._to
+                    case od.To():           return od.To(self._to)
                     case _:                 return super().__mod__(operand)
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case ou.Port():         return ou.Port(self._port)
             case ou.Channel():      return ou.Channel(self._channel_0)
-            case str():             return self._to
+            case od.To():           return od.To(self._to)
             case _:                 return super().__mod__(operand)
 
 
@@ -1295,8 +1295,8 @@ class Talkie(Element):
                         self._port                  = operand._data._unit
                     case ou.Channel():
                         self._channel_0             = operand._data._unit
-                    case str():
-                        self._to                  = operand._data
+                    case od.To():
+                        self._to                  = operand._data._data
                     case _:
                         super().__lshift__(operand)
             case ou.Enable():
@@ -1307,8 +1307,8 @@ class Talkie(Element):
                 self._port                  = operand._unit
             case ou.Channel():
                 self._channel_0             = operand._unit
-            case str():
-                self._to                    = operand
+            case od.To():
+                self._to                    = operand._data
             case _:
                 super().__lshift__(operand)
         return self
