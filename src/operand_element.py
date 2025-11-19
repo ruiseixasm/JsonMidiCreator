@@ -1172,7 +1172,7 @@ class Talkie(Element):
     def __init__(self, *parameters):
         self._enabled: bool         = True
         self._port: int             = 5005  # The default port of the protocol
-        self._name: str             = "Talkie"
+        self._to: str               = "Device"
         self._channel_0: int        = -1    # Sender not a Receiver
         super().__init__(*parameters)
 
@@ -1194,13 +1194,13 @@ class Talkie(Element):
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Port():         return ou.Port(self._port)
                     case ou.Channel():      return ou.Channel(self._channel_0)
-                    case str():             return self._name
+                    case str():             return self._to
                     case _:                 return super().__mod__(operand)
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case ou.Port():         return ou.Port(self._port)
             case ou.Channel():      return ou.Channel(self._channel_0)
-            case str():             return self._name
+            case str():             return self._to
             case _:                 return super().__mod__(operand)
 
 
@@ -1247,7 +1247,7 @@ class Talkie(Element):
                 "port": self._port,
                 "message": {
                     "f": "JsonMidiCreator",
-                    "t": self._name if self._channel_0 < 0 else self._channel_0
+                    "t": self._to if self._channel_0 < 0 else self._channel_0
                 }
             }
         ]
@@ -1259,7 +1259,7 @@ class Talkie(Element):
         serialization = super().getSerialization()
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         serialization["parameters"]["port"]         = self.serialize(self._port)
-        serialization["parameters"]["name"]         = self.serialize(self._name)
+        serialization["parameters"]["name"]         = self.serialize(self._to)
         serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
         return serialization
 
@@ -1272,7 +1272,7 @@ class Talkie(Element):
             super().loadSerialization(serialization)
             self._enabled   = self.deserialize(serialization["parameters"]["enabled"])
             self._port      = self.deserialize(serialization["parameters"]["port"])
-            self._name      = self.deserialize(serialization["parameters"]["name"])
+            self._to        = self.deserialize(serialization["parameters"]["name"])
             self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
         return self
 
@@ -1283,7 +1283,7 @@ class Talkie(Element):
                 super().__lshift__(operand)
                 self._enabled       = operand._enabled
                 self._port          = operand._port
-                self._name          = operand._name
+                self._to            = operand._to
                 self._channel_0     = operand._channel_0
             case od.Pipe():
                 match operand._data:
@@ -1296,7 +1296,7 @@ class Talkie(Element):
                     case ou.Channel():
                         self._channel_0             = operand._data._unit
                     case str():
-                        self._name                  = operand._data
+                        self._to                  = operand._data
                     case _:
                         super().__lshift__(operand)
             case ou.Enable():
@@ -1308,7 +1308,7 @@ class Talkie(Element):
             case ou.Channel():
                 self._channel_0             = operand._unit
             case str():
-                self._name                  = operand
+                self._to                    = operand
             case _:
                 super().__lshift__(operand)
         return self
