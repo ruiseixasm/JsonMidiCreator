@@ -1391,7 +1391,7 @@ class TalkieGet(TalkieRun):
 
     Parameters
     ----------
-    str("buzz") : The name of the target method.
+    str("duration") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
@@ -1399,6 +1399,9 @@ class TalkieGet(TalkieRun):
     To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
+    def __init__(self, *parameters):
+        super().__init__("duration", *parameters)
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
@@ -1428,7 +1431,7 @@ class TalkieSet(TalkieGet):
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def __init__(self, *parameters):
-        self._value: int            = 0
+        self._value: int            = 1
         super().__init__(*parameters)
 
 
