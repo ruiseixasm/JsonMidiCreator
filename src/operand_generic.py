@@ -2616,7 +2616,7 @@ class Play(ReadOnly):
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
     def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False, talkie_anticipation_ms: int = 0):
-        super().__init__([verbose, plot, block])
+        super().__init__([verbose, plot, block, talkie_anticipation_ms])
         self._indexes = {
             'verbose': 0, 'plot': 1, 'block': 2, 'talkie_anticipation_ms': 3
         }
@@ -2649,17 +2649,17 @@ class Play(ReadOnly):
                 playlist: list[dict] = self._clocked_playlist(operand)
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
-                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0]))
+                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
                     process.start()
                     operand >> Plot(self._parameters[2])
                 else:
                     if self._parameters[1] and not self._parameters[2]:
                         operand >> Plot(self._parameters[2])
-                    c.jsonMidiPlay(playlist, self._parameters[0])
+                    c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 return operand
             case od.Playlist():
                 playlist: list[dict] = self._clocked_playlist(operand)
-                c.jsonMidiPlay(playlist, self._parameters[0])
+                c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 return operand
             case _:
                 return super().__rrshift__(operand)
