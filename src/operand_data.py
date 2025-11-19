@@ -372,6 +372,19 @@ class Elements(DataMany):
     pass
 
 
+class To(Data):
+    """`Data -> To`
+
+    Sets the destination name Device in a `JsonTalkie` communication.
+
+    Parameters
+    ----------
+    str("Device") : Name of the targeted Device.
+    """
+    def __init__(self, to: str = "Device"):    # By default is "Device"
+        super().__init__(to)
+
+
 class TrackName(Data):
     """`Data -> TrackName`
 
