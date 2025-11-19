@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 
 settings << Folder("examples/")
 
-make_a_buzz = TalkieRun()
+make_a_buzz = TalkieRun(To("Nano"), "buzz")
 make_a_buzz >> Play(verbose=True)
 
 
