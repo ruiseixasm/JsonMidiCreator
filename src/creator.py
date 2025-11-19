@@ -37,6 +37,7 @@ if current_os == "Windows":
         f"or go to 'https://github.com/ruiseixasm/JsonMidiPlayer' for the source files to compile the 'JsonMidiPlayer_ctypes.dll' file\n" + \
         f"and place it inside the local folder 'lib'.\n" + \
         f"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
+    talkie_lib = 'JsonTalkiePlayer_ctypes.dll'
 elif current_os == "Darwin":  # macOS
     lib_name = 'libJsonMidiPlayer_ctypes.dylib'
     not_found_library_message = \
@@ -45,6 +46,7 @@ elif current_os == "Darwin":  # macOS
         f"or go to 'https://github.com/ruiseixasm/JsonMidiPlayer' for the source files to compile the 'libJsonMidiPlayer_ctypes.dylib' file\n" + \
         f"and place it inside the local folder 'lib'.\n" + \
         f"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
+    talkie_lib = 'libJsonTalkiePlayer_ctypes.dylib'
 else:  # Assume Linux/Unix
     lib_name = 'libJsonMidiPlayer_ctypes.so'
     not_found_library_message = \
@@ -53,10 +55,11 @@ else:  # Assume Linux/Unix
         f"or go to 'https://github.com/ruiseixasm/JsonMidiPlayer' for the source files to compile the 'libJsonMidiPlayer_ctypes.so' file\n" + \
         f"and place it inside the local folder 'lib'.\n" + \
         f"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
+    talkie_lib = 'libJsonTalkiePlayer_ctypes.so'
+
 
 # Construct the full path to the library
 lib_path = os.path.join(script_dir, '..', 'lib', lib_name)
-
 available_library = os.path.isfile(lib_path)
 lib = None
 not_found_library_message_already_shown = False
@@ -92,6 +95,30 @@ def loadLibrary():
     elif not not_found_library_message_already_shown:
         print(not_found_library_message)
         not_found_library_message_already_shown = True
+
+
+# Construct the full path to the library
+talkie_lib_path = os.path.join(script_dir, '..', 'lib', talkie_lib)
+available_talkie_library = os.path.isfile(talkie_lib_path)
+talkie_lib = None
+
+# Check if the library file exists
+def loadTalkieLibrary():
+    global available_talkie_library
+    global talkie_lib
+    if available_talkie_library:
+        if not talkie_lib:
+            try:
+                # Load the shared library
+                talkie_lib = ctypes.CDLL(talkie_lib_path)
+                # Define the argument and return types for the C function
+                talkie_lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int]
+                talkie_lib.PlayList_ctypes.restype = ctypes.c_int
+                
+            except Exception as e:
+                available_talkie_library = False
+
+
 
 def saveJsonMidiCreator(serialization: dict, filename):
     json_file_dict = {
