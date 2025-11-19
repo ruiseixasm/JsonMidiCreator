@@ -1154,10 +1154,120 @@ class R16d(Rest):
         super().__init__(ra.Dotted(1/16), *parameters)
 
 
-class DeviceElement(Element):
-    """`Element`
+class Talkie(Element):
+    """`Element -> Talkie`
 
-    Element represents a type of midi message but don't necessarily have a Channel, like, a `Clock`.
+    `Talkie` class generates messages for `JsonTalkie` protocol for micro devices like Arduino ones.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._enabled: bool         = True
+        self._name: str             = "Talkie"
+        self._channel_0: int        = -1    # Sender not a Receiver
+        super().__init__(*parameters)
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Duration, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> element = Element()
+        >>> element % Devices() % list() >> Print()
+        ['loopMIDI', 'Microsoft']
+        """
+        import operand_container as oc
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Enable():       return ou.Enable(self._enabled)
+                    case ou.Channel():      return ou.Channel(self._channel_0)
+                    case str():             return self._name
+                    case _:                 return super().__mod__(operand)
+            case ou.Enable():       return ou.Enable(self._enabled)
+            case ou.Disable():      return ou.Disable(not self._enabled)
+            case ou.Channel():      return ou.Channel(self._channel_0)
+            case str():             return self._name
+            case _:                 return super().__mod__(operand)
+
+
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_element: 'Element' = None) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+
+        return [
+                {
+                    "time_ms": o.minutes_to_time_ms(self_position_min)
+                }
+            ]
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
+        serialization["parameters"]["name"]         = self.serialize(self._name)
+        serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "enabled" in serialization["parameters"] and "name" in serialization["parameters"] and "channel" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._enabled   = self.deserialize(serialization["parameters"]["enabled"])
+            self._name      = self.deserialize(serialization["parameters"]["name"])
+            self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Talkie():
+                super().__lshift__(operand)
+                self._enabled               = operand._enabled
+            case od.Pipe():
+                match operand._data:
+                    case ou.Enable():
+                        self._enabled               = operand._data._unit != 0
+                    case ou.Disable():
+                        self._enabled               = operand._data._unit == 0
+                    case ou.Channel():
+                        self._channel_0             = operand._data._unit
+                    case str():
+                        self._name                  = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case ou.Enable():
+                self._enabled               = operand._unit != 0
+            case ou.Disable():
+                self._enabled               = operand._unit == 0
+            case ou.Channel():
+                self._channel_0             = operand._unit
+            case str():
+                self._name                  = operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+
+
+class DeviceElement(Element):
+    """`Element -> DeviceElement`
+
+    `DeviceElement` represent any `Element` that results in a Midi message.
 
     Parameters
     ----------
