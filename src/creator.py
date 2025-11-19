@@ -181,7 +181,7 @@ def run_talkie_dll(json_str, verbose):
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
 
-def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_anticipation_ms: int = 0):
+def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_anticipation_ms: int = 1):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()

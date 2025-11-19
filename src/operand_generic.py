@@ -2615,7 +2615,7 @@ class Play(ReadOnly):
         plot (bool): Plots a chart before playing it.
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
-    def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False, talkie_anticipation_ms: int = 0):
+    def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False, talkie_anticipation_ms: int = 1):
         super().__init__([verbose, plot, block, talkie_anticipation_ms])
         self._indexes = {
             'verbose': 0, 'plot': 1, 'block': 2, 'talkie_anticipation_ms': 3
