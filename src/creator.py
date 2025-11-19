@@ -101,11 +101,13 @@ def loadLibrary():
 talkie_lib_path = os.path.join(script_dir, '..', 'lib', talkie_lib)
 available_talkie_library = os.path.isfile(talkie_lib_path)
 talkie_lib = None
+not_found_talkie_library = False
 
 # Check if the library file exists
 def loadTalkieLibrary():
     global available_talkie_library
     global talkie_lib
+    global not_found_talkie_library
     if available_talkie_library:
         if not talkie_lib:
             try:
@@ -117,7 +119,7 @@ def loadTalkieLibrary():
                 
             except Exception as e:
                 available_talkie_library = False
-
+                not_found_talkie_library = True
 
 
 def saveJsonMidiCreator(serialization: dict, filename):
@@ -183,6 +185,7 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_anticipati
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
+    if not talkie_lib and not not_found_talkie_library: loadTalkieLibrary()
     if lib:
         if verbose: print() # Avoids verbose cluttering
         json_file_dict = {
