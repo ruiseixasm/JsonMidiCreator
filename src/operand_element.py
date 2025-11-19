@@ -1166,7 +1166,7 @@ class Talkie(Element):
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
-    str("Talkie") : The name of the target device.
+    To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def __init__(self, *parameters):
@@ -1246,6 +1246,7 @@ class Talkie(Element):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "port": self._port,
                 "message": {
+                    "m": 0, # talk
                     "f": "JsonMidiCreator",
                     "t": self._to if self._channel_0 < 0 else self._channel_0
                 }
@@ -1314,7 +1315,7 @@ class Talkie(Element):
         return self
 
 
-class TalkieRun(Element):
+class TalkieRun(Talkie):
     """`Element -> Talkie -> TalkieRun`
 
     `TalkieRun` class generates messages for `JsonTalkie` protocol to be run in micro devices like Arduino ones.
@@ -1322,22 +1323,84 @@ class TalkieRun(Element):
 
     Parameters
     ----------
+    str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
-    str("Talkie") : The name of the target device.
+    To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
+    def __init__(self, *parameters):
+        self._name: str             = "buzz"
+        super().__init__(*parameters)
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Duration, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> element = Element()
+        >>> element % Devices() % list() >> Print()
+        ['loopMIDI', 'Microsoft']
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case str():             return str(self._name)
+                    case _:                 return super().__mod__(operand)
+            case str():             return str(self._name)
+            case _:                 return super().__mod__(operand)
+
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
-            self_playlist[0]["message"]["w"] = 2    # run
+            self_playlist[0]["message"]["m"] = 2    # run
+            self_playlist[0]["message"]["n"] = self._name
 
         return self_playlist
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["name"]           = self.serialize(self._name)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "name" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._name        = self.deserialize(serialization["parameters"]["name"])
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case TalkieRun():
+                super().__lshift__(operand)
+                self._name            = operand._name
+            case od.Pipe():
+                match operand._data:
+                    case str():
+                        self._name                  = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case str():
+                self._name                    = operand
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 class TalkieGet(TalkieRun):
@@ -1348,11 +1411,12 @@ class TalkieGet(TalkieRun):
 
     Parameters
     ----------
+    str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
-    str("Talkie") : The name of the target device.
+    To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
@@ -1361,7 +1425,7 @@ class TalkieGet(TalkieRun):
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
-            self_playlist[0]["message"]["w"] = 4    # get
+            self_playlist[0]["message"]["m"] = 4    # get
 
         return self_playlist
 
@@ -1373,11 +1437,12 @@ class TalkieSet(TalkieGet):
 
     Parameters
     ----------
+    str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
-    str("Talkie") : The name of the target device.
+    To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
@@ -1386,7 +1451,7 @@ class TalkieSet(TalkieGet):
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
-            self_playlist[0]["message"]["w"] = 3    # set
+            self_playlist[0]["message"]["m"] = 3    # set
 
         return self_playlist
 
