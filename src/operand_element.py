@@ -1259,7 +1259,7 @@ class Talkie(Element):
         serialization = super().getSerialization()
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         serialization["parameters"]["port"]         = self.serialize(self._port)
-        serialization["parameters"]["name"]         = self.serialize(self._to)
+        serialization["parameters"]["to"]           = self.serialize(self._to)
         serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
         return serialization
 
@@ -1267,12 +1267,12 @@ class Talkie(Element):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"] and "port" in serialization["parameters"] and "name" in serialization["parameters"] and "channel" in serialization["parameters"]):
+            "enabled" in serialization["parameters"] and "port" in serialization["parameters"] and "to" in serialization["parameters"] and "channel" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._enabled   = self.deserialize(serialization["parameters"]["enabled"])
             self._port      = self.deserialize(serialization["parameters"]["port"])
-            self._to        = self.deserialize(serialization["parameters"]["name"])
+            self._to        = self.deserialize(serialization["parameters"]["to"])
             self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
         return self
 
