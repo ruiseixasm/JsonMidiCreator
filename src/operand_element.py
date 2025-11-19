@@ -1188,11 +1188,13 @@ class Talkie(Element):
             case od.Pipe():
                 match operand._data:
                     case ou.Enable():       return ou.Enable(self._enabled)
+                    case ou.Port():         return ou.Port(self._port)
                     case ou.Channel():      return ou.Channel(self._channel_0)
                     case str():             return self._name
                     case _:                 return super().__mod__(operand)
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
+            case ou.Port():         return ou.Port(self._port)
             case ou.Channel():      return ou.Channel(self._channel_0)
             case str():             return self._name
             case _:                 return super().__mod__(operand)
@@ -1260,6 +1262,8 @@ class Talkie(Element):
                         self._enabled               = operand._data._unit != 0
                     case ou.Disable():
                         self._enabled               = operand._data._unit == 0
+                    case ou.Port():
+                        self._port                  = operand._data._unit
                     case ou.Channel():
                         self._channel_0             = operand._data._unit
                     case str():
@@ -1270,6 +1274,8 @@ class Talkie(Element):
                 self._enabled               = operand._unit != 0
             case ou.Disable():
                 self._enabled               = operand._unit == 0
+            case ou.Port():
+                self._port                  = operand._unit
             case ou.Channel():
                 self._channel_0             = operand._unit
             case str():

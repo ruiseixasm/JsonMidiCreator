@@ -229,6 +229,11 @@ class Total(Unit):
     """
     pass
 
+class Port(Unit):
+    """`Unit -> Port`
+    """
+    pass
+
 class PitchParameter(Unit):
     """`Unit -> PitchParameter`
     """
