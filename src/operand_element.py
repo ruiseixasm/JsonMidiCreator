@@ -1167,6 +1167,7 @@ class Talkie(Element):
     """
     def __init__(self, *parameters):
         self._enabled: bool         = True
+        self._port: int             = 5005  # The default port of the protocol
         self._name: str             = "Talkie"
         self._channel_0: int        = -1    # Sender not a Receiver
         super().__init__(*parameters)
@@ -1183,7 +1184,6 @@ class Talkie(Element):
         >>> element % Devices() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
-        import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1199,21 +1199,35 @@ class Talkie(Element):
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
-                    derived_element: 'Element' = None) -> list[dict]:
+                    derived_note: 'Note' = None) -> list[dict]:
         if not self._enabled:
             return []
         
-        self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+        self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
-        return [
-                {
-                    "time_ms": o.minutes_to_time_ms(self_position_min)
+        if self_duration_min == 0:
+            return []
+
+        self_playlist: list[dict] = [
+            {
+                "time_ms": o.minutes_to_time_ms(self_position_min),
+                "port": self._port,
+                "message": {
+                    "f": "JsonMidiCreator",
+                    "t": self._name if self._channel_0 < 0 else self._channel_0
                 }
-            ]
+            }
+        ]
+    
+        return self_playlist
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
+        serialization["parameters"]["port"]         = self.serialize(self._port)
         serialization["parameters"]["name"]         = self.serialize(self._name)
         serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
         return serialization
@@ -1222,21 +1236,24 @@ class Talkie(Element):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"] and "name" in serialization["parameters"] and "channel" in serialization["parameters"]):
+            "enabled" in serialization["parameters"] and "port" in serialization["parameters"] and "name" in serialization["parameters"] and "channel" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._enabled   = self.deserialize(serialization["parameters"]["enabled"])
+            self._port      = self.deserialize(serialization["parameters"]["port"])
             self._name      = self.deserialize(serialization["parameters"]["name"])
             self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Talkie():
                 super().__lshift__(operand)
-                self._enabled               = operand._enabled
+                self._enabled       = operand._enabled
+                self._port          = operand._port
+                self._name          = operand._name
+                self._channel_0     = operand._channel_0
             case od.Pipe():
                 match operand._data:
                     case ou.Enable():
