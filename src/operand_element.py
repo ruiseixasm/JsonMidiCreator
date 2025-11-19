@@ -1178,16 +1178,6 @@ class Talkie(Element):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of an Element,
-        those Parameters can be Position, Duration, midi Channel and midi Device
-
-        Examples
-        --------
-        >>> element = Element()
-        >>> element % Devices() % list() >> Print()
-        ['loopMIDI', 'Microsoft']
-        """
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1337,16 +1327,6 @@ class TalkieRun(Talkie):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of an Element,
-        those Parameters can be Position, Duration, midi Channel and midi Device
-
-        Examples
-        --------
-        >>> element = Element()
-        >>> element % Devices() % list() >> Print()
-        ['loopMIDI', 'Microsoft']
-        """
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1475,16 +1455,6 @@ class DeviceElement(Element):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of an Element,
-        those Parameters can be Position, Duration, midi Channel and midi Device
-
-        Examples
-        --------
-        >>> element = Element()
-        >>> element % Devices() % list() >> Print()
-        ['loopMIDI', 'Microsoft']
-        """
         import operand_container as oc
         match operand:
             case od.Pipe():
