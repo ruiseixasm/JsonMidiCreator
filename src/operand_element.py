@@ -1409,6 +1409,7 @@ class TalkieGet(TalkieRun):
 
         return self_playlist
 
+
 class TalkieSet(TalkieGet):
     """`Element -> Talkie -> TalkieRun -> TalkieGet -> TalkieSet`
 
@@ -1417,6 +1418,7 @@ class TalkieSet(TalkieGet):
 
     Parameters
     ----------
+    Value(0) : The value to be set on the target device.
     str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
@@ -1425,6 +1427,20 @@ class TalkieSet(TalkieGet):
     To("Device") : The name of the target device.
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
+    def __init__(self, *parameters):
+        self._value: int            = 0
+        super().__init__(*parameters)
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Value():        return ou.Value(self._value)
+                    case _:                 return super().__mod__(operand)
+            case ou.Value():        return ou.Value(self._value)
+            case _:                 return super().__mod__(operand)
+
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
@@ -1432,8 +1448,43 @@ class TalkieSet(TalkieGet):
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 3    # set
+            self_playlist[0]["message"]["v"] = self._value
 
         return self_playlist
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["value"]            = self.serialize(self._value)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "value" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._value         = self.deserialize(serialization["parameters"]["value"])
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case TalkieSet():
+                super().__lshift__(operand)
+                self._value            = operand._value
+            case od.Pipe():
+                match operand._data:
+                    case ou.Value():
+                        self._value                  = operand._data._unit
+                    case _:
+                        super().__lshift__(operand)
+            case ou.Value():
+                self._value                    = operand._unit
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 class DeviceElement(Element):
