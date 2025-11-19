@@ -1158,12 +1158,16 @@ class Talkie(Element):
     """`Element -> Talkie`
 
     `Talkie` class generates messages for `JsonTalkie` protocol for micro devices like Arduino ones.
+        For more info, visit https://github.com/ruiseixasm/JsonTalkie.
 
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Port(5005) : The port to be used in UDP protocol.
+    str("Talkie") : The name of the target device.
+    Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def __init__(self, *parameters):
         self._enabled: bool         = True
@@ -1211,6 +1215,31 @@ class Talkie(Element):
 
         if self_duration_min == 0:
             return []
+
+        # Keys:
+        #     b: byte
+        #     c: checksum
+        #     d: description
+        #     e: error code
+        #     f: from
+        #     g: echo roger code
+        #     i: id
+        #     m: message
+        #     n: name
+        #     r: reply
+        #     t: to
+        #     v: value
+        #     w: what
+
+        # Messages/Whats:
+        #     0 talk
+        #     1 list
+        #     2 run
+        #     3 set
+        #     4 get
+        #     5 sys
+        #     6 echo
+        #     7 error
 
         self_playlist: list[dict] = [
             {
@@ -1285,6 +1314,82 @@ class Talkie(Element):
         return self
 
 
+class TalkieRun(Element):
+    """`Element -> Talkie -> TalkieRun`
+
+    `TalkieRun` class generates messages for `JsonTalkie` protocol to be run in micro devices like Arduino ones.
+        For more info, visit https://github.com/ruiseixasm/JsonTalkie.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Port(5005) : The port to be used in UDP protocol.
+    str("Talkie") : The name of the target device.
+    Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
+    """
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_note: 'Note' = None) -> list[dict]:
+        
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+    
+        if self_playlist:
+            self_playlist[0]["message"]["w"] = 2    # run
+
+        return self_playlist
+
+
+class TalkieSet(Element):
+    """`Element -> Talkie -> TalkieSet`
+
+    `TalkieSet` class generates messages for `JsonTalkie` protocol that sets values in micro devices like Arduino ones.
+        For more info, visit https://github.com/ruiseixasm/JsonTalkie.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Port(5005) : The port to be used in UDP protocol.
+    str("Talkie") : The name of the target device.
+    Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
+    """
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_note: 'Note' = None) -> list[dict]:
+        
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+    
+        if self_playlist:
+            self_playlist[0]["message"]["w"] = 3    # set
+
+        return self_playlist
+
+
+class TalkieGet(Element):
+    """`Element -> Talkie -> TalkieGet`
+
+    `TalkieGet` class generates messages for `JsonTalkie` protocol that gets values from micro devices like Arduino ones.
+        For more info, visit https://github.com/ruiseixasm/JsonTalkie.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    Port(5005) : The port to be used in UDP protocol.
+    str("Talkie") : The name of the target device.
+    Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
+    """
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+                    derived_note: 'Note' = None) -> list[dict]:
+        
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+    
+        if self_playlist:
+            self_playlist[0]["message"]["w"] = 4    # get
+
+        return self_playlist
 
 
 class DeviceElement(Element):
