@@ -114,7 +114,7 @@ def loadTalkieLibrary():
                 # Load the shared library
                 talkie_lib = ctypes.CDLL(talkie_lib_path)
                 # Define the argument and return types for the C function
-                talkie_lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int]
+                talkie_lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
                 talkie_lib.PlayList_ctypes.restype = ctypes.c_int
                 
             except Exception as e:
@@ -173,11 +173,11 @@ def run_dll(json_str, verbose):
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e}")
 
 # Function to run the DLL in a separate thread
-def run_talkie_dll(json_str, verbose):
+def run_talkie_dll(json_str, delay_ms, verbose):
     if talkie_lib:
         try:
             # Call the C++ function with the JSON string
-            talkie_lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
+            talkie_lib.PlayList_ctypes(json_str.encode('utf-8'), delay_ms, 1 if verbose else 0)
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
 
@@ -197,18 +197,11 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_delay_ms: 
         json_str = json.dumps([ json_file_dict ])
 
         # Create and start a new thread to run the DLL
-        talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, verbose))
         dll_thread = threading.Thread(target=run_dll, args=(json_str, verbose))
+        talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, talkie_delay_ms, verbose))
         
-        if talkie_delay_ms > 0:
-            dll_thread.start()
-            time.sleep(talkie_delay_ms / 1000)
-            talkie_dll_thread.start()
-        elif talkie_delay_ms < 0:
-            talkie_dll_thread.start()
-            time.sleep(talkie_delay_ms / -1000)
-            dll_thread.start()
-
+        dll_thread.start()
+        talkie_dll_thread.start()
         dll_thread.join()  # Wait for the thread to finish
 
         # # Create and start a new process to run the DLL
