@@ -1692,23 +1692,23 @@ class Clock(DeviceElement):
             self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
             single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-            if self._clocked_devices or self._controlled_devices:
-                self_playlist.append(
-                    {
-                        "clock": {
-                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                            "total_clock_pulses": total_clock_pulses,
-                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                            "clocked_devices": list(set(self._clocked_devices)),
-                            "controlled_devices": list(set(self._controlled_devices))
-                        },
-                        "tempo": {
-                            "bpm_numerator": og.settings._tempo.numerator,
-                            "bpm_denominator": og.settings._tempo.denominator
-                        }
+            # Always send the clock/tempo data
+            self_playlist.append(
+                {
+                    "clock": {
+                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                        "total_clock_pulses": total_clock_pulses,
+                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                        "clocked_devices": list(set(self._clocked_devices)),
+                        "controlled_devices": list(set(self._controlled_devices))
+                    },
+                    "tempo": {
+                        "bpm_numerator": og.settings._tempo.numerator,
+                        "bpm_denominator": og.settings._tempo.denominator
                     }
-                )
+                }
+            )
 
         # NORMAL use case scenario
         else:
