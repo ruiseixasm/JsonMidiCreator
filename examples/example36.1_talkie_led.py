@@ -23,11 +23,12 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-settings << Folder("examples/") << Tempo(140)
+settings << Folder("examples/") << Tempo(30)
 
 turn_on = TalkieRun(To("ESP32"), "on", 1/16)
 turn_off = TalkieRun(To("ESP32"), "off", 1/32)
+notes = Note(1/16) / Note(1/32) / 50
 lighting = turn_on / turn_off / 50
-lighting >> Export("talkie_esp32_light.json") >> Play(verbose=True)
+notes + lighting >> Export("talkie_esp32_light.json") >> Play(verbose=True)
 
 

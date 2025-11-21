@@ -181,7 +181,7 @@ def run_talkie_dll(json_str, verbose):
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
 
-def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_anticipation_ms: int = 1):
+def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_delay_ms: int = 500):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
@@ -199,9 +199,16 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_anticipati
         # Create and start a new thread to run the DLL
         talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, verbose))
         dll_thread = threading.Thread(target=run_dll, args=(json_str, verbose))
-        talkie_dll_thread.start()
-        time.sleep(talkie_anticipation_ms / 1000)
-        dll_thread.start()
+        
+        if talkie_delay_ms > 0:
+            dll_thread.start()
+            time.sleep(talkie_delay_ms / 1000)
+            talkie_dll_thread.start()
+        elif talkie_delay_ms < 0:
+            talkie_dll_thread.start()
+            time.sleep(talkie_delay_ms / -1000)
+            dll_thread.start()
+
         dll_thread.join()  # Wait for the thread to finish
 
         # # Create and start a new process to run the DLL
