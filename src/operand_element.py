@@ -1702,6 +1702,10 @@ class Clock(DeviceElement):
                             "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
                             "clocked_devices": list(set(self._clocked_devices)),
                             "controlled_devices": list(set(self._controlled_devices))
+                        },
+                        "tempo": {
+                            "bpm_numerator": og.settings._tempo.numerator,
+                            "bpm_denominator": og.settings._tempo.denominator
                         }
                     }
                 )
