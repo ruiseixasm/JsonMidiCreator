@@ -23,7 +23,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-settings << Folder("examples/")
+settings << Folder("examples/") << Tempo(98)
 
 make_a_buzz = TalkieRun(To("Nano"), "buzz")
 make_a_buzz >> Export("talkie_nano_run_buzz.json") >> Play(verbose=True)
