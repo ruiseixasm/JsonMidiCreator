@@ -23,7 +23,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-settings << Folder("examples/") << Tempo(30)
+settings << Folder("examples/") << Tempo(140)
 
 turn_on = TalkieRun(To("ESP32"), "on", 1/16)
 turn_off = TalkieRun(To("ESP32"), "off", 1/32)
