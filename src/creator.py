@@ -200,8 +200,8 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_delay_ms: 
         dll_thread = threading.Thread(target=run_dll, args=(json_str, verbose))
         talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, talkie_delay_ms, verbose))
         
+        talkie_dll_thread.start()   # Starts the talkie right away
         dll_thread.start()
-        talkie_dll_thread.start()
         dll_thread.join()  # Wait for the thread to finish
 
         # # Create and start a new process to run the DLL
