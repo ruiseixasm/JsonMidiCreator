@@ -1704,8 +1704,8 @@ class Clock(DeviceElement):
                         "controlled_devices": list(set(self._controlled_devices))
                     },
                     "tempo": {
-                        "bpm_numerator": og.settings._tempo.numerator,
-                        "bpm_denominator": og.settings._tempo.denominator
+                        "f": "JsonMidiCreator",
+                        "bpm_10": round(float(og.settings._tempo * 10))
                     }
                 }
             )
