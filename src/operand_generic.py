@@ -2308,7 +2308,7 @@ class ReadOnly(Process):
     Returns:
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def __irrshift__(self, operand: o.T) -> o.T:	# The method __irrshift__ isn't truly a Python method!!
         return self.__rrshift__(operand)
 
 

@@ -849,9 +849,6 @@ class Operand:
     def __rrshift__(self, operand: T) -> Self:
         return self.copy(operand)
 
-    def __irrshift__(self, operand: T) -> Self:
-        return self << operand
-
 
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
