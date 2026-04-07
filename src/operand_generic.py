@@ -2308,7 +2308,7 @@ class ReadOnly(Process):
     Returns:
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
-    def __irrshift__(self, operand: o.T) -> o.T:	# The method __irrshift__ isn't truly a Python method!!
+    def _direct_process(self, operand: o.T) -> o.T:	# The method __irrshift__ isn't truly a Python method!!
         return self.__rrshift__(operand)
 
 
@@ -2794,12 +2794,12 @@ class Read(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
-            return self.__irrshift__(operand.copy())
+            return self._direct_process(operand.copy())
         else:
             print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
         return operand
 
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
             return self._process(operand)
@@ -2816,10 +2816,10 @@ class ScaleProcess(Process):
     """
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, Scale):
-            return self.__irrshift__(operand.copy())
+            return self._direct_process(operand.copy())
         return super().__rrshift__(operand)
 
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, Scale):
             return self._process(operand)
         else:
@@ -2878,11 +2878,11 @@ class ContainerProcess(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return self.__irrshift__(operand.copy())
+            return self._direct_process(operand.copy())
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
 
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return self._process(operand)
@@ -2928,7 +2928,7 @@ class Mask(ContainerProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return self.__irrshift__(operand)   # Special case, NO copy
+            return self._direct_process(operand)   # Special case, NO copy
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
     
@@ -2949,7 +2949,7 @@ class Unmask(ContainerProcess):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return self.__irrshift__(operand)   # Special case, NO copy
+            return self._direct_process(operand)   # Special case, NO copy
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
     
@@ -3198,7 +3198,7 @@ class ClipProcess(CompositionProcess):
         super().__init__(parameters)
         self._previous_item: oe.Element | None = None
 
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return self._process(operand)
@@ -3627,7 +3627,7 @@ class SectionProcess(CompositionProcess):
 
     Processes applicable exclusively to `Section` operands.
     """
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Section):
             return self._process(operand)
@@ -3643,7 +3643,7 @@ class SongProcess(CompositionProcess):
 
     Processes applicable exclusively to `Song` operands.
     """
-    def __irrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Song):
             return self._process(operand)

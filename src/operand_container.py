@@ -537,7 +537,7 @@ class Container(o.Operand):
                 self += operand
                 return self
             case og.Process():
-                return operand.__irrshift__(self)
+                return operand._direct_process(self)
             case ch.Chaos():
                 return self.shuffle(operand)
             
