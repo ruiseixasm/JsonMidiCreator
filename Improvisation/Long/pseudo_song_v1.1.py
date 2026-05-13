@@ -48,7 +48,7 @@ two_notes += Semitone(2)
 
 single_part = Block(four_notes * 4)
 new_part = Block(single_part, Position(10))
-final_song = Song(single_part) + new_part
+final_song = Part(single_part) + new_part
 
 
 # four_notes * 4 >> Plot()

@@ -61,7 +61,7 @@ def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
 
 if TYPE_CHECKING:
-    from operand_container import Composition, Clip, Block, Song
+    from operand_container import Composition, Clip, Block, Part
 
 class Element(o.Operand):
     """`Element`
@@ -1770,7 +1770,7 @@ class Clock(DeviceElement):
                 {
                     "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
                     "midi_message": {
-                        "status_byte": 0xF2,    # Send a Song Position Pointer (SPP)
+                        "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
                         "data_byte_1": 0,       # Reset
                         "data_byte_2": 0        # Reset
                     }

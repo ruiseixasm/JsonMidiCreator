@@ -60,7 +60,7 @@ def test_container_content():
     assert part.len() == 1
     assert isinstance(part[0], Clip)
 
-    song = Song(part)
+    song = Part(part)
     assert song.len() == 1
     assert isinstance(song[0], Block)
 
@@ -217,14 +217,14 @@ def test_add_container():
     assert type(part) is Block
     assert part.len() == 1
 
-    song = Song() + part
-    assert type(song) is Song
+    song = Part() + part
+    assert type(song) is Part
     assert song.len() == 1
-    song = Song() + clip
-    assert type(song) is Song
+    song = Part() + clip
+    assert type(song) is Part
     assert song.len() == 1
-    song = Song() + Note()
-    assert type(song) is Song
+    song = Part() + Note()
+    assert type(song) is Part
     assert song.len() == 1
 
 # test_add_container()
@@ -240,11 +240,11 @@ def test_new_container():
     part = Block(Note())
     assert part.len() == 1
 
-    song = Song(part)
+    song = Part(part)
     assert song.len() == 1
-    song = Song(clip)
+    song = Part(clip)
     assert song.len() == 1
-    song = Song(Note())
+    song = Part(Note())
     assert song.len() == 1
 
 # test_new_container()
@@ -296,8 +296,8 @@ def test_rshift_container():
     assert elements_part[1][0] % Position() == Measures(0) + Beats(0)
 
 
-    # Song testing ###################################################
-    part_song = Song(clip_part)
+    # Part testing ###################################################
+    part_song = Part(clip_part)
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     assert part_song._test_owner_song()
@@ -310,7 +310,7 @@ def test_rshift_container():
     print(f"Length[0]: {part_song[0] % Length() % float()}")
     print(f"Length[1]: {part_song[1] % Length() % float()}")
     print(f"Length: {part_song % Length() % float()}")
-    # It's a Song and NOT a Part, thus, it's the Part position that is being returned
+    # It's a Part and NOT a Part, thus, it's the Part position that is being returned
     print(f"Position[0]: {part_song[0] % Position() % float()}")
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     # The second clip_part occupies two Measures, so, the next Part Measure sets at Position 2 (3rd one)
@@ -1055,7 +1055,7 @@ def test_part_operations():
 
     assert (part_1 + clip_2).len() == 3
     assert (part_1 - part_1[1]).len() == 1
-    assert (part_1 + part_2).len() == 2 # Becomes a Song!
+    assert (part_1 + part_2).len() == 2 # Becomes a Part!
 
     # Becomes a Part of two Clips due to * operator
     assert (part_1 * clip_2).len() == 3
@@ -1191,7 +1191,7 @@ def test_checksum():
     part_notes = Block(four_notes)
     assert part_notes.checksum() == "8905"
 
-    song_notes = Song(part_notes)
+    song_notes = Part(part_notes)
     assert song_notes.checksum() == "8906"
 
 

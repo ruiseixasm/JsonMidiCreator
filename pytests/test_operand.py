@@ -101,7 +101,7 @@ def test_operand_copy():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
@@ -112,7 +112,7 @@ def test_operand_copy():
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")
                     assert class_object._test_owner_clip()
-            if isinstance(class_object, Song):
+            if isinstance(class_object, Part):
                 if not class_object._test_owner_song():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")
                     assert class_object._test_owner_song()
@@ -122,7 +122,7 @@ def test_operand_copy():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
@@ -136,7 +136,7 @@ def test_operand_copy():
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner ii: {single_class.__name__}")
                     assert class_object._test_owner_clip()
-            if isinstance(class_object, Song):
+            if isinstance(class_object, Part):
                 if not class_object._test_owner_song():
                     print(f"Culprit Copy Owner ii: {single_class.__name__}")
                     assert class_object._test_owner_song()
@@ -146,7 +146,7 @@ def test_operand_copy():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
@@ -160,7 +160,7 @@ def test_operand_copy():
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner iii: {single_class.__name__}")
                     assert class_object._test_owner_clip()
-            if isinstance(class_object, Song):
+            if isinstance(class_object, Part):
                 if not class_object._test_owner_song():
                     print(f"Culprit Copy Owner iii: {single_class.__name__}")
                     assert class_object._test_owner_song()
@@ -170,7 +170,7 @@ def test_operand_copy():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
@@ -184,7 +184,7 @@ def test_operand_copy():
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner iv: {single_class.__name__}")
                     assert class_object._test_owner_clip()
-            if isinstance(class_object, Song):
+            if isinstance(class_object, Part):
                 if not class_object._test_owner_song():
                     print(f"Culprit Copy Owner iv: {single_class.__name__}")
                     assert class_object._test_owner_song()
@@ -194,7 +194,7 @@ def test_operand_copy():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
@@ -208,7 +208,7 @@ def test_operand_copy():
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner v: {single_class.__name__}")
                     assert class_object._test_owner_clip()
-            if isinstance(class_object, Song):
+            if isinstance(class_object, Part):
                 if not class_object._test_owner_song():
                     print(f"Culprit Copy Owner v: {single_class.__name__}")
                     assert class_object._test_owner_song()
@@ -233,7 +233,7 @@ def test_operand_serialization():
         class_object = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
@@ -250,7 +250,7 @@ def test_operand_serialization():
                 if not loaded_instantiation._test_owner_clip():
                     print(f"Culprit Owner i: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
-            if isinstance(loaded_instantiation, Song):
+            if isinstance(loaded_instantiation, Part):
                 if not loaded_instantiation._test_owner_song():
                     print(f"Culprit Owner i: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_song()
@@ -260,7 +260,7 @@ def test_operand_serialization():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
@@ -280,7 +280,7 @@ def test_operand_serialization():
                 if not loaded_instantiation._test_owner_clip():
                     print(f"Culprit Owner ii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
-            if isinstance(loaded_instantiation, Song):
+            if isinstance(loaded_instantiation, Part):
                 if not loaded_instantiation._test_owner_song():
                     print(f"Culprit Owner ii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_song()
@@ -290,7 +290,7 @@ def test_operand_serialization():
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
-        if isinstance(class_object, Song):
+        if isinstance(class_object, Part):
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
@@ -310,7 +310,7 @@ def test_operand_serialization():
                 if not loaded_instantiation._test_owner_clip():
                     print(f"Culprit Owner iii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
-            if isinstance(loaded_instantiation, Song):
+            if isinstance(loaded_instantiation, Part):
                 if not loaded_instantiation._test_owner_song():
                     print(f"Culprit Owner iii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_song()

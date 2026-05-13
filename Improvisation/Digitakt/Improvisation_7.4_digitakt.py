@@ -57,7 +57,7 @@ snare_tom_part = Block(tom_clip, snare_clip) * 4
 
 complete_part + Measure(0) >> snare_tom_part + Measure(4) >> Play()
 
-complete_song = Song(complete_part)
+complete_song = Part(complete_part)
 
 Rest(1/2) >> Play()
 complete_song >> snare_tom_part + Position(4) >> Play()
