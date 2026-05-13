@@ -4526,7 +4526,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
 #####################################################################################################
-############################################  SECTION  ##############################################
+#############################################  BLOCK  ###############################################
 #####################################################################################################
 
 
@@ -4834,7 +4834,7 @@ class Block(Composition):
             
         masked_element_ids.update(self.get_masked_element_ids())
 
-        # AS A SECTION THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_song, IS THE Block POSITION SET
         for single_clip in self._items:
             clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
@@ -4855,7 +4855,7 @@ class Block(Composition):
         if not from_song:
             og.settings.reset_notes_on()
         play_list: list = []
-        # AS A SECTION THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_song, IS THE Block POSITION SET
         for single_clip in self._items:
             play_list.extend(single_clip.getPlaylist(self._position_beats))
