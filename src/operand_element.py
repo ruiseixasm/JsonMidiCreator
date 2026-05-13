@@ -2156,6 +2156,9 @@ class Note(ChannelElement):
         return self_plotlist
 
 
+    # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
+    # CASE WHEN midi_track IS NOT None
+    # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         if not self._enabled:
@@ -2233,6 +2236,9 @@ class Note(ChannelElement):
         return self_playlist
 
 
+    # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
+    # CASE WHEN midi_track IS NOT None
+    # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
                     derived_note: 'Note' = None) -> list:
         if not self._enabled:
