@@ -1591,12 +1591,16 @@ class Composition(Container):
         """
         self._ax.clear()
 
+        chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
+                        + f"{self._iterations[self._iteration].__class__.__name__}"
         # Chart title (TITLE)
-        self._ax.set_title(f"{self._title + " - " if self._title != "" else ""}"
-                           f"{self._iterations[self._iteration].__class__.__name__} - "
-                           f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
-                           f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0
-        }")
+        if isinstance(self, Block):
+            chart_title += f"() - "
+        else:
+            chart_title += " - "
+        chart_title += f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
+        chart_title += f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0}"
+        self._ax.set_title(chart_title)
 
         # Horizontal X-Axis, Time related (COMMON)
 
