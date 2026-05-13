@@ -5318,7 +5318,7 @@ class Part(Composition):
 
     def start(self) -> ra.Position:
         """
-        Gets the starting position of all its Sections.
+        Gets the starting position of all its Blocks.
         This is the same as the minimum `Position` of all `Block` positions, which ones,
         share the same common Part TimeSignature reference.
 
@@ -5326,7 +5326,7 @@ class Part(Composition):
             None
 
         Returns:
-            Position: The minimum `Position` of all Sections.
+            Position: The minimum `Position` of all Blocks.
         """
         start_position: ra.Position = None
 
@@ -5344,7 +5344,7 @@ class Part(Composition):
 
     def finish(self) -> ra.Position:
         """
-        Gets the finishing position of all its Sections.
+        Gets the finishing position of all its Blocks.
         This is the same as the maximum `Position` of all `Block` positions, which ones,
         share the same common Part TimeSignature reference.
 
@@ -5352,7 +5352,7 @@ class Part(Composition):
             None
 
         Returns:
-            Position: The maximum `Position` of all Sections.
+            Position: The maximum `Position` of all Blocks.
         """
         finish_position: ra.Position = None
 
