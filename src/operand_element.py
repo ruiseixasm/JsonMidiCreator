@@ -1199,7 +1199,9 @@ class Talkie(Element):
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats + self._position_beats
+        absolute_position_beats: Fraction = position_beats
+        if midi_track is not None:  # Only in Clips is the Element placed
+            absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
@@ -2246,7 +2248,9 @@ class Note(ChannelElement):
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats + self._position_beats
+        absolute_position_beats: Fraction = position_beats
+        if midi_track is not None:  # Only in Clips is the Element placed
+            absolute_position_beats += self._position_beats
         self_duration_beats: Fraction = self._duration_beats * self._gate
         self_duration: float = float(self_duration_beats)
         if self_duration == 0:
@@ -4070,8 +4074,8 @@ class ControlChange(Automation):
         if not self._enabled:
             return []
 
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         time_ms: float = o.minutes_to_time_ms(self_position_min)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
@@ -4628,8 +4632,8 @@ class PitchBend(Automation):
         if not self._enabled:
             return []
         
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
@@ -4799,8 +4803,8 @@ class Aftertouch(Automation):
         if not self._enabled:
             return []
         
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
@@ -4960,8 +4964,8 @@ class PolyAftertouch(Aftertouch):
         if not self._enabled:
             return []
 
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
         pitch_int: int = self._pitch.pitch_int()
@@ -5086,8 +5090,8 @@ class ProgramChange(ChannelElement):
         if not self._enabled:
             return []
         
-        self_position_beats: Fraction = position_beats + self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(self_position_beats)
+        absolute_position_beats: Fraction = position_beats + self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
