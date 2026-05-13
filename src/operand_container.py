@@ -4540,7 +4540,7 @@ class Block(Composition):
 
     This type of `Container` aggregates `Clip` items. This type of `Composition` has \
         a `Position` working similarly to `Element` operands.
-    A `Block` works similarly like an `Element`, meaning that adding two sections will result \
+    A `Block` works similarly like an `Element`, meaning that adding two blocks will result \
         in a `Part` as adding two elements result in a `Clip`.
 
     Parameters
@@ -5054,16 +5054,16 @@ class Block(Composition):
                     self._append(Clip(operand._time_signature, operand))
 
             case int():
-                new_sections: list[Block] = []
+                new_blocks: list[Block] = []
                 if operand > 0:
                     single_length: ra.Length = self.length()
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
                             self_copy: Block = self.copy(next_position)
-                            new_sections.append(self_copy)
+                            new_blocks.append(self_copy)
                             next_position += single_length
-                return Part(self._get_time_signature(), od.Pipe(new_sections))._set_owner_part()._sort_items()
+                return Part(self._get_time_signature(), od.Pipe(new_blocks))._set_owner_part()._sort_items()
 
             case _:
                 super().__imul__(operand)
@@ -5161,7 +5161,7 @@ class Block(Composition):
             single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
-            self._position_beats = Fraction(0) # Positions all sections at the start
+            self._position_beats = Fraction(0) # Positions all blocks at the start
         else:
             self._position_beats -= punch_in._rational
         self._length_beats = punch_length._rational
@@ -5206,9 +5206,9 @@ class Part(Composition):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
                 return self._unmasked_items()[tag_int]
-            for section in self._unmasked_items():
-                if section._name == index:
-                    return section
+            for block in self._unmasked_items():
+                if block._name == index:
+                    return block
             return ol.Null()
         return super().__getitem__(index)
     
@@ -5223,42 +5223,42 @@ class Part(Composition):
         with a shallow `Part`.
         """
         if owner_part is None:
-            for section in self._items:
-                section._set_owner_part(self)
+            for block in self._items:
+                block._set_owner_part(self)
         elif isinstance(owner_part, Part):
             self._time_signature << owner_part._time_signature    # Does a parameters copy
-            for section in self._items:
-                section._set_owner_part(owner_part)
+            for block in self._items:
+                block._set_owner_part(owner_part)
         return self
 
 
     def _test_owner_part(self) -> bool:
-        for section in self:
-            if section._owner_part is not self:
+        for block in self:
+            if block._owner_part is not self:
                 return False
         return True
 
 
     def _has_elements(self) -> bool:
-        for section in self._items:
-            if section._has_elements():
+        for block in self._items:
+            if block._has_elements():
                 return True
         return False
 
     def _total_elements(self) -> int:
         total_elements: int = 0
-        for section in self._items:
-            total_elements += section._total_elements()
+        for block in self._items:
+            total_elements += block._total_elements()
         return total_elements
 
     def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
-        for section in self._items:
-            section_last_element: oe.Element = section._last_element()
-            if section_last_element is not None:
+        for block in self._items:
+            block_last_element: oe.Element = block._last_element()
+            if block_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
-                    ( section % ra.Position() + section_last_element % ra.Position(), section_last_element )
+                    ( block % ra.Position() + block_last_element % ra.Position(), block_last_element )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
         last_elements_list.sort(key=lambda pair: pair[0])
@@ -5301,15 +5301,15 @@ class Part(Composition):
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Part, combining Block checksums."""
         master: int = len(self._items)
-        for section in self._items:
-            master += int(section.checksum(), 16)   # XOR 16-bit
+        for block in self._items:
+            master += int(block.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
 
 
     def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
-            for section in self._unmasked_items():
-                for single_clip in section._items:
+            for block in self._unmasked_items():
+                for single_clip in block._items:
                     for single_element in single_clip._items:
                         if single_element is element:
                             return False
@@ -5330,11 +5330,11 @@ class Part(Composition):
         """
         start_position: ra.Position = None
 
-        for section in self._items:
+        for block in self._items:
             # Already includes the Part TimeSignature conversion
-            section_start: ra.Position = section.start()
-            if section_start is not None:
-                absolute_start: ra.Position = section % ra.Position() + section_start
+            block_start: ra.Position = block.start()
+            if block_start is not None:
+                absolute_start: ra.Position = block % ra.Position() + block_start
                 if start_position is not None:
                     if absolute_start < start_position:
                         start_position = absolute_start
@@ -5356,11 +5356,11 @@ class Part(Composition):
         """
         finish_position: ra.Position = None
 
-        for section in self._items:
+        for block in self._items:
             # Already includes the Part TimeSignature conversion
-            section_finish: ra.Position = section.finish()
-            if section_finish is not None:
-                absolute_finish: ra.Position = section % ra.Position() + section_finish
+            block_finish: ra.Position = block.finish()
+            if block_finish is not None:
+                absolute_finish: ra.Position = block % ra.Position() + block_finish
                 if finish_position is not None:
                     if absolute_finish > finish_position:
                         finish_position = absolute_finish
@@ -5370,26 +5370,26 @@ class Part(Composition):
 
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
-        for section in self._items:
-            section_position: ra.Position = section.last_position()
-            if section_position is not None:
+        for block in self._items:
+            block_position: ra.Position = block.last_position()
+            if block_position is not None:
                 if position is None:
-                    position = section_position
-                elif section_position > position:
-                    position = section_position
+                    position = block_position
+                elif block_position > position:
+                    position = block_position
         return position
 
 
     def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for section in self._items:
-            elements.extend(section.all_elements())
+        for block in self._items:
+            elements.extend(block.all_elements())
         return elements
 
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for section in self._items:
-            elements.extend( section.at_position_elements(position) )
+        for block in self._items:
+            elements.extend( block.at_position_elements(position) )
         return elements
 
 
@@ -5405,8 +5405,8 @@ class Part(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for section in self._unmasked_items():
-                    all_names.append(section._name)
+                for block in self._unmasked_items():
+                    all_names.append(block._name)
                 return od.Names(*tuple(all_names))
             case _:
                 return super().__mod__(operand)
@@ -5414,16 +5414,16 @@ class Part(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_section in self._unmasked_items():   # Here self._items is unmasked
-            unmasked_element_ids.update( unmasked_section.get_unmasked_element_ids() )
+        for unmasked_block in self._unmasked_items():   # Here self._items is unmasked
+            unmasked_element_ids.update( unmasked_block.get_unmasked_element_ids() )
         return unmasked_element_ids
 
     def get_masked_element_ids(self) -> set[int]:
         masked_element_ids: set[int] = set()
         if self.is_masked():
             unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_section in self._items:
-                for masked_clip in masked_section._items:
+            for masked_block in self._items:
+                for masked_clip in masked_block._items:
                     masked_element_ids.update({
                         id(masked_item) for masked_item in masked_clip._items
                         if id(masked_item) not in unmasked_ids
@@ -5442,10 +5442,10 @@ class Part(Composition):
         plot_list: list = []
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
-        for section in self._items:
-            section_plotlist: list[dict] = section.getPlotlist(masked_element_ids, True)
+        for block in self._items:
+            block_plotlist: list[dict] = block.getPlotlist(masked_element_ids, True)
             # Block uses the Part Time Signature as Elements use the Clip Time Signature, so, no need for conversions
-            plot_list.extend( section_plotlist )
+            plot_list.extend( block_plotlist )
 
         return plot_list
 
@@ -5462,8 +5462,8 @@ class Part(Composition):
         """
         og.settings.reset_notes_on()
         play_list: list = []
-        for section in self._items:
-            play_list.extend(section.getPlaylist(True))
+        for block in self._items:
+            play_list.extend(block.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -5478,8 +5478,8 @@ class Part(Composition):
         """
         og.settings.reset_notes_on()
         midi_list: list = []
-        for section in self:
-            midi_list.extend(section.getMidilist(True))
+        for block in self:
+            midi_list.extend(block.getMidilist(True))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -5573,8 +5573,8 @@ class Part(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-                for section in operand:
-                    self += section
+                for block in operand:
+                    self += block
 
             case Block():
                 self._append(Block(operand)._set_owner_part(self))._sort_items()
@@ -5603,8 +5603,8 @@ class Part(Composition):
             case Block():
                 return self._delete([ operand ])
             case Clip():
-                clip_section: Block = Block(operand)
-                self -= clip_section
+                clip_block: Block = Block(operand)
+                self -= clip_block
             case oy.Yielder():
                 return self.__isub__( operand % Clip() )
             case ra.Position() | ra.TimeValue():
@@ -5622,8 +5622,8 @@ class Part(Composition):
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
-                for section in right_part:
-                    section += position_offset
+                for block in right_part:
+                    block += position_offset
 
                 self._extend(right_part._items)
                 
@@ -5650,16 +5650,16 @@ class Part(Composition):
                     self._delete()
                 
             case list():
-                base_sections: list[Block] = []
+                base_blocks: list[Block] = []
                 
                 position_measure: ra.Position = ra.Position(0)
-                for section_index in operand:
-                    new_section: Block = self[section_index].copy(position_measure)
-                    base_sections.append(new_section)
-                    length_measures: ra.Measure = new_section.length() % ra.Measure()
+                for block_index in operand:
+                    new_block: Block = self[block_index].copy(position_measure)
+                    base_blocks.append(new_block)
+                    length_measures: ra.Measure = new_block.length() % ra.Measure()
                     position_measure += length_measures
 
-                self._items = base_sections
+                self._items = base_blocks
                 self._mask_items = []
 
             case str():
@@ -5678,8 +5678,8 @@ class Part(Composition):
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
-                for section in right_part:
-                    section += position_offset
+                for block in right_part:
+                    block += position_offset
 
                 self._extend(right_part._items)  # Propagates upwards in the stack
                 
@@ -5754,8 +5754,8 @@ class Part(Composition):
             punch_length = ra.Length(self, length)
 
         # No Block is removed, only elements are removed
-        for section_loop in self._unmasked_items():
-            section_loop.loop(position, punch_length)
+        for block_loop in self._unmasked_items():
+            block_loop.loop(position, punch_length)
 
         self._length_beats = punch_length._rational
 
