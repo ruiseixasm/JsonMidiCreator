@@ -4852,13 +4852,16 @@ class Block(Composition):
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        if not from_song:
-            og.settings.reset_notes_on()
         play_list: list = []
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_song, IS THE Block POSITION SET
-        for single_clip in self._items:
-            play_list.extend(single_clip.getPlaylist(self._position_beats))
+        if not from_song:   # Block by itself is played right away, so, no position considered
+            og.settings.reset_notes_on()
+            for single_clip in self._items:
+                play_list.extend(single_clip.getPlaylist())
+        else:
+            for single_clip in self._items:
+                play_list.extend(single_clip.getPlaylist(self._position_beats))
         return play_list
 
     def getMidilist(self, from_song: bool = False) -> list[dict]:
