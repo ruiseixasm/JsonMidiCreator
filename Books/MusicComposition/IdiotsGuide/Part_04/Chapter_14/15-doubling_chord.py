@@ -43,7 +43,7 @@ violin_1 + violin_2 + viola + cello >> Plot(block=False)
 violin_1[3] -= Octave(1)
 cello >>= Smooth()
 
-quartet: Section = Section([violin_1, violin_2, viola, cello])
+quartet: Block = Block([violin_1, violin_2, viola, cello])
 quartet * 4 << Name("Quartet") >> Plot()
 
 

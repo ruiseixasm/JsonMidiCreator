@@ -3625,14 +3625,14 @@ class Fill(ClipProcess):
 class SectionProcess(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> SectionProcess`
 
-    Processes applicable exclusively to `Section` operands.
+    Processes applicable exclusively to `Block` operands.
     """
     def _direct_process(self, operand: o.T) -> o.T:
         import operand_container as oc
-        if isinstance(operand, oc.Section):
+        if isinstance(operand, oc.Block):
             return self._process(operand)
         else:
-            print(f"Warning: Operand is NOT a `Section`!")
+            print(f"Warning: Operand is NOT a `Block`!")
         return super().__rrshift__(operand)
 
     def _process(self, operand: o.T) -> o.T:

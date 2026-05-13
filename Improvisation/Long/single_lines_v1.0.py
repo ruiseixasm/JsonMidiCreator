@@ -99,7 +99,7 @@ final_part >> Plot()
 # two_chords >> Plot()
 
 
-entire_part: Section = Section()
+entire_part: Block = Block()
 
 # Setting the Key Signature for the global Staff
 settings << KeySignature(1)

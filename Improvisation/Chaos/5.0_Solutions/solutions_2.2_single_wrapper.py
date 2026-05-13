@@ -26,7 +26,7 @@ open_hat = Note(1/8, Channel(6), Velocity(120)) / 8
 kick_a = kick
 snare_a = snare
 
-section_a = kick_a + snare_a + open_hat << TrackName("Section A")
+section_a = kick_a + snare_a + open_hat << TrackName("Block A")
 # section_a * 4 >> Plot(True)
 
 
