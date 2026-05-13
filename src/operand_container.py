@@ -1591,11 +1591,16 @@ class Composition(Container):
         """
         self._ax.clear()
 
+        beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
+        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
+        steps_per_measure: Fraction = beats_per_measure / quantization_beats
+
         chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
                         + f"{self._iterations[self._iteration].__class__.__name__}"
         # Chart title (TITLE)
         if isinstance(self, Block):
-            chart_title += f"() - "
+            measure_position: int = int(self._position_beats / beats_per_measure)
+            chart_title += f"({measure_position}) - "
         else:
             chart_title += " - "
         chart_title += f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
@@ -1610,10 +1615,6 @@ class Composition(Container):
         # current_min, current_max = self._ax.get_xlim()
         # self._ax.set_xlim(current_min, current_max * 1.03)
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
-
-        beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
-        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-        steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         # By default it's 1 Measure long
         last_position: Fraction = beats_per_measure
