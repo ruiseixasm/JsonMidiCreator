@@ -43,7 +43,8 @@ single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
-first_note = Note(Step(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+first_note = Note(Step(3*4 + 2)) * 1 >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
@@ -80,7 +81,8 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
 start_time = time.time()
-Triplet(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16)) >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+Triplet() * 1 << MidiTrack(1, "Piano") << NoteValue(1/16) >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
     >> Save("json/testing/_Save_Play_p.3.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.3.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -93,7 +95,8 @@ original_save       = Load("json/testing/_Save_Play_p.4_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.4_sequence.json")
 start_time = time.time()
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (NoteValue() << Dotted(1/64))
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+base_note = Note(Dotted(1/64)) * 1
 # Creation and configuration of a Track of notes
 first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
@@ -101,7 +104,8 @@ first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Dr
 second_sequence = first_sequence >> Copy()
 second_sequence /= Position(2)
 second_sequence /= NoteValue(2)
-some_rest = Rest(4/1)
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+some_rest = Rest(4/1) * 1
 second_sequence = Rest(4/1, Channel(10)) / second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 first_sequence = Rest(2/1, Channel(10)) / first_sequence
@@ -151,7 +155,7 @@ original_export     = Import("json/testing/_Export_Play_p.6_sequence.json")
 start_time = time.time()
 
 # Process Loaded files as Elements
-note = Note(Load("json/testing/_Save_1.1_first_note.json"))
+note = Load("json/testing/_Save_1.1_first_note.json")
 note / 4 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> og.LeftShift(result_save) >> og.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -166,7 +170,7 @@ original_export     = Import("json/testing/_Export_Play_p.7_sequence.json")
 start_time = time.time()
 
 # Process Loaded files as Serialization
-load = Note(Load("json/testing/_Save_1.1_first_note.json").copy())
+load = Load("json/testing/_Save_1.1_first_note.json")
 load / 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> og.LeftShift(result_save) >> og.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

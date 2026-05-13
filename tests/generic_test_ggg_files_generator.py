@@ -30,17 +30,20 @@ settings << Tempo(110)
 single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note(Step(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+first_note = Note(Step(3*4 + 2)) * 1 >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
 first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> Save("json/testing/_Save_Play_p.3_first_note.json") >> Export("json/testing/_Export_Play_p.3_sequence.json")
 
-Triplet() << (NoteValue() << Duration(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+Triplet() * 1 << MidiTrack(1, "Piano") << NoteValue(1/16) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (NoteValue() << Dotted(1/64))
+# Only a Clip takes into consideration the Element position, and thus, the '* 1'!
+base_note = Note(Dotted(1/64)) * 1
 # Creation and configuration of a Track of notes
 first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
@@ -73,11 +76,11 @@ first_import + Measure(0) >> first_import + Measure(2) >> first_import + Measure
     >> Export("json/testing/_Export_2.1_multiple_imports.json") >> Save("json/testing/_Save_Play_p.5_first_note.json") >> Export("json/testing/_Export_Play_p.5_sequence.json")
 
 # Process Loaded files as Elements
-note = Note(Load("json/testing/_Save_1.1_first_note.json"))
+note = Load("json/testing/_Save_1.1_first_note.json")
 note / 4 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> Save("json/testing/_Save_Play_p.6_first_note.json") >> Export("json/testing/_Export_Play_p.6_sequence.json")
 
 # Process Loaded files as Serialization
-load = Note(Load("json/testing/_Save_1.1_first_note.json").copy())
+load = Load("json/testing/_Save_1.1_first_note.json")
 load / 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> Save("json/testing/_Save_Play_p.7_first_note.json") >> Export("json/testing/_Export_Play_p.7_sequence.json")
 
 
