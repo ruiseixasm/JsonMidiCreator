@@ -113,9 +113,9 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")
                     assert class_object._test_owner_clip()
             if isinstance(class_object, Part):
-                if not class_object._test_owner_song():
+                if not class_object._test_owner_part():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")
-                    assert class_object._test_owner_song()
+                    assert class_object._test_owner_part()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
@@ -137,9 +137,9 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner ii: {single_class.__name__}")
                     assert class_object._test_owner_clip()
             if isinstance(class_object, Part):
-                if not class_object._test_owner_song():
+                if not class_object._test_owner_part():
                     print(f"Culprit Copy Owner ii: {single_class.__name__}")
-                    assert class_object._test_owner_song()
+                    assert class_object._test_owner_part()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
@@ -161,9 +161,9 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner iii: {single_class.__name__}")
                     assert class_object._test_owner_clip()
             if isinstance(class_object, Part):
-                if not class_object._test_owner_song():
+                if not class_object._test_owner_part():
                     print(f"Culprit Copy Owner iii: {single_class.__name__}")
-                    assert class_object._test_owner_song()
+                    assert class_object._test_owner_part()
 
     print("4th Cycle - DataSource Unit objects data")
     for single_class in list_all_classes:
@@ -185,9 +185,9 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner iv: {single_class.__name__}")
                     assert class_object._test_owner_clip()
             if isinstance(class_object, Part):
-                if not class_object._test_owner_song():
+                if not class_object._test_owner_part():
                     print(f"Culprit Copy Owner iv: {single_class.__name__}")
-                    assert class_object._test_owner_song()
+                    assert class_object._test_owner_part()
 
     print("5th Cycle - DataSource Rational objects data")
     for single_class in list_all_classes:
@@ -209,9 +209,9 @@ def test_operand_copy():
                     print(f"Culprit Copy Owner v: {single_class.__name__}")
                     assert class_object._test_owner_clip()
             if isinstance(class_object, Part):
-                if not class_object._test_owner_song():
+                if not class_object._test_owner_part():
                     print(f"Culprit Copy Owner v: {single_class.__name__}")
-                    assert class_object._test_owner_song()
+                    assert class_object._test_owner_part()
 
 # test_operand_copy()
 
@@ -251,9 +251,9 @@ def test_operand_serialization():
                     print(f"Culprit Owner i: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
             if isinstance(loaded_instantiation, Part):
-                if not loaded_instantiation._test_owner_song():
+                if not loaded_instantiation._test_owner_part():
                     print(f"Culprit Owner i: {single_class.__name__}")
-                    assert loaded_instantiation._test_owner_song()
+                    assert loaded_instantiation._test_owner_part()
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
@@ -281,9 +281,9 @@ def test_operand_serialization():
                     print(f"Culprit Owner ii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
             if isinstance(loaded_instantiation, Part):
-                if not loaded_instantiation._test_owner_song():
+                if not loaded_instantiation._test_owner_part():
                     print(f"Culprit Owner ii: {single_class.__name__}")
-                    assert loaded_instantiation._test_owner_song()
+                    assert loaded_instantiation._test_owner_part()
 
     print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
@@ -311,9 +311,9 @@ def test_operand_serialization():
                     print(f"Culprit Owner iii: {single_class.__name__}")
                     assert loaded_instantiation._test_owner_clip()
             if isinstance(loaded_instantiation, Part):
-                if not loaded_instantiation._test_owner_song():
+                if not loaded_instantiation._test_owner_part():
                     print(f"Culprit Owner iii: {single_class.__name__}")
-                    assert loaded_instantiation._test_owner_song()
+                    assert loaded_instantiation._test_owner_part()
 
 # test_operand_serialization()
 

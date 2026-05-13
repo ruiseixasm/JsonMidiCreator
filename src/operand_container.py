@@ -4558,21 +4558,21 @@ class Block(Composition):
         self._name: str = "Block"
 
         # Part sets the TimeSignature, this is just a reference
-        self._owner_song: Part      = None
+        self._owner_part: Part      = None
 
         for single_operand in operands:
             self << single_operand
 
 
-    def _set_owner_song(self, owner_song: 'Part') -> Self:
-        if isinstance(owner_song, Part):
-            self._owner_song = owner_song
+    def _set_owner_part(self, owner_part: 'Part') -> Self:
+        if isinstance(owner_part, Part):
+            self._owner_part = owner_part
         return self
 
     def _get_time_signature(self) -> 'og.TimeSignature':
-        if self._owner_song is None:
+        if self._owner_part is None:
             return self._time_signature
-        return self._owner_song._time_signature
+        return self._owner_part._time_signature
 
 
     def _unmasked_items(self) -> list['Clip']:
@@ -4823,7 +4823,7 @@ class Block(Composition):
         return masked_element_ids
 
 
-    def getPlotlist(self, masked_element_ids: set[int] | None = None, from_song: bool = False) -> list[dict]:
+    def getPlotlist(self, masked_element_ids: set[int] | None = None, from_part: bool = False) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -4838,8 +4838,8 @@ class Block(Composition):
         masked_element_ids.update(self.get_masked_element_ids())
 
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
-        # ONLY WHEN from_song, IS THE Block POSITION SET
-        if not from_song:   # Block by itself is played right away, so, no position considered
+        # ONLY WHEN from_part, IS THE Block POSITION SET
+        if not from_part:   # Block by itself is played right away, so, no position considered
             og.settings.reset_notes_on()
             for single_clip in self._items:
                 clip_plotlist: list[dict] = single_clip.getPlotlist(masked_element_ids)
@@ -4851,7 +4851,7 @@ class Block(Composition):
         return plot_list
 
 
-    def getPlaylist(self, from_song: bool = False) -> list[dict]:
+    def getPlaylist(self, from_part: bool = False) -> list[dict]:
         """
         Returns the playlist for a given Position.
 
@@ -4863,8 +4863,8 @@ class Block(Composition):
         """
         play_list: list = []
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
-        # ONLY WHEN from_song, IS THE Block POSITION SET
-        if not from_song:   # Block by itself is played right away, so, no position considered
+        # ONLY WHEN from_part, IS THE Block POSITION SET
+        if not from_part:   # Block by itself is played right away, so, no position considered
             og.settings.reset_notes_on()
             for single_clip in self._items:
                 play_list.extend(single_clip.getPlaylist())
@@ -4873,7 +4873,7 @@ class Block(Composition):
                 play_list.extend(single_clip.getPlaylist(self._position_beats))
         return play_list
 
-    def getMidilist(self, from_song: bool = False) -> list[dict]:
+    def getMidilist(self, from_part: bool = False) -> list[dict]:
         """
         Returns the midilist for a given Position.
 
@@ -4883,7 +4883,7 @@ class Block(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        if not from_song:
+        if not from_part:
             og.settings.reset_notes_on()
         midi_list: list = []
         for single_clip in self:
@@ -4937,8 +4937,8 @@ class Block(Composition):
                 self._position_beats    = operand._position_beats
                 self._name              = operand._name
                 # Because a Block is also defined by the Owner Part, this also needs to be copied!
-                if self._owner_song is None:   # << and copy operation doesn't override ownership
-                    self._owner_song    = operand._owner_song
+                if self._owner_part is None:   # << and copy operation doesn't override ownership
+                    self._owner_part    = operand._owner_part
                 
             case od.Pipe():
                 match operand._data:
@@ -5063,7 +5063,7 @@ class Block(Composition):
                             self_copy: Block = self.copy(next_position)
                             new_sections.append(self_copy)
                             next_position += single_length
-                return Part(self._get_time_signature(), od.Pipe(new_sections))._set_owner_song()._sort_items()
+                return Part(self._get_time_signature(), od.Pipe(new_sections))._set_owner_part()._sort_items()
 
             case _:
                 super().__imul__(operand)
@@ -5171,7 +5171,7 @@ class Block(Composition):
 
 
 #####################################################################################################
-##############################################  SONG  ###############################################
+##############################################  PART  ###############################################
 #####################################################################################################
 
 class Part(Composition):
@@ -5217,24 +5217,24 @@ class Part(Composition):
         return super().__next__()
     
 
-    def _set_owner_song(self, owner_song: 'Part' = None) -> Self:
+    def _set_owner_part(self, owner_part: 'Part' = None) -> Self:
         """
         Allows the setting of a distinct `Part` in the contained Elements for a transition process
         with a shallow `Part`.
         """
-        if owner_song is None:
+        if owner_part is None:
             for section in self._items:
-                section._set_owner_song(self)
-        elif isinstance(owner_song, Part):
-            self._time_signature << owner_song._time_signature    # Does a parameters copy
+                section._set_owner_part(self)
+        elif isinstance(owner_part, Part):
+            self._time_signature << owner_part._time_signature    # Does a parameters copy
             for section in self._items:
-                section._set_owner_song(owner_song)
+                section._set_owner_part(owner_part)
         return self
 
 
-    def _test_owner_song(self) -> bool:
+    def _test_owner_part(self) -> bool:
         for section in self:
-            if section._owner_song is not self:
+            if section._owner_part is not self:
                 return False
         return True
 
@@ -5516,7 +5516,7 @@ class Part(Composition):
             super().loadSerialization(serialization)
             self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
             self._name = self.deserialize(serialization["parameters"]["name"])
-            self._set_owner_song()
+            self._set_owner_part()
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -5525,14 +5525,14 @@ class Part(Composition):
                 super().__lshift__(operand)
                 self._time_signature << operand._time_signature
                 self._name = operand._name
-                self._set_owner_song()
+                self._set_owner_part()
 
             case od.Pipe():
                 match operand._data:
                     case list():
                         if all(isinstance(item, Block) for item in operand._data):
                             self._items = [item for item in operand._data]
-                            self._set_owner_song()
+                            self._set_owner_part()
                         else:   # Not for me
                             for item in self._unmasked_items():
                                 item << operand._data
@@ -5547,7 +5547,7 @@ class Part(Composition):
             case list():
                 if all(isinstance(item, Block) for item in operand):
                     self._items = [item.copy() for item in operand]
-                    self._set_owner_song()
+                    self._set_owner_part()
                 else:   # Not for me
                     for item in self._unmasked_items():
                         item << operand
@@ -5577,7 +5577,7 @@ class Part(Composition):
                     self += section
 
             case Block():
-                self._append(Block(operand)._set_owner_song(self))._sort_items()
+                self._append(Block(operand)._set_owner_part(self))._sort_items()
 
             case Clip():
                 self += Block(operand)
@@ -5590,7 +5590,7 @@ class Part(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Block):
-                        self._append(item.copy()._set_owner_song(self))
+                        self._append(item.copy()._set_owner_part(self))
             case _:
                 super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -5617,18 +5617,18 @@ class Part(Composition):
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Part():
-                right_song: Part = Part(operand)._set_owner_song(self)
+                right_part: Part = Part(operand)._set_owner_part(self)
 
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
-                for section in right_song:
+                for section in right_part:
                     section += position_offset
 
-                self._extend(right_song._items)
+                self._extend(right_part._items)
                 
                 if self._length_beats is not None:
-                    self._length_beats += (right_song % ra.Length())._rational
+                    self._length_beats += (right_part % ra.Length())._rational
 
             case Block():
                 self.__imul__(Part(operand))
@@ -5673,18 +5673,18 @@ class Part(Composition):
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Part():
-                right_song: Part = Part(operand)._set_owner_song(self)
+                right_part: Part = Part(operand)._set_owner_part(self)
 
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
-                for section in right_song:
+                for section in right_part:
                     section += position_offset
 
-                self._extend(right_song._items)  # Propagates upwards in the stack
+                self._extend(right_part._items)  # Propagates upwards in the stack
                 
                 if self._length_beats is not None:
-                    self._length_beats += (right_song % ra.Duration() % ra.Length())._rational
+                    self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
 
             case Block():
                 self.__itruediv__(Part(operand))
