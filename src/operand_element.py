@@ -2164,7 +2164,9 @@ class Note(ChannelElement):
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats + self._position_beats
+        absolute_position_beats: Fraction = position_beats
+        if midi_track is not None:  # Only in Clips is the Element placed
+            absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 

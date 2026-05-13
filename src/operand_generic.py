@@ -2629,7 +2629,7 @@ class Play(ReadOnly):
         match operand:
             case oc.Composition():
                 if operand._items:
-                    playlist: list[dict] = self._clocked_playlist(operand)
+                    playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
@@ -2646,7 +2646,7 @@ class Play(ReadOnly):
                 self.__rrshift__(operand % Clip())
                 return operand
             case oe.Element():
-                playlist: list[dict] = self._clocked_playlist(operand)
+                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
                     process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
@@ -2658,7 +2658,7 @@ class Play(ReadOnly):
                     c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 return operand
             case od.Playlist():
-                playlist: list[dict] = self._clocked_playlist(operand)
+                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                 c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 return operand
             case _:

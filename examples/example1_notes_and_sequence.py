@@ -29,8 +29,8 @@ settings << Tempo(110)
 single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")
 # single_clock = Clock(MidiTrack("Clock Track")) >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
-# Multiple individual Notes creation and sequentially played
-first_note = Note() << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
+# Multiple individual Notes creation and sequentially played, only in a Clip is an Element positioned
+first_note = Clip(Note()) << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) \
     << MidiTrack(1, "Piano") \
     >> Play(0) \

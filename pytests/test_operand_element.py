@@ -112,7 +112,8 @@ def test_note_mod():
         }
     ]
 
-    first_note = Note() << (Position() << Steps(3*4 + 2))
+    # Only in a Clip is an Element positioned
+    first_note = Clip(Note()) << (Position() << Steps(3*4 + 2))
     first_note_playlist = playlist_time_ms( first_note.getPlaylist() )
 
     # Sets the common device as that isn't being check
