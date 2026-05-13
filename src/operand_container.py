@@ -4825,8 +4825,6 @@ class Block(Composition):
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        if not from_song:
-            og.settings.reset_notes_on()
         plot_list: list = []
         
         if masked_element_ids is None:
@@ -4836,9 +4834,15 @@ class Block(Composition):
 
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_song, IS THE Block POSITION SET
-        for single_clip in self._items:
-            clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
-            plot_list.extend( clip_plotlist )
+        if not from_song:   # Block by itself is played right away, so, no position considered
+            og.settings.reset_notes_on()
+            for single_clip in self._items:
+                clip_plotlist: list[dict] = single_clip.getPlotlist(masked_element_ids)
+                plot_list.extend( clip_plotlist )
+        else:
+            for single_clip in self._items:
+                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
+                plot_list.extend( clip_plotlist )
         return plot_list
 
 
