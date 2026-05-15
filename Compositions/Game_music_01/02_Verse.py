@@ -21,18 +21,34 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-    # Intro
-    # Verse
-    # Chorus
-    # Verse
-    # Chorus
-    # Bridge
-    # Chorus
-    # Outro
+# INSTRUMENT = None
+INSTRUMENT = ["Waldorf", "Blofeld", "Studio 68", "MIDI Out"]   # Waldorf Blofeld or Other
 
-intro_block = Load("Compositions/Game_music_01/01_M0_intro_save_1.json")
-intro_block % Length() % float() >> Print()
+if INSTRUMENT:
+    settings << Devices(INSTRUMENT)
+
+settings % Devices() % list() >> Print()
+
+rest_play = ( Rest(), Play())
 settings << Tempo(100)
-intro_block >> Plot()
-# intro_block >> Play()
+
+motif: Clip = Note(1/16) * 12
+motif << Nth(6)**Duration(Steps(3)) << Nth(12)**Duration(Steps(2)) >> Stack() << Octave(3)
+motif += IsNot(Beat(0))**Step(1)
+motif % Length() % float() >> Print()
+motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
+# motif >> P
+
+# Cut first two notes
+cut_motif: Clip = motif / Above(Steps(2))
+repeated_motif: Clip = cut_motif * 3.0
+
+repeated_motif % Length() % float() >> Print()
+
+if INSTRUMENT:
+    repeated_motif << Channel(9)
+
+
+Block(repeated_motif) >> Save("Compositions/Game_music_01/02_verse_save.json")
+# repeated_motif * 2 >> Play()
 

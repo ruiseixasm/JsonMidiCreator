@@ -49,7 +49,7 @@ if INSTRUMENT:
     repeated_motif << Channel(1)
 
 
-Block(repeated_motif) >> Save("Compositions/Game_music_01/01_M0_intro_save_1.json")
-repeated_motif >> Export("Compositions/Game_music_01/01_M0_intro_export_1.json")
-repeated_motif * 2 >> Play()
+Block(repeated_motif) >> Save("Compositions/Game_music_01/01_intro_save.json")
+# repeated_motif >> Export("Compositions/Game_music_01/01_intro_export.json")
+# repeated_motif * 2 >> Play()
 
