@@ -4590,14 +4590,6 @@ class Block(Composition):
 
 
     def __getitem__(self, index: Any) -> 'Clip':
-        if isinstance(index, str):
-            tag_int: int  = o.tag_to_int(index)
-            if tag_int >= 0:
-                return self._extract_items()[tag_int]
-            for single_clip in self._extract_items():
-                if single_clip._midi_track._name == index:
-                    return single_clip
-            return ol.Null()
         return super().__getitem__(index)
     
 
