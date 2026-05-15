@@ -104,25 +104,15 @@ class Container(o.Operand):
 
     def __getitem__(self, index: Any) -> any:
         if isinstance(index, int):
-            if self._masked:
-                return self._mask_items[index]
-            return self._items[index]
-        if self._masked:
-            for item in self._mask_items:
-                if isinstance(item, o.Operand):
-                    if item % index == index:
-                        return item
-        else:
-            for item in self._items:
-                if isinstance(item, o.Operand):
-                    if item % index == index:
-                        return item
+            return self._access_items()[index]
+        for item in self._access_items():
+            if isinstance(item, o.Operand):
+                if item % index == index:
+                    return item
         if isinstance(index, str):
             index = o.tag_to_int(index)
             if index != -1:
-                if self._masked:
-                    return self._mask_items[index]
-                return self._items[index]
+                return self._access_items()[index]
         return ol.Null()
     
     def __setitem__(self, index: int, value) -> Self:
@@ -2666,6 +2656,10 @@ class Clip(Composition):  # Just a container of Elements
     def _extract_items(self) -> list['oe.Element']:
         return super()._extract_items()
 
+    def _access_items(self) -> list['oe.Element']:
+        return super()._access_items()
+
+
     def __getitem__(self, index: Any) -> 'oe.Element':
         """
         Read Only method
@@ -4599,6 +4593,9 @@ class Block(Composition):
     def _extract_items(self) -> list['Clip']:
         return super()._extract_items()
 
+    def _access_items(self) -> list['Clip']:
+        return super()._access_items()
+
 
     def __getitem__(self, index: Any) -> 'Clip':
         if isinstance(index, str):
@@ -5220,6 +5217,9 @@ class Part(Composition):
 
     def _extract_items(self) -> list['Block']:
         return super()._extract_items()
+
+    def _access_items(self) -> list['Block']:
+        return super()._access_items()
 
 
     def __getitem__(self, index: Any) -> 'Block':
