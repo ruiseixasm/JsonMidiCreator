@@ -30,7 +30,7 @@ from JsonMidiCreator import *
     # Chorus
     # Outro
 
-intro_block = Load("Compositions/Game_music_01/01_intro_save_1.json")
+intro_block = Load("Compositions/Game_music_01/01_M0_intro_save_1.json")
 intro_block % Length() % float() >> Print()
 settings << Tempo(100)
 intro_block >> Plot()
