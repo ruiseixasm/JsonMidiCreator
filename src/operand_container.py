@@ -98,8 +98,6 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: Any) -> any:
-        if isinstance(index, str):
-            index = o.tag_to_int(index)
         if isinstance(index, int):
             if self._masked:
                 return self._mask_items[index]
@@ -114,6 +112,12 @@ class Container(o.Operand):
                 if isinstance(item, o.Operand):
                     if item % index == index:
                         return item
+        if isinstance(index, str):
+            index = o.tag_to_int(index)
+            if index != -1:
+                if self._masked:
+                    return self._mask_items[index]
+                return self._items[index]
         return ol.Null()
     
     def __setitem__(self, index: int, value) -> Self:
