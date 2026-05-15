@@ -49,6 +49,6 @@ if INSTRUMENT:
     repeated_motif << Channel(9)
 
 
-Block(repeated_motif) >> Save("Compositions/Game_music_01/02_verse_save.json")
-# repeated_motif * 2 >> Play()
+block_verse = Block(repeated_motif, "Verse") >> Save("Compositions/Game_music_01/02_verse_save.json")
+block_verse >> Plot()
 

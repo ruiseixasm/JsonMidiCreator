@@ -31,7 +31,7 @@ from JsonMidiCreator import *
     # Outro
 
 settings << Tempo(100)
-part_composition = Part()
+part_composition = Part("Composition")
 
 block_intro = Load("Compositions/Game_music_01/01_intro_save.json")
 part_composition += block_intro

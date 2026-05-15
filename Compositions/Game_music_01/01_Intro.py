@@ -49,7 +49,6 @@ if INSTRUMENT:
     repeated_motif << Channel(1)
 
 
-Block(repeated_motif) >> Save("Compositions/Game_music_01/01_intro_save.json")
-# repeated_motif >> Export("Compositions/Game_music_01/01_intro_export.json")
-# repeated_motif * 2 >> Play()
+block_intro = Block(repeated_motif, "Intro") >> Save("Compositions/Game_music_01/01_intro_save.json")
+block_intro >> Plot()
 
