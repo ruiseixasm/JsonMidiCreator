@@ -97,12 +97,24 @@ class Container(o.Operand):
         return self._items.copy()
 
 
-    def __getitem__(self, index: int | str) -> any:
+    def __getitem__(self, index: Any) -> any:
         if isinstance(index, str):
             index = o.tag_to_int(index)
+        if isinstance(index, int):
+            if self._masked:
+                return self._mask_items[index]
+            return self._items[index]
         if self._masked:
-            return self._mask_items[index]
-        return self._items[index]
+            for item in self._mask_items:
+                if isinstance(item, o.Operand):
+                    if item % index == index:
+                        return item
+        else:
+            for item in self._items:
+                if isinstance(item, o.Operand):
+                    if item % index == index:
+                        return item
+        return ol.Null()
     
     def __setitem__(self, index: int, value) -> Self:
         if self._masked:
