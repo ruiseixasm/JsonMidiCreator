@@ -36,7 +36,8 @@ part_composition = Part("Composition")
 block_intro = Load("Compositions/Game_music_01/01_intro_save.json")
 part_composition += block_intro
 block_verse_1 = Load("Compositions/Game_music_01/02_verse_save.json")
-part_composition += block_verse_1 << Measure(4)
+part_composition += block_verse_1 << Measure(4) << "Verse_1"
+part_composition["Verse_1"] += Measures(4)
 
 part_composition % Length() % float() >> Print()
 part_composition >> Plot()

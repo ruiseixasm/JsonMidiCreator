@@ -115,12 +115,22 @@ class Container(o.Operand):
                 return self._access_items()[index]
         return ol.Null()
     
-    def __setitem__(self, index: int, value) -> Self:
-        if self._masked:
-            self._mask_items[index] = value
-        else:
-            self._items[index] = value
-        return self._sort_items()   # Changing a given item should trigger the sorting of the Container
+
+    def __setitem__(self, index: Any, value) -> Self:
+        if isinstance(index, int):
+            self._access_items()[index] = value
+            return self._sort_items()   # Changing a given item should trigger the sorting of the Container
+        for i, item in enumerate(self._access_items()):
+            if isinstance(item, o.Operand):
+                if item % index == index:
+                    self._access_items()[i] = value
+                    return self._sort_items()   # Changing a given item should trigger the sorting of the Container
+        if isinstance(index, str):
+            converted_index = o.tag_to_int(index)
+            if converted_index != -1:
+                self._access_items()[converted_index] = value
+                return self._sort_items()   # Changing a given item should trigger the sorting of the Container
+        return self
     
 
     def __iter__(self) -> Self:
