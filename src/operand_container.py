@@ -2661,14 +2661,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __getitem__(self, index: Any) -> 'oe.Element':
-        """
-        Read Only method
-        """
-        if isinstance(index, of.Frame):
-            element_index: int = self._index_from_frame(index)
-            if element_index is not None:
-                return self._extract_items()[element_index]
-            return ol.Null()
         return super().__getitem__(index)
     
     def __setitem__(self, index: Union['of.Frame', int], value: 'oe.Element') -> Self:
