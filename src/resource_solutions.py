@@ -223,7 +223,7 @@ class RS_Clip(RS_Solutions):
 
                 segmented_durations: list[float] = o.list_choose(durations, results)
                 total_duration_beats: Fraction = Fraction(0)
-                for single_element in segmented_composition._pick_items():
+                for single_element in segmented_composition._extract_items():
                     total_duration_beats += single_element._duration_beats
 
                 total_elements: int = segmented_composition.len()
@@ -285,7 +285,7 @@ class RS_Clip(RS_Solutions):
                     quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
                     amount_rational: Fraction = ra.Amount(quantization_amount) % Fraction()
                     previous_element: oe.Element | None = None
-                    for index, single_element in enumerate(segmented_composition._pick_items()):
+                    for index, single_element in enumerate(segmented_composition._extract_items()):
                         if previous_element is not None:
 
                             element_position_on: Fraction = single_element._position_beats

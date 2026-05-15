@@ -91,10 +91,15 @@ class Container(o.Operand):
         return self
 
 
-    def _pick_items(self) -> list[Any]:
+    def _extract_items(self) -> list[Any]:
         if self._masked:    # Has to copy the list in order to keep it unchanged during for iterations
             return self._mask_items.copy()
         return self._items.copy()
+
+    def _access_items(self) -> list[Any]:
+        if self._masked:    # Has to copy the list in order to keep it unchanged during for iterations
+            return self._mask_items
+        return self._items
 
 
     def __getitem__(self, index: Any) -> any:
@@ -149,7 +154,7 @@ class Container(o.Operand):
         """
         Returns the index of a given item by its id or `None` if nonexistent in the unmasked list.
         """
-        for index, single_item in enumerate(self._pick_items()):
+        for index, single_item in enumerate(self._extract_items()):
             if item is single_item:
                 return index
         return None
@@ -304,14 +309,14 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return [
-                            item for item in self._pick_items()
+                            item for item in self._extract_items()
                         ]
                     case _:
                         return super().__mod__(operand)
             case list():
                 if operand: # Non empty list
                     parameters: list = []
-                    for single_item in self._pick_items():
+                    for single_item in self._extract_items():
                         if isinstance(single_item, o.Operand):
                             operand_parameter: any = single_item
                             for single_parameter in operand:
@@ -321,7 +326,7 @@ class Container(o.Operand):
                             parameters.append( ol.Null() )
                     return parameters
                 return [
-                    self.deep_copy(item) for item in self._pick_items()
+                    self.deep_copy(item) for item in self._extract_items()
                 ]
             case int():
                 return self.len()
@@ -333,7 +338,7 @@ class Container(o.Operand):
             case of.Frame():    # Only applicable to Operand items
                 operand._set_inside_container(self)
                 parameters: list = []
-                for single_element in self._pick_items():
+                for single_element in self._extract_items():
                     if isinstance(single_element, o.Operand):
                         operand_parameter: o.Operand = single_element
                         parameter_getter: list = operand ^ single_element
@@ -359,7 +364,7 @@ class Container(o.Operand):
         Returns:
             int: Returns the equivalent to the len(self._items).
         """
-        return len(self._pick_items())
+        return len(self._extract_items())
 
     def first(self) -> Any:
         """
@@ -372,8 +377,8 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self._pick_items():
-            first_item = self._pick_items()[0]
+        if self._extract_items():
+            first_item = self._extract_items()[0]
         return first_item
 
     def last(self) -> Any:
@@ -387,8 +392,8 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self._pick_items():
-            last_item = self._pick_items()[-1]
+        if self._extract_items():
+            last_item = self._extract_items()[-1]
         return last_item
 
     def __eq__(self, other: any) -> bool:
@@ -399,7 +404,7 @@ class Container(o.Operand):
                 return other == self
             case of.Frame():
                 other._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     other_item = other.frame(single_item)
                     if not single_item == other_item:
                         return False
@@ -500,7 +505,7 @@ class Container(o.Operand):
                     case of.Frame():
                         self._set = False   # In order to contained items know it was set by them (Element items)
                         operand._data._set_inside_container(self)
-                        for single_item in self._pick_items():
+                        for single_item in self._extract_items():
                             single_item << od.Pipe( operand._data.frame(single_item) )
 
             case od.Serialization():
@@ -512,8 +517,8 @@ class Container(o.Operand):
                 self._extend( [self.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self._pick_items()):
-                        self._pick_items()[index] = self.deep_copy(item)
+                    if isinstance(index, int) and index >= 0 and index < len(self._extract_items()):
+                        self._extract_items()[index] = self.deep_copy(item)
             case bool():
                 self._masked = operand
             case og.Mask():
@@ -527,10 +532,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item << operand.frame(single_item)
             case _:
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item << operand
         return self
 
@@ -562,7 +567,7 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                unmasked_items: list = self._pick_items()
+                unmasked_items: list = self._extract_items()
                 for index, single_item in enumerate(unmasked_items):
                     unmasked_items[index] >>= operand.frame(single_item)
                 return self
@@ -595,10 +600,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item += operand.frame(single_item)
             case _:
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item += operand
         return self
 
@@ -612,9 +617,9 @@ class Container(o.Operand):
             case Container():
                 return self._delete(operand._items)
             case int(): # repeat n times the last argument if any
-                if len(self._pick_items()) > 0:
-                    while operand > 0 and len(self._pick_items()) > 0:
-                        self._delete([ self._pick_items().pop() ], True)
+                if len(self._extract_items()) > 0:
+                    while operand > 0 and len(self._extract_items()) > 0:
+                        self._delete([ self._extract_items().pop() ], True)
                         operand -= 1
             case list():
                 return self._delete(operand)
@@ -625,10 +630,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item -= operand.frame(single_item)
             case _:
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item -= operand
         return self
 
@@ -660,10 +665,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item *= operand.frame(single_item)
             case _:
-                for item in self._pick_items():
+                for item in self._extract_items():
                     item.__imul__(operand)
         return self
     
@@ -689,10 +694,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item /= operand.frame(single_item)
             case _:
-                for item in self._pick_items():
+                for item in self._extract_items():
                     item.__itruediv__(operand)
         return self
 
@@ -707,10 +712,10 @@ class Container(o.Operand):
             case of.Frame():
                 self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
-                for single_item in self._pick_items():
+                for single_item in self._extract_items():
                     single_item //= operand.frame(single_item)
             case _:
-                for item in self._pick_items():
+                for item in self._extract_items():
                     item.__ifloordiv__(operand)
         return self
 
@@ -777,7 +782,7 @@ class Container(o.Operand):
             Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self._pick_items(), True)
+        self._delete(self._extract_items(), True)
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
@@ -792,7 +797,7 @@ class Container(o.Operand):
             Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self._pick_items(), True)
+        self._delete(self._extract_items(), True)
         for single_parameter in parameters:
             self << single_parameter
         return self
@@ -866,7 +871,7 @@ class Container(o.Operand):
                 left_mask << right_segment
                 right_mask << left_segment
         else:
-            if self._pick_items() and isinstance(what, type):
+            if self._extract_items() and isinstance(what, type):
                 if isinstance(left, int):
                     left = self[left]
                 if isinstance(right, int):
@@ -890,7 +895,7 @@ class Container(o.Operand):
         """
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
-            self._swap(self._pick_items()[operand_i], self._pick_items()[self_len - 1 - operand_i])
+            self._swap(self._extract_items()[operand_i], self._extract_items()[self_len - 1 - operand_i])
         return self._sort_items()
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
@@ -935,12 +940,12 @@ class Container(o.Operand):
             self._extend(items)
         else:
             parameters: list = []
-            for operand in self._pick_items():
+            for operand in self._extract_items():
                 if isinstance(operand, o.Operand):
                     parameters.append( operand % parameter_instance )
                 else:
                     parameters.append( ol.Null() )
-            for operand in self._pick_items():
+            for operand in self._extract_items():
                 if isinstance(operand, o.Operand):
                     operand << parameters[ right % len(parameters) ]
                 right += 1
@@ -2653,13 +2658,13 @@ class Clip(Composition):  # Just a container of Elements
         Read Only method
         """
         frame._set_inside_container(self)
-        for index, single_element in enumerate(self._pick_items()):
+        for index, single_element in enumerate(self._extract_items()):
             if single_element == frame.frame(single_element):
                 return index
         return None
 
-    def _pick_items(self) -> list['oe.Element']:
-        return super()._pick_items()
+    def _extract_items(self) -> list['oe.Element']:
+        return super()._extract_items()
 
     def __getitem__(self, index: Any) -> 'oe.Element':
         """
@@ -2668,7 +2673,7 @@ class Clip(Composition):  # Just a container of Elements
         if isinstance(index, of.Frame):
             element_index: int = self._index_from_frame(index)
             if element_index is not None:
-                return self._pick_items()[element_index]
+                return self._extract_items()[element_index]
             return ol.Null()
         return super().__getitem__(index)
     
@@ -2716,12 +2721,12 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _has_elements(self) -> bool:
-        if self._pick_items():
+        if self._extract_items():
             return True
         return False
 
     def _total_elements(self) -> int:
-        return len(self._pick_items())
+        return len(self._extract_items())
 
 
     def checksum(self) -> str:
@@ -2775,7 +2780,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self._has_elements():
             finish_beats: Fraction = Fraction(0)
-            for item in self._pick_items():
+            for item in self._extract_items():
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
                     element_finish: Fraction = \
@@ -2832,7 +2837,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def get_unmasked_element_ids(self) -> set[int]:
-        return {id(unmasked_item) for unmasked_item in self._pick_items()}
+        return {id(unmasked_item) for unmasked_item in self._extract_items()}
 
     def get_masked_element_ids(self) -> set[int]:
         if self.is_masked():
@@ -2992,7 +2997,7 @@ class Clip(Composition):  # Just a container of Elements
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
                             # Remove previous Elements from the Container stack
-                            self._delete(self._pick_items(), True) # deletes by id, safer
+                            self._delete(self._extract_items(), True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
                             self._extend(operand._data)
                             self._set_owner_clip()
@@ -3000,7 +3005,7 @@ class Clip(Composition):  # Just a container of Elements
                             for single_element, locus in zip(self, operand._data):
                                 single_element << locus
                         else:   # Not for me
-                            for item in self._pick_items():
+                            for item in self._extract_items():
                                 item <<= operand._data
 
                     case _:
@@ -3032,7 +3037,7 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack
-                    self._delete(self._pick_items(), True) # deletes by id, safer
+                    self._delete(self._extract_items(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
                     self._extend(self.deep_copy(operand))
                     self._set_owner_clip()
@@ -3040,15 +3045,15 @@ class Clip(Composition):  # Just a container of Elements
                     for single_element, locus in zip(self, operand):
                         single_element << locus
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
             case dict():
                 if all(isinstance(item, oe.Element) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._pick_items()):
-                            self._pick_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._extract_items()):
+                            self._extract_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
 
             case bool():
@@ -3069,7 +3074,7 @@ class Clip(Composition):  # Just a container of Elements
     def __irshift__(self, operand) -> Self:
         match operand:
             case oe.Element():  # Element wapping (wrap)
-                for single_element in self._pick_items():
+                for single_element in self._extract_items():
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
                 return self
             
@@ -3077,7 +3082,7 @@ class Clip(Composition):  # Just a container of Elements
                 kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
                 ]
-                return self._delete(self._pick_items(), True)._extend(kept_elements)._sort_items()
+                return self._delete(self._extract_items(), True)._extend(kept_elements)._sort_items()
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -3085,7 +3090,7 @@ class Clip(Composition):  # Just a container of Elements
                 for index, placed in enumerate(elements_place):
                     if placed:
                         kept_elements.append(self[index])    # No need to copy
-                return self._delete(self._pick_items(), True)._extend(kept_elements)._sort_items()
+                return self._delete(self._extract_items(), True)._extend(kept_elements)._sort_items()
 
             case og.Process():
                 return super().__irshift__(operand)._sort_items()
@@ -3102,7 +3107,7 @@ class Clip(Composition):  # Just a container of Elements
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
                 # Clip preserves the entirety of the operand Clip as is, unmasked
                 self._items.extend(operand_copy._items)
-                self._mask_items.extend(operand_copy._pick_items())
+                self._mask_items.extend(operand_copy._extract_items())
 
             case oy.Yielder():
                 return self.__iadd__( operand % Clip() )
@@ -3130,7 +3135,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self._delete(operand._pick_items())
+                return self._delete(operand._extract_items())
             case oy.Yielder():
                 return self.__isub__( operand % Clip() )
             case oe.Element():
@@ -3324,7 +3329,7 @@ class Clip(Composition):  # Just a container of Elements
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
-                    for first_element in self._pick_items():
+                    for first_element in self._extract_items():
                         first_element._duration_beats /= total_segments
                         first_element_duration: Fraction = first_element._duration_beats
                         for next_element_i in range(1, total_segments):
@@ -3335,7 +3340,7 @@ class Clip(Composition):  # Just a container of Elements
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
-                for first_element in self._pick_items():
+                for first_element in self._extract_items():
                     group_length: Fraction = first_element._duration_beats
                     segment_duration_beats: Fraction = ra.Duration(self, operand)._rational
                     if segment_duration_beats < group_length:
@@ -3355,7 +3360,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []
-                for existent_element in self._pick_items():
+                for existent_element in self._extract_items():
                     existent_start: Fraction = existent_element._position_beats
                     operand_position = ra.Position(self._time_signature, existent_start)
                     # It has to be `<<=` because position must be set at the exactly given TimeUnit regardless its position in the Measure !!
@@ -3452,7 +3457,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Container: The same self object with the operands processed.
         """
-        if self._pick_items() and isinstance(parameter_type, type):
+        if self._extract_items() and isinstance(parameter_type, type):
             if isinstance(left_operand, of.Frame):
                 left_operand = self[left_operand]
             if isinstance(right_operand, of.Frame):
@@ -3494,12 +3499,12 @@ class Clip(Composition):  # Just a container of Elements
             for single_measure in measures_list:
                 # removes all Elements at the Measure
                 elements_to_remove: list[oe.Element] = [
-                    measure_element for measure_element in self._pick_items()
+                    measure_element for measure_element in self._extract_items()
                     if measure_element == ra.Measure(single_measure)
                 ]
                 self._delete(elements_to_remove, True)
                 # offsets the right side of it to occupy the dropped measure
-                for single_element in self._pick_items():
+                for single_element in self._extract_items():
                     if single_element > ra.Measure(single_measure):
                         single_measure -= ra.Measure(1)
 
@@ -3571,10 +3576,10 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         original_positions: list[Fraction] = [
-            element._position_beats for element in self._pick_items()
+            element._position_beats for element in self._extract_items()
         ]
         super().sort(parameter, reverse)
-        for index, element in enumerate(self._pick_items()):
+        for index, element in enumerate(self._extract_items()):
             element._position_beats = original_positions[index]
         return self
     
@@ -3770,7 +3775,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with each element having the wave value set on it.
         """
-        for single_element in self._pick_items():
+        for single_element in self._extract_items():
             
             element_position: ra.Position = single_element % ra.Position()
             wavelength_duration: Fraction = ra.Duration(wavelength)._rational
@@ -3825,7 +3830,7 @@ class Clip(Composition):  # Just a container of Elements
                 # Shift all items first
                 self += right   # Right changes elements Position
                 # Modulate out of range elements
-                for single_element in self._pick_items():
+                for single_element in self._extract_items():
                     element_measure: int = single_element % ra.Measure() % int()
                     element_measure -= first_measure
                     element_measure %= length_measures
@@ -3852,7 +3857,7 @@ class Clip(Composition):  # Just a container of Elements
         if self_finish is None:
             self_finish = ra.Position(self)
         clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for single_element in self._pick_items():
+        for single_element in self._extract_items():
             element_position_beats: Fraction = single_element._position_beats
             element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
             # Only changes Positions
@@ -3870,7 +3875,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         position_duration_beats: list[dict[str, Fraction]] = []
-        for index, single_element in enumerate(self._pick_items()):
+        for index, single_element in enumerate(self._extract_items()):
             position_duration_dict: dict[str, Fraction] = {
                 "duration": single_element._duration_beats
             }
@@ -3881,7 +3886,7 @@ class Clip(Composition):  # Just a container of Elements
                     position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
             position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
 
-        for index, single_element in enumerate(self._pick_items()):
+        for index, single_element in enumerate(self._extract_items()):
             single_element._position_beats = position_duration_beats[index]["position"]
             single_element._duration_beats = position_duration_beats[index]["duration"]
             
@@ -3904,7 +3909,7 @@ class Clip(Composition):  # Just a container of Elements
             top_absolute_degree: ou.Degree | None = None
             base_absolute_degree: ou.Degree | None = None
             
-            for element in self._pick_items():
+            for element in self._extract_items():
                 if isinstance(element, oe.Note):
                     note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
                     if top_absolute_degree is None:
@@ -3917,7 +3922,7 @@ class Clip(Composition):  # Just a container of Elements
 
             if top_absolute_degree is not None:
 
-                for element in self._pick_items():
+                for element in self._extract_items():
                     if isinstance(element, oe.Note):
                         note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
                         degree_from_top: ou.Degree = top_absolute_degree - note_absolute_degree
@@ -3928,7 +3933,7 @@ class Clip(Composition):  # Just a container of Elements
             higher_pitch: og.Pitch | None = None
             lower_pitch: og.Pitch | None = None
             
-            for element in self._pick_items():
+            for element in self._extract_items():
                 if isinstance(element, oe.Note):
                     note_pitch: og.Pitch = element._pitch
                     if higher_pitch is None:
@@ -3944,7 +3949,7 @@ class Clip(Composition):  # Just a container of Elements
                 top_pitch_int: int = higher_pitch.pitch_int()
                 bottom_pitch_int: int = lower_pitch.pitch_int()
 
-                for element in self._pick_items():
+                for element in self._extract_items():
                     if isinstance(element, oe.Note):
                         note_pitch: og.Pitch = element._pitch
                         note_pitch_int: int = note_pitch.pitch_int()
@@ -3967,12 +3972,12 @@ class Clip(Composition):  # Just a container of Elements
         if by_degree:
             center_degree_0: ou.Degree = None
             
-            for note in self._pick_items():
+            for note in self._extract_items():
                 if isinstance(note, oe.Note):
                     center_degree_0 = note._pitch.absolute_degree_0()
                     break
 
-            for note in self._pick_items():
+            for note in self._extract_items():
                 if isinstance(note, oe.Note):
                     note_degree_0: ou.Degree = note._pitch.absolute_degree_0()
                     degree_distance: ou.Degree = note_degree_0 - center_degree_0
@@ -3983,12 +3988,12 @@ class Clip(Composition):  # Just a container of Elements
         else:
             center_pitch: int = None
             
-            for note in self._pick_items():
+            for note in self._extract_items():
                 if isinstance(note, oe.Note):
                     center_pitch = note._pitch.pitch_int()
                     break
 
-            for note in self._pick_items():
+            for note in self._extract_items():
                 if isinstance(note, oe.Note):
                     note_pitch: int = note._pitch.pitch_int()
                     if note_pitch != center_pitch:
@@ -4209,7 +4214,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        for unmasked_element in self._pick_items():
+        for unmasked_element in self._extract_items():
             previous_element: oe.Element | None = self._previous_item(unmasked_element)
             if previous_element is not None:
                 unmasked_element._position_beats = previous_element._position_beats + previous_element._duration_beats
@@ -4298,7 +4303,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         amount_rational: Fraction = ra.Amount(amount) % Fraction()
-        for single_element in self._pick_items():
+        for single_element in self._extract_items():
             # Position On
             element_position_on: Fraction = single_element._position_beats
             unquantized_amount: Fraction = element_position_on % quantization_beats
@@ -4329,12 +4334,12 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Equally sounding Clip but with its elements reduced to their components.
         """
         decomposed_elements: list[oe.Element] = []
-        for single_element in self._pick_items():
+        for single_element in self._extract_items():
             component_elements: list[oe.Element] = single_element.get_component_elements()
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
         # Remove previous Elements from the Container stack
-        self._delete(self._pick_items(), True) # deletes by id, safer
+        self._delete(self._extract_items(), True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
         self._extend(decomposed_elements)
         return self._sort_items()
@@ -4350,7 +4355,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Clip with its elements distributed in an arpeggiated manner.
         """
         arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self._pick_items(), self.start(), ra.Length( self.net_duration() ))
+        arpeggio.arpeggiate_source(self._extract_items(), self.start(), ra.Length( self.net_duration() ))
         return self
 
 
@@ -4367,7 +4372,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
-        for unmasked_element in self._pick_items():
+        for unmasked_element in self._extract_items():
             if previous_element is not None and unmasked_element.start() == previous_element.finish():
                 elements_to_remove.append(unmasked_element)
                 previous_element._duration_beats += unmasked_element._duration_beats
@@ -4390,7 +4395,7 @@ class Clip(Composition):  # Just a container of Elements
         # Only notes can be tied
         tied_notes: list[oe.Note] = [
             single_note << ou.Tied(True)
-            for single_note in self._pick_items() if isinstance(single_note, oe.Note)
+            for single_note in self._extract_items() if isinstance(single_note, oe.Note)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
             single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
@@ -4415,7 +4420,7 @@ class Clip(Composition):  # Just a container of Elements
         if decompose:
             self.decompose()
         all_notes: list[oe.Note] = [
-            single_note for single_note in self._pick_items() if type(single_note) is oe.Note
+            single_note for single_note in self._extract_items() if type(single_note) is oe.Note
         ]
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
@@ -4446,7 +4451,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         last_element = None
-        for item in self._pick_items():
+        for item in self._extract_items():
             if isinstance(item, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
@@ -4474,7 +4479,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         first_pitch: int | None = None
         previous_pitch: int | None = None
-        for note in self._pick_items():
+        for note in self._extract_items():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
                 if algorithm_type < 4:
                     note_pitch: int = note._pitch.pitch_int()
@@ -4591,16 +4596,16 @@ class Block(Composition):
         return self._owner_part._time_signature
 
 
-    def _pick_items(self) -> list['Clip']:
-        return super()._pick_items()
+    def _extract_items(self) -> list['Clip']:
+        return super()._extract_items()
 
 
     def __getitem__(self, index: Any) -> 'Clip':
         if isinstance(index, str):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
-                return self._pick_items()[tag_int]
-            for single_clip in self._pick_items():
+                return self._extract_items()[tag_int]
+            for single_clip in self._extract_items():
                 if single_clip._midi_track._name == index:
                     return single_clip
             return ol.Null()
@@ -4638,7 +4643,7 @@ class Block(Composition):
             Element: The last `Element` of all elements in each `Clip`.
         """
         clips_list: list[Clip] = [
-            clip for clip in self._pick_items() if isinstance(clip, Clip)
+            clip for clip in self._extract_items() if isinstance(clip, Clip)
         ]
 
         last_element: oe.Element = None
@@ -4665,8 +4670,8 @@ class Block(Composition):
 
     def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
-            for single_clip in self._pick_items():
-                for single_element in single_clip._pick_items():
+            for single_clip in self._extract_items():
+                for single_element in single_clip._extract_items():
                     if single_element is element:
                         return False
             return True
@@ -4823,7 +4828,7 @@ class Block(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_clip in self._pick_items():
+        for unmasked_clip in self._extract_items():
             unmasked_element_ids.update( unmasked_clip.get_unmasked_element_ids() )
         return unmasked_element_ids
 
@@ -4966,7 +4971,7 @@ class Block(Composition):
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
                         else:   # Not for me
-                            for item in self._pick_items():
+                            for item in self._extract_items():
                                 item << operand._data
                     case _:
                         super().__lshift__(operand)
@@ -4981,15 +4986,15 @@ class Block(Composition):
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
             case dict():
                 if all(isinstance(item, Clip) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._pick_items()):
-                            self._pick_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._extract_items()):
+                            self._extract_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
 
             case od.TrackName():
@@ -5173,7 +5178,7 @@ class Block(Composition):
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
         # No Clip is removed, only elements are removed
-        for single_clip in self._pick_items():
+        for single_clip in self._extract_items():
             single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
@@ -5213,16 +5218,16 @@ class Part(Composition):
             self << single_operand
 
 
-    def _pick_items(self) -> list['Block']:
-        return super()._pick_items()
+    def _extract_items(self) -> list['Block']:
+        return super()._extract_items()
 
 
     def __getitem__(self, index: Any) -> 'Block':
         if isinstance(index, str):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
-                return self._pick_items()[tag_int]
-            for block in self._pick_items():
+                return self._extract_items()[tag_int]
+            for block in self._extract_items():
                 if block._name == index:
                     return block
             return ol.Null()
@@ -5324,7 +5329,7 @@ class Part(Composition):
 
     def masked_element(self, element: 'oe.Element') -> bool:
         if self.is_masked():
-            for block in self._pick_items():
+            for block in self._extract_items():
                 for single_clip in block._items:
                     for single_element in single_clip._items:
                         if single_element is element:
@@ -5421,7 +5426,7 @@ class Part(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for block in self._pick_items():
+                for block in self._extract_items():
                     all_names.append(block._name)
                 return od.Names(*tuple(all_names))
             case _:
@@ -5430,7 +5435,7 @@ class Part(Composition):
 
     def get_unmasked_element_ids(self) -> set[int]:
         unmasked_element_ids: set[int] = set()
-        for unmasked_block in self._pick_items():   # Here self._items is unmasked
+        for unmasked_block in self._extract_items():   # Here self._items is unmasked
             unmasked_element_ids.update( unmasked_block.get_unmasked_element_ids() )
         return unmasked_element_ids
 
@@ -5550,7 +5555,7 @@ class Part(Composition):
                             self._items = [item for item in operand._data]
                             self._set_owner_part()
                         else:   # Not for me
-                            for item in self._pick_items():
+                            for item in self._extract_items():
                                 item << operand._data
                     case str():
                         self._name = operand._data
@@ -5565,15 +5570,15 @@ class Part(Composition):
                     self._items = [item.copy() for item in operand]
                     self._set_owner_part()
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
             case dict():
                 if all(isinstance(item, Block) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self._pick_items()):
-                            self._pick_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._extract_items()):
+                            self._extract_items()[index] = item.copy()
                 else:   # Not for me
-                    for item in self._pick_items():
+                    for item in self._extract_items():
                         item << operand
 
             case od.TrackName():
@@ -5770,7 +5775,7 @@ class Part(Composition):
             punch_length = ra.Length(self, length)
 
         # No Block is removed, only elements are removed
-        for block_loop in self._pick_items():
+        for block_loop in self._extract_items():
             block_loop.loop(position, punch_length)
 
         self._length_beats = punch_length._rational

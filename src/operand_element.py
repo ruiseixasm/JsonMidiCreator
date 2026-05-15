@@ -340,7 +340,7 @@ class Element(o.Operand):
                         if operand.len() > 0:
                             position_offset: ra.Position = self.start() - operand.start()
                             elements_list: list[Element] = [
-                                (element + position_offset)._set_owner_clip(self._owner_clip) for element in operand._pick_items()
+                                (element + position_offset)._set_owner_clip(self._owner_clip) for element in operand._extract_items()
                             ]
                             self._owner_clip._extend(elements_list)
                         self._owner_clip._set = True
