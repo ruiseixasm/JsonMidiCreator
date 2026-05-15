@@ -31,6 +31,7 @@ from JsonMidiCreator import *
     # Outro
 
 intro_block = Load("Compositions/Game_music_01/01_intro_save_1.json")
+intro_block % Length() % float() >> Print()
 settings << Tempo(100)
 intro_block >> Plot()
 # intro_block >> Play()
