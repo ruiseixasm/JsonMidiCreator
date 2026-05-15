@@ -25,9 +25,9 @@ from JsonMidiCreator import *
 INSTRUMENT = ["Waldorf", "Blofeld", "Studio 68", "MIDI Out"]   # Waldorf Blofeld or Other
 
 if INSTRUMENT:
-    settings << Device(INSTRUMENT)
+    settings << Devices(INSTRUMENT)
 
-settings % Device() % list() >> Print()
+settings % Devices() % list() >> Print()
 
 rest_play = ( Rest(), Play())
 settings << Tempo(100)
