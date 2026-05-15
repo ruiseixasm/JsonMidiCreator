@@ -2657,7 +2657,7 @@ class Clip(Composition):  # Just a container of Elements
     def _pick_items(self) -> list['oe.Element']:
         return super()._pick_items()
 
-    def __getitem__(self, index: Union['of.Frame', int, str]) -> 'oe.Element':
+    def __getitem__(self, index: Any) -> 'oe.Element':
         """
         Read Only method
         """
@@ -4591,7 +4591,7 @@ class Block(Composition):
         return super()._pick_items()
 
 
-    def __getitem__(self, index: Union[int, str]) -> 'Clip':
+    def __getitem__(self, index: Any) -> 'Clip':
         if isinstance(index, str):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
@@ -5213,7 +5213,7 @@ class Part(Composition):
         return super()._pick_items()
 
 
-    def __getitem__(self, index: Union[int, str]) -> 'Block':
+    def __getitem__(self, index: Any) -> 'Block':
         if isinstance(index, str):
             tag_int: int  = o.tag_to_int(index)
             if tag_int >= 0:
