@@ -5223,14 +5223,6 @@ class Part(Composition):
 
 
     def __getitem__(self, index: Any) -> 'Block':
-        if isinstance(index, str):
-            tag_int: int  = o.tag_to_int(index)
-            if tag_int >= 0:
-                return self._extract_items()[tag_int]
-            for block in self._extract_items():
-                if block._name == index:
-                    return block
-            return ol.Null()
         return super().__getitem__(index)
     
 
