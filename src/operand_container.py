@@ -4224,16 +4224,17 @@ class Clip(Composition):  # Just a container of Elements
         fitting_elements: list[oe.Element] = self._items
         if not _auto:
             fitting_elements = self._access_items()
-        for single_element in fitting_elements:
+        last_index: int = len(fitting_elements) - 1
+        for i, single_element in enumerate(fitting_elements):
             # Sets the Position
-            previous_element: oe.Element | None = self._previous_item(single_element)
-            if previous_element is not None:    # Not the first Element
+            if i > 0:   # Not the first Element
+                previous_element = fitting_elements[i - 1]
                 single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
             else:
                 single_element._position_beats = Fraction(0)  # Places it at the start of the Clip, first element starts at 0
             # Sets the Duration
-            next_element: oe.Element | None = self._next_item(single_element)
-            if next_element is not None:    # Not the last Element
+            if i < last_index:   # Not the first Element
+                next_element = fitting_elements[i + 1]
                 single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats

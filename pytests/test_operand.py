@@ -189,6 +189,8 @@ def test_operand_copy():
                 class_object << Pipe( unit_class_object )     # DataSource injection
             if class_object != class_object.copy():
                 print(f"Culprit Copy iv: {single_class.__name__}")
+                class_object.copy() >> Save("json/_class_object_copy_save.json")
+                class_object >> Save("json/_class_object_save.json")
                 assert class_object == class_object.copy()
             if isinstance(class_object, Clip):
                 if not class_object._test_owner_clip():
