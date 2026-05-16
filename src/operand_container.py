@@ -4306,7 +4306,7 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
-        return super()._sort_items()    # May be needed due to upper clips
+        return self    # No need for sorting in stack because stack doesn't change order
 
 
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
