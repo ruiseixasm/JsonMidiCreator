@@ -1314,6 +1314,18 @@ class Tied(Boolean):
     """
     pass
 
+class Auto(Boolean):
+    """`Unit -> Boolean -> Auto`
+
+    Sets the Clip as auto, meaning that the Element positions are automatically adjusted to stack on each other,
+    typical staff Notational placement without overlapping.
+    
+    Parameters
+    ----------
+    bool(True), int : Accepts a boolean or a numeral (0 or 1) to set Tied as true or false. True is the Default.
+    """
+    pass
+
 class Default(Boolean):
     """`Unit -> Boolean -> Default`"""
     pass
