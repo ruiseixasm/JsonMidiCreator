@@ -1554,7 +1554,7 @@ class Composition(Container):
         "#FF9800",  # Amber                     06
         "#E91E63",  # Pink                      07
         "#00BCD4",  # Cyan                      08
-        "#8BC34A",  # Light Green               09
+        "#C7E99B",  # Light Green               09
         "#FFC107",  # Gold                      10
         "#4A5ED3",  # Indigo                    11
         "#FF5252",  # Light Red                 12
@@ -1704,7 +1704,7 @@ class Composition(Container):
 
                     # Plot notes
                     for channel_0 in note_channels:
-                        channel_color = Clip._channel_colors[channel_0]
+                        channel_color = Composition._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
@@ -1841,7 +1841,7 @@ class Composition(Container):
                     # Plot notes per Channel
                     for channel_0 in note_channels:
                         printed_channel_number: bool = False
-                        channel_color = Clip._channel_colors[channel_0]
+                        channel_color = Composition._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
@@ -2035,7 +2035,7 @@ class Composition(Container):
                 # Plot automations
                 for channel_0 in automation_channels:
                     printed_channel_number: bool = False
-                    channel_color = Clip._channel_colors[channel_0]
+                    channel_color = Composition._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_automation for channel_automation in automation_plotlist
                         if channel_automation["channel"] == channel_0
