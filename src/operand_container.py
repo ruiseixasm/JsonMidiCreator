@@ -2630,11 +2630,13 @@ class Clip(Composition):  # Just a container of Elements
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
     MidiTrack("Track 1") : Where the track name and respective Devices are set.
+    Auto(False) : Sets the Auto Stacking on or off.
     None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
+        self._auto: bool = False
         self._items: list[oe.Element]   = []
         self._mask_items: list[oe.Element] = []
         for single_operand in operands:
