@@ -2829,12 +2829,16 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.MidiTrack():
                         return self._midi_track
+                    case ou.Auto():
+                        return operand._data << self._auto
                     case _:
                         return super().__mod__(operand)
             case ou.MidiTrack():
                 return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
+            case ou.Auto():
+                return ou.Auto(self._auto)
             case Block():
                 return Block(self._time_signature, self)
             case Part():
@@ -2965,6 +2969,7 @@ class Clip(Composition):  # Just a container of Elements
 
         serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         serialization["parameters"]["midi_track"]       = self.serialize(self._midi_track)
+        serialization["parameters"]["auto"]             = self._auto
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2980,11 +2985,12 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"] and "midi_track" in serialization["parameters"] and "auto" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
             self._midi_track        << self.deserialize(serialization["parameters"]["midi_track"])
+            self._auto              = serialization["parameters"]["auto"]
             self._set_owner_clip()
         return self
 
@@ -3000,6 +3006,8 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.MidiTrack():
                         self._midi_track = operand._data
+                    case ou.Auto():
+                        self._auto = bool(operand._data._unit)
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -3034,6 +3042,8 @@ class Clip(Composition):  # Just a container of Elements
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
+            case ou.Auto():
+                self._auto = bool(operand._unit)
                 
             case oe.Element():
                 self += operand
@@ -3429,6 +3439,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip              = super().empty_copy()
         new_clip._time_signature    << self._time_signature
         new_clip._midi_track        << self._midi_track
+        new_clip._auto              = self._auto
         new_clip._length_beats      = self._length_beats
         return new_clip << parameters
 
@@ -3448,6 +3459,7 @@ class Clip(Composition):  # Just a container of Elements
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._time_signature    << self._time_signature   
         new_clip._midi_track        << self._midi_track
+        new_clip._auto              = self._auto
         new_clip._length_beats      = self._length_beats
         return new_clip << parameters
 
@@ -4294,7 +4306,7 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
-        return self._sort_items()    # May be needed due to upper clips
+        return super()._sort_items()    # May be needed due to upper clips
 
 
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
