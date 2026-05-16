@@ -96,6 +96,14 @@ def test_operand_copy():
     basic_parameters: tuple = (None, 6, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 6.2)
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
+    # DUE TO THE CLASSES LOAD AND IMPORT, NOT A BIG DEAL BECAUSE __new__ CALLS THE LOADING
+    # 1st Cycle - Simple data
+    # Unable to Load the file: json/_Save_jsonMidiCreator.json
+    # Unable to Import the file: json/_Export_jsonMidiCreator.json
+    # 2nd Cycle - Unit objects data
+    # Unable to Load the file: json/_Save_jsonMidiCreator.json
+    # Unable to Import the file: json/_Export_jsonMidiCreator.json
+
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
@@ -131,6 +139,8 @@ def test_operand_copy():
                 class_object << unit_class_object
             if class_object != class_object.copy():
                 print(f"Culprit Copy ii: {single_class.__name__}")
+                class_object.copy() >> Save("json/_class_object_copy_save.json")
+                class_object >> Save("json/_class_object_save.json")
                 assert class_object == class_object.copy()
             if isinstance(class_object, Clip):
                 if not class_object._test_owner_clip():
@@ -275,6 +285,8 @@ def test_operand_serialization():
                 assert len(serialization) > 0
             if loaded_instantiation != class_object:
                 print(f"Culprit Serialization equal ii: {single_class.__name__}")
+                loaded_instantiation >> Save("json/_loaded_instantiation_save.json")
+                class_object >> Save("json/_class_object_save.json")
                 assert loaded_instantiation == class_object
             if isinstance(loaded_instantiation, Clip):
                 if not loaded_instantiation._test_owner_clip():

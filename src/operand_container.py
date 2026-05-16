@@ -1488,19 +1488,6 @@ class Composition(Container):
         if isinstance(operand, int):
             return self.__imul__(operand)
         return super().__ipow__(operand)
-    
-
-    def fit(self, tie_splits: bool = True) -> Self:
-        """
-        Fits all the `Element` items into the respective Measure doing an optional tie if a `Note`.
-
-        Args:
-            tie_splits (bool): Does a tie of all splitted Notes.
-
-        Returns:
-            Composition: The same self object with the items processed.
-        """
-        return self
 
 
     def loop(self, position = 0, length = 4) -> Self:
@@ -2694,8 +2681,8 @@ class Clip(Composition):  # Just a container of Elements
 
     def _sort_items(self) -> Self:
         super()._sort_items()
-        if self._auto:  # Does auto stacking
-            self.stack()
+        # if self._auto:  # Does auto fitting
+        #     self.fit()
         return self
 
 
@@ -3000,6 +2987,7 @@ class Clip(Composition):  # Just a container of Elements
                 super().__lshift__(operand)
                 self._time_signature    << operand._time_signature
                 self._midi_track        << operand._midi_track
+                self._auto              = operand._auto
                 self._set_owner_clip()
 
             case od.Pipe():
@@ -4222,10 +4210,10 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def fit(self, tie_splitted_notes: bool = True) -> Self:
+    def fit(self) -> Self:
         """
         Fits all the `Element` items into the respective available length between the previous \
-            and the next Element.
+            and the next Element, in a formal Staff fashion.
 
         Args:
             None
@@ -4233,18 +4221,20 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        for unmasked_element in self._extract_items():
-            previous_element: oe.Element | None = self._previous_item(unmasked_element)
-            if previous_element is not None:
-                unmasked_element._position_beats = previous_element._position_beats + previous_element._duration_beats
+        for single_element in self._items:
+            # Sets the Position
+            previous_element: oe.Element | None = self._previous_item(single_element)
+            if previous_element is not None:    # Not the first Element
+                single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
             else:
-                unmasked_element._position_beats = Fraction(0)  # Places it at the start of the Clip
-            next_element: oe.Element | None = self._next_item(unmasked_element)
-            if next_element is not None:
-                unmasked_element._duration_beats = next_element._position_beats - unmasked_element._position_beats
+                single_element._position_beats = Fraction(0)  # Places it at the start of the Clip, first element starts at 0
+            # Sets the Duration
+            next_element: oe.Element | None = self._next_item(single_element)
+            if next_element is not None:    # Not the last Element
+                single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
-                unmasked_element._duration_beats = self.length()._rational - unmasked_element._position_beats
-        return self._sort_items()
+                single_element._duration_beats = self.length()._rational - single_element._position_beats
+        return self    # No need for sorting in stack because stack doesn't change order
 
 
     def link(self, ignore_empty_measures: bool = True) -> Self:
@@ -4305,7 +4295,6 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._position_beats = root_position._rational
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
-        
         return self    # No need for sorting in stack because stack doesn't change order
 
 
