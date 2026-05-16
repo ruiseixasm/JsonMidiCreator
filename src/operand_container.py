@@ -2692,6 +2692,12 @@ class Clip(Composition):  # Just a container of Elements
     def __next__(self) -> 'oe.Element':
         return super().__next__()
 
+    def _sort_items(self) -> Self:
+        super()._sort_items()
+        if self._auto:  # Does auto stacking
+            self.stack()
+        return self
+
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
         if isinstance(new_item, oe.Element):
@@ -5261,6 +5267,10 @@ class Part(Composition):
     def __next__(self) -> 'Block':
         return super().__next__()
     
+    def _sort_items(self) -> Self:
+        # Blocks aren't sortable
+        return self
+
 
     def _set_owner_part(self, owner_part: 'Part' = None) -> Self:
         """
