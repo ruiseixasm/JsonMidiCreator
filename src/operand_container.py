@@ -2682,7 +2682,7 @@ class Clip(Composition):  # Just a container of Elements
     def _sort_items(self) -> Self:
         super()._sort_items()
         # if self._auto:  # Does auto fitting
-        #     self.fit()
+        #     self.fit(_auto = True)
         return self
 
 
@@ -4210,7 +4210,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def fit(self) -> Self:
+    def fit(self, _auto: bool = False) -> Self:
         """
         Fits all the `Element` items into the respective available length between the previous \
             and the next Element, in a formal Staff fashion.
@@ -4221,7 +4221,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        for single_element in self._items:
+        fitting_elements: list[oe.Element] = self._items
+        if not _auto:
+            fitting_elements = self._access_items()
+        for single_element in fitting_elements:
             # Sets the Position
             previous_element: oe.Element | None = self._previous_item(single_element)
             if previous_element is not None:    # Not the first Element
