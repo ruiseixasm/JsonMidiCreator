@@ -4627,7 +4627,7 @@ class Block(Composition):
             target_clip: Clip = self[index]
             if isinstance(target_clip, Clip) and value is not target_clip:
                 self._replace(target_clip, value)    # Makes sure it propagates
-        return self._sort_items()
+        return self
     
 
     def __next__(self) -> 'Clip':
@@ -5022,7 +5022,7 @@ class Block(Composition):
 
             case _:
                 super().__lshift__(operand)
-        return self._sort_items()
+        return self
 
 
     def __iadd__(self, operand: any) -> Union['Part', 'Block']:
@@ -5047,7 +5047,7 @@ class Block(Composition):
                 self._extend(self.deep_copy(operand))
             case _:
                 super().__iadd__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
     def __isub__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
@@ -5062,7 +5062,7 @@ class Block(Composition):
                 self << self % ra.Position() - operand
             case _:
                 super().__isub__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
     def __imul__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
@@ -5106,7 +5106,7 @@ class Block(Composition):
 
             case _:
                 super().__imul__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
     def __itruediv__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
@@ -5142,7 +5142,7 @@ class Block(Composition):
                     
             case _:
                 super().__itruediv__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
@@ -5171,7 +5171,7 @@ class Block(Composition):
 
             case _:
                 super().__ifloordiv__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
 
     def loop(self, position = 0, length = 4) -> Self:
@@ -5648,7 +5648,7 @@ class Part(Composition):
                         self._append(item.copy()._set_owner_part(self))
             case _:
                 super().__iadd__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
 
     def __isub__(self, operand: any) -> Self:
@@ -5790,7 +5790,7 @@ class Part(Composition):
 
             case _:
                 super().__ifloordiv__(operand)
-        return self._sort_items()  # Shall be sorted!
+        return self
 
 
     def loop(self, position = 0, length = 4) -> Self:
