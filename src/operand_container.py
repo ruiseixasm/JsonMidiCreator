@@ -2678,7 +2678,7 @@ class Clip(Composition):  # Just a container of Elements
             return new_clip
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Union['of.Frame', int], value: Union['oe.Element', 'Clip']) -> Self:
+    def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
         """
         Read and Write method
         """
@@ -4604,8 +4604,24 @@ class Block(Composition):
         return super()._access_items()
 
 
-    def __getitem__(self, index: Any) -> 'Clip':
+    def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
+        if isinstance(index, of.Frame):
+            new_block = self.empty_copy()
+            for single_clip in self._access_items():
+                if single_clip == index:
+                    new_block._append(single_clip)
+            return new_block
         return super().__getitem__(index)
+    
+    def __setitem__(self, index: Any, value: Union['Clip', 'Block']) -> Self:
+        """
+        Read and Write method
+        """
+        if isinstance(value, Clip):
+            target_clip: Clip = self[index]
+            if isinstance(target_clip, Clip) and value is not target_clip:
+                self._replace(target_clip, value)    # Makes sure it propagates
+        return self._sort_items()
     
 
     def __next__(self) -> 'Clip':
@@ -5223,6 +5239,26 @@ class Part(Composition):
 
     def __getitem__(self, index: Any) -> 'Block':
         return super().__getitem__(index)
+    
+    def __getitem__(self, index: Any) -> Union['Block', 'Part']:
+        if isinstance(index, of.Frame):
+            new_part = self.empty_copy()
+            for single_clip in self._access_items():
+                if single_clip == index:
+                    new_part._append(single_clip)
+            return new_part
+        return super().__getitem__(index)
+    
+    def __setitem__(self, index: Any, value: Union['Block', 'Part']) -> Self:
+        """
+        Read and Write method
+        """
+        if isinstance(value, Block):
+            target_element: Block = self[index]
+            if isinstance(target_element, Block) and value is not target_element:
+                self._replace(target_element, value)    # Makes sure it propagates
+                value._set_owner_part(self) # Makes sure `value` is owned by the Part
+        return self._sort_items()
     
 
     def __next__(self) -> 'Block':
