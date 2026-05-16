@@ -129,8 +129,7 @@ class Container(o.Operand):
             converted_index = o.tag_to_int(index)
             if converted_index != -1:
                 self._access_items()[converted_index] = value
-                return self._sort_items()   # Changing a given item should trigger the sorting of the Container
-        return self
+        return self._sort_items()   # Changing a given item should trigger the sorting of the Container
     
 
     def __iter__(self) -> Self:
@@ -2670,10 +2669,16 @@ class Clip(Composition):  # Just a container of Elements
         return super()._access_items()
 
 
-    def __getitem__(self, index: Any) -> 'oe.Element':
+    def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
+        if isinstance(index, of.Frame):
+            new_clip = self.empty_copy()
+            for single_clip in self._access_items():
+                if single_clip == index:
+                    new_clip._append(single_clip)
+            return new_clip
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Union['of.Frame', int], value: 'oe.Element') -> Self:
+    def __setitem__(self, index: Union['of.Frame', int], value: Union['oe.Element', 'Clip']) -> Self:
         """
         Read and Write method
         """
@@ -2682,7 +2687,7 @@ class Clip(Composition):  # Just a container of Elements
             if isinstance(target_element, oe.Element) and value is not target_element:
                 self._replace(target_element, value)    # Makes sure it propagates
                 value._set_owner_clip(self) # Makes sure `value` is owned by the Clip
-        return self
+        return self._sort_items()
     
     def __next__(self) -> 'oe.Element':
         return super().__next__()
