@@ -49,6 +49,6 @@ if INSTRUMENT:
     repeated_motif << Channel(1)
 
 
-block_intro = Block(repeated_motif, "Intro") >> Save("Compositions/Game_music_01/01_intro_save.json")
+block_intro = Block(repeated_motif, "Intro") >> Save("Compositions/Game_music_01/Saves/01_intro_save.json")
 block_intro >> Plot()
 
