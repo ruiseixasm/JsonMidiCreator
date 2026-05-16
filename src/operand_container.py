@@ -2682,7 +2682,7 @@ class Clip(Composition):  # Just a container of Elements
     def _sort_items(self) -> Self:
         super()._sort_items()
         # if self._auto:  # Does auto fitting
-        #     self.fit(_auto = True)
+        #     self.fit()
         return self
 
 
@@ -4210,7 +4210,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def fit(self, _auto: bool = False) -> Self:
+    def fit(self) -> Self:
         """
         Fits all the `Element` items into the respective available length between the previous \
             and the next Element, in a formal Staff fashion.
@@ -4221,20 +4221,17 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        fitting_elements: list[oe.Element] = self._items
-        if not _auto:
-            fitting_elements = self._access_items()
-        last_index: int = len(fitting_elements) - 1
-        for i, single_element in enumerate(fitting_elements):
+        last_index: int = len(self._items) - 1
+        for i, single_element in enumerate(self._items):
             # Sets the Position
             if i > 0:   # Not the first Element
-                previous_element = fitting_elements[i - 1]
+                previous_element = self._items[i - 1]
                 single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
             else:
                 single_element._position_beats = Fraction(0)  # Places it at the start of the Clip, first element starts at 0
             # Sets the Duration
             if i < last_index:   # Not the first Element
-                next_element = fitting_elements[i + 1]
+                next_element = self._items[i + 1]
                 single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
