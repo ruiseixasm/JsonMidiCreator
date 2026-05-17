@@ -2171,7 +2171,7 @@ class Composition(Container):
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
             # Keeps iterating the root/seed composition
-            new_iteration: Composition = self._n_function(self.copy())
+            new_iteration: Composition = self._n_function(self.copy())  # Always the first Composition (i = 0)
             if isinstance(new_iteration, Composition):
                 self._iteration = len(self._iterations)
                 plotlist: list[dict] = new_iteration.getPlotlist()
@@ -2335,6 +2335,7 @@ class Composition(Container):
         Returns:
             Composition: Returns the presently plotted composition.
         """
+        # First composition and its plotting (i = 0) it's always the self copy
         self._iterations: list[Composition] = [ self.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
         self._by_channel: bool = by_channel
