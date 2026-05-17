@@ -2681,8 +2681,8 @@ class Clip(Composition):  # Just a container of Elements
 
     def _sort_items(self) -> Self:
         super()._sort_items()
-        # if self._auto:  # Does auto fitting
-        #     self.fit()
+        if self._auto:  # Does auto fitting
+            self.fit()
         return self
 
 
