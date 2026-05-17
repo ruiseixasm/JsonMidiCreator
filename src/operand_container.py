@@ -4234,10 +4234,9 @@ class Clip(Composition):  # Just a container of Elements
         return self    # No need for sorting in stack because stack doesn't change order
 
 
-    def link(self, ignore_empty_measures: bool = True) -> Self:
+    def link(self) -> Self:
         """
-        Adjusts the duration/length of each element to connect to the start of the next element.
-        For the last element in the clip, this is extended up to the end of the measure.
+        Adjusts the `Duration` of each element to link its finish with the start of the next element.
 
         Args:
             None
@@ -4247,10 +4246,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         last_index: int = len(self._items) - 1
         for i, single_element in enumerate(self._items):
-            # Sets the Position
-            if i > 0:   # Not the first Element
-                previous_element = self._items[i - 1]
-                single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
             # Sets the Duration
             if i < last_index:   # Not the last Element
                 next_element = self._items[i + 1]
@@ -4259,10 +4254,9 @@ class Clip(Composition):  # Just a container of Elements
         return self    # No need for sorting in stack because stack doesn't change order
 
 
-    def stack(self, ignore_empty_measures: bool = True) -> Self:
+    def stack(self) -> Self:
         """
-        Moves each Element to start at the finish position of the previous one.
-        If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
+        Moves each Element to start at the finish `Position` of the previous one.
 
         Args:
             None

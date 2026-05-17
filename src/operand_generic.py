@@ -3212,8 +3212,7 @@ class ClipProcess(CompositionProcess):
 class Link(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
 
-    Adjusts the duration/length of each `Element` to connect to the start of the next element.
-    For the last element in the clip, this is extended up to the end of the `Measure`.
+    Adjusts the `Duration` of each element to link its finish with the start of the next element.
 
     Args:
         None.
@@ -3227,8 +3226,7 @@ class Link(ClipProcess):
 class Stack(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stack`
 
-    Moves each Element to start at the finish position of the previous one.
-    If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
+    Moves each Element to start at the finish `Position` of the previous one.
 
     Args:
         None.
