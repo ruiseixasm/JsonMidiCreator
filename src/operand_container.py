@@ -4236,15 +4236,8 @@ class Clip(Composition):  # Just a container of Elements
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
                 # An Element can't have a duration of 0!
-                if single_element._duration_beats == 0:
-                    # 0 Duration means 1 Step minimum
-                    quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-                    single_element._duration_beats = quantization_beats
-                    if single_element._position_beats > quantization_beats:
-                        single_element._position_beats -= quantization_beats
-                        if i > 0:
-                            previous_element = self._items[i - 1]
-                            previous_element._duration_beats -= quantization_beats
+                if single_element._duration_beats == 0: # It means it's in the following MEasure and thus it should occupy it all
+                    single_element << ra.Measures(1)
         return self    # No need for sorting in stack because stack doesn't change order
 
 
