@@ -4212,8 +4212,8 @@ class Clip(Composition):  # Just a container of Elements
 
     def fit(self) -> Self:
         """
-        Fits all the `Element` items into the respective available length between the previous \
-            and the next Element, in a formal Staff fashion by moving their positions and adjusting their durations.
+        Moves the `Position` of the following Elements to match the finish of the previous
+        `Element` by keeping its finish Position, meaaning, by changing its `Duration`.
 
         Args:
             None
@@ -4286,6 +4286,22 @@ class Clip(Composition):  # Just a container of Elements
                 if ignore_empty_measures:
                     starting_position_beats = (single_element % ra.Position()).roundMeasures()._rational
                 single_element._position_beats = starting_position_beats
+        return self    # No need for sorting in stack because stack doesn't change order
+
+    def close(self) -> Self:
+        """
+        Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
+
+        Args:
+            None.
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        if self._items:
+            last_index: int = len(self._items) - 1
+            last_element: oe.Element = self._items[last_index]
+            last_element._duration_beats = self.length()._rational - last_element._position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 

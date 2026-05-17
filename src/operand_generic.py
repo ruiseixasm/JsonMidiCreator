@@ -3129,11 +3129,11 @@ class CompositionProcess(ContainerProcess):
 class Fit(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> Fit`
 
-        Fits all the `Element` items into the respective available length between the previous \
-            and the next Element.
+    Moves the `Position` of the following Elements to match the finish of the previous
+    `Element` by keeping its finish Position, meaaning, by changing its `Duration`.
 
-        Args:
-            None
+    Args:
+        None
     """
     def _process(self, operand: TypeComposition) -> TypeComposition:
         return operand.fit()
@@ -3238,6 +3238,20 @@ class Stack(ClipProcess):
 
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.stack(self._parameters)
+
+class Close(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Close`
+    
+    Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
+
+    Args:
+        None.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def _process(self, operand: 'Clip') -> 'Clip':
+        return operand.close()
 
 class Quantize(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Quantize`
