@@ -4221,7 +4221,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
+        # quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         last_index: int = len(self._items) - 1
         for i, single_element in enumerate(self._items):
             # Sets the Position
@@ -4234,9 +4234,9 @@ class Clip(Composition):  # Just a container of Elements
             if i < last_index:   # Not the last Element
                 next_element = self._items[i + 1]
                 if next_element._position_beats == single_element._position_beats:
-                    next_element._position_beats += quantization_beats
-                    next_element._duration_beats -= quantization_beats
-                single_element._duration_beats = next_element._position_beats - single_element._position_beats
+                    next_element._position_beats += single_element._duration_beats
+                else:
+                    single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
                 # An Element can't have a duration of 0!

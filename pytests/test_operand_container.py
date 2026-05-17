@@ -822,7 +822,7 @@ def test_clip_fitting():
     assert isinstance(two_elements_copy[0], Note)
     assert isinstance(two_elements_copy[1], Rest)
     # two_elements_copy >> Plot()
-    assert two_elements_copy[0] % Duration() == 1/4/4   # 1/16
+    assert two_elements_copy[0] % Duration() == 1/4
 
 # test_clip_fitting()
 
