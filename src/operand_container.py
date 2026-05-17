@@ -4235,6 +4235,16 @@ class Clip(Composition):  # Just a container of Elements
                 single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
+                # An Element can't have a duration of 0!
+                if single_element._duration_beats == 0:
+                    # 0 Duration means 1 Step minimum
+                    quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
+                    single_element._duration_beats = quantization_beats
+                    if single_element._position_beats > quantization_beats:
+                        single_element._position_beats -= quantization_beats
+                        if i > 0:
+                            previous_element = self._items[i - 1]
+                            previous_element._duration_beats -= quantization_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 
