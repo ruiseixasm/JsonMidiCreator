@@ -810,6 +810,20 @@ def test_clip_fitting():
     assert long_notes.len() == 2
     assert long_notes % Duration() == 2.0 + 2.0 # trimmed to the end of last Measure, 4.0 !!
 
+    two_elements = Clip()
+    two_elements << Note() << Rest()
+    assert isinstance(two_elements[0], Note)
+    assert isinstance(two_elements[1], Rest)
+    two_elements_copy = two_elements.copy()
+    assert isinstance(two_elements_copy[0], Note)
+    assert isinstance(two_elements_copy[1], Rest)
+    assert two_elements_copy[0] % Duration() == 1/4
+    two_elements_copy.fit()
+    assert isinstance(two_elements_copy[0], Note)
+    assert isinstance(two_elements_copy[1], Rest)
+    # two_elements_copy >> Plot()
+    assert two_elements_copy[0] % Duration() == 1/4/4   # 1/16
+
 # test_clip_fitting()
 
 
