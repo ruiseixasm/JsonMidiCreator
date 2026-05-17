@@ -2682,7 +2682,7 @@ class Clip(Composition):  # Just a container of Elements
     def _sort_items(self) -> Self:
         super()._sort_items()
         if self._auto:  # Does auto formatting
-            self.stack(ignore_empty_measures = False).fit()
+            self.fit()
         return self
 
 
@@ -4213,7 +4213,7 @@ class Clip(Composition):  # Just a container of Elements
     def fit(self) -> Self:
         """
         Fits all the `Element` items into the respective available length between the previous \
-            and the next Element, in a formal Staff fashion.
+            and the next Element, in a formal Staff fashion by moving their positions and adjusting their durations.
 
         Args:
             None
@@ -4221,24 +4221,19 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        # quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         last_index: int = len(self._items) - 1
         for i, single_element in enumerate(self._items):
-            # Sets the Position
+            # Sets the Position and the Duration
             if i > 0:   # Not the first Element
                 previous_element = self._items[i - 1]
-                single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
-            else:
-                single_element._position_beats = Fraction(0)  # Places it at the start of the Clip, first element starts at 0
-            # Sets the Duration
-            if i < last_index:   # Not the last Element
-                next_element = self._items[i + 1]
-                if next_element._position_beats == single_element._position_beats:
-                    next_element._position_beats += single_element._duration_beats
+                if single_element._position_beats == previous_element._position_beats:
+                    single_element._position_beats += previous_element._duration_beats
                 else:
-                    single_element._duration_beats = next_element._position_beats - single_element._position_beats
-            else:
-                single_element._duration_beats = self.length()._rational - single_element._position_beats
+                    previous_element_finish_beats = previous_element._position_beats + previous_element._duration_beats
+                    single_element._duration_beats += single_element._position_beats - previous_element_finish_beats
+                    single_element._position_beats = previous_element_finish_beats
+        # The last Element
+        self._items[last_index]._duration_beats = self.length()._rational - self._items[last_index]._position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 
