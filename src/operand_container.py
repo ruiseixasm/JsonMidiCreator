@@ -4253,30 +4253,27 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        if self._items:
-            for index, element in enumerate(self._items):
-                if index > 0:
-                    previous_element: oe.Element = self[index - 1]
-                    previous_element << \
-                        ra.Beats(self, element._position_beats - previous_element._position_beats) % ra.Duration()
-            # Add a Rest in the beginning if necessary
-            first_element: oe.Element = self._first_element()
-            last_element: oe.Element = self._last_element()
-            starting_position_beats: Fraction = Fraction(0)
-            if ignore_empty_measures:
-                starting_position_beats = (first_element % od.Pipe( ra.Position() )).roundMeasures()._rational
-            if first_element._position_beats != starting_position_beats:  # Not at the starting position
-                rest_duration: ra.Duration = ra.Beats(self, first_element._position_beats) % ra.Duration()
-                self._items.insert(0, oe.Rest(rest_duration))
-            # Adjust last_element duration based on its Measure position
-            if last_element is not None:    # LAST ELEMENT ONLY!
-                remaining_beats: Fraction = \
-                    ra.Length(self, last_element._position_beats).roundMeasures()._rational - last_element._position_beats
-                if remaining_beats == 0:    # Means it's on the next Measure alone, thus, it's a one Measure note
-                    last_element << ra.Measures(self, 1) % ra.Duration()
+        last_index: int = len(self._items) - 1
+        for i, single_element in enumerate(self._items):
+            # Sets the Position
+            if i > 0:   # Not the first Element
+                previous_element = self._items[i - 1]
+                single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
+            else:
+                starting_position_beats: Fraction = Fraction(0) # Places it at the start of the Clip, first element starts at 0
+                if ignore_empty_measures:
+                    starting_position_beats = (single_element % ra.Position()).roundMeasures()._rational
+                single_element._position_beats = starting_position_beats
+            # Sets the Duration
+            if i < last_index:   # Not the last Element
+                next_element = self._items[i + 1]
+                if next_element._position_beats == single_element._position_beats:
+                    next_element._position_beats += single_element._duration_beats
                 else:
-                    last_element << ra.Beats(self, remaining_beats) % ra.Duration()
-        return self._sort_items()
+                    single_element._duration_beats = next_element._position_beats - single_element._position_beats
+            else:
+                single_element._duration_beats = self.length()._rational - single_element._position_beats
+        return self    # No need for sorting in stack because stack doesn't change order
 
 
     def stack(self, ignore_empty_measures: bool = True) -> Self:
