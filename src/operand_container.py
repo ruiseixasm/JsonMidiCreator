@@ -4259,9 +4259,7 @@ class Clip(Composition):  # Just a container of Elements
             # Sets the Duration
             if i < last_index:   # Not the last Element
                 next_element = self._items[i + 1]
-                if next_element._position_beats == single_element._position_beats:
-                    next_element._position_beats += single_element._duration_beats
-                else:
+                if next_element._position_beats > single_element._position_beats:
                     single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
