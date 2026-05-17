@@ -2682,7 +2682,7 @@ class Clip(Composition):  # Just a container of Elements
     def _sort_items(self) -> Self:
         super()._sort_items()
         if self._auto:  # Does auto formatting
-            self.stack().fit()
+            self.stack(ignore_empty_measures = False).fit()
         return self
 
 
@@ -4295,11 +4295,10 @@ class Clip(Composition):  # Just a container of Elements
                 duration_beats: Fraction = self._items[index - 1]._duration_beats
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:           # THE FIRST ELEMENT!
+                starting_position_beats: Fraction = Fraction(0) # everything starts at the beginning (0)!
                 if ignore_empty_measures:
-                    root_position: ra.Position = (single_element % ra.Position()).roundMeasures()
-                    single_element._position_beats = root_position._rational
-                else:
-                    single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
+                    starting_position_beats = (single_element % ra.Position()).roundMeasures()._rational
+                single_element._position_beats = starting_position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 
