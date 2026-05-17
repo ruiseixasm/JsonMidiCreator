@@ -4240,7 +4240,7 @@ class Clip(Composition):  # Just a container of Elements
         For the last element in the clip, this is extended up to the end of the measure.
 
         Args:
-            ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+            None
 
         Returns:
             Clip: The same self object with the items processed.
@@ -4251,18 +4251,11 @@ class Clip(Composition):  # Just a container of Elements
             if i > 0:   # Not the first Element
                 previous_element = self._items[i - 1]
                 single_element._position_beats = previous_element._position_beats + previous_element._duration_beats
-            else:
-                starting_position_beats: Fraction = Fraction(0) # Places it at the start of the Clip, first element starts at 0
-                if ignore_empty_measures:
-                    starting_position_beats = (single_element % ra.Position()).roundMeasures()._rational
-                single_element._position_beats = starting_position_beats
             # Sets the Duration
             if i < last_index:   # Not the last Element
                 next_element = self._items[i + 1]
                 if next_element._position_beats > single_element._position_beats:
                     single_element._duration_beats = next_element._position_beats - single_element._position_beats
-            else:
-                single_element._duration_beats = self.length()._rational - single_element._position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 
@@ -4272,7 +4265,7 @@ class Clip(Composition):  # Just a container of Elements
         If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
 
         Args:
-            ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+            None
 
         Returns:
             Clip: The same self object with the items processed.
@@ -4281,11 +4274,6 @@ class Clip(Composition):  # Just a container of Elements
             if index > 0:   # Not the first element
                 duration_beats: Fraction = self._items[index - 1]._duration_beats
                 single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
-            else:           # THE FIRST ELEMENT!
-                starting_position_beats: Fraction = Fraction(0) # everything starts at the beginning (0)!
-                if ignore_empty_measures:
-                    starting_position_beats = (single_element % ra.Position()).roundMeasures()._rational
-                single_element._position_beats = starting_position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
     def close(self) -> Self:

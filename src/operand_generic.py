@@ -3216,13 +3216,13 @@ class Link(ClipProcess):
     For the last element in the clip, this is extended up to the end of the `Measure`.
 
     Args:
-        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+        None.
     """
-    def __init__(self, ignore_empty_measures: bool = True):
-        super().__init__(ignore_empty_measures)
+    def __init__(self):
+        super().__init__()
 
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.link(self._parameters)
+        return operand.link()
 
 class Stack(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stack`
@@ -3231,13 +3231,13 @@ class Stack(ClipProcess):
     If it's the first element then its position becomes 0 or the staring of the first non empty `Measure`.
 
     Args:
-        ignore_empty_measures (bool): Ignores first empty Measures if `True`.
+        None.
     """
-    def __init__(self, ignore_empty_measures: bool = True):
-        super().__init__(ignore_empty_measures)
+    def __init__(self):
+        super().__init__()
 
     def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.stack(self._parameters)
+        return operand.stack()
 
 class Close(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Close`
