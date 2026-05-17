@@ -4239,9 +4239,6 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._duration_beats = next_element._position_beats - single_element._position_beats
             else:
                 single_element._duration_beats = self.length()._rational - single_element._position_beats
-                # An Element can't have a duration of 0!
-                if single_element._duration_beats == 0: # It means it's in the following MEasure and thus it should occupy it all
-                    single_element << ra.Measures(1)
         return self    # No need for sorting in stack because stack doesn't change order
 
 
