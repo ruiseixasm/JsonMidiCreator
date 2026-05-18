@@ -41,11 +41,17 @@ class RC_Callables:
 
 
 class RC_Splitter(RC_Callables):
-    _splits: int = 10
-    _chaos: ch.Chaos = ch.SinX(340)
+    def __init__(self, *operands):
+        self._elements: int = 8
+        self._chaos: ch.Chaos = ch.SinX(340)
 
 
-    def new_iteration(clip_0: 'oc.Clip') -> 'oc.Clip':
-        clip_len: int = clip_0.len()
-        return clip_0
+    def new_iteration(self, clip_0_copy: 'oc.Clip') -> 'oc.Clip':
+        clip_len: int = clip_0_copy.len()
+        if clip_len < self._elements:
+            elements_duration = Fraction(0)
+            foreground_elements: list[oe.Element] = clip_0_copy._foreground_items()
+            for single_element in foreground_elements:
+                elements_duration += single_element._duration_beats
+        return clip_0_copy
 
