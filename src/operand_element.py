@@ -673,13 +673,13 @@ class Element(o.Operand):
             case int(): # Amounts of equal splits
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     if operand > 1:
-                        note_value = self % ra.NoteValue() / operand
-                        self //= note_value
+                        note_beats: Fraction = self._duration_beats / operand
+                        self //= note_beats
                     return self._owner_clip
                 else:
                     if operand > 0:
-                        note_value = self % ra.NoteValue() / operand
-                        return self // note_value
+                        note_beats: Fraction = self._duration_beats / operand
+                        return self // note_beats
                     return oc.Clip(self._get_time_signature())
                 
             case str():
@@ -715,7 +715,7 @@ class Element(o.Operand):
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
-            case ra.Duration() | ra.NoteValue() | ra.TimeValue() | float():
+            case ra.Duration() | ra.NoteValue() | ra.TimeValue() | Fraction() | float():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats
