@@ -669,20 +669,18 @@ class Element(o.Operand):
             case oc.Clip():
                 return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
-            case int(): # This results in a simple repeat of elements
+
+            case int(): # Amounts of equal splits
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     if operand > 1:
-                        new_elements: list[Element] = []
-                        for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()._set_owner_clip(self._owner_clip)
-                            new_elements.append(next_element)
-                    return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
+                        note_value = self % ra.NoteValue() / operand
+                        return self // note_value
+                    return self._owner_clip
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
                     if operand > 0:
-                        for _ in range(operand):
-                            new_clip.__iadd__(self) # Special case
-                    return new_clip
+                        note_value = self % ra.NoteValue() / operand
+                        return self // note_value
+                    return oc.Clip(self._get_time_signature())
                 
             case str():
                 elements_place: list[int] = o.string_to_list(operand)

@@ -1144,7 +1144,8 @@ def test_split_note():
 
 
 def test_process_mask():
-    native_clip: Clip = Note() // 4
+    # It splits by 4 elements (notes)
+    native_clip: Clip = Note(1/1) // 4 << Position(0)
     copy_clip: Clip = native_clip >> Stack()
     assert copy_clip != native_clip
     masked_native_clip: Clip = native_clip.mask(All())
