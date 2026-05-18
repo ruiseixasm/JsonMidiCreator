@@ -3354,8 +3354,8 @@ class Clip(Composition):  # Just a container of Elements
                             new_elements.append(next_element)
                             next_element._position_beats = next_split  # Just positions the `Element`
                             next_split += segment_duration_beats
-                            if next_split > group_finish:
-                                next_element._duration_beats -= next_split - group_finish # Trims the extra `Duration`
+                            # Duration only splits once
+                            if isinstance(operand, ra.Duration):
                                 break
                 self._extend(new_elements)
             
