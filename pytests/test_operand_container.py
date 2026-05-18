@@ -1310,6 +1310,12 @@ def test_element_split():
     # single_note >> Plot()
     assert single_note.len() == 6
     assert single_note[5] % Duration() == 1/8
+
+    sixteenth_notes = Note(1/1) // 16
+    assert sixteenth_notes.len() == 16
+    assert sixteenth_notes % Duration() == 1.0
+    assert sixteenth_notes[15] % Duration() == 1/16
+    assert sixteenth_notes[15] % Position() == 1.0 - 1/16
     
 
 def test_clip_proxy():
