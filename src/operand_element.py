@@ -725,16 +725,19 @@ class Element(o.Operand):
                     if segment_duration < group_length:
                         group_position: Fraction = self._position_beats
                         group_finish: Fraction = group_position + self._duration_beats
-                        self._duration_beats = segment_duration
                         next_split: Fraction = group_position + segment_duration
-                        while group_finish > next_split:
+                        self._duration_beats = segment_duration
+                        if isinstance(operand, ra.Duration):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats = next_split  # Just positions the `Element`
-                            next_split += segment_duration
-                            # Duration only splits once
-                            if isinstance(operand, ra.Duration):
-                                break
+                            next_element._duration_beats = group_length - segment_duration
+                        else:
+                            while group_finish > next_split:
+                                next_element: Element = self.copy()
+                                new_elements.append(next_element)
+                                next_element._position_beats = next_split  # Just positions the `Element`
+                                next_split += segment_duration
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)

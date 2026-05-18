@@ -1292,16 +1292,23 @@ def test_element_split():
     assert single_note.len() == 1
     assert single_note[0] % Duration() == 1/1
     single_note //= Position(1/2)
+    # single_note >> Plot()
     assert single_note.len() == 2
     assert single_note[0] % Duration() == 1/2
     assert single_note[1] % Position() == 1/2
     single_note[0] //= Position(1/4)
+    # single_note >> Plot()
     assert single_note.len() == 3
     assert single_note[0] % Duration() == 1/4
     assert single_note[1] % Position() == 1/4
     assert single_note[2] % Duration() == 1/2
     single_note[2] //= Duration(1/8)
+    # single_note >> Plot()
     assert single_note.len() == 4
+    single_note[3] //= NoteValue(1/8)
+    # single_note >> Plot()
+    assert single_note.len() == 6
+    assert single_note[5] % Duration() == 1/8
     
 
 def test_clip_proxy():
