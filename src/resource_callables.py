@@ -47,11 +47,21 @@ class RC_Splitter(RC_Callables):
 
 
     def new_iteration(self, clip_0_copy: 'oc.Clip') -> 'oc.Clip':
+        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         clip_len: int = clip_0_copy.len()
-        if clip_len < self._elements:
-            elements_duration = Fraction(0)
-            foreground_elements: list[oe.Element] = clip_0_copy._foreground_items()
+        total_duration_beats = Fraction(0)
+        foreground_elements: list[oe.Element] = clip_0_copy._foreground_items()
+        for single_element in foreground_elements:
+            total_duration_beats += single_element._duration_beats
+        while clip_len < self._elements:
+            continuous_split_step: int = 1 >> self._chaos
+            continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
+            continuous_start_beat = Fraction(0)
             for single_element in foreground_elements:
-                elements_duration += single_element._duration_beats
+                continuous_finish_beat: Fraction = continuous_start_beat + single_element._duration_beats
+                if continuous_split_beat < continuous_finish_beat:
+                    single_element //= single_element % ra.Position() + continuous_split_beat - continuous_start_beat
+                    break
+                continuous_start_beat = continuous_finish_beat            
         return clip_0_copy
 
