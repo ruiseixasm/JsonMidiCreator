@@ -1286,6 +1286,15 @@ def test_floordiv_clip():
 
 # test_floordiv_clip()
 
+def test_element_split():
+
+    single_note = Note(1/1) * 1
+    assert single_note.len() == 1
+    assert single_note[0] % Duration() == 1/1
+    single_note //= Position(1/2)
+    assert single_note.len() == 2
+    assert single_note[0] % Duration() == 1/2
+
 
 def test_clip_proxy():
     four_notes = Note() / 4
