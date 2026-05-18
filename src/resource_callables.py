@@ -41,6 +41,11 @@ class RC_Callables:
 
 
 class RC_Splitter(RC_Callables):
-    _durations: list[float] = o.list_repeat([1/4, 1/8 * 3/2, 1/8, 1/16, 1/32], [8, 1, 4, 6, 2])
+    _splits: int = 10
     _chaos: ch.Chaos = ch.SinX(340)
+
+
+    def new_iteration(clip_0: 'oc.Clip') -> 'oc.Clip':
+        clip_len: int = clip_0.len()
+        return clip_0
 

@@ -353,15 +353,15 @@ class Container(o.Operand):
 
     def len(self) -> int:
         """
-        Returns the total number of items.def erase
+        Returns the total number of editable items
 
         Args:
             None
 
         Returns:
-            int: Returns the equivalent to the len(self._items).
+            int: Returns the equivalent to the len(self._access_items()).
         """
-        return len(self._extract_items())
+        return len(self._access_items())
 
     def first(self) -> Any:
         """
@@ -374,8 +374,8 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self._extract_items():
-            first_item = self._extract_items()[0]
+        if self._access_items():
+            first_item = self._access_items()[0]
         return first_item
 
     def last(self) -> Any:
@@ -389,8 +389,8 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self._extract_items():
-            last_item = self._extract_items()[-1]
+        if self._access_items():
+            last_item = self._access_items()[-1]
         return last_item
 
     def __eq__(self, other: any) -> bool:
@@ -401,7 +401,7 @@ class Container(o.Operand):
                 return other == self
             case of.Frame():
                 other._set_inside_container(self)
-                for single_item in self._extract_items():
+                for single_item in self._access_items():
                     other_item = other.frame(single_item)
                     if not single_item == other_item:
                         return False
