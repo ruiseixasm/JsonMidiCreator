@@ -354,7 +354,7 @@ class Container(o.Operand):
             None
 
         Returns:
-            int: Returns the equivalent to the len(self._extract_items()).
+            int: Returns the equivalent to the len(self._foreground_items()).
         """
         return len(self._foreground_items())
 
