@@ -94,39 +94,34 @@ class Container(o.Operand):
     def _extract_items(self) -> list[Any]:
         if self._masked:    # Has to copy the list in order to keep it unchanged during for iterations
             return self._mask_items.copy()
-        return self._items.copy()
-
-    def _access_items(self) -> list[Any]:
-        if self._masked:    # Has to copy the list in order to keep it unchanged during for iterations
-            return self._mask_items
-        return self._items
+        return self._items.copy()   # Copies the list, NOT its content
 
 
     def __getitem__(self, index: Any) -> any:
         if isinstance(index, int):
-            return self._access_items()[index]
-        for item in self._access_items():
+            return self._extract_items()[index]
+        for item in self._extract_items():
             if item == index:
                 return item
         if isinstance(index, str):
             index = o.tag_to_int(index)
             if index != -1:
-                return self._access_items()[index]
+                return self._extract_items()[index]
         return ol.Null()
     
 
     def __setitem__(self, index: Any, value) -> Self:
         if isinstance(index, int):
-            self._access_items()[index] = value
+            self._extract_items()[index] = value
             return self._sort_items()   # Changing a given item should trigger the sorting of the Container
-        for i, item in enumerate(self._access_items()):
+        for i, item in enumerate(self._extract_items()):
             if item == index:
-                self._access_items()[i] = value
+                self._extract_items()[i] = value
                 return self._sort_items()   # Changing a given item should trigger the sorting of the Container
         if isinstance(index, str):
             converted_index = o.tag_to_int(index)
             if converted_index != -1:
-                self._access_items()[converted_index] = value
+                self._extract_items()[converted_index] = value
         return self._sort_items()   # Changing a given item should trigger the sorting of the Container
     
 
@@ -359,9 +354,9 @@ class Container(o.Operand):
             None
 
         Returns:
-            int: Returns the equivalent to the len(self._access_items()).
+            int: Returns the equivalent to the len(self._extract_items()).
         """
-        return len(self._access_items())
+        return len(self._extract_items())
 
     def first(self) -> Any:
         """
@@ -374,8 +369,8 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self._access_items():
-            first_item = self._access_items()[0]
+        if self._extract_items():
+            first_item = self._extract_items()[0]
         return first_item
 
     def last(self) -> Any:
@@ -389,8 +384,8 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self._access_items():
-            last_item = self._access_items()[-1]
+        if self._extract_items():
+            last_item = self._extract_items()[-1]
         return last_item
 
     def __eq__(self, other: any) -> bool:
@@ -401,7 +396,7 @@ class Container(o.Operand):
                 return other == self
             case of.Frame():
                 other._set_inside_container(self)
-                for single_item in self._access_items():
+                for single_item in self._extract_items():
                     other_item = other.frame(single_item)
                     if not single_item == other_item:
                         return False
@@ -2653,14 +2648,14 @@ class Clip(Composition):  # Just a container of Elements
     def _extract_items(self) -> list['oe.Element']:
         return super()._extract_items()
 
-    def _access_items(self) -> list['oe.Element']:
-        return super()._access_items()
+    def _extract_items(self) -> list['oe.Element']:
+        return super()._extract_items()
 
 
     def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
         if isinstance(index, of.Frame):
             new_clip = self.empty_copy()
-            for single_element in self._access_items():
+            for single_element in self._extract_items():
                 if single_element == index:
                     new_clip._append(single_element)
             return new_clip
@@ -4597,14 +4592,14 @@ class Block(Composition):
     def _extract_items(self) -> list['Clip']:
         return super()._extract_items()
 
-    def _access_items(self) -> list['Clip']:
-        return super()._access_items()
+    def _extract_items(self) -> list['Clip']:
+        return super()._extract_items()
 
 
     def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
         if isinstance(index, of.Frame):
             new_block = self.empty_copy()
-            for single_clip in self._access_items():
+            for single_clip in self._extract_items():
                 if single_clip == index:
                     new_block._append(single_clip)
             return new_block
@@ -5230,14 +5225,14 @@ class Part(Composition):
     def _extract_items(self) -> list['Block']:
         return super()._extract_items()
 
-    def _access_items(self) -> list['Block']:
-        return super()._access_items()
+    def _extract_items(self) -> list['Block']:
+        return super()._extract_items()
 
 
     def __getitem__(self, index: Any) -> Union['Block', 'Part']:
         if isinstance(index, of.Frame):
             new_part = self.empty_copy()
-            for single_block in self._access_items():
+            for single_block in self._extract_items():
                 if single_block == index:
                     new_part._append(single_block)
             return new_part
