@@ -721,23 +721,24 @@ class Element(o.Operand):
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
                     group_length: Fraction = self._duration_beats
-                    segment_duration: Fraction = ra.Duration(self, operand)._rational
-                    if segment_duration < group_length:
+                    segment_duration_beats: Fraction = ra.Duration(self, operand)._rational
+                    if segment_duration_beats < group_length:
                         group_position: Fraction = self._position_beats
                         group_finish: Fraction = group_position + self._duration_beats
-                        next_split: Fraction = group_position + segment_duration
-                        self._duration_beats = segment_duration
+                        next_split: Fraction = group_position + segment_duration_beats
+                        self._duration_beats = segment_duration_beats
+                        # Duration only splits once
                         if isinstance(operand, ra.Duration):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats = next_split  # Just positions the `Element`
-                            next_element._duration_beats = group_length - segment_duration
+                            next_element._duration_beats = group_length - segment_duration_beats
                         else:
                             while group_finish > next_split:
                                 next_element: Element = self.copy()
                                 new_elements.append(next_element)
                                 next_element._position_beats = next_split  # Just positions the `Element`
-                                next_split += segment_duration
+                                next_split += segment_duration_beats
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)

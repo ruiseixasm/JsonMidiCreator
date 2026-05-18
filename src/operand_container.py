@@ -3347,16 +3347,20 @@ class Clip(Composition):  # Just a container of Elements
                     if segment_duration_beats < group_length:
                         group_start: Fraction = first_element._position_beats
                         group_finish: Fraction = group_start + first_element._duration_beats
-                        first_element._duration_beats = segment_duration_beats
                         next_split: Fraction = group_start + segment_duration_beats
-                        while group_finish > next_split:
+                        first_element._duration_beats = segment_duration_beats
+                        # Duration only splits once
+                        if isinstance(operand, ra.Duration):
                             next_element: oe.Element = first_element.copy()
                             new_elements.append(next_element)
                             next_element._position_beats = next_split  # Just positions the `Element`
-                            next_split += segment_duration_beats
-                            # Duration only splits once
-                            if isinstance(operand, ra.Duration):
-                                break
+                            next_element._duration_beats = group_length - segment_duration_beats
+                        else:
+                            while group_finish > next_split:
+                                next_element: oe.Element = first_element.copy()
+                                new_elements.append(next_element)
+                                next_element._position_beats = next_split  # Just positions the `Element`
+                                next_split += segment_duration_beats
                 self._extend(new_elements)
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
