@@ -3318,13 +3318,11 @@ class Clip(Composition):  # Just a container of Elements
                 self //= split_position
                 self += of.DownTo(split_position)**position_offset
                 self += operand # Finally adds the Element
+                
             case int():
                 if operand > 1:
-                    single_shallow_copy: Clip = self.shallow_copy()
-                    for _ in range(operand - 1):
-                        self += single_shallow_copy
-                elif operand == 0:   # Must be empty
-                    self._delete()
+                    for single_element in self._foreground_items():
+                        single_element //= operand
             # Divides the Clip `Duration` by the given `Length` amount as denominator
             case ra.Length():
                 total_segments: int = operand % int()   # Extracts the original imputed integer
