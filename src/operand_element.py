@@ -674,7 +674,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     if operand > 1:
                         note_value = self % ra.NoteValue() / operand
-                        return self // note_value
+                        self //= note_value
                     return self._owner_clip
                 else:
                     if operand > 0:
