@@ -2177,11 +2177,12 @@ class Composition(Container):
                 self._disable_button(self._next_button)
         return self
 
-    def _run_composition(self, even = None) -> Self:
+    def _run_composition(self, even = None, times: int = 1) -> Self:
         import threading
         if isinstance(self._composition, Composition):
             iteration_self: Composition = self._iterations[self._iteration]
-            threading.Thread(target=og.Play.play, args=(self._composition + iteration_self,)).start()
+            iteration_composition: Composition = self._composition + iteration_self
+            threading.Thread(target=og.Play.play, args=(iteration_composition * times,)).start()
         return self
 
     def _plot_filename(self, composition: 'Composition') -> str:
@@ -2252,6 +2253,8 @@ class Composition(Container):
                 self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
+            case 'ctrl+c' | 'ctrl+space':
+                self._run_composition(event, 4)
             case 'c' | ' ':
                 self._run_composition(event)
             case 'S':
