@@ -3339,11 +3339,14 @@ class Clip(Composition):  # Just a container of Elements
                                     pitch_elements.append(single_element)
                         # Remove splits
                         if len(pitch_elements) > 1:
+                            root_element_i: int = 0
                             for i, single_element in enumerate(pitch_elements):
                                 if i > 0:
-                                    if single_element.start() == pitch_elements[i - 1].finish():
-                                        pitch_elements[i - 1]._duration_beats += single_element._duration_beats
+                                    if single_element.start() == pitch_elements[root_element_i].finish():
+                                        pitch_elements[root_element_i]._duration_beats += single_element._duration_beats
                                         self._remove(single_element, True)
+                                    else:
+                                        root_element_i = i
                         # Reset Remaining Elements list
                         remaining_elements = [
                             remaining_e for remaining_e in remaining_elements

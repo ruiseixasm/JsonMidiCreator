@@ -1312,6 +1312,7 @@ def test_element_split():
     assert single_note[5] % Duration() == 1/8
 
     single_note //= 0   # Remove all splits
+    # single_note >> Plot()
     assert single_note.len() == 1
     assert single_note[0] % Duration() == 1/1
 
