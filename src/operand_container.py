@@ -2111,9 +2111,9 @@ class Composition(Container):
         return None
 
 
-    def _run_play(self, even = None) -> Self:
+    def _run_play(self, even = None, times: int = 1) -> Self:
         import threading
-        iteration_self: Composition = self._iterations[self._iteration]
+        iteration_self: Composition = self._iterations[self._iteration] * times
         threading.Thread(target=og.Play.play, args=(iteration_self,)).start()
         return self
 
