@@ -2248,6 +2248,8 @@ class Composition(Container):
 
     def _on_key(self, event: MouseEvent) -> Self:
         match event.key:
+            case 'ctrl+p' | 'ctrl+enter':
+                self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
             case 'c' | ' ':
