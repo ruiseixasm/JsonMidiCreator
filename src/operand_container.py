@@ -3331,7 +3331,7 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:   # Merge all kinked elements, no splits
                     remaining_elements: list[oe.Element] = self._foreground_items()
                     while remaining_elements:
-                        pitch_elements: list[oe.element] = [ remaining_elements[0] ]
+                        pitch_elements: list[oe.Element] = [ remaining_elements[0] ]
                         # Aggregate by Pitch
                         for i, single_element in enumerate(remaining_elements):
                             if i > 0:
@@ -3345,13 +3345,10 @@ class Clip(Composition):  # Just a container of Elements
                                         pitch_elements[i - 1]._duration_beats += single_element._duration_beats
                                         self._remove(single_element, True)
                         # Reset Remaining Elements list
-                        updated_remaining_elements: list[oe.Element] = []
-                        for remaining_e in remaining_elements:
-                            for pitch_e in pitch_elements:
-                                if id(remaining_e) == id(pitch_e):
-                                    continue
-                            updated_remaining_elements.append(remaining_e)
-                        remaining_elements = updated_remaining_elements
+                        remaining_elements = [
+                            remaining_e for remaining_e in remaining_elements
+                                if not any(id(remaining_e) == id(pitch_e) for pitch_e in pitch_elements)
+                        ]
 
             # Divides the Clip `Duration` by the given `Length` amount as denominator
             case ra.Length():
