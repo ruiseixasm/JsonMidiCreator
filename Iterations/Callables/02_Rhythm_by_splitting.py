@@ -23,6 +23,5 @@ def exclusion(clip) -> bool:
     return False
 
 notes_splitter = RC_Splitter(2*6, exclusion=exclusion)
-
 four_notes >> Plot(n_button=notes_splitter.new_iteration)
 

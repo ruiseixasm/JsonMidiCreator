@@ -71,13 +71,12 @@ class RC_Splitter(RC_Callables):
         try_i: int = 0
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
-            foreground_elements: list[oe.Element] = iteration_clip._foreground_items()
             try_j: int = 0
             while iteration_clip.len() < self._elements and try_j < self._max_tries:
                 continuous_split_step: int = 1 >> self._chaos
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
-                for single_element in foreground_elements:
+                for single_element in iteration_clip._foreground_items():
                     continuous_finish_beat = continuous_start_beat + single_element._duration_beats
                     if continuous_split_beat < continuous_finish_beat:
                         if continuous_split_beat > continuous_start_beat:

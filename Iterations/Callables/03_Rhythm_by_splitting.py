@@ -18,10 +18,10 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 four_notes = Note(1/1) * 4
 
 def exclusion(clip) -> bool:
-    if clip[Equal(Duration(Steps(1)))].len() > 0:
+    if clip[Equal(Duration(Steps(2)))].len() > 0:
         return True
     return False
 
-notes_splitter = RC_Splitter(15, chaos=SinX(540), exclusion=exclusion, max_tries=200)
+notes_splitter = RC_Splitter(3*6, chaos=SinX(540), exclusion=exclusion, max_tries=200)
 four_notes >> Plot(n_button=notes_splitter.new_iteration)
 
