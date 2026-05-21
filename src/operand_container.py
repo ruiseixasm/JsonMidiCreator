@@ -1667,6 +1667,11 @@ class Composition(Container):
                     f"Channel = {round(y)}"
                 )
 
+                # Shade Odd Channels (1 based) VERTICAL AXIS
+                for channel_0 in range(16):
+                    if channel_0 % 2 == 1:
+                        self._ax.axhspan(channel_0 - 0.5, channel_0 + 0.5, color='lightgray', alpha=0.5)
+
                 note_plotlist: list[dict] = [ element_dict["note"] for element_dict in plotlist if "note" in element_dict ]
 
                 if note_plotlist:
@@ -1677,13 +1682,6 @@ class Composition(Container):
                     last_position_measure = int(last_position_measures) # Trims extra length
                     if last_position_measure != last_position_measures: # Includes the trimmed length
                         last_position_measure += 1  # Adds only if the end doesn't coincide
-
-                    # CHANNELS VERTICAL AXIS
-
-                    # Shade Odd Channels (1 based)
-                    for channel_0 in range(16):
-                        if channel_0 % 2 == 1:
-                            self._ax.axhspan(channel_0 - 0.5, channel_0 + 0.5, color='lightgray', alpha=0.5)
 
                     # Plot notes
                     for channel_0 in note_channels:
@@ -1737,7 +1735,21 @@ class Composition(Container):
                                 if "middle_pitch" in note:
                                     self._ax.hlines(y=note["channel"] + 1, xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                     color='black', linewidth=0.5, alpha=color_alpha)
-                
+                                    
+                else:  # Empty watermark
+                    # Add watermark text in the center of the plot
+                    self._ax.text(0.5, 0.5, 'EMPTY', 
+                                transform=self._ax.transAxes,
+                                fontsize=20,
+                                color='gray',
+                                alpha=0.5,
+                                ha='center',
+                                va='center',
+                                fontweight='bold',
+                                fontstyle='italic')
+                    
+                    # Optional: Add a subtle rectangle watermark
+                    self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
                 
             # As Chromatic keys
             else:
@@ -1774,207 +1786,235 @@ class Composition(Container):
                     min_pitch: int = int(min(note["pitch"] for note in note_plotlist) // 12 * 12)
                     max_pitch: int = int(max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12)
 
-                    pitch_range: int = max_pitch - min_pitch
-                    if pitch_range // 12 < 4:   # less than 4 octaves
-                        middle_c_reference: int = 60    # middle C pitch
-                        extra_octaves_range: int = 4 - pitch_range // 12
-                        for _ in range(extra_octaves_range):
-                            raised_top: int = max_pitch + 12
-                            lowered_bottom: int = min_pitch - 12
-                            if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
-                                max_pitch += 12
-                            else:
-                                min_pitch -= 12
+                else:  # Empty watermark
 
-                    # Set MIDI note ticks with Middle C in bold
-                    self._ax.set_yticks(range(min_pitch, max_pitch + 1))
-                    self._ax.tick_params(axis='y', which='both', color='white')
+                    # Updates X-Axis data
+                    last_position_measures = last_position / beats_per_measure
+                    last_position_measure = int(last_position_measures) # Trims extra length
+                    if last_position_measure != last_position_measures: # Includes the trimmed length
+                        last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                    # # Only show tick marks for octaves (pitch % 12 == 0)
-                    # for tick in self._ax.yaxis.get_major_ticks():
-                    #     if tick.get_loc() % 12 != 0:  # If not an octave
-                    #         tick.tick1line.set_visible(False)  # Hide left tick
-                    #         tick.tick2line.set_visible(False)  # Hide right tick
+                    # PITCHES VERTICAL AXIS
 
-                    # Where the VERTICAL axis is defined - Chromatic Keys
-                    chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                    # Get pitch range
+                    min_pitch: int = 60
+                    max_pitch: int = 60
+
+                    # Add watermark text in the center of the plot
+                    self._ax.text(0.5, 0.5, 'EMPTY', 
+                                transform=self._ax.transAxes,
+                                fontsize=20,
+                                color='gray',
+                                alpha=0.5,
+                                ha='center',
+                                va='center',
+                                fontweight='bold',
+                                fontstyle='italic')
                     
-                    y_labels = [
-                        chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
-                        for pitch in range(min_pitch, max_pitch + 1)
-                    ]  # Bold Middle C
-                    self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+                    # Optional: Add a subtle rectangle watermark
+                    self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
 
-                    # # Adjust alignment and shift
-                    # for label in self._ax.get_yticklabels():
-                    #     label.set_horizontalalignment("right")  # right-align text
-                    #     label.set_x(-0.005)                     # shift a bit left (tweak as needed)
 
-                    self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+                pitch_range: int = max_pitch - min_pitch
+                if pitch_range // 12 < 4:   # less than 4 octaves
+                    middle_c_reference: int = 60    # middle C pitch
+                    extra_octaves_range: int = 4 - pitch_range // 12
+                    for _ in range(extra_octaves_range):
+                        raised_top: int = max_pitch + 12
+                        lowered_bottom: int = min_pitch - 12
+                        if abs(raised_top - middle_c_reference) < abs(lowered_bottom - middle_c_reference):
+                            max_pitch += 12
+                        else:
+                            min_pitch -= 12
 
-                    # Shade and shorten black keys and enlarge B3 and C4 keys
-                    for pitch in range(min_pitch, max_pitch + 1):
-                        if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
-                            self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
+                # Set MIDI note ticks with Middle C in bold
+                self._ax.set_yticks(range(min_pitch, max_pitch + 1))
+                self._ax.tick_params(axis='y', which='both', color='white')
 
-                    staff_modes: dict[int, int] = {}
-                    staff_tonic_keys: dict[int, int] = {}
-                    staff_sharps_or_flats: dict[int, list[int]] = {}
+                # # Only show tick marks for octaves (pitch % 12 == 0)
+                # for tick in self._ax.yaxis.get_major_ticks():
+                #     if tick.get_loc() % 12 != 0:  # If not an octave
+                #         tick.tick1line.set_visible(False)  # Hide left tick
+                #         tick.tick2line.set_visible(False)  # Hide right tick
 
-                    # Plot notes per Channel
-                    for channel_0 in note_channels:
-                        printed_channel_number: bool = False
-                        channel_color = Composition._channel_colors[channel_0]
-                        channel_plotlist = [
-                            channel_note for channel_note in note_plotlist
-                            if channel_note["channel"] == channel_0
-                        ]
-                        last_mode_measure: int = -1
-                        last_tonic_key_measure: int = -1
-                        last_sharps_or_flats_measure: int = -1
+                # Where the VERTICAL axis is defined - Chromatic Keys
+                chromatic_keys: list[str] = ["C", "", "D", "", "E", "F", "", "G", "", "A", "", "B"]
+                
+                y_labels = [
+                    chromatic_keys[pitch % 12] + (str(pitch // 12 - 1) if pitch % 12 == 0 else "")
+                    for pitch in range(min_pitch, max_pitch + 1)
+                ]  # Bold Middle C
+                self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
 
-                        for note in channel_plotlist:
-                            if isinstance(note["self"], oe.Rest):
-                                # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                                color_alpha: float = 1.0
-                                if note["masked"]:
-                                    color_alpha = 0.2
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
-                                    height=0.40, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
+                # # Adjust alignment and shift
+                # for label in self._ax.get_yticklabels():
+                #     label.set_horizontalalignment("right")  # right-align text
+                #     label.set_x(-0.005)                     # shift a bit left (tweak as needed)
+
+                self._ax.set_ylim(min_pitch - 0.5, max_pitch + 0.5)  # Ensure all notes fit
+
+                # Shade and shorten black keys and enlarge B3 and C4 keys
+                for pitch in range(min_pitch, max_pitch + 1):
+                    if o.is_black_key(pitch):   # Make it less taller, 0.6 instead of 1.0
+                        self._ax.axhspan(pitch - 0.3, pitch + 0.3, color='lightgray', alpha=0.5)
+
+                staff_modes: dict[int, int] = {}
+                staff_tonic_keys: dict[int, int] = {}
+                staff_sharps_or_flats: dict[int, list[int]] = {}
+
+                # Plot notes per Channel
+                for channel_0 in note_channels:
+                    printed_channel_number: bool = False
+                    channel_color = Composition._channel_colors[channel_0]
+                    channel_plotlist = [
+                        channel_note for channel_note in note_plotlist
+                        if channel_note["channel"] == channel_0
+                    ]
+                    last_mode_measure: int = -1
+                    last_tonic_key_measure: int = -1
+                    last_sharps_or_flats_measure: int = -1
+
+                    for note in channel_plotlist:
+                        if isinstance(note["self"], oe.Rest):
+                            # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                            color_alpha: float = 1.0
+                            if note["masked"]:
+                                color_alpha = 0.2
+                            self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]),
+                                height=0.40, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
+                        else:
+                            if o.is_black_key(round(note["pitch"])):
+                                bar_height: float = 0.25
                             else:
-                                if o.is_black_key(round(note["pitch"])):
-                                    bar_height: float = 0.25
-                                else:
-                                    bar_height: float = 0.40
-                                bar_hatch: str = ''
-                                line_style: str = 'solid'
-                                if isinstance(note["self"], oe.KeyScale):
-                                    line_style = 'dashed'
-                                elif isinstance(note["self"], oe.Retrigger):
-                                    line_style = 'dotted'
-                                edge_color: str = 'black'
-                                if not note["enabled"]:
-                                    edge_color = 'white'
+                                bar_height: float = 0.40
+                            bar_hatch: str = ''
+                            line_style: str = 'solid'
+                            if isinstance(note["self"], oe.KeyScale):
+                                line_style = 'dashed'
+                            elif isinstance(note["self"], oe.Retrigger):
+                                line_style = 'dotted'
+                            edge_color: str = 'black'
+                            if not note["enabled"]:
+                                edge_color = 'white'
 
-                                color_alpha: float = round(0.3 + 0.7 * (note["velocity"] / 127), 2)
-                                if note["velocity"] > 127:
-                                    edge_color = 'red'
-                                    color_alpha = 1.0
-                                elif note["velocity"] < 0:
-                                    edge_color = 'blue'
-                                    color_alpha = 1.0
-                                
-                                if note["masked"]:
-                                    color_alpha = 0.2
+                            color_alpha: float = round(0.3 + 0.7 * (note["velocity"] / 127), 2)
+                            if note["velocity"] > 127:
+                                edge_color = 'red'
+                                color_alpha = 1.0
+                            elif note["velocity"] < 0:
+                                edge_color = 'blue'
+                                color_alpha = 1.0
+                            
+                            if note["masked"]:
+                                color_alpha = 0.2
 
-                                if note["tied"]:
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                            height=bar_height - 0.1, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
-                                    self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                            height=bar_height, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
+                            if note["tied"]:
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=bar_height - 0.1, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
+                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=bar_height, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
-                                else:
-                                    self._ax.barh(y=note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                            height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
+                            else:
+                                self._ax.barh(y=note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                        height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
-                                if "middle_pitch" in note:
-                                    self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
-                                                    color='black', linewidth=0.5, alpha=color_alpha)
+                            if "middle_pitch" in note:
+                                self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
+                                                color='black', linewidth=0.5, alpha=color_alpha)
 
-                                # note Measures to keep track of
-                                note_measure: int = int(note["position_on"] // beats_per_measure)
-                                flag_update_key_signature: bool = False
+                            # note Measures to keep track of
+                            note_measure: int = int(note["position_on"] // beats_per_measure)
+                            flag_update_key_signature: bool = False
 
 
-                                if note_measure not in staff_modes:
+                            if note_measure not in staff_modes:
 
-                                    # Updates the last_mode_measure
-                                    changed_last_mode_measure: int = last_mode_measure
-                                    while changed_last_mode_measure < note_measure and changed_last_mode_measure not in staff_modes:
-                                        changed_last_mode_measure += 1
-                                    if changed_last_mode_measure < note_measure:
-                                        last_mode_measure = changed_last_mode_measure
-                                
-                                    mode_0: int = note["mode"]
-                                    if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
-                                        staff_modes[note_measure] = mode_0
-                                        scale_mode: int = mode_0 % 9 + 1
-                                        mode_marker: str = og.Scale._names[scale_mode][0]
-                                        base_pitch: int = max_pitch - 12
-                                        self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
-                                        flag_update_key_signature = True
-                                        last_mode_measure = note_measure
-                                else:
+                                # Updates the last_mode_measure
+                                changed_last_mode_measure: int = last_mode_measure
+                                while changed_last_mode_measure < note_measure and changed_last_mode_measure not in staff_modes:
+                                    changed_last_mode_measure += 1
+                                if changed_last_mode_measure < note_measure:
+                                    last_mode_measure = changed_last_mode_measure
+                            
+                                mode_0: int = note["mode"]
+                                if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
+                                    staff_modes[note_measure] = mode_0
+                                    scale_mode: int = mode_0 % 9 + 1
+                                    mode_marker: str = og.Scale._names[scale_mode][0]
+                                    base_pitch: int = max_pitch - 12
+                                    self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
+                                    flag_update_key_signature = True
                                     last_mode_measure = note_measure
+                            else:
+                                last_mode_measure = note_measure
 
-                                if note_measure not in staff_tonic_keys:
-                                    
-                                    # Updates the last_tonic_key_measure
-                                    changed_last_tonic_key_measure: int = last_tonic_key_measure
-                                    while changed_last_tonic_key_measure < note_measure and changed_last_tonic_key_measure not in staff_tonic_keys:
-                                        changed_last_tonic_key_measure += 1
-                                    if changed_last_tonic_key_measure < note_measure:
-                                        last_tonic_key_measure = changed_last_tonic_key_measure
+                            if note_measure not in staff_tonic_keys:
                                 
-                                    tonic_key: int = note["tonic_key"]
-                                    if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
-                                        staff_tonic_keys[note_measure] = tonic_key
-                                        base_pitch: int = max_pitch - 12
-                                        self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
-                                        flag_update_key_signature = True
-                                        last_tonic_key_measure = note_measure
-                                else:
+                                # Updates the last_tonic_key_measure
+                                changed_last_tonic_key_measure: int = last_tonic_key_measure
+                                while changed_last_tonic_key_measure < note_measure and changed_last_tonic_key_measure not in staff_tonic_keys:
+                                    changed_last_tonic_key_measure += 1
+                                if changed_last_tonic_key_measure < note_measure:
+                                    last_tonic_key_measure = changed_last_tonic_key_measure
+                            
+                                tonic_key: int = note["tonic_key"]
+                                if last_tonic_key_measure < 0 or staff_tonic_keys[last_tonic_key_measure] != tonic_key:
+                                    staff_tonic_keys[note_measure] = tonic_key
+                                    base_pitch: int = max_pitch - 12
+                                    self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + tonic_key, 'T', ha='left', va='center', fontsize=5, color='black')
+                                    flag_update_key_signature = True
                                     last_tonic_key_measure = note_measure
+                            else:
+                                last_tonic_key_measure = note_measure
 
-                                if note_measure not in staff_sharps_or_flats:
-                                    if flag_update_key_signature:
-                                        diatonic_mode_0: int = staff_modes[last_mode_measure]
-                                        diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
-                                        tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
-                                        scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
-                                        if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
-                                            staff_sharps_or_flats[note_measure] = scale_accidentals
-                                            
-                                            for accidental_key, accidental in enumerate(scale_accidentals):
-                                                chromatic_pitch: int = base_pitch
-                                                if accidental > 0:
-                                                    accidental_key += 1
-                                                    chromatic_pitch += accidental_key % 12
-                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
-                                                elif accidental < 0:
-                                                    accidental_key -= 1
-                                                    chromatic_pitch += accidental_key % 12
-                                                    self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
-
-                                            last_sharps_or_flats_measure = note_measure
-                                else:
-                                    last_sharps_or_flats_measure = note_measure
-
-
-                                # Where the bar accidentals are plotted
-                                if note["accidentals"]:
-                                    symbol: str = ''
-                                    if note["accidentals"] > 0: # Sharped
-                                        symbol = '♯' * note["accidentals"]
-                                    else:                       # Flattened
-                                        symbol = '♭' * (note["accidentals"] * -1)
-                                    y_pos: int = note["pitch"]
-                                    x_pos = float(note["position_on"]) - 0.15
-                                    self._ax.text(x_pos, y_pos, symbol, ha='center', va='center', fontsize=8, fontweight='bold',
-                                        color='black',  # Outline color
-                                        path_effects=[patheffects.withStroke(linewidth=1.4, foreground=channel_color)],
-                                        alpha=color_alpha)
-
-                                if not printed_channel_number:
-                                    y_pos: int = note["pitch"] + 0.2
-                                    x_pos = (float(note["position_on"]) + float(note["position_off"])) / 2
-                                    self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
-                                        color='black',  # Outline color
-                                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                                        alpha=color_alpha)
-                                    printed_channel_number = True
+                            if note_measure not in staff_sharps_or_flats:
+                                if flag_update_key_signature:
+                                    diatonic_mode_0: int = staff_modes[last_mode_measure]
+                                    diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
+                                    tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
+                                    scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
+                                    if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
+                                        staff_sharps_or_flats[note_measure] = scale_accidentals
                                         
+                                        for accidental_key, accidental in enumerate(scale_accidentals):
+                                            chromatic_pitch: int = base_pitch
+                                            if accidental > 0:
+                                                accidental_key += 1
+                                                chromatic_pitch += accidental_key % 12
+                                                self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♯', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
+                                            elif accidental < 0:
+                                                accidental_key -= 1
+                                                chromatic_pitch += accidental_key % 12
+                                                self._ax.text(float(note_measure * beats_per_measure) - 0.05, chromatic_pitch, '♭', ha='right', va='center', fontsize=10, fontweight='bold', color='black')
 
+                                        last_sharps_or_flats_measure = note_measure
+                            else:
+                                last_sharps_or_flats_measure = note_measure
+
+
+                            # Where the bar accidentals are plotted
+                            if note["accidentals"]:
+                                symbol: str = ''
+                                if note["accidentals"] > 0: # Sharped
+                                    symbol = '♯' * note["accidentals"]
+                                else:                       # Flattened
+                                    symbol = '♭' * (note["accidentals"] * -1)
+                                y_pos: int = note["pitch"]
+                                x_pos = float(note["position_on"]) - 0.15
+                                self._ax.text(x_pos, y_pos, symbol, ha='center', va='center', fontsize=8, fontweight='bold',
+                                    color='black',  # Outline color
+                                    path_effects=[patheffects.withStroke(linewidth=1.4, foreground=channel_color)],
+                                    alpha=color_alpha)
+
+                            if not printed_channel_number:
+                                y_pos: int = note["pitch"] + 0.2
+                                x_pos = (float(note["position_on"]) + float(note["position_off"])) / 2
+                                self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
+                                    color='black',  # Outline color
+                                    path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                                    alpha=color_alpha)
+                                printed_channel_number = True
+                                 
         # Plot Automations
         else:
 
