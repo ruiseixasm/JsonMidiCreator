@@ -1895,11 +1895,11 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
-    def _set_element_from_field(self, field: str | None) -> bool:
-
-
+    def _set_element_from_number(self, number: int | float | None) -> bool:
+        if isinstance(number, int):
+            self << ou.Channel(number)
+            return True
         return False
-
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3007,6 +3007,12 @@ class Chord(KeyScale):
     def sus4(self, sus4: bool = True) -> Self:
         self._sus4 = sus4
         return self
+
+    def _set_element_from_number(self, number: int | float | None) -> bool:
+        if isinstance(number, float):
+            self << ou.Size(number)
+            return True
+        return super()._set_element_from_number(number)
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -5392,25 +5398,24 @@ _element_type: dict[str, type] = {
 
 
 def _get_element_from_field(field: str) -> Element | None:
+    element: Element | None = None
     if field == "":
         field = "n"
     else:
         field = field.lower()
     element_parameters: list[str] = field.split("_")
-    element: Element | None = None
 
-    for element_type in _element_type:
-        if element_type in _element_type:
-            element = _element_type[ element_type ]()  # instantiates the Element class
-            break
-
-    for parameter in enumerate(element_parameters):
-        number = o.string_to_number(parameter)
-        match number:
-            case int():
-                element << ou.Channel(number)
-            case float():
-                pass
+    numbers: list = []
+    for parameter in _element_type:
+        if parameter in _element_type:
+            element = _element_type[ parameter ]()  # instantiates the Element class
+        else:
+            number = o.string_to_number(parameter)
+            if isinstance(number, (int, float)):
+                numbers.append(number)
+    if element is None:
+        element = Note()
+    element._set_element_from_number(number)
     return element
 
 
