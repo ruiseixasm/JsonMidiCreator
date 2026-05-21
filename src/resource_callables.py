@@ -62,20 +62,21 @@ class RC_Splitter(RC_Callables):
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
             foreground_elements: list[oe.Element] = iteration_clip._foreground_items()
-            continuous_split_step: int = 1 >> self._chaos
-            continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
-            continuous_start_beat = Fraction(0)
-            for single_element in foreground_elements:
-                if continuous_split_beat > continuous_start_beat:
-                    element_position: ra.Position = single_element % ra.Position()
-                    single_element //= element_position + continuous_split_beat - continuous_start_beat
-                    break
-                continuous_start_beat += single_element._duration_beats
-            if iteration_clip.len() == self._elements:
-                if iteration_clip in self._iterations:
-                    try_i += 1
-                else:
-                    self._iterations.append(iteration_clip)
-                    return iteration_clip
+            while iteration_clip.len() < self._elements:
+                continuous_split_step: int = 1 >> self._chaos
+                continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
+                continuous_start_beat = Fraction(0)
+                for single_element in foreground_elements:
+                    if continuous_split_beat > continuous_start_beat:
+                        element_position: ra.Position = single_element % ra.Position()
+                        single_element //= element_position + continuous_split_beat - continuous_start_beat
+                        break
+                    continuous_start_beat += single_element._duration_beats
+                if iteration_clip.len() == self._elements:
+                    if iteration_clip in self._iterations:
+                        try_i += 1
+                    else:
+                        self._iterations.append(iteration_clip)
+                        return iteration_clip
         return clip_0
 
