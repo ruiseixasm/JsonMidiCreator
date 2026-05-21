@@ -37,23 +37,31 @@ import operand_chaos as ch
 
 
 class RC_Callables:
-    pass
+    def __init__(self, chaos: ch.Chaos = ch.SinX(340), max_tries: int = 100):
+        self._iterations: list[oc.Composition] = []
+        self._chaos: ch.Chaos = chaos
+        self._max_tries: int = max_tries
+
+    def reset(self) -> Self:
+        self._iterations = []
+        return self
 
 
 class RC_Splitter(RC_Callables):
-    def __init__(self, *operands):
-        self._elements: int = 8
-        self._chaos: ch.Chaos = ch.SinX(340)
+    def __init__(self, elements: int = 8, chaos: ch.Chaos = ch.SinX(340), max_tries: int = 100):
+        super().__init__(chaos, max_tries)
+        self._elements: int = elements
 
 
-    def new_iteration(self, clip_0_copy: 'oc.Clip') -> 'oc.Clip':
+    def new_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-        clip_len: int = clip_0_copy.len()
         total_duration_beats = Fraction(0)
-        foreground_elements: list[oe.Element] = clip_0_copy._foreground_items()
-        for single_element in foreground_elements:
+        for single_element in clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
-        while clip_len < self._elements:
+        try_i: int = 0
+        while try_i < self._max_tries:
+            iteration_clip: oc.Clip = clip_0.copy()
+            foreground_elements: list[oe.Element] = iteration_clip._foreground_items()
             continuous_split_step: int = 1 >> self._chaos
             continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
             continuous_start_beat = Fraction(0)
@@ -62,6 +70,12 @@ class RC_Splitter(RC_Callables):
                 if continuous_split_beat < continuous_finish_beat:
                     single_element //= single_element % ra.Position() + continuous_split_beat - continuous_start_beat
                     break
-                continuous_start_beat = continuous_finish_beat            
-        return clip_0_copy
+                continuous_start_beat = continuous_finish_beat
+            if iteration_clip.len() == self._elements:
+                if iteration_clip in self._iterations:
+                    try_i += 1
+                else:
+                    self._iterations.append(iteration_clip)
+                    return iteration_clip
+        return clip_0
 
