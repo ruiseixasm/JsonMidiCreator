@@ -1895,6 +1895,12 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
+    def _set_element_from_field(self, field: str | None) -> bool:
+
+
+        return False
+
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -5383,6 +5389,29 @@ _element_type: dict[str, type] = {
     'pb':       PitchBend,
     'pc':       ProgramChange
 }
+
+
+def _get_element_from_field(field: str) -> Element | None:
+    if field == "":
+        field = "n"
+    else:
+        field = field.lower()
+    element_parameters: list[str] = field.split("_")
+    element: Element | None = None
+
+    for element_type in _element_type:
+        if element_type in _element_type:
+            element = _element_type[ element_type ]()  # instantiates the Element class
+            break
+
+    for parameter in enumerate(element_parameters):
+        number = o.string_to_number(parameter)
+        match number:
+            case int():
+                element << ou.Channel(number)
+            case float():
+                pass
+    return element
 
 
 
