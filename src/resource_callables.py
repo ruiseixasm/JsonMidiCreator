@@ -62,7 +62,8 @@ class RC_Splitter(RC_Callables):
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
             foreground_elements: list[oe.Element] = iteration_clip._foreground_items()
-            while iteration_clip.len() < self._elements:
+            try_j: int = 0
+            while iteration_clip.len() < self._elements and try_j < self._max_tries:
                 continuous_split_step: int = 1 >> self._chaos
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
@@ -75,10 +76,10 @@ class RC_Splitter(RC_Callables):
                         break
                     continuous_start_beat = continuous_finish_beat
                 if iteration_clip.len() == self._elements:
-                    if iteration_clip in self._iterations:
-                        try_i += 1
-                    else:
+                    if iteration_clip not in self._iterations:
                         self._iterations.append(iteration_clip)
                         return iteration_clip
+                try_j += 1
+            try_i += 1
         return clip_0.empty_copy()  # No valid Clip made
 
