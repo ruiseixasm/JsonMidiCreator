@@ -40,7 +40,7 @@ def _normalize_dsl(dsl: str) -> str:
     dsl = dsl.replace("\n", " ")
 
     # 2a. Remove spaces around commas
-    dsl = re.sub(r"\s*,\s*", ",", s)
+    dsl = re.sub(r"\s*,\s*", ",", dsl)
 
     # 2b. Remove spaces around colons
     dsl = re.sub(r"\s*:\s*", ":", dsl)

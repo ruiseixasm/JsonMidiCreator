@@ -726,3 +726,7 @@ def test_element_field():
     assert oe._get_element_from_field("N_9") == Note(Channel(9))
 
 
+def test_element_token():
+    assert oe._get_element_from_token(":") == Note()
+
+
