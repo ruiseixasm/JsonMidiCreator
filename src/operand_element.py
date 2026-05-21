@@ -2129,21 +2129,21 @@ class Note(ChannelElement):
                 return super().__gt__(other)
     
 
-    def _set_pitch_from_field(self, field_1: str | None) -> bool:
-        if field_1 is None:
+    def _set_pitch_from_field(self, field_2: str | None) -> bool:
+        if field_2 is None:
             return False
         
         # Extract letter (A-G)
-        letter = next((c for c in field_1 if c in 'ABCDEFG'), '')
+        letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
         # Extract accidental
-        accidental = '#' if '#' in field_1 else 'b' if 'b' in field_1 else ''
+        accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
         # Get the remaining string without letter and accidental
         if letter:
-            field_1 = field_1.replace(letter, '')
+            field_2 = field_2.replace(letter, '')
         if accidental:
-            field_1 = field_1.replace(accidental, '')
+            field_2 = field_2.replace(accidental, '')
 
-        degree_octave: list[str] = field_1.split("_")
+        degree_octave: list[str] = field_2.split("_")
 
         for parameter in degree_octave:
             number = o.string_to_number(parameter)
@@ -2160,7 +2160,6 @@ class Note(ChannelElement):
                     if accidental:
                         self._pitch << accidental
                     return True
-                
         if letter or accidental:
             if letter:
                 self._pitch << letter
@@ -2448,6 +2447,10 @@ class Note(ChannelElement):
                 self._tied = operand % bool()
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
                 self._pitch << operand
+            case od.Token():
+                super().__lshift__(operand)
+                self._set_pitch_from_field(operand.get_field(2))
+
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
                 self._pitch << operand
@@ -5432,12 +5435,9 @@ def _get_element_from_token(token: str) -> Element | None:
     if token != "":
         if token == ":":
             token = "n"
-        fields: list[str] = token.split(":")
-        if fields:
-            element = _get_element_from_field(fields[0])
-            fields.pop(0)   # remove element field
-            element_token: str = ":".join(fields)
-            element << od.Token(element_token)
+        token_operand = od.Token(token)
+        element = _get_element_from_field(token_operand.get_field(0))
+        element << od.Token(token)
     return element
 
 
