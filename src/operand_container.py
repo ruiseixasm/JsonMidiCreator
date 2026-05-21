@@ -22,6 +22,7 @@ import json
 import enum
 import math
 import operator
+import re
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -2604,6 +2605,40 @@ def _string_to_elements(string: str) -> list[oe.Element]:
                 next_position_beats = new_elements[-1].finish()
                 string_elements.extend(new_elements)
     return string_elements
+
+
+def _preprocess_midi_dsl(s: str) -> str:
+    """
+    Converts a raw DSL string into a strict canonical format:
+    - elements separated by ','
+    - whitespace removed as structure
+    - preserves ':' and '_'
+
+    Literal Syntax instead of Inference Syntax
+    DSL stands for Domain-Specific Language
+    """
+
+    # 1. Normalize line breaks to spaces
+    s = s.replace("\n", " ")
+
+    # 2. Remove spaces around commas
+    s = re.sub(r"\s*,\s*", ",", s)
+
+    # 3. Convert remaining whitespace between elements into commas
+    # (only if not already adjacent to separators)
+    s = re.sub(r"\s+", ",", s)
+
+    # 4. Collapse multiple commas
+    s = re.sub(r",+", ",", s)
+
+    # 5. Remove leading/trailing commas
+    s = s.strip(",")
+
+    # 6. Safety cleanup: remove accidental empty elements like ",,"
+    parts = [p for p in s.split(",") if p != ""]
+
+    # 7. Re-join into canonical form
+    return ",".join(parts)
 
 
 class Clip(Composition):  # Just a container of Elements

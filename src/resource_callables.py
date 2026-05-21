@@ -72,7 +72,7 @@ class RC_Splitter(RC_Callables):
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
             try_j: int = 0
-            while iteration_clip.len() < self._elements and try_j < self._max_tries:
+            while iteration_clip.len() < self._elements and try_j < self._max_tries * 2:
                 continuous_split_step: int = 1 >> self._chaos
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
