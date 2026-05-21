@@ -58,6 +58,7 @@ class RC_Splitter(RC_Callables):
         total_duration_beats = Fraction(0)
         for single_element in clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
+        self._iterations.append(clip_0) # Avoids repeating the initial clip (seed)
         try_i: int = 0
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
