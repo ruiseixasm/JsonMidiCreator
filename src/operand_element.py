@@ -5415,7 +5415,8 @@ def _get_element_from_field(field: str) -> Element | None:
                 numbers.append(number)
     if element is None:
         element = Note()
-    element._set_element_from_number(number)
+    for number in numbers:
+        element._set_element_from_number(number)
     return element
 
 
