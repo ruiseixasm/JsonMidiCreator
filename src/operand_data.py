@@ -178,6 +178,17 @@ class Parameter(Data):
     """
     pass
 
+class Field(Data):
+    """`Data -> Field`
+
+    `Field` allows an Element to receive multiple parameters in a single string.
+    
+    Fields
+    ----------
+    str("") : A DSL string with multiple fields, like, "1/8:C5#".
+    """
+    pass
+
 
 class Inline(Data):
     """`Data -> Inline`

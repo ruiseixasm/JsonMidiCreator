@@ -49,6 +49,16 @@ def string_or_number(string: str) -> int | float | str:
             return float(rational)
         except ValueError:
             return string
+        
+def string_to_number(string: str) -> int | float | None:
+    try:
+        return int(string)
+    except ValueError:
+        try:    # float is tokened as a fraction '1/8'
+            rational = Fraction(string)
+            return float(rational)
+        except ValueError:
+            return None
 
 def string_eval(string: str) -> Any:
     """Safely evaluate a string into int, float, Fraction, or list of them.

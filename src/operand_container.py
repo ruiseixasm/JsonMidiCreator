@@ -2647,7 +2647,7 @@ def _string_to_elements(string: str) -> list[oe.Element]:
     return string_elements
 
 
-def _preprocess_midi_dsl(s: str) -> str:
+def _normalize_dsl(dsl: str) -> str:
     """
     Converts a raw DSL string into a strict canonical format:
     - elements separated by ','
@@ -2659,26 +2659,70 @@ def _preprocess_midi_dsl(s: str) -> str:
     """
 
     # 1. Normalize line breaks to spaces
-    s = s.replace("\n", " ")
+    dsl = dsl.replace("\n", " ")
 
-    # 2. Remove spaces around commas
-    s = re.sub(r"\s*,\s*", ",", s)
+    # 2a. Remove spaces around commas
+    dsl = re.sub(r"\s*,\s*", ",", s)
+
+    # 2b. Remove spaces around colons
+    dsl = re.sub(r"\s*:\s*", ":", dsl)
+
+    # 2c. Remove spaces around underscores
+    dsl = re.sub(r"\s*_\s*", "_", dsl)
 
     # 3. Convert remaining whitespace between elements into commas
     # (only if not already adjacent to separators)
-    s = re.sub(r"\s+", ",", s)
+    dsl = re.sub(r"\s+", ",", dsl)
 
     # 4. Collapse multiple commas
-    s = re.sub(r",+", ",", s)
+    dsl = re.sub(r",+", ",", dsl)
 
     # 5. Remove leading/trailing commas
-    s = s.strip(",")
+    dsl = dsl.strip(",")
 
     # 6. Safety cleanup: remove accidental empty elements like ",,"
-    parts = [p for p in s.split(",") if p != ""]
+    elements_dsl = [e for e in dsl.split(",") if e != ""]
 
     # 7. Re-join into canonical form
-    return ",".join(parts)
+    return ",".join(elements_dsl)
+
+
+def _get_element_from_field(field_1: str) -> 'oe.Element' | None:
+    if field_1 == "":
+        field_1 = "n"
+    else:
+        field_1 = field_1.lower()
+    element_parameters: list[str] = field_1.split("_")
+    if element_parameters[0] in _element_notations:
+        return _element_notations[ element_parameters[0] ]()  # instantiates the Element class
+    return None
+
+
+def _get_duration_from_field(field_2: str) -> 'ra.Duration' | None:
+    duration = o.string_to_number(field_2)
+    match duration:
+        case int():
+            return ra.Duration(ra.Steps(duration))
+        case float():
+            return ra.Duration(ra.NoteValue(duration))
+    return None # The respective Element default
+
+
+
+
+def _get_elements_from_dsl(dsl: str) -> list['oe.Elements']:
+    normalized_dsl: str = _normalize_dsl(dsl)
+    elements_dsl: list[str] = normalized_dsl.split(",")
+    elements: list[oe.Element] = []
+
+    for single_dsl in elements_dsl:
+        if ':' in single_dsl:
+            element_fields: list[str] = single_dsl.split(":")
+        else:
+            element_parameters: list[str] = single_dsl.split("_")
+
+
+    return elements
 
 
 class Clip(Composition):  # Just a container of Elements
