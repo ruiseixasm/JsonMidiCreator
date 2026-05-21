@@ -29,6 +29,17 @@ from io import StringIO
 import pytest     # pip install pytest
 import sys
 
+def test_clip_equal():
+    single_element = Note(1/1) * 1
+    other_element = single_element * 1
+    assert other_element == single_element
+    other_element >>= Rest()
+    # single_element + other_element >> Plot()
+    assert other_element[0] % Duration() == 1/1
+    assert other_element != single_element
+
+# test_clip_equal()
+
 
 def test_staff_parameters():
 

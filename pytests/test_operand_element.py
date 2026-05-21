@@ -30,6 +30,12 @@ import pytest     # pip install pytest
 import sys
 
 
+def test_element_equal():
+    assert Note(1/1) == Note(1/1)
+    assert Note(1/1) != Note(1/4)
+    assert Note(1/1) != Rest(1/1)
+    assert Rest(1/1) != Note(1/1)
+
 def test_element_mod():
 
     element = Note()
