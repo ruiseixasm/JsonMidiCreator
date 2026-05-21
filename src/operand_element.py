@@ -2144,25 +2144,25 @@ class Note(ChannelElement):
             number = o.string_to_number(parameter)
             match number:
                 case int():
-                    self << ou.Octave(number)
+                    self._pitch << ou.Octave(number)
                     if letter:
-                        self << letter
+                        self._pitch << letter
                     if accidental:
-                        self << accidental
+                        self._pitch << accidental
                     return True
                 case float():
-                    self << ou.Degree(number)
+                    self._pitch << ou.Degree(number)
                     if letter:
-                        self << letter
+                        self._pitch << letter
                     if accidental:
-                        self << accidental
+                        self._pitch << accidental
                     return True
                 case _:
                     if letter or accidental:
                         if letter:
-                            self << letter
+                            self._pitch << letter
                         if accidental:
-                            self << accidental
+                            self._pitch << accidental
                         return True
         return False # The respective Element default
 
