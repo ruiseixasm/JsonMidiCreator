@@ -2687,7 +2687,7 @@ def _normalize_dsl(dsl: str) -> str:
     return ",".join(elements_dsl)
 
 
-def _get_element_from_field(field_1: str) -> 'oe.Element' | None:
+def _get_element_from_field(field_1: str) -> oe.Element | None:
     if field_1 == "":
         field_1 = "n"
     else:
@@ -2698,7 +2698,7 @@ def _get_element_from_field(field_1: str) -> 'oe.Element' | None:
     return None
 
 
-def _get_duration_from_field(field_2: str) -> 'ra.Duration' | None:
+def _get_duration_from_field(field_2: str) -> ra.Duration | None:
     duration = o.string_to_number(field_2)
     match duration:
         case int():
