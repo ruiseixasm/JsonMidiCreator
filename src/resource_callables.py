@@ -37,7 +37,7 @@ import operand_chaos as ch
 
 
 class RC_Callables:
-    def __init__(self, chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None, max_tries: int = 1000):
+    def __init__(self, chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None, max_tries: int = 100):
         self._iterations: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._exclusion: Callable | None = exclusion
@@ -80,9 +80,10 @@ class RC_Splitter(RC_Callables):
                 for single_element in foreground_elements:
                     continuous_finish_beat = continuous_start_beat + single_element._duration_beats
                     if continuous_split_beat < continuous_finish_beat:
-                        element_split_position: ra.Position = single_element % ra.Position()
-                        element_split_position += continuous_split_beat - continuous_start_beat
-                        single_element //= element_split_position
+                        if continuous_split_beat > continuous_start_beat:
+                            element_split_position: ra.Position = single_element % ra.Position()
+                            element_split_position += continuous_split_beat - continuous_start_beat
+                            single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
                 if iteration_clip.len() == self._elements and not self.excluded(iteration_clip):
