@@ -2185,7 +2185,7 @@ class Note(ChannelElement):
             return []
         
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
@@ -2267,7 +2267,7 @@ class Note(ChannelElement):
             return []
         
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_duration_beats: Fraction = self._duration_beats * self._gate
         self_duration: float = float(self_duration_beats)
@@ -4095,7 +4095,7 @@ class ControlChange(Automation):
             return []
 
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
@@ -4655,7 +4655,7 @@ class PitchBend(Automation):
             return []
         
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         
@@ -4828,7 +4828,7 @@ class Aftertouch(Automation):
             return []
         
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
@@ -4991,7 +4991,7 @@ class PolyAftertouch(Aftertouch):
             return []
 
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
@@ -5119,7 +5119,7 @@ class ProgramChange(ChannelElement):
             return []
         
         absolute_position_beats: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
             absolute_position_beats += self._position_beats
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
