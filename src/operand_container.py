@@ -2687,25 +2687,16 @@ def _normalize_dsl(dsl: str) -> str:
     return ",".join(elements_dsl)
 
 
-def _get_element_from_field(field_1: str) -> oe.Element | None:
-    if field_1 == "":
-        field_1 = "n"
+def _get_element_from_field(field_0: str) -> oe.Element | None:
+    if field_0 == "":
+        field_0 = "n"
     else:
-        field_1 = field_1.lower()
-    element_parameters: list[str] = field_1.split("_")
+        field_0 = field_0.lower()
+    element_parameters: list[str] = field_0.split("_")
     if element_parameters[0] in _element_notations:
         return _element_notations[ element_parameters[0] ]()  # instantiates the Element class
     return None
 
-
-def _get_duration_from_field(field_2: str) -> ra.Duration | None:
-    duration = o.string_to_number(field_2)
-    match duration:
-        case int():
-            return ra.Duration(ra.Steps(duration))
-        case float():
-            return ra.Duration(ra.NoteValue(duration))
-    return None # The respective Element default
 
 
 

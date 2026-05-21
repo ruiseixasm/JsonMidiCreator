@@ -2105,6 +2105,17 @@ class Note(ChannelElement):
             case _:
                 return super().__gt__(other)
     
+
+    def _get_duration_from_field(field_1: str) -> ra.Duration | None:
+        duration = o.string_to_number(field_1)
+        match duration:
+            case int():
+                return ra.Duration(ra.Steps(duration))
+            case float():
+                return ra.Duration(ra.NoteValue(duration))
+        return None # The respective Element default
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
