@@ -1690,8 +1690,8 @@ class Clock(DeviceElement):
                     and self._clock_ppqn == other._clock_ppqn \
                     and self._mmc_mode == other._mmc_mode
             case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+                # A Clock isn't any other thing
+                return False
             case _:
                 return super().__eq__(other)
     
@@ -2039,6 +2039,26 @@ class Note(ChannelElement):
     def decrease_center_pitch(self) -> Self:
         self._pitch -= ou.Octave(1)
         return self
+
+
+    # def __eq__(self, other: o.Operand) -> bool:
+    #     match other:
+    #         case KeyScale() | Retrigger() | Tuplet() | Unison():
+    #             # Makes a playlist comparison
+    #             return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+    #         case self.__class__():
+    #             return super().__eq__(other) \
+    #                 and self._velocity  == other._velocity \
+    #                 and self._gate      == other._gate \
+    #                 and self._tied      == other._tied \
+    #                 and self._pitch     == other._pitch
+    #         case Element():
+    #             # No other Element is considered equal
+    #             return False
+    #         case str():
+    #             return self._pitch == other
+    #         case _:
+    #             return super().__eq__(other)
 
 
     def __eq__(self, other: o.Operand) -> bool:
