@@ -37,19 +37,28 @@ import operand_chaos as ch
 
 
 class RC_Callables:
-    def __init__(self, chaos: ch.Chaos = ch.SinX(340), max_tries: int = 100):
+    def __init__(self, chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None, max_tries: int = 1000):
         self._iterations: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
+        self._exclusion: Callable | None = exclusion
         self._max_tries: int = max_tries
 
     def reset(self) -> Self:
         self._iterations = []
         return self
+    
+    def excluded(self, clip: oc.Clip) -> bool:
+        if clip not in self._iterations:
+            if self._exclusion is None or not self._exclusion(clip):
+                self._iterations.append(clip)
+                return False
+        return True
 
 
 class RC_Splitter(RC_Callables):
-    def __init__(self, elements: int = 8, chaos: ch.Chaos = ch.SinX(340), max_tries: int = 100):
-        super().__init__(chaos, max_tries)
+    def __init__(self, elements: int = 8,
+                 chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None, max_tries: int = 100):
+        super().__init__(chaos, exclusion, max_tries)
         self._elements: int = elements
 
 
@@ -76,8 +85,7 @@ class RC_Splitter(RC_Callables):
                         single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements and iteration_clip not in self._iterations:
-                    self._iterations.append(iteration_clip)
+                if iteration_clip.len() == self._elements and not self.excluded(iteration_clip):
                     return iteration_clip
                 try_j += 1
             try_i += 1
