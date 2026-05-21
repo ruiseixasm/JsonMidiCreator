@@ -2124,6 +2124,49 @@ class Note(ChannelElement):
                 return super().__gt__(other)
     
 
+    def _set_pitch_from_field(self, field_1: str | None) -> bool:
+        if field_1 is None:
+            return False
+        
+        # Extract letter (A-G)
+        letter = next((c for c in field_1 if c in 'ABCDEFG'), '')
+        # Extract accidental
+        accidental = '#' if '#' in field_1 else 'b' if 'b' in field_1 else ''
+        # Get the remaining string without letter and accidental
+        if letter:
+            field_1 = field_1.replace(letter, '')
+        if accidental:
+            field_1 = field_1.replace(accidental, '')
+
+        degree_octave: list[str] = field_1.split("_")
+
+        for parameter in degree_octave:
+            number = o.string_to_number(parameter)
+            match number:
+                case int():
+                    self << ou.Octave(number)
+                    if letter:
+                        self << letter
+                    if accidental:
+                        self << accidental
+                    return True
+                case float():
+                    self << ou.Degree(number)
+                    if letter:
+                        self << letter
+                    if accidental:
+                        self << accidental
+                    return True
+                case _:
+                    if letter or accidental:
+                        if letter:
+                            self << letter
+                        if accidental:
+                            self << accidental
+                        return True
+        return False # The respective Element default
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
