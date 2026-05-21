@@ -224,13 +224,19 @@ class Field(Data):
     """`Data -> Field`
 
     `Field` allows an Element to receive multiple parameters in a single string.
+    DSL stands for Domain-Specific Language
     
     Fields
     ----------
     str("") : A DSL string with multiple fields, like, "1/8:C5#".
     """
-    pass
-
+    def get_field(self, index: int) -> str | None:
+        field_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(field_dsl)
+        element_fields: list[str] = normalized_dsl.split(":")
+        if index < len(element_fields):
+            return element_fields[index]
+        return None
 
 class Inline(Data):
     """`Data -> Inline`
