@@ -70,6 +70,18 @@ def test_modulus():
 # test_modulus()
 
 
+def test_chaos_discretion():
+    chaos = SinX(340)
+    total_values = 4*16
+    values = set()
+    assert len(values) == 0
+    for _ in range(1000):
+        new_value = 1 >> chaos
+        new_value %= total_values
+        values.add(new_value)
+    assert len(values) == total_values
+    
+
 def test_chained_chaos():
 
     modulus_sinx = Cycle()**SinX()
