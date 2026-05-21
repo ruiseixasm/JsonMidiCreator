@@ -2144,11 +2144,11 @@ class Note(ChannelElement):
             number = o.string_to_number(parameter)
             match number:
                 case int():
-                    self._pitch << ou.Octave(number)
                     if letter:
                         self._pitch << letter
                     if accidental:
                         self._pitch << accidental
+                    self._pitch << ou.Octave(number)
                     return True
                 case float():
                     self._pitch << ou.Degree(number)
