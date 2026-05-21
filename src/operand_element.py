@@ -143,8 +143,10 @@ class Element(o.Operand):
         return finish_measure < last_measure + 1 and finish_measure > start_measure
     
 
-    def _set_duration_from_field(self, field_1: str) -> bool:
-        duration = o.string_to_number(field_1)
+    def _set_duration_from_field(self, field_0: str | None) -> bool:
+        if field_0 is None:
+            return False
+        duration = o.string_to_number(field_0)
         match duration:
             case int():
                 self << ra.Duration(ra.Steps(duration))
@@ -324,10 +326,7 @@ class Element(o.Operand):
             case int():
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
             case od.Field():
-                field_dsl: str = operand._data
-                normalized_dsl: str = od._normalize_dsl(field_dsl)
-                element_fields: list[str] = normalized_dsl.split(":")
-                self._set_duration_from_field(element_fields[0])
+                self._set_duration_from_field(operand.get_field(0))
 
             case og.Segment():
                 if operand._segment:
