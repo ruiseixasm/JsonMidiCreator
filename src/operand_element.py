@@ -2152,8 +2152,6 @@ class Note(ChannelElement):
                     return True
                 case float():
                     self._pitch << ou.Degree(number)
-                    if letter:
-                        self._pitch << letter
                     if accidental:
                         self._pitch << accidental
                     return True
