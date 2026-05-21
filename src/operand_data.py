@@ -220,15 +220,15 @@ class Parameter(Data):
     """
     pass
 
-class Field(Data):
-    """`Data -> Field`
+class Token(Data):
+    """`Data -> Token`
 
-    `Field` allows an Element to receive multiple parameters in a single string.
+    `Token` allows an Element to receive multiple parameters in a single string.
     DSL stands for Domain-Specific Language
     
     Fields
     ----------
-    str("") : A DSL string with multiple fields, like, "1/8:C5#".
+    str("") : A DSL string with multiple parameters, like, "1/8:C5#".
     """
     def get_field(self, index: int) -> str | None:
         field_dsl: str = self._data
