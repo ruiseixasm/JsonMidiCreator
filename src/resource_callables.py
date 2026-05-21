@@ -67,16 +67,18 @@ class RC_Splitter(RC_Callables):
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
                 for single_element in foreground_elements:
-                    if continuous_split_beat > continuous_start_beat:
-                        element_position: ra.Position = single_element % ra.Position()
-                        single_element //= element_position + continuous_split_beat - continuous_start_beat
+                    continuous_finish_beat = continuous_start_beat + single_element._duration_beats
+                    if continuous_split_beat < continuous_finish_beat:
+                        element_split_position: ra.Position = single_element % ra.Position()
+                        element_split_position += continuous_split_beat - continuous_start_beat
+                        single_element //= element_split_position
                         break
-                    continuous_start_beat += single_element._duration_beats
+                    continuous_start_beat = continuous_finish_beat
                 if iteration_clip.len() == self._elements:
                     if iteration_clip in self._iterations:
                         try_i += 1
                     else:
                         self._iterations.append(iteration_clip)
                         return iteration_clip
-        return clip_0
+        return clip_0.empty_copy()  # No valid Clip made
 
