@@ -22,6 +22,7 @@ import json
 import enum
 import time
 import math
+import re
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -55,6 +56,46 @@ def str_to_tuple(parameters: str) -> tuple | None:
         count = text.count("_")
         print(count)  # Output: 1
     return None
+
+
+def _normalize_dsl(dsl: str) -> str:
+    """
+    Converts a raw DSL string into a strict canonical format:
+    - elements separated by ','
+    - whitespace removed as structure
+    - preserves ':' and '_'
+
+    Literal Syntax instead of Inference Syntax
+    DSL stands for Domain-Specific Language
+    """
+
+    # 1. Normalize line breaks to spaces
+    dsl = dsl.replace("\n", " ")
+
+    # 2a. Remove spaces around commas
+    dsl = re.sub(r"\s*,\s*", ",", s)
+
+    # 2b. Remove spaces around colons
+    dsl = re.sub(r"\s*:\s*", ":", dsl)
+
+    # 2c. Remove spaces around underscores
+    dsl = re.sub(r"\s*_\s*", "_", dsl)
+
+    # 3. Convert remaining whitespace between elements into commas
+    # (only if not already adjacent to separators)
+    dsl = re.sub(r"\s+", ",", dsl)
+
+    # 4. Collapse multiple commas
+    dsl = re.sub(r",+", ",", dsl)
+
+    # 5. Remove leading/trailing commas
+    dsl = dsl.strip(",")
+
+    # 6. Safety cleanup: remove accidental empty elements like ",,"
+    elements_dsl = [e for e in dsl.split(",") if e != ""]
+
+    # 7. Re-join into canonical form
+    return ",".join(elements_dsl)
 
 
 def pitch_channel_0(pitch: int, channel_0: int) -> int:
@@ -140,6 +181,18 @@ class Element(o.Operand):
         finish_measure: int = finish_position % ra.Measure() % int()
         last_measure: int = last_position % ra.Measure() % int()
         return finish_measure < last_measure + 1 and finish_measure > start_measure
+    
+
+    def _set_duration_from_field(self, field_1: str) -> bool:
+        duration = o.string_to_number(field_1)
+        match duration:
+            case int():
+                self << ra.Duration(ra.Steps(duration))
+                return True
+            case float():
+                self << ra.Duration(ra.NoteValue(duration))
+                return True
+        return False # The respective Element default
     
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -310,6 +363,12 @@ class Element(o.Operand):
                 self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()
             case int():
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
+            case od.Field():
+                field_dsl: str = operand._data
+                normalized_dsl: str = _normalize_dsl(field_dsl)
+                element_fields: list[str] = normalized_dsl.split(":")
+                self._set_duration_from_field(element_fields[0])
+
             case og.Segment():
                 if operand._segment:
                     self << ra.Measure(operand._segment[0])
@@ -2105,16 +2164,6 @@ class Note(ChannelElement):
             case _:
                 return super().__gt__(other)
     
-
-    def _get_duration_from_field(field_1: str) -> ra.Duration | None:
-        duration = o.string_to_number(field_1)
-        match duration:
-            case int():
-                return ra.Duration(ra.Steps(duration))
-            case float():
-                return ra.Duration(ra.NoteValue(duration))
-        return None # The respective Element default
-
 
     def __mod__(self, operand: o.T) -> o.T:
         """
