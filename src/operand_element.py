@@ -2155,13 +2155,13 @@ class Note(ChannelElement):
                     if accidental:
                         self._pitch << accidental
                     return True
-                case _:
-                    if letter or accidental:
-                        if letter:
-                            self._pitch << letter
-                        if accidental:
-                            self._pitch << accidental
-                        return True
+                
+        if letter or accidental:
+            if letter:
+                self._pitch << letter
+            if accidental:
+                self._pitch << accidental
+            return True
         return False # The respective Element default
 
 
