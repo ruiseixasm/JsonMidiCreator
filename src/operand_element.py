@@ -47,7 +47,6 @@ except ImportError:
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
 
-
 def str_to_tuple(parameters: str) -> tuple | None:
     if parameters.find("_") != -1:
         parameters = parameters.strip().lower().replace(" ", "")
@@ -5373,6 +5372,17 @@ class Panic(DeviceElement):
 
         return self_playlist
 
+
+_element_type: dict[str, type] = {
+    'r':        Rest,
+    'n':        Note,
+    'c':        Chord,
+    'rt':       Retrigger,
+    'cl':       Cluster,
+    'cc':       ControlChange,
+    'pb':       PitchBend,
+    'pc':       ProgramChange
+}
 
 
 
