@@ -2660,10 +2660,8 @@ def _get_element_from_field(field_0: str) -> oe.Element | None:
 
 
 
-
-
 def _get_elements_from_dsl(dsl: str) -> list['oe.Elements']:
-    normalized_dsl: str = oe._normalize_dsl(dsl)
+    normalized_dsl: str = od._normalize_dsl(dsl)
     elements_dsl: list[str] = normalized_dsl.split(",")
     elements: list[oe.Element] = []
 

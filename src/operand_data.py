@@ -18,10 +18,52 @@ from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, O
 from typing import Self
 
 from fractions import Fraction
+import re
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
 import operand_label as ol
+
+
+def _normalize_dsl(dsl: str) -> str:
+    """
+    Converts a raw DSL string into a strict canonical format:
+    - elements separated by ','
+    - whitespace removed as structure
+    - preserves ':' and '_'
+
+    Literal Syntax instead of Inference Syntax
+    DSL stands for Domain-Specific Language
+    """
+
+    # 1. Normalize line breaks to spaces
+    dsl = dsl.replace("\n", " ")
+
+    # 2a. Remove spaces around commas
+    dsl = re.sub(r"\s*,\s*", ",", s)
+
+    # 2b. Remove spaces around colons
+    dsl = re.sub(r"\s*:\s*", ":", dsl)
+
+    # 2c. Remove spaces around underscores
+    dsl = re.sub(r"\s*_\s*", "_", dsl)
+
+    # 3. Convert remaining whitespace between elements into commas
+    # (only if not already adjacent to separators)
+    dsl = re.sub(r"\s+", ",", dsl)
+
+    # 4. Collapse multiple commas
+    dsl = re.sub(r",+", ",", dsl)
+
+    # 5. Remove leading/trailing commas
+    dsl = dsl.strip(",")
+
+    # 6. Safety cleanup: remove accidental empty elements like ",,"
+    elements_dsl = [e for e in dsl.split(",") if e != ""]
+
+    # 7. Re-join into canonical form
+    return ",".join(elements_dsl)
+
 
 
 class Data(o.Operand):

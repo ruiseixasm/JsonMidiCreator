@@ -58,46 +58,6 @@ def str_to_tuple(parameters: str) -> tuple | None:
     return None
 
 
-def _normalize_dsl(dsl: str) -> str:
-    """
-    Converts a raw DSL string into a strict canonical format:
-    - elements separated by ','
-    - whitespace removed as structure
-    - preserves ':' and '_'
-
-    Literal Syntax instead of Inference Syntax
-    DSL stands for Domain-Specific Language
-    """
-
-    # 1. Normalize line breaks to spaces
-    dsl = dsl.replace("\n", " ")
-
-    # 2a. Remove spaces around commas
-    dsl = re.sub(r"\s*,\s*", ",", s)
-
-    # 2b. Remove spaces around colons
-    dsl = re.sub(r"\s*:\s*", ":", dsl)
-
-    # 2c. Remove spaces around underscores
-    dsl = re.sub(r"\s*_\s*", "_", dsl)
-
-    # 3. Convert remaining whitespace between elements into commas
-    # (only if not already adjacent to separators)
-    dsl = re.sub(r"\s+", ",", dsl)
-
-    # 4. Collapse multiple commas
-    dsl = re.sub(r",+", ",", dsl)
-
-    # 5. Remove leading/trailing commas
-    dsl = dsl.strip(",")
-
-    # 6. Safety cleanup: remove accidental empty elements like ",,"
-    elements_dsl = [e for e in dsl.split(",") if e != ""]
-
-    # 7. Re-join into canonical form
-    return ",".join(elements_dsl)
-
-
 def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
 
@@ -365,7 +325,7 @@ class Element(o.Operand):
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
             case od.Field():
                 field_dsl: str = operand._data
-                normalized_dsl: str = _normalize_dsl(field_dsl)
+                normalized_dsl: str = od._normalize_dsl(field_dsl)
                 element_fields: list[str] = normalized_dsl.split(":")
                 self._set_duration_from_field(element_fields[0])
 
