@@ -5406,7 +5406,7 @@ def _get_element_from_field(field: str) -> Element | None:
     element_parameters: list[str] = field.split("_")
 
     numbers: list = []
-    for parameter in _element_type:
+    for parameter in element_parameters:
         if parameter in _element_type:
             element = _element_type[ parameter ]()  # instantiates the Element class
         else:
