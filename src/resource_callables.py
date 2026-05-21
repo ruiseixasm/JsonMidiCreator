@@ -75,10 +75,9 @@ class RC_Splitter(RC_Callables):
                         single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements:
-                    if iteration_clip not in self._iterations:
-                        self._iterations.append(iteration_clip)
-                        return iteration_clip
+                if iteration_clip.len() == self._elements and iteration_clip not in self._iterations:
+                    self._iterations.append(iteration_clip)
+                    return iteration_clip
                 try_j += 1
             try_i += 1
         return clip_0.empty_copy()  # No valid Clip made
