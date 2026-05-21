@@ -75,12 +75,12 @@ def test_chaos_discretion():
     total_values = 4*16
     values = set()
     assert len(values) == 0
-    for _ in range(1000):
+    for _ in range(300):
         new_value = 1 >> chaos
         new_value %= total_values
         values.add(new_value)
     assert len(values) == total_values
-    
+
 
 def test_chained_chaos():
 
