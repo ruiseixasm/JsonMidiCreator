@@ -3581,6 +3581,12 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
+    def _set_element_from_number(self, number: int | float | None) -> bool:
+        if isinstance(number, float):
+            self << ou.Count(number)
+            return True
+        return super()._set_element_from_number(number)
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
@@ -3596,10 +3602,10 @@ class Retrigger(Note):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Count():       return operand._data << od.Pipe(self._count)
+                    case ou.Count():        return operand._data << od.Pipe(self._count)
                     case ra.Swing():        return operand._data << od.Pipe(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Count():       return ou.Count() << od.Pipe(self._count)
+            case ou.Count():        return ou.Count() << od.Pipe(self._count)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
