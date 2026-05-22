@@ -5476,7 +5476,7 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             element = Note()
         for number in element_numbers:
             element._set_element_from_number(number)
-        element._set_element_from_token(token)
+        element._set_element_from_token(token, previous_element)
     return element
 
 
