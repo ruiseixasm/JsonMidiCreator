@@ -157,6 +157,9 @@ class Element(o.Operand):
                     self << ra.Duration(ra.NoteValue(duration))
         return self
 
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
+        return self # Does nothing here
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
