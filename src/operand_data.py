@@ -256,6 +256,13 @@ class Line(Data):
             return element_tokens[index]
         return None
 
+    # CHAINABLE OPERATIONS
+
+    def __iadd__(self, operand: any) -> Self:
+        if isinstance(operand, str):
+            self._data += "," + operand
+        return self # remains as an Inline operand
+    
 
 class Inline(Data):
     """`Data -> Inline`
