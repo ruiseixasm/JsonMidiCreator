@@ -3098,6 +3098,8 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     super().__lshift__(operand)
 
+            # Place to add Line processing
+
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
             case ou.Auto():
@@ -3301,6 +3303,8 @@ class Clip(Composition):  # Just a container of Elements
             case str():
                 string_elements: list[oe.Element] = _string_to_elements(operand)
                 self *= Clip()._extend(string_elements)._set_owner_clip()._sort_items()
+
+            # Place to add Line processing
 
             case _:
                 super().__imul__(operand)
