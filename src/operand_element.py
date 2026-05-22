@@ -347,7 +347,7 @@ class Element(o.Operand):
             case int():
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
             case od.Token():
-                self._set_duration_from_field(operand.get_field(1))
+                self._set_element_from_token(operand._data)
 
             case og.Segment():
                 if operand._segment:
@@ -2513,10 +2513,6 @@ class Note(ChannelElement):
                 self._tied = operand % bool()
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
                 self._pitch << operand
-            case od.Token():
-                super().__lshift__(operand)
-                self._set_pitch_from_field(operand.get_field(2))
-                self._set_velocity_from_field(operand.get_field(3))
 
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
