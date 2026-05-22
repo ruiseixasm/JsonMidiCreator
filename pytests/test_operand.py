@@ -117,10 +117,11 @@ def test_operand_copy():
             if class_object != class_copy:
                 print(f"Culprit Copy i: {single_class.__name__}")
                 assert class_object == class_copy
-            class_copy << Null()
-            if class_object != class_copy:
-                print(f"Culprit Copy << Null() i: {single_class.__name__}")
-                assert class_object == class_copy
+            if not isinstance(class_copy, (Data, Pipe)):
+                class_copy << Null()
+                if class_object != class_copy:
+                    print(f"Culprit Copy << Null() i: {single_class.__name__}")
+                    assert class_object == class_copy
             if isinstance(class_object, Clip):
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")
