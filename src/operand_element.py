@@ -162,6 +162,22 @@ class Element(o.Operand):
         return False # The respective Element default
     
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        if isinstance(previous_element, Element):
+            self << previous_element.finish()
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        field_1: str = token_operand.get_field(1)
+        if field_1 is not None:
+            duration = o.string_to_number(field_1)
+            match duration:
+                case int():
+                    self << ra.Duration(ra.Steps(duration))
+                case float():
+                    self << ra.Duration(ra.NoteValue(duration))
+        return self
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
