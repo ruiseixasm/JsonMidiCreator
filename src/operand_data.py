@@ -231,8 +231,8 @@ class Token(Data):
     str("") : A DSL string with multiple parameters, like, "n:1/8:C5#".
     """
     def get_field(self, index: int) -> str | None:
-        field_dsl: str = self._data
-        normalized_dsl: str = _normalize_dsl(field_dsl)
+        token_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(token_dsl)
         element_fields: list[str] = normalized_dsl.split(":")
         if index < len(element_fields):
             return element_fields[index]
@@ -249,8 +249,8 @@ class Line(Data):
     str("") : A DSL string with multiple tokens separated with `,`, like, "n:1/8:C5#, 9:1/8::75".
     """
     def get_token(self, index: int) -> str | None:
-        field_dsl: str = self._data
-        normalized_dsl: str = _normalize_dsl(field_dsl)
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
         element_tokens: list[str] = normalized_dsl.split(",")
         if index < len(element_tokens):
             return element_tokens[index]
