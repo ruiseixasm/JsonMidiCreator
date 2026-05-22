@@ -148,13 +148,25 @@ class Element(o.Operand):
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         field_1: str = token_operand.get_field(1)
+        dotted = True if 'd' in field_1 else False
+        if dotted:
+            field_1 = field_1.replace('d', '')
         if field_1 is not None:
             duration = o.string_to_number(field_1)
-            match duration:
-                case int():
-                    self << ra.Duration(ra.Steps(duration))
-                case float():
-                    self << ra.Duration(ra.NoteValue(duration))
+            if dotted:
+                match duration:
+                    case int():
+                        self << ra.Dotted(
+                            ra.Steps(duration) % ra.NoteValue() % float()
+                        )
+                    case float():
+                        self << ra.Dotted(duration)
+            else:
+                match duration:
+                    case int():
+                        self << ra.Duration(ra.Steps(duration))
+                    case float():
+                        self << ra.Duration(ra.NoteValue(duration))
         return self
 
     def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
