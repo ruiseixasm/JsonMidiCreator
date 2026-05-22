@@ -5435,6 +5435,7 @@ class Panic(DeviceElement):
 _element_type: dict[str, type] = {
     'r':        Rest,
     'n':        Note,
+    'h':        Hit,
     'c':        Chord,
     'rt':       Retrigger,
     'cl':       Cluster,
