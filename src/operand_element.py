@@ -2169,6 +2169,16 @@ class Note(ChannelElement):
         return False # The respective Element default
 
 
+    def _set_velocity_from_field(self, field_3: str | None) -> bool:
+        if field_3 is None:
+            return False
+        number = o.string_to_number(field_3)
+        if isinstance(number, int):
+            self << ou.Velocity(number)
+            return True
+        return False # The respective Element default
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
@@ -2450,6 +2460,7 @@ class Note(ChannelElement):
             case od.Token():
                 super().__lshift__(operand)
                 self._set_pitch_from_field(operand.get_field(2))
+                self._set_velocity_from_field(operand.get_field(3))
 
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
@@ -5429,8 +5440,8 @@ def _get_element_from_field(field: str) -> Element | None:
     return element
 
 
-def _get_element_from_token(token: str) -> Element | None:
-    element: Element | None = None
+def _get_element_from_token(token: str) -> Element | ol.Null:
+    element: Element | ol.Null = ol.Null()
     token = od._normalize_dsl(token)
     if token != "":
         if token == ":":

@@ -727,9 +727,12 @@ def test_element_field():
 
 
 def test_element_token():
-    assert oe._get_element_from_token("") is None
+    assert oe._get_element_from_token("") == Null()
     assert oe._get_element_from_token(":") == Note()
     assert oe._get_element_from_token("N") == Note()
     assert oe._get_element_from_token("n:1/8") == Note(1/8)
-
+    assert oe._get_element_from_token(":1/8::75") == Note(1/8, Velocity(75))
+    assert oe._get_element_from_token("9:1/8::75") == Note(Channel(9), 1/8, Velocity(75))
+    assert oe._get_element_from_token("9::3.0") == Note(Channel(9), Degree(3))
+    assert oe._get_element_from_token("9::5") == Note(Channel(9), Octave(5))
 
