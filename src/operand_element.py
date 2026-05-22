@@ -2198,6 +2198,43 @@ class Note(ChannelElement):
             return True
         return False # The respective Element default
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pitch
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            # Extract letter (A-G)
+            letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
+            # Extract accidental
+            accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
+            # Get the remaining string without letter and accidental
+            if letter:
+                field_2 = field_2.replace(letter, '')
+            if accidental:
+                field_2 = field_2.replace(accidental, '')
+            degree_octave: list[str] = field_2.split("_")
+            for parameter in degree_octave:
+                number = o.string_to_number(parameter)
+                match number:
+                    case int():
+                        self._pitch << ou.Octave(number)
+                    case float():
+                        self._pitch << ou.Degree(number)
+            if letter or accidental:
+                if letter:
+                    self._pitch << letter
+                if accidental:
+                    self._pitch << accidental
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
