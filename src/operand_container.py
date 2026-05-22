@@ -3306,7 +3306,7 @@ class Clip(Composition):  # Just a container of Elements
 
             # Place to add Line processing
             case od.Line():
-                line_elements: list[oe.Element] = oe._get_elements_from_line(operand)
+                line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
 
             case _:

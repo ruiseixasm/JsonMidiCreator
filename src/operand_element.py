@@ -5480,7 +5480,7 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
     return element
 
 
-def _get_elements_from_line(line: od.Line) -> list[Element]:
+def get_elements_from_line(line: od.Line) -> list[Element]:
     line_elements: list[Element] = []
     line_tokens: list[str] = line.get_tokens()
     for t, token in enumerate(line_tokens):
