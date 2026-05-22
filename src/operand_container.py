@@ -3306,18 +3306,8 @@ class Clip(Composition):  # Just a container of Elements
 
             # Place to add Line processing
             case od.Line():
-                new_elements: list[oe.Element] = []
-                line_tokens: list[str] = operand.get_tokens()
-                for t, token in enumerate(line_tokens):
-                    if t > 0:
-                        element = oe._get_element_from_token(token, new_elements[t - 1])
-                        if isinstance(element, oe.Element):
-                            new_elements.append(element)
-                    else:
-                        element = oe._get_element_from_token(token)
-                        if isinstance(element, oe.Element):
-                            new_elements.append(element)
-                self *= Clip()._extend(new_elements)._set_owner_clip()._sort_items()
+                line_elements: list[oe.Element] = oe._get_elements_from_line(operand)
+                self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
 
             case _:
                 super().__imul__(operand)
