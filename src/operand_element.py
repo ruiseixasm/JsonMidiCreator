@@ -2496,7 +2496,7 @@ class Hit(Note):
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         original_pitch = self._pitch
-        self._pitch = self._pitch.copy()    # Temporary Dummy pitch
+        self._pitch = og.Pitch()    # Temporary Dummy pitch
         super()._set_element_from_token(token)  # Drops the previous_element to avoid position manipulation
         self._pitch = original_pitch
         token = od._normalize_dsl(token)
