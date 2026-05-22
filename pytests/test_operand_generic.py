@@ -81,6 +81,11 @@ def test_pitch_mod():
     assert (pitch + 0.1) % Sharp()
     assert (pitch + 0.1 << Natural()) % int() == 60
 
+    pitch << "G"
+    assert pitch % int() == 67
+    pitch << "#"
+    assert pitch % int() == 67 + 1
+
 # test_pitch_mod()
 
 
