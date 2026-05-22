@@ -252,6 +252,11 @@ class Line(Data):
             return element_tokens[index]
         return None
 
+    def get_tokens(self) -> list[str]:
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
+        return normalized_dsl.split(",")
+
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> Self:
