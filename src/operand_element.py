@@ -142,10 +142,16 @@ class Element(o.Operand):
         return finish_measure < last_measure + 1 and finish_measure > start_measure
     
 
-    def _set_duration_from_field(self, field_1: str | None) -> bool:
-        if field_1 is None:
+    def _set_position_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
+        if isinstance(previous_element, Element):
+            self << previous_element.finish()
+            return True
+        return False # The respective Element default
+    
+    def _set_duration_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
+        if field is None:
             return False
-        duration = o.string_to_number(field_1)
+        duration = o.string_to_number(field)
         match duration:
             case int():
                 self << ra.Duration(ra.Steps(duration))
@@ -1895,7 +1901,7 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
-    def _set_element_from_number(self, number: int | float | None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
         if isinstance(number, int):
             self << ou.Channel(number)
             return True
@@ -2129,22 +2135,20 @@ class Note(ChannelElement):
                 return super().__gt__(other)
     
 
-    def _set_pitch_from_field(self, field_2: str | None) -> bool:
-        if field_2 is None:
+    def _set_pitch_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
+        if field is None:
             return False
-        
         # Extract letter (A-G)
-        letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
+        letter = next((c for c in field if c in 'ABCDEFG'), '')
         # Extract accidental
-        accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
+        accidental = '#' if '#' in field else 'b' if 'b' in field else ''
         # Get the remaining string without letter and accidental
         if letter:
-            field_2 = field_2.replace(letter, '')
+            field = field.replace(letter, '')
         if accidental:
-            field_2 = field_2.replace(accidental, '')
+            field = field.replace(accidental, '')
 
-        degree_octave: list[str] = field_2.split("_")
-
+        degree_octave: list[str] = field.split("_")
         for parameter in degree_octave:
             number = o.string_to_number(parameter)
             match number:
@@ -2169,10 +2173,10 @@ class Note(ChannelElement):
         return False # The respective Element default
 
 
-    def _set_velocity_from_field(self, field_3: str | None) -> bool:
-        if field_3 is None:
+    def _set_velocity_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
+        if field is None:
             return False
-        number = o.string_to_number(field_3)
+        number = o.string_to_number(field)
         if isinstance(number, int):
             self << ou.Velocity(number)
             return True
@@ -3022,7 +3026,7 @@ class Chord(KeyScale):
         self._sus4 = sus4
         return self
 
-    def _set_element_from_number(self, number: int | float | None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
         if isinstance(number, float):
             self << ou.Size(number)
             return True
@@ -3595,7 +3599,7 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
-    def _set_element_from_number(self, number: int | float | None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
         if isinstance(number, float):
             self << ou.Count(number)
             return True
