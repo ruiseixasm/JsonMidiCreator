@@ -113,9 +113,14 @@ def test_operand_copy():
             class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
-            if class_object != class_object.copy():
+            class_copy = class_object.copy()
+            if class_object != class_copy:
                 print(f"Culprit Copy i: {single_class.__name__}")
-                assert class_object == class_object.copy()
+                assert class_object == class_copy
+            class_copy << Null()
+            if class_object != class_copy:
+                print(f"Culprit Copy << Null() i: {single_class.__name__}")
+                assert class_object == class_copy
             if isinstance(class_object, Clip):
                 if not class_object._test_owner_clip():
                     print(f"Culprit Copy Owner i: {single_class.__name__}")

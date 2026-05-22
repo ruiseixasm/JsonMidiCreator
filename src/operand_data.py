@@ -164,7 +164,8 @@ class Data(o.Operand):
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
             case _:
-                self._data = self.deep_copy(operand)
+                if not isinstance(operand, ol.Null):
+                    self._data = self.deep_copy(operand)
         return self
 
 class Pipe(Data):
@@ -202,7 +203,8 @@ class Pipe(Data):
             case Pipe():
                 self._data = operand._data
             case _:
-                self._data = operand
+                if not isinstance(operand, ol.Null):
+                    self._data = operand
         return self
     
 class Parameter(Data):

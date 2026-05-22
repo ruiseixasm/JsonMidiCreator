@@ -42,6 +42,7 @@ def test_null_mod():
     assert not null
 
     assert Null() == Null()
+    assert Null() % Position() == Null()
 
 
 def test_non_null():
