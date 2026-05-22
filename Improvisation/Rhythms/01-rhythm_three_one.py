@@ -20,5 +20,11 @@ settings << Folder("Improvisation/Rhythms/")
 settings << Tempo(120) << TimeSignature(3, 4)
 
 
-rhythm = Clip("1/8;G 1/8;G# 1/8;A :1/4;G")
-rhythm >> Plot()
+rhythm_old = Clip("1/8;G 1/8;G# 1/8;A :1/4;G", Title("Old Line"))
+rhythm_old >> Plot(block=False)
+
+rhythm_new = Clip(
+    Line() << ":1/8:G, :1/8:G#, :1/8:A, :1/4:G"
+) << Title ("New Line")
+rhythm_new >> Plot()
+

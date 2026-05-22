@@ -5492,6 +5492,7 @@ def get_elements_from_line(line: od.Line) -> list[Element]:
             element = _get_element_from_token(token)
             if isinstance(element, Element):
                 line_elements.append(element)
+    return line_elements
 
 
 # Voice Message           Status Byte      Data Byte1          Data Byte2
