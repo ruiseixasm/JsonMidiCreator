@@ -5421,37 +5421,34 @@ _element_type: dict[str, type] = {
 }
 
 
-def _get_element_from_field(field: str) -> Element | None:
-    element: Element | None = None
-    if field == "":
-        field = "n"
-    else:
-        field = field.lower()
-    element_parameters: list[str] = field.split("_")
-
-    numbers: list = []
-    for parameter in element_parameters:
-        if parameter in _element_type:
-            element = _element_type[ parameter ]()  # instantiates the Element class
-        else:
-            number = o.string_to_number(parameter)
-            if isinstance(number, (int, float)):
-                numbers.append(number)
-    if element is None:
-        element = Note()
-    for number in numbers:
-        element._set_element_from_number(number)
-    return element
-
-
-def _get_element_from_token(token: str) -> Element | ol.Null:
+def _get_element_from_token(token: str, previous_element: Union['Element', None] = None) -> Element | ol.Null:
     element: Element | ol.Null = ol.Null()
     token = od._normalize_dsl(token)
     if token != "":
         if token == ":":
             token = "n"
         token_operand = od.Token(token)
-        element = _get_element_from_field(token_operand.get_field(0))
+        # Get Element
+        element: Element | None = None
+        field_0: str = token_operand.get_field(0)
+        if field_0 == "":
+            field_0 = "n"
+        else:
+            field_0 = field_0.lower()
+        # Process each field parameters
+        element_parameters: list[str] = field_0.split("_")
+        element_numbers: list = []
+        for parameter in element_parameters:
+            if parameter in _element_type:  # Element type
+                element = _element_type[ parameter ]()  # instantiates the Element class
+            else:   # Element number
+                number = o.string_to_number(parameter)
+                if isinstance(number, (int, float)):
+                    element_numbers.append(number)
+        if element is None:
+            element = Note()
+        for number in element_numbers:
+            element._set_element_from_number(number)
         element << od.Token(token)
     return element
 

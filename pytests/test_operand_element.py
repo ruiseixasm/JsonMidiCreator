@@ -719,13 +719,6 @@ def test_center_pitch():
 # test_center_pitch()
 
 
-def test_element_field():
-    assert oe._get_element_from_field("") == Note()
-    assert oe._get_element_from_field("n") == Note()
-    assert oe._get_element_from_field("N") == Note()
-    assert oe._get_element_from_field("N_9") == Note(Channel(9))
-
-
 def test_element_token():
     assert oe._get_element_from_token("") == Null()
     assert oe._get_element_from_token(":") == Note()
