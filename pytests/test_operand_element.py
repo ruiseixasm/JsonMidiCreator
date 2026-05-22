@@ -727,6 +727,9 @@ def test_element_field():
 
 
 def test_element_token():
+    assert oe._get_element_from_token("") is None
     assert oe._get_element_from_token(":") == Note()
+    assert oe._get_element_from_token("N") == Note()
+    assert oe._get_element_from_token("n:1/8") == Note(1/8)
 
 
