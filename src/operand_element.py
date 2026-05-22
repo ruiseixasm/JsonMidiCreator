@@ -161,6 +161,9 @@ class Element(o.Operand):
                         )
                     case float():
                         self << ra.Dotted(duration)
+                    case _:
+                        note_value = self % ra.NoteValue() % float()
+                        self << ra.Dotted(note_value)
             else:
                 match duration:
                     case int():
