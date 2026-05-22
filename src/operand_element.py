@@ -1917,11 +1917,10 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
         if isinstance(number, int):
             self << ou.Channel(number)
-            return True
-        return False
+        return self
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3079,10 +3078,10 @@ class Chord(KeyScale):
         self._sus4 = sus4
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
         if isinstance(number, float):
             self << ou.Size(number)
-            return True
+            return self
         return super()._set_element_from_number(number)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3652,10 +3651,10 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> bool:
+    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
         if isinstance(number, float):
             self << ou.Count(number)
-            return True
+            return self
         return super()._set_element_from_number(number)
 
     def __mod__(self, operand: o.T) -> o.T:
