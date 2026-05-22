@@ -24,7 +24,7 @@ rhythm_old = Clip("1/8;G 1/8;G# 1/8;A :1/4;G", Title("Old Line"))
 rhythm_old >> Plot(block=False)
 
 rhythm_new = Clip(
-    Line() << ":1/8:G, :1/8:G#, :1/8:A, :1/4:G"
+    Line() << ":1/8:G, :1/8:G#, :1/8:A, ::G"
 ) << Title ("New Line")
 rhythm_new >> Plot()
 
