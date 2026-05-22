@@ -58,11 +58,7 @@ def _normalize_dsl(dsl: str) -> str:
     # 5. Remove leading/trailing commas
     dsl = dsl.strip(",")
 
-    # 6. Safety cleanup: remove accidental empty elements like ",,"
-    elements_dsl = [e for e in dsl.split(",") if e != ""]
-
-    # 7. Re-join into canonical form
-    return ",".join(elements_dsl)
+    return dsl
 
 
 
