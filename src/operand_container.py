@@ -3098,7 +3098,10 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     super().__lshift__(operand)
 
+            case od.Line():
             # Place to add Line processing
+                line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
+                self._extend(line_elements)._set_owner_clip()._sort_items()
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
