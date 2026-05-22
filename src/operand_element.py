@@ -142,26 +142,6 @@ class Element(o.Operand):
         return finish_measure < last_measure + 1 and finish_measure > start_measure
     
 
-    def _set_position_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
-        if isinstance(previous_element, Element):
-            self << previous_element.finish()
-            return True
-        return False # The respective Element default
-    
-    def _set_duration_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
-        if field is None:
-            return False
-        duration = o.string_to_number(field)
-        match duration:
-            case int():
-                self << ra.Duration(ra.Steps(duration))
-                return True
-            case float():
-                self << ra.Duration(ra.NoteValue(duration))
-                return True
-        return False # The respective Element default
-    
-
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         if isinstance(previous_element, Element):
             self << previous_element.finish()
@@ -2149,53 +2129,6 @@ class Note(ChannelElement):
             case _:
                 return super().__gt__(other)
     
-
-    def _set_pitch_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
-        if field is None:
-            return False
-        # Extract letter (A-G)
-        letter = next((c for c in field if c in 'ABCDEFG'), '')
-        # Extract accidental
-        accidental = '#' if '#' in field else 'b' if 'b' in field else ''
-        # Get the remaining string without letter and accidental
-        if letter:
-            field = field.replace(letter, '')
-        if accidental:
-            field = field.replace(accidental, '')
-
-        degree_octave: list[str] = field.split("_")
-        for parameter in degree_octave:
-            number = o.string_to_number(parameter)
-            match number:
-                case int():
-                    if letter:
-                        self._pitch << letter
-                    if accidental:
-                        self._pitch << accidental
-                    self._pitch << ou.Octave(number)
-                    return True
-                case float():
-                    self._pitch << ou.Degree(number)
-                    if accidental:
-                        self._pitch << accidental
-                    return True
-        if letter or accidental:
-            if letter:
-                self._pitch << letter
-            if accidental:
-                self._pitch << accidental
-            return True
-        return False # The respective Element default
-
-
-    def _set_velocity_from_field(self, field: str | None, previous_element: Union['Element', None] = None) -> bool:
-        if field is None:
-            return False
-        number = o.string_to_number(field)
-        if isinstance(number, int):
-            self << ou.Velocity(number)
-            return True
-        return False # The respective Element default
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
