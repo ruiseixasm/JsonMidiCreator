@@ -2495,7 +2495,23 @@ class Hit(Note):
         super().__init__(ra.Steps(1), *parameters)
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        original_pitch = self._pitch
+        self._pitch = self._pitch.copy()    # Temporary Dummy pitch
         super()._set_element_from_token(token)  # Drops the previous_element to avoid position manipulation
+        self._pitch = original_pitch
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Position
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            position_fields: list[str] = field_2.split("_")
+            for parameter in position_fields:
+                number = o.string_to_number(parameter)
+                match number:
+                    case int():
+                        self << ra.Step(number)
+                    case float():
+                        self << ra.Position(number)
         return self
 
 
