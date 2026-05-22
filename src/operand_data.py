@@ -228,7 +228,7 @@ class Token(Data):
     
     Fields
     ----------
-    str("") : A DSL string with multiple parameters, like, "1/8:C5#".
+    str("") : A DSL string with multiple parameters, like, "n:1/8:C5#".
     """
     def get_field(self, index: int) -> str | None:
         field_dsl: str = self._data
@@ -237,6 +237,25 @@ class Token(Data):
         if index < len(element_fields):
             return element_fields[index]
         return None
+
+class Line(Data):
+    """`Data -> Line`
+
+    A `Line` is a string representing a series of Elements to be stacked.
+    DSL stands for Domain-Specific Language
+    
+    Fields
+    ----------
+    str("") : A DSL string with multiple tokens separated with `,`, like, "n:1/8:C5#, 9:1/8::75".
+    """
+    def get_token(self, index: int) -> str | None:
+        field_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(field_dsl)
+        element_tokens: list[str] = normalized_dsl.split(",")
+        if index < len(element_tokens):
+            return element_tokens[index]
+        return None
+
 
 class Inline(Data):
     """`Data -> Inline`
