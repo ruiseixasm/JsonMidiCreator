@@ -77,7 +77,7 @@ class Element(o.Operand):
         import operand_container as oc
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
-        self._duration_beats: Fraction      = og.settings._duration
+        self._duration_beats: Fraction      = Fraction(1)
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
 
         self._owner_clip: oc.Clip           = None
@@ -1902,7 +1902,7 @@ class ChannelElement(DeviceElement):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._channel_0: int                = og.settings._channel_0
+        self._channel_0: int = 0 # Default is channel 1 base 1 same as 0 base 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2045,7 +2045,7 @@ class Note(ChannelElement):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._velocity: int         = og.settings._velocity
+        self._velocity: int         = 100
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
