@@ -96,5 +96,5 @@ melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="W
 chords = Line()
 melody = Line()
 
-
+chords += 
 

@@ -279,11 +279,14 @@ class Line(Data):
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> Self:
-        if isinstance(operand, str):
-            if self._data == "":
-                self._data = operand
-            else:
-                self._data += ", " + operand
+        match operand:
+            case Line():
+                if self._data == "":
+                    self._data = operand._data
+                else:
+                    self._data += ", " + operand._data
+            case str():
+                self.__iadd__(Line(operand))
         return self # remains as an Inline operand
     
     def __imul__(self, operand: any) -> Self:
