@@ -110,8 +110,9 @@ chords += "c:1/4d:G, c:1md:A"
 melody += "::B, ::C5, ::B, :1/4d:A"
 
 
-
-
+# Print the full content
+chords >> Print()
+melody >> Print()
 
 chords_clip = Clip(chords)
 melody_clip = Clip(melody)
