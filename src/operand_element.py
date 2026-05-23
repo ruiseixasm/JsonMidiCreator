@@ -171,7 +171,7 @@ class Element(o.Operand):
                 self._duration_beats = self._duration_beats * 3 / 2
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
+    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
         """This is exclusively for the first field, like the number 8 in `"n_8:1/2:3."` concerning the `Channel`.
         """
         return self # Does nothing here
@@ -1919,8 +1919,8 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
-        if isinstance(number, int):
+    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
+        if nth == 1 and isinstance(number, int):
             self << ou.Channel(number)
         return self
 
@@ -3073,10 +3073,15 @@ class Chord(KeyScale):
         self._sus4 = sus4
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
-        if isinstance(number, float):
-            self << ou.Size(number)
-            return self
+    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
+        if isinstance(number, int):
+            match nth:
+                case 1:
+                    self << ou.Size(number)
+                    return self
+                case 2:
+                    self << ou.Inversion(number)
+                    return self
         return super()._set_element_from_number(number)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -3646,10 +3651,12 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
-    def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
-        if isinstance(number, float):
-            self << ou.Count(number)
-            return self
+    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
+        if isinstance(number, int):
+            match nth:
+                case 1:
+                    self << ou.Count(number)
+                    return self
         return super()._set_element_from_number(number)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -5485,19 +5492,13 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             field_0 = field_0.lower()
         # Process each field parameters
         element_parameters: list[str] = field_0.split("_")
-        element_numbers: list = []
-        for parameter in element_parameters:
-            if parameter in _element_type:  # Element type
-                element = _element_type[ parameter ]()  # instantiates the Element class
-            else:   # Element number
-                number = o.string_to_number(parameter)
-                if isinstance(number, (int, float)):
-                    element_numbers.append(number)
-        if element is None:
-            element = Note()
-        for number in element_numbers:
-            element._set_element_from_number(number)
-        element._set_element_from_token(token, previous_element)
+        element = _element_type[ element_parameters[0] ]()  # instantiates the Element class
+        if isinstance(element, Element):
+            for nth, parameter in enumerate(element_parameters):
+                if nth > 0:
+                    number = o.string_to_number(parameter)
+                    element._set_element_from_number(number, nth)
+            element._set_element_from_token(token, previous_element)
     return element
 
 
