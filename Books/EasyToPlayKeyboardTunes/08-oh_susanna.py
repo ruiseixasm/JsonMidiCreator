@@ -34,9 +34,9 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantizati
 
 upbeat = Note(1/8, Beat(3)) / 2
 phrase_1 = Note() / [
-        "3", "5", 3/8, N8("6"),
-        N4("5"), "3", N4d("1"), N8("2"),
-        N4("3"), 1, "2", "1"
+        "3", "5", 3/8, (1/8, "6"),
+        (1/4, "5"), "3", (Dotted(1/4), "1"), (1/8, "2"),
+        (1/4, "3"), 1, "2", "1"
     ]
 phrase_2 = Note() / [
         N2("2"), Rest(), {0: N8("1")}, "2",
