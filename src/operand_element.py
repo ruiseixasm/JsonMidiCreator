@@ -5496,13 +5496,15 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             field_0 = "n" + field_0
         # Process each field parameters
         element_parameters: list[str] = field_0.split("_")
-        element = _element_type[ element_parameters[0] ]()  # instantiates the Element class
-        if isinstance(element, Element):
-            for nth, parameter in enumerate(element_parameters):
-                if nth > 0:
-                    number = o.string_to_number(parameter)
-                    element._set_element_from_number(number, nth)
-            element._set_element_from_token(token, previous_element)
+        if element_parameters[0] in _element_type:
+            element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
+            element = element_class()  # instantiates the Element class
+            if isinstance(element, Element):
+                for nth, parameter in enumerate(element_parameters):
+                    if nth > 0:
+                        number = o.string_to_number(parameter)
+                        element._set_element_from_number(number, nth)
+                element._set_element_from_token(token, previous_element)
     return element
 
 
