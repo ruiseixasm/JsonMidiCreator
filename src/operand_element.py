@@ -152,12 +152,10 @@ class Element(o.Operand):
             dotted = True if 'd' in field_1 or 'D' in field_1 else False
             measures = True if 'm' in field_1 or 'M' in field_1 else False
             beats = True if 'b' in field_1 or 'B' in field_1 else False
-            if dotted:
-                field_1 = field_1.replace('d', '').replace('D', '')
-            if measures:
-                field_1 = field_1.replace('m', '').replace('M', '')
-            if beats:
-                field_1 = field_1.replace('b', '').replace('B', '')
+            # Cleans up
+            field_1 = field_1.replace('d', '').replace('D', '')
+            field_1 = field_1.replace('m', '').replace('M', '')
+            field_1 = field_1.replace('b', '').replace('B', '')
             duration = o.string_to_number(field_1)
             if measures:
                 self << ra.Measures(duration)
