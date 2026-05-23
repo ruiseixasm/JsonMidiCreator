@@ -175,7 +175,7 @@ class Element(o.Operand):
                                     self << ra.NoteValue(duration)
                         if dotted:
                             self._duration_beats = self._duration_beats * 3 / 2
-                    case 1: # Sets the Position
+                    case _: # Sets the Position
                         beat = True if 'b' in parameter or 'B' in parameter else False
                         # Cleans up
                         parameter = parameter.replace('b', '').replace('B', '')
