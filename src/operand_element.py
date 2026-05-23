@@ -148,27 +148,46 @@ class Element(o.Operand):
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         field_1: str = token_operand.get_field(1)
-        if field_1 is not None:
-            dotted = True if 'd' in field_1 or 'D' in field_1 else False
-            measures = True if 'm' in field_1 or 'M' in field_1 else False
-            beats = True if 'b' in field_1 or 'B' in field_1 else False
-            # Cleans up
-            field_1 = field_1.replace('d', '').replace('D', '')
-            field_1 = field_1.replace('m', '').replace('M', '')
-            field_1 = field_1.replace('b', '').replace('B', '')
-            duration = o.string_to_number(field_1)
-            if measures:
-                self << ra.Measures(duration)
-            elif beats:
-                self << ra.Beats(duration)
-            else:
-                match duration:
-                    case int():
-                        self << ra.Steps(duration)
-                    case float():
-                        self << ra.NoteValue(duration)
-            if dotted:
-                self._duration_beats = self._duration_beats * 3 / 2
+        if field_1 is not None and field_1 != "":
+            if field_1[0] == "_":
+                field_1 = "0" + field_1 # Durations of zero aren't set (safe)
+            locus_parameters: list[str] = field_1.split("_")
+            for nth, parameter in enumerate(locus_parameters):
+                match nth:
+                    case 0: # Sets the Duration
+                        dotted = True if 'd' in parameter or 'D' in parameter else False
+                        measures = True if 'm' in parameter or 'M' in parameter else False
+                        beats = True if 'b' in parameter or 'B' in parameter else False
+                        # Cleans up
+                        parameter = parameter.replace('d', '').replace('D', '')
+                        parameter = parameter.replace('m', '').replace('M', '')
+                        parameter = parameter.replace('b', '').replace('B', '')
+                        duration = o.string_to_number(parameter)
+                        if measures:
+                            self << ra.Measures(duration)
+                        elif beats:
+                            self << ra.Beats(duration)
+                        else:
+                            match duration:
+                                case int():
+                                    self << ra.Steps(duration)
+                                case float():
+                                    self << ra.NoteValue(duration)
+                        if dotted:
+                            self._duration_beats = self._duration_beats * 3 / 2
+                    case 1: # Sets the Position
+                        beat = True if 'b' in parameter or 'B' in parameter else False
+                        # Cleans up
+                        parameter = parameter.replace('b', '').replace('B', '')
+                        position = o.string_to_number(parameter)
+                        if beat:
+                            self << ra.Beat(position)
+                        else:
+                            match position:
+                                case int():
+                                    self << ra.Step(position)
+                                case float():
+                                    self << ra.Measure(position)
         return self
 
     def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
