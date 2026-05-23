@@ -36,9 +36,9 @@ pickup_bar = \
 main_phrase = \
     Note("G")**3 / Note("A") / Note(1/8, "B") / Note(1/8, "A") / Note(1/8, "B") / Note(1/8, "C") / Note("D") / Note("B")
 variant_phrase_ = \
-    Note() / Note(1/8, )**2 / Note()**2 / N2d() << Foreach("C", "B", "G", "A", "A", "G")
+    Note() / Note(1/8, )**2 / Note()**2 / Note(Dotted(1/2)) << Foreach("C", "B", "G", "A", "A", "G")
 central_period = \
-    N4d("D") / Note(1/8, "E")**5 / Note(1/8, )**["G", "A", "B", "C"] / Note("D")**2 / \
+    Note(Dotted(1/4), "D") / Note(1/8, "E")**5 / Note(1/8, )**["G", "A", "B", "C"] / Note("D")**2 / \
     Note()**["G", "B", "A", "G"] / Note(1/2, "D")**2 \
         << Match(0, "E")**Previous(Pipe(Degree()))**Subtract(1)**Pipe()
 

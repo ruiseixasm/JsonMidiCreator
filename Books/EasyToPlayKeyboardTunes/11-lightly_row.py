@@ -32,7 +32,7 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantizatio
 
 four_notes = Note() / 4
 three_notes = Note()**2 / Note(1/2, )
-whole_note = N1()**1
+whole_note = Note(1/1)**1
 
 
 melody = \
