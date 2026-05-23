@@ -71,7 +71,7 @@ class Element(o.Operand):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
     def __init__(self, *parameters):
         import operand_container as oc
@@ -918,7 +918,7 @@ class Unison(Element):
     ----------
     Elements(Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))) : Series of elements grouped by `Unison`.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
     def __init__(self, *parameters):
         self._elements: list[Element] = [Note(ou.Channel(2)), Note(ou.Channel(6))]
@@ -1029,7 +1029,7 @@ class Rest(Element):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1220,7 +1220,7 @@ class Talkie(Element):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
     To("Device") : The name of the target device.
@@ -1374,7 +1374,7 @@ class TalkieRun(Talkie):
     ----------
     str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
     To("Device") : The name of the target device.
@@ -1452,7 +1452,7 @@ class TalkieGet(TalkieRun):
     ----------
     str("duration") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
     To("Device") : The name of the target device.
@@ -1483,7 +1483,7 @@ class TalkieSet(TalkieGet):
     Value(0) : The value to be set on the target device.
     str("buzz") : The name of the target method.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     Port(5005) : The port to be used in UDP protocol.
     To("Device") : The name of the target device.
@@ -1557,7 +1557,7 @@ class DeviceElement(Element):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -1674,7 +1674,7 @@ class Clock(DeviceElement):
     ControlledDevices([]) : The `Devices` to which the control messages are auto generated (for DAWs).
     PPQN(24) : Pulses Per Quarter Note.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -1896,8 +1896,8 @@ class ChannelElement(DeviceElement):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2040,8 +2040,8 @@ class Note(ChannelElement):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2512,7 +2512,7 @@ class Hit(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2555,7 +2555,7 @@ class N_1(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2575,7 +2575,7 @@ class N1(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2595,7 +2595,7 @@ class N2(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2615,7 +2615,7 @@ class N4(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2635,7 +2635,7 @@ class N8(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2655,7 +2655,7 @@ class N16(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2675,7 +2675,7 @@ class N2d(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2695,7 +2695,7 @@ class N4d(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2715,7 +2715,7 @@ class N8d(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2735,7 +2735,7 @@ class N16d(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2758,7 +2758,7 @@ class KeyScale(Note):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -2932,8 +2932,8 @@ class Cluster(KeyScale):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3036,8 +3036,8 @@ class Chord(KeyScale):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3255,7 +3255,7 @@ class C_4(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3284,7 +3284,7 @@ class C_3(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(3)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3313,7 +3313,7 @@ class C_2(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3342,7 +3342,7 @@ class C_1(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3371,7 +3371,7 @@ class C1(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3400,7 +3400,7 @@ class C2(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3429,7 +3429,7 @@ class C4(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3458,7 +3458,7 @@ class C8(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3487,7 +3487,7 @@ class C16(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(NoteValue(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3516,7 +3516,7 @@ class C2d(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/2)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3545,7 +3545,7 @@ class C4d(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/4)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3574,7 +3574,7 @@ class C8d(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/8)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3603,7 +3603,7 @@ class C16d(Chord):
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Dotted(1/16)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3625,8 +3625,8 @@ class Retrigger(Note):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3793,8 +3793,8 @@ class Triplet(Retrigger):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -3829,8 +3829,8 @@ class Tuplet(ChannelElement):
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4005,7 +4005,7 @@ class Automation(ChannelElement):
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4193,7 +4193,7 @@ class ControlChange(Automation):
     Value(settings), int : The CC value to be set on the Device controller.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4438,7 +4438,7 @@ class BankSelect(ControlChange):
     Value(0), int : Selects the presets Bank in the Device.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4510,7 +4510,7 @@ class ValueZero(ControlChange):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4544,7 +4544,7 @@ class ResetAllControllers(ValueZero):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4572,7 +4572,7 @@ class LocalControl(ControlChange):
     Value(0) : By default the value is 0, Local control Off.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4600,7 +4600,7 @@ class AllNotesOff(ValueZero):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4628,7 +4628,7 @@ class OmniModeOff(ValueZero):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4656,7 +4656,7 @@ class OmniModeOn(ValueZero):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4685,7 +4685,7 @@ class MonoMode(ControlChange):
         all other values set a specific number of channels, beginning with the current basic channel.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4713,7 +4713,7 @@ class PolyModeOn(ValueZero):
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4741,7 +4741,7 @@ class PitchBend(Automation):
     Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -4942,7 +4942,7 @@ class Aftertouch(Automation):
     Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -5101,7 +5101,7 @@ class PolyAftertouch(Aftertouch):
     Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
@@ -5230,7 +5230,7 @@ class ProgramChange(ChannelElement):
     Program(1), int: Program number from 1 to 128.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):

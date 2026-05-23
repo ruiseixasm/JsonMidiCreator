@@ -78,7 +78,7 @@ class Locus(Generic):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(settings), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
     
     def __init__(self, *parameters):
