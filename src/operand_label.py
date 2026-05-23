@@ -91,12 +91,9 @@ class Null(Carrier):
         return True
     
     def __eq__(self, other: 'Label') -> bool:
-        if other is None:
-            return True
-        if other == False:
-            return True
-        if other == True:
-            return False
+        if other is None: return True
+        if other is False: return True  # What makes the generic testing fails
+        if other is True: return False
         return super().__eq__(other)
     
     def __mod__(self, operand: o.T) -> Self:

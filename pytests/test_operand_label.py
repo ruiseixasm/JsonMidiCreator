@@ -47,3 +47,11 @@ def test_null_mod():
 
 def test_non_null():
     assert Full() == Full()
+
+def test_not_equal():
+    assert Null() == Null()
+    assert Note() != Null()
+    assert Null() != Note()
+
+# test_not_equal()
+

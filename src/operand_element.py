@@ -5486,7 +5486,6 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             token = "n"
         token_operand = od.Token(token)
         # Get Element
-        element: Element | None = None
         field_0: str = token_operand.get_field(0)
         if field_0 == "":
             field_0 = "n"
@@ -5496,14 +5495,16 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             field_0 = "n" + field_0
         # Process each field parameters
         element_parameters: list[str] = field_0.split("_")
-        if element_parameters[0] in _element_type:
+        if element_parameters[0] not in _element_type:
+            element = Note()
+        else:
             element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
             element: Element = element_class()  # instantiates the Element class
-            for nth, parameter in enumerate(element_parameters):
-                if nth > 0:
-                    number = o.string_to_number(parameter)
-                    element._set_element_from_number(number, nth)
-            element._set_element_from_token(token, previous_element)
+        for nth, parameter in enumerate(element_parameters):
+            if nth > 0:
+                number = o.string_to_number(parameter)
+                element._set_element_from_number(number, nth)
+        element._set_element_from_token(token, previous_element)
     return element
 
 
