@@ -88,12 +88,13 @@ melody *= "b2;C5    b1;A    b3;C5"
 
 
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
-
-
 chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
-
-
 melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="We Three Kings")
+
+
+chords = Line()
+melody = Line()
+
 
 

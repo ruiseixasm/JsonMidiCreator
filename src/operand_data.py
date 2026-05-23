@@ -280,11 +280,14 @@ class Line(Data):
 
     def __iadd__(self, operand: any) -> Self:
         if isinstance(operand, str):
-            self._data += ", " + operand
+            if self._data == "":
+                self._data = operand
+            else:
+                self._data += ", " + operand
         return self # remains as an Inline operand
     
     def __imul__(self, operand: any) -> Self:
-        if isinstance(operand, int):
+        if isinstance(operand, int) and self._data != "":
             if operand > 1:
                 new_line = self._data
                 for _ in range(operand - 1):
