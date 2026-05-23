@@ -50,10 +50,10 @@ melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 chords = \
     C_1()**["C", "G", "C", "G", "C", "G"] / \
-    C2("C") / C2("G") / C_1("C") / \
-    C_2("G") / C_3("C") / \
+    Chord(1/2, "C") / Chord(1/2, "G") / C_1("C") / \
+    Chord(2., "G") / C_3("C") / \
     C_1("G") / \
-    C2("C") / C2("G") / C_1("C")
+    Chord(1/2, "C") / Chord(1/2, "G") / C_1("C")
 
 chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
