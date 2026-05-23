@@ -148,10 +148,10 @@ class Element(o.Operand):
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         field_1: str = token_operand.get_field(1)
-        dotted = True if 'd' in field_1 or 'D' in field_1 else False
-        if dotted:
-            field_1 = field_1.replace('d', '').replace('D', '')
         if field_1 is not None:
+            dotted = True if 'd' in field_1 or 'D' in field_1 else False
+            if dotted:
+                field_1 = field_1.replace('d', '').replace('D', '')
             duration = o.string_to_number(field_1)
             if dotted:
                 match duration:
