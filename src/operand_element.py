@@ -187,7 +187,7 @@ class Element(o.Operand):
                                 case int():
                                     self << ra.Step(position)
                                 case float():
-                                    self << ra.Measure(position)
+                                    self << ra.Position(position)
         return self
 
     def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
@@ -2519,8 +2519,7 @@ class Note(ChannelElement):
 class Hit(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Hit`
 
-    A `Hit` is just a Note but for the context of a drum machine, where its `Pitch` isn't as relevant
-    as its `Position` and its `Channel`.
+    A `Hit` is just a Note but for the context of a drum machine with a single `Step` as duration.
 
     Parameters
     ----------
@@ -2536,26 +2535,6 @@ class Hit(Note):
     """
     def __init__(self, *parameters):
         super().__init__(ra.Steps(1), *parameters)
-
-    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        original_pitch = self._pitch
-        self._pitch = og.Pitch()    # Temporary Dummy pitch
-        super()._set_element_from_token(token, previous_element)
-        self._pitch = original_pitch
-        token = od._normalize_dsl(token)
-        token_operand = od.Token(token)
-        # Set Position
-        field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            position_fields: list[str] = field_2.split("_")
-            for parameter in position_fields:
-                number = o.string_to_number(parameter)
-                match number:
-                    case int():
-                        self << ra.Step(number)
-                    case float():
-                        self << ra.Position(number)
-        return self
 
 
 # PSEUDO-CLASS NOTE WITH PRE-DEFINED DURATIONS
