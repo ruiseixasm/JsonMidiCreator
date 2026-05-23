@@ -283,7 +283,7 @@ class Line(Data):
             case Line():
                 if self._data == "":
                     self._data = operand._data
-                else:
+                elif operand._data != "":
                     self._data += ", " + operand._data
             case str():
                 self.__iadd__(Line(operand))

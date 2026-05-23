@@ -109,6 +109,10 @@ melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
 chords += "c:1/4d:G, c:1md:A"
 melody += "::B, ::C5, ::B, :1/4d:A"
 
+# Measure 2
+chords += ""
+melody += "::B, ::C5, ::B, :1/4d:A"
+
 
 # Print the full content
 chords >> Print()
