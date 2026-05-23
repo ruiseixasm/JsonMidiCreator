@@ -176,11 +176,15 @@ class Element(o.Operand):
                         if dotted:
                             self._duration_beats = self._duration_beats * 3 / 2
                     case _: # Sets the Position
+                        measure = True if 'm' in parameter or 'M' in parameter else False
                         beat = True if 'b' in parameter or 'B' in parameter else False
                         # Cleans up
+                        parameter = parameter.replace('m', '').replace('M', '')
                         parameter = parameter.replace('b', '').replace('B', '')
                         position = o.string_to_number(parameter)
-                        if beat:
+                        if measure:
+                            self << ra.Measure(position)
+                        elif beat:
                             self << ra.Beat(position)
                         else:
                             match position:
