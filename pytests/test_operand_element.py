@@ -176,6 +176,12 @@ def test_note_length():
     rest: Rest = Rest()
     assert rest % Length() == 0.25  # Measures
 
+    eight_note = Note(1/8)
+    assert eight_note % Length() == 1/8   # Measures
+
+    half_note = Note(NoteValue(1/2))
+    assert half_note % Length() == 1/2   # Measures
+
 # test_note_length()
 
 
