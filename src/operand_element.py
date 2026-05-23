@@ -150,29 +150,32 @@ class Element(o.Operand):
         field_1: str = token_operand.get_field(1)
         if field_1 is not None:
             dotted = True if 'd' in field_1 or 'D' in field_1 else False
+            measures = True if 'm' in field_1 or 'M' in field_1 else False
+            beats = True if 'b' in field_1 or 'B' in field_1 else False
             if dotted:
                 field_1 = field_1.replace('d', '').replace('D', '')
+            if measures:
+                field_1 = field_1.replace('m', '').replace('M', '')
+            if beats:
+                field_1 = field_1.replace('b', '').replace('B', '')
             duration = o.string_to_number(field_1)
-            if dotted:
-                match duration:
-                    case int():
-                        self << ra.Dotted(
-                            ra.Steps(duration) % ra.NoteValue() % float()
-                        )
-                    case float():
-                        self << ra.Dotted(duration)
-                    case _:
-                        note_value = self % ra.NoteValue() % float()
-                        self << ra.Dotted(note_value)
+            if measures:
+                self << ra.Measures(duration)
+            elif beats:
+                self << ra.Beats(duration)
             else:
                 match duration:
                     case int():
-                        self << ra.Duration(ra.Steps(duration))
+                        self << ra.Steps(duration)
                     case float():
-                        self << ra.Duration(ra.NoteValue(duration))
+                        self << ra.NoteValue(duration)
+            if dotted:
+                self._duration_beats = self._duration_beats * 3 / 2
         return self
 
     def _set_element_from_number(self, number: int | float | None, previous_element: Union['Element', None] = None) -> Self:
+        """This is exclusively for the first field, like the number 8 in `"n_8:1/2:3."` concerning the `Channel`.
+        """
         return self # Does nothing here
 
 

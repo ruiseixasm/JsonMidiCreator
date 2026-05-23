@@ -90,11 +90,21 @@ melody *= "b2;C5    b1;A    b3;C5"
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords >>= Smooth(4)
-melody / 2 + chords.copy(Disable()) / 2 >> Plot(composition=chords / 2, title="We Three Kings")
+melody / 2 + chords.copy(Disable()) / 2 >> Plot(block=False, composition=chords / 2, title="We Three Kings")
 
 
 chords = Line()
 melody = Line()
 
-chords += 
+chords += "c:1:A"
+melody += "::E5, :1/8:D5, ::C5, :1/8:A"
+
+chords_clip = Clip(chords)
+melody_clip = Clip(melody)
+
+melody_clip << Title("Melody (New)") << Velocity(85) >> Plot(block=False)
+chords_clip << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
+chords_clip >>= Smooth(4)
+melody_clip / 2 + chords_clip.copy(Disable()) / 2 >> Plot(composition=chords_clip / 2, title="We Three Kings (New)")
+
 
