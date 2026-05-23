@@ -44,10 +44,10 @@ chords *= "c;d1/4;G             c;b9;A"
 melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"
 # Measure 2
 chords *= ""
-melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
+melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A" # Repeated from MEasure 0
 # Measure 3
 chords *= "c;d1/4;G          c;d2/4;A"
-melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"
+melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"  # Repeated from MEasure 1
 # Measure 4
 chords *= "c;p0.5;d1/4;G"
 melody *= "n;b2;C;o5  n;b1;C;o5   n;b2;D;o5  n;b1;D;o5"
@@ -104,14 +104,52 @@ melody = Line()
 # Measure 0
 chords += "c:1m:A"
 melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
-
 # Measure 1
 chords += "c:1/4d:G, c:1md:A"
 melody += "::B, ::C5, ::B, :1/4d:A"
-
 # Measure 2
 chords += ""
-melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
+melody += ":1/4:E5, ::D5, :1/4:C5, ::A" # Repeated from MEasure 0
+# Measure 3
+chords += "c:1/4d:G, c:1/2d:A"
+melody += "::B, ::C5, ::B, :1/4d:A" # Repeated from MEasure 1
+# Measure 4
+chords += "c:1/4d:G"
+melody += ":2b:C5, ::C5, :2b:D5, ::D5"
+# Measure 5
+chords += ""
+melody += ""
+# Measure 6
+chords += ""
+melody += ""
+# Measure 7
+chords += ""
+melody += ""
+# Measure 8
+chords += ""
+melody += ""
+# Measure 9
+chords += ""
+melody += ""
+# Measure 10
+chords += ""
+melody += ""
+# Measure 11
+chords += ""
+melody += ""
+# Measure 12
+chords += ""
+melody += ""
+# Measure 13
+chords += ""
+melody += ""
+# Measure 14
+chords += ""
+melody += ""
+# Measure 15
+chords += ""
+melody += ""
+
 
 
 # Print the full content
