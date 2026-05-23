@@ -96,8 +96,12 @@ melody / 2 + chords.copy(Disable()) / 2 >> Plot(block=False, composition=chords 
 chords = Line()
 melody = Line()
 
+
+# THE DEFAULT DURATION OF A NOTE IS 1 BEAT AND NOT 1/4 NECESSARILY
+# For a TimeSignature fo 6/8, the default duration is 1/8
+# Beat = atomic temporal unit of current meter
 chords += "c:1:A"
-melody += "::E5, :1/8:D5, ::C5, :1/8:A"
+melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
 
 chords_clip = Clip(chords)
 melody_clip = Clip(melody)
