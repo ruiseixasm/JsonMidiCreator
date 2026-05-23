@@ -4004,7 +4004,7 @@ class Automation(ChannelElement):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4192,7 +4192,7 @@ class ControlChange(Automation):
     Controller(settings) : An `Operand` that represents parameters like the `Number` of the controller being changed.
     Value(settings), int : The CC value to be set on the Device controller.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4437,7 +4437,7 @@ class BankSelect(ControlChange):
         associated to Bank Select, namely, 0 and 32 for MSB and LSB respectively.
     Value(0), int : Selects the presets Bank in the Device.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4509,7 +4509,7 @@ class ValueZero(ControlChange):
     Controller(settings) : An `Operand` that represents parameters like the `Number` of the controller being changed.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4543,7 +4543,7 @@ class ResetAllControllers(ValueZero):
     Controller(ou.Number(121)) : The default and immutable `Controller` parameters that triggers a controllers reset.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4571,7 +4571,7 @@ class LocalControl(ControlChange):
     Controller(ou.Number(122)) : The default and immutable `Controller` associated with the Device Local control.
     Value(0) : By default the value is 0, Local control Off.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4599,7 +4599,7 @@ class AllNotesOff(ValueZero):
     Controller(ou.Number(123)) : The default and immutable `Controller` parameters that turns notes Off.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4627,7 +4627,7 @@ class OmniModeOff(ValueZero):
     Controller(ou.Number(124)) : The default and immutable `Controller` parameters that turns Omni Mode Off.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4655,7 +4655,7 @@ class OmniModeOn(ValueZero):
     Controller(ou.Number(125)) : The default and immutable `Controller` parameters that turns Omni Mode On.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4684,7 +4684,7 @@ class MonoMode(ControlChange):
     Value(0) : By default the value is 0 , in which case the number of channels used is determined by the receiver; \
         all other values set a specific number of channels, beginning with the current basic channel.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4712,7 +4712,7 @@ class PolyModeOn(ValueZero):
     Controller(ou.Number(127)) : The default and immutable `Controller` parameters that turns Poly Mode On.
     Value(0) : The default `Value` of 0 is immutable.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4740,7 +4740,7 @@ class PitchBend(Automation):
     ----------
     Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -4941,7 +4941,7 @@ class Aftertouch(Automation):
     ----------
     Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -5100,7 +5100,7 @@ class PolyAftertouch(Aftertouch):
         `Scale`, `Degree` and `KeySignature`.
     Pressure(0), int: Value that ranges from 0 to 127, or, from (0) to (128 - 1).
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -5229,7 +5229,7 @@ class ProgramChange(ChannelElement):
     ----------
     Program(1), int: Program number from 1 to 128.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
@@ -5403,7 +5403,7 @@ class Panic(DeviceElement):
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
