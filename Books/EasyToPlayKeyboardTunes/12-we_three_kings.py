@@ -118,12 +118,12 @@ melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
 chords >> Print()
 melody >> Print()
 
-chords_clip = Clip(chords)
-melody_clip = Clip(melody)
+chords_clip = Clip(chords * 2)
+melody_clip = Clip(melody * 2)
 
 melody_clip << Title("Melody (New)") << Velocity(85) >> Plot(block=False)
 chords_clip << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords_clip >>= Smooth(4)
-melody_clip / 2 + chords_clip.copy(Disable()) / 2 >> Plot(composition=chords_clip / 2, title="We Three Kings (New)")
+melody_clip + chords_clip.copy(Disable()) >> Plot(composition=chords_clip, title="We Three Kings (New)")
 
 
