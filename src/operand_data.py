@@ -226,6 +226,11 @@ class Token(Data):
     ----------
     str("") : A DSL string with multiple parameters, like, "n:1/8:C5#".
     """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        if not isinstance(self._data, str): # Makes sure it's a string
+            self._data = ""
+
     def get_field(self, index: int) -> str | None:
         token_dsl: str = self._data
         normalized_dsl: str = _normalize_dsl(token_dsl)
@@ -244,6 +249,11 @@ class Line(Data):
     ----------
     str("") : A DSL string with multiple tokens separated with `,`, like, "n:1/8:C5#, 9:1/8::75".
     """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        if not isinstance(self._data, str): # Makes sure it's a string
+            self._data = ""
+
     def get_token(self, index: int) -> str | None:
         line_dsl: str = self._data
         normalized_dsl: str = _normalize_dsl(line_dsl)
@@ -257,11 +267,19 @@ class Line(Data):
         normalized_dsl: str = _normalize_dsl(line_dsl)
         return normalized_dsl.split(",")
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                if not isinstance(self._data, str):
+                    self._data = ""
+                return self._data
+        return super().__mod__(operand)
+    
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> Self:
         if isinstance(operand, str):
-            self._data += "," + operand
+            self._data += ", " + operand
         return self # remains as an Inline operand
     
     def __imul__(self, operand: any) -> Self:
@@ -269,7 +287,7 @@ class Line(Data):
             if operand > 1:
                 new_line = self._data
                 for _ in range(operand - 1):
-                    new_line += "," + self._data
+                    new_line += ", " + self._data
                 self._data = new_line
             elif operand == 0:
                 self._data = ""
