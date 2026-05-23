@@ -5490,6 +5490,8 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
             field_0 = "n"
         else:
             field_0 = field_0.lower()
+        if field_0[0] == "_":
+            field_0 = "n" + field_0
         # Process each field parameters
         element_parameters: list[str] = field_0.split("_")
         element = _element_type[ element_parameters[0] ]()  # instantiates the Element class
