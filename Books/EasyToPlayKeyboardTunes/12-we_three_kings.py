@@ -100,8 +100,18 @@ melody = Line()
 # THE DEFAULT DURATION OF A NOTE IS 1 BEAT AND NOT 1/4 NECESSARILY
 # For a TimeSignature fo 6/8, the default duration is 1/8
 # Beat = atomic temporal unit of current meter
-chords += "c:1:A"
+
+# Measure 0
+chords += "c:1m:A"
 melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
+
+# Measure 1
+chords += "c:1/4d:G, c:1md:A"
+melody += "::B, ::C5, ::B, :1/4d:A"
+
+
+
+
 
 chords_clip = Clip(chords)
 melody_clip = Clip(melody)
