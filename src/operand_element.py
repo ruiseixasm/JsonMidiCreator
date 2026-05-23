@@ -346,6 +346,9 @@ class Element(o.Operand):
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
             case od.Token():
                 self._set_element_from_token(operand._data)
+            case od.Line():
+                token: str = operand.get_token(0)
+                self << od.Token(token)
 
             case og.Segment():
                 if operand._segment:
