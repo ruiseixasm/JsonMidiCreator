@@ -2530,18 +2530,33 @@ class Render(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            file_path: str = self._parameters
-            folder: str = settings._folder
-            if not isinstance(file_path, str):
-                if isinstance(operand, oc.Composition):
-                    file_path = folder + operand.composition_filename() + "_render.mid"
-                else:
-                    file_path = folder + "midi/_MidiExport_song.mid"
-            else: # Folder is just a prefix
-                file_path = folder + file_path
-            c.saveMidiFile(operand.getMidilist(), file_path)
-            return operand
+        import operand_element as oe
+        import operand_container as oc
+        import operand_yielder as oy
+        # filepath and filename
+        file_path: str = self._parameters
+        folder: str = settings._folder
+        if not isinstance(file_path, str):
+            if isinstance(operand, oc.Composition):
+                file_path = folder + operand.composition_filename() + "_render.mid"
+            else:
+                file_path = folder + "midi/_MidiExport_song.mid"
+        else: # Folder is just a prefix
+            file_path = folder + file_path
+        # Rendering of the midi file
+        match operand:
+            case oc.Composition() | oe.Element():
+                c.saveMidiFile(operand.getMidilist(), file_path)
+                return operand
+            case oy.Yielder():
+                yield_clip = operand % oc.Clip()
+                self.__rrshift__(yield_clip)
+            case od.Line():
+                line_clip = oc.Clip(operand)
+                self.__rrshift__(line_clip)
+            case str():
+                line = od.Line(operand)
+                self.__rrshift__(line)
         return super().__rrshift__(operand)
 
 
@@ -2578,6 +2593,12 @@ class Plot(ReadOnly):
                 return operand.plot(*self._parameters)
             case oy.Yielder():
                 return operand.__mod__(oc.Clip()).plot(*self._parameters)
+            case od.Line():
+                line_clip = oc.Clip(operand)
+                self.__rrshift__(line_clip)
+            case str():
+                line = od.Line(operand)
+                self.__rrshift__(line)
             case Scale():
                 Scale.plot(self._parameters[1], operand % list())
             case ou.KeySignature():
@@ -2662,6 +2683,12 @@ class Play(ReadOnly):
                         operand >> Plot(self._parameters[2])
                     c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 return operand
+            case od.Line():
+                line_clip = oc.Clip(operand)
+                self.__rrshift__(line_clip)
+            case str():
+                line = od.Line(operand)
+                self.__rrshift__(line)
             case od.Playlist():
                 playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                 c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
