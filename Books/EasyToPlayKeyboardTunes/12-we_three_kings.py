@@ -111,7 +111,7 @@ melody += "::B, ::C5, ::B, :1/4d:A"
 
 # Measure 2
 chords += ""
-melody += "::B, ::C5, ::B, :1/4d:A"
+melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
 
 
 # Print the full content
