@@ -2109,6 +2109,8 @@ class Note(ChannelElement):
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
+                if not isinstance(self, other.__class__):   # Note subclasses need to be exhaustively compared to mismatch classes
+                    return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
                 return super().__eq__(other) \
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
