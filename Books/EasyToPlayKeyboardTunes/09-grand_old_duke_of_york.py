@@ -33,15 +33,15 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantizatio
 
 
 melody = Note(Beat(3)) / [
-    N8("E"), "D",               # 0
-    N4("C"), 3,                 # 1
-    1/2, R4(), N4("C"),         # 2
+    Note(1/8, "E"), "D",               # 0
+    Note("C"), 3,                 # 1
+    1/2, Rest(), Note("C"),         # 2
     "D", 3,                     # 3
-    1/2, R4(), N4("D"),         # 4
+    1/2, Rest(), Note("D"),         # 4
     "E", 2, 1/8, 1,             # 5
-    N4("F"), 1/8, 1, 1/4, 1/8, 1,   # 6
-    N4("E"), "C", "D", 1,       # 7
-    N2("C"), R4()               # 8
+    Note("F"), 1/8, 1, 1/4, 1/8, 1,   # 6
+    Note("E"), "C", "D", 1,       # 7
+    Note(1/2, "C"), Rest()               # 8
 ]
 
 melody << Title("Grand Old Duke of York") << Velocity(85)

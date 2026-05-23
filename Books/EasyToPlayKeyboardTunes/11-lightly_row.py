@@ -30,8 +30,8 @@ ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice",
 
 settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('') << Quantization(1/2)
 
-four_notes = N4() / 4
-three_notes = N4()**2 / N2()
+four_notes = Note() / 4
+three_notes = Note()**2 / Note(1/2, )
 whole_note = N1()**1
 
 

@@ -32,19 +32,19 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantizati
 
 
 pickup_bar = \
-    N4(Beat(3))**1
+    Note(Beat(3))**1
 main_phrase = \
-    N4("G")**3 / N4("A") / N8("B") / N8("A") / N8("B") / N8("C") / N4("D") / N4("B")
+    Note("G")**3 / Note("A") / Note(1/8, "B") / Note(1/8, "A") / Note(1/8, "B") / Note(1/8, "C") / Note("D") / Note("B")
 variant_phrase_ = \
-    N4() / N8()**2 / N4()**2 / N2d() << Foreach("C", "B", "G", "A", "A", "G")
+    Note() / Note(1/8, )**2 / Note()**2 / N2d() << Foreach("C", "B", "G", "A", "A", "G")
 central_period = \
-    N4d("D") / N8("E")**5 / N8()**["G", "A", "B", "C"] / N4("D")**2 / \
-    N4()**["G", "B", "A", "G"] / N2("D")**2 \
+    N4d("D") / Note(1/8, "E")**5 / Note(1/8, )**["G", "A", "B", "C"] / Note("D")**2 / \
+    Note()**["G", "B", "A", "G"] / Note(1/2, "D")**2 \
         << Match(0, "E")**Previous(Pipe(Degree()))**Subtract(1)**Pipe()
 
 melody = \
     pickup_bar * \
-    main_phrase * variant_phrase_ / N4("D") * main_phrase * variant_phrase_ / N8("G") / N8("B") * \
+    main_phrase * variant_phrase_ / Note("D") * main_phrase * variant_phrase_ / Note(1/8, "G") / Note(1/8, "B") * \
     central_period * main_phrase * variant_phrase_ >> Smooth() << First()**("D", Octave(4))
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
