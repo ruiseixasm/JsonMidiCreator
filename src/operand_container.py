@@ -2140,7 +2140,8 @@ class Composition(Container):
             f"{int(last_position / composition_tempo * 60 // 60)}'"
             f"{int(last_position / composition_tempo * 60 % 60)}''"
             f"{int(last_position / composition_tempo * 60_000 % 1000)}ms "
-            f"with a Time Signature of {time_signature._top}/{time_signature._bottom}"
+            f"with a Time Signature of {time_signature._top}/{time_signature._bottom} "
+            f"and a Quantization of {quantization_beats} Beats"
         )
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
