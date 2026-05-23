@@ -264,6 +264,17 @@ class Line(Data):
             self._data += "," + operand
         return self # remains as an Inline operand
     
+    def __imul__(self, operand: any) -> Self:
+        if isinstance(operand, int):
+            if operand > 1:
+                new_line = self._data
+                for _ in range(operand - 1):
+                    new_line += "," + self._data
+                self._data = new_line
+            elif operand == 0:
+                self._data = ""
+        return self # remains as an Inline operand
+    
 
 class Inline(Data):
     """`Data -> Inline`
