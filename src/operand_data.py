@@ -220,7 +220,6 @@ class Token(Data):
     """`Data -> Token`
 
     `Token` allows an Element to receive multiple parameters in a single string.
-    DSL stands for Domain-Specific Language
     
     Fields
     ----------
@@ -243,7 +242,9 @@ class Line(Data):
     """`Data -> Line`
 
     A `Line` is a string representing a series of Elements to be stacked.
-    DSL stands for Domain-Specific Language
+    
+    DSL stands for Domain-Specific Language:
+        Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]
     
     Fields
     ----------
