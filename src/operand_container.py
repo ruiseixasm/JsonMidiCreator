@@ -2139,7 +2139,8 @@ class Composition(Container):
             f"Measures played at {round(composition_tempo, 1)}bpm for "
             f"{int(last_position / composition_tempo * 60 // 60)}'"
             f"{int(last_position / composition_tempo * 60 % 60)}''"
-            f"{int(last_position / composition_tempo * 60_000 % 1000)}ms"
+            f"{int(last_position / composition_tempo * 60_000 % 1000)}ms "
+            f"with a Time Signature of {time_signature._top}/{time_signature._bottom}"
         )
 
         self._ax.set_xticks(measure_positions)  # Only show measure & beat labels
