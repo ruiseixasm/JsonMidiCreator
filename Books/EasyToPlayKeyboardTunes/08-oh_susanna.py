@@ -28,7 +28,7 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Harmonica", Channel(1)) + ProgramChange("Accordion", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4)
+settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4) 
 
 
 
@@ -61,13 +61,13 @@ melody << Title("Oh Susanna") << Velocity(85)
 
 chords = Chord(1, "G", Bars(3)) / [
         0,
-        C1("D"),
-        C_2("G"),
-        C1("D"), "G",
-        C_2("C"),
-        C1("G"), C1("D"),
-        C_2("G"),
-        C1("D"), "G"
+        (1., "D"),
+        (2., "G"),
+        (1., "D"), "G",
+        (2., "C"),
+        (1., "G"), (1., "D"),
+        (2., "G"),
+        (1., "D"), "G"
     ]
 
 chords << Channel(2) << Octave(3) << Velocity(50) << Gate(.99)
