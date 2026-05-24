@@ -2686,13 +2686,15 @@ class Chord(KeyScale):
 
     A `Chord` element allows the triggering of notes belonging to a specific `Scale`.
 
-    The applicable fields(:) for each token(,) in a `Line`, like in `"c:3b:F, c:3b"`:
+    The applicable fields(:) for each token(,) in a `Line`, like in `"c:3b:F, c_-_4_1:3b"`:
 
         +-------+-----------+-----------------------------------------------------------------------------------+
         | Field | Parameter | Parameter Values                                                                  |
         +-------+-----------+-----------------------------------------------------------------------------------+
-        | 0     | 0         | Tag: "n" (optional)                                                               |
+        | 0     | 0         | Tag: "c"                                                                          |
         |       | 1         | Channel: int(Channel)                                                             |
+        |       | 2         | Size: int(Size)                                                                   |
+        |       | 3         | Inversion: int(Inversion)                                                         |
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
         | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
@@ -2764,10 +2766,10 @@ class Chord(KeyScale):
     def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
         if isinstance(number, int):
             match nth:
-                case 1:
+                case 2:
                     self << ou.Size(number)
                     return self
-                case 2:
+                case 3:
                     self << ou.Inversion(number)
                     return self
         return super()._set_element_from_number(number)
