@@ -1023,7 +1023,7 @@ def test_flip_operation():
     actual_pitch: int = 60
     for single_note in four_notes:
         single_note % od.Pipe( Pitch() ) % int() >> Print()
-        assert single_note % od.Pipe( Pitch() ) == actual_pitch
+        assert single_note % od.Pipe( Pitch() ) % Pipe(Key()) == actual_pitch
         actual_pitch += 2
     
     four_notes.mirror(False)
@@ -1031,8 +1031,8 @@ def test_flip_operation():
     print("------")
     for single_note in four_notes:
         actual_pitch -= 2
-        single_note % od.Pipe( Pitch() ) % int() >> Print()
-        assert single_note % od.Pipe( Pitch() ) == actual_pitch
+        single_note % od.Pipe( Pitch() ) % Pipe(Key()) % int() >> Print()
+        assert single_note % od.Pipe( Pitch() ) % Pipe(Key()) == actual_pitch
 
 # test_flip_operation()
 
