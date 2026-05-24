@@ -3109,9 +3109,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._length_beats = None
 
             case str():
-                if operand.find(" ") != -1 or operand.find(";") != -1:
-                    string_elements: list[oe.Element] = _string_to_elements(operand)
-                    self._extend(string_elements)._set_owner_clip()._sort_items()
+                if operand.find(" ") != -1 or operand.find(":") != -1:
+                    self.__lshift__(od.Line(operand))
                 else:
                     super().__lshift__(operand)
 
@@ -3321,8 +3320,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._mask_items = mask_elements
 
             case str():
-                string_elements: list[oe.Element] = _string_to_elements(operand)
-                self *= Clip()._extend(string_elements)._set_owner_clip()._sort_items()
+                self.__imul__(od.Line(operand))
 
             # Place to add Line processing
             case od.Line():
