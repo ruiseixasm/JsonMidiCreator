@@ -3652,6 +3652,14 @@ class Retrigger(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def checksum(self) -> str:
+        """4-char hex checksum (16-bit) for an Element."""
+        component_elements = self.get_component_elements()
+        master: int = 0
+        for single_element in component_elements:
+            master += int(single_element.checksum(), 16)   # XOR 16-bit
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
     def count(self, count: int = 8) -> Self:
         self._count = count
         return self
