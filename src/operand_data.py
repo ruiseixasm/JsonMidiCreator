@@ -221,6 +221,23 @@ class Token(Data):
 
     `Token` allows an Element to receive multiple parameters in a single string.
     
+    The first field(:) for a token(,), has a tag, where where in `"c:3b:F"` is the tag "c", this tag represents the
+    `Chord` element, these are the all available tags:
+
+        +------+-----------------+
+        | Tag  | Element         |
+        +------+-----------------+
+        | "r"  | Rest            |
+        | "n"  | Note (optional) |
+        | "c"  | Chord           |
+        | "rt" | Retrigger       |
+        | "cl" | Cluster         |
+        | "cc" | ControlChange   |
+        | "pb" | PitchBend       |
+        | "pc" | ProgramChange   |
+        | "at" | Aftertouch      |
+        +------+-----------------+
+        
     Parameters
     ----------
     str("") : A DSL string with multiple parameters, like, "n:1/8:C5#".
@@ -275,8 +292,25 @@ class Line(Data):
 
     A `Line` is a string representing a series of Elements set by multiple tokens and fields.
 
-    DSL stands for Domain-Specific Language: Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]
+    DSL stands for Domain-Specific Language: `Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]`
 
+    The first field(:) for each token(,) in a `Line`, like in `"c:3b:F, c_-_4_1:3b"` has a tag that represents the
+    respective `Element`, these are the tags:
+
+        +------+-----------------+
+        | Tag  | Element         |
+        +------+-----------------+
+        | "r"  | Rest            |
+        | "n"  | Note (optional) |
+        | "c"  | Chord           |
+        | "rt" | Retrigger       |
+        | "cl" | Cluster         |
+        | "cc" | ControlChange   |
+        | "pb" | PitchBend       |
+        | "pc" | ProgramChange   |
+        | "at" | Aftertouch      |
+        +------+-----------------+
+        
     Parameters
     ----------
     str("") : A DSL string with multiple tokens separated with `,` like `"n:1/8:C5#, n_9:1/8::75"`.

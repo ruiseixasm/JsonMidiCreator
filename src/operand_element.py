@@ -4792,7 +4792,8 @@ _element_type: dict[str, type] = {
     'cl':       Cluster,
     'cc':       ControlChange,
     'pb':       PitchBend,
-    'pc':       ProgramChange
+    'pc':       ProgramChange,
+    'at':       Aftertouch
 }
 
 
