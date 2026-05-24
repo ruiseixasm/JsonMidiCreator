@@ -85,7 +85,7 @@ class Locus(Generic):
         super().__init__()
         self._time_signature_reference: TimeSignature = None
         self._position_beats: Fraction      = Fraction(0)   # in Beats
-        self._duration_beats: Fraction      = settings._duration
+        self._duration_beats: Fraction      = Fraction(1)   # in Beats
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -3735,11 +3735,7 @@ class Settings(Generic):
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature()
-        self._duration: Fraction                    = Fraction(1)   # Means 1 beat
-        self._octave: int                           = 4
-        self._velocity: int                         = 100
         self._controller: Controller                = Controller("Pan")
-        self._channel_0: int                        = 0 # Default is channel 1 base 1 same as 0 base 0
         self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
         self._clocked_devices: list[str]            = []
         self._controlled_devices: list[str]         = []
@@ -3815,11 +3811,7 @@ class Settings(Generic):
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     case ou.KeySignature():     return self._key_signature
-                    case ra.Duration():         return operand << self._duration
-                    case ou.Octave():           return ou.Octave(self._octave)
-                    case ou.Velocity():         return ou.Velocity(self._velocity)
                     case Controller():          return self._controller
-                    case ou.Channel():          return ou.Channel(self._channel_0)
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.ControlledDevices():
                                                 return oc.ControlledDevices(self._controlled_devices)
@@ -3845,13 +3837,9 @@ class Settings(Generic):
                 return self._key_signature.get_scale() # Faster this way
             case ou.TonicKey():
                 return ou.TonicKey( self._key_signature.get_tonic_key() )
-            case ra.Duration():         return operand.copy() << self._duration
-            case ou.Octave():           return ou.Octave(self._octave)
-            case ou.Velocity():         return ou.Velocity(self._velocity)
             case Controller():          return self._controller.copy()
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())
-            case ou.Channel():          return ou.Channel(self._channel_0)
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.ControlledDevices():
                                         return oc.ControlledDevices(self._controlled_devices)
@@ -3872,11 +3860,7 @@ class Settings(Generic):
             and self._quantization          == other._quantization \
             and self._time_signature        == other._time_signature \
             and self._key_signature         == other._key_signature \
-            and self._duration              == other._duration \
-            and self._octave                == other._octave \
-            and self._velocity              == other._velocity \
             and self._controller            == other._controller \
-            and self._channel_0             == other._channel_0 \
             and self._devices               == other._devices \
             and self._clocked_devices       == other._clocked_devices \
             and self._controlled_devices    == other._controlled_devices \
@@ -3893,11 +3877,7 @@ class Settings(Generic):
         serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
         serialization["parameters"]["key_signature"]        = self.serialize( self._key_signature )
-        serialization["parameters"]["duration"]             = self.serialize( self._duration )
-        serialization["parameters"]["octave"]               = self.serialize( self._octave )
-        serialization["parameters"]["velocity"]             = self.serialize( self._velocity )
         serialization["parameters"]["controller"]           = self.serialize( self._controller )
-        serialization["parameters"]["channel_0"]            = self.serialize( self._channel_0 )
         serialization["parameters"]["devices"]              = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
         serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
@@ -3911,8 +3891,7 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel_0" in serialization["parameters"] and 
+            "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and  "controlled_devices" in serialization["parameters"] and 
             "clock_ppqn" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
@@ -3921,11 +3900,7 @@ class Settings(Generic):
             self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
             self._key_signature         = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._duration              = self.deserialize( serialization["parameters"]["duration"] )
-            self._octave                = self.deserialize( serialization["parameters"]["octave"] )
-            self._velocity              = self.deserialize( serialization["parameters"]["velocity"] )
             self._controller            = self.deserialize( serialization["parameters"]["controller"] )
-            self._channel_0             = self.deserialize( serialization["parameters"]["channel_0"] )
             self._devices               = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
             self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
@@ -3944,11 +3919,7 @@ class Settings(Generic):
                 self._quantization          = operand._quantization
                 self._time_signature        << operand._time_signature
                 self._key_signature         << operand._key_signature
-                self._duration              = operand._duration
-                self._octave                = operand._octave
-                self._velocity              = operand._velocity
                 self._controller            << operand._controller
-                self._channel_0             = operand._channel_0
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._controlled_devices    = operand._controlled_devices.copy()
@@ -3960,11 +3931,7 @@ class Settings(Generic):
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
                     case ou.KeySignature():         self._key_signature = operand._data
-                    case ra.Duration():             self._duration = operand._data._rational
-                    case ou.Octave():               self._octave = operand._data._unit
-                    case ou.Velocity():             self._velocity = operand._data._unit
                     case Controller():              self._controller = operand._data
-                    case ou.Channel():              self._channel_0 = operand._data._unit
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.ControlledDevices():    self._controlled_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
@@ -3982,12 +3949,8 @@ class Settings(Generic):
                                         self._time_signature << operand
             case ou.KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
-            case ra.Duration():         self._duration = operand._rational
-            case ou.Octave():           self._octave = operand._unit
-            case ou.Velocity():         self._velocity = operand._unit
             case Controller() | ou.Number():
                                         self._controller << operand
-            case ou.Channel():          self._channel_0 = operand._unit
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.ControlledDevices():
                                         self._controlled_devices = operand % list()
