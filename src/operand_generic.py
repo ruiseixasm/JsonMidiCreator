@@ -3890,8 +3890,7 @@ class Settings(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
-            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "controller" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and  "controlled_devices" in serialization["parameters"] and 
             "clock_ppqn" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
