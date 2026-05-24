@@ -2730,6 +2730,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
         if isinstance(index, of.Frame):
+            index._set_inside_container(self)
             new_clip = self.empty_copy()
             for single_element in self._foreground_items():
                 if single_element == index:
@@ -4711,6 +4712,7 @@ class Block(Composition):
 
     def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
         if isinstance(index, of.Frame):
+            index._set_inside_container(self)
             new_block = self.empty_copy()
             for single_clip in self._foreground_items():
                 if single_clip == index:
@@ -5344,6 +5346,7 @@ class Part(Composition):
 
     def __getitem__(self, index: Any) -> Union['Block', 'Part']:
         if isinstance(index, of.Frame):
+            index._set_inside_container(self)
             new_part = self.empty_copy()
             for single_block in self._foreground_items():
                 if single_block == index:

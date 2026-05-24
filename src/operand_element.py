@@ -261,7 +261,6 @@ class Element(o.Operand):
             case od.Conditional():
                 return other == self
             case of.Frame():
-                other._set_inside_container(self._owner_clip)
                 return other == self
             case _:
                 return super().__eq__(other)
