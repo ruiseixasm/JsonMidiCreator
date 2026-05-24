@@ -1204,8 +1204,8 @@ class Composition(Container):
         return None
 
 
-    def checksum(self) -> str:
-        return "0000" # 4 hexadecimal chars sized 16^4 = 65_536
+    def checksum(self) -> int:
+        return 0
 
     def composition_filename(self) -> str:
         # Process title separately (replace whitespace with underscores)
@@ -1214,7 +1214,7 @@ class Composition(Container):
         composition_designations: list[str] = [
             processed_title,
             type(self).__name__,
-            self.checksum()
+            o.checksum_to_string(self.checksum())
         ]
         # 1. Filter empty strings and convert all parts to lowercase
         filtered_strings = [
@@ -2166,7 +2166,7 @@ class Composition(Container):
             self._iteration = 0
             plotlist: list[dict] = self._plot_lists[self._iteration]
             iteration_i = self._iterations[self._iteration]
-            checksum: str = iteration_i.checksum()
+            checksum: str = o.checksum_to_string(iteration_i.checksum())
             self._plot_elements(plotlist, iteration_i._time_signature, checksum)
             self._enable_button(self._next_button)
             if self._iteration == 0:
@@ -2178,7 +2178,7 @@ class Composition(Container):
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             iteration_i = self._iterations[self._iteration]
-            checksum: str = iteration_i.checksum()
+            checksum: str = o.checksum_to_string(iteration_i.checksum())
             self._plot_elements(plotlist, iteration_i._time_signature, checksum)
             self._enable_button(self._next_button)
             if self._iteration == 0:
@@ -2190,7 +2190,7 @@ class Composition(Container):
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             iteration_i = self._iterations[self._iteration]
-            checksum: str = iteration_i.checksum()
+            checksum: str = o.checksum_to_string(iteration_i.checksum())
             self._plot_elements(plotlist, iteration_i._time_signature, checksum)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
@@ -2202,7 +2202,7 @@ class Composition(Container):
             self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             iteration_i = self._iterations[self._iteration]
-            checksum: str = iteration_i.checksum()
+            checksum: str = o.checksum_to_string(iteration_i.checksum())
             self._plot_elements(plotlist, iteration_i._time_signature, checksum)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
@@ -2213,7 +2213,7 @@ class Composition(Container):
         self._plot_lists[iteration] = plotlist
         if iteration == self._iteration:
             iteration_i = self._iterations[self._iteration]
-            checksum: str = iteration_i.checksum()
+            checksum: str = o.checksum_to_string(iteration_i.checksum())
             self._plot_elements(plotlist, iteration_i._time_signature, checksum)
         return self
 
@@ -2226,7 +2226,7 @@ class Composition(Container):
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 self._iterations.append(new_iteration)
                 self._plot_lists.append(plotlist)
-                checksum: str = new_iteration.checksum()
+                checksum: str = o.checksum_to_string(new_iteration.checksum())
                 self._plot_elements(plotlist, new_iteration._time_signature, checksum)
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
@@ -2248,7 +2248,7 @@ class Composition(Container):
             type(composition).__name__,
             f"{self._iteration}",
             f"{len(self._iterations) - 1}",
-            composition.checksum()
+            o.checksum_to_string(composition.checksum())
         ]
         # 1. Filter empty strings and convert all parts to lowercase
         filtered_strings = [
@@ -2436,7 +2436,7 @@ class Composition(Container):
 
         # Where the plotting is done
         iteration_i = self._iterations[self._iteration]
-        checksum: str = iteration_i.checksum()
+        checksum: str = o.checksum_to_string(iteration_i.checksum())
         self._plot_elements(self._plot_lists[self._iteration], iteration_i._time_signature, checksum)
 
         # Where the padding is set
@@ -2661,12 +2661,12 @@ class Clip(Composition):  # Just a container of Elements
         return len(self._foreground_items())
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for a Clip, combining Element checksums."""
+    def checksum(self) -> int:
+        """16-bit checksum for a `Clip`, combining Element checksums."""
         master: int = 0
         for single_element in self._items:
-            master += int(single_element.checksum(), 16)   # XOR 16-bit
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+            master += single_element.checksum()
+        return master & 0xFFFF  # 16-bit
 
 
     def masked_element(self, element: 'oe.Element') -> bool:
@@ -4641,12 +4641,12 @@ class Block(Composition):
         return last_element
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for a Block, combining Clip checksums."""
-        master: int = len(self._items)
+    def checksum(self) -> int:
+        """16-bit checksum for a `Block`, combining Clip checksums."""
+        master: int = 0
         for single_clip in self._items:
-            master += int(single_clip.checksum(), 16)   # XOR 16-bit
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+            master += single_clip.checksum()
+        return master & 0xFFFF  # 16-bit
 
 
     def masked_element(self, element: 'oe.Element') -> bool:
@@ -5317,12 +5317,12 @@ class Part(Composition):
         return None
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for a Part, combining Block checksums."""
-        master: int = len(self._items)
+    def checksum(self) -> int:
+        """16-bit checksum for a `Part`, combining 16-bit checksums."""
+        master: int = 0
         for block in self._items:
-            master += int(block.checksum(), 16)   # XOR 16-bit
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+            master += block.checksum()
+        return master & 0xFFFF  # 16-bit
 
 
     def masked_element(self, element: 'oe.Element') -> bool:

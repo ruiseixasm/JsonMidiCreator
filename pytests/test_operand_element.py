@@ -696,7 +696,7 @@ def test_element_position():
 
 def test_checksum():
     single_note = Note()
-    assert single_note.checksum() == "22c0"
+    assert checksum_to_string(single_note.checksum()) == "22c0"
 
 # test_checksum()
 

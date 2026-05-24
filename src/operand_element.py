@@ -97,12 +97,12 @@ class Element(o.Operand):
         return self._owner_clip._time_signature
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for an `Element`."""
         master: int = 0
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
 
     def position(self, position_measures: float = None) -> Self:
@@ -143,8 +143,8 @@ class Element(o.Operand):
     
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        if isinstance(previous_element, Element):
-            self << previous_element.finish()
+        if isinstance(previous_element, Element):   # Same as `previous_element.finish()`
+            self._position_beats = previous_element._position_beats + previous_element._duration_beats
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         field_1: str = token_operand.get_field(1)
@@ -1797,12 +1797,12 @@ class ChannelElement(DeviceElement):
             self << single_parameter
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for a `ChannelElement`."""
         master: int = self._channel_0 << 8
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
 
     def channel(self, channel: int = None) -> Self:
@@ -1958,12 +1958,12 @@ class Note(ChannelElement):
         return self
 
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for a `Note`."""
         master: int = self._velocity << 7 + 4 | self._pitch.pitch_int() << 4 | self._channel_0
         master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
     def center_pitch(self) -> int:
         return self._pitch.pitch_int()
@@ -2693,13 +2693,13 @@ class Chord(KeyScale):
         self._sus4: bool            = False
         super().__init__(*parameters)
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for a `Chord`."""
         component_elements = self.get_component_elements()
         master: int = 0
         for single_element in component_elements:
             master += int(single_element.checksum(), 16)   # XOR 16-bit
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
     def size(self, size: int = 3) -> Self:
         self._size = size
@@ -2918,13 +2918,13 @@ class Retrigger(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for a `Retrigger`."""
         component_elements = self.get_component_elements()
         master: int = 0
         for single_element in component_elements:
             master += int(single_element.checksum(), 16)   # XOR 16-bit
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
     def count(self, count: int = 8) -> Self:
         self._count = count
@@ -3306,12 +3306,12 @@ class Automation(ChannelElement):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def checksum(self) -> str:
-        """4-char hex checksum (16-bit) for an Element."""
+    def checksum(self) -> int:
+        """16-bit checksum for an `Automation`."""
         master: int = self._value << 4 | self._channel_0
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
-        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+        return master & 0xFFFF  # 16-bit
 
     def __mod__(self, operand: o.T) -> o.T:
         """

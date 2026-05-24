@@ -1217,13 +1217,13 @@ def test_segment_operations():
 
 def test_checksum():
     four_notes = Note() / 4
-    assert four_notes.checksum() == "8900"
+    assert checksum_to_string(four_notes.checksum()) == "8900"
 
     part_notes = Block(four_notes)
-    assert part_notes.checksum() == "8901"
+    assert checksum_to_string(part_notes.checksum()) == "8900"
 
     song_notes = Part(part_notes)
-    assert song_notes.checksum() == "8902"
+    assert checksum_to_string(song_notes.checksum()) == "8900"
 
 
 def test_mul_list():

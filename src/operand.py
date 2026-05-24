@@ -59,6 +59,11 @@ def string_to_number(string: str) -> int | float | None:
             return float(rational)
         except ValueError:
             return None
+        
+def checksum_to_string(checksum: int) -> str:
+    """4-char hex checksum (16-bit) as a string."""
+    return f"{checksum & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
 
 def string_eval(string: str) -> Any:
     """Safely evaluate a string into int, float, Fraction, or list of them.
