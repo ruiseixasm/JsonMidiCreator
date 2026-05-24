@@ -1048,6 +1048,16 @@ class Rest(Element):
 
     A `Rest` element is essentially used to occupy space on a `TimeSignature` for a process of `Clip` stacking or linking.
 
+    The applicable fields(:) for each token(,) in a `Line`, like in `"c_8:3b:F, r:3b"`:
+
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                  |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "r"                                                                          |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - dotted, "m" - Measures, "b" - Beats |
+        |       | n         | Position: int(Beats), float(NoteValue), "m" - Measures, "b" - Beats               |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+
     Parameters
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
@@ -1922,6 +1932,19 @@ class Note(ChannelElement):
 
     A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
 
+    The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:C5#, n_9:1/8::75"`:
+
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                  |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "n" (optional)                                                               |
+        |       | 1         | Channel: int(Channel)                                                             |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
+        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
+        | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 3     | 0         | Velocity: int(Velocity)                                                           |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+
     Parameters
     ----------
     Velocity(100), int : Sets the velocity of the note being pressed.
@@ -2662,6 +2685,19 @@ class Chord(KeyScale):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord`
 
     A `Chord` element allows the triggering of notes belonging to a specific `Scale`.
+
+    The applicable fields(:) for each token(,) in a `Line`, like in `"c:3b:F, c:3b"`:
+
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                  |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "n" (optional)                                                               |
+        |       | 1         | Channel: int(Channel)                                                             |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
+        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
+        | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 3     | 0         | Velocity: int(Velocity)                                                           |
+        +-------+-----------+-----------------------------------------------------------------------------------+
 
     Parameters
     ----------

@@ -221,7 +221,7 @@ class Token(Data):
 
     `Token` allows an Element to receive multiple parameters in a single string.
     
-    Fields
+    Parameters
     ----------
     str("") : A DSL string with multiple parameters, like, "n:1/8:C5#".
     """
@@ -241,14 +241,13 @@ class Token(Data):
 class Line(Data):
     """`Data -> Line`
 
-    A `Line` is a string representing a series of Elements to be stacked.
-    
-    DSL stands for Domain-Specific Language:
-        Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]
-    
-    Fields
+    A `Line` is a string representing a series of Elements set by multiple tokens and fields.
+
+    DSL stands for Domain-Specific Language: Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]
+
+    Parameters
     ----------
-    str("") : A DSL string with multiple tokens separated with `,`, like, "n:1/8:C5#, 9:1/8::75".
+    str("") : A DSL string with multiple tokens separated with `,` like `"n:1/8:C5#, n_9:1/8::75"`.
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
