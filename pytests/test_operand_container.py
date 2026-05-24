@@ -739,11 +739,11 @@ def test_lshift_clip():
     one_measure: Clip = two_measures >> Mask(Bellow(Measure(1)))
     assert one_measure.len() == 4
 
-    assert two_measures[0] % Pitch() == 60
-    two_measures << Pitch(30)
-    assert two_measures[0] % Pitch() == 30
-    two_measures << Pitch()
-    assert two_measures[0] % Pitch() == 60
+    assert two_measures[0] % Pitch() % Pipe(Key()) == 60
+    two_measures << Pipe(Key(30))
+    assert two_measures[0] % Pitch() % Pipe(Key()) == 30
+    two_measures << Pipe(Key(60))
+    assert two_measures[0] % Pitch() % Pipe(Key()) == 60
 
 
     eight_notes = Note() / 8
