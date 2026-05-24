@@ -1586,7 +1586,7 @@ class Composition(Container):
         return pitch
 
 
-    def _plot_elements(self, plotlist: list[dict], time_signature: 'og.TimeSignature', checksum: str):
+    def _plot_elements(self, plotlist: list[dict], time_signature: 'og.TimeSignature', checksum_str: str):
         """
         The method that does the heavy work of plotting
         """
@@ -1597,16 +1597,16 @@ class Composition(Container):
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
-                        + f"{self._iterations[self._iteration].__class__.__name__}"
+                        + f"{self._compositions[self._iteration].__class__.__name__}"
         # Chart title (TITLE)
         if isinstance(self, Block):
             measure_position: int = int(self._position_beats / beats_per_measure)
             chart_title += f"({measure_position}) - "
         else:
             chart_title += " - "
-        chart_title += f"{"Mask - " if self._iterations[self._iteration].is_masked() else ""}"
-        chart_title += f"Iteration {self._iteration} of {len(self._iterations) - 1 if len(self._iterations) > 1 else 0} "
-        chart_title += f"- ({checksum})"
+        chart_title += f"{"Mask - " if self._compositions[self._iteration].is_masked() else ""}"
+        chart_title += f"Iteration {self._iteration} of {len(self._compositions) - 1 if len(self._compositions) > 1 else 0} "
+        chart_title += f"- ({checksum_str})"
         self._ax.set_title(chart_title)
 
         # Horizontal X-Axis, Time related (COMMON)
@@ -2157,7 +2157,7 @@ class Composition(Container):
 
     def _run_play(self, even = None, times: int = 1) -> Self:
         import threading
-        iteration_self: Composition = self._iterations[self._iteration] * times
+        iteration_self: Composition = self._compositions[self._iteration] * times
         threading.Thread(target=og.Play.play, args=(iteration_self,)).start()
         return self
 
@@ -2165,9 +2165,9 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration = 0
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            iteration_i = self._iterations[self._iteration]
-            checksum: str = o.checksum_to_string(iteration_i.checksum())
-            self._plot_elements(plotlist, iteration_i._time_signature, checksum)
+            checksum_str: str = self._plot_checksums[self._iteration]
+            composition_i = self._compositions[self._iteration]
+            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2177,9 +2177,9 @@ class Composition(Container):
         if self._iteration > 0:
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            iteration_i = self._iterations[self._iteration]
-            checksum: str = o.checksum_to_string(iteration_i.checksum())
-            self._plot_elements(plotlist, iteration_i._time_signature, checksum)
+            checksum_str: str = self._plot_checksums[self._iteration]
+            composition_i = self._compositions[self._iteration]
+            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2189,9 +2189,9 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            iteration_i = self._iterations[self._iteration]
-            checksum: str = o.checksum_to_string(iteration_i.checksum())
-            self._plot_elements(plotlist, iteration_i._time_signature, checksum)
+            checksum_str: str = self._plot_checksums[self._iteration]
+            composition_i = self._compositions[self._iteration]
+            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -2201,20 +2201,20 @@ class Composition(Container):
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
-            iteration_i = self._iterations[self._iteration]
-            checksum: str = o.checksum_to_string(iteration_i.checksum())
-            self._plot_elements(plotlist, iteration_i._time_signature, checksum)
+            checksum_str: str = self._plot_checksums[self._iteration]
+            composition_i = self._compositions[self._iteration]
+            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
         return self
 
-    def _update_iteration(self, iteration: int, plotlist: list[dict]) -> Self:
+    def _update_iteration(self, iteration: int, plotlist: list[dict], checksum_str: str) -> Self:
         self._plot_lists[iteration] = plotlist
+        self._plot_checksums[iteration] = checksum_str
         if iteration == self._iteration:
-            iteration_i = self._iterations[self._iteration]
-            checksum: str = o.checksum_to_string(iteration_i.checksum())
-            self._plot_elements(plotlist, iteration_i._time_signature, checksum)
+            composition_i = self._compositions[self._iteration]
+            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -2222,12 +2222,13 @@ class Composition(Container):
             # Keeps iterating the root/seed composition
             new_iteration: Composition = self._n_function(self.copy())  # Always the first Composition (i = 0)
             if isinstance(new_iteration, Composition):
-                self._iteration = len(self._iterations)
+                self._iteration = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
-                self._iterations.append(new_iteration)
+                new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
+                self._compositions.append(new_iteration)
                 self._plot_lists.append(plotlist)
-                checksum: str = o.checksum_to_string(new_iteration.checksum())
-                self._plot_elements(plotlist, new_iteration._time_signature, checksum)
+                self._plot_checksums.append(new_checksum_str)
+                self._plot_elements(plotlist, new_iteration._time_signature, new_checksum_str)
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
         return self
@@ -2235,7 +2236,7 @@ class Composition(Container):
     def _run_composition(self, even = None, times: int = 1) -> Self:
         import threading
         if isinstance(self._composition, Composition):
-            iteration_self: Composition = self._iterations[self._iteration]
+            iteration_self: Composition = self._compositions[self._iteration]
             iteration_composition: Composition = self._composition + iteration_self
             threading.Thread(target=og.Play.play, args=(iteration_composition * times,)).start()
         return self
@@ -2247,7 +2248,7 @@ class Composition(Container):
             processed_title,
             type(composition).__name__,
             f"{self._iteration}",
-            f"{len(self._iterations) - 1}",
+            f"{len(self._compositions) - 1}",
             o.checksum_to_string(composition.checksum())
         ]
         # 1. Filter empty strings and convert all parts to lowercase
@@ -2260,19 +2261,19 @@ class Composition(Container):
         return "_".join(filtered_strings)
 
     def _run_save(self, even = None) -> Self:
-        composition = self._iterations[self._iteration]
+        composition = self._compositions[self._iteration]
         file_name: str = self._plot_filename(composition) + "_save.json"
         composition >> og.Save(file_name)
         return self
 
     def _run_export(self, even = None) -> Self:
-        composition = self._iterations[self._iteration]
+        composition = self._compositions[self._iteration]
         file_name: str = self._plot_filename(composition) + "_export.json"
         composition >> og.Export(file_name)
         return self
 
     def _run_render(self, even = None) -> Self:
-        composition = self._iterations[self._iteration]
+        composition = self._compositions[self._iteration]
         file_name: str = self._plot_filename(composition) + "_render.mid"
         composition >> og.Render(file_name)
         return self
@@ -2333,7 +2334,7 @@ class Composition(Container):
     def _onclick(self, event: MouseEvent) -> Self:
         import threading
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
-            composition = self._iterations[self._iteration]
+            composition = self._compositions[self._iteration]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
             at_position_notes: list[oe.Note] = [
                 single_note.copy() for single_note in at_position_elements
@@ -2391,8 +2392,9 @@ class Composition(Container):
             Composition: Returns the presently plotted composition.
         """
         # First composition and its plotting (i = 0) it's always the self copy
-        self._iterations: list[Composition] = [ self.copy() ]   # Works with a forced copy (Read Only)
+        self._compositions: list[Composition] = [ self.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists: list[list] = [ self.getPlotlist() ]
+        self._plot_checksums: list[str] = [ o.checksum_to_string(self.checksum()) ]
         self._by_channel: bool = by_channel
         self._iteration: int = 0
         self._n_function = n_button
@@ -2406,8 +2408,10 @@ class Composition(Container):
             for _ in range(iterations):
                 new_composition: Composition = self._n_function(self.copy())
                 new_plotlist: list[dict] = new_composition.getPlotlist()
-                self._iterations.append(new_composition)
+                new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
+                self._compositions.append(new_composition)
                 self._plot_lists.append(new_plotlist)
+                self._plot_checksums.append(new_checksum_str)
                 self._iteration += 1
 
         # Enable interactive mode (doesn't block the execution)
@@ -2435,9 +2439,10 @@ class Composition(Container):
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
         # Where the plotting is done
-        iteration_i = self._iterations[self._iteration]
-        checksum: str = o.checksum_to_string(iteration_i.checksum())
-        self._plot_elements(self._plot_lists[self._iteration], iteration_i._time_signature, checksum)
+        time_signature = self._compositions[self._iteration]._time_signature
+        plotlist: list[dict] = self._plot_lists[self._iteration]
+        checksum_str: str = self._plot_checksums[self._iteration]
+        self._plot_elements(plotlist, time_signature, checksum_str)
 
         # Where the padding is set
         plt.tight_layout()
@@ -2510,7 +2515,7 @@ class Composition(Container):
         else:
             plt.show(block=False)
 
-        return self._iterations[self._iteration]
+        return self._compositions[self._iteration]
 
 
     def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:

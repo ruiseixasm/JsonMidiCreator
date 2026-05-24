@@ -38,19 +38,19 @@ import operand_chaos as ch
 
 class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None, max_tries: int = 100):
-        self._iterations: list[oc.Composition] = []
+        self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._exclusion: Callable | None = exclusion
         self._max_tries: int = max_tries
 
     def reset(self) -> Self:
-        self._iterations = []
+        self._compositions = []
         return self
     
     def excluded(self, clip: oc.Clip) -> bool:
-        if clip not in self._iterations:
+        if clip not in self._compositions:
             if self._exclusion is None or not self._exclusion(clip):
-                self._iterations.append(clip)
+                self._compositions.append(clip)
                 return False
         return True
 
@@ -67,7 +67,7 @@ class RC_Splitter(RC_Callables):
         total_duration_beats = Fraction(0)
         for single_element in clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
-        self._iterations.append(clip_0) # Avoids repeating the initial clip (seed)
+        self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
         try_i: int = 0
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()

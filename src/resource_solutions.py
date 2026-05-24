@@ -49,7 +49,7 @@ class RS_Solutions:
             seed = oc.Clip(seed)
         self._seed: oc.Composition = seed.copy()    # Avoids changing the source Composition
         self._solution: oc.Composition = self._seed
-        self._iterations: list[int] = iterations
+        self._compositions: list[int] = iterations
         self._measures: int = max(measures, 1)
         if isinstance(composition, oe.Element):
             composition = oc.Clip(seed)
@@ -131,7 +131,7 @@ class RS_Clip(RS_Solutions):
                 masked: bool = composition._masked
                 measure: ra.Measure = ra.Measure(0)
                 composition._masked = False
-                for _ in self._iterations:
+                for _ in self._compositions:
                     measure += self._measures
                     composition //= measure
                 composition._masked = masked
@@ -143,11 +143,11 @@ class RS_Clip(RS_Solutions):
                 results: list = None
                 # Here is where each Measure is processed
                 new_composition: oc.Composition = composition.empty_copy()
-                for iteration_i, measure_iterations in enumerate(self._iterations):
+                for composition_i, measure_iterations in enumerate(self._compositions):
                     if measure_iterations == 0:
                         new_composition *= new_composition * previous_measures
                     else:
-                        composition_measures: list[int] = o.list_add(iteration_measures, self._measures * iteration_i)
+                        composition_measures: list[int] = o.list_add(iteration_measures, self._measures * composition_i)
                         segmented_composition: oc.Composition = composition * composition_measures
                         if measure_iterations > 0:
                             if not triggers > 0:
@@ -157,7 +157,7 @@ class RS_Clip(RS_Solutions):
                             chaos.reset_tamers()
                         else:   # measure_iterations < 0
                             new_composition *= segmented_composition
-                        previous_measures = o.list_add(iteration_measures, self._measures * iteration_i)
+                        previous_measures = o.list_add(iteration_measures, self._measures * composition_i)
                 return new_composition
             return composition
         # Where the solution is set
