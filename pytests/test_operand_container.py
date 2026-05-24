@@ -741,7 +741,8 @@ def test_lshift_clip():
 
     assert two_measures[0] % Pitch() % Pipe(Key()) == 60
     two_measures << Pipe(Key(30))
-    assert two_measures[0] % Pitch() % Pipe(Key()) == 30
+    print(f"two_measures[0] % Pitch() % Pipe(Key()) % int(): {two_measures[0] % Pitch() % Pipe(Key()) % int()}")
+    assert two_measures[0] % Pitch() % Pipe(Key()) % int() == 30
     two_measures << Pipe(Key(60))
     assert two_measures[0] % Pitch() % Pipe(Key()) == 60
 

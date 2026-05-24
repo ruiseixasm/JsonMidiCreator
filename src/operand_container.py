@@ -500,6 +500,10 @@ class Container(o.Operand):
                         operand._data._set_inside_container(self)
                         for single_item in self._foreground_items():
                             single_item << od.Pipe( operand._data.frame(single_item) )
+                    case _:
+                        for single_item in self._foreground_items():
+                            if isinstance (single_item, o.Operand):
+                                single_item << operand
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -529,7 +533,8 @@ class Container(o.Operand):
                     single_item << operand.frame(single_item)
             case _:
                 for single_item in self._foreground_items():
-                    single_item << operand
+                    if isinstance (single_item, o.Operand):
+                        single_item << operand
         return self
 
     # Pass trough method that always results in a Container (Self)
