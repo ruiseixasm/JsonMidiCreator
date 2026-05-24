@@ -550,13 +550,13 @@ def test_note_pitch():
 
     print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
     assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 60  # White Key
-    note << Pitch(35)
+    note << Pitch(Pipe(Key(35)))
     print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
     assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 35  # White Key
-    note << Pitch(42)
+    note << Pitch(Pipe(Key(42)))
     print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
     assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 42  # Black Key
-    note << Pitch(39)
+    note << Pitch(Pipe(Key(39)))
     print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
     assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 39  # Black Key
 

@@ -417,3 +417,16 @@ def test_string_eval():
 
 # test_string_eval()
 
+
+def test_operand_chaining():
+    chained_pipe = Pipe()**Key()
+    assert chained_pipe % int() == 0
+    chained_pipe << 60
+    assert chained_pipe % int() == 60
+    assert chained_pipe % Key() % int() == 60
+    chained_pipe << 62
+    assert chained_pipe % int() == 62
+    assert chained_pipe % Key() % int() == 62
+
+# test_operand_chaining()
+

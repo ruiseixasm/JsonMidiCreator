@@ -160,7 +160,7 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << 1.0 << 61    # Has to reset previous Degree to 1 first
+    sharp_pitch << 1.0 << Pipe(Key(61))    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
         print(f"Pitch: {sharp_pitch.pitch_int()}")
         assert sharp_pitch.pitch_int() == major_keys[degree - 1] + 1
@@ -696,7 +696,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {degree} ------------")
         pitch << float(degree)
         for pitch_int in range(128):
-            pitch << pitch_int
+            pitch << Pipe(Key(pitch_int))
             pitch.pitch_int() >> Print()
             assert pitch.pitch_int() == pitch_int
 
@@ -704,7 +704,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {sharps} ------------")
         settings << KeySignature(sharps)
         for pitch_int in range(128):
-            pitch << pitch_int
+            pitch << Pipe(Key(pitch_int))
             pitch.pitch_int() >> Print()
             assert pitch.pitch_int() == pitch_int
 
@@ -712,7 +712,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {flats} ------------")
         settings << KeySignature(flats)
         for pitch_int in range(128):
-            pitch << pitch_int
+            pitch << Pipe(Key(pitch_int))
             pitch.pitch_int() >> Print()
             assert pitch.pitch_int() == pitch_int
 

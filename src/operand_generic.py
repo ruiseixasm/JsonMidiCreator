@@ -885,7 +885,7 @@ class Pitch(Generic):
                     case Fraction():
                         self._transposition = int(operand._data)
                     case ou.Semitone(): # Sets an absolute pitch
-                        self << operand._data._unit
+                        self << od.Pipe(ou.Key(operand._data._unit))
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():
@@ -905,7 +905,7 @@ class Pitch(Generic):
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case ou.Semitone():
                 # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
-                self << operand._unit
+                self << ou.Key(operand._unit)
 
             case int():
                 self << ou.Octave(operand)
@@ -1022,8 +1022,7 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 += operand._unit
             case int():
-                actual_pitch: int = self.pitch_int()
-                self << actual_pitch + operand
+                self.__iadd__(ou.Octave(operand))
             case float() | str():
                 self += ou.Degree(operand)
             case Fraction():
@@ -1066,8 +1065,7 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case int():
-                actual_pitch: int = self.pitch_int()
-                self << actual_pitch - operand
+                self.__isub__(ou.Octave(operand))
             case float() | str():
                 self -= ou.Degree(operand)
             case Fraction():
