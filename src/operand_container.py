@@ -2812,7 +2812,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def checksum(self) -> str:
         """4-char hex checksum (16-bit) for a Clip, combining Element checksums."""
-        master: int = len(self._items) + len(self._mask_items)
+        master: int = len(self._items)  # Concerns the base composition
         for single_element in self._items:
             master += int(single_element.checksum(), 16)   # XOR 16-bit
         return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
