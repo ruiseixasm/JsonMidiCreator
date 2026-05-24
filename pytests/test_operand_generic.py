@@ -73,18 +73,18 @@ def test_pitch_mod():
     # Perform the operation
     pitch = Pitch()
     assert pitch % float() == 1.0       # 1st Degree
-    assert pitch % int() == 60  # middle C
+    assert pitch.pitch_int() == 60  # middle C
     assert pitch % Key() % str() == "C"
-    assert (pitch + Octave()) % int() == 60 + 12
-    assert (pitch + 1.0) % int() == 60 + 2
+    assert (pitch + Octave()).pitch_int() == 60 + 12
+    assert (pitch + 1.0).pitch_int() == 60 + 2
     assert not pitch % Sharp()
     assert (pitch + 0.1) % Sharp()
-    assert (pitch + 0.1 << Natural()) % int() == 60
+    assert (pitch + 0.1 << Natural()).pitch_int() == 60
 
     pitch << "G"
-    assert pitch % int() == 67
+    assert pitch.pitch_int() == 67
     pitch << "#"
-    assert pitch % int() == 67 + 1
+    assert pitch.pitch_int() == 67 + 1
 
 # test_pitch_mod()
 
@@ -154,16 +154,16 @@ def test_pitch_degrees():
     # White Tonic Key
     sharp_pitch = Pitch()   # With Degree 1
     for degree in range(1, 8):
-        print(f"Pitch: {sharp_pitch % int()}")
-        assert sharp_pitch % int() == major_keys[degree - 1]
+        print(f"Pitch: {sharp_pitch.pitch_int()}")
+        assert sharp_pitch.pitch_int() == major_keys[degree - 1]
         sharp_pitch += 1.0    # Increases by degree
 
     # Black Tonic Key
     print("------")
     sharp_pitch << 1.0 << 61    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
-        print(f"Pitch: {sharp_pitch % int()}")
-        assert sharp_pitch % int() == major_keys[degree - 1] + 1
+        print(f"Pitch: {sharp_pitch.pitch_int()}")
+        assert sharp_pitch.pitch_int() == major_keys[degree - 1] + 1
         sharp_pitch += 1.0    # Increases by degree
 
     print("------")
@@ -174,16 +174,16 @@ def test_pitch_degrees():
         reference_keys: list[int] = []
         for degree in range(1, 8):
             key_pitch << 1.0 << od.Pipe( TonicKey(60) ) << float(degree)    # Has to reset previous Degree to 1 first
-            reference_keys.append( key_pitch % int() )
+            reference_keys.append( key_pitch.pitch_int() )
 
         for pitch_int in range(60, 72):
             print("---")
             key_pitch << 1.0 << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
-                print(f"Pitch: {key_pitch % int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
+                print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % Degree() == Degree(degree)
-                assert key_pitch % int() == reference_keys[degree - 1] + (pitch_int - 60)
+                assert key_pitch.pitch_int() == reference_keys[degree - 1] + (pitch_int - 60)
                 key_pitch += float(1)  # += to increment Degree and Octave too
 
     # Resets the defaults
