@@ -1393,7 +1393,7 @@ def test_clip_masking():
     even_chords = all_chords >> Mask(Even()**Operand())
     assert even_chords._has_elements()
 
-test_clip_masking()
+# test_clip_masking()
 
 
 def test_empty_clips():

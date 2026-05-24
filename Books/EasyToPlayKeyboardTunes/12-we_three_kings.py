@@ -117,38 +117,38 @@ melody += "::B, ::C5, ::B, :1/4d:A" # Repeated from MEasure 1
 chords += "c:1/4d:G"
 melody += ":2b:C5, ::C5, :2b:D5, ::D5"
 # Measure 5
-chords += ""
-melody += ""
+chords += "c:3b:C, c:3b:G"
+melody += ":2b:E5, ::E5, ::G5, ::F5, ::E5"
 # Measure 6
-chords += ""
-melody += ""
+chords += "c:3b:A, c:3b:G"
+melody += "::D5, ::E5, ::D5, :2b:C5, ::B"
 # Measure 7
-chords += ""
-melody += ""
+chords += "c:3b:A, c:3b:G"
+melody += ":3b:A, :2b:B, ::D5"
 # Measure 8
-chords += ""
-melody += ""
+chords += "c:6b:A"
+melody += ":2b:C5, ::C5, :2b:C5, ::G"
 # Measure 9
-chords += ""
-melody += ""
+chords += "c:3b:F, c:3b:C"
+melody += ":2b:C5, ::A, :3b:C5"
 # Measure 10
-chords += ""
-melody += ""
+chords += "c:6b:C"
+melody += ":2b:C5, ::C5, :2b:C5, ::G"
 # Measure 11
-chords += ""
-melody += ""
+chords += "c:3b:F, c:3b"
+melody += ":2b:C5, ::A, :3b:C5"
 # Measure 12
-chords += ""
-melody += ""
+chords += "c:3b:A, c:3b:G"
+melody += ":2b:C5, ::C5, :2b:D5, ::E5"
 # Measure 13
-chords += ""
-melody += ""
+chords += "c:3b:F, c:3b:G"
+melody += ":2b:F5, ::E5, :2b:D5, ::E5"
 # Measure 14
-chords += ""
-melody += ""
+chords += "c:1m:C"
+melody += ":1/4:C5, ::C5, :1/4:C5, ::G"
 # Measure 15
-chords += ""
-melody += ""
+chords += "c:4d:F, c:4d:C"
+melody += ":2b:C5, ::A, :3b:C5"
 
 
 
