@@ -1840,7 +1840,7 @@ class ChannelElement(DeviceElement):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
                     case _:                 return super().__mod__(operand)
             case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
             case _:                 return super().__mod__(operand)
@@ -1914,7 +1914,7 @@ class ChannelElement(DeviceElement):
                 self._channel_0             = operand._channel_0
             case od.Pipe():
                 match operand._data:
-                    case ou.Channel():      self._channel_0 = 0x0F & operand._data._unit - 1
+                    case ou.Channel():      self._channel_0 = 0x0F & operand._data._unit
                     case _:
                         super().__lshift__(operand)
             case ou.Channel():

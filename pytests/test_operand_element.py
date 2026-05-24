@@ -738,3 +738,19 @@ def test_element_token():
 
 # test_element_token()
 
+
+def test_channel_setting():
+    single_note = Note(Channel(10))
+    print(f"single_note % Channel(): {single_note % Channel() % int()}")
+    print(f"single_note._channel_0: {single_note._channel_0}")
+    assert single_note % Channel() % int() == 10
+    assert single_note % Pipe(Channel()) % int() == 9
+    
+    single_note = Note(Pipe(Channel(10)))
+    print(f"single_note % Channel(): {single_note % Channel() % int()}")
+    print(f"single_note._channel_0: {single_note._channel_0}")
+    assert single_note % Channel() % int() == 11
+    assert single_note % Pipe(Channel()) % int() == 10
+
+# test_channel_setting()
+

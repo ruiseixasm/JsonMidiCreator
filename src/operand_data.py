@@ -200,6 +200,7 @@ class Pipe(Data):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pipe():
+                super().__lshift__(operand)
                 self._data = operand._data
             case _:
                 self._data = operand

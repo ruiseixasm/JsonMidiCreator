@@ -232,6 +232,7 @@ def test_chained_operands():
     channel_frame = Iterate(4, 2)**Pipe()**Channel()
     assert two_notes[0] % Channel() == 1
     two_notes << channel_frame
+    print(f"two_notes[0] % Channel(): {two_notes[0] % Channel() % int()}")
     assert two_notes[0] % Channel() == 4 + 1    # + 1 because it's piped
 
 # test_chained_operands()

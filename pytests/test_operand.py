@@ -430,3 +430,21 @@ def test_operand_chaining():
 
 # test_operand_chaining()
 
+
+def test_tail_copy():
+    channel_operand = Channel()
+    assert channel_operand._next_operand is None
+    assert not isinstance(channel_operand._next_operand, Velocity)
+    # Unit Operand
+    chained_channel = Channel()**Velocity()
+    assert isinstance(chained_channel._next_operand, Velocity)
+    chained_copy = chained_channel.copy()
+    assert isinstance(chained_copy._next_operand, Velocity)
+    # Data Operand
+    chained_pipe = Pipe()**Velocity()
+    assert isinstance(chained_pipe._next_operand, Velocity)
+    chained_copy = chained_pipe.copy()
+    assert isinstance(chained_copy._next_operand, Velocity)
+
+# test_tail_copy()
+
