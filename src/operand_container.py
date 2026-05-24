@@ -1586,10 +1586,15 @@ class Composition(Container):
         return pitch
 
 
-    def _plot_elements(self, plotlist: list[dict], time_signature: 'og.TimeSignature', checksum_str: str):
+    def _plot_elements(self):
         """
         The method that does the heavy work of plotting
         """
+        # The plotting is managed by the single and original Composition.
+        plotlist: list[dict] = self._plot_lists[self._iteration]
+        time_signature = self._compositions[self._iteration]._time_signature
+        checksum_str: str = self._plot_checksums[self._iteration]
+
         self._ax.clear()
 
         beats_per_measure: Fraction = time_signature % ra.BeatsPerMeasure() % Fraction()
@@ -2164,10 +2169,7 @@ class Composition(Container):
     def _run_first(self, even = None) -> Self:
         if self._iteration > 0:
             self._iteration = 0
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            checksum_str: str = self._plot_checksums[self._iteration]
-            time_signature = self._compositions[self._iteration]._time_signature
-            self._plot_elements(plotlist, time_signature, checksum_str)
+            self._plot_elements()
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2176,10 +2178,7 @@ class Composition(Container):
     def _run_previous(self, even = None) -> Self:
         if self._iteration > 0:
             self._iteration -= 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            checksum_str: str = self._plot_checksums[self._iteration]
-            time_signature = self._compositions[self._iteration]._time_signature
-            self._plot_elements(plotlist, time_signature, checksum_str)
+            self._plot_elements()
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2188,10 +2187,7 @@ class Composition(Container):
     def _run_next(self, even = None) -> Self:
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration += 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            checksum_str: str = self._plot_checksums[self._iteration]
-            time_signature = self._compositions[self._iteration]._time_signature
-            self._plot_elements(plotlist, time_signature, checksum_str)
+            self._plot_elements()
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -2200,10 +2196,7 @@ class Composition(Container):
     def _run_last(self, even = None) -> Self:
         if self._iteration < len(self._plot_lists) - 1:
             self._iteration = len(self._plot_lists) - 1
-            plotlist: list[dict] = self._plot_lists[self._iteration]
-            checksum_str: str = self._plot_checksums[self._iteration]
-            time_signature = self._compositions[self._iteration]._time_signature
-            self._plot_elements(plotlist, time_signature, checksum_str)
+            self._plot_elements()
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -2213,8 +2206,7 @@ class Composition(Container):
         self._plot_lists[iteration] = plotlist
         self._plot_checksums[iteration] = checksum_str
         if iteration == self._iteration:
-            time_signature = self._compositions[self._iteration]._time_signature
-            self._plot_elements(plotlist, time_signature, checksum_str)
+            self._plot_elements()
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -2224,12 +2216,11 @@ class Composition(Container):
             if isinstance(new_iteration, Composition):
                 self._iteration = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
-                time_signature = new_iteration._time_signature
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
                 self._compositions.append(new_iteration)
                 self._plot_lists.append(plotlist)
                 self._plot_checksums.append(new_checksum_str)
-                self._plot_elements(plotlist, time_signature, new_checksum_str)
+                self._plot_elements()
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
         return self
@@ -2439,11 +2430,8 @@ class Composition(Container):
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
-        # Where the plotting is done
-        time_signature = self._compositions[self._iteration]._time_signature
-        plotlist: list[dict] = self._plot_lists[self._iteration]
-        checksum_str: str = self._plot_checksums[self._iteration]
-        self._plot_elements(plotlist, time_signature, checksum_str)
+        # Plot the Composition
+        self._plot_elements()
 
         # Where the padding is set
         plt.tight_layout()
