@@ -2795,11 +2795,11 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
+        self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
 
-        self_plotlist: list[dict] = []
         channels: dict[str, set[int]] = {
             "note":         set(),
             "automation":   set()
@@ -2841,16 +2841,15 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        if not isinstance(position_beats, Fraction):
-            position_beats = Fraction(0, 1)
-            og.settings.reset_notes_on()
-        og.settings.reset_notes_off()
-
         self_playlist: list[dict] = [
             {
                 "devices": self._midi_track._devices
             }
         ]
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0, 1)
+            og.settings.reset_notes_on()
+        og.settings.reset_notes_off()
     
         for single_element in self._items:
             self_playlist.extend(
@@ -5458,8 +5457,8 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        og.settings.reset_notes_on()
         plot_list: list = []
+        og.settings.reset_notes_on()
         masked_element_ids: set[int] = self.get_masked_element_ids()
         
         for block in self._items:
@@ -5480,8 +5479,8 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        og.settings.reset_notes_on()
         play_list: list = []
+        og.settings.reset_notes_on()
         for block in self._items:
             play_list.extend(block.getPlaylist(True))
         return play_list
