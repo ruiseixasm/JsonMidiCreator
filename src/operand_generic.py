@@ -426,8 +426,8 @@ class Pitch(Generic):
     ----------
     KeySignature(settings) : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Tonic(settings), None : The tonic key on which the `Degree` is based on.
-    Octave(4) : The octave on the keyboard with the middle C setting on the 4th octave.
-    Degree(1), int : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
+    Octave(4), int : The octave on the keyboard with the middle C setting on the 4th octave.
+    Degree(1), float : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
     Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
     Natural(False) : `Natural` disables the effects of `Sharp` and `Flat` and any accidental.
     list([]), Scale(), str, None : Sets the `Scale` to be used, `None` or `[]` uses the staff `KeySignature`.
