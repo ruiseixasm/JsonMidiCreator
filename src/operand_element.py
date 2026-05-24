@@ -3050,6 +3050,14 @@ class Chord(KeyScale):
         self._sus4: bool            = False
         super().__init__(*parameters)
 
+    def checksum(self) -> str:
+        """4-char hex checksum (16-bit) for an Element."""
+        component_elements = self.get_component_elements()
+        master: int = 0
+        for single_element in component_elements:
+            master += int(single_element.checksum(), 16)   # XOR 16-bit
+        return f"{master & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
     def size(self, size: int = 3) -> Self:
         self._size = size
         return self
