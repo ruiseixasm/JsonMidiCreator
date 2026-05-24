@@ -2166,8 +2166,8 @@ class Composition(Container):
             self._iteration = 0
             plotlist: list[dict] = self._plot_lists[self._iteration]
             checksum_str: str = self._plot_checksums[self._iteration]
-            composition_i = self._compositions[self._iteration]
-            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
+            time_signature = self._compositions[self._iteration]._time_signature
+            self._plot_elements(plotlist, time_signature, checksum_str)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2178,8 +2178,8 @@ class Composition(Container):
             self._iteration -= 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             checksum_str: str = self._plot_checksums[self._iteration]
-            composition_i = self._compositions[self._iteration]
-            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
+            time_signature = self._compositions[self._iteration]._time_signature
+            self._plot_elements(plotlist, time_signature, checksum_str)
             self._enable_button(self._next_button)
             if self._iteration == 0:
                 self._disable_button(self._previous_button)
@@ -2190,8 +2190,8 @@ class Composition(Container):
             self._iteration += 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             checksum_str: str = self._plot_checksums[self._iteration]
-            composition_i = self._compositions[self._iteration]
-            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
+            time_signature = self._compositions[self._iteration]._time_signature
+            self._plot_elements(plotlist, time_signature, checksum_str)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -2202,8 +2202,8 @@ class Composition(Container):
             self._iteration = len(self._plot_lists) - 1
             plotlist: list[dict] = self._plot_lists[self._iteration]
             checksum_str: str = self._plot_checksums[self._iteration]
-            composition_i = self._compositions[self._iteration]
-            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
+            time_signature = self._compositions[self._iteration]._time_signature
+            self._plot_elements(plotlist, time_signature, checksum_str)
             self._enable_button(self._previous_button)
             if self._iteration == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
@@ -2213,8 +2213,8 @@ class Composition(Container):
         self._plot_lists[iteration] = plotlist
         self._plot_checksums[iteration] = checksum_str
         if iteration == self._iteration:
-            composition_i = self._compositions[self._iteration]
-            self._plot_elements(plotlist, composition_i._time_signature, checksum_str)
+            time_signature = self._compositions[self._iteration]._time_signature
+            self._plot_elements(plotlist, time_signature, checksum_str)
         return self
 
     def _run_new(self, even = None) -> Self:
@@ -2224,11 +2224,12 @@ class Composition(Container):
             if isinstance(new_iteration, Composition):
                 self._iteration = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
+                time_signature = new_iteration._time_signature
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
                 self._compositions.append(new_iteration)
                 self._plot_lists.append(plotlist)
                 self._plot_checksums.append(new_checksum_str)
-                self._plot_elements(plotlist, new_iteration._time_signature, new_checksum_str)
+                self._plot_elements(plotlist, time_signature, new_checksum_str)
                 self._enable_button(self._previous_button)
                 self._disable_button(self._next_button)
         return self
