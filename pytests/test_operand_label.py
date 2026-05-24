@@ -52,6 +52,7 @@ def test_not_equal():
     assert Null() == Null()
     assert Note() != Null()
     assert Null() != Note()
+    assert not Chord() == Null()
 
 # test_not_equal()
 
