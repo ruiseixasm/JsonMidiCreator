@@ -1623,12 +1623,17 @@ class Composition(Container):
         # self._ax.set_xlim(current_min, current_max * 1.03)
         self._ax.margins(x=0)  # Ensures NO extra padding is added on the x-axis
 
-        # By default it's 1 Measure long
-        last_position: Fraction = beats_per_measure
-        last_position_measures: Fraction = last_position / beats_per_measure
-        last_position_measure: int = int(last_position / beats_per_measure)
-        if last_position_measure != last_position_measures:
-            last_position_measure += 1
+        # # By default it's 1 Measure long
+        # last_position: Fraction = beats_per_measure
+        # last_position_measures: Fraction = last_position / beats_per_measure
+        # last_position_measure: int = int(last_position / beats_per_measure)
+        # if last_position_measure != last_position_measures:
+        #     last_position_measure += 1
+
+        # No content assumed
+        last_position: Fraction = Fraction(0)   # No content assumed
+        last_position_measures: Fraction = last_position
+        last_position_measure: int = 0
 
 
         # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
