@@ -228,10 +228,11 @@ def test_off_beat():
 
 
 def test_chained_operands():
-    iterate_frame = Iterate(60, 2)**Pipe()**Key()
-    key_data = Key()
-    key_data << iterate_frame
-    assert key_data._unit == 60
+    two_notes = Note() / 2
+    channel_frame = Iterate(4, 2)**Pipe()**Channel()
+    assert two_notes[0] % Channel() == 1
+    two_notes << channel_frame
+    assert two_notes[0] % Channel() == 4 + 1    # + 1 because it's piped
 
-test_chained_operands()
+# test_chained_operands()
 

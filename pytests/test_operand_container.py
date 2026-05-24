@@ -1019,7 +1019,7 @@ def test_clip_operations():
 def test_flip_operation():
 
     four_notes: Clip = Note() / 4
-    four_notes << Iterate(60, 2)**Pipe()**Key()
+    four_notes << Pipe(Iterate(60, 2)**Key())
 
     actual_pitch: int = 60
     for single_note in four_notes:
