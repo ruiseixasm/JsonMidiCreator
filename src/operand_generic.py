@@ -2269,6 +2269,8 @@ class Process(Generic):
 
         match operand:
             case oc.Composition() | oe.Element():
+                if isinstance(operand, oc.Composition) and not operand._has_elements():
+                    return playlist # exists with nothing right away
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
                 clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = settings % oe.Clock()
@@ -2473,6 +2475,7 @@ class Save(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters
             folder: str = settings._folder
@@ -2500,6 +2503,7 @@ class Export(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         match operand:
             case o.Operand():
                 file_path: str = self._parameters

@@ -1386,3 +1386,19 @@ def test_match_time_signature():
 
 # test_match_time_signature()
 
+
+def test_clip_masking():
+    all_chords = Chord(1/4) / 2
+    assert all_chords[Even()]._has_elements()
+    even_chords = all_chords >> Mask(Even()**Operand())
+    assert even_chords._has_elements()
+
+# test_clip_masking()
+
+
+def test_empty_clips():
+    empty_clip = Clip()
+    empty_clip >> Save()
+    empty_clip >> Export()
+    empty_clip >> Render()
+
