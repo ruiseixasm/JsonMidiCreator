@@ -122,7 +122,7 @@ melody += ":2b:C5, ::C5, :2b:D5, ::D5"
 chords += "c:3b:C, c:3b:G"
 melody += ":2b:E5, ::E5, ::G5, ::F5, ::E5"
 # Measure 6
-chords += "c:3b:A, c:3b:G"
+chords += "c:3b:D, c:3b:E"
 melody += "::D5, ::E5, ::D5, :2b:C5, ::B"
 # Measure 7
 chords += "c:3b:A, c:3b:G"
