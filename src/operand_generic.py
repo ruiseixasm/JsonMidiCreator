@@ -570,6 +570,13 @@ class Pitch(Generic):
         octave_transposition: int = self.octave_transposition()
         return chromatic_int + octave_transposition
 
+    def set_pitch_int(self, pitch: int) -> Self:
+        """
+        Sets the final chromatic pitch by adjusting the degree.
+        """
+        # Setting the final pitch int is done by adjusting the absolute Root key and NOT the Tonic key
+        return self << od.Pipe( ou.RootKey(pitch) )
+
     """
     Auxiliary methods to get specific data directly
     """
@@ -700,7 +707,7 @@ class Pitch(Generic):
                         return operand._data << self % int()
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
-                    case int():             return self % int()
+                    case int():             return self._octave_0
                     case float():           return self._degree_0
                     case Fraction():        return Fraction(self._transposition)
                     case Scale():           return operand._data << od.Pipe(self._scale)
@@ -710,7 +717,7 @@ class Pitch(Generic):
                 return self._key_signature.copy()
             
             case int():
-                return self.pitch_int()
+                return self % ou.Octave() % int()
             case float():
                 return self % ou.Degree() % float()
             case Fraction():
