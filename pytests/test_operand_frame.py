@@ -227,4 +227,11 @@ def test_off_beat():
 # test_off_beat()
 
 
+def test_chained_operands():
+    iterate_frame = Iterate(60, 2)**Pipe()**Key()
+    key_data = Key()
+    key_data << iterate_frame
+    assert key_data._unit == 60
+
+test_chained_operands()
 
