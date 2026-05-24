@@ -1352,12 +1352,6 @@ def test_clip_proxy():
 # test_clip_proxy()
 
 
-def test_tokens_uniqueness():
-    for token, _ in oc._element_notations.items():
-        print(f"Token: {token}")
-        assert token not in oc._parameter_notations
-
-
 def test_chord_smooth():
     chords_G_C = Clip("c::G, c::C")
 

@@ -736,4 +736,5 @@ def test_element_token():
     assert oe._get_element_from_token("_9::5") == Note(Channel(9), Octave(5))
     assert oe._get_element_from_token(":1/8:D5") == Length(1/8)
 
-test_element_token()
+# test_element_token()
+
