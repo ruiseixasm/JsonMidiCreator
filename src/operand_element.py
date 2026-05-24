@@ -2519,27 +2519,6 @@ class Note(ChannelElement):
                 return super().__isub__(operand)
 
 
-class Hit(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Hit`
-
-    A `Hit` is just a Note but for the context of a drum machine with a single `Step` as duration.
-
-    Parameters
-    ----------
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        super().__init__(ra.Steps(1), *parameters)
-
-
 # PSEUDO-CLASS NOTE WITH PRE-DEFINED DURATIONS
 
 class N_1(Note):
@@ -5483,7 +5462,6 @@ class Panic(DeviceElement):
 _element_type: dict[str, type] = {
     'r':        Rest,
     'n':        Note,
-    'h':        Hit,
     'c':        Chord,
     'rt':       Retrigger,
     'cl':       Cluster,
