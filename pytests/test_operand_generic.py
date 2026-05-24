@@ -762,7 +762,7 @@ def test_pitch_add():
     pitch_1.getSerialization() % Data("degree") >> Print()
     (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
     assert pitch_1 + 1.0    == Pitch("B")
-    assert pitch_1 + 2      == Pitch("B")
+    assert pitch_1 + Semitone(2) == Pitch("B")
 
     settings << KeySignature(1)
     pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
@@ -776,15 +776,15 @@ def test_pitch_add():
     print(f'Pitch("D"): {Pitch("D").pitch_int()}')
     assert Pitch("D").pitch_int() == 62 + 12    # "D" is set on G Major scale, so, it goes to next Octave (most expected outcome)
     assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12 + 12
-    assert (Pitch("D") + 12).pitch_int() == 62 + 12 + 12
+    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12 + 12
     (pitch_2 + 2.0).pitch_int() >> Print()      # 74
-    (Pitch("D") + 12).pitch_int() >> Print()    # 74 + 12 = 86
+    (Pitch("D") + Semitone(12)).pitch_int() >> Print()    # 74 + 12 = 86
     assert pitch_2 + 2.0 == Pitch("D")      # Next octave
 
     settings << KeySignature()
-    assert pitch_1 << Sharp() == Pitch("A") + 1
+    assert pitch_1 << Sharp() == Pitch("A") + Semitone(1)
     assert pitch_1 << Natural() == Pitch("A")
-    assert Pitch("Ab") == Pitch("A") - 1
+    assert Pitch("Ab") == Pitch("A") - Semitone(1)
 
     pitch_3: Pitch = Pitch()
     assert pitch_3 % str() == "C"
@@ -802,7 +802,7 @@ def test_pitch_add():
         assert pitch_3 + float(degree) == keys[degree]
 
 
-    pitch_4: Pitch = Pitch(60)    # Middle C (60)
+    pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
     assert pitch_4 % str() == "C"
     assert pitch_4.pitch_int() == 60
 
@@ -813,38 +813,38 @@ def test_pitch_add():
     for sharps in range(8): # 8 is excluded
 
         settings << KeySignature(sharps)
-        pitch_4 << 60 # Middle C (60)
+        pitch_4 << Pipe(Key(60)) # Middle C (60)
         print(f"------------ {sharps} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
             assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
-        pitch_4 << 71
+        pitch_4 << Pipe(Key(71))
         print("-DOWN-")
         for key_i in range(12):
             pitch_4.pitch_int() >> Print()
             assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
-            pitch_4 -= 1
+            pitch_4 -= Semitone(1)
 
     for flats in range(0, -8, -1): # -8 is excluded
 
         settings << KeySignature(flats)
-        pitch_4 << 60 # Middle C (60)
+        pitch_4 << Pipe(Key(60)) # Middle C (60)
         print(f"------------ {flats} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
             assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
-        pitch_4 << 71
+        pitch_4 << Pipe(Key(71))
         print("-DOWN-")
         for key_i in range(12):
             pitch_4.pitch_int() >> Print()
             assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
-            pitch_4 -= 1
+            pitch_4 -= Semitone(1)
 
 
     settings << KeySignature()
-    pitch_4 << Pitch(60)    # Middle C (60)
+    pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
 
     print(f"------------ DEGREES ------------")
     print("------")
@@ -860,15 +860,15 @@ def test_pitch_add():
 
     print("------")
     pitch_5: Pitch = Pitch()
-    (pitch_5 + 0) % str() >> Print()
-    assert pitch_5 + 0 == Key("C")
-    (pitch_5 + 1) % str() >> Print()
-    assert pitch_5 + 1 == Key("C#")
+    (pitch_5 + Semitone(0)) % str() >> Print()
+    assert pitch_5 + Semitone(0) == Key("C")
+    (pitch_5 + Semitone(1)) % str() >> Print()
+    assert pitch_5 + Semitone(1) == Key("C#")
     pitch_5 << Degree(2)
-    (pitch_5 + 0) % str() >> Print()
-    assert pitch_5 + 0 == Key("D")
-    (pitch_5 + 1) % str() >> Print()
-    assert pitch_5 + 1 == Key("D#")
+    (pitch_5 + Semitone(0)) % str() >> Print()
+    assert pitch_5 + Semitone(0) == Key("D")
+    (pitch_5 + Semitone(1)) % str() >> Print()
+    assert pitch_5 + Semitone(1) == Key("D#")
 
     settings << KeySignature()
 
