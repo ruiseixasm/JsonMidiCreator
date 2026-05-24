@@ -238,6 +238,38 @@ class Token(Data):
             return element_fields[index]
         return None
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                if not isinstance(self._data, str):
+                    self._data = ""
+                return self._data
+        return super().__mod__(operand)
+    
+    # CHAINABLE OPERATIONS
+
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case Line():
+                if self._data == "":
+                    self._data = operand._data
+                elif operand._data != "":
+                    self._data += ":" + operand._data
+            case str():
+                self.__iadd__(Line(operand))
+        return self # remains as an Inline operand
+    
+    def __imul__(self, operand: any) -> Self:
+        if isinstance(operand, int) and self._data != "":
+            if operand > 1:
+                new_line = self._data
+                for _ in range(operand - 1):
+                    new_line += ":" + self._data
+                self._data = new_line
+            elif operand == 0:
+                self._data = ""
+        return self # remains as an Inline operand
+    
 class Line(Data):
     """`Data -> Line`
 
