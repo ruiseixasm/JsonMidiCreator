@@ -926,13 +926,13 @@ def test_drum_kit():
 
     print(pitch.pitch_int())
     assert pitch.pitch_int() == 60  # White Key
-    pitch << 35
+    pitch << Pipe(Key(35))
     print(pitch.pitch_int())
     assert pitch.pitch_int() == 35  # White Key
-    pitch << 42
+    pitch << Pipe(Key(42))
     print(pitch.pitch_int())
     assert pitch.pitch_int() == 42  # Black Key
-    pitch << 39
+    pitch << Pipe(Key(39))
     print(pitch.pitch_int())
     assert pitch.pitch_int() == 39  # Black Key
 
