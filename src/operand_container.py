@@ -3937,7 +3937,7 @@ class Clip(Composition):  # Just a container of Elements
                         note_pitch: og.Pitch = element._pitch
                         note_pitch_int: int = note_pitch.pitch_int()
                         new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
-                        note_pitch << new_pitch
+                        note_pitch.set_pitch_int(new_pitch)
                 
         return self
 
