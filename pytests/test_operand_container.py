@@ -128,7 +128,7 @@ def test_clip_mod():
     keys_float: list[int] = [60, 62, 64, 65, 67, 69, 71]
     for degree in range(7):
         chords_clip[degree] % Pitch() % int() >> Print()
-        assert chords_clip[degree] % Pitch() % int() == keys_float[degree]
+        assert chords_clip[degree] % Pitch() % Pipe(Key()) == keys_float[degree]
 
     single_note = Note()
     note_clip = Clip(single_note)
