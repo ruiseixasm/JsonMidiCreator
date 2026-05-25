@@ -1725,15 +1725,19 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
+                degree_0_octave = self._degree_0 // 7
+                operand_octave = operand._unit // 7
+                self._octave_0 += operand_octave - degree_0_octave
                 self._degree_0 += operand._unit
-                self._octave_0 += self._degree_0 // 7
                 self._degree_0 %= 7
                 self._accidental += operand._accidental
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
             case int():
                 self.__iadd__(ou.Octave(operand))
-            case float() | str():
+            case float():
+                self += ou.Degree(int(operand))
+            case str():
                 self += ou.Degree(operand)
             case Fraction():
                 self += ou.Transposition(operand)
@@ -1770,15 +1774,19 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case ou.Degree():
+                degree_0_octave = self._degree_0 // 7
+                operand_octave = operand._unit // 7
+                self._octave_0 -= operand_octave - degree_0_octave
                 self._degree_0 -= operand._unit
-                self._octave_0 -= self._degree_0 // 7
                 self._degree_0 %= 7
                 self._accidental -= operand._accidental
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() - operand
             case int():
                 self.__isub__(ou.Octave(operand))
-            case float() | str():
+            case float():
+                self -= ou.Degree(int(operand))
+            case str():
                 self -= ou.Degree(operand)
             case Fraction():
                 self -= ou.Transposition(operand)

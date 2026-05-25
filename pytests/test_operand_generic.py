@@ -53,27 +53,6 @@ def test_staff_mod():
     assert staff_1 % BeatsPerMeasure() % float() == 4.0
 
 
-def test_pitch_mod():
-
-    # Perform the operation
-    pitch = Pitch()
-    assert pitch % float() == 1.0       # 1st Degree
-    assert pitch.pitch_int() == 60  # middle C
-    assert pitch % Key() % str() == "C"
-    assert (pitch + Octave()).pitch_int() == 60 + 12
-    assert (pitch + 1.0).pitch_int() == 60 + 2
-    assert not pitch % Sharp()
-    assert (pitch + 0.1) % Sharp()
-    assert (pitch + 0.1 << Natural()).pitch_int() == 60
-
-    pitch << "G"
-    assert pitch.pitch_int() == 67
-    pitch << "#"
-    assert pitch.pitch_int() == 67 + 1
-
-# test_pitch_mod()
-
-
 def test_pitch_tonic():
 
     pitch = Pitch()
@@ -1390,5 +1369,29 @@ def test_root_key():
     settings << None
 
 # test_root_key()
+
+
+def test_pitch_mod():
+
+    # Resets the defaults
+    settings << None
+
+    # Perform the operation
+    pitch = Pitch()
+    assert pitch % float() == 1.0       # 1st Degree
+    assert pitch.pitch_int() == 60  # middle C
+    assert pitch % Key() % str() == "C"
+    assert (pitch + Octave()).pitch_int() == 60 + 12
+    assert (pitch + 1.0).pitch_int() == 60 + 2
+    assert not pitch % Sharp()
+    assert (pitch << "#") % Sharp()
+    assert (pitch << Natural()).pitch_int() == 60
+
+    pitch << "G"
+    assert pitch.pitch_int() == 67
+    pitch << "#"
+    assert pitch.pitch_int() == 67 + 1
+
+# test_pitch_mod()
 
 
