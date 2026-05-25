@@ -980,10 +980,18 @@ class Container(o.Operand):
                             if single_item != framed_result:
                                 excluded_item_ids.add(id(single_item))
                     case _:
-                        excluded_item_ids.update(
-                            id(single_item) for single_item in self._items
-                            if not single_item == single_condition
-                        )
+                        if isinstance(single_condition, od.Pipe) and isinstance(single_condition._data, of.Frame):
+                            single_condition._set_inside_container(self)
+                            pipped_frame = single_condition._data
+                            for single_item in self._items:
+                                framed_result = pipped_frame.frame(single_item)
+                                if single_item != od.Pipe(framed_result):
+                                    excluded_item_ids.add(id(single_item))
+                        else:
+                            excluded_item_ids.update(
+                                id(single_item) for single_item in self._items
+                                if not single_item == single_condition
+                            )
             self._mask_items = [
                 unmasked_item for unmasked_item in self._items
                 if id(unmasked_item) not in excluded_item_ids
