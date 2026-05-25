@@ -1001,11 +1001,12 @@ class Degree(PitchParameter):
     
 
     def stringSetDegree(self, string: str) -> Self:
-        string = string.strip().lower()
+        string = string.strip()
         semitones_offset: int = 0
         semitones_offset += string.count("#")
         semitones_offset -= string.count("b")
         string = string.replace("#", "").replace("b", "")
+        string = string.lower()
         if string in Degree._string_to_degree:
             self._unit = Degree._string_to_degree[string]
             self._semitones = Degree.semitones_float(semitones_offset)
