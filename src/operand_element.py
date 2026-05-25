@@ -1938,11 +1938,11 @@ class Note(ChannelElement):
         | Field | Parameter | Parameter Values                                                                 |
         +-------+-----------+----------------------------------------------------------------------------------+
         | 0     | 0         | Tag: "n" (optional)                                                              |
-        |       | 1         | Channel: int(Channel)                                                            |
-        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" Dotted, "m" Measures, "b" Beats      |
-        |       | n         | Position: int(Beat), float(Position), "m" Measure, "b" Beat                      |
-        | 2     | n         | Pitch: int(Octave), float(Degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
-        | 3     | 0         | Velocity: int(Velocity)                                                          |
+        |       | 1         | Channel: int(channel)                                                            |
+        | 1     | 0         | Duration: int(beats), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
+        |       | n         | Position: int(beat), float(measures), "m" Measure, "b" Beat                      |
+        | 2     | n         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
+        | 3     | 0         | Velocity: int(velocity)                                                          |
         +-------+-----------+----------------------------------------------------------------------------------+
 
     Parameters
