@@ -976,7 +976,7 @@ class Container(o.Operand):
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
-                            if not single_condition.frame(single_item):
+                            if single_item != single_condition.frame(single_item):
                                 excluded_item_ids.add(id(single_item))
                     case _:
                         excluded_item_ids.update(

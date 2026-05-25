@@ -94,10 +94,15 @@ class Null(Carrier):
         return True
     
     def __eq__(self, other: 'Label') -> bool:
+        import operand_data as od
         if other is None: return True
         if other is False: return True  # What makes the generic testing fails
         if other is True: return False
-        return super().__eq__(other)
+        if isinstance(other, Null):
+            return True
+        if isinstance(other, od.Conditional):
+            return other != self
+        return False
 
 
 class Full(Carrier):
@@ -117,10 +122,15 @@ class Full(Carrier):
         return False
     
     def __eq__(self, other: 'Label') -> bool:
+        import operand_data as od
         if other is None: return False
         if other is False: return False  # What makes the generic testing fails
         if other is True: return True
-        return super().__eq__(other)
+        if isinstance(other, Null):
+            return False
+        if isinstance(other, od.Conditional):
+            return other == self
+        return True
 
     
 class Dummy(Label):
