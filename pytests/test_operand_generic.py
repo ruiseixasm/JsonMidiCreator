@@ -814,52 +814,6 @@ def test_pitch_modulation():
 # test_pitch_modulation()
 
 
-def test_degree_set():
-
-    # Testing for the D minor Key Signature
-    minor_d_pitch = Pitch()
-    assert minor_d_pitch % TonicKey() == "C"
-
-    minor_d_pitch <<= KeySignature(Minor(), "b")
-    assert minor_d_pitch % TonicKey() == "C"
-    minor_d_pitch << None   # Resets the Tonic to D
-    assert minor_d_pitch % TonicKey() == "D"
-    minor_d_pitch << KeySignature(Minor(), "b") # Resets the Tonic to D
-    assert minor_d_pitch % TonicKey() == "D"
-    assert minor_d_pitch % RootKey() == "D"
-    assert minor_d_pitch % Octave() == 4
-    minor_d_pitch << Degree("VII")  # Because now D is the Tonic, "vii" goes to the next Octave
-    assert minor_d_pitch % TonicKey() == "D"
-    assert minor_d_pitch % RootKey() == "C"
-    # Makes sure changing the Degree doesn't change the Octave
-    print(f"Octave: {minor_d_pitch % Octave() % int()}")
-    assert minor_d_pitch % Octave() == 5    # "vii" goes to the next Octave
-
-    pitch_c = Pitch()
-    pitch_b = pitch_c + Degree(6)   # 1 + 6 = 7
-    pitch_bs = pitch_b + Degree(0.1)
-    pitch_bs_set = Pitch(7.1)   # Same as Pitch(Degree(7.1))
-    assert pitch_bs_set == Degree(7.1)
-
-    # Testing all still belong to the same Octave 4 except pitch_bs
-    assert pitch_c == Octave(4)
-    assert pitch_b == Octave(4)
-    print(f'pitch_bs % Octave() % int(): {pitch_bs % Octave() % int()}')    # Shall be 4 and not 5 !!
-    assert pitch_bs == Octave(5)
-    print(f'pitch_bs_set % Octave() % int(): {pitch_bs_set % Octave() % int()}')    # Shall be 4 and not 5 !!
-    assert pitch_bs_set == RootKey("C") # B#4, same as the next C5
-    assert pitch_bs_set == Octave(5)    # goes to the next Octave because it's B#4, same as the next C5
-
-    assert pitch_c == 1.0
-    assert pitch_b == 7.0
-    print(f'pitch_bs % float(): {pitch_bs % float()}')
-    assert pitch_bs == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
-    print(f'pitch_bs_set % float(): {pitch_bs_set % float()}')
-    assert pitch_bs_set == 7.1 # Passes to the next Octave so it becomes negative but equivalent ot 7.1
-
-# test_degree_set()
-
-
 def test_quality_set():
 
     default_pitch = Pitch()
@@ -1360,6 +1314,56 @@ def test_root_key():
 
 
 
+
+
+def test_degree_set():
+
+    # Resets the defaults
+    settings << None
+
+    # Testing for the D minor Key Signature
+    minor_d_pitch = Pitch()
+    assert minor_d_pitch % TonicKey() == "C"
+
+    minor_d_pitch <<= KeySignature(Minor(), "b")
+    assert minor_d_pitch % TonicKey() == "C"
+    minor_d_pitch << None   # Resets the Tonic to D
+    assert minor_d_pitch % TonicKey() == "D"
+    minor_d_pitch << KeySignature(Minor(), "b") # Resets the Tonic to D
+    assert minor_d_pitch % TonicKey() == "D"
+    assert minor_d_pitch % RootKey() == "D"
+    assert minor_d_pitch % Octave() == 4
+    minor_d_pitch << Degree("VII")  # Because now D is the Tonic, "vii" goes to the next Octave
+    assert minor_d_pitch % TonicKey() == "D"
+    assert minor_d_pitch % RootKey() == "C"
+    # Makes sure changing the Degree doesn't change the Octave
+    print(f"Octave: {minor_d_pitch % Octave() % int()}")
+    assert minor_d_pitch % Octave() == 5    # "vii" goes to the next Octave
+
+    pitch_C = Pitch()
+    pitch_A = ~pitch_C << Degree(6)
+    pitch_B = pitch_A + 1.0
+    pitch_Bs = Pitch(7.0, "#")   # Overflows the Octave
+    assert pitch_Bs == Degree(7, 1.)
+
+    # Testing all still belong to the same Octave 4 except pitch_B
+    assert pitch_C == Octave(4)
+    assert pitch_A == Octave(4)
+    print(f'pitch_B % Octave() % int(): {pitch_B % Octave() % int()}')
+    assert pitch_B == Octave(4)
+    print(f'pitch_Bs % Octave() % int(): {pitch_Bs % Octave() % int()}')    # Overflows the Octave to 5 !!
+    assert pitch_Bs == RootKey("C") # B#4, same as the next C5
+    assert pitch_Bs == Octave(5)    # goes to the next Octave because it's B#4, same as the next C5
+
+    assert pitch_C == 1.0
+    assert pitch_A == 6.0
+    print(f'pitch_B % float(): {pitch_B % float()}')
+    assert pitch_B == "7"
+    print(f'pitch_Bs % str(): {pitch_Bs % str()}')
+    assert pitch_Bs == 7.0
+    assert pitch_Bs == Degree("7#")
+
+# test_degree_set()
 
 
 def test_degree_float():
