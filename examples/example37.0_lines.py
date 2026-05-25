@@ -32,5 +32,8 @@ settings << Folder("examples/")
 ":, ::E, ::G, :," >> Plot(title="Pitched Notes", block=False)
 
 # Three Chords
-"c:, c_-_4:2b:3_3., c_80:2b:5.," >> Plot(title="Three Chords")
+"c:, c_-_4:2b:3_4., c:2b:5.:80," >> Plot(title="Three Chords", block=False)
+
+# Two Clusters
+"cl_-_2:3b:3m_1._3._4., cl:1b:m_2._4._6., " >> Plot(title="Two Clusters with an Inversion")
 
