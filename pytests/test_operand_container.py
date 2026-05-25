@@ -1403,3 +1403,5 @@ def test_clip_line():
     single_cluster = Clip(cluster_line)
     assert single_cluster.len() == 1
     assert isinstance(single_cluster[0], Cluster)
+
+test_clip_line()
