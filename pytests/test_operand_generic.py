@@ -1369,7 +1369,12 @@ def test_edge_degrees():
     assert pitch_C % float() == 7.0 # Degree
     assert pitch_C % int() == 4     # Octave
     pitch_C << Key("Bb")
+    print(f"pitch_C % float(): {pitch_C % float()}")
+    assert pitch_C % float() == 6.1 # Degree !!!
     assert pitch_C % int() == 4
     assert (pitch_C + 1.0) % int() == 5
+    assert (~pitch_C << 5.0) % int() == 4
+    assert (~pitch_C << 8.0) % int() == 5
 
 # test_edge_degrees()
+
