@@ -1040,7 +1040,7 @@ class Degree_NEW(PitchParameter):
     }
 
     def __eq__(self, other: any) -> bool:
-        if isinstance(other, Degree_NEW):
+        if isinstance(other, Degree):
             return super().__eq__(other) and self._accidental == other._accidental
         if isinstance(other, od.Conditional):
             return other == self
@@ -1049,7 +1049,7 @@ class Degree_NEW(PitchParameter):
         return self % other == other
     
     def __lt__(self, other: any) -> bool:
-        if isinstance(other, Degree_NEW):
+        if isinstance(other, Degree):
             if super().__eq__(other):
                 return self._accidental < other._accidental
             return self._unit < other._unit
@@ -1058,7 +1058,7 @@ class Degree_NEW(PitchParameter):
         return super().__lt__(other)
     
     def __gt__(self, other: any) -> bool:
-        if isinstance(other, Degree_NEW):
+        if isinstance(other, Degree):
             if super().__eq__(other):
                 return self._accidental > other._accidental
             return self._unit > other._unit
@@ -1119,7 +1119,7 @@ class Degree_NEW(PitchParameter):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Degree_NEW():
+            case Degree():
                 self._unit          = operand._unit
                 self._accidental    = operand._accidental
             case od.Pipe():
@@ -1152,13 +1152,13 @@ class Degree_NEW(PitchParameter):
     def __iadd__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case Degree_NEW():
+            case Degree():
                 self._unit += number._unit
                 self._accidental += number._accidental
             case float():
                 self._accidental += int(number)
             case str():
-                self.__iadd__(Degree_NEW(number))
+                self.__iadd__(Degree(number))
             case Sharp():
                 self << self % Sharp() + number
             case Flat():
@@ -1172,13 +1172,13 @@ class Degree_NEW(PitchParameter):
     def __isub__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case Degree_NEW():
+            case Degree():
                 self._unit -= number._unit
                 self._accidental -= number._accidental
             case float():
                 self._accidental -= int(number)
             case str():
-                self.__isub__(Degree_NEW(number))
+                self.__isub__(Degree(number))
             case Sharp():
                 self << self % Sharp() - number
             case Flat():
@@ -1192,7 +1192,7 @@ class Degree_NEW(PitchParameter):
     def __imul__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case Degree_NEW():
+            case Degree():
                 self._unit *= number._unit
                 self._accidental *= number._accidental
             case float():
@@ -1205,7 +1205,7 @@ class Degree_NEW(PitchParameter):
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         if number != 0:
             match number:
-                case Degree_NEW():
+                case Degree():
                     self._unit /= number._unit
                     self._accidental /= number._accidental
                 case float():
@@ -1229,8 +1229,8 @@ class Degree_NEW(PitchParameter):
         self._accidental -= string.count("b")
         string = string.replace("#", "").replace("b", "")
         string = string.lower() # Only for degrees
-        if string in Degree_NEW._string_to_degree: # See table above
-            self._unit = Degree_NEW._string_to_degree[string]
+        if string in Degree._string_to_degree: # See table above
+            self._unit = Degree._string_to_degree[string]
         return self
 
 

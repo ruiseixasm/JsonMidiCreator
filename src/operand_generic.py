@@ -1160,7 +1160,7 @@ class Pitch_NEW(Generic):
         return self << ou.Natural(unit)
 
     def degree(self, unit: int = 1) -> Self:
-        return self << ou.Degree_NEW(unit)
+        return self << ou.Degree(unit)
 
 
     """
@@ -1287,12 +1287,12 @@ class Pitch_NEW(Generic):
     Auxiliary methods to get specific data directly
     """
 
-    def absolute_degree_0(self) -> 'ou.Degree_NEW':
+    def absolute_degree_0(self) -> 'ou.Degree':
         """
         Degrees are returned relative to the Tonic key in a Octave, this function returns the \
             absolute Degree rooted in the Octave 0.
         """
-        return ou.Degree_NEW(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
+        return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
 
 
     def increment_tonic(self, keys: int) -> Self:
@@ -1393,7 +1393,7 @@ class Pitch_NEW(Generic):
                         # octave_key: int = self % operand._data % int() % 12
                         # absolute_key: int = octave_key + 12 * self._octave_0
                         # return operand._data << absolute_key
-                    case ou.Degree_NEW():   # Returns an absolute degree_0
+                    case ou.Degree():   # Returns an absolute degree_0
                         operand._data << od.Pipe(self._degree_0)
                         operand._data << float(self._accidental)
                         return operand._data
@@ -1446,10 +1446,10 @@ class Pitch_NEW(Generic):
                 target_pitch: int = self.pitch_int()
                 target_octave_0: int = target_pitch // 12
                 return ou.Octave(target_octave_0 - 1)
-            case ou.Degree_NEW():
-                return ou.Degree_NEW(self._degree_0 + 1, float(self._accidental))
+            case ou.Degree():
+                return ou.Degree(self._degree_0 + 1, float(self._accidental))
             case ou.Sharp() | ou.Flat() | ou.Natural():
-                return self % ou.Degree_NEW() % operand
+                return self % ou.Degree() % operand
             
             case ou.Transposition():
                 return operand.copy(self._transposition)
@@ -1462,18 +1462,18 @@ class Pitch_NEW(Generic):
             case str():
                 return self % ou.Key() % str()
             
-            case Pitch_NEW():
+            case Pitch():
                 return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         match other:
-            case Pitch_NEW():
+            case Pitch():
                 return self.pitch_int() == other.pitch_int()
             case str():
                 try:
-                    string_degree = ou.Degree_NEW(int(other))
+                    string_degree = ou.Degree(int(other))
                     return self == string_degree
                 except ValueError:
                     return self % other == other
@@ -1485,9 +1485,9 @@ class Pitch_NEW(Generic):
     
     def __lt__(self, other: any) -> bool:
         match other:
-            case Pitch_NEW():
+            case Pitch():
                 return self.pitch_int() < other.pitch_int()
-            case int() | float() | ou.Degree_NEW() | ou.Octave():
+            case int() | float() | ou.Degree() | ou.Octave():
                 return self % other < other
             case _:
                 return super().__lt__(other)
@@ -1495,9 +1495,9 @@ class Pitch_NEW(Generic):
     
     def __gt__(self, other: any) -> bool:
         match other:
-            case Pitch_NEW():
+            case Pitch():
                 return self.pitch_int() > other.pitch_int()
-            case int() | float() | ou.Degree_NEW() | ou.Octave():
+            case int() | float() | ou.Degree() | ou.Octave():
                 return self % other > other
             case _:
                 return super().__gt__(other)
@@ -1536,7 +1536,7 @@ class Pitch_NEW(Generic):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Pitch_NEW():
+            case Pitch():
                 super().__lshift__(operand)
                 self._key_signature         << operand._key_signature
                 self._tonic_key             = operand._tonic_key
@@ -1567,12 +1567,12 @@ class Pitch_NEW(Generic):
                     case ou.Key():
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
 
-                    case ou.Degree_NEW():   # Sets an absolute degree_0
+                    case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         self._degree_0 = operand._data._unit % 7
                         self._accidental = operand._data._accidental
                     case ou.Sharp() | ou.Flat() | ou.Natural():
-                        self._accidental = ou.Degree_NEW(operand._data)._accidental
+                        self._accidental = ou.Degree(operand._data)._accidental
             
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
@@ -1591,7 +1591,7 @@ class Pitch_NEW(Generic):
                     case list():
                         self._scale = operand._data
                     case str():
-                        self._degree_0 = abs((self % od.Pipe( ou.Degree_NEW() ) << ou.Degree_NEW(operand._data))._unit) - 1 # 0 based
+                        self._degree_0 = abs((self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit) - 1 # 0 based
                         self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
@@ -1608,7 +1608,7 @@ class Pitch_NEW(Generic):
             case int():
                 self << ou.Octave(operand)
             case float():
-                self << ou.Degree_NEW(int(operand))
+                self << ou.Degree(int(operand))
             case Fraction():
                 self << ou.Transposition(operand)
                     
@@ -1616,7 +1616,7 @@ class Pitch_NEW(Generic):
                 target_octave_0: int = operand._unit + 1
                 target_pitch: int = self.pitch_int()
                 self._octave_0 += target_octave_0 - target_pitch // 12
-            case ou.Degree_NEW():
+            case ou.Degree():
                 if operand == ou.Degree(0):
                     # Resets the degree to I (tonic)
                     self._tonic_key = self._key_signature % ou.Key() % int()
@@ -1650,7 +1650,7 @@ class Pitch_NEW(Generic):
                     degree += round((semitone * 2 - 1) / 10, 1)
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
-                self << ou.Degree_NEW(degree)
+                self << ou.Degree(degree)
                 actual_octave = self % ou.Octave() % int()
                 self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
             case ou.TargetKey():
@@ -1662,7 +1662,7 @@ class Pitch_NEW(Generic):
                     degree += round((semitone * 2 - 1) / 10, 1)
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
-                self << ou.Transposition(transposition) << ou.Degree_NEW(degree)
+                self << ou.Transposition(transposition) << ou.Degree(degree)
                 actual_octave = self % ou.Octave() % int()
                 self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
             case ou.Key():
@@ -1684,11 +1684,11 @@ class Pitch_NEW(Generic):
                     self << value << ou.Octave(octave)
 
             case ou.DrumKit():
-                self << ou.Degree_NEW()     # Makes sure no Degree different of Tonic is in use
+                self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
                 self << od.Pipe(ou.Key(operand)) # Sets the key number regardless KeySignature or Scale!
 
             case ou.Sharp() | ou.Flat() | ou.Natural():
-                self._accidental = ou.Degree_NEW(operand)._accidental
+                self._accidental = ou.Degree(operand)._accidental
             
             case Scale():
                 self._scale = operand % list()
@@ -1704,7 +1704,7 @@ class Pitch_NEW(Generic):
                 elif string == "b":
                     self << ou.Flat()
                 else:
-                    self << (self % ou.Degree_NEW() << string) # Safe, doesn't change the octave
+                    self << (self % ou.Degree() << string) # Safe, doesn't change the octave
                     self << (self % ou.Key() << string)
                     if len(operand) > 1:    # Single value shouldn't set the Octave
                         self << (self % ou.Octave() << string)
@@ -1720,24 +1720,24 @@ class Pitch_NEW(Generic):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Pitch_NEW() | ou.Semitone():
+            case Pitch() | ou.Semitone():
                 actual_pitch: int = self.pitch_int()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch + added_pitch
                 self << od.Pipe(ou.Key(new_pitch))
             case ou.Octave():
                 self._octave_0 += operand._unit
-            case ou.Degree_NEW():
+            case ou.Degree():
                 self._degree_0 += operand._unit
                 self._octave_0 += self._degree_0 // 7
                 self._degree_0 %= 7
                 self._accidental += operand._accidental
             case ou.Sharp() | ou.Flat():
-                self << self % ou.Degree_NEW() + operand
+                self << self % ou.Degree() + operand
             case int():
                 self.__iadd__(ou.Octave(operand))
             case float() | str():
-                self += ou.Degree_NEW(operand)
+                self += ou.Degree(operand)
             case Fraction():
                 self += ou.Transposition(operand)
             case ou.Transposition() | ou.Tones():
@@ -1765,24 +1765,24 @@ class Pitch_NEW(Generic):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Pitch_NEW() | ou.Semitone():
+            case Pitch() | ou.Semitone():
                 actual_pitch: int = self.pitch_int()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch - added_pitch
                 self << od.Pipe(ou.Key(new_pitch))
             case ou.Octave():
                 self._octave_0 -= operand._unit
-            case ou.Degree_NEW():
+            case ou.Degree():
                 self._degree_0 -= operand._unit
                 self._octave_0 -= self._degree_0 // 7
                 self._degree_0 %= 7
                 self._accidental -= operand._accidental
             case ou.Sharp() | ou.Flat():
-                self << self % ou.Degree_NEW() - operand
+                self << self % ou.Degree() - operand
             case int():
                 self.__isub__(ou.Octave(operand))
             case float() | str():
-                self -= ou.Degree_NEW(operand)
+                self -= ou.Degree(operand)
             case Fraction():
                 self -= ou.Transposition(operand)
             case ou.Transposition() | ou.Tones():
