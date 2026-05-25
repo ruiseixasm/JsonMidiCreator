@@ -872,23 +872,6 @@ def test_quality_set():
     assert default_pitch._scale == []
 
 
-def test_degree_float():
-
-    pitch_degree: Pitch = Pitch()
-    assert pitch_degree.pitch_int() == 60
-
-    pitch_degree << 5.0
-    assert pitch_degree.pitch_int() == 60 + 7
-
-    pitch_degree << 5.1
-    assert pitch_degree.pitch_int() == 60 + 7 + 1
-
-    pitch_degree << 5.2
-    assert pitch_degree.pitch_int() == 60 + 7 - 1
-
-# test_degree_float()
-
-
 def test_time_signature():
     default_ts = TimeSignature()
     assert default_ts.copy() == default_ts
@@ -1369,6 +1352,34 @@ def test_root_key():
     settings << None
 
 # test_root_key()
+
+
+
+
+
+
+
+
+
+
+def test_degree_float():
+
+    # Resets the defaults
+    settings << None
+
+    pitch_degree: Pitch = Pitch()
+    assert pitch_degree.pitch_int() == 60
+
+    pitch_degree << 5.0
+    assert pitch_degree.pitch_int() == 60 + 7
+
+    pitch_degree << 5. << "#"
+    assert pitch_degree.pitch_int() == 60 + 7 + 1
+
+    pitch_degree << "5b"
+    assert pitch_degree.pitch_int() == 60 + 7 - 1
+
+# test_degree_float()
 
 
 def test_pitch_mod():
