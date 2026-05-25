@@ -1214,20 +1214,21 @@ def test_root_key_pipe():
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 67  # G
-    # assert pitch_A_minor % float() == 6.0
+    print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
+    assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
 
     pitch_A_minor << RootKey(8) # Ab
     print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
     assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    # assert pitch_A_minor._degree_0 == 7.2
+    assert pitch_A_minor._degree_0 == 0.2
     assert absolute_root_key == 68  # Ab
 
     pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    # assert pitch_A_minor._degree_0 == 7.2
+    assert pitch_A_minor._degree_0 == 0.2
     assert pitch_A_minor % Octave() == 4
     assert absolute_root_key == 68
 
