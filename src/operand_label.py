@@ -63,6 +63,7 @@ class Label(o.Operand):
     def copy(self, *parameters) -> Self:
         return self
 
+
 class Carrier(Label):
     """`Label -> Carrier`
 
@@ -72,7 +73,9 @@ class Carrier(Label):
     ----------
     None : `Carrier` has no parameters.
     """
-    pass
+    def __mod__(self, operand: o.T) -> Self:
+        return self
+
 
 class Null(Carrier):
     """`Label -> Carrier -> Null`
@@ -95,9 +98,6 @@ class Null(Carrier):
         if other is False: return True  # What makes the generic testing fails
         if other is True: return False
         return super().__eq__(other)
-    
-    def __mod__(self, operand: o.T) -> Self:
-        return self
 
 
 class Full(Carrier):
@@ -110,7 +110,17 @@ class Full(Carrier):
     ----------
     None : `Full` has no parameters.
     """
-    pass
+    def __bool__(self) -> bool:  # For Python 3
+        return True
+
+    def __not__(self) -> bool:
+        return False
+    
+    def __eq__(self, other: 'Label') -> bool:
+        if other is None: return False
+        if other is False: return False  # What makes the generic testing fails
+        if other is True: return True
+        return super().__eq__(other)
 
     
 class Dummy(Label):
