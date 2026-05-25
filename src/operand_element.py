@@ -2058,11 +2058,12 @@ class Note(ChannelElement):
             letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
             # Extract accidental
             accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
+            # Extract minor
+            minor = 'm' if 'm' in field_2 else ''
             # Get the remaining string without letter and accidental
-            if letter:
-                field_2 = field_2.replace(letter, '')
-            if accidental:
-                field_2 = field_2.replace(accidental, '')
+            field_2 = field_2.replace(letter, '')
+            field_2 = field_2.replace(accidental, '')
+            field_2 = field_2.replace(minor, '')
             degree_octave: list[str] = field_2.split("_")
             for parameter in degree_octave:
                 number = o.string_to_number(parameter)
@@ -2071,11 +2072,12 @@ class Note(ChannelElement):
                         self._pitch << ou.Octave(number)
                     case float():
                         self._pitch << ou.Degree(number)
-            if letter or accidental:
-                if letter:
-                    self._pitch << letter
-                if accidental:
-                    self._pitch << accidental
+            if letter:
+                self._pitch << letter
+            if accidental:
+                self._pitch << accidental
+            if minor:
+                self._pitch << ou.Minor()
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
@@ -2619,31 +2621,12 @@ class Cluster(KeyScale):
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
             field = od.Field(field_2)
-            pitch_parameters = field.get
-
-
-            # Extract letter (A-G)
-            letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
-            # Extract accidental
-            accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
-            # Get the remaining string without letter and accidental
-            if letter:
-                field_2 = field_2.replace(letter, '')
-            if accidental:
-                field_2 = field_2.replace(accidental, '')
-            degree_octave: list[str] = field_2.split("_")
-            for parameter in degree_octave:
-                number = o.string_to_number(parameter)
-                match number:
-                    case int():
-                        self._pitch << ou.Octave(number)
-                    case float():
-                        self._pitch << ou.Degree(number)
-            if letter or accidental:
-                if letter:
-                    self._pitch << letter
-                if accidental:
-                    self._pitch << accidental
+            pitch_parameters = field.get_parameters()
+            for nth, parameter in enumerate(pitch_parameters):
+                if nth > 0:
+                    # It has to be saved as a Token
+                    new_token = od.Taken("::" + parameter)
+                    self._pitches.append(new_token)
         return self
 
 
