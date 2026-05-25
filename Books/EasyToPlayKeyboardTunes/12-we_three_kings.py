@@ -158,8 +158,8 @@ melody += ":2b:C5, ::A, :3b:C5"
 chords >> Print()
 melody >> Print()
 
-chords_clip = Clip(chords * 2)
-melody_clip = Clip(melody * 2)
+chords_clip = Clip(chords * 2)  # Checksum: da16
+melody_clip = Clip(melody * 2)  # Checksum: 1540
 
 melody_clip << Title("Melody (New)") << Velocity(85) >> Plot(block=False)
 chords_clip << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
