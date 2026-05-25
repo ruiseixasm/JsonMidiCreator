@@ -333,6 +333,17 @@ class Token(Data):
     
     # CHAINABLE OPERATIONS
 
+    def replace_field(self, index: int, field: str) -> Self:
+        fields = self.get_fields()
+        # Ensure the index exists
+        if index < len(fields):
+            # Replace the field
+            fields[index] = field
+            # Rebuild the token string
+            self._data = ":".join(fields)
+        return self
+    
+
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Line():

@@ -2615,7 +2615,6 @@ class Cluster(KeyScale):
         return super()._set_element_from_number(number)
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)    # Upper call (Note)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         # Set Pitch
@@ -2625,10 +2624,13 @@ class Cluster(KeyScale):
             pitch_parameters = field.get_parameters()
             self._pitches = []  # MAkes sure it resets existing pitches
             for nth, parameter in enumerate(pitch_parameters):
-                if nth > 0:
-                    # It has to be saved as a Token
-                    new_token = od.Token("::" + parameter)
-                    self._pitches.append(new_token)
+                # It has to be saved as a Token
+                if nth == 0:    # For the main Note (upper call)
+                    token_operand.replace_field(2, parameter)   # Removes the extra parameters
+                    super()._set_element_from_token(token_operand % str(), previous_element)
+                else:
+                    pitch_token = od.Token("::" + parameter)
+                    self._pitches.append(pitch_token)
         return self
 
 
