@@ -2612,7 +2612,7 @@ class Cluster(KeyScale):
                 case 2:
                     self << ou.Inversion(number)
                     return self
-        return super()._set_element_from_number(number)
+        return super()._set_element_from_number(number, nth)
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         token = od._normalize_dsl(token)
@@ -2763,7 +2763,7 @@ class Chord(KeyScale):
         component_elements = self.get_component_elements()
         master: int = 0
         for single_element in component_elements:
-            master += int(single_element.checksum(), 16)   # XOR 16-bit
+            master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
     def size(self, size: int = 3) -> Self:
@@ -2799,7 +2799,7 @@ class Chord(KeyScale):
                 case 3:
                     self << ou.Inversion(number)
                     return self
-        return super()._set_element_from_number(number)
+        return super()._set_element_from_number(number, nth)
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -2988,7 +2988,7 @@ class Retrigger(Note):
         component_elements = self.get_component_elements()
         master: int = 0
         for single_element in component_elements:
-            master += int(single_element.checksum(), 16)   # XOR 16-bit
+            master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
     def count(self, count: int = 8) -> Self:
@@ -3005,7 +3005,7 @@ class Retrigger(Note):
                 case 1:
                     self << ou.Count(number)
                     return self
-        return super()._set_element_from_number(number)
+        return super()._set_element_from_number(number, nth)
 
     def __mod__(self, operand: o.T) -> o.T:
         """
