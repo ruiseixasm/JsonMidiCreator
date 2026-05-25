@@ -790,12 +790,12 @@ def test_pitch_add():
     pitch_2.pitch_int() >> Print()
     assert pitch_2.pitch_int() == Pitch("B").pitch_int()
     print(f'Pitch("D"): {Pitch("D").pitch_int()}')
-    assert Pitch("D").pitch_int() == 62 + 12    # "D" is set on G Major scale, so, it goes to next Octave (most expected outcome)
-    assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12 + 12
-    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12 + 12
+    assert Pitch("D").pitch_int() == 62
+    assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12
+    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12
     (pitch_2 + 2.0).pitch_int() >> Print()      # 74
     (Pitch("D") + Semitone(12)).pitch_int() >> Print()    # 74 + 12 = 86
-    assert pitch_2 + 2.0 == Pitch("D")      # Next octave
+    assert pitch_2 + 2.0 == Pitch("D") + Octave(1)      # Next octave
 
     settings << KeySignature()
     assert pitch_1 << Sharp() == Pitch("A") + Semitone(1)
