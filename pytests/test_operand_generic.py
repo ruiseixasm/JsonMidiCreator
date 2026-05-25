@@ -189,6 +189,16 @@ def test_pitch_degrees():
     # Resets the defaults
     settings << KeySignature()
 
+
+    # # NEEDS TO BE SOLVED - BUG
+    # second_degree = Note(2.0)
+    # ninth_degree = Note(9.0)
+    # print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
+    # assert second_degree % Octave() == 4
+    # print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
+    # assert ninth_degree % Octave() == 5
+
+
 # test_pitch_degrees()
 
 
