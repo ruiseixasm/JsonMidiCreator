@@ -1700,6 +1700,8 @@ class Pitch(Generic):
                     self << ou.Sharp()
                 elif string == "b":
                     self << ou.Flat()
+                elif string == "n":
+                    self << ou.Natural()
                 else:
                     self << (self % ou.Degree() << string) # Safe, doesn't change the octave
                     self << (self % ou.Key() << string)

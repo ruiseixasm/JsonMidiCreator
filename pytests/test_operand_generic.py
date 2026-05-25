@@ -1385,7 +1385,7 @@ def test_pitch_mod():
     assert (pitch + 1.0).pitch_int() == 60 + 2
     assert not pitch % Sharp()
     assert (pitch << "#") % Sharp()
-    assert (pitch << Natural()).pitch_int() == 60
+    assert (pitch << "n").pitch_int() == 60 # 'n' for Natural
 
     pitch << "G"
     assert pitch.pitch_int() == 67
