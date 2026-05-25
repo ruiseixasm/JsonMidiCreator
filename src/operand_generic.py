@@ -653,19 +653,6 @@ class Pitch(Generic):
         return tone % scale_degrees, semitone
 
 
-    def normalize_degree_0(self) -> Self:
-        """Octave shouldn't be normalized!!! (OBSOLETE)"""
-        floor_degree_0: float = math.floor(self._degree_0) * 1.0
-        linear_semitones: float = round((self._degree_0 - floor_degree_0), 1)
-        if round(linear_semitones % 0.2, 1) == 0.1:
-            floor_degree_0 += linear_semitones
-        else:
-            floor_degree_0 -= linear_semitones
-        degree_0_octave: int = floor_degree_0 // 7
-        self._degree_0 = round(self._degree_0 - degree_0_octave * 7, 1)
-        return self
-
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
