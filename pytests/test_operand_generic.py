@@ -63,7 +63,10 @@ def test_staff_parameters():
     assert settings % KeySignature() == 0
     settings << KeySignature(2)
     assert settings % KeySignature() == 2
-    settings << KeySignature()
+
+    # Resets the defaults
+    settings << None
+
 
 # test_staff_parameters()
 
@@ -145,8 +148,6 @@ def test_pitch_set():
 
 def test_pitch_degrees():
 
-    settings << KeySignature()
-    
     major_keys: list[int] = [
         60, 62, 64, 65, 67, 69, 71
     ]
@@ -187,7 +188,7 @@ def test_pitch_degrees():
                 key_pitch += float(1)  # += to increment Degree and Octave too
 
     # Resets the defaults
-    settings << KeySignature()
+    settings << None
 
 
 # test_pitch_degrees()
@@ -369,7 +370,7 @@ def test_root_key():
         pitch += 1.0  # One degree each time
 
     # Resets the defaults
-    settings << KeySignature()
+    settings << None
 
 # test_root_key()
 
@@ -549,14 +550,12 @@ def test_target_key():
         pitch += Fraction(1)  # One transposition each time
 
     # Resets the defaults
-    settings << KeySignature()
+    settings << None
 
 # test_target_key()
 
 
 def test_pitch_key_signature():
-
-    settings << KeySignature()
 
     settings << KeySignature("###") # A Major scale
     a_major_scale: list[str] = [
@@ -576,7 +575,6 @@ def test_pitch_key_signature():
         print(f"Key: {pitch % str()}")
         assert pitch == ds_major_scale[degree - 1]
         pitch += 1.0  # Increases by 1 degree
-
 
     settings << KeySignature()
 
@@ -647,14 +645,13 @@ def test_pitch_key_signature():
         E_minor_key % Sharp() >> Print(0)
         E_minor_key += 1.0    # Increases by 1 degree
 
-    settings << KeySignature()
+    # Resets the defaults
+    settings << None
 
 # test_pitch_key_signature()
 
 
 def test_pitch_scales():
-
-    settings << KeySignature()
 
     staff_pitch: Pitch = Pitch()
     print(f"Tonic C: {staff_pitch % TonicKey() % str()}")
@@ -681,14 +678,10 @@ def test_pitch_scales():
         print((staff_pitch + float(degree)) % str())
         assert (staff_pitch + float(degree)) % str() == minor_scale_keys[degree]
 
-    settings << KeySignature()
-
 # test_pitch_scales()
 
 
 def test_set_chromatic_pitch():
-
-    settings << KeySignature()
 
     pitch_ab = Pitch("Ab")
     pitch_a = Pitch("A")
@@ -700,7 +693,6 @@ def test_set_chromatic_pitch():
     print(f"A pitch_int: {pitch_a.pitch_int()}")
     assert pitch_ab.pitch_int() == 68
     assert pitch_a.pitch_int() == 69
-
 
     pitch: Pitch = Pitch()
 
@@ -731,14 +723,13 @@ def test_set_chromatic_pitch():
             pitch.pitch_int() >> Print()
             assert pitch.pitch_int() == pitch_int
 
-    settings << KeySignature()
+    # Resets the defaults
+    settings << None
 
 # test_set_chromatic_pitch()
 
 
 def test_pitch_add():
-
-    settings << KeySignature()
 
     pitch_degree = Pitch()
     assert pitch_degree % Degree() == 1
@@ -886,7 +877,8 @@ def test_pitch_add():
     (pitch_5 + Semitone(1)) % str() >> Print()
     assert pitch_5 + Semitone(1) == Key("D#")
 
-    settings << KeySignature()
+    # Resets the defaults
+    settings << None
 
 # test_pitch_add()
 
@@ -931,12 +923,13 @@ def test_pitch_sub():
     new_pitch_b4 = pitch_e5 - degree_distance_e5
     assert new_pitch_b4 == pitch_b4
 
+    # Resets the defaults
+    settings << None
+
 # test_pitch_sub()
 
 
 def test_drum_kit():
-
-    settings << KeySignature()
 
     pitch: Pitch = Pitch()
 
@@ -978,8 +971,6 @@ def test_drum_kit():
 
 def test_staff_output():
 
-    settings << KeySignature()
-    
     settings << TimeSignature(3, 4)
     steps_per_measure = settings % StepsPerMeasure()
     steps_per_measure % Fraction() >> Print()
@@ -997,6 +988,9 @@ def test_staff_output():
 
     # Quantization is in Beats ratio
     settings << Quantization(1/4)  # Resets settings quantization
+
+    # Resets the defaults
+    settings << None
 
 # test_staff_output()
 
@@ -1188,6 +1182,9 @@ def test_pitch_pipe():
     print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 60
     assert pitch_d2.pitch_int() == 60
 
+    # Resets the defaults
+    settings << None
+
 # test_pitch_pipe()
 
 
@@ -1362,8 +1359,6 @@ def test_sharps_and_flats_picker():
 
 
 def test_edge_degrees():
-    
-    settings << KeySignature()
     
     pitch_C = Pitch()
     pitch_C << Key("B")

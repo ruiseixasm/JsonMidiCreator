@@ -4675,6 +4675,8 @@ class Settings(Generic):
             case od.Folder():           self._folder = operand._data
             case oe.Clock():
                 self << ( operand % oc.ClockedDevices(), operand % oc.ControlledDevices(), operand % ou.PPQN() )
+            case None:  # Does a Reset!
+                self << Settings()
             case tuple():
                 for single_operand in operand:
                     self << single_operand
