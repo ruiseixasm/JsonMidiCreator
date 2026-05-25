@@ -2581,7 +2581,7 @@ class Cluster(KeyScale):
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
         | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
-        |       | n         | Pitch: Each pitch for each single Note following the one set at parameter 0 above |
+        |       | n         | Pitch: Each pitch for each n Note based on the one set at parameter 0 above       |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
         +-------+-----------+-----------------------------------------------------------------------------------+
 
