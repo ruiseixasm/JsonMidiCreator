@@ -2622,10 +2622,11 @@ class Cluster(KeyScale):
         if field_2 is not None:
             field = od.Field(field_2)
             pitch_parameters = field.get_parameters()
+            self._pitches = []  # MAkes sure it resets existing pitches
             for nth, parameter in enumerate(pitch_parameters):
                 if nth > 0:
                     # It has to be saved as a Token
-                    new_token = od.Taken("::" + parameter)
+                    new_token = od.Token("::" + parameter)
                     self._pitches.append(new_token)
         return self
 
