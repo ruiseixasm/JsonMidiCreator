@@ -1941,7 +1941,7 @@ class Note(ChannelElement):
         |       | 1         | Channel: int(Channel)                                                             |
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
         +-------+-----------+-----------------------------------------------------------------------------------+
 
@@ -2054,30 +2054,31 @@ class Note(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
-            # Extract letter (A-G)
-            letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
-            # Extract accidental
-            accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
-            # Extract minor
-            minor = 'm' if 'm' in field_2 else ''
-            # Get the remaining string without letter and accidental
-            field_2 = field_2.replace(letter, '')
-            field_2 = field_2.replace(accidental, '')
-            field_2 = field_2.replace(minor, '')
-            degree_octave: list[str] = field_2.split("_")
-            for parameter in degree_octave:
+            field = od.Field(field_2)
+            field_parameters = field.get_parameters()
+            for parameter in field_parameters:
+                # Extract letter (A-G)
+                letter = next((c for c in parameter if c in 'ABCDEFG'), '')
+                # Extract accidental
+                accidental = '#' if '#' in parameter else 'b' if 'b' in parameter else ''
+                # Extract minor
+                minor = 'm' if 'm' in parameter else ''
+                # Get the remaining string without letter and accidental
+                parameter = parameter.replace(letter, '')
+                parameter = parameter.replace(accidental, '')
+                parameter = parameter.replace(minor, '')
                 number = o.string_to_number(parameter)
                 match number:
                     case int():
                         self._pitch << ou.Octave(number)
                     case float():
                         self._pitch << ou.Degree(number)
-            if letter:
-                self._pitch << letter
-            if accidental:
-                self._pitch << accidental
-            if minor:
-                self._pitch << ou.Minor()
+                if letter:
+                    self._pitch << letter
+                if accidental:
+                    self._pitch << accidental
+                if minor:
+                    self._pitch << ou.Minor()
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
@@ -2580,7 +2581,7 @@ class Cluster(KeyScale):
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
         | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
-        |       | n         | Pitch: Each pitch for each single Note based on the one set at parameter 0 above  |
+        |       | n         | Pitch: Each pitch for each single Note following the one set at parameter 0 above |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
         +-------+-----------+-----------------------------------------------------------------------------------+
 
