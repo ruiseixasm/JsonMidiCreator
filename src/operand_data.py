@@ -215,21 +215,35 @@ class Parameter(Data):
     ----------
     Any() : Any type of operand.
     """
+    pass
+
+
+class Field(Data):
+    """`Data -> Field`
+
+    A `Field` represents the Token components separated with '_', like in `"cl_8:3b:D_-_F_A"`.
+    
+    Parameters
+    ----------
+    str("") : Any type of operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        if not isinstance(self._data, str): # Makes sure it's a string
+            self._data = ""
+
     def get_parameter(self, index: int) -> str | None:
-        if isinstance(self._data, str):
-            token_dsl: str = self._data
-            normalized_dsl: str = _normalize_dsl(token_dsl)
-            element_fields: list[str] = normalized_dsl.split("_")
-            if index < len(element_fields):
-                return element_fields[index]
+        token_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(token_dsl)
+        element_fields: list[str] = normalized_dsl.split("_")
+        if index < len(element_fields):
+            return element_fields[index]
         return None
 
     def get_parameters(self) -> list[str]:
-        if isinstance(self._data, str):
-            line_dsl: str = self._data
-            normalized_dsl: str = _normalize_dsl(line_dsl)
-            return normalized_dsl.split("_")
-        return []
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
+        return normalized_dsl.split("_")
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -242,20 +256,19 @@ class Parameter(Data):
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> Self:
-        if isinstance(self._data, str):
-            match operand:
-                case Parameter():
-                    if isinstance(operand._data, str):
-                        if self._data == "":
-                            self._data = operand._data
-                        elif operand._data != "":
-                            self._data += "_" + operand._data
-                case str():
-                    self.__iadd__(Parameter(operand))
+        match operand:
+            case Parameter():
+                if isinstance(operand._data, str):
+                    if self._data == "":
+                        self._data = operand._data
+                    elif operand._data != "":
+                        self._data += "_" + operand._data
+            case str():
+                self.__iadd__(Parameter(operand))
         return self # remains as an Inline operand
     
     def __imul__(self, operand: any) -> Self:
-        if isinstance(self._data, str) and isinstance(operand, int) and self._data != "":
+        if isinstance(operand, int) and self._data != "":
             if operand > 1:
                 new_line = self._data
                 for _ in range(operand - 1):

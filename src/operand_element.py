@@ -2615,11 +2615,13 @@ class Cluster(KeyScale):
         super()._set_element_from_token(token, previous_element)    # Upper call (Note)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
-        pitch_fields = token_operand.get
-
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
+            field = od.Field(field_2)
+            pitch_parameters = field.get
+
+
             # Extract letter (A-G)
             letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
             # Extract accidental
@@ -2642,12 +2644,6 @@ class Cluster(KeyScale):
                     self._pitch << letter
                 if accidental:
                     self._pitch << accidental
-        # Set Velocity
-        field_3: str = token_operand.get_field(3)
-        if field_3 is not None:
-            number = o.string_to_number(field_3)
-            if isinstance(number, int):
-                self << ou.Velocity(number)
         return self
 
 
