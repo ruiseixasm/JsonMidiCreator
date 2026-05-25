@@ -1372,4 +1372,4 @@ def test_edge_degrees():
     assert pitch_C % int() == 4
     assert (pitch_C + 1.0) % int() == 5
 
-test_edge_degrees()
+# test_edge_degrees()
