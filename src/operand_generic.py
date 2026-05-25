@@ -861,8 +861,8 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.RootKey():
+                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
                         self << operand._data  # Sets the RootKey on the actual Octave
-                        expected_octave_0: int = operand._data._unit // 12
                         root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
                         root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - root_octave_0
@@ -920,12 +920,14 @@ class Pitch(Generic):
                 target_pitch: int = self.pitch_int()
                 self._octave_0 += target_octave_0 - target_pitch // 12
 
+            # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
+                original_octave = self % ou.Octave() % int()
                 tone, semitone = self.tone_and_semitone(operand._unit % 12)
                 degree: int = tone % 7 + 1
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -933,11 +935,11 @@ class Pitch(Generic):
                     degree += round((semitone * 2 - 1) / 10, 1)
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
-                expected_octave = self % ou.Octave() % int()
                 self << ou.Degree(degree)
                 actual_octave = self % ou.Octave() % int()
-                self._octave_0 += expected_octave - actual_octave
+                self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
             case ou.TargetKey():
+                original_octave = self % ou.Octave() % int()
                 degree: float = 0.0 # No linear accidentals
                 transposition, semitone = self.transposition_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
@@ -946,6 +948,8 @@ class Pitch(Generic):
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
                 self << ou.Transposition(transposition) << ou.Degree(degree)
+                actual_octave = self % ou.Octave() % int()
+                self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
             case ou.Key():
                 self << ou.RootKey(operand)
 
