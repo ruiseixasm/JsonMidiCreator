@@ -31,14 +31,35 @@ import sys
 
 
 
-# def test_track_mod():
+def test_settings_reset():
 
-#     # Perform the operation
-#     default_track = Track()
-#     assert default_track % str() == "Default"
-#     test_track_1 = Track("Test")
-#     test_track_2 = Track("Test")
-#     assert test_track_1 == test_track_2
+    assert settings == Settings()
+    settings << KeySignature("###") << Tempo(75) << TimeSignature(6, 8)
+    assert settings != Settings()
+    # Resets the defaults
+    settings << None
+    assert settings == Settings()
+
+
+def test_edge_degrees():
+    
+
+    pitch_C = Pitch()
+    pitch_C << Key("B")
+    print(f"pitch_C % float(): {pitch_C % float()}")
+    assert pitch_C % float() == 7.0 # Degree
+    assert pitch_C % int() == 4     # Octave
+    pitch_C << Key("Bb")
+    print(f"pitch_C % float(): {pitch_C % float()}")
+    assert pitch_C % float() == 7.0 # Same degree
+    assert pitch_C % Degree() % float() == -1 # Flat
+    assert pitch_C % int() == 4
+    assert (pitch_C + 1.0) % int() == 5
+    assert (~pitch_C << 5.0) % int() == 4
+    assert (~pitch_C << 8.0) % int() == 5
+
+# test_edge_degrees()
+
 
 def test_staff_mod():
 
@@ -190,7 +211,6 @@ def test_pitch_degrees():
     # Resets the defaults
     settings << None
 
-
 # test_pitch_degrees()
 
 
@@ -307,7 +327,6 @@ def test_root_key():
         assert pitch == d_degree_f_major_scale[degree]
         pitch += 1.0  # One degree each time
 
-
     print("------")
     settings << KeySignature("b") # F Major scale key signature
     f_major_scale: list[str] = [
@@ -337,7 +356,6 @@ def test_root_key():
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == f_degree_b_major_scale[degree]
         pitch += 1.0  # One degree each time
-
 
     print("------")
     settings << KeySignature("bb") # Bb Major scale key signature
@@ -455,7 +473,6 @@ def test_target_key():
         assert pitch % TargetKey() == a_degree_f_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
 
-
     print("------")
     settings << KeySignature("##") # D Major scale key signature
     d_major_scale: list[str] = [
@@ -487,7 +504,6 @@ def test_target_key():
         assert pitch % TargetKey() == d_degree_f_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
 
-
     print("------")
     settings << KeySignature("b") # F Major scale key signature
     f_major_scale: list[str] = [
@@ -518,7 +534,6 @@ def test_target_key():
         assert pitch % TargetKey() == f_degree_b_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
 
-
     print("------")
     settings << KeySignature("bb") # Bb Major scale key signature
     bb_major_scale: list[str] = [
@@ -539,6 +554,7 @@ def test_target_key():
         print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
         assert pitch % TargetKey() == bb_degree_eb_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
+
     print("---")
     bb_degree_e_major_scale: list[str] = [
         "Fb", "Gb", "Ab", "A", "Cb", "Db", "D"
@@ -816,7 +832,6 @@ def test_pitch_add():
     # Test all semitones from 0 to 11
     chromatic_pitches: list[int] = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
 
-
     for sharps in range(8): # 8 is excluded
 
         settings << KeySignature(sharps)
@@ -848,7 +863,6 @@ def test_pitch_add():
             pitch_4.pitch_int() >> Print()
             assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
             pitch_4 -= Semitone(1)
-
 
     settings << KeySignature()
     pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
@@ -892,7 +906,6 @@ def test_pitch_sub():
 
     assert pitch_b4 != pitch_d5
     assert pitch_b4 != pitch_e5
-
 
     print("Relative degrees")
     pitch_b4_degree = pitch_b4 % Degree()
@@ -1142,7 +1155,6 @@ def test_pitch_pipe():
     dummy_pitch = Pitch()   # Same Key Signature
     settings << KeySignature()
 
-
     pitch_b4_degree_0 = pitch_b4 % Pipe(Degree())
     pitch_d5_degree_0 = pitch_d5 % Pipe(Degree())
     pitch_e5_degree_0 = pitch_e5 % Pipe(Degree())
@@ -1249,7 +1261,6 @@ def test_root_key_set():
         root_key += 1
         major_C_pitch_int += 1
 
-
     minor_C_sharp = Pitch(Minor())
     assert minor_C_sharp % Octave() == 4
 
@@ -1274,7 +1285,6 @@ def test_root_key_set():
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 60
 
-
     minor_A = Pitch(Minor())
     assert minor_A % Octave() == 4
 
@@ -1285,7 +1295,6 @@ def test_root_key_set():
     minor_A_flat_int = minor_A_flat.pitch_int()
     print(f"minor_A_flat_int: {minor_A_flat_int}")
     assert minor_A_flat_int == 68 # It's just a flatting of A (69)
-
 
     minor_A = Pitch(Minor())
     minor_A_pitch_int = minor_A.pitch_int()
@@ -1356,23 +1365,4 @@ def test_sharps_and_flats_picker():
     assert Scale.sharps_or_flats_picker(10, major_scale) == Bb_flats
 
 # test_sharps_and_flats_picker()
-
-
-def test_edge_degrees():
-    
-    pitch_C = Pitch()
-    pitch_C << Key("B")
-    print(f"pitch_C % float(): {pitch_C % float()}")
-    assert pitch_C % float() == 7.0 # Degree
-    assert pitch_C % int() == 4     # Octave
-    pitch_C << Key("Bb")
-    print(f"pitch_C % float(): {pitch_C % float()}")
-    assert pitch_C % float() == 7.0 # Same degree
-    assert pitch_C % Degree() % float() == -1 # Flat
-    assert pitch_C % int() == 4
-    assert (pitch_C + 1.0) % int() == 5
-    assert (~pitch_C << 5.0) % int() == 4
-    assert (~pitch_C << 8.0) % int() == 5
-
-# test_edge_degrees()
 

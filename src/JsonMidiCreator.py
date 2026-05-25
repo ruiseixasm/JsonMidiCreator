@@ -35,9 +35,6 @@ from resource_solutions import *
 from resource_patterns import *
 
 
-settings << Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"])
-
-
 # Set group of constants
 
 # Class alias, abbreviations

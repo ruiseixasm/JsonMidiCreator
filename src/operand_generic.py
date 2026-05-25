@@ -4439,7 +4439,7 @@ class Settings(Generic):
     Velocity(100) : Sets the default velocity of a `Note` as 100.
     Controller("Pan") : The default controller being controlled by CC midi messages is the "Pan", CC number 10.
     Channel(1) : The default `Channel is the midi channel 1.
-    Devices(["Microsoft", "FLUID", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
+    Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : By default no devices are set to receive clocking messages.
     ControlledDevices([]) : By default no devices are set to receive controlling messages (for DAWs).
     PPQN(24) : The default for clocking midi messages is 24 Pulses Per Quarter Note.
@@ -4452,7 +4452,7 @@ class Settings(Generic):
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._controller: Controller                = Controller("Pan")
-        self._devices: list[str]                    = ["Microsoft", "FLUID", "Apple"]
+        self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
         self._controlled_devices: list[str]         = []
         self._clock_ppqn: int                       = 24
