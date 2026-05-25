@@ -1217,10 +1217,10 @@ class Degree(PitchParameter):
 
     def setDegreeFromString(self, string: str) -> Self:
         # Remove Octave number first (Doesn't process it, because Degree as no Octave, just cleans it)
-        if len(operand) > 1:
+        if len(string) > 1:
             try:
-                int(operand[-1])
-                operand = operand[:-1]
+                int(string[-1])
+                string = string[:-1]
             except ValueError as e:
                 pass    # No octave set
         string = string.strip()
