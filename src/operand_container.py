@@ -2337,7 +2337,7 @@ class Composition(Container):
                 self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
-            case 'ctrl+c' | 'ctrl+space':
+            case 'ctrl+c' | 'ctrl+space' | 'ctrl+ ':
                 self._run_composition(event, 4)
             case 'c' | ' ':
                 self._run_composition(event)
