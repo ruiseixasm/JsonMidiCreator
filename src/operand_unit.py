@@ -1015,6 +1015,235 @@ class Degree(PitchParameter):
         return self
 
 
+class Degree_2(PitchParameter):
+    """`Unit -> PitchParameter -> Degree`
+
+    A Degree() represents its relation with a Tonic key on a scale and respective Progressions.
+    Note that `Degree(-1)` sets the `Pitch` Degree to I and its Tonic key accordingly to its `Keysignature`.
+    
+    Parameters
+    ----------
+    int(1), str("I"), float(1.0) : Accepts a numeral (5) or the string (V) with 1 as the default
+    """
+    def __init__(self, *parameters):
+        self._accident: int = 0
+        super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
+
+    _string_to_degree: dict[str, int] = {
+        "i": 1,     "1": 1,     "tonic": 1,
+        "ii": 2,    "2": 2,     "supertonic": 2,
+        "iii": 3,   "3": 3,     "mediant": 3,
+        "iv": 4,    "4": 4,     "subdominant": 4,
+        "v": 5,     "5": 5,     "dominant": 5,
+        "vi": 6,    "6": 6,     "submediant": 6,
+        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
+    }
+
+    def __eq__(self, other: any) -> bool:
+        if isinstance(other, Degree_2):
+            return super().__eq__(other) and self._accident == other._accident
+        if isinstance(other, od.Conditional):
+            return other == self
+        if isinstance(other, str):
+            return (self % other).lower() == other.strip().lower()
+        return self % other == other
+    
+    def __lt__(self, other: any) -> bool:
+        if isinstance(other, Degree_2):
+            if super().__eq__(other):
+                return self._accident < other._accident
+            return self._unit < other._unit
+        if isinstance(other, od.Conditional):
+            return other < self
+        return super().__lt__(other)
+    
+    def __gt__(self, other: any) -> bool:
+        if isinstance(other, Degree_2):
+            if super().__eq__(other):
+                return self._accident > other._accident
+            return self._unit > other._unit
+        if isinstance(other, od.Conditional):
+            return other > self
+        return super().__gt__(other)
+    
+
+    def degree_int(self) -> int:
+        return self._unit
+
+    def accident_int(self) -> int:
+        return self._accident
+
+    def accident_float(self) -> float:
+        if self._accident > 0:    # Means Sharps
+            return round((self._accident * 2 - 1) / 10, 1)    # Odd means Sharp
+        if self._accident < 0:    # Means Flat
+            return round(self._accident * -2 / 10, 1)     # Even means Flat
+        return 0.0
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case float():
+                if self._unit < 0:
+                    return round(self._unit - self.accident_float(), 1)
+                return round(self._unit + self.accident_float(), 1)
+            case str():
+                formal_degree: int = self._unit
+                if formal_degree > 0:
+                    formal_degree -= 1
+                formal_degree = formal_degree % 7 + 1
+                degree_string: str = str( formal_degree )
+                if self._accident:
+                    if self._accident > 0:
+                        degree_string += "#" * self._accident
+                    elif self._accident < 0:
+                        degree_string += "b" * (self._accident * -1)
+                return degree_string
+            case Sharp():
+                return Sharp(self._accident)
+            case Flat():
+                return Flat(self._accident * -1)
+            case Natural():
+                if self._accident:
+                    return Natural(False)
+                return Natural(True)
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["accident"] = self.serialize( self._accident )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "accident" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._accident = self.deserialize( serialization["parameters"]["accident"] )
+        return self
+      
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Degree_2():
+                self._unit      = operand._unit
+                self._accident = operand._accident
+            case od.Pipe():
+                match operand._data:
+                    case str():
+                        self.setDegreeFromString(operand._data)
+                    case _:
+                        super().__lshift__(operand)
+            case float():
+                self._unit = int(round(operand, 1))
+                operand -= self._unit   # Removes the Degree part
+                if operand < 0:
+                    operand *= -1 # Preprocessing
+                semitones_int: int = round(operand * 10)
+                if semitones_int % 2 == 1:
+                    self._accident = round((semitones_int + 1) / 2)
+                else:
+                    self._accident = round(semitones_int / 2) * -1
+            case str():
+                self.setDegreeFromString(operand)
+            case Sharp():
+                if operand < 0:
+                    self << Flat(operand * -1)
+                else:
+                    self._accident = operand._unit
+            case Flat():
+                if operand < 0:
+                    self << Sharp(operand * -1)
+                else:
+                    self._accident = operand._unit * -1
+            case Natural():
+                self._accident = 0
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+    def __iadd__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case Degree_2():
+                self._unit += number._unit
+                self._accident += number._accident
+            case float() | str():
+                self.__iadd__(Degree_2(number))
+            case Sharp():
+                self << self % Sharp() + number
+            case Flat():
+                self << self % Flat() + number
+            case Natural():
+                return self # Does nothing
+            case _:
+                super().__iadd__(number)
+        return self
+    
+    def __isub__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case Degree_2():
+                self._unit -= number._unit
+                self._accident -= number._accident
+            case float() | str():
+                self.__isub__(Degree_2(number))
+            case Sharp():
+                self << self % Sharp() - number
+            case Flat():
+                self << self % Flat() - number
+            case Natural():
+                return self # Does nothing
+            case _:
+                super().__isub__(number)
+        return self
+    
+    def __imul__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case int():
+                self._unit *= number
+                self._accident *= number
+            case _:
+                super().__imul__(number)
+        return self
+    
+    def __itruediv__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case int():
+                if number != 0:
+                    self._unit /= number
+                    self._accident /= number
+            case _:
+                super().__itruediv__(number)
+        return self
+    
+
+    def setDegreeFromString(self, string: str) -> Self:
+        # Remove Octave number first (Doesn't process it, because Degree as no Octave, just cleans it)
+        if len(operand) > 1:
+            try:
+                int(operand[-1])
+                operand = operand[:-1]
+            except ValueError as e:
+                pass    # No octave set
+        string = string.strip()
+        self._semitones = 0
+        self._semitones += string.count("#")
+        self._semitones -= string.count("b")
+        string = string.replace("#", "").replace("b", "")
+        string = string.lower() # Only for degrees
+        if string in Degree_2._string_to_degree: # See table above
+            self._unit = Degree_2._string_to_degree[string]
+        return self
+
+
+
 class Transposition(PitchParameter):
     """`Unit -> PitchParameter -> Transposition`
 
