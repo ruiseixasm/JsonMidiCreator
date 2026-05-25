@@ -99,6 +99,23 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: Any) -> any:
+        if isinstance(index, of.Frame):
+            index._set_inside_container(self)
+            new_container = self.empty_copy()
+            for single_element in self._foreground_items():
+                framed_result = index.frame(single_element)
+                if single_element == framed_result:
+                    new_container._append(single_element)
+            return new_container 
+        if isinstance(index, od.Pipe) and isinstance(index._data, of.Frame):
+            pipped_frame = index._data
+            pipped_frame._set_inside_container(self)
+            new_container = self.empty_copy()
+            for single_element in self._foreground_items():
+                framed_result = pipped_frame.frame(single_element)
+                if single_element == od.Pipe(framed_result):
+                    new_container._append(single_element)
+            return new_container
         if isinstance(index, int):
             return self._foreground_items()[index]
         for item in self._foreground_items():
@@ -2607,23 +2624,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
-        if isinstance(index, of.Frame):
-            index._set_inside_container(self)
-            new_clip = self.empty_copy()
-            for single_element in self._foreground_items():
-                framed_result = index.frame(single_element)
-                if single_element == framed_result:
-                    new_clip._append(single_element)
-            return new_clip 
-        elif isinstance(index, od.Pipe) and isinstance(index._data, of.Frame):
-            pipped_frame = index._data
-            pipped_frame._set_inside_container(self)
-            new_clip = self.empty_copy()
-            for single_element in self._foreground_items():
-                framed_result = pipped_frame.frame(single_element)
-                if single_element == od.Pipe(framed_result):
-                    new_clip._append(single_element)
-            return new_clip 
         return super().__getitem__(index)
     
     def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
@@ -4596,13 +4596,6 @@ class Block(Composition):
 
 
     def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
-        if isinstance(index, of.Frame):
-            index._set_inside_container(self)
-            new_block = self.empty_copy()
-            for single_clip in self._foreground_items():
-                if single_clip == index:
-                    new_block._append(single_clip)
-            return new_block
         return super().__getitem__(index)
     
     def __setitem__(self, index: Any, value: Union['Clip', 'Block']) -> Self:
@@ -5230,13 +5223,6 @@ class Part(Composition):
 
 
     def __getitem__(self, index: Any) -> Union['Block', 'Part']:
-        if isinstance(index, of.Frame):
-            index._set_inside_container(self)
-            new_part = self.empty_copy()
-            for single_block in self._foreground_items():
-                if single_block == index:
-                    new_part._append(single_block)
-            return new_part
         return super().__getitem__(index)
     
     def __setitem__(self, index: Any, value: Union['Block', 'Part']) -> Self:
