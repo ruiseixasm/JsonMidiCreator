@@ -1397,3 +1397,9 @@ def test_empty_clips():
     empty_clip >> Export()
     empty_clip >> Render()
 
+
+def test_clip_line():
+    cluster_line = Line("cl_-_2:3b:3m_1._3._4.")
+    single_cluster = Clip(cluster_line)
+    assert single_cluster.len() == 1
+    assert isinstance(single_cluster[0], Cluster)
