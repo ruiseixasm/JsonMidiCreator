@@ -1385,7 +1385,7 @@ def test_match_time_signature():
 def test_clip_masking():
     all_chords = Chord(1/4) / 2
     assert all_chords[Even()]._has_elements()
-    even_chords = all_chords >> Mask(Even()**Operand())
+    even_chords = all_chords >> Mask(Even())
     assert even_chords._has_elements()
 
 # test_clip_masking()
