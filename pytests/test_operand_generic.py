@@ -1362,3 +1362,14 @@ def test_sharps_and_flats_picker():
 
 # test_sharps_and_flats_picker()
 
+
+def test_edge_degrees():
+    pitch_C = Pitch()
+    pitch_C << Key("B")
+    assert pitch_C % float() == 7.0 # Degree
+    assert pitch_C % int() == 4     # Octave
+    pitch_C << Key("Bb")
+    assert pitch_C % int() == 4
+    assert (pitch_C + 1.0) % int() == 5
+
+test_edge_degrees()
