@@ -1934,16 +1934,16 @@ class Note(ChannelElement):
 
     The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:C5#, n_9:1/8::75"`:
 
-        +-------+-----------+-----------------------------------------------------------------------------------+
-        | Field | Parameter | Parameter Values                                                                  |
-        +-------+-----------+-----------------------------------------------------------------------------------+
-        | 0     | 0         | Tag: "n" (optional)                                                               |
-        |       | 1         | Channel: int(Channel)                                                             |
-        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
-        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
-        | 3     | 0         | Velocity: int(Velocity)                                                           |
-        +-------+-----------+-----------------------------------------------------------------------------------+
+        +-------+-----------+----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                 |
+        +-------+-----------+----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "n" (optional)                                                              |
+        |       | 1         | Channel: int(Channel)                                                            |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" Dotted, "m" Measures, "b" Beats      |
+        |       | n         | Position: int(Beat), float(Position), "m" Measure, "b" Beat                      |
+        | 2     | n         | Pitch: int(Octave), float(Degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
+        | 3     | 0         | Velocity: int(Velocity)                                                          |
+        +-------+-----------+----------------------------------------------------------------------------------+
 
     Parameters
     ----------
