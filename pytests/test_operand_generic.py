@@ -190,16 +190,21 @@ def test_pitch_degrees():
     settings << KeySignature()
 
 
-    # # NEEDS TO BE SOLVED - BUG
-    # second_degree = Note(2.0)
-    # ninth_degree = Note(9.0)
-    # print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
-    # assert second_degree % Octave() == 4
-    # print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
-    # assert ninth_degree % Octave() == 5
-
-
 # test_pitch_degrees()
+
+
+def test_pitch_degrees_2():
+    second_degree = Pitch(2.0)
+    assert second_degree._degree_0 == 2.0 - 1
+    ninth_degree = Pitch(9.0)
+    assert ninth_degree._degree_0 == 9.0 - 1
+    print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
+    assert second_degree % Octave() == 4
+    print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
+    assert ninth_degree % Octave() == 5
+
+# test_pitch_degrees_2()
+
 
 
 def test_root_key():
@@ -741,11 +746,11 @@ def test_pitch_add():
 
     pitch_degree << Degree(8)
     assert pitch_degree % Degree() == 1
-    assert pitch_degree % Octave() == 4
+    assert pitch_degree % Octave() == 5 # Degree 8 it's at the next Octave
 
     pitch_degree += Degree(7)
     assert pitch_degree % Degree() == 1
-    assert pitch_degree % Octave() == 5
+    assert pitch_degree % Octave() == 6 # Moves to the next Octave!
 
     pitch_integer = Pitch()
     assert pitch_integer % float() == 1
@@ -753,11 +758,11 @@ def test_pitch_add():
 
     pitch_integer << 8.0
     assert pitch_integer % float() == 1
-    assert pitch_integer % Octave() == 4
+    assert pitch_integer % Octave() == 5    # Degree 8 it's at the next Octave
 
     pitch_integer += 7.0
     assert pitch_integer % float() == 1
-    assert pitch_integer % Octave() == 5
+    assert pitch_integer % Octave() == 6    # Moves to the next Octave!
 
 
     # Perform the operation

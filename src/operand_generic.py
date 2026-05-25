@@ -654,6 +654,7 @@ class Pitch(Generic):
 
 
     def normalize_degree_0(self) -> Self:
+        """Octave shouldn't be normalized!!! (OBSOLETE)"""
         floor_degree_0: float = math.floor(self._degree_0) * 1.0
         linear_semitones: float = round((self._degree_0 - floor_degree_0), 1)
         if round(linear_semitones % 0.2, 1) == 0.1:
@@ -954,7 +955,7 @@ class Pitch(Generic):
                     self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
                 else:   # operand >= 1
                     self._degree_0 = operand % float() - 1
-                self.normalize_degree_0()
+                # self.normalize_degree_0()
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
