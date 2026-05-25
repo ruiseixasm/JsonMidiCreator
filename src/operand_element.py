@@ -2567,6 +2567,21 @@ class Cluster(KeyScale):
     A `Cluster` element allows the triggering of notes concerning specific pitch parameter (Ex. `Degree`) of a given `Scale`.
     Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
 
+    The applicable fields(:) for each token(,) in a `Line`, like in `"cl:3b:E_-_G_A, c:3b"`:
+
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                  |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "cl"                                                                         |
+        |       | 1         | Channel: int(Channel)                                                             |
+        |       | 2         | Inversion: int(Inversion)                                                         |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
+        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
+        | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        |       | n         | Pitch: Each pitch for each single Note based on the one set at parameter 0 above  |
+        | 3     | 0         | Velocity: int(Velocity)                                                           |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+
     Parameters
     ----------
     list(['1', '3', '5']) : Sets the specific pitches (list) to result as `Note` for each single pitch parameter.
@@ -2586,6 +2601,55 @@ class Cluster(KeyScale):
     def __init__(self, *parameters):
         self._pitches: list = ['1', '3', '5']
         super().__init__( *parameters )
+
+
+    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
+        if isinstance(number, int):
+            match nth:
+                case 2:
+                    self << ou.Inversion(number)
+                    return self
+        return super()._set_element_from_number(number)
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)    # Upper call (Note)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        pitch_fields = token_operand.get
+
+        # Set Pitch
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            # Extract letter (A-G)
+            letter = next((c for c in field_2 if c in 'ABCDEFG'), '')
+            # Extract accidental
+            accidental = '#' if '#' in field_2 else 'b' if 'b' in field_2 else ''
+            # Get the remaining string without letter and accidental
+            if letter:
+                field_2 = field_2.replace(letter, '')
+            if accidental:
+                field_2 = field_2.replace(accidental, '')
+            degree_octave: list[str] = field_2.split("_")
+            for parameter in degree_octave:
+                number = o.string_to_number(parameter)
+                match number:
+                    case int():
+                        self._pitch << ou.Octave(number)
+                    case float():
+                        self._pitch << ou.Degree(number)
+            if letter or accidental:
+                if letter:
+                    self._pitch << letter
+                if accidental:
+                    self._pitch << accidental
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:

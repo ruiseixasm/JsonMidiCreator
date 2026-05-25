@@ -215,7 +215,56 @@ class Parameter(Data):
     ----------
     Any() : Any type of operand.
     """
-    pass
+    def get_parameter(self, index: int) -> str | None:
+        if isinstance(self._data, str):
+            token_dsl: str = self._data
+            normalized_dsl: str = _normalize_dsl(token_dsl)
+            element_fields: list[str] = normalized_dsl.split("_")
+            if index < len(element_fields):
+                return element_fields[index]
+        return None
+
+    def get_parameters(self) -> list[str]:
+        if isinstance(self._data, str):
+            line_dsl: str = self._data
+            normalized_dsl: str = _normalize_dsl(line_dsl)
+            return normalized_dsl.split("_")
+        return []
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                if not isinstance(self._data, str):
+                    self._data = ""
+                return self._data
+        return super().__mod__(operand)
+    
+    # CHAINABLE OPERATIONS
+
+    def __iadd__(self, operand: any) -> Self:
+        if isinstance(self._data, str):
+            match operand:
+                case Parameter():
+                    if isinstance(operand._data, str):
+                        if self._data == "":
+                            self._data = operand._data
+                        elif operand._data != "":
+                            self._data += "_" + operand._data
+                case str():
+                    self.__iadd__(Parameter(operand))
+        return self # remains as an Inline operand
+    
+    def __imul__(self, operand: any) -> Self:
+        if isinstance(self._data, str) and isinstance(operand, int) and self._data != "":
+            if operand > 1:
+                new_line = self._data
+                for _ in range(operand - 1):
+                    new_line += "_" + self._data
+                self._data = new_line
+            elif operand == 0:
+                self._data = ""
+        return self # remains as an Inline operand
+    
 
 class Token(Data):
     """`Data -> Token`
@@ -255,6 +304,11 @@ class Token(Data):
         if index < len(element_fields):
             return element_fields[index]
         return None
+
+    def get_fields(self) -> list[str]:
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
+        return normalized_dsl.split(":")
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
