@@ -416,7 +416,7 @@ class TimeSignature(Generic):
         return self
 
 
-class Pitch(Generic):
+class Pitch_OLD(Generic):
     """`Generic -> Pitch`
 
     A `Pitch` comes down the the absolute key in a full midi keyboard of 128 keys. To do so, processes and keeps many related \
@@ -1121,7 +1121,7 @@ class Pitch(Generic):
 
 
 
-class Pitch_NEW(Generic):
+class Pitch(Generic):
     """`Generic -> Pitch`
 
     A `Pitch` comes down the the absolute key in a full midi keyboard of 128 keys. To do so, processes and keeps many related \
@@ -1310,13 +1310,17 @@ class Pitch_NEW(Generic):
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
-        tonic_offset: int = key_int - self._tonic_key % 12
+        sharps: bool = key_int % 24 < 12
+        tonic_offset: int = key_int % 12 - self._tonic_key % 12
         # For Semitones
-        if signature_scale[tonic_offset % 12] == 0:
-            if tonic_offset < 0:
-                semitones = -1   # Needs to go down further
+        if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
+            # No two consecutive empty notes! (assumption for all scales!!)
+            if sharps:
+                tonic_offset -= 1
+                semitones = 1
             else:
-                semitones = +1   # Needs to go up further
+                tonic_offset += 1
+                semitones = -1
         # For Tones
         while tonic_offset > 0:
             tone += signature_scale[tonic_offset % 12]
@@ -1634,7 +1638,6 @@ class Pitch_NEW(Generic):
                 self._accidental = 0
                 self._transposition = 0
 
-
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
@@ -1643,14 +1646,8 @@ class Pitch_NEW(Generic):
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
                 original_octave = self % ou.Octave() % int()
-                tone, semitone = self.tone_and_semitone(operand._unit % 12)
-                degree: int = tone % 7 + 1
-                # Uses the Degree Accidental system instead of changing the Tonic key
-                if semitone > 0:
-                    degree += round((semitone * 2 - 1) / 10, 1)
-                elif semitone < 0:
-                    degree += round((-1) * (semitone * 2) / 10, 1)
-                self << ou.Degree(degree)
+                tone_0, accidentals = self.tone_and_semitone(operand._unit)
+                self << ou.Degree(tone_0 + 1, float(accidentals))
                 actual_octave = self % ou.Octave() % int()
                 self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
             case ou.TargetKey():

@@ -757,7 +757,7 @@ class Octave(PitchParameter):
         return self
 
 
-class Degree(PitchParameter):
+class Degree_OLD(PitchParameter):
     """`Unit -> PitchParameter -> Degree`
 
     A Degree() represents its relation with a Tonic key on a scale and respective Progressions.
@@ -1015,7 +1015,7 @@ class Degree(PitchParameter):
         return self
 
 
-class Degree_NEW(PitchParameter):
+class Degree(PitchParameter):
     """`Unit -> PitchParameter -> Degree`
 
     A Degree() represents its relation with a Tonic key on a scale and respective Progressions.

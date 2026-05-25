@@ -1222,13 +1222,11 @@ def test_root_key_pipe():
     assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 0.2
     assert absolute_root_key == 68  # Ab
 
     pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 0.2
     assert pitch_A_minor % Octave() == 4
     assert absolute_root_key == 68
 
@@ -1364,13 +1362,18 @@ def test_sharps_and_flats_picker():
 
 
 def test_edge_degrees():
+    
+    settings << KeySignature()
+    
     pitch_C = Pitch()
     pitch_C << Key("B")
+    print(f"pitch_C % float(): {pitch_C % float()}")
     assert pitch_C % float() == 7.0 # Degree
     assert pitch_C % int() == 4     # Octave
     pitch_C << Key("Bb")
     print(f"pitch_C % float(): {pitch_C % float()}")
-    assert pitch_C % float() == 6.1 # Degree !!!
+    assert pitch_C % float() == 7.0 # Same degree
+    assert pitch_C % Degree() % float() == -1 # Flat
     assert pitch_C % int() == 4
     assert (pitch_C + 1.0) % int() == 5
     assert (~pitch_C << 5.0) % int() == 4
