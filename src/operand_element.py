@@ -2654,12 +2654,15 @@ class Cluster(KeyScale):
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Note]:
-        chord_notes: list[Note] = []
+        cluster_notes: list[Note] = []
         for pitch_parameter in self._pitches:
             single_note: Note = Note(self)  # Owned by same clip
-            chord_notes.append( single_note )
-            single_note._pitch << pitch_parameter
-        return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
+            if isinstance(pitch_parameter, od.Token):
+                single_note << pitch_parameter
+            else:
+                single_note._pitch << pitch_parameter
+            cluster_notes.append( single_note )
+        return self._arpeggio.arpeggiate( self._apply_inversion(cluster_notes) )
 
 
     def getSerialization(self) -> dict:
