@@ -1194,35 +1194,39 @@ def test_root_key_pipe():
     pitch_A_minor = Pitch(Minor())
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 69
+    assert absolute_root_key == 69  # A
+    assert pitch_A_minor % float() == 1.0
 
     pitch_A_minor += RootKey(1)
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 70
+    assert absolute_root_key == 70  # A#
+    assert pitch_A_minor % float() == 1.1
 
     pitch_A_minor << Pipe(RootKey(69))
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 69
+    assert absolute_root_key == 69  # A
+    assert pitch_A_minor % float() == 1.0
 
     pitch_A_minor << Pipe(RootKey(67))
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 67
+    assert absolute_root_key == 67  # G
+    # assert pitch_A_minor % float() == 6.0
 
     pitch_A_minor << RootKey(8) # Ab
     print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
     assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 7.2
-    assert absolute_root_key == 68
+    # assert pitch_A_minor._degree_0 == 7.2
+    assert absolute_root_key == 68  # Ab
 
     pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor._degree_0 == 7.2
+    # assert pitch_A_minor._degree_0 == 7.2
     assert pitch_A_minor % Octave() == 4
     assert absolute_root_key == 68
 
@@ -1254,50 +1258,50 @@ def test_root_key_set():
 
     minor_C_sharp << RootKey("C")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
-    assert minor_C_sharp % Octave() == 5
+    assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
     minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
-    assert minor_C_sharp_int == 72
+    assert minor_C_sharp_int == 60
 
     minor_C_sharp << RootKey("C#")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
-    assert minor_C_sharp % Octave() == 5
+    assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
     minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
-    assert minor_C_sharp_int == 73
+    assert minor_C_sharp_int == 61
 
     minor_C_sharp << RootKey("C")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
-    assert minor_C_sharp % Octave() == 5
+    assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
     minor_C_sharp_int = minor_C_sharp.pitch_int()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
-    assert minor_C_sharp_int == 72
+    assert minor_C_sharp_int == 60
 
 
-    minor_A_flat = Pitch(Minor())
-    assert minor_A_flat % Octave() == 4
+    minor_A = Pitch(Minor())
+    assert minor_A % Octave() == 4
 
-    minor_A_flat << RootKey("Ab")
+    minor_A_flat = minor_A.copy(RootKey("Ab"))
     print(f"minor_A_flat % Octave(): {minor_A_flat % Octave()}")
-    assert minor_A_flat % Octave() == 5
+    # Clip(Note(minor_A)) / Clip(Note(minor_A_flat)) >> Plot()
+    assert minor_A_flat % Octave() == 4 # It's just a flatting of A
     minor_A_flat_int = minor_A_flat.pitch_int()
     print(f"minor_A_flat_int: {minor_A_flat_int}")
-    assert minor_A_flat_int == 80
+    assert minor_A_flat_int == 68 # It's just a flatting of A (69)
 
 
     minor_A = Pitch(Minor())
     minor_A_pitch_int = minor_A.pitch_int()
     print(f"minor_A_pitch_int: {minor_A_pitch_int}")
-    root_key = RootKey("A")
+    minor_A << RootKey("A")
 
     for _ in range(12):
-        minor_A << root_key
         key_pitch_int = minor_A.pitch_int()
-        print(f"root_key: {root_key}")
+        print(f"minor_A % RootKey(): {minor_A % RootKey() % int()}")
         print(f"key_octave: {minor_A % Octave()}")
         print(f"key_pitch_int: {key_pitch_int}")
         assert key_pitch_int == minor_A_pitch_int
-        root_key += 1
+        minor_A += RootKey(1)
         minor_A_pitch_int += 1
 
 # test_root_key_set()

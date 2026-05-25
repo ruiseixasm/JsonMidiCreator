@@ -861,8 +861,8 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.RootKey():
-                        expected_octave_0: int = operand._data._unit // 12
                         self << operand._data  # Sets the RootKey on the actual Octave
+                        expected_octave_0: int = operand._data._unit // 12
                         root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
                         root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - root_octave_0
@@ -878,7 +878,7 @@ class Pitch(Generic):
                     case ou.Degree():   # Sets an absolute degree_0
                         self._octave_0 = operand._data % int() // 7
                         degree_0: ou.Degree = operand._data - self._octave_0 * 7
-                        self._degree_0 = degree_0 % float()
+                        self._degree_0 = round(degree_0 % float(), 1)
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
@@ -933,7 +933,10 @@ class Pitch(Generic):
                     degree += round((semitone * 2 - 1) / 10, 1)
                 elif semitone < 0:
                     degree += round((-1) * (semitone * 2) / 10, 1)
+                expected_octave = self % ou.Octave() % int()
                 self << ou.Degree(degree)
+                actual_octave = self % ou.Octave() % int()
+                self._octave_0 += expected_octave - actual_octave
             case ou.TargetKey():
                 degree: float = 0.0 # No linear accidentals
                 transposition, semitone = self.transposition_tone_semitone(operand._unit % 12)
@@ -952,9 +955,9 @@ class Pitch(Generic):
                     self._degree_0 = 0.0    # Resets the degree to I
                 elif operand < 1:
                     # Changes only the chromatic transposition
-                    self._degree_0 = int(round(self._degree_0, 1)) + operand % float()
+                    self._degree_0 = round(int(round(self._degree_0, 1)) + operand % float(), 1)
                 else:   # operand >= 1
-                    self._degree_0 = operand % float() - 1
+                    self._degree_0 = round(operand % float() - 1, 1)
                 # self.normalize_degree_0()
             
             case None:  # Works as a reset
