@@ -34,6 +34,6 @@ first_chords << Degree(5) << Mode(5)
 all_chords >> Print() >> Play(True)
 
 first_chords << Degree() << Mode()
-even_chords = all_chords >> Even()**Operand()
+even_chords = all_chords >> Even()
 even_chords << Degree(5) << Mode(5)
 all_chords >> Print() >> Play(True)
