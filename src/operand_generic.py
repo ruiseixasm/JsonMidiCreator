@@ -1561,13 +1561,15 @@ class Pitch(Generic):
                         self._tonic_key = operand._data._unit
                     case ou.RootKey():
                         expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
-                        self << operand._data  # Sets the RootKey on the actual Octave
+                        root_key_12 = ou.RootKey(operand._data._unit % 12)
+                        self << root_key_12  # Sets the RootKey on the actual Octave
                         root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
                         root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - root_octave_0
                     case ou.TargetKey():
-                        expected_octave_0: int = operand._data._unit // 12
-                        self << operand._data  # Sets the RootKey on the actual Octave
+                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
+                        root_key_12 = ou.RootKey(operand._data._unit % 12)
+                        self << root_key_12  # Sets the RootKey on the actual Octave
                         target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
                         target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
                         self._octave_0 += expected_octave_0 - target_octave_0
@@ -1650,7 +1652,8 @@ class Pitch(Generic):
             case ou.RootKey():
                 tone_0, accidentals = self.tone_and_semitone(operand._unit)
                 original_octave_0 = self.octave_int_0()
-                self << ou.Degree(tone_0 + 1, float(accidentals))
+                self._degree_0 = tone_0
+                self._accidental = accidentals
                 actual_octave_0 = self.octave_int_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
             case ou.TargetKey():
