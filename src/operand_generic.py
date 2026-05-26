@@ -731,12 +731,12 @@ class Pitch(Generic):
             case ou.RootKey():
                 root_pitch: int = self.chromatic_root_int()
                 key_note: int = root_pitch % 12
-                key_line: int = self._key_signature._get_key_line(self._tonic_key)
+                key_line: int = self._key_signature._get_key_line(key_note)
                 return ou.RootKey( float(key_note + key_line * 12) )
             case ou.TargetKey():
                 target_pitch: int = self.chromatic_target_int()
                 key_note: int = target_pitch % 12
-                key_line: int = self._key_signature._get_key_line(self._tonic_key)
+                key_line: int = self._key_signature._get_key_line(key_note)
                 return ou.TargetKey( float(key_note + key_line * 12) )
             case ou.Key():
                 return ou.Key( self % ou.RootKey() )
