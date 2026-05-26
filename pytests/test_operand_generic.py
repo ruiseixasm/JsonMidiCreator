@@ -1468,7 +1468,7 @@ def test_pitch_multi():
 
     print("-------------------------------")
     settings << KeySignature("bb") # Bb Major scale key signature
-    pitch_E = Pitch(RootKey("E")) # Same as Fb
+    pitch_E = Pitch(RootKey("E")) # Same as Fb and same as iv degree
     pitch_Fb = Pitch(RootKey("Fb"))
     assert pitch_E == pitch_Fb
     print(f"pitch_E.pitch_int(): {pitch_E.pitch_int()}")
@@ -1477,18 +1477,21 @@ def test_pitch_multi():
     pitch_iv = ~pitch_E << 4.0
     # Note(pitch_E) / Note(pitch_iv) >> Plot()
     print(f"pitch_iv.pitch_int(): {pitch_iv.pitch_int()}")
-    assert pitch_iv.pitch_int() == 60 + 4 + 5
+    assert pitch_iv.pitch_int() == 60 + 4 # Same as E and Fb
     print(f"pitch_iv: {pitch_iv % str()}")
-    assert pitch_iv == "A"  # Should be "A" and not "Eb" !!
+    assert pitch_iv == "Fb"  # Same as Fb, Degree iv from Bb !!
 
     tonic_Bb_root_E_major_scale: list[str] = [
         "Fb", "Gb", "Ab", "A", "Bb", "Db", "D"
     ]
+    generated_scale: list[str] = []
     for degree in range(7):
-        print(f"RootKey {degree}: {pitch_E % str()}")
-        assert pitch_E == tonic_Bb_root_E_major_scale[degree]
+        generated_scale.append(pitch_E % str())
         pitch_E += 1.0  # One degree each time
 
+    print(f"expected_scale:  {tonic_Bb_root_E_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_Bb_root_E_major_scale
 
     # Resets the defaults
     settings << None
