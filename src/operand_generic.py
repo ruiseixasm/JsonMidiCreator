@@ -1276,6 +1276,11 @@ class Pitch(Generic):
         octave_transposition: int = self.octave_transposition()
         return chromatic_int + octave_transposition
 
+    def octave_int_0(self) -> int:
+        pitch_int: int = self.pitch_int()
+        octave_0: int = pitch_int // 12
+        return octave_0
+
     def set_pitch_int(self, pitch: int) -> Self:
         """
         Sets the final chromatic pitch by adjusting the degree.
@@ -1447,9 +1452,7 @@ class Pitch(Generic):
                 return ou.Key( self % ou.RootKey() )
             
             case ou.Octave():
-                target_pitch: int = self.pitch_int()
-                target_octave_0: int = target_pitch // 12
-                return ou.Octave(target_octave_0 - 1)
+                return ou.Octave(self.octave_int_0() - 1)
             case ou.Degree():
                 return ou.Degree(self._degree_0 + 1, float(self._accidental))
             case ou.Sharp() | ou.Flat() | ou.Natural():
@@ -1727,12 +1730,12 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
-                degree_0_octave = self._degree_0 // 7
-                operand_octave = operand._unit // 7
-                self._octave_0 += operand_octave - degree_0_octave
                 self._degree_0 += operand._unit
-                self._degree_0 %= 7
                 self._accidental += operand._accidental
+                offset_octave = self._degree_0 // 7
+                if offset_octave:
+                    self._degree_0 %= 7
+                    self._octave_0 += offset_octave
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() + operand
             case int():
@@ -1776,12 +1779,12 @@ class Pitch(Generic):
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case ou.Degree():
-                degree_0_octave = self._degree_0 // 7
-                operand_octave = operand._unit // 7
-                self._octave_0 -= operand_octave - degree_0_octave
                 self._degree_0 -= operand._unit
-                self._degree_0 %= 7
                 self._accidental -= operand._accidental
+                offset_octave = self._degree_0 // 7
+                if offset_octave:
+                    self._degree_0 %= 7
+                    self._octave_0 -= offset_octave
             case ou.Sharp() | ou.Flat():
                 self << self % ou.Degree() - operand
             case int():

@@ -120,29 +120,6 @@ def test_pitch_degrees_2():
 # test_pitch_degrees_2()
 
 
-def test_edge_degrees():
-    
-    # Resets the defaults
-    settings << None
-
-    pitch_C = Pitch()
-    pitch_C << Key("B")
-    print(f"pitch_C % float(): {pitch_C % float()}")
-    assert pitch_C % float() == 7.0 # Degree
-    assert pitch_C % int() == 4     # Octave
-    pitch_C << Key("Bb")
-    print(f"pitch_C % float(): {pitch_C % float()}")
-    assert pitch_C % float() == 7.0 # Same degree
-    assert pitch_C % Degree() % float() == -1 # Flat
-    assert pitch_C % int() == 4
-    assert (pitch_C + 1.0) % int() == 5
-    assert (~pitch_C << 5.0) % int() == 4
-    assert (~pitch_C << 8.0) % int() == 5
-
-# test_edge_degrees()
-
-
-
 def test_degree_pitch():
     negative_pitch = Pitch()
     negative_pitch._degree_0 = -0.1
@@ -1313,6 +1290,32 @@ def test_root_key():
 
 
 
+
+
+
+def test_edge_degrees():
+    
+    # Resets the defaults
+    settings << None
+
+    pitch_C = Pitch()
+    pitch_B = ~pitch_C << Key("B")
+    print(f"pitch_B % float(): {pitch_B % float()}")
+    assert pitch_B % float() == 7.0 # Degree
+    assert pitch_B % int() == 4     # Octave
+    pitch_Bb = ~pitch_B << Key("Bb")
+    print(f"pitch_Bb % float(): {pitch_Bb % float()}")
+    assert pitch_Bb % float() == 7.0 # Same degree
+    assert pitch_Bb % Degree() % float() == -1 # Flat
+    assert pitch_Bb % int() == 4
+    # Must become Cb
+    pitch_Cb = pitch_Bb + 1.0
+    assert pitch_Cb == Degree(1, "b")
+    assert pitch_Cb % int() == 4
+    assert (~pitch_Bb << 5.0) % int() == 4
+    assert (~pitch_Bb << 8.0) % int() == 5
+
+# test_edge_degrees()
 
 
 
