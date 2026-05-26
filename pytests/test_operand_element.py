@@ -530,7 +530,7 @@ def test_note_pitch():
         note += Semitone(1)
 
     print("------")
-    note << Degree(-1)  # Tonic key again
+    note << Degree(0)  # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         (note + Degree(degree)) % str() >> Print()
@@ -581,9 +581,7 @@ def test_note_pitch():
     note += Octave()
     assert note % Octave() == 4
 
-
 # test_note_pitch()
-
 
 
 def test_chord_element():
@@ -753,4 +751,14 @@ def test_channel_setting():
     assert single_note % Pipe(Channel()) % int() == 10
 
 # test_channel_setting()
+
+
+def test_element_multi():
+    third_degree_1 = Note(Degree(3))
+    third_degree_2 = Note(Pitch(3.0))
+    third_degree_3 = Note(Token("::3.0"))
+    assert third_degree_1 == third_degree_2
+    assert third_degree_1 == third_degree_3
+
+# test_element_multi()
 
