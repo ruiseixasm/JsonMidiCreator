@@ -1422,8 +1422,10 @@ def test_negative_degree():
 
     pitch_C = Pitch()
     assert pitch_C == "C"
+    assert pitch_C.pitch_int() == 60
     pitch_C << Degree(-1)
     assert pitch_C == "B"
+    assert pitch_C.pitch_int() == 59
 
 # test_negative_degree()
 
