@@ -1240,7 +1240,7 @@ def test_pitch_pipe():
     # Resets the defaults
     settings << None
 
-test_pitch_pipe()
+# test_pitch_pipe()
 
 
 def test_root_key_pipe():
@@ -1413,4 +1413,17 @@ def test_pitch_mod():
     assert pitch.pitch_int() == 67 + 1
 
 # test_pitch_mod()
+
+
+def test_negative_degree():
+
+    # Resets the defaults
+    settings << None
+
+    pitch_C = Pitch()
+    assert pitch_C == "C"
+    pitch_C << Degree(-1)
+    assert pitch_C == "B"
+
+# test_negative_degree()
 
