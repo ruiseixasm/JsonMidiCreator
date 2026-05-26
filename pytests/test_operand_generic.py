@@ -905,9 +905,9 @@ def test_root_key():
         pitch += 1.0  # One degree each time
     print("---")
     bb_root_E_major_scale: list[str] = [
-        "Fb", "Gb", "Ab", "A", "Bb", "Db", "D"
+        "Fb", "Gb", "Ab", "A", "Cb", "Db", "D"
     ]
-    pitch = Pitch(RootKey("E"))
+    pitch = Pitch(RootKey("Fb"))
     generated_scale: list[str] = []
     for degree in range(7):
         generated_scale.append(pitch % str())
