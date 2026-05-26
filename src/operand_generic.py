@@ -1454,6 +1454,8 @@ class Pitch(Generic):
             case ou.Octave():
                 return ou.Octave(self.octave_int_0() - 1)
             case ou.Degree():
+                if self._degree_0 < 0:
+                    return ou.Degree(self._degree_0, float(self._accidental))
                 return ou.Degree(self._degree_0 + 1, float(self._accidental))
             case ou.Sharp() | ou.Flat() | ou.Natural():
                 return self % ou.Degree() % operand
