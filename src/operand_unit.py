@@ -690,6 +690,153 @@ class Key(PitchParameter):
                 return index
         return -1
 
+
+
+class Key_NEW(PitchParameter):
+    """`Unit -> PitchParameter -> Key`
+
+    A `Key` is an integer from 0 to 11 (12 to 23 for flats) that describes
+    the 12 keys of an octave. A `Key` is processed like if it was a `TargetKey`.
+    
+    Parameters
+    ----------
+    int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
+    """
+    def __init__(self, *parameters):
+        self._line: int = -4    # By default, it has no line defined (-4 % 4 = 0)
+        super().__init__(*parameters)
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case str():
+                        return Key._keys[self._unit % 48]
+                    case _:
+                        return super().__mod__(operand)
+
+            case int():
+                return self._unit % 12
+            case float():
+                return float(self._line)
+            case str():
+                return self.getKeyString()
+
+            case Sharp():
+                if self._line > 0 and self._line % 2:
+                    key: int = int(self % float())
+                    return Sharp(Key._accidentals[key])
+                return Sharp(0)
+            case Flat():
+                if self._line % 2 == 0:
+                    key: int = int(self % float())
+                    return Flat(Key._accidentals[key] * -1)
+                return Flat(0)
+
+            case _:
+                return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return self % int() == other % int()
+            case str():
+                return self % str() == other
+            case _:
+                return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["line"] = self.serialize( self._line )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "line" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._line = self.deserialize( serialization["parameters"]["line"] )
+        return self
+      
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Key():
+                super().__lshift__(operand)
+                self._unit  = operand._unit
+                self._line  = operand._line
+            case od.Pipe():
+                match operand._data:
+                    case int():
+                        self._unit = operand._data
+                    case float():
+                        self._line = int(operand._data)
+                    case Semitone():
+                        self._unit = operand._data._unit % 12
+
+                    case str():
+                        self._unit = self.getKeyNumber(operand._data) % 12
+                    case _:
+                        super().__lshift__(operand)
+            case int():
+                self._unit = operand % 12
+            case float():
+                self._line = int(operand)
+            case Semitone():
+                self._unit = operand._unit % 12
+            case str():
+                # Remove Octave number first (Safe)
+                if len(operand) > 1:
+                    try:
+                        int(operand[-1])
+                        operand = operand[:-1]
+                    except ValueError as e:
+                        pass    # No octave set
+                key_number: int = self.getKeyNumber(operand)
+                if key_number != -1:
+                    self._unit = key_number % 12
+                    if self._line < 0:
+                        self._line = key_number // 12
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    _keys: list[str] = [
+        "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
+        "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
+        "B#",  "C#", "C##", "D#", "D##", "E#",  "F#", "F##", "G#", "G##", "A#", "A##",  # All Sharps
+        "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
+    ]
+
+    _accidentals: list[int] = [
+         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
+         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
+        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
+        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
+    ]
+
+    def getKeyString(self) -> str:
+        line = self._line % 4  # Only 4 lines
+        key: int = line * 12 + self._unit % 12
+        return Key._keys[key]
+
+    def getKeyAccidental(self) -> int:
+        line = self._line % 4  # Only 4 lines
+        key: int = line * 12 + self._unit % 12
+        return Key._accidentals[key]
+    
+    def getKeyNumber(self, key: str = "C") -> int:
+        key_to_find: str = key.strip().lower()
+        for index, value in enumerate(Key._keys):
+            if value.lower().find(key_to_find) != -1:
+                return index
+        return -1
+
+
 class TonicKey(Key):
     """`Unit -> PitchParameter -> Key -> TonicKey`
 
@@ -862,6 +1009,7 @@ class Degree(PitchParameter):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Degree():
+                super().__lshift__(operand)
                 self._unit          = operand._unit
                 self._accidental    = operand._accidental
             case od.Pipe():
