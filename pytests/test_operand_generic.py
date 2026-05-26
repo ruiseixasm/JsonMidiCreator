@@ -430,161 +430,6 @@ def test_pitch_scales():
 # test_pitch_scales()
 
 
-def test_pitch_add():
-
-    # Resets the defaults
-    settings << None
-
-    pitch_degree = Pitch()
-    assert pitch_degree % Degree() == 1
-    assert pitch_degree % Octave() == 4
-
-    pitch_degree << Degree(8)
-    assert pitch_degree % Degree() == 1
-    assert pitch_degree % Octave() == 5 # Degree 8 it's at the next Octave
-
-    pitch_degree += Degree(7)
-    assert pitch_degree % Degree() == 1
-    assert pitch_degree % Octave() == 6 # Moves to the next Octave!
-
-    pitch_integer = Pitch()
-    assert pitch_integer % float() == 1
-    assert pitch_integer % Octave() == 4
-
-    pitch_integer << 8.0
-    assert pitch_integer % float() == 1
-    assert pitch_integer % Octave() == 5    # Degree 8 it's at the next Octave
-
-    pitch_integer += 7.0
-    assert pitch_integer % float() == 1
-    assert pitch_integer % Octave() == 6    # Moves to the next Octave!
-
-
-    # Perform the operation
-    pitch_b: Pitch = Pitch()    # 60
-    assert pitch_b.pitch_int() == 60
-    pitch_b += Semitone(2)
-    assert pitch_b.pitch_int() == 62
-    pitch_b += Semitone(12)
-    assert pitch_b.pitch_int() == 74
-
-    pitch_1: Pitch = Pitch("A")
-    pitch_1.getSerialization() % Data("degree") >> Print()
-    (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
-    assert pitch_1    == Pitch("A")
-    assert pitch_1 + 1.0    == Pitch("B")
-    assert pitch_1 + Semitone(2) == Pitch("B")
-
-    settings << KeySignature(1)
-    pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
-    assert pitch_2 % Octave() == 4
-    key_pitch: Pitch = pitch_2 + 2.0
-    print(f"Pitch: {key_pitch.pitch_int()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
-            f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
-    assert (pitch_2 + 2.0) % Octave() == 5
-    pitch_2.pitch_int() >> Print()
-    assert pitch_2.pitch_int() == Pitch("B").pitch_int()
-    print(f'Pitch("D"): {Pitch("D").pitch_int()}')
-    assert Pitch("D").pitch_int() == 62
-    assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12
-    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12
-    (pitch_2 + 2.0).pitch_int() >> Print()      # 74
-    (Pitch("D") + Semitone(12)).pitch_int() >> Print()    # 74 + 12 = 86
-    assert pitch_2 + 2.0 == Pitch("D") + Octave(1)      # Next octave
-
-    settings << KeySignature()
-    assert pitch_1 << Sharp() == Pitch("A") + Semitone(1)
-    assert pitch_1 << Natural() == Pitch("A")
-    assert Pitch("Ab") == Pitch("A") - Semitone(1)
-
-    pitch_3: Pitch = Pitch()
-    assert pitch_3 % str() == "C"
-
-    # Test all semitones from 0 to 11
-    expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-    for key_i in range(12):
-        (pitch_3 + Semitone(key_i)) % str() >> Print()
-        assert (pitch_3 + Semitone(key_i)) % str() == expected_keys[key_i]
-
-    print("------")
-    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
-    for degree in range(7):
-        (pitch_3 + float(degree)) % str() >> Print()
-        assert pitch_3 + float(degree) == keys[degree]
-
-
-    pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
-    assert pitch_4 % str() == "C"
-    assert pitch_4.pitch_int() == 60
-
-    # Test all semitones from 0 to 11
-    chromatic_pitches: list[int] = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
-
-    for sharps in range(8): # 8 is excluded
-
-        settings << KeySignature(sharps)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
-        print(f"------------ {sharps} ------------")
-        print("--UP--")
-        for key_i in range(12):
-            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
-        print("-DOWN-")
-        for key_i in range(12):
-            pitch_4.pitch_int() >> Print()
-            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
-            pitch_4 -= Semitone(1)
-
-    for flats in range(0, -8, -1): # -8 is excluded
-
-        settings << KeySignature(flats)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
-        print(f"------------ {flats} ------------")
-        print("--UP--")
-        for key_i in range(12):
-            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
-        print("-DOWN-")
-        for key_i in range(12):
-            pitch_4.pitch_int() >> Print()
-            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
-            pitch_4 -= Semitone(1)
-
-    settings << KeySignature()
-    pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
-
-    print(f"------------ DEGREES ------------")
-    print("------")
-    for key_i in range(12):
-        (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-        assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
-
-    print("------")
-    white_pitches: list[int] = [60, 62, 64, 65, 67, 69, 71]
-    for degree in range(7):
-        (pitch_4 + float(degree)).pitch_int() >> Print()
-        assert (pitch_4 + float(degree)).pitch_int() == white_pitches[degree]
-
-    print("------")
-    pitch_5: Pitch = Pitch()
-    (pitch_5 + Semitone(0)) % str() >> Print()
-    assert pitch_5 + Semitone(0) == Key("C")
-    (pitch_5 + Semitone(1)) % str() >> Print()
-    assert pitch_5 + Semitone(1) == Key("C#")
-    pitch_5 << Degree(2)
-    (pitch_5 + Semitone(0)) % str() >> Print()
-    assert pitch_5 + Semitone(0) == Key("D")
-    (pitch_5 + Semitone(1)) % str() >> Print()
-    assert pitch_5 + Semitone(1) == Key("D#")
-
-    # Resets the defaults
-    settings << None
-
-# test_pitch_add()
-
-
 def test_pitch_sub():
     
     # Resets the defaults
@@ -1139,6 +984,161 @@ def test_root_key():
 
 
 
+
+
+def test_pitch_add():
+
+    # Resets the defaults
+    settings << None
+
+    pitch_degree = Pitch()
+    assert pitch_degree % Degree() == 1
+    assert pitch_degree % Octave() == 4
+
+    pitch_degree << Degree(8)   # Degree setting is straight!
+    assert pitch_degree % Degree() == 8
+    assert pitch_degree % Octave() == 5 # Degree 8 it's at the next Octave
+
+    pitch_degree += Degree(7)
+    assert pitch_degree % Degree() == 1
+    assert pitch_degree % Octave() == 6 # Moves to the next Octave!
+
+    pitch_integer = Pitch()
+    assert pitch_integer % float() == 1
+    assert pitch_integer % Octave() == 4
+
+    pitch_integer << 8.0   # Degree setting is straight!
+    assert pitch_integer % float() == 8
+    assert pitch_integer % Octave() == 5    # Degree 8 it's at the next Octave
+
+    pitch_integer += 7.0
+    assert pitch_integer % float() == 1
+    assert pitch_integer % Octave() == 6    # Moves to the next Octave!
+
+
+    # Perform the operation
+    pitch_b: Pitch = Pitch()    # 60
+    assert pitch_b.pitch_int() == 60
+    pitch_b += Semitone(2)
+    assert pitch_b.pitch_int() == 62
+    pitch_b += Semitone(12)
+    assert pitch_b.pitch_int() == 74
+
+    pitch_1: Pitch = Pitch("A")
+    pitch_1.getSerialization() % Data("degree") >> Print()
+    (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
+    assert pitch_1    == Pitch("A")
+    assert pitch_1 + 1.0    == Pitch("B")
+    assert pitch_1 + Semitone(2) == Pitch("B")
+
+    settings << KeySignature(1)
+    pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
+    assert pitch_2 % Octave() == 4
+    key_pitch: Pitch = pitch_2 + 2.0
+    print(f"Pitch: {key_pitch.pitch_int()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
+            f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
+    assert (pitch_2 + 2.0) % Octave() == 5
+    pitch_2.pitch_int() >> Print()
+    assert pitch_2.pitch_int() == Pitch("B").pitch_int()
+    print(f'Pitch("D"): {Pitch("D").pitch_int()}')
+    assert Pitch("D").pitch_int() == 62
+    assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12
+    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12
+    (pitch_2 + 2.0).pitch_int() >> Print()      # 74
+    (Pitch("D") + Semitone(12)).pitch_int() >> Print()    # 74 + 12 = 86
+    assert pitch_2 + 2.0 == Pitch("D") + Octave(1)      # Next octave
+
+    settings << KeySignature()
+    assert pitch_1 << Sharp() == Pitch("A") + Semitone(1)
+    assert pitch_1 << Natural() == Pitch("A")
+    assert Pitch("Ab") == Pitch("A") - Semitone(1)
+
+    pitch_3: Pitch = Pitch()
+    assert pitch_3 % str() == "C"
+
+    # Test all semitones from 0 to 11
+    expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    for key_i in range(12):
+        (pitch_3 + Semitone(key_i)) % str() >> Print()
+        assert (pitch_3 + Semitone(key_i)) % str() == expected_keys[key_i]
+
+    print("------")
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        (pitch_3 + float(degree)) % str() >> Print()
+        assert pitch_3 + float(degree) == keys[degree]
+
+
+    pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
+    assert pitch_4 % str() == "C"
+    assert pitch_4.pitch_int() == 60
+
+    # Test all semitones from 0 to 11
+    chromatic_pitches: list[int] = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+
+    for sharps in range(8): # 8 is excluded
+
+        settings << KeySignature(sharps)
+        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        print(f"------------ {sharps} ------------")
+        print("--UP--")
+        for key_i in range(12):
+            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
+            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+        pitch_4 << Pipe(Key(71))
+        print("-DOWN-")
+        for key_i in range(12):
+            pitch_4.pitch_int() >> Print()
+            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
+            pitch_4 -= Semitone(1)
+
+    for flats in range(0, -8, -1): # -8 is excluded
+
+        settings << KeySignature(flats)
+        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        print(f"------------ {flats} ------------")
+        print("--UP--")
+        for key_i in range(12):
+            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
+            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+        pitch_4 << Pipe(Key(71))
+        print("-DOWN-")
+        for key_i in range(12):
+            pitch_4.pitch_int() >> Print()
+            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
+            pitch_4 -= Semitone(1)
+
+    settings << KeySignature()
+    pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
+
+    print(f"------------ DEGREES ------------")
+    print("------")
+    for key_i in range(12):
+        (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
+        assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+
+    print("------")
+    white_pitches: list[int] = [60, 62, 64, 65, 67, 69, 71]
+    for degree in range(7):
+        (pitch_4 + float(degree)).pitch_int() >> Print()
+        assert (pitch_4 + float(degree)).pitch_int() == white_pitches[degree]
+
+    print("------")
+    pitch_5: Pitch = Pitch()
+    (pitch_5 + Semitone(0)) % str() >> Print()
+    assert pitch_5 + Semitone(0) == Key("C")
+    (pitch_5 + Semitone(1)) % str() >> Print()
+    assert pitch_5 + Semitone(1) == Key("C#")
+    pitch_5 << Degree(2)
+    (pitch_5 + Semitone(0)) % str() >> Print()
+    assert pitch_5 + Semitone(0) == Key("D")
+    (pitch_5 + Semitone(1)) % str() >> Print()
+    assert pitch_5 + Semitone(1) == Key("D#")
+
+    # Resets the defaults
+    settings << None
+
+# test_pitch_add()
 
 
 def test_pitch_pipe():
