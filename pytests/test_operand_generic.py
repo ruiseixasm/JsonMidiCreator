@@ -831,59 +831,6 @@ def test_key_degrees():
 # test_key_degrees()
 
 
-def test_pitch_pipe():
-    settings << KeySignature('bbb')
-    pitch_b4 = Pitch('Bb')
-    pitch_d5 = Pitch('D', Octave(5))
-    pitch_e5 = Pitch('Eb', Octave(5))   # The one that fails!
-    dummy_pitch = Pitch()   # Same Key Signature
-    settings << KeySignature()
-
-    pitch_b4_degree_0 = pitch_b4 % Pipe(Degree())
-    pitch_d5_degree_0 = pitch_d5 % Pipe(Degree())
-    pitch_e5_degree_0 = pitch_e5 % Pipe(Degree())
-
-    print(f'pitch_b4_degree_0 % float(): {pitch_b4_degree_0 % float()}')    #  39.0
-    dummy_pitch << Pipe(pitch_b4_degree_0)
-    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  39.0
-    assert dummy_pitch == pitch_b4
-    assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
-    assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
-
-    pitch_c4    = Pitch(Key("C"))
-    pitch_g4    = Pitch(Key("G"))
-    pitch_fs4   = Pitch(Key("F#"))
-
-    # Test absolute root keys
-    pitch_c4_key_0 = pitch_c4 % Pipe(Key())
-    print(f'pitch_c4_key_0: {pitch_c4_key_0}')      # 60
-    assert pitch_c4_key_0 == 60
-    pitch_g4_key_0 = pitch_g4 % Pipe(Key())
-    print(f'pitch_g4_key_0: {pitch_g4_key_0}')      # 67
-    assert pitch_g4_key_0 == 67
-    pitch_fs4_key_0 = pitch_fs4 % Pipe(Key())
-    print(f'pitch_fs4_key_0: {pitch_fs4_key_0}')    # 66
-    assert pitch_fs4_key_0 == 66
-
-    pitch_d2 = Pitch(Key("D"), Octave(2))
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 38
-    assert pitch_d2.pitch_int() == 38
-    pitch_d2 << Pipe(pitch_fs4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 66
-    assert pitch_d2.pitch_int() == 66
-    pitch_d2 << Pipe(pitch_g4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 67
-    assert pitch_d2.pitch_int() == 67
-    pitch_d2 << Pipe(pitch_c4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 60
-    assert pitch_d2.pitch_int() == 60
-
-    # Resets the defaults
-    settings << None
-
-# test_pitch_pipe()
-
-
 def test_root_key_set():
 
     major_C = Pitch(Major())
@@ -1035,7 +982,7 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << 1.0 << Pipe(Key(61))    # Has to reset previous Degree to 1 first
+    sharp_pitch << Degree(1) << Pipe(Key(61))    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
         print(f"Pitch: {sharp_pitch.pitch_int()}")
         assert sharp_pitch.pitch_int() == major_keys[degree - 1] + 1
@@ -1048,12 +995,12 @@ def test_pitch_degrees():
 
         reference_keys: list[int] = []
         for degree in range(1, 8):
-            key_pitch << 1.0 << od.Pipe( TonicKey(60) ) << float(degree)    # Has to reset previous Degree to 1 first
+            key_pitch << Degree(1) << od.Pipe( TonicKey(60) ) << float(degree)    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch.pitch_int() )
 
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch << 1.0 << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
+            key_pitch << Degree(1) << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
@@ -1240,6 +1187,60 @@ def test_root_key():
 
 
 
+
+
+def test_pitch_pipe():
+    settings << KeySignature('bbb')
+    pitch_b4 = Pitch('Bb')  # I
+    pitch_d5 = Pitch('D')
+    pitch_e5 = Pitch('Eb')   # The one that fails!
+    dummy_pitch = Pitch()   # Same Key Signature
+    settings << KeySignature()  # Reverts to Major Key Signature
+
+    pitch_b4_degree_0 = pitch_b4 % Pipe(Degree())
+    pitch_d5_degree_0 = pitch_d5 % Pipe(Degree())
+    pitch_e5_degree_0 = pitch_e5 % Pipe(Degree())
+
+    print(f'pitch_b4_degree_0 % float(): {pitch_b4_degree_0 % float()}')    #  0.0
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  1.0
+    dummy_pitch << Pipe(pitch_b4_degree_0)
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0 !!!
+    assert dummy_pitch == pitch_b4
+    assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
+    assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
+
+    pitch_c4    = Pitch(Key("C"))
+    pitch_g4    = Pitch(Key("G"))
+    pitch_fs4   = Pitch(Key("F#"))
+
+    # Test absolute root keys
+    pitch_c4_key_0 = pitch_c4 % Pipe(Key())
+    print(f'pitch_c4_key_0: {pitch_c4_key_0}')      # 60
+    assert pitch_c4_key_0 == 60
+    pitch_g4_key_0 = pitch_g4 % Pipe(Key())
+    print(f'pitch_g4_key_0: {pitch_g4_key_0}')      # 67
+    assert pitch_g4_key_0 == 67
+    pitch_fs4_key_0 = pitch_fs4 % Pipe(Key())
+    print(f'pitch_fs4_key_0: {pitch_fs4_key_0}')    # 66
+    assert pitch_fs4_key_0 == 66
+
+    pitch_d2 = Pitch(Key("D"), Octave(2))
+    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 38
+    assert pitch_d2.pitch_int() == 38
+    pitch_d2 << Pipe(pitch_fs4_key_0)
+    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 66
+    assert pitch_d2.pitch_int() == 66
+    pitch_d2 << Pipe(pitch_g4_key_0)
+    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 67
+    assert pitch_d2.pitch_int() == 67
+    pitch_d2 << Pipe(pitch_c4_key_0)
+    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 60
+    assert pitch_d2.pitch_int() == 60
+
+    # Resets the defaults
+    settings << None
+
+test_pitch_pipe()
 
 
 def test_root_key_pipe():

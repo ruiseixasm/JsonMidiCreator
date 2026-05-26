@@ -1403,8 +1403,8 @@ class Pitch(Generic):
                         # absolute_key: int = octave_key + 12 * self._octave_0
                         # return operand._data << absolute_key
                     case ou.Degree():   # Returns an absolute degree_0
-                        operand._data << od.Pipe(self._degree_0)
-                        operand._data << float(self._accidental)
+                        operand._data._unit = self._degree_0
+                        operand._data._accidental = self._accidental
                         return operand._data
                     case ou.Sharp() | ou.Flat() | ou.Natural():
                         return operand._data << self % operand
@@ -1577,8 +1577,7 @@ class Pitch(Generic):
                         self << od.Pipe( ou.RootKey(operand._data._unit) )
 
                     case ou.Degree():   # Sets an absolute degree_0
-                        self._octave_0 = operand._data % int() // 7
-                        self._degree_0 = operand._data._unit % 7
+                        self._degree_0 = operand._data._unit
                         self._accidental = operand._data._accidental
                     case ou.Sharp() | ou.Flat() | ou.Natural():
                         self._accidental = ou.Degree(operand._data)._accidental
