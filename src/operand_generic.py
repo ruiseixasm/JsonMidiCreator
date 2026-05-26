@@ -478,11 +478,8 @@ class Pitch(Generic):
         """
         if self._degree_0 != 0: # Optimization
             signature_scale: list[int] = self._key_signature.get_scale()
-            return Scale.transpose_key(int(round(self._degree_0, 1)), signature_scale)
+            return Scale.transpose_key(self._degree_0, signature_scale)
         return 0
-
-    def degree_accidentals(self) -> int:
-        return self._accidental
 
     def scale_transposition(self, degree_transposition: int) -> int:
         """
@@ -513,7 +510,7 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self.degree_accidentals()
+        degree_accidentals: int = self._accidental
         return tonic_int + degree_transposition + degree_accidentals
 
     def root_key(self) -> int:
@@ -530,7 +527,7 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self.degree_accidentals()
+        degree_accidentals: int = self._accidental
         return tonic_int + degree_transposition + degree_accidentals
 
     def chromatic_root_key(self) -> int:
@@ -548,7 +545,7 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self.degree_accidentals()
+        degree_accidentals: int = self._accidental
         scale_transposition: int = self.scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + degree_accidentals + scale_transposition
 
@@ -558,7 +555,7 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self.degree_accidentals()
+        degree_accidentals: int = self._accidental
         # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidentals
         scale_transposition: int = self.scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + degree_accidentals + scale_transposition

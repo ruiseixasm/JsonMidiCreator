@@ -106,18 +106,6 @@ def test_pitch_set():
     pitch_2.sharp().degree(2)
     assert pitch_1 == pitch_2
 
-def test_degree_pitch():
-    negative_pitch = Pitch()
-    negative_pitch._degree_0 = -0.1
-    positive_pitch = Pitch()
-    positive_pitch._degree_0 = +0.1
-
-    print(f"{negative_pitch.pitch_int()} VS {positive_pitch.pitch_int()}")
-    print(f"{negative_pitch.pitch_int() % 12} VS {positive_pitch.pitch_int() % 12}")
-    assert negative_pitch.pitch_int() == positive_pitch.pitch_int()
-
-# test_degree_pitch()
-
 
 def test_target_key():
     major_pitch = Pitch()

@@ -2154,7 +2154,7 @@ class Note(ChannelElement):
                     "sharps": self._pitch._key_signature._unit,
                     "mode": self._pitch._key_signature._mode_0,
                     "key_tonic": self._pitch._key_signature.get_tonic_key(),
-                    "accidentals": self._pitch.degree_accidentals(),
+                    "accidentals": self._pitch._accidental,
                     "velocity": self._velocity,
                     "channel": self._channel_0,
                     "masked": id(self_to_plot) in masked_element_ids,
