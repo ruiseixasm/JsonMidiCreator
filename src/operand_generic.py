@@ -463,7 +463,7 @@ class Pitch(Generic):
     the formula:
         pitch_int = 
             tonic_key
-            + octave_transposition + degree_transposition + scale_transposition + degree_accidentals
+            + octave_transposition + degree_transposition + scale_transposition + degree_accidental
     """
 
     def octave_transposition(self) -> int:
@@ -510,8 +510,8 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidentals
+        degree_accidental: int = self._accidental
+        return tonic_int + degree_transposition + degree_accidental
 
     def root_key(self) -> int:
         """
@@ -527,8 +527,8 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidentals
+        degree_accidental: int = self._accidental
+        return tonic_int + degree_transposition + degree_accidental
 
     def chromatic_root_key(self) -> int:
         """
@@ -545,9 +545,9 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self._accidental
+        degree_accidental: int = self._accidental
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        return tonic_int + degree_transposition + degree_accidentals + scale_transposition
+        return tonic_int + degree_transposition + degree_accidental + scale_transposition
 
     def chromatic_target_int(self) -> int:
         """
@@ -555,10 +555,10 @@ class Pitch(Generic):
         """
         tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidentals: int = self._accidental
-        # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidentals
+        degree_accidental: int = self._accidental
+        # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        return tonic_int + degree_transposition + degree_accidentals + scale_transposition
+        return tonic_int + degree_transposition + degree_accidental + scale_transposition
 
     def pitch_int(self) -> int:
         """
