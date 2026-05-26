@@ -1315,7 +1315,7 @@ class Pitch(Generic):
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
-        sharps: bool = self._tonic_key < 12 # What defines if it's a Sharp or Flat tonic
+        sharps: bool = key_int % 24 < 12    # The tone and semitone concerning the key_int
         tonic_offset: int = key_int % 12 - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
