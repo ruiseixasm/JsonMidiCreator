@@ -1132,50 +1132,55 @@ def test_pitch_add():
 
 
 def test_pitch_pipe():
+    
+    # Resets the defaults
+    settings << None
+
     settings << KeySignature('bbb')
-    pitch_b4 = Pitch('Bb')  # I
-    pitch_d5 = Pitch('D')
-    pitch_e5 = Pitch('Eb')   # The one that fails!
+    # Setting by Key keeps keeps the Octave unchanged
+    pitch_Bb = Pitch('Bb')
+    pitch_D = Pitch('D')    # Keeps Octave as 4
+    pitch_E5_Tonic = Pitch('Eb')  # I (This is the Tonic one)
     dummy_pitch = Pitch()   # Same Key Signature
     settings << KeySignature()  # Reverts to Major Key Signature
+    # Setting by Degree may result in increased Octaves
+    pitch_Bb_degree_0 = pitch_Bb % Pipe(Degree())
+    pitch_D_degree_0 = pitch_D % Pipe(Degree())
+    pitch_E5_Tonic_degree_0 = pitch_E5_Tonic % Pipe(Degree())
 
-    pitch_b4_degree_0 = pitch_b4 % Pipe(Degree())
-    pitch_d5_degree_0 = pitch_d5 % Pipe(Degree())
-    pitch_e5_degree_0 = pitch_e5 % Pipe(Degree())
+    print(f'pitch_Bb_degree_0 % float(): {pitch_Bb_degree_0 % float()}')    #  0.0
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  1.0 (Tonic)
+    dummy_pitch << Pipe(pitch_Bb_degree_0)
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0 (V)
+    assert dummy_pitch == pitch_Bb
+    assert dummy_pitch << Pipe(pitch_D_degree_0) == pitch_D + Octave(1) # Next Octave via Degree
+    assert dummy_pitch << Pipe(pitch_E5_Tonic_degree_0) == pitch_E5_Tonic
 
-    print(f'pitch_b4_degree_0 % float(): {pitch_b4_degree_0 % float()}')    #  0.0
-    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  1.0
-    dummy_pitch << Pipe(pitch_b4_degree_0)
-    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0
-    assert dummy_pitch == pitch_b4
-    assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
-    assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
-
-    pitch_c4    = Pitch(Key("C"))
-    pitch_g4    = Pitch(Key("G"))
-    pitch_fs4   = Pitch(Key("F#"))
+    pitch_C4    = Pitch(Key("C"))
+    pitch_G4    = Pitch(Key("G"))
+    pitch_Fs4   = Pitch(Key("F#"))
 
     # Test absolute root keys
-    pitch_c4_key_0 = pitch_c4 % Pipe(Key())
-    print(f'pitch_c4_key_0: {pitch_c4_key_0}')      # 60
-    assert pitch_c4_key_0 == 60
-    pitch_g4_key_0 = pitch_g4 % Pipe(Key())
-    print(f'pitch_g4_key_0: {pitch_g4_key_0}')      # 67
-    assert pitch_g4_key_0 == 67
-    pitch_fs4_key_0 = pitch_fs4 % Pipe(Key())
-    print(f'pitch_fs4_key_0: {pitch_fs4_key_0}')    # 66
-    assert pitch_fs4_key_0 == 66
+    pitch_C4_key_0 = pitch_C4 % Pipe(Key())
+    print(f'pitch_C4_key_0: {pitch_C4_key_0}')      # 60
+    assert pitch_C4_key_0 == 60
+    pitch_G4_key_0 = pitch_G4 % Pipe(Key())
+    print(f'pitch_G4_key_0: {pitch_G4_key_0}')      # 67
+    assert pitch_G4_key_0 == 67
+    pitch_Fs4_key_0 = pitch_Fs4 % Pipe(Key())
+    print(f'pitch_Fs4_key_0: {pitch_Fs4_key_0}')    # 66
+    assert pitch_Fs4_key_0 == 66
 
     pitch_d2 = Pitch(Key("D"), Octave(2))
     print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 38
     assert pitch_d2.pitch_int() == 38
-    pitch_d2 << Pipe(pitch_fs4_key_0)
+    pitch_d2 << Pipe(pitch_Fs4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 66
     assert pitch_d2.pitch_int() == 66
-    pitch_d2 << Pipe(pitch_g4_key_0)
+    pitch_d2 << Pipe(pitch_G4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 67
     assert pitch_d2.pitch_int() == 67
-    pitch_d2 << Pipe(pitch_c4_key_0)
+    pitch_d2 << Pipe(pitch_C4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 60
     assert pitch_d2.pitch_int() == 60
 
