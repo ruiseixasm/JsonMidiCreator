@@ -430,54 +430,6 @@ def test_pitch_scales():
 # test_pitch_scales()
 
 
-def test_set_chromatic_pitch():
-
-    pitch_ab = Pitch("Ab")
-    pitch_a = Pitch("A")
-
-    print(f"Ab scale, octave: {pitch_ab % (list(), (Octave(), int()))}")
-    print(f"A scale, octave: {pitch_a % (list(), (Octave(), int()))}")
-
-    print(f"Ab pitch_int: {pitch_ab.pitch_int()}")
-    print(f"A pitch_int: {pitch_a.pitch_int()}")
-    assert pitch_ab.pitch_int() == 68
-    assert pitch_a.pitch_int() == 69
-
-    pitch: Pitch = Pitch()
-
-    print(f"Pitch: {pitch.pitch_int()}")
-    assert pitch.pitch_int() == 60
-
-    for degree in range(1, 8):
-        print(f"------------ {degree} ------------")
-        pitch << float(degree)
-        for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
-
-    for sharps in range(1, 8): # 8 is excluded
-        print(f"------------ {sharps} ------------")
-        settings << KeySignature(sharps)
-        for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
-
-    for flats in range(-1, -8, -1): # 8 is excluded
-        print(f"------------ {flats} ------------")
-        settings << KeySignature(flats)
-        for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
-
-    # Resets the defaults
-    settings << None
-
-# test_set_chromatic_pitch()
-
-
 def test_pitch_add():
 
     # Resets the defaults
@@ -1294,6 +1246,57 @@ def test_root_key_pipe():
     assert absolute_root_key == 68
 
 # test_root_key_pipe()
+
+
+def test_set_chromatic_pitch():
+
+    # Resets the defaults
+    settings << None
+
+    pitch_ab = Pitch("Ab")
+    pitch_a = Pitch("A")
+
+    print(f"Ab scale, octave: {pitch_ab % (list(), (Octave(), int()))}")
+    print(f"A scale, octave: {pitch_a % (list(), (Octave(), int()))}")
+
+    print(f"Ab pitch_int: {pitch_ab.pitch_int()}")
+    print(f"A pitch_int: {pitch_a.pitch_int()}")
+    assert pitch_ab.pitch_int() == 68
+    assert pitch_a.pitch_int() == 69
+
+    pitch: Pitch = Pitch()
+
+    print(f"Pitch: {pitch.pitch_int()}")
+    assert pitch.pitch_int() == 60
+
+    for degree in range(1, 8):
+        print(f"------------ {degree} ------------")
+        pitch << float(degree)
+        for pitch_int in range(128):
+            pitch << Pipe(Key(pitch_int))
+            pitch.pitch_int() >> Print()
+            assert pitch.pitch_int() == pitch_int
+
+    for sharps in range(1, 8): # 8 is excluded
+        print(f"------------ {sharps} ------------")
+        settings << KeySignature(sharps)
+        for pitch_int in range(128):
+            pitch << Pipe(Key(pitch_int))
+            pitch.pitch_int() >> Print()
+            assert pitch.pitch_int() == pitch_int
+
+    for flats in range(-1, -8, -1): # 8 is excluded
+        print(f"------------ {flats} ------------")
+        settings << KeySignature(flats)
+        for pitch_int in range(128):
+            pitch << Pipe(Key(pitch_int))
+            pitch.pitch_int() >> Print()
+            assert pitch.pitch_int() == pitch_int
+
+    # Resets the defaults
+    settings << None
+
+# test_set_chromatic_pitch()
 
 
 def test_edge_degrees():

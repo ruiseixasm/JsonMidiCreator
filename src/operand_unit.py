@@ -1224,13 +1224,14 @@ class Degree(PitchParameter):
             except ValueError as e:
                 pass    # No octave set
         string = string.strip()
-        self._accidental = 0    # Natural by default
-        self._accidental += string.count("#")
-        self._accidental -= string.count("b")
+        accidental = 0    # Natural by default
+        accidental += string.count("#")
+        accidental -= string.count("b")
         string = string.replace("#", "").replace("b", "")
         string = string.lower() # Only for degrees
         if string in Degree._string_to_degree: # See table above
             self._unit = Degree._string_to_degree[string]
+            self._accidental = accidental   # Avoids setting accidental if not by degree
         return self
 
 
