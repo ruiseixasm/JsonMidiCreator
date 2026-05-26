@@ -205,3 +205,14 @@ def test_key_signature_by_key():
         assert A_minor == 'b' * flats
 
 # test_key_signature_by_key()
+
+
+def test_degree_multi():
+    assert Degree("") == Degree()
+    assert Degree("Ab") == Degree()
+    assert Degree("A#") == Degree()
+    assert Degree("#") == Degree(1.0)
+    assert Degree("bb") == Degree(-2.0)
+    assert Degree("3bb") == Degree(3, -2.0)
+
+
