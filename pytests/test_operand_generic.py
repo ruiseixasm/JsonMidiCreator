@@ -777,62 +777,62 @@ def test_root_key():
     # The default Tonic key is A for "###" Key Signature
     # So, it ONLY uses A Major keys for root keys on the same scale
 
-    a_degree_a_major_scale: list[str] = [
+    tonic_a_degree_a_major_scale: list[str] = [
         "A", "B", "C#", "D", "E", "F#", "G#"
     ]
     pitch = Pitch() # KeySignature default Key
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_a_major_scale[degree]
+        assert pitch == tonic_a_degree_a_major_scale[degree]
         pitch += 1.0  # One degree each time
 
-    a_degree_d_major_scale: list[str] = [
+    tonic_a_degree_d_major_scale: list[str] = [
         "D", "E", "F#", "G#", "A", "B", "C#"
     ]
     pitch = Pitch(RootKey("D"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_d_major_scale[degree]
+        assert pitch == tonic_a_degree_d_major_scale[degree]
         pitch += 1.0  # One degree each time
 
     print("---")
-    a_degree_cs_major_scale: list[str] = [
+    tonic_a_degree_cs_major_scale: list[str] = [
         "C#", "D", "E", "F#", "G#", "A", "B"
     ]
     pitch = Pitch(RootKey("C#"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_cs_major_scale[degree]
+        assert pitch == tonic_a_degree_cs_major_scale[degree]
         pitch += 1.0  # One degree each time
 
     print("---")
-    a_degree_c_major_scale: list[str] = [
-        "B#", "C#", "D#", "E#", "F##", "G#", "A#"
+    tonic_a_degree_bs_major_scale: list[str] = [
+        "B#", "D", "E", "F", "F##", "A", "B"
     ]
-    pitch = Pitch(RootKey("C")) # B# is equivalent to C
+    pitch = Pitch(RootKey("B#"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_c_major_scale[degree]  # BUG HERE AT +DEGREE 4
+        assert pitch == tonic_a_degree_bs_major_scale[degree]  # BUG HERE AT +DEGREE 4
         pitch += 1.0  # One degree each time
 
     print("---")
-    a_degree_f_major_scale: list[str] = [
+    tonic_a_degree_f_major_scale: list[str] = [
         "E#", "F##", "G#", "A#", "B#", "C#", "D#"
     ]
     pitch = Pitch(RootKey("F"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_f_major_scale[degree]
+        assert pitch == tonic_a_degree_f_major_scale[degree]
         pitch += 1.0  # One degree each time
 
     print("---")
-    a_degree_f_major_scale: list[str] = [
+    tonic_a_degree_f_major_scale: list[str] = [
         "F##", "G#", "A#", "B#", "C#", "D#", "E#"
     ]
     pitch = Pitch(RootKey("G"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == a_degree_f_major_scale[degree]
+        assert pitch == tonic_a_degree_f_major_scale[degree]
         pitch += 1.0  # One degree each time
 
 
@@ -931,16 +931,6 @@ def test_root_key():
     settings << None
 
 # test_root_key()
-
-
-
-
-
-
-
-
-
-
 
 
 def test_pitch_degrees():
@@ -1428,7 +1418,7 @@ def test_pitch_mod():
 # test_pitch_mod()
 
 
-def test_negative_degree():
+def test_pitch_multi():
 
     # Resets the defaults
     settings << None
@@ -1443,5 +1433,5 @@ def test_negative_degree():
     pitch_C << Pipe(TonicKey(60))
     assert pitch_C % Pipe(TonicKey()) == 0  # The Tonic Key always goes from 0 to 11
 
-# test_negative_degree()
+# test_pitch_multi()
 
