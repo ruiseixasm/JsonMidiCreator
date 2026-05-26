@@ -1625,17 +1625,14 @@ class Pitch(Generic):
                 target_pitch: int = self.pitch_int()
                 self._octave_0 += target_octave_0 - target_pitch // 12
             case ou.Degree():
-                if operand == ou.Degree(0):
-                    # Resets the degree to I (tonic)
-                    self._tonic_key = self._key_signature % ou.Key() % int()
-                    self._degree_0 = 0
-                elif operand._unit > 0:
+                self._degree_0 = operand._unit  # Negative remain negative!
+                self._accidental = operand._accidental
+                if operand._unit > 0:
                     # No implicit Octave offset (Repeated sets with `<<` don't change Octave)
                     self._degree_0 = operand._unit - 1
-                else:
-                    # No implicit Octave offset (Repeated sets with `<<` don't change Octave)
-                    self._degree_0 = operand._unit  # Negative remain negative!
-                self._accidental = operand._accidental
+                elif operand == ou.Degree(0):
+                    # Resets the degree to I (tonic)
+                    self._tonic_key = self._key_signature % ou.Key() % int()
             
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
