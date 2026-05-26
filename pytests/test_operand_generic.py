@@ -1462,5 +1462,25 @@ def test_pitch_multi():
         assert root_As == root_As_major_scale[degree]
         root_As += 1.0  # One degree each time
 
+    print("-------------------------------")
+    settings << KeySignature("bb") # Bb Major scale key signature
+    pitch = Pitch(RootKey("E")) # Same as Fb
+    pitch_iv = ~pitch << 4.0
+    print(f"pitch_iv: {pitch_iv % str()}")
+    assert pitch_iv == "A"  # Should be "A" and not "Eb" !!
+
+    tonic_Bb_root_E_major_scale: list[str] = [
+        "Fb", "Gb", "Ab", "A", "Bb", "Db", "D"
+    ]
+    for degree in range(7):
+        print(f"RootKey {degree}: {pitch % str()}")
+        assert pitch == tonic_Bb_root_E_major_scale[degree]
+        pitch += 1.0  # One degree each time
+
+
+    # Resets the defaults
+    settings << None
+
+
 # test_pitch_multi()
 
