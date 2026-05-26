@@ -1632,7 +1632,12 @@ class Pitch(Generic):
             case int():
                 self << ou.Octave(operand)
             case float():
-                self << ou.Degree(int(operand))
+                if operand == 0.0:
+                    self._degree_0 = 0
+                    self._accidental = 0
+                else:
+                    # Sets just the degree, NOT the accidental!
+                    self << (self % ou.Degree() << int(operand))
             case Fraction():
                 self << ou.Transposition(operand)
                     
@@ -1651,7 +1656,7 @@ class Pitch(Generic):
                     self._degree_0 = 0
                 elif operand._unit < 0:
                     self._degree_0 = operand._unit  # Negative remains negative!
-            
+                # A Degree with Just an accidental defined can set just that!
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
                 # Resets the degree to I

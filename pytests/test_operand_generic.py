@@ -106,20 +106,6 @@ def test_pitch_set():
     pitch_2.sharp().degree(2)
     assert pitch_1 == pitch_2
 
-
-def test_pitch_degrees_2():
-    second_degree = Pitch(2.0)
-    assert second_degree._degree_0 == 2.0 - 1
-    ninth_degree = Pitch(9.0)
-    assert ninth_degree._degree_0 == 9.0 - 1
-    print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
-    assert second_degree % Octave() == 4
-    print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
-    assert ninth_degree % Octave() == 5
-
-# test_pitch_degrees_2()
-
-
 def test_degree_pitch():
     negative_pitch = Pitch()
     negative_pitch._degree_0 = -0.1
@@ -1418,6 +1404,19 @@ def test_pitch_mod():
 # test_pitch_mod()
 
 
+def test_pitch_degrees_2():
+    second_degree = Pitch(2.0)
+    assert second_degree._degree_0 == 2 - 1
+    ninth_degree = Pitch(9.0)
+    assert ninth_degree._degree_0 == 9 - 1
+    print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
+    assert second_degree % Octave() == 4
+    print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
+    assert ninth_degree % Octave() == 5
+
+# test_pitch_degrees_2()
+
+
 def test_pitch_multi():
 
     # Resets the defaults
@@ -1465,7 +1464,13 @@ def test_pitch_multi():
     print("-------------------------------")
     settings << KeySignature("bb") # Bb Major scale key signature
     pitch = Pitch(RootKey("E")) # Same as Fb
+    print(f"pitch.pitch_int(): {pitch.pitch_int()}")
+    assert pitch.pitch_int() == 60 + 4
+    assert pitch % str() == "Fb"
     pitch_iv = ~pitch << 4.0
+    # Note(pitch) / Note(pitch_iv) >> Plot()
+    print(f"pitch_iv.pitch_int(): {pitch_iv.pitch_int()}")
+    assert pitch_iv.pitch_int() == 60 + 4 + 5
     print(f"pitch_iv: {pitch_iv % str()}")
     assert pitch_iv == "A"  # Should be "A" and not "Eb" !!
 
