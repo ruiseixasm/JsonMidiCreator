@@ -493,7 +493,7 @@ class Pitch(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: float = int(round(self._degree_0, 1)) + self._transposition
+                degree_0: float = self._degree_0 + self._transposition
                 signature_scale: list[int] = self._key_signature.get_scale()
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0

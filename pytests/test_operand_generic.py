@@ -1489,6 +1489,5 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
-
 # test_pitch_multi()
 
