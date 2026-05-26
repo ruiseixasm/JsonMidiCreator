@@ -1232,6 +1232,8 @@ class Degree(PitchParameter):
         if string in Degree._string_to_degree: # See table above
             self._unit = Degree._string_to_degree[string]
             self._accidental = accidental   # Avoids setting accidental if not by degree
+        elif string == "":  # Meaning just sharps or flats
+            self._accidental = accidental   # Avoids setting accidental if not by degree
         return self
 
 
