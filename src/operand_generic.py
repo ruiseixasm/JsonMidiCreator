@@ -1677,6 +1677,11 @@ class Pitch(Generic):
                 self._accidental = accidentals
                 actual_octave_0 = self.octave_int_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
+                # Normalize degree
+                offset_octave = self._degree_0 // 7
+                if offset_octave:
+                    self._degree_0 %= 7
+                    self._octave_0 += offset_octave
             case ou.TargetKey():
                 original_octave_0 = self.octave_int_0()
                 tone_0, semitone = self.transposition_tone_semitone(operand._unit % 12)
@@ -1685,6 +1690,11 @@ class Pitch(Generic):
                 self << ou.Transposition(tone_0)
                 actual_octave_0 = self.octave_int_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
+                # Normalize degree
+                offset_octave = self._degree_0 // 7
+                if offset_octave:
+                    self._degree_0 %= 7
+                    self._octave_0 += offset_octave
             case ou.Key():
                 self << ou.RootKey(operand)
 

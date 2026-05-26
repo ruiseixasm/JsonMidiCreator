@@ -1146,7 +1146,7 @@ def test_pitch_pipe():
     print(f'pitch_b4_degree_0 % float(): {pitch_b4_degree_0 % float()}')    #  0.0
     print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  1.0
     dummy_pitch << Pipe(pitch_b4_degree_0)
-    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0 !!!
+    print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0
     assert dummy_pitch == pitch_b4
     assert dummy_pitch << Pipe(pitch_d5_degree_0) == pitch_d5
     assert dummy_pitch << Pipe(pitch_e5_degree_0) == pitch_e5
@@ -1468,12 +1468,14 @@ def test_pitch_multi():
 
     print("-------------------------------")
     settings << KeySignature("bb") # Bb Major scale key signature
-    pitch = Pitch(RootKey("E")) # Same as Fb
-    print(f"pitch.pitch_int(): {pitch.pitch_int()}")
-    assert pitch.pitch_int() == 60 + 4
-    assert pitch % str() == "Fb"
-    pitch_iv = ~pitch << 4.0
-    # Note(pitch) / Note(pitch_iv) >> Plot()
+    pitch_E = Pitch(RootKey("E")) # Same as Fb
+    pitch_Fb = Pitch(RootKey("Fb"))
+    assert pitch_E == pitch_Fb
+    print(f"pitch_E.pitch_int(): {pitch_E.pitch_int()}")
+    assert pitch_E.pitch_int() == 60 + 4
+    assert pitch_E % str() == "Fb"
+    pitch_iv = ~pitch_E << 4.0
+    # Note(pitch_E) / Note(pitch_iv) >> Plot()
     print(f"pitch_iv.pitch_int(): {pitch_iv.pitch_int()}")
     assert pitch_iv.pitch_int() == 60 + 4 + 5
     print(f"pitch_iv: {pitch_iv % str()}")
@@ -1483,9 +1485,9 @@ def test_pitch_multi():
         "Fb", "Gb", "Ab", "A", "Bb", "Db", "D"
     ]
     for degree in range(7):
-        print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == tonic_Bb_root_E_major_scale[degree]
-        pitch += 1.0  # One degree each time
+        print(f"RootKey {degree}: {pitch_E % str()}")
+        assert pitch_E == tonic_Bb_root_E_major_scale[degree]
+        pitch_E += 1.0  # One degree each time
 
 
     # Resets the defaults
