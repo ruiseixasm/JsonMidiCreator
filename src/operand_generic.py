@@ -436,7 +436,7 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         self._key_signature: ou.KeySignature \
                                         = settings % ou.KeySignature()
-        self._tonic_key: int            = settings % ou.Key() % int() % 24
+        self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
@@ -518,7 +518,8 @@ class Pitch(Generic):
         root_key takes into consideration the tonic gross value above 11.
         """
         root_int: int = self.root_int()
-        root_key: int = root_int + self._tonic_key // 12 * 12  # key_line * total_keys
+        key_line: int = self._key_signature._get_key_line(self._tonic_key)
+        root_key: int = root_int + key_line * 12  # key_line * total_keys
         return root_key
 
     def chromatic_root_int(self) -> int:
@@ -535,7 +536,8 @@ class Pitch(Generic):
         root_key takes into consideration the tonic gross value above 11 and accidentals.
         """
         chromatic_root_int: int = self.chromatic_root_int()
-        chromatic_root_key: int = chromatic_root_int + self._tonic_key // 12 * 12  # key_line * total_keys
+        key_line: int = self._key_signature._get_key_line(self._tonic_key)
+        chromatic_root_key: int = chromatic_root_int + key_line * 12  # key_line * total_keys
         return chromatic_root_key
 
 
@@ -597,9 +599,9 @@ class Pitch(Generic):
         Increments the tonic key by preserving the tonic in the Key Signature range
         by changing the octave accordingly.
         """
-        gross_tonic_key: int = self._tonic_key % 12 + keys
-        self._tonic_key = gross_tonic_key % 12 + self._tonic_key // 12 * 12  # key_line * total_keys
-        self._octave_0 += gross_tonic_key // 12
+        new_tonic_key: int = self._tonic_key + keys
+        self._tonic_key = new_tonic_key % 12
+        self._octave_0 += new_tonic_key // 12
         return self
 
 
@@ -729,16 +731,12 @@ class Pitch(Generic):
             case ou.RootKey():
                 root_pitch: int = self.chromatic_root_int()
                 key_note: int = root_pitch % 12
-                key_line: int = self._tonic_key // 12
-                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
-                    key_line += 2    # All Sharps/Flats
+                key_line: int = self._key_signature._get_key_line(self._tonic_key)
                 return ou.RootKey( float(key_note + key_line * 12) )
             case ou.TargetKey():
                 target_pitch: int = self.chromatic_target_int()
                 key_note: int = target_pitch % 12
-                key_line: int = self._tonic_key // 12
-                if self._key_signature.is_enharmonic(self._tonic_key, key_note):
-                    key_line += 2    # All Sharps/Flats
+                key_line: int = self._key_signature._get_key_line(self._tonic_key)
                 return ou.TargetKey( float(key_note + key_line * 12) )
             case ou.Key():
                 return ou.Key( self % ou.RootKey() )
@@ -852,11 +850,8 @@ class Pitch(Generic):
                         self._key_signature = operand._data
 
                     case ou.TonicKey():    # Must come before than Key()
-                        flats: bool = self % ou.KeySignature() % int() < 0
                         self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
-                        if flats:
-                            self._tonic_key += 12   # Flats line
                     case ou.RootKey():
                         expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
                         root_key_12 = ou.RootKey(operand._data._unit % 12)
