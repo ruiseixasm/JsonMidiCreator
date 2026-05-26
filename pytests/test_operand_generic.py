@@ -908,10 +908,14 @@ def test_root_key():
         "Fb", "Gb", "Ab", "A", "Bb", "Db", "D"
     ]
     pitch = Pitch(RootKey("E"))
+    generated_scale: list[str] = []
     for degree in range(7):
-        print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == bb_root_E_major_scale[degree]
+        generated_scale.append(pitch % str())
         pitch += 1.0  # One degree each time
+
+    print(f"expected_scale:  {bb_root_E_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == bb_root_E_major_scale
 
     # Resets the defaults
     settings << None
