@@ -1560,7 +1560,11 @@ class Pitch(Generic):
                         self._key_signature = operand._data
 
                     case ou.TonicKey():    # Must come before than Key()
-                        self._tonic_key = operand._data._unit
+                        flats: bool = self % ou.KeySignature() % int() < 0
+                        self._octave_0 = operand._data._unit // 12
+                        self._tonic_key = operand._data._unit % 12
+                        if flats:
+                            self._tonic_key += 12   # Flats line
                     case ou.RootKey():
                         expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
                         root_key_12 = ou.RootKey(operand._data._unit % 12)

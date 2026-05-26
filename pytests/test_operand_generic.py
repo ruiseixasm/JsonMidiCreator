@@ -970,6 +970,8 @@ def test_pitch_degrees():
     print("------")
     key_pitch = Pitch() # It has a reference to defaults, so, only defaults need to be changed
     for flats_sharps in range(-7, 8):         # For all Flats and Sharps!
+        print(f"flats_sharps: {flats_sharps}")
+        # flats_sharps: -7
         settings << KeySignature(flats_sharps)
 
         reference_keys: list[int] = []
@@ -984,6 +986,7 @@ def test_pitch_degrees():
                 print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % Degree() == Degree(degree)
+                # Pitch: 73, Octave: 5, Tonic: 61, Degree_0: 0, Degree: 1, Transposition: 0
                 assert key_pitch.pitch_int() == reference_keys[degree - 1] + (pitch_int - 60)
                 key_pitch += float(1)  # += to increment Degree and Octave too
 
@@ -1436,6 +1439,9 @@ def test_negative_degree():
     pitch_C << Degree(-1)
     assert pitch_C == "B"
     assert pitch_C.pitch_int() == 59
+
+    pitch_C << Pipe(TonicKey(60))
+    assert pitch_C % Pipe(TonicKey()) == 0  # The Tonic Key always goes from 0 to 11
 
 # test_negative_degree()
 
