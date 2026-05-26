@@ -1143,7 +1143,7 @@ class Pitch(Generic):
                                         = settings % ou.KeySignature()
         self._tonic_key: int            = settings % ou.Key() % int() % 24
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
-        self._degree_0: float           = 0.0   # By default it's Degree 1, that's 0 in 0 based
+        self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._scale: list[int]          = []
@@ -1315,7 +1315,7 @@ class Pitch(Generic):
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
-        sharps: bool = key_int % 24 < 12
+        sharps: bool = self._tonic_key < 12 # What defines if it's a Sharp or Flat tonic
         tonic_offset: int = key_int % 12 - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
@@ -1648,11 +1648,11 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                original_octave = self % ou.Octave() % int()
                 tone_0, accidentals = self.tone_and_semitone(operand._unit)
+                original_octave_0 = self.octave_int_0()
                 self << ou.Degree(tone_0 + 1, float(accidentals))
-                actual_octave = self % ou.Octave() % int()
-                self._octave_0 += original_octave - actual_octave   # Keeps the same Octave when set by Key
+                actual_octave_0 = self.octave_int_0()
+                self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
             case ou.TargetKey():
                 original_octave = self % ou.Octave() % int()
                 degree: float = 0.0 # No linear accidentals

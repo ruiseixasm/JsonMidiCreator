@@ -884,59 +884,6 @@ def test_pitch_pipe():
 # test_pitch_pipe()
 
 
-def test_root_key_pipe():
-    
-    # Resets the defaults
-    settings << None
-
-    pitch_A_minor = Pitch(Minor())
-    assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 69  # A
-    assert pitch_A_minor % float() == 1.0
-
-    pitch_A_minor += RootKey(1)
-    assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 70  # A#
-    assert pitch_A_minor % float() == 1.1
-
-    pitch_A_minor << Pipe(RootKey(69))
-    assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 69  # A
-    assert pitch_A_minor % float() == 1.0
-
-    pitch_A_minor << Pipe(RootKey(67))
-    assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    assert absolute_root_key == 67  # G
-    print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
-    assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
-
-    pitch_A_minor << RootKey(8) # Ab
-    print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
-    assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert absolute_root_key == 68  # Ab
-
-    pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert pitch_A_minor % Octave() == 4
-    assert absolute_root_key == 68
-
-    pitch_A_minor << Pipe(RootKey(69))
-    assert pitch_A_minor % Octave() == 4
-    pitch_A_minor -= RootKey(1)
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
-    assert absolute_root_key == 68
-
-# test_root_key_pipe()
-
-
 def test_root_key_set():
 
     major_C = Pitch(Major())
@@ -1293,6 +1240,61 @@ def test_root_key():
 
 
 
+
+
+def test_root_key_pipe():
+    
+    # Resets the defaults
+    settings << None
+
+    pitch_A_minor = Pitch(Minor())
+    assert pitch_A_minor % Octave() == 4
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 69  # A
+    assert pitch_A_minor % float() == 1.0
+
+    pitch_A_minor += RootKey(1) # A#
+    assert pitch_A_minor % Octave() == 4
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 70  # A#
+    assert pitch_A_minor == Degree(1, 1.0)
+
+    pitch_A_minor << Pipe(RootKey(69))
+    assert pitch_A_minor % Octave() == 4
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 69  # A
+    assert pitch_A_minor % float() == 1.0
+
+    pitch_A_minor << Pipe(RootKey(67))
+    assert pitch_A_minor % Octave() == 4
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    assert absolute_root_key == 67  # G
+    print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
+    assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
+
+    pitch_A_minor << RootKey(8) # Ab
+    print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
+    assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert absolute_root_key == 68  # Ab
+
+    pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert pitch_A_minor % Octave() == 4
+    assert absolute_root_key == 68
+
+    pitch_A_minor << Pipe(RootKey(69))
+    assert pitch_A_minor % Octave() == 4
+    pitch_A_minor -= RootKey(1)
+    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    assert absolute_root_key == 68
+
+# test_root_key_pipe()
+
+
 def test_edge_degrees():
     
     # Resets the defaults
@@ -1316,7 +1318,6 @@ def test_edge_degrees():
     assert (~pitch_Bb << 8.0) % int() == 5
 
 # test_edge_degrees()
-
 
 
 def test_degree_set():
@@ -1411,5 +1412,4 @@ def test_pitch_mod():
     assert pitch.pitch_int() == 67 + 1
 
 # test_pitch_mod()
-
 
