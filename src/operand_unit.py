@@ -1234,6 +1234,10 @@ class Degree(PitchParameter):
             self._accidental = accidental   # Avoids setting accidental if not by degree
         elif string == "":  # Meaning just sharps or flats
             self._accidental = accidental   # Avoids setting accidental if not by degree
+        else:   # Tries to extract a number
+            number = o.string_to_number(string)
+            if isinstance(number, (int, float)):
+                self << number
         return self
 
 

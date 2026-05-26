@@ -1637,7 +1637,7 @@ class Pitch(Generic):
                     self._accidental = 0
                 else:
                     # Sets just the degree, NOT the accidental!
-                    self << (self % ou.Degree() << int(operand))
+                    self << ou.Degree(int(operand), float(self._accidental))
             case Fraction():
                 self << ou.Transposition(operand)
                     
@@ -1726,8 +1726,8 @@ class Pitch(Generic):
                 elif string == "n":
                     self << ou.Natural()
                 else:
-                    self << (self % ou.Degree() << string) # Safe, doesn't change the octave
-                    self << (self % ou.Key() << string)
+                    self << ou.Degree(string) # Safe, doesn't change the octave
+                    self << (self % ou.Key() << string) # Preserves the Key Signature type
                     if len(operand) > 1:    # Single value shouldn't set the Octave
                         self << (self % ou.Octave() << string)
                     self << Scale(od.Pipe(self._scale), operand)

@@ -215,4 +215,6 @@ def test_degree_multi():
     assert Degree("bb") == Degree(-2.0)
     assert Degree("3bb") == Degree(3, -2.0)
 
+    assert Degree("6") == 6
+    assert Degree("9") == 9
 

@@ -1285,31 +1285,6 @@ def test_set_chromatic_pitch():
 # test_set_chromatic_pitch()
 
 
-def test_edge_degrees():
-    
-    # Resets the defaults
-    settings << None
-
-    pitch_C = Pitch()
-    pitch_B = ~pitch_C << Key("B")
-    print(f"pitch_B % float(): {pitch_B % float()}")
-    assert pitch_B % float() == 7.0 # Degree
-    assert pitch_B % int() == 4     # Octave
-    pitch_Bb = ~pitch_B << Key("Bb")
-    print(f"pitch_Bb % float(): {pitch_Bb % float()}")
-    assert pitch_Bb % float() == 7.0 # Same degree
-    assert pitch_Bb % Degree() % float() == -1 # Flat
-    assert pitch_Bb % int() == 4
-    # Must become Cb
-    pitch_Cb = pitch_Bb + 1.0
-    assert pitch_Cb == Degree(1, "b")
-    assert pitch_Cb % int() == 4
-    assert (~pitch_Bb << 5.0) % int() == 4
-    assert (~pitch_Bb << 8.0) % int() == 5
-
-# test_edge_degrees()
-
-
 def test_degree_set():
 
     # Resets the defaults
@@ -1402,6 +1377,32 @@ def test_pitch_mod():
     assert pitch.pitch_int() == 67 + 1
 
 # test_pitch_mod()
+
+
+def test_edge_degrees():
+    
+    # Resets the defaults
+    settings << None
+
+    pitch_C = Pitch()
+    pitch_B = ~pitch_C << Key("B")
+    print(f"pitch_B % float(): {pitch_B % float()}")
+    assert pitch_B % float() == 7.0 # Degree
+    assert pitch_B % int() == 4     # Octave
+    pitch_Bb = ~pitch_B << Key("Bb")
+    print(f"pitch_Bb % float(): {pitch_Bb % float()}")
+    assert pitch_Bb % float() == 7.0 # Same degree
+    assert pitch_Bb % Degree() % float() == -1 # Flat
+    assert pitch_Bb % int() == 4
+    # Must become Cb
+    pitch_Cb = pitch_Bb + 1.0
+    assert pitch_Cb == Degree(1, "b")   # Changes the root note
+    assert pitch_Cb % int() == 4
+    assert (~pitch_Bb << 5.0) % int() == 4
+    assert (~pitch_Bb << 8.0) % int() == 4  # Same as Cb
+    assert (~pitch_Bb << "8") % int() == 5  # Same as C
+
+# test_edge_degrees()
 
 
 def test_pitch_degrees_2():
