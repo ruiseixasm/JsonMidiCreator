@@ -700,7 +700,7 @@ class Pitch(Generic):
                         operand._data._unit = self._degree_0
                         operand._data._accidental = self._accidental
                         return operand._data
-                    case ou.Sharp() | ou.Flat() | ou.Natural():
+                    case ou.Accidental() | ou.Natural():
                         return operand._data << self % operand
             
                     case ou.Semitone(): # Returns an absolute pitch_int Semitone
@@ -747,7 +747,7 @@ class Pitch(Generic):
                 if self._degree_0 < 0:
                     return ou.Degree(self._degree_0, float(self._accidental))
                 return ou.Degree(self._degree_0 + 1, float(self._accidental))
-            case ou.Sharp() | ou.Flat() | ou.Natural():
+            case ou.Accidental() | ou.Natural():
                 return self % ou.Degree() % operand
             
             case ou.Transposition():
@@ -882,7 +882,7 @@ class Pitch(Generic):
                     case ou.Degree():   # Sets an absolute degree_0
                         self._degree_0 = operand._data._unit
                         self._accidental = operand._data._accidental
-                    case ou.Sharp() | ou.Flat() | ou.Natural():
+                    case ou.Accidental() | ou.Natural():
                         self._accidental = ou.Degree(operand._data)._accidental
             
                     case ou.Octave():
@@ -1004,7 +1004,7 @@ class Pitch(Generic):
                 self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
                 self << od.Pipe(ou.Key(operand)) # Sets the key number regardless KeySignature or Scale!
 
-            case ou.Sharp() | ou.Flat() | ou.Natural():
+            case ou.Accidental() | ou.Natural():
                 self._accidental = ou.Degree(operand)._accidental
             
             case Scale():
@@ -1052,7 +1052,7 @@ class Pitch(Generic):
                 if offset_octave:
                     self._degree_0 %= 7
                     self._octave_0 += offset_octave
-            case ou.Sharp() | ou.Flat():
+            case ou.Accidental():
                 self << self % ou.Degree() + operand
             case int():
                 self.__iadd__(ou.Octave(operand))
@@ -1102,7 +1102,7 @@ class Pitch(Generic):
                 if offset_octave:
                     self._degree_0 %= 7
                     self._octave_0 += offset_octave
-            case ou.Sharp() | ou.Flat():
+            case ou.Accidental():
                 self << self % ou.Degree() - operand
             case int():
                 self.__isub__(ou.Octave(operand))
