@@ -1564,10 +1564,10 @@ class Pitch(Generic):
                         self._root_key = operand._data._unit
                         
                     case ou.Key():
-                        target_octave = operand._data._unit // 12
+                        target_octave_0 = operand._data._unit // 12
+                        operand._data._unit %= 12 # Absolute setting
                         self << operand._data
-                        actual_octave = self % ou.Octave() % int()
-                        self._octave_0 += target_octave - actual_octave
+                        self._octave_0 += target_octave_0 - self._octave_0
             
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
