@@ -1608,30 +1608,27 @@ class Pitch(Generic):
                 self._root_key = self._tonic_key
 
             case ou.KeySignature():
-                previous_degree_0 = self.get_degree_0()
-                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
+                tonic_to_root: int = self._root_key - self._tonic_key   # To preserve the Degree
                 self._key_signature << operand
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
-                self << previous_degree # Maintains the Degree structure
+                self._root_key = self._tonic_key + tonic_to_root    # To preserve the Degree
             case ou.Quality() | ou.Accidentals() | ou.Mode():
-                previous_degree_0 = self.get_degree_0()
-                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
+                tonic_to_root: int = self._root_key - self._tonic_key   # To preserve the Degree
                 self._key_signature << operand
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
-                self << previous_degree # Maintains the Degree structure
+                self._root_key = self._tonic_key + tonic_to_root    # To preserve the Degree
             case ou.Semitone():
                 # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
                 self << ou.Key(operand._unit)
 
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
-                previous_degree_0 = self.get_degree_0()
-                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
+                tonic_to_root: int = self._root_key - self._tonic_key   # To preserve the Degree
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
                 else:
                     self._tonic_key = operand._unit % 12
-                self << previous_degree # Maintains the Degree structure
+                self._root_key = self._tonic_key + tonic_to_root    # To preserve the Degree
             case ou.RootKey():
                 self._root_key = operand._unit
             case ou.Key():
