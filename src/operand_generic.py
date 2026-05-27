@@ -1213,7 +1213,8 @@ class Pitch(Generic):
         if not from_degree_0:
             degree_0 = self.convert_degree_to_degree_0(degree)
         signature_scale: list[int] = self._key_signature.get_scale()
-        degree_transposition: int = Scale.transpose_key(degree_0, signature_scale)
+        degree_transposition: int = Scale.transpose_key(degree_0._unit, signature_scale)
+        degree_transposition += degree_0._accidental    # Direct pitch change
         return self._tonic_key % 12 + degree_transposition
 
 
@@ -1646,9 +1647,14 @@ class Pitch(Generic):
             case ou.Accidental() | ou.Natural():
                 # Sets just the Accidental, NOT the degree!
                 actual_degree_0 = self.get_degree_0() # Includes accidental
-                actual_degree = self.convert_degree_0_to_degree(actual_degree_0)
-                actual_degree << operand    # Sets the Degree while preserving the accidental
-                self << actual_degree   # Finally sets the respective degree
+                match operand:
+                    case ou.Natural():
+                        actual_degree_0._accidental = 0
+                    case ou.Flat():
+                        actual_degree_0._accidental = operand._unit * -1
+                    case _:
+                        actual_degree_0._accidental = operand._unit
+                self._root_key = self.get_root_key(actual_degree_0, True)
             
             case Scale():
                 self._scale = operand % list()
