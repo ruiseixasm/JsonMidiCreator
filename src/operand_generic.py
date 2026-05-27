@@ -1372,6 +1372,43 @@ class Pitch_NEW(Generic):
         return tone % scale_degrees, semitone
 
 
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self.pitch_int() == other.pitch_int()
+            case str():
+                try:
+                    string_degree = ou.Degree(int(other))
+                    return self == string_degree
+                except ValueError:
+                    return self % other == other
+            case od.Conditional():
+                return other == self
+            case _:
+                return self % other == other
+        return False
+    
+    def __lt__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self.pitch_int() < other.pitch_int()
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other < other
+            case _:
+                return super().__lt__(other)
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self.pitch_int() > other.pitch_int()
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other > other
+            case _:
+                return super().__gt__(other)
+        return False
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
@@ -1467,42 +1504,6 @@ class Pitch_NEW(Generic):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self.pitch_int() == other.pitch_int()
-            case str():
-                try:
-                    string_degree = ou.Degree(int(other))
-                    return self == string_degree
-                except ValueError:
-                    return self % other == other
-            case od.Conditional():
-                return other == self
-            case _:
-                return self % other == other
-        return False
-    
-    def __lt__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self.pitch_int() < other.pitch_int()
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other < other
-            case _:
-                return super().__lt__(other)
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self.pitch_int() > other.pitch_int()
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other > other
-            case _:
-                return super().__gt__(other)
-        return False
-    
     def getSerialization(self) -> dict:
 
         serialization = super().getSerialization()
@@ -1607,7 +1608,7 @@ class Pitch_NEW(Generic):
                     self._tonic_key = self._key_signature % ou.Key() % int()
                     # Resets the degree to I (tonic)
                     self._root_key = self._tonic_key
-                else:
+                else:   # Sets straight root key in order to avoid incremented octave for each setting
                     self._root_key = self.get_root_key(operand)
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
