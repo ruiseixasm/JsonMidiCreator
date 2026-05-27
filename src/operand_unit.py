@@ -722,17 +722,9 @@ class Key(PitchParameter):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         match operand:
-            case od.Pipe():
-                match operand._data:
-                    case str():
-                        return Key._keys[self._unit % 48]
-                    case _:
-                        return super().__mod__(operand)
-
             case int():
-                return self._unit % 12
+                return self._unit
             case float():
                 return float(self._line)
             case str():
@@ -755,7 +747,7 @@ class Key(PitchParameter):
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
-                return self % int() == other % int()
+                return self._unit % 12 == other._unit % 12
             case str():
                 return self % str() == other
             case _:
@@ -790,18 +782,18 @@ class Key(PitchParameter):
                     case float():
                         self._line = int(operand._data)
                     case Semitone():
-                        self._unit = operand._data._unit % 12
+                        self._unit = operand._data._unit
 
                     case str():
                         self._unit = self.getKeyNumber(operand._data) % 12
                     case _:
                         super().__lshift__(operand)
             case int():
-                self._unit = operand % 12
+                self._unit = operand
             case float():
                 self._line = int(operand)
             case Semitone():
-                self._unit = operand._unit % 12
+                self._unit = operand._unit
             case str():
                 # Remove Octave number first (Safe)
                 if len(operand) > 1:

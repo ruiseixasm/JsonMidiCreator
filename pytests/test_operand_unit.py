@@ -218,3 +218,8 @@ def test_degree_multi():
     assert Degree("6") == 6
     assert Degree("9") == 9
 
+
+def test_key_multi():
+    assert Key(4) == 4
+    assert Key(14) == 14
+
