@@ -302,68 +302,6 @@ class Container(o.Operand):
         return self
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, because a Container has
-        only one type of Parameters it should be used in conjugation with list()
-        to extract the Parameter list.
-
-        Examples
-        --------
-        >>> clip = Track(Note("A"), Note("B"))
-        >>> clip % list() >> Print()
-        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
-        """
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case list():
-                        return [
-                            item for item in self._foreground_items()
-                        ]
-                    case _:
-                        return super().__mod__(operand)
-            case list():
-                if operand: # Non empty list
-                    parameters: list = []
-                    for single_item in self._foreground_items():
-                        if isinstance(single_item, o.Operand):
-                            operand_parameter: any = single_item
-                            for single_parameter in operand:
-                                operand_parameter %= single_parameter
-                            parameters.append( operand_parameter )
-                        else:
-                            parameters.append( ol.Null() )
-                    return parameters
-                return [
-                    self.deep_copy(item) for item in self._foreground_items()
-                ]
-            case int():
-                return self.len()
-            case bool():
-                return self._masked
-            case Container():
-                return operand.copy(self)
-            
-            case of.Frame():    # Only applicable to Operand items
-                operand._set_inside_container(self)
-                parameters: list = []
-                for single_element in self._foreground_items():
-                    if isinstance(single_element, o.Operand):
-                        operand_parameter: o.Operand = single_element
-                        parameter_getter: list = operand ^ single_element
-                        if isinstance(parameter_getter, list):
-                            if parameter_getter:    # Non empty list
-                                for single_parameter in parameter_getter:
-                                    operand_parameter %= single_parameter
-                                parameters.append( operand_parameter )
-                            else:
-                                parameters.append( single_element.copy() )
-                return parameters
-
-            case _:
-                return super().__mod__(operand)
-
     def len(self) -> int:
         """
         Returns the total number of editable items
@@ -442,6 +380,68 @@ class Container(o.Operand):
             return True
         return super().__gt__(other)
 
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, because a Container has
+        only one type of Parameters it should be used in conjugation with list()
+        to extract the Parameter list.
+
+        Examples
+        --------
+        >>> clip = Track(Note("A"), Note("B"))
+        >>> clip % list() >> Print()
+        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        return [
+                            item for item in self._foreground_items()
+                        ]
+                    case _:
+                        return super().__mod__(operand)
+            case list():
+                if operand: # Non empty list
+                    parameters: list = []
+                    for single_item in self._foreground_items():
+                        if isinstance(single_item, o.Operand):
+                            operand_parameter: any = single_item
+                            for single_parameter in operand:
+                                operand_parameter %= single_parameter
+                            parameters.append( operand_parameter )
+                        else:
+                            parameters.append( ol.Null() )
+                    return parameters
+                return [
+                    self.deep_copy(item) for item in self._foreground_items()
+                ]
+            case int():
+                return self.len()
+            case bool():
+                return self._masked
+            case Container():
+                return operand.copy(self)
+            
+            case of.Frame():    # Only applicable to Operand items
+                operand._set_inside_container(self)
+                parameters: list = []
+                for single_element in self._foreground_items():
+                    if isinstance(single_element, o.Operand):
+                        operand_parameter: o.Operand = single_element
+                        parameter_getter: list = operand ^ single_element
+                        if isinstance(parameter_getter, list):
+                            if parameter_getter:    # Non empty list
+                                for single_parameter in parameter_getter:
+                                    operand_parameter %= single_parameter
+                                parameters.append( operand_parameter )
+                            else:
+                                parameters.append( single_element.copy() )
+                return parameters
+
+            case _:
+                return super().__mod__(operand)
+
     def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
         return []
 
@@ -517,10 +517,10 @@ class Container(o.Operand):
                         operand._data._set_inside_container(self)
                         for single_item in self._foreground_items():
                             single_item << od.Pipe( operand._data.frame(single_item) )
-                    case _:
+                    case _: # operand is a Pipe
                         for single_item in self._foreground_items():
                             if isinstance (single_item, o.Operand):
-                                single_item << operand
+                                single_item << operand.copy()   # Avoids the share of a single parameter
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )

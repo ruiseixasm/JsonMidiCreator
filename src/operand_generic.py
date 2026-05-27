@@ -1582,7 +1582,7 @@ class Pitch_NEW(Generic):
                 self._key_signature << operand
                 self << previous_degree # Maintains the Degree structure
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
-            case ou.Quality() | ou.Accidentals():
+            case ou.Quality() | ou.Accidentals() | ou.Mode():
                 self._key_signature << operand
             case ou.Semitone():
                 # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
