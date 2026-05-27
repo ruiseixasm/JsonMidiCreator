@@ -918,7 +918,8 @@ class Degree(PitchParameter):
     
     Parameters
     ----------
-    int(1), str("I"), float(1.0) : Accepts a numeral (5) or the string (V) with 1 as the default
+    int(1), str("I") : Accepts a numeral (5) or the string (V) with 1 as the default
+    float(0.0) : Sharps or Flats, positive value for sharps and negative value for flats
     """
     def __init__(self, *parameters):
         self._accidental: int = 0

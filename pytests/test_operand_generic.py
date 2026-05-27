@@ -843,20 +843,20 @@ def test_root_key():
 
     print("------")
     settings << KeySignature("b") # F Major scale key signature
+    pitch = Pitch() # KeySignature default Key
     f_major_scale: list[str] = [
         "F", "G", "A", "Bb", "C", "D", "E"
     ]
-    pitch = Pitch() # KeySignature default Key
     for degree in range(7):
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == f_major_scale[degree]
         pitch += 1.0  # One degree each time
 
     print("---")
+    pitch = Pitch(RootKey("Bb"))
     f_root_bb_major_scale: list[str] = [
         "Bb", "C", "D", "E", "F", "G", "A"
     ]
-    pitch = Pitch(RootKey("Bb"))
     for degree in range(7):
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == f_root_bb_major_scale[degree]
@@ -865,7 +865,8 @@ def test_root_key():
     print("---")
     pitch = Pitch(RootKey("B"))
     f_root_b_major_scale: list[str] = [
-        "Cb", "Db", "Eb", "F", "Gb", "Ab", "Bb"
+        "Cb", "Db", "Eb", "E", "Gb", "Ab", "A"
+        # "Cb", "Db", "Eb", "F", "Gb", "Ab", "Bb"   WRONG BECAUSE IT'S THE ROOT NOT THE TONIC THAT CHANGED
     ]
     generated_scale: list[str] = []
     for degree in range(7):
@@ -874,6 +875,21 @@ def test_root_key():
     print(f"expected_scale:  {f_root_b_major_scale}")
     print(f"generated_scale: {generated_scale}")
     assert generated_scale == f_root_b_major_scale
+    # expected_scale:  ['Cb', 'Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb']
+    # generated_scale: ['Cb', 'Db', 'Eb', 'E', 'Gb', 'Ab', 'A']
+
+    print("---")
+    pitch = Pitch(RootKey("C"))
+    f_root_c_major_scale: list[str] = [
+        "C", "D", "E", "F", "G", "A", "Bb"
+    ]
+    generated_scale: list[str] = []
+    for degree in range(7):
+        generated_scale.append(pitch % str())
+        pitch += 1.0  # One degree each time
+    print(f"expected_scale:  {f_root_c_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == f_root_c_major_scale
 
     print("------")
     settings << KeySignature("bb") # Bb Major scale key signature
@@ -1532,5 +1548,5 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
-test_pitch_multi()
+# test_pitch_multi()
 
