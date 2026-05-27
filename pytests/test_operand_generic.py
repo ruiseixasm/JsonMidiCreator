@@ -82,6 +82,35 @@ def test_pitch_str():
     assert pitch % Octave() == 4
 
 
+def test_root_key_degree_0():
+    degree_0 = Scale.root_key_degree_0(0, 0)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(0)
+
+    degree_0 = Scale.root_key_degree_0(0, 2)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(1)
+
+    degree_0 = Scale.root_key_degree_0(0, 11)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(6)
+
+    degree_0 = Scale.root_key_degree_0(0, -1)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(-1)
+
+    degree_0 = Scale.root_key_degree_0(0, 1)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(0, float(1))
+
+# test_root_key_degree()
+
+
 def test_scale_mod():
 
     # Perform the operation
@@ -1537,4 +1566,5 @@ def test_pitch_multi():
     settings << None
 
 # test_pitch_multi()
+
 
