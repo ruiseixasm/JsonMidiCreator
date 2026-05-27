@@ -972,7 +972,7 @@ def test_pitch_degrees():
             key_pitch << Degree(1) << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
-                      f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
+                      f"Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % Degree() == Degree(degree)
                 # Pitch: 73, Octave: 5, Tonic: 61, Degree_0: 0, Degree: 1, Transposition: 0
                 assert key_pitch.pitch_int() == reference_keys[degree - 1] + (pitch_int - 60)
@@ -1034,7 +1034,7 @@ def test_pitch_add():
     assert pitch_2 % Octave() == 4
     key_pitch: Pitch = pitch_2 + 2.0
     print(f"Pitch: {key_pitch.pitch_int()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
-            f"Degree_0: {key_pitch._degree_0}, Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
+            f"Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
     assert (pitch_2 + 2.0) % Octave() == 5
     pitch_2.pitch_int() >> Print()
     assert pitch_2.pitch_int() == Pitch("B").pitch_int()
@@ -1424,9 +1424,9 @@ def test_edge_degrees():
 
 def test_pitch_degrees_2():
     second_degree = Pitch(2.0)
-    assert second_degree._degree_0 == 2 - 1
+    assert second_degree % Degree() == 2
     ninth_degree = Pitch(9.0)
-    assert ninth_degree._degree_0 == 9 - 1
+    assert ninth_degree % Degree() == 9
     print(f"second_degree % Pipe(Key()): {second_degree % Pipe(Key()) % int()}")
     assert second_degree % Octave() == 4
     print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
