@@ -1552,58 +1552,28 @@ class Pitch_NEW(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
-                    case ou.RootKey():
-                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
-                        root_key_12 = ou.RootKey(operand._data._unit % 12)
-                        self << root_key_12  # Sets the RootKey on the actual Octave
-                        root_pitch: int = self.chromatic_root_int() + self.octave_transposition()
-                        root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
-                        self._octave_0 += expected_octave_0 - root_octave_0
-                        # Normalize degree
-                        offset_octave = self._degree_0 // 7
-                        if offset_octave:
-                            self._degree_0 %= 7
-                            self._octave_0 += offset_octave
-                    case ou.TargetKey():
-                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
-                        root_key_12 = ou.RootKey(operand._data._unit % 12)
-                        self << root_key_12  # Sets the RootKey on the actual Octave
-                        target_pitch: int = self.chromatic_target_int() + self.octave_transposition()
-                        target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
-                        self._octave_0 += expected_octave_0 - target_octave_0
-                        # Normalize degree
-                        offset_octave = self._degree_0 // 7
-                        if offset_octave:
-                            self._degree_0 %= 7
-                            self._octave_0 += offset_octave
-                    case ou.Key():
-                        self << od.Pipe( ou.RootKey(operand._data._unit) )
 
-                    case ou.Degree():   # Sets an absolute degree_0
-                        self._degree_0 = operand._data._unit
-                        self._accidental = operand._data._accidental
-                    case ou.Accidental() | ou.Natural():
-                        self._accidental = ou.Degree(operand._data)._accidental
+                    case ou.RootKey():    # Must come before than Key()
+                        self._octave_0 = operand._data._unit // 12
+                        self._root_key = operand._data._unit % 12
+                        
+                    case ou.Key():
+                        target_octave = operand._data._unit // 12
+                        self << operand._data
+                        actual_octave = self % ou.Octave() % int()
+                        self._octave_0 += target_octave - actual_octave
             
                     case ou.Octave():
                         self._octave_0 = operand._data._unit    # Based 0 octave
                     case int():
                         self._octave_0 = operand
-                    case float():
-                        self._degree_0 = int(operand)
-                    case Fraction():
-                        self._transposition = int(operand._data)
-                    case ou.Semitone(): # Sets an absolute pitch
-                        self << od.Pipe(ou.Key(operand._data._unit))
+                        
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():
                         self._scale = operand._data._scale
                     case list():
                         self._scale = operand._data
-                    case str():
-                        self._degree_0 = abs((self % od.Pipe( ou.Degree() ) << ou.Degree(operand._data))._unit) - 1 # 0 based
-                        self._tonic_key = ou.Key(self._tonic_key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
 
@@ -1651,34 +1621,12 @@ class Pitch_NEW(Generic):
                     self._tonic_key = operand._unit % 12
             case ou.RootKey():
                 self._root_key = operand._unit % 12
-            case ou.TargetKey():
-
-
-                original_octave_0 = self.octave_int_0()
-                tone_0, semitone = self.transposition_tone_semitone(operand._unit % 12)
-                # Uses the Degree Accidental system instead of changing the Tonic key
-                self._accidental = semitone
-                self << ou.Transposition(tone_0)
-                actual_octave_0 = self.octave_int_0()
-                self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
-                # Normalize degree
-                offset_octave = self._degree_0 // 7
-                if offset_octave:
-                    self._degree_0 %= 7
-                    self._octave_0 += offset_octave
             case ou.Key():
-                self << ou.RootKey(operand)
+                target_int: int = self.chromatic_target_int()
+                self._root_key = operand._unit % 12 - target_int
 
             case ou.Transposition():
-                # Has to work with increments to keep the same Octave and avoid induced Octave jumps
-                # Because a pitch scale may not be a diatonic scale (7 degrees)!
-                if self._scale:
-                    scale_degrees: int = sum(self._scale)
-                else:
-                    scale_degrees: int = 7  # Diatonic scales
-                previous_transposition: int = self._transposition % scale_degrees
-                new_transposition: int = operand._unit % scale_degrees
-                self._transposition += new_transposition - previous_transposition
+                self._transposition = operand._unit
 
             case dict():
                 for octave, value in operand.items():
@@ -2035,23 +1983,24 @@ class Scale(Generic):
     def root_key_degree_0(tonic_key: int, root_key: int, flats: bool = False,
                         scale: list[int] | tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)) -> ou.Degree:
         degree = ou.Degree()
-        tonic_key %= 12
-        accidental: int = 0
-        while scale[(root_key + accidental - tonic_key) % 12] == 0:
-            if flats:
-                accidental -= 1
-            else:
-                accidental += 1
-        degree._accidental = accidental
-        root_key -= accidental
-        steps: int = 0
-        while root_key > tonic_key:
-            root_key -= 1
-            steps += scale[(root_key - tonic_key) % 12]
-        while root_key < tonic_key:
-            root_key += 1
-            steps -= scale[(root_key - tonic_key) % 12]
-        degree._unit = steps
+        if len(scale) == 12 and sum(scale) > 0:
+            tonic_key %= 12
+            accidental: int = 0
+            while scale[(root_key + accidental - tonic_key) % 12] == 0:
+                if flats:
+                    accidental -= 1
+                else:
+                    accidental += 1
+            degree._accidental = accidental
+            root_key -= accidental
+            steps: int = 0
+            while root_key > tonic_key:
+                root_key -= 1
+                steps += scale[(root_key - tonic_key) % 12]
+            while root_key < tonic_key:
+                root_key += 1
+                steps -= scale[(root_key - tonic_key) % 12]
+            degree._unit = steps
         return degree
 
     @staticmethod
