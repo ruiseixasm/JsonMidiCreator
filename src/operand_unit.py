@@ -865,6 +865,8 @@ class Degree(PitchParameter):
                 return Sharp(self._accidental)
             case Flat():
                 return Flat(self._accidental * -1)
+            case Accidental():
+                return Accidental(self._accidental)
             case Natural():
                 if self._accidental:
                     return Natural(False)
@@ -896,6 +898,8 @@ class Degree(PitchParameter):
                 self._accidental    = operand._accidental
             case od.Pipe():
                 match operand._data:
+                    case Accidental():
+                        self._accidental = operand._data._unit
                     case str():
                         self.setDegreeFromString(operand._data)
                     case _:
@@ -914,6 +918,8 @@ class Degree(PitchParameter):
                     self << Sharp(operand * -1)
                 else:
                     self._accidental = operand._unit * -1
+            case Accidental():
+                self._accidental = operand._unit
             case Natural():
                 self._accidental = 0
             case _:
@@ -935,6 +941,8 @@ class Degree(PitchParameter):
                 self << self % Sharp() + number
             case Flat():
                 self << self % Flat() + number
+            case Accidental():
+                self._accidental += number._unit
             case Natural():
                 return self # Does nothing
             case _:
@@ -955,6 +963,8 @@ class Degree(PitchParameter):
                 self << self % Sharp() - number
             case Flat():
                 self << self % Flat() - number
+            case Accidental():
+                self._accidental -= number._unit
             case Natural():
                 return self # Does nothing
             case _:
