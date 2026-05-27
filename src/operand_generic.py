@@ -609,17 +609,17 @@ class Pitch(Generic):
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
-        sharps: bool = key_int % 24 < 12    # The tone and semitone concerning the key_int
         tonic_offset: int = key_int % 12 - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
-            if sharps:
-                tonic_offset -= 1
-                semitones = 1
-            else:
+            flats: bool = self._key_signature._unit < 0
+            if flats:
                 tonic_offset += 1
                 semitones = -1
+            else:
+                tonic_offset -= 1
+                semitones = 1
         # For Tones
         while tonic_offset > 0:
             tone += signature_scale[tonic_offset % 12]

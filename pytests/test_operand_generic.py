@@ -861,15 +861,19 @@ def test_root_key():
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == f_root_bb_major_scale[degree]
         pitch += 1.0  # One degree each time
+
     print("---")
+    pitch = Pitch(RootKey("B"))
     f_root_b_major_scale: list[str] = [
         "Cb", "Db", "Eb", "F", "Gb", "Ab", "Bb"
     ]
-    pitch = Pitch(RootKey("B"))
+    generated_scale: list[str] = []
     for degree in range(7):
-        print(f"RootKey {degree}: {pitch % str()}")
-        assert pitch == f_root_b_major_scale[degree]
+        generated_scale.append(pitch % str())
         pitch += 1.0  # One degree each time
+    print(f"expected_scale:  {f_root_b_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == f_root_b_major_scale
 
     print("------")
     settings << KeySignature("bb") # Bb Major scale key signature
@@ -891,16 +895,16 @@ def test_root_key():
         print(f"RootKey {degree}: {pitch % str()}")
         assert pitch == bb_root_Eb_major_scale[degree]
         pitch += 1.0  # One degree each time
+
     print("---")
+    pitch = Pitch(RootKey("Fb"))
     bb_root_E_major_scale: list[str] = [
         "Fb", "Gb", "Ab", "A", "Cb", "Db", "D"
     ]
-    pitch = Pitch(RootKey("Fb"))
     generated_scale: list[str] = []
     for degree in range(7):
         generated_scale.append(pitch % str())
         pitch += 1.0  # One degree each time
-
     print(f"expected_scale:  {bb_root_E_major_scale}")
     print(f"generated_scale: {generated_scale}")
     assert generated_scale == bb_root_E_major_scale
@@ -1464,13 +1468,14 @@ def test_pitch_multi():
     pitch_Bb = Pitch()      # The Tonic Key (I)
     assert pitch_Bb == "Bb" # The Tonic Key (I)
 
-    pitch_E = Pitch(RootKey("E")) # Same as Fb and same as iv degree
+    pitch_E = Pitch(RootKey("E")) # Same as Fb and same as V degree
+    assert pitch_E == 5.0
     pitch_Fb = Pitch(RootKey("Fb"))
     assert pitch_E == pitch_Fb
     print(f"pitch_E.pitch_int(): {pitch_E.pitch_int()}")
     assert pitch_E.pitch_int() == 60 + 4
-    assert pitch_E % str() == "Fb"
-    pitch_iv = ~pitch_E << 4.0
+    assert pitch_E % str() == "Fb"  # 5 Degree
+    pitch_iv = ~pitch_E << 5.0
     # Note(pitch_E) / Note(pitch_iv) >> Plot()
     print(f"pitch_iv.pitch_int(): {pitch_iv.pitch_int()}")
     assert pitch_iv.pitch_int() == 60 + 4 # Same as E and Fb
@@ -1527,5 +1532,5 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
-# test_pitch_multi()
+test_pitch_multi()
 
