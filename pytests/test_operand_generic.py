@@ -509,36 +509,36 @@ def test_drum_kit():
 
     pitch: Pitch = Pitch()
 
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 60  # White Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 60  # White Key
     pitch << Pipe(Key(35))
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 35  # White Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 35  # White Key
     pitch << Pipe(Key(42))
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 42  # Black Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 42  # Black Key
     pitch << Pipe(Key(39))
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 39  # Black Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 39  # Black Key
 
     pitch << DrumKit("Drum")
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 35  # White Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 35  # White Key
     pitch << DrumKit("Hi-Hat")
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 42  # Black Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 42  # Black Key
     pitch << DrumKit("Clap")
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 39  # Black Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 39  # Black Key
 
     # A different KeySignature
     pitch << KeySignature(-1)
     pitch << DrumKit("Hi-Hat")
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 42  # Black Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 42  # Black Key
     pitch << DrumKit("Drum")
-    print(pitch.pitch_int())
-    assert pitch.pitch_int() == 35  # White Key
+    print(pitch._chromatic_pitch())
+    assert pitch._chromatic_pitch() == 35  # White Key
     # Alternative to call the method above `pitch_int`
     assert pitch % Pipe(Key()) == 35  # White Key
 
@@ -654,12 +654,12 @@ def test_key_degrees():
 def test_root_key_set():
 
     major_C = Pitch(Major())
-    major_C_pitch_int = major_C.pitch_int()
+    major_C_pitch_int = major_C._chromatic_pitch()
     root_key = RootKey("C")
 
     for _ in range(12):
         major_C << root_key
-        assert major_C.pitch_int() == major_C_pitch_int
+        assert major_C._chromatic_pitch() == major_C_pitch_int
         root_key += 1
         major_C_pitch_int += 1
 
@@ -669,21 +669,21 @@ def test_root_key_set():
     minor_C_sharp << RootKey("C")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    minor_C_sharp_int = minor_C_sharp._chromatic_pitch()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 60
 
     minor_C_sharp << RootKey("C#")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    minor_C_sharp_int = minor_C_sharp._chromatic_pitch()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 61
 
     minor_C_sharp << RootKey("C")
     print(f"minor_C_sharp % Octave(): {minor_C_sharp % Octave()}")
     assert minor_C_sharp % Octave() == 4    # Setting the root key preserves the Octave
-    minor_C_sharp_int = minor_C_sharp.pitch_int()
+    minor_C_sharp_int = minor_C_sharp._chromatic_pitch()
     print(f"minor_C_sharp_int: {minor_C_sharp_int}")
     assert minor_C_sharp_int == 60
 
@@ -694,17 +694,17 @@ def test_root_key_set():
     print(f"minor_A_flat % Octave(): {minor_A_flat % Octave()}")
     # Clip(Note(minor_A)) / Clip(Note(minor_A_flat)) >> Plot()
     assert minor_A_flat % Octave() == 4 # It's just a flatting of A
-    minor_A_flat_int = minor_A_flat.pitch_int()
+    minor_A_flat_int = minor_A_flat._chromatic_pitch()
     print(f"minor_A_flat_int: {minor_A_flat_int}")
     assert minor_A_flat_int == 68 # It's just a flatting of A (69)
 
     minor_A = Pitch(Minor())
-    minor_A_pitch_int = minor_A.pitch_int()
+    minor_A_pitch_int = minor_A._chromatic_pitch()
     print(f"minor_A_pitch_int: {minor_A_pitch_int}")
     minor_A << RootKey("A")
 
     for _ in range(12):
-        key_pitch_int = minor_A.pitch_int()
+        key_pitch_int = minor_A._chromatic_pitch()
         print(f"minor_A % RootKey(): {minor_A % RootKey() % int()}")
         print(f"key_octave: {minor_A % Octave()}")
         print(f"key_pitch_int: {key_pitch_int}")
@@ -992,18 +992,18 @@ def test_pitch_degrees():
     # White Tonic Key
     sharp_pitch = Pitch()   # With Degree 1
     for degree in range(1, 8):
-        print(f"Pitch: {sharp_pitch.pitch_int()}")
-        assert sharp_pitch.pitch_int() == major_keys[degree - 1]
+        print(f"Pitch: {sharp_pitch._chromatic_pitch()}")
+        assert sharp_pitch._chromatic_pitch() == major_keys[degree - 1]
         sharp_pitch += 1.0    # Increases by degree
 
     # Black Tonic Key
     print("------")
     sharp_pitch << Pipe( TonicKey(61) ) << Degree(1)    # Has to reset previous Degree to 1 first
     assert sharp_pitch == "C#"
-    assert (sharp_pitch + 3.0).pitch_int() == 66
+    assert (sharp_pitch + 3.0)._chromatic_pitch() == 66
     for degree in range(1, 8):
-        print(f"Pitch: {sharp_pitch.pitch_int()}")
-        assert sharp_pitch.pitch_int() == major_keys[degree - 1] + 1
+        print(f"Pitch: {sharp_pitch._chromatic_pitch()}")
+        assert sharp_pitch._chromatic_pitch() == major_keys[degree - 1] + 1
         sharp_pitch += 1.0    # Increases by degree
 
     print("------")
@@ -1016,17 +1016,17 @@ def test_pitch_degrees():
         reference_keys: list[int] = []
         for degree in range(1, 8):
             key_pitch << od.Pipe( TonicKey(60) ) << Degree(1) << float(degree)    # Has to reset previous Degree to 1 first
-            reference_keys.append( key_pitch.pitch_int() )
+            reference_keys.append( key_pitch._chromatic_pitch() )
 
         for pitch_int in range(60, 72):
             print("---")
             key_pitch << od.Pipe( TonicKey(pitch_int) ) << Degree(1)  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
-                print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
+                print(f"Pitch: {key_pitch._chromatic_pitch()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
                 assert key_pitch % Degree() == Degree(degree)
                 # Pitch: 73, Octave: 5, Tonic: 61, Degree_0: 0, Degree: 1, Transposition: 0
-                assert key_pitch.pitch_int() == reference_keys[degree - 1] + (pitch_int - 60)
+                assert key_pitch._chromatic_pitch() == reference_keys[degree - 1] + (pitch_int - 60)
                 key_pitch += float(1)  # += to increment Degree and Octave too
 
     # Resets the defaults
@@ -1067,11 +1067,11 @@ def test_pitch_add():
 
     # Perform the operation
     pitch_b: Pitch = Pitch()    # 60
-    assert pitch_b.pitch_int() == 60
+    assert pitch_b._chromatic_pitch() == 60
     pitch_b += Semitone(2)
-    assert pitch_b.pitch_int() == 62
+    assert pitch_b._chromatic_pitch() == 62
     pitch_b += Semitone(12)
-    assert pitch_b.pitch_int() == 74
+    assert pitch_b._chromatic_pitch() == 74
 
     pitch_1: Pitch = Pitch("A")
     pitch_1.getSerialization() % Data("degree") >> Print()
@@ -1084,17 +1084,17 @@ def test_pitch_add():
     pitch_2 = Pitch() << Degree("iii")  # Become Key B (60 + 11 = 71)
     assert pitch_2 % Octave() == 4
     key_pitch: Pitch = pitch_2 + 2.0
-    print(f"Pitch: {key_pitch.pitch_int()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
+    print(f"Pitch: {key_pitch._chromatic_pitch()}, Octave_0: {key_pitch._octave_0}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
             f"Degree: {key_pitch % Degree() % int()}, Transposition: {key_pitch._transposition}")
     assert (pitch_2 + 2.0) % Octave() == 5
-    pitch_2.pitch_int() >> Print()
-    assert pitch_2.pitch_int() == Pitch("B").pitch_int()
-    print(f'Pitch("D"): {Pitch("D").pitch_int()}')
-    assert Pitch("D").pitch_int() == 62
-    assert (Pitch("D") + Octave(1)).pitch_int() == 62 + 12
-    assert (Pitch("D") + Semitone(12)).pitch_int() == 62 + 12
-    (pitch_2 + 2.0).pitch_int() >> Print()      # 74
-    (Pitch("D") + Semitone(12)).pitch_int() >> Print()    # 74 + 12 = 86
+    pitch_2._chromatic_pitch() >> Print()
+    assert pitch_2._chromatic_pitch() == Pitch("B")._chromatic_pitch()
+    print(f'Pitch("D"): {Pitch("D")._chromatic_pitch()}')
+    assert Pitch("D")._chromatic_pitch() == 62
+    assert (Pitch("D") + Octave(1))._chromatic_pitch() == 62 + 12
+    assert (Pitch("D") + Semitone(12))._chromatic_pitch() == 62 + 12
+    (pitch_2 + 2.0)._chromatic_pitch() >> Print()      # 74
+    (Pitch("D") + Semitone(12))._chromatic_pitch() >> Print()    # 74 + 12 = 86
     assert pitch_2 + 2.0 == Pitch("D") + Octave(1)      # Next octave
 
     settings << KeySignature()
@@ -1120,7 +1120,7 @@ def test_pitch_add():
 
     pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
     assert pitch_4 % str() == "C"
-    assert pitch_4.pitch_int() == 60
+    assert pitch_4._chromatic_pitch() == 60
 
     # Test all semitones from 0 to 11
     chromatic_pitches: list[int] = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
@@ -1132,13 +1132,13 @@ def test_pitch_add():
         print(f"------------ {sharps} ------------")
         print("--UP--")
         for key_i in range(12):
-            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+            (pitch_4 + Semitone(key_i))._chromatic_pitch() >> Print()
+            assert (pitch_4 + Semitone(key_i))._chromatic_pitch() == chromatic_pitches[key_i]
         pitch_4 << Pipe(Key(71))
         print("-DOWN-")
         for key_i in range(12):
-            pitch_4.pitch_int() >> Print()
-            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
+            pitch_4._chromatic_pitch() >> Print()
+            assert pitch_4._chromatic_pitch() == chromatic_pitches[11 - key_i]
             pitch_4 -= Semitone(1)
 
     for flats in range(0, -8, -1): # -8 is excluded
@@ -1148,13 +1148,13 @@ def test_pitch_add():
         print(f"------------ {flats} ------------")
         print("--UP--")
         for key_i in range(12):
-            (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-            assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+            (pitch_4 + Semitone(key_i))._chromatic_pitch() >> Print()
+            assert (pitch_4 + Semitone(key_i))._chromatic_pitch() == chromatic_pitches[key_i]
         pitch_4 << Pipe(Key(71))
         print("-DOWN-")
         for key_i in range(12):
-            pitch_4.pitch_int() >> Print()
-            assert pitch_4.pitch_int() == chromatic_pitches[11 - key_i]
+            pitch_4._chromatic_pitch() >> Print()
+            assert pitch_4._chromatic_pitch() == chromatic_pitches[11 - key_i]
             pitch_4 -= Semitone(1)
 
     settings << KeySignature()
@@ -1163,14 +1163,14 @@ def test_pitch_add():
     print(f"------------ DEGREES ------------")
     print("------")
     for key_i in range(12):
-        (pitch_4 + Semitone(key_i)).pitch_int() >> Print()
-        assert (pitch_4 + Semitone(key_i)).pitch_int() == chromatic_pitches[key_i]
+        (pitch_4 + Semitone(key_i))._chromatic_pitch() >> Print()
+        assert (pitch_4 + Semitone(key_i))._chromatic_pitch() == chromatic_pitches[key_i]
 
     print("------")
     white_pitches: list[int] = [60, 62, 64, 65, 67, 69, 71]
     for degree in range(7):
-        (pitch_4 + float(degree)).pitch_int() >> Print()
-        assert (pitch_4 + float(degree)).pitch_int() == white_pitches[degree]
+        (pitch_4 + float(degree))._chromatic_pitch() >> Print()
+        assert (pitch_4 + float(degree))._chromatic_pitch() == white_pitches[degree]
 
     print("------")
     pitch_5: Pitch = Pitch()
@@ -1231,17 +1231,17 @@ def test_pitch_pipe():
     assert pitch_Fs4_key_0 == 66
 
     pitch_d2 = Pitch(Key("D"), Octave(2))
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 38
-    assert pitch_d2.pitch_int() == 38
+    print(f'pitch_d2.pitch_int(): {pitch_d2._chromatic_pitch()}')  # 38
+    assert pitch_d2._chromatic_pitch() == 38
     pitch_d2 << Pipe(pitch_Fs4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 66
-    assert pitch_d2.pitch_int() == 66
+    print(f'pitch_d2.pitch_int(): {pitch_d2._chromatic_pitch()}')  # 66
+    assert pitch_d2._chromatic_pitch() == 66
     pitch_d2 << Pipe(pitch_G4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 67
-    assert pitch_d2.pitch_int() == 67
+    print(f'pitch_d2.pitch_int(): {pitch_d2._chromatic_pitch()}')  # 67
+    assert pitch_d2._chromatic_pitch() == 67
     pitch_d2 << Pipe(pitch_C4_key_0)
-    print(f'pitch_d2.pitch_int(): {pitch_d2.pitch_int()}')  # 60
-    assert pitch_d2.pitch_int() == 60
+    print(f'pitch_d2.pitch_int(): {pitch_d2._chromatic_pitch()}')  # 60
+    assert pitch_d2._chromatic_pitch() == 60
 
     # Resets the defaults
     settings << None
@@ -1313,39 +1313,39 @@ def test_set_chromatic_pitch():
     print(f"Ab scale, octave: {pitch_ab % (list(), (Octave(), int()))}")
     print(f"A scale, octave: {pitch_a % (list(), (Octave(), int()))}")
 
-    print(f"Ab pitch_int: {pitch_ab.pitch_int()}")
-    print(f"A pitch_int: {pitch_a.pitch_int()}")
-    assert pitch_ab.pitch_int() == 68
-    assert pitch_a.pitch_int() == 69
+    print(f"Ab pitch_int: {pitch_ab._chromatic_pitch()}")
+    print(f"A pitch_int: {pitch_a._chromatic_pitch()}")
+    assert pitch_ab._chromatic_pitch() == 68
+    assert pitch_a._chromatic_pitch() == 69
 
     pitch: Pitch = Pitch()
 
-    print(f"Pitch: {pitch.pitch_int()}")
-    assert pitch.pitch_int() == 60
+    print(f"Pitch: {pitch._chromatic_pitch()}")
+    assert pitch._chromatic_pitch() == 60
 
     for degree in range(1, 8):
         print(f"------------ {degree} ------------")
         pitch << float(degree)
         for pitch_int in range(128):
             pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
+            pitch._chromatic_pitch() >> Print()
+            assert pitch._chromatic_pitch() == pitch_int
 
     for sharps in range(1, 8): # 8 is excluded
         print(f"------------ {sharps} ------------")
         settings << KeySignature(sharps)
         for pitch_int in range(128):
             pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
+            pitch._chromatic_pitch() >> Print()
+            assert pitch._chromatic_pitch() == pitch_int
 
     for flats in range(-1, -8, -1): # 8 is excluded
         print(f"------------ {flats} ------------")
         settings << KeySignature(flats)
         for pitch_int in range(128):
             pitch << Pipe(Key(pitch_int))
-            pitch.pitch_int() >> Print()
-            assert pitch.pitch_int() == pitch_int
+            pitch._chromatic_pitch() >> Print()
+            assert pitch._chromatic_pitch() == pitch_int
 
     # Resets the defaults
     settings << None
@@ -1412,16 +1412,16 @@ def test_degree_float():
     settings << None
 
     pitch_degree: Pitch = Pitch()
-    assert pitch_degree.pitch_int() == 60
+    assert pitch_degree._chromatic_pitch() == 60
 
     pitch_degree << 5.0
-    assert pitch_degree.pitch_int() == 60 + 7
+    assert pitch_degree._chromatic_pitch() == 60 + 7
 
     pitch_degree << 5. << "#"
-    assert pitch_degree.pitch_int() == 60 + 7 + 1
+    assert pitch_degree._chromatic_pitch() == 60 + 7 + 1
 
     pitch_degree << "5b"
-    assert pitch_degree.pitch_int() == 60 + 7 - 1
+    assert pitch_degree._chromatic_pitch() == 60 + 7 - 1
 
 # test_degree_float()
 
@@ -1434,18 +1434,18 @@ def test_pitch_mod():
     # Perform the operation
     pitch = Pitch()
     assert pitch % float() == 1.0       # 1st Degree
-    assert pitch.pitch_int() == 60  # middle C
+    assert pitch._chromatic_pitch() == 60  # middle C
     assert pitch % Key() % str() == "C"
-    assert (pitch + Octave()).pitch_int() == 60 + 12
-    assert (pitch + 1.0).pitch_int() == 60 + 2
+    assert (pitch + Octave())._chromatic_pitch() == 60 + 12
+    assert (pitch + 1.0)._chromatic_pitch() == 60 + 2
     assert not pitch % Sharp()
     assert (pitch << "#") % Sharp()
-    assert (pitch << "n").pitch_int() == 60 # 'n' for Natural
+    assert (pitch << "n")._chromatic_pitch() == 60 # 'n' for Natural
 
     pitch << "G"
-    assert pitch.pitch_int() == 67
+    assert pitch._chromatic_pitch() == 67
     pitch << "#"
-    assert pitch.pitch_int() == 67 + 1
+    assert pitch._chromatic_pitch() == 67 + 1
 
 # test_pitch_mod()
 
@@ -1496,17 +1496,17 @@ def test_pitch_multi():
 
     pitch_C = Pitch()
     assert pitch_C == "C"
-    assert pitch_C.pitch_int() == 60
+    assert pitch_C._chromatic_pitch() == 60
     pitch_C << Degree(-1)
     assert pitch_C == "B"
-    assert pitch_C.pitch_int() == 59
+    assert pitch_C._chromatic_pitch() == 59
 
     pitch_C << Pipe(TonicKey(60))
     assert pitch_C % Pipe(TonicKey()) == 0  # The Tonic Key always goes from 0 to 11
 
     tonic_As = Pitch(TonicKey("A#"))
-    print(f"tonic_As.pitch_int(): {tonic_As.pitch_int()}")
-    assert tonic_As.pitch_int() == 60 + 10
+    print(f"tonic_As.pitch_int(): {tonic_As._chromatic_pitch()}")
+    assert tonic_As._chromatic_pitch() == 60 + 10
     assert tonic_As % str() == "A#"
     assert (tonic_As + 2.0) % str() == "C#"
 
@@ -1519,8 +1519,8 @@ def test_pitch_multi():
         tonic_As += 1.0  # One degree each time
 
     root_As = Pitch(RootKey("A#"))
-    print(f"root_As.pitch_int(): {root_As.pitch_int()}")
-    assert root_As.pitch_int() == 60 + 10
+    print(f"root_As.pitch_int(): {root_As._chromatic_pitch()}")
+    assert root_As._chromatic_pitch() == 60 + 10
     assert root_As % str() == "A#"
     assert (root_As + 2.0) % str() == "C#"
 
@@ -1542,13 +1542,13 @@ def test_pitch_multi():
     assert pitch_E == 5.0
     pitch_Fb = Pitch(RootKey("Fb"))
     assert pitch_E == pitch_Fb
-    print(f"pitch_E.pitch_int(): {pitch_E.pitch_int()}")
-    assert pitch_E.pitch_int() == 60 + 4
+    print(f"pitch_E.pitch_int(): {pitch_E._chromatic_pitch()}")
+    assert pitch_E._chromatic_pitch() == 60 + 4
     assert pitch_E % str() == "Fb"  # 5 Degree
     pitch_iv = ~pitch_E << 5.0
     # Note(pitch_E) / Note(pitch_iv) >> Plot()
-    print(f"pitch_iv.pitch_int(): {pitch_iv.pitch_int()}")
-    assert pitch_iv.pitch_int() == 60 + 4 # Same as E and Fb
+    print(f"pitch_iv.pitch_int(): {pitch_iv._chromatic_pitch()}")
+    assert pitch_iv._chromatic_pitch() == 60 + 4 # Same as E and Fb
     print(f"pitch_iv: {pitch_iv % str()}")
     assert pitch_iv == "Fb"  # Same as Fb, Degree iv from Bb !!
 
