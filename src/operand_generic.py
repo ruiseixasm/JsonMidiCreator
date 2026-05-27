@@ -1677,13 +1677,7 @@ class Pitch_NEW(Generic):
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
-                self._degree_0 += operand._unit
-                self._accidental += operand._accidental
-                # Normalize degree
-                offset_octave = self._degree_0 // 7
-                if offset_octave:
-                    self._degree_0 %= 7
-                    self._octave_0 += offset_octave
+                self << self % ou.Degree() + operand
             case ou.Accidental():
                 self << self % ou.Degree() + operand
             case int():
@@ -1697,18 +1691,12 @@ class Pitch_NEW(Generic):
             case ou.Transposition() | ou.Tones():
                 self._transposition += operand._unit
 
-            case ou.TonicKey():
-                self.increment_tonic(operand._unit)
-            case ou.RootKey():
-                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
-                absolute_root_key += operand
-                self << od.Pipe( absolute_root_key )
-            case ou.TargetKey():
-                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
-                absolute_target_key += operand
-                self << od.Pipe( absolute_target_key )
             case ou.Key():
-                self += ou.RootKey(operand._unit)
+                self._root_key += operand._unit
+                target_octave: int = self % ou.Octave % int()
+                self._root_key %= 12
+                actual_octave: int = self % ou.Octave % int()
+                self._octave_0 += target_octave - actual_octave
 
             case dict():
                 for octave, value in operand.items():
@@ -1747,18 +1735,12 @@ class Pitch_NEW(Generic):
             case ou.Transposition() | ou.Tones():
                 self._transposition -= operand._unit
 
-            case ou.TonicKey():
-                self.increment_tonic(-operand._unit)
-            case ou.RootKey():
-                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
-                absolute_root_key -= operand
-                self << od.Pipe( absolute_root_key )
-            case ou.TargetKey():
-                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
-                absolute_target_key -= operand
-                self << od.Pipe( absolute_target_key )
             case ou.Key():
-                self -= ou.RootKey(operand._unit)
+                self._root_key -= operand._unit
+                target_octave: int = self % ou.Octave % int()
+                self._root_key %= 12
+                actual_octave: int = self % ou.Octave % int()
+                self._octave_0 += target_octave - actual_octave
 
             case dict():
                 for octave, value in operand.items():
