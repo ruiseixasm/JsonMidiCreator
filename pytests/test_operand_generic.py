@@ -1270,12 +1270,12 @@ def test_root_key_pipe():
     assert absolute_root_key == 69  # A
     assert pitch_A_minor % float() == 1.0
 
-    pitch_A_minor << Pipe(RootKey(67))
+    pitch_A_minor << Pipe(RootKey(67))  # Reduces 2 degrees
     assert pitch_A_minor % Octave() == 4
     absolute_root_key = pitch_A_minor % Pipe(RootKey())
     assert absolute_root_key == 67  # G
     print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
-    assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
+    assert pitch_A_minor % float() == -1.0   # Because A is the Tonic and G is 1 degree bellow
 
     pitch_A_minor << RootKey(8) # Ab
     print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")

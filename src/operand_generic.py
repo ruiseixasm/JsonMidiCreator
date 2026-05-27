@@ -1276,13 +1276,6 @@ class Pitch(Generic):
                 return Scale.transpose_key(transposition_degree_0, signature_scale) - degree_transposition
         return 0
 
-
-    def chromatic_root_int(self) -> int:
-        """
-        Gets the root key int from the tonic_key with accidentals.
-        """
-        return self._tonic_key % 12 + self._root_key
-
     def _target_key(self) -> int:
         """
         Emulates a `self._target_key` based on the transposition.
@@ -1295,10 +1288,9 @@ class Pitch(Generic):
         """
         The configured Degree chromatic transposition in the float number.
         """
-        chromatic_root_int: int = self.chromatic_root_int()
         # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
         scale_transposition: int = self.scale_transposition()
-        return chromatic_root_int + scale_transposition
+        return self._root_key + scale_transposition
 
     def pitch_int(self) -> int:
         """
@@ -1313,11 +1305,9 @@ class Pitch(Generic):
         octave_0: int = pitch_int // 12
         return octave_0
 
-
     """
     Auxiliary methods to get specific data directly
     """
-
 
     def increment_tonic(self, keys: int) -> Self:
         """
@@ -1443,7 +1433,7 @@ class Pitch(Generic):
                         return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.RootKey():
                         return operand._data << od.Pipe(
-                            self.chromatic_root_int() + self.octave_transposition()
+                            self._root_key + self.octave_transposition()
                         )
                     case ou.TargetKey():
                         return operand._data << od.Pipe(
@@ -1559,9 +1549,11 @@ class Pitch(Generic):
 
                     case ou.TonicKey():    # Must come before than Key()
                         self._tonic_key = operand._data._unit % 12
+                        self._octave_0 = operand._data._unit // 12
 
                     case ou.RootKey():    # Must come before than Key()
-                        self._root_key = operand._data._unit
+                        self._root_key = operand._data._unit % 12
+                        self._octave_0 = operand._data._unit // 12
                         
                     case ou.Key():
                         target_octave_0 = operand._data._unit // 12
@@ -1589,10 +1581,14 @@ class Pitch(Generic):
                 previous_degree_0 = self.get_degree_0()
                 previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
                 self._key_signature << operand
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
                 self << previous_degree # Maintains the Degree structure
-                self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case ou.Quality() | ou.Accidentals() | ou.Mode():
+                previous_degree_0 = self.get_degree_0()
+                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
                 self._key_signature << operand
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self << previous_degree # Maintains the Degree structure
             case ou.Semitone():
                 # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
                 self << ou.Key(operand._unit)
@@ -1760,9 +1756,9 @@ class Pitch(Generic):
 
             case ou.Key():
                 self._root_key -= operand._unit
-                target_octave: int = self % ou.Octave % int()
+                target_octave: int = self % ou.Octave() % int()
                 self._root_key %= 12
-                actual_octave: int = self % ou.Octave % int()
+                actual_octave: int = self % ou.Octave() % int()
                 self._octave_0 += target_octave - actual_octave
 
             case dict():
