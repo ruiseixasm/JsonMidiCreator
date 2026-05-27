@@ -581,7 +581,7 @@ class Semitone(PitchParameter):
     pass
 
 
-class Key(PitchParameter):
+class Key_OLD(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
     A `Key` is an integer from 0 to 11 (12 to 23 for flats) that describes
@@ -706,7 +706,7 @@ class Key(PitchParameter):
 
 
 
-class Key_NEW(PitchParameter):
+class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 
     A `Key` is an integer from 0 to 11 (12 to 23 for flats) that describes

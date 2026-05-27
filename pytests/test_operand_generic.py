@@ -1388,16 +1388,16 @@ def test_edge_degrees():
     assert pitch_B % int() == 4     # Octave
     pitch_Bb = ~pitch_B << Key("Bb")
     print(f"pitch_Bb % float(): {pitch_Bb % float()}")
-    assert pitch_Bb % float() == 7.0 # Same degree
-    assert pitch_Bb % Degree() % float() == -1 # Flat
+    assert pitch_Bb % float() == 6.0 # A# means a Degree bellow
+    assert pitch_Bb % Degree() % float() == +1 # Sharp (Major signature)
     assert pitch_Bb % int() == 4
     # Must become Cb
-    pitch_Cb = pitch_Bb + 1.0
-    assert pitch_Cb == Degree(1, "b")   # Changes the root note
-    assert pitch_Cb % int() == 4
+    pitch_Cb = pitch_Bb + 1.0   # A# becomes B# (7, "#")
+    assert pitch_Cb == Degree(7, "#")   # Changes the root note
+    assert pitch_Cb % int() == 5
     assert (~pitch_Bb << 5.0) % int() == 4
-    assert (~pitch_Bb << 8.0) % int() == 4  # Same as Cb
-    assert (~pitch_Bb << "8") % int() == 5  # Same as C
+    assert (~pitch_Bb << 7.0) % int() == 5  # Same as B#
+    assert (~pitch_Bb << "7") % int() == 4  # Same as B
 
 # test_edge_degrees()
 
