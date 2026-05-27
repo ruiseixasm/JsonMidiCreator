@@ -1379,7 +1379,9 @@ def test_degree_set():
     pitch_A = ~pitch_C << Degree(6)
     pitch_B = pitch_A + 1.0
     pitch_Bs = Pitch(7.0, "#")   # Overflows the Octave
-    assert pitch_Bs == Degree(7, 1.)
+    # In a Major Scale B# is the same as C
+    assert pitch_Bs == "C"
+    assert pitch_Bs == Degree(8)
 
     # Testing all still belong to the same Octave 4 except pitch_B
     assert pitch_C == Octave(4)
@@ -1395,8 +1397,9 @@ def test_degree_set():
     print(f'pitch_B % float(): {pitch_B % float()}')
     assert pitch_B == "7"
     print(f'pitch_Bs % str(): {pitch_Bs % str()}')
-    assert pitch_Bs == 7.0
-    assert pitch_Bs == Degree("7#")
+    assert pitch_Bs == 8.0
+    assert pitch_Bs == "C"
+    assert pitch_Bs == Degree("8")
 
 # test_degree_set()
 

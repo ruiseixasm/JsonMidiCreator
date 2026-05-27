@@ -1283,6 +1283,14 @@ class Pitch(Generic):
         """
         return self._tonic_key % 12 + self._root_key
 
+    def _target_key(self) -> int:
+        """
+        Emulates a `self._target_key` based on the transposition.
+        """
+        # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
+        scale_transposition: int = self.scale_transposition()
+        return self._root_key + scale_transposition
+
     def chromatic_target_int(self) -> int:
         """
         The configured Degree chromatic transposition in the float number.
@@ -1469,12 +1477,13 @@ class Pitch(Generic):
                 return operand.copy(self.pitch_int() % 12)
             
             case ou.TonicKey():    # Must come before than Key()
-                return ou.TonicKey(self._tonic_key)
+                key_line: int = self._key_signature._get_key_line(self._tonic_key, self._tonic_key)
+                return ou.TonicKey(self._tonic_key, float(key_line))
             case ou.RootKey():
                 key_line: int = self._key_signature._get_key_line(self._tonic_key, self._root_key)
                 return ou.RootKey(self._root_key, float(key_line))
             case ou.TargetKey():
-                target_key: int = self.chromatic_target_int()
+                target_key: int = self._target_key()
                 key_line: int = self._key_signature._get_key_line(self._tonic_key, target_key)
                 return ou.TargetKey(target_key, float(key_line))
             case ou.Key():
