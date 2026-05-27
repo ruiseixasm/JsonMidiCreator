@@ -98,6 +98,11 @@ def test_root_key_degree_0():
     print(f"degree_0 % float(): {degree_0 % float()}")
     assert degree_0 == Degree(6)
 
+    degree_0 = Scale.root_key_degree_0(0, 14)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(8)
+
     degree_0 = Scale.root_key_degree_0(0, -1)
     print(f"degree_0 % int(): {degree_0 % int()}")
     print(f"degree_0 % float(): {degree_0 % float()}")
@@ -107,6 +112,21 @@ def test_root_key_degree_0():
     print(f"degree_0 % int(): {degree_0 % int()}")
     print(f"degree_0 % float(): {degree_0 % float()}")
     assert degree_0 == Degree(0, float(1))
+
+    degree_0 = Scale.root_key_degree_0(0, -2)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(-2, float(1))
+
+    degree_0 = Scale.root_key_degree_0(0, 1, True)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(1, float(-1))
+
+    degree_0 = Scale.root_key_degree_0(0, -2, True)
+    print(f"degree_0 % int(): {degree_0 % int()}")
+    print(f"degree_0 % float(): {degree_0 % float()}")
+    assert degree_0 == Degree(-1, float(-1))
 
 # test_root_key_degree()
 
