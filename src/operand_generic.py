@@ -1187,7 +1187,6 @@ class Pitch_NEW(Generic):
         self._root_key: int             = self._tonic_key   # Degree I
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
-        self._accidental: int           = 0     # By default it has no accidental
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._scale: list[int]          = []
         super().__init__(*parameters)
@@ -1590,11 +1589,13 @@ class Pitch_NEW(Generic):
                 self << ou.Octave(operand)
             case float():
                 if operand == 0.0:
-                    self._degree_0 = 0
-                    self._accidental = 0
+                    # Resets the degree to I (tonic)
+                    self._root_key = self._tonic_key
                 else:
                     # Sets just the degree, NOT the accidental!
-                    self << ou.Degree(int(operand), float(self._accidental))
+                    actual_degree = self.get_degree_0() # Includes accidental
+                    actual_degree << int(operand)   # Sets the Degree while preserving the accidental
+                    self << actual_degree   # Finally sets the respective degree
             case Fraction():
                 self << ou.Transposition(operand)
                     
@@ -1604,8 +1605,9 @@ class Pitch_NEW(Generic):
                 self._octave_0 += target_octave_0 - target_pitch // 12
             case ou.Degree():
                 if operand == ou.Degree(0):
-                    # Resets the degree to I (tonic)
                     self._tonic_key = self._key_signature % ou.Key() % int()
+                    # Resets the degree to I (tonic)
+                    self._root_key = self._tonic_key
                 else:
                     self._root_key = self.get_root_key(operand)
             case None:  # Works as a reset
@@ -1637,7 +1639,11 @@ class Pitch_NEW(Generic):
                 self << od.Pipe(ou.Key(operand)) # Sets the key number regardless KeySignature or Scale!
 
             case ou.Accidental() | ou.Natural():
-                self._accidental = ou.Degree(operand)._accidental
+                # Sets just the Accidental, NOT the degree!
+                actual_degree_0 = self.get_degree_0() # Includes accidental
+                actual_degree = self.convert_degree_0_to_degree(actual_degree_0)
+                actual_degree << operand    # Sets the Degree while preserving the accidental
+                self << actual_degree   # Finally sets the respective degree
             
             case Scale():
                 self._scale = operand % list()
