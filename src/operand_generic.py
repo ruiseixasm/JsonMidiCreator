@@ -1241,14 +1241,11 @@ class Pitch_NEW(Generic):
 
     def degree_transposition(self) -> int:
         """
-        Based on the Key Signature, this method gives the degree transposition
+        Based on the Root Key, this method gives the degree transposition
         """
-        if self._degree_0 != 0: # Optimization
-            signature_scale: list[int] = self._key_signature.get_scale()
-            return Scale.transpose_key(self._degree_0, signature_scale)
-        return 0
+        return self._root_key - self._tonic_key % 12
 
-    def scale_transposition(self, degree_transposition: int) -> int:
+    def scale_transposition(self) -> int:
         """
         Processes the transposition of the Key Signature if no Scale is set.
         """
@@ -1260,10 +1257,13 @@ class Pitch_NEW(Generic):
                 Because in this case the transposition is no more than a degree increase,
                 the tonic_offset is 0 for the new calculated degree
                 """
-                degree_0: float = self._degree_0 + self._transposition
+                degree_transposition: int = self.degree_transposition()
+                self_degree_0: int = self.get_degree_0()
+                transposition_degree_0: int = self_degree_0 + self._transposition
                 signature_scale: list[int] = self._key_signature.get_scale()
-                return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
+                return Scale.transpose_key(transposition_degree_0, signature_scale) - degree_transposition
         return 0
+
 
     def tonic_int(self) -> int:
         """
@@ -1275,59 +1275,23 @@ class Pitch_NEW(Generic):
         """
         Gets the root key int from the tonic_key.
         """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self.degree_transposition()
-        degree_accidental: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidental
-
-    def root_key(self) -> int:
-        """
-        root_key takes into consideration the tonic gross value above 11.
-        """
-        root_int: int = self.root_int()
-        key_line: int = self._key_signature._get_key_line(self._tonic_key)
-        root_key: int = root_int + key_line * 12  # key_line * total_keys
-        return root_key
+        return self._root_key
 
     def chromatic_root_int(self) -> int:
         """
         Gets the root key int from the tonic_key with accidentals.
         """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self.degree_transposition()
-        degree_accidental: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidental
-
-    def chromatic_root_key(self) -> int:
-        """
-        root_key takes into consideration the tonic gross value above 11 and accidentals.
-        """
-        chromatic_root_int: int = self.chromatic_root_int()
-        key_line: int = self._key_signature._get_key_line(self._tonic_key)
-        chromatic_root_key: int = chromatic_root_int + key_line * 12  # key_line * total_keys
-        return chromatic_root_key
-
-
-    def scale_int(self) -> int:
-        """
-        The target key int after all processing **excluding** accidentals.
-        """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self.degree_transposition()
-        degree_accidental: int = self._accidental
-        scale_transposition: int = self.scale_transposition(degree_transposition)
-        return tonic_int + degree_transposition + degree_accidental + scale_transposition
+        return self._tonic_key % 12 + self._root_key
 
     def chromatic_target_int(self) -> int:
         """
         The configured Degree chromatic transposition in the float number.
         """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
         degree_transposition: int = self.degree_transposition()
-        degree_accidental: int = self._accidental
+        chromatic_root_int: int = self.chromatic_root_int()
         # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
         scale_transposition: int = self.scale_transposition(degree_transposition)
-        return tonic_int + degree_transposition + degree_accidental + scale_transposition
+        return chromatic_root_int + scale_transposition
 
     def pitch_int(self) -> int:
         """
@@ -1352,13 +1316,6 @@ class Pitch_NEW(Generic):
     """
     Auxiliary methods to get specific data directly
     """
-
-    def absolute_degree_0(self) -> 'ou.Degree':
-        """
-        Degrees are returned relative to the Tonic key in a Octave, this function returns the \
-            absolute Degree rooted in the Octave 0.
-        """
-        return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
 
 
     def increment_tonic(self, keys: int) -> Self:
