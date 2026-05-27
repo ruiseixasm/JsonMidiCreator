@@ -1549,12 +1549,10 @@ class Pitch_NEW(Generic):
                         self._key_signature = operand._data
 
                     case ou.TonicKey():    # Must come before than Key()
-                        self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
 
                     case ou.RootKey():    # Must come before than Key()
-                        self._octave_0 = operand._data._unit // 12
-                        self._root_key = operand._data._unit % 12
+                        self._root_key = operand._data._unit
                         
                     case ou.Key():
                         target_octave = operand._data._unit // 12
@@ -1578,9 +1576,14 @@ class Pitch_NEW(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.KeySignature() | ou.Quality():
+            case ou.KeySignature():
+                previous_degree_0 = self.get_degree_0()
+                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
                 self._key_signature << operand
+                self << previous_degree # Maintains the Degree structure
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
+            case ou.Quality() | ou.Accidentals():
+                self._key_signature << operand
             case ou.Semitone():
                 # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
                 self << ou.Key(operand._unit)

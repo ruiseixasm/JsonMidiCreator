@@ -382,6 +382,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 if self._unit < 0:
                     return Flats(self._unit * -1)
                 return Flats(0)
+            case Accidentals():
+                return Accidentals(self._unit)
             case og.Scale():            return og.Scale(self % list())
             case Mode():                return Mode(self._mode_0 + 1)
             case list():                return list(self.get_scale())
@@ -431,16 +433,14 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case Mode():    self._mode_0    = operand._data._unit - 1
             case int():     self._unit   = operand
             case float():   self._mode_0 = int(operand - 1)
-            case Major() | Minor():
-                # self._major = operand == Major(True)
-                if operand == Major(True):
-                    self._mode_0 = 0    # Major
-                else:
-                    self._mode_0 = 5    # minor
-            case Sharps() | Flats():
+            case Major():
+                if operand: self._mode_0 = 0    # Major
+            case Minor():
+                if operand: self._mode_0 = 5    # minor
+            case Flats():
+                self._unit = operand._unit * -1
+            case Accidentals():
                 self._unit = operand._unit
-                if isinstance(operand, Flats):
-                    self._unit *= -1
             case Key():
                 self._unit = sum( og.Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case Mode():
