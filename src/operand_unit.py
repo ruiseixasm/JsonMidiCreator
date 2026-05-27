@@ -335,16 +335,12 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return self_key_signature[key % 12] != 0
 
 
-    def _get_key_line(self, tonic_key: int = None) -> int:
+    def _get_key_line(self, tonic_key: int, key: int) -> int:
         key_line: int = 0
-        if tonic_key is None:
-            tonic_key = self.get_tonic_key()
-        else:
-            tonic_key %= 12
         if self._unit < 0:
             key_line = 1    # To get b instead of #
         # It happens only for 7 Flats (-7) (Cb)
-        if self.is_enharmonic(tonic_key, tonic_key):
+        if self.is_enharmonic(tonic_key, key):
             key_line += 2    # All Sharps/Flats
         return key_line
 

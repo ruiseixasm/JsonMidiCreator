@@ -1471,15 +1471,12 @@ class Pitch(Generic):
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
-                root_pitch: int = self.chromatic_root_int()
-                key_note: int = root_pitch
-                key_line: int = self._key_signature._get_key_line(key_note)
-                return ou.RootKey(key_note, float(key_line))
+                key_line: int = self._key_signature._get_key_line(self._tonic_key, self._root_key)
+                return ou.RootKey(self._root_key, float(key_line))
             case ou.TargetKey():
-                target_pitch: int = self.chromatic_target_int()
-                key_note: int = target_pitch
-                key_line: int = self._key_signature._get_key_line(key_note)
-                return ou.TargetKey(key_note, float(key_line))
+                target_key: int = self.chromatic_target_int()
+                key_line: int = self._key_signature._get_key_line(self._tonic_key, target_key)
+                return ou.TargetKey(target_key, float(key_line))
             case ou.Key():
                 return ou.Key( self % ou.RootKey() )
             
