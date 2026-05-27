@@ -1677,7 +1677,10 @@ class Pitch_NEW(Generic):
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
-                self << self % ou.Degree() + operand
+                actual_degree_0 = self.get_degree_0()
+                new_degree_0 = actual_degree_0 + operand
+                new_root_key: int = self.get_root_key(new_degree_0)
+                self += ou.Key(new_root_key - self._root_key)
             case ou.Accidental():
                 self << self % ou.Degree() + operand
             case int():
@@ -1715,13 +1718,10 @@ class Pitch_NEW(Generic):
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case ou.Degree():
-                self._degree_0 -= operand._unit
-                self._accidental -= operand._accidental
-                # Normalize degree
-                offset_octave = self._degree_0 // 7
-                if offset_octave:
-                    self._degree_0 %= 7
-                    self._octave_0 += offset_octave
+                actual_degree_0 = self.get_degree_0()
+                new_degree_0 = actual_degree_0 - operand
+                new_root_key: int = self.get_root_key(new_degree_0)
+                self += ou.Key(new_root_key - self._root_key)
             case ou.Accidental():
                 self << self % ou.Degree() - operand
             case int():
