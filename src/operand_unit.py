@@ -1038,9 +1038,21 @@ class Tones(Transposition):
     """
     pass
 
+class Accidental(PitchParameter):
+    """`Unit -> PitchParameter -> Accidental`
 
-class Sharp(PitchParameter):  # Sharp (#)
-    """`Unit -> PitchParameter -> Sharp`
+    Represents sharps as positive or flats as negative in a single class.
+    
+    Parameters
+    ----------
+    int(1) : A defaults of 1 accidental, meaning a sharp
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
+
+class Sharp(Accidental):  # Sharp (#)
+    """`Unit -> PitchParameter -> Accidental -> Sharp`
 
     A Sharp() sets a given Pitch as Sharped or not.
     
@@ -1048,9 +1060,6 @@ class Sharp(PitchParameter):  # Sharp (#)
     ----------
     int(1) : Accepts a boolean or a numeral (0 or 1) to set Sharp as true or false
     """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -1068,8 +1077,8 @@ class Sharp(PitchParameter):  # Sharp (#)
         return self
 
 
-class Flat(PitchParameter):   # Flat (b)
-    """`Unit -> PitchParameter -> Flat`
+class Flat(Accidental):   # Flat (b)
+    """`Unit -> PitchParameter -> Accidental -> Flat`
 
     A Flat() sets a given Pitch as Flatten or not.
     
@@ -1077,9 +1086,6 @@ class Flat(PitchParameter):   # Flat (b)
     ----------
     int(1) : Accepts a boolean or a numeral (0 or 1) to set Flat as true or false
     """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
