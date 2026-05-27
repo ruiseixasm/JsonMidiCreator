@@ -1011,8 +1011,6 @@ class Pitch(Generic):
                 self._scale = operand % list()
             case list():
                 self._scale = operand.copy()
-            case None:
-                self._scale = []
 
             case str():
                 string: str = operand.strip()

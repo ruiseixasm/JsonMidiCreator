@@ -370,7 +370,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 # It happens only for 7 Flats (-7) (Cb)
                 if self.is_enharmonic(tonic_key, tonic_key):
                     key_line += 2    # All Sharps/Flats
-                return Key( float(tonic_key + key_line * 12) )
+                return Key(tonic_key, float(key_line))
             
             case Major():               return Major(self._mode_0 == 0)
             case Minor():               return Minor(self._mode_0 == 5)
