@@ -998,7 +998,9 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << Degree(1) << Pipe(Key(61))    # Has to reset previous Degree to 1 first
+    sharp_pitch << Pipe( TonicKey(61) ) << Degree(1)    # Has to reset previous Degree to 1 first
+    assert sharp_pitch == "C#"
+    assert (sharp_pitch + 3.0).pitch_int() == 66
     for degree in range(1, 8):
         print(f"Pitch: {sharp_pitch.pitch_int()}")
         assert sharp_pitch.pitch_int() == major_keys[degree - 1] + 1
@@ -1013,12 +1015,12 @@ def test_pitch_degrees():
 
         reference_keys: list[int] = []
         for degree in range(1, 8):
-            key_pitch << Degree(1) << od.Pipe( TonicKey(60) ) << float(degree)    # Has to reset previous Degree to 1 first
+            key_pitch << od.Pipe( TonicKey(60) ) << Degree(1) << float(degree)    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch.pitch_int() )
 
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch << Degree(1) << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
+            key_pitch << od.Pipe( TonicKey(pitch_int) ) << Degree(1)  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 print(f"Pitch: {key_pitch.pitch_int()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")

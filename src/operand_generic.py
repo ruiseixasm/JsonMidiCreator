@@ -1577,22 +1577,6 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.KeySignature():
-                previous_degree_0 = self.get_degree_0()
-                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
-                self._key_signature << operand
-                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
-                self << previous_degree # Maintains the Degree structure
-            case ou.Quality() | ou.Accidentals() | ou.Mode():
-                previous_degree_0 = self.get_degree_0()
-                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
-                self._key_signature << operand
-                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
-                self << previous_degree # Maintains the Degree structure
-            case ou.Semitone():
-                # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
-                self << ou.Key(operand._unit)
-
             case int():
                 self << ou.Octave(operand)
             case float():
@@ -1623,12 +1607,31 @@ class Pitch(Generic):
                 # Resets the degree to I
                 self._root_key = self._tonic_key
 
+            case ou.KeySignature():
+                previous_degree_0 = self.get_degree_0()
+                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
+                self._key_signature << operand
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self << previous_degree # Maintains the Degree structure
+            case ou.Quality() | ou.Accidentals() | ou.Mode():
+                previous_degree_0 = self.get_degree_0()
+                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
+                self._key_signature << operand
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self << previous_degree # Maintains the Degree structure
+            case ou.Semitone():
+                # Setting a semitone is done by adjusting the absolute Root key and NOT the Tonic key
+                self << ou.Key(operand._unit)
+
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
+                previous_degree_0 = self.get_degree_0()
+                previous_degree = self.convert_degree_0_to_degree(previous_degree_0)
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
                 else:
                     self._tonic_key = operand._unit % 12
+                self << previous_degree # Maintains the Degree structure
             case ou.RootKey():
                 self._root_key = operand._unit
             case ou.Key():
