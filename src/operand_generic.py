@@ -1206,6 +1206,16 @@ class Pitch_NEW(Generic):
         return self << ou.Degree(unit)
 
 
+    def get_root_key(self, degree: ou.Degree) -> int:
+        """
+        Returns the Root Key based on the degree transposition
+        """
+        degree_0 = self.convert_degree_to_degree_0(degree)
+        signature_scale: list[int] = self._key_signature.get_scale()
+        degree_transposition: int = Scale.transpose_key(degree_0, signature_scale)
+        return self._tonic_key % 12 + degree_transposition
+
+
     def get_degree_0(self) -> ou.Degree:
         signature_scale: list[int] = self._key_signature.get_scale()
         flats: bool = self._key_signature._unit < 0
@@ -1413,10 +1423,6 @@ class Pitch_NEW(Generic):
                         )
                     case ou.Key():
                         return operand._data << self % od.Pipe( ou.RootKey() )
-                    case ou.Degree():   # Returns an absolute degree_0
-                        operand._data._unit = self._degree_0
-                        operand._data._accidental = self._accidental
-                        return operand._data
                     case ou.Accidental() | ou.Natural():
                         return operand._data << self % operand
             
@@ -1461,9 +1467,8 @@ class Pitch_NEW(Generic):
             case ou.Octave():
                 return ou.Octave(self.octave_int_0() - 1)
             case ou.Degree():
-                if self._degree_0 < 0:
-                    return ou.Degree(self._degree_0, float(self._accidental))
-                return ou.Degree(self._degree_0 + 1, float(self._accidental))
+                degree_0: ou.Degree = self.get_degree_0()
+                return self.convert_degree_0_to_degree(degree_0)
             case ou.Accidental() | ou.Natural():
                 return self % ou.Degree() % operand
             
@@ -1647,23 +1652,15 @@ class Pitch_NEW(Generic):
                 target_pitch: int = self.pitch_int()
                 self._octave_0 += target_octave_0 - target_pitch // 12
             case ou.Degree():
-                self._accidental = operand._accidental
-                if operand._unit > 0:
-                    # No implicit Octave offset (Repeated sets with `<<` don't change Octave)
-                    self._degree_0 = operand._unit - 1
-                elif operand == ou.Degree(0):
+                if operand == ou.Degree(0):
                     # Resets the degree to I (tonic)
                     self._tonic_key = self._key_signature % ou.Key() % int()
-                    self._degree_0 = 0
-                elif operand._unit < 0:
-                    self._degree_0 = operand._unit  # Negative remains negative!
-                # A Degree with Just an accidental defined can set just that!
+                else:
+                    self._root_key = self.get_root_key(operand)
             case None:  # Works as a reset
                 self._tonic_key = self._key_signature % ou.Key() % int()
                 # Resets the degree to I
-                self._degree_0 = 0
-                self._accidental = 0
-                self._transposition = 0
+                self._root_key = self._tonic_key
 
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
