@@ -1472,12 +1472,12 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 root_pitch: int = self.chromatic_root_int()
-                key_note: int = root_pitch % 12
+                key_note: int = root_pitch
                 key_line: int = self._key_signature._get_key_line(key_note)
                 return ou.RootKey(key_note, float(key_line))
             case ou.TargetKey():
                 target_pitch: int = self.chromatic_target_int()
-                key_note: int = target_pitch % 12
+                key_note: int = target_pitch
                 key_line: int = self._key_signature._get_key_line(key_note)
                 return ou.TargetKey(key_note, float(key_line))
             case ou.Key():
@@ -1628,10 +1628,10 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 12
             case ou.RootKey():
-                self._root_key = operand._unit % 12
+                self._root_key = operand._unit
             case ou.Key():
-                target_int: int = self.chromatic_target_int()
-                self._root_key = operand._unit % 12 - target_int
+                scale_transposition: int = self.scale_transposition()
+                self._root_key = operand._unit - scale_transposition
 
             case ou.Transposition():
                 self._transposition = operand._unit

@@ -598,8 +598,6 @@ class Key(PitchParameter):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case int():
-                return self._unit
             case float():
                 return float(self._line)
             case str():
@@ -663,8 +661,6 @@ class Key(PitchParameter):
                         self._unit = self.getKeyNumber(operand._data) % 12
                     case _:
                         super().__lshift__(operand)
-            case int():
-                self._unit = operand
             case float():
                 self._line = int(operand)
             case Semitone():
