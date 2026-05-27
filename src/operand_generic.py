@@ -1206,10 +1206,23 @@ class Pitch_NEW(Generic):
         return self << ou.Degree(unit)
 
 
-    def get_degree(self) -> ou.Degree:
-        degree = ou.Degree()
+    def get_degree_0(self) -> ou.Degree:
         signature_scale: list[int] = self._key_signature.get_scale()
+        flats: bool = self._key_signature._unit < 0
+        return Scale.root_key_degree_0(self._tonic_key, self._root_key, flats, signature_scale)
 
+    @staticmethod
+    def convert_degree_0_to_degree(degree_0: ou.Degree) -> ou.Degree:
+        if degree_0._unit < 0:
+            return degree_0
+        degree_0 += 1
+        return degree_0
+
+    @staticmethod
+    def convert_degree_to_degree_0(degree: ou.Degree) -> ou.Degree:
+        if degree._unit < 0:
+            return degree
+        degree -= 1
         return degree
 
     """
