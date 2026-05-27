@@ -1173,6 +1173,7 @@ class Pitch_NEW(Generic):
     ----------
     KeySignature(settings) : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Tonic(settings), None : The tonic key on which the `Degree` is based on.
+    Key(Tonic) : Sets the final key by adjusting the Root Key.
     Octave(4), int : The octave on the keyboard with the middle C setting on the 4th octave.
     Degree(1), float : Degree sets the position of a note on a `Scale`, with designations like tonic, supertonic and dominant.
     Sharp(0), Flat : `Sharp` and `Flat` sets the respective accidental of a given note.
