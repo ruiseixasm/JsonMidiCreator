@@ -1186,7 +1186,6 @@ class Pitch_NEW(Generic):
         self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._root_key: int             = self._tonic_key   # Degree I
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
-        self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._scale: list[int]          = []
         super().__init__(*parameters)
@@ -1411,7 +1410,6 @@ class Pitch_NEW(Generic):
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
                     case int():             return self._octave_0
-                    case float():           return float(self._degree_0)
                     case Fraction():        return Fraction(self._transposition)
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
@@ -1422,7 +1420,7 @@ class Pitch_NEW(Generic):
             case int():
                 return self % ou.Octave() % int()
             case float():
-                return float(self._degree_0 + 1)
+                return float(self % ou.Degree() % int())
             case Fraction():
                 return Fraction(self._transposition)
             
