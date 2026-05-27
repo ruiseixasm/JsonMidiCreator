@@ -416,7 +416,7 @@ class TimeSignature(Generic):
         return self
 
 
-class Pitch(Generic):
+class Pitch_OLD(Generic):
     """`Generic -> Pitch`
 
     A `Pitch` comes down the the absolute key in a full midi keyboard of 128 keys. To do so, processes and keeps many related \
@@ -1163,7 +1163,7 @@ class Pitch(Generic):
 
 
 
-class Pitch_NEW(Generic):
+class Pitch(Generic):
     """`Generic -> Pitch`
 
     A `Pitch` comes down the the absolute key in a full midi keyboard of 128 keys. To do so, processes and keeps many related \
@@ -1205,11 +1205,13 @@ class Pitch_NEW(Generic):
         return self << ou.Degree(unit)
 
 
-    def get_root_key(self, degree: ou.Degree) -> int:
+    def get_root_key(self, degree: ou.Degree, from_degree_0: bool = False) -> int:
         """
         Returns the Root Key based on the degree transposition
         """
-        degree_0 = self.convert_degree_to_degree_0(degree)
+        degree_0: int = degree
+        if not from_degree_0:
+            degree_0 = self.convert_degree_to_degree_0(degree)
         signature_scale: list[int] = self._key_signature.get_scale()
         degree_transposition: int = Scale.transpose_key(degree_0, signature_scale)
         return self._tonic_key % 12 + degree_transposition
@@ -1688,7 +1690,7 @@ class Pitch_NEW(Generic):
             case ou.Degree():
                 actual_degree_0 = self.get_degree_0()
                 new_degree_0 = actual_degree_0 + operand
-                new_root_key: int = self.get_root_key(new_degree_0)
+                new_root_key: int = self.get_root_key(new_degree_0, True)
                 self += ou.Key(new_root_key - self._root_key)
             case ou.Accidental():
                 self << self % ou.Degree() + operand
@@ -1705,9 +1707,9 @@ class Pitch_NEW(Generic):
 
             case ou.Key():
                 self._root_key += operand._unit
-                target_octave: int = self % ou.Octave % int()
+                target_octave: int = self % ou.Octave() % int()
                 self._root_key %= 12
-                actual_octave: int = self % ou.Octave % int()
+                actual_octave: int = self % ou.Octave() % int()
                 self._octave_0 += target_octave - actual_octave
 
             case dict():
@@ -1729,7 +1731,7 @@ class Pitch_NEW(Generic):
             case ou.Degree():
                 actual_degree_0 = self.get_degree_0()
                 new_degree_0 = actual_degree_0 - operand
-                new_root_key: int = self.get_root_key(new_degree_0)
+                new_root_key: int = self.get_root_key(new_degree_0, True)
                 self += ou.Key(new_root_key - self._root_key)
             case ou.Accidental():
                 self << self % ou.Degree() - operand

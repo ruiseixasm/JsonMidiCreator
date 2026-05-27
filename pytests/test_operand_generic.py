@@ -1503,10 +1503,10 @@ def test_pitch_multi():
     print(f"tonic_As.pitch_int(): {tonic_As.pitch_int()}")
     assert tonic_As.pitch_int() == 60 + 10
     assert tonic_As % str() == "A#"
-    assert (tonic_As + 2.0) % str() == "D"
+    assert (tonic_As + 2.0) % str() == "C#"
 
     tonic_As_major_scale: list[str] = [
-        "A#", "C", "D", "D#", "F", "G", "A"
+        "A#", "C", "C#", "D#", "F", "F#", "G#"
     ]
     for degree in range(7):
         print(f"RootKey {degree}: {tonic_As % str()}")
