@@ -488,17 +488,17 @@ def test_pitch_sub():
     print(f'pitch_Eb5_I % Degree() % str():     {pitch_Eb5_I % Degree() % str()}')        #  7
     print(f'degree_distance_2 % str():          {degree_distance_2 % str()}')        #  7
     print(f'degree_distance_4 % str():          {degree_distance_4 % str()}')        #  7
-    new_pitch_C6_V = pitch_D5_vii - degree_distance_2    # Adds 6
-    new_pitch_C6_iv = pitch_Eb5_I - degree_distance_4
-    print(f'new_pitch_C6_V % Degree() % str():  {new_pitch_C6_V % Degree() % str()}')    #  5
-    print(f'new_pitch_C6_iv % Degree() % str(): {new_pitch_C6_iv % Degree() % str()}')    #  5
-    assert new_pitch_C6_V % Degree() == "5"
-    assert new_pitch_C6_iv % Degree() == "4"
+    new_pitch_C6_vi = pitch_D5_vii - degree_distance_2      # Adds 6
+    new_pitch_Bb6_V = pitch_Eb5_I - degree_distance_4      # Adds 4
+    print(f'new_pitch_C6_V % Degree() % str():  {new_pitch_C6_vi % Degree() % str()}')    #  5
+    print(f'new_pitch_C6_iv % Degree() % str(): {new_pitch_Bb6_V % Degree() % str()}')    #  5
+    assert new_pitch_C6_vi % Degree() == "6"
+    assert new_pitch_Bb6_V % Degree() == "5"
 
     # Resets the defaults
     settings << None
 
-test_pitch_sub()
+# test_pitch_sub()
 
 
 def test_drum_kit():

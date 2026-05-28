@@ -334,7 +334,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
 
-
     def _get_key_line(self, tonic_key: int, key: int) -> int:
         key_line: int = 0
         if self._unit < 0:
@@ -343,7 +342,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         if self.is_enharmonic(tonic_key, key):
             key_line += 2    # All Sharps/Flats
         return key_line
-
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og

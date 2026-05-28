@@ -1207,7 +1207,7 @@ class Pitch(Generic):
 
     def _degree_root_key(self, degree: ou.Degree, from_degree_0: bool = False) -> int:
         """
-        Returns the Root Key based on the degree transposition
+        Returns the Root Key based on the degree transposition from the Tonic Key (final Root Key)
         """
         degree_0: int = degree
         if not from_degree_0:
@@ -1659,8 +1659,7 @@ class Pitch(Generic):
             case ou.Degree():
                 actual_degree_0 = self._degree_0()
                 new_degree_0 = actual_degree_0 + operand
-                new_root_key: int = self._degree_root_key(new_degree_0, True)
-                self += ou.Key(new_root_key - self._root_key)
+                self._root_key = self._degree_root_key(new_degree_0, True)
             case ou.Accidental():
                 self << self % ou.Degree() + operand
             case int():
@@ -1700,8 +1699,7 @@ class Pitch(Generic):
             case ou.Degree():
                 actual_degree_0 = self._degree_0()
                 new_degree_0 = actual_degree_0 - operand
-                new_root_key: int = self._degree_root_key(new_degree_0, True)
-                self += ou.Key(new_root_key - self._root_key)
+                self._root_key = self._degree_root_key(new_degree_0, True)
             case ou.Accidental():
                 self << self % ou.Degree() - operand
             case int():
