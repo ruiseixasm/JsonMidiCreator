@@ -57,9 +57,10 @@ def test_pitch_tonic():
 
     pitch = Pitch()
     # Pitch keeps its own Key Signature
-    pitch <<= KeySignature(2) # Dorian is the 2nd in the Circle of fifths
+    pitch <<= KeySignature(2) # Dorian is the 2nd in the Circle of fifths (##)
 
-    assert pitch % TonicKey() == "C"
+    # On a 'bb' Key Signature the C Tonic Key is in reality a B#
+    assert pitch % TonicKey() == "B#"   # Remains C because the KeySignature was Piped above
     pitch << None   # Resets the Tonic
     assert pitch % TonicKey() == "D"
 

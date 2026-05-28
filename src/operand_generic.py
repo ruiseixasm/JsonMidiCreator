@@ -1644,7 +1644,7 @@ class Pitch(Generic):
                 else:
                     self << ou.Degree(string) # Safe, doesn't change the octave
                     actual_key = self % ou.Key()
-                    new_key = actual_key.copy() << string
+                    new_key = actual_key.copy(string)
                     if new_key != actual_key:
                         self << new_key
                     if len(operand) > 1:    # Single value shouldn't set the Octave
