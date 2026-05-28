@@ -1191,6 +1191,20 @@ class Pitch(Generic):
         self._scale: list[int]          = []
         super().__init__(*parameters)
 
+    """
+    PITCH CLASS PRINCIPLES FOR SETTING ITS KEYS
+        * `Key()` manipulates `self._root_key` ONLY
+        * `self._tonic_key` is CENTRAL, self._octave relates exclusively to it
+        * `Transposition()`, MUST result in a `self._target_key()` at the same
+            Octave than the `self._tonic_key` by manipulating ONLY the `self._root_key`
+        * `self._root_key` when set DIRECTLY with `<<`, is set with a `% 12` in line
+            with `self._tonic_key`
+        * `<< Pipe(TonicKey())` does a `% 12` and a `// 2` for the `self._octave_0` but doesn't touch
+            on the the `self._root_key`
+        * `<< Pipe(RootKey())` neither does a `% 12` or a `// 2`, it's set straight away with its given value
+        * `<< Pipe(Key())` doesn't exist, it does nothing at all
+        * Setting with `<< Pipe()` the `KeySignature`, `Quality`, `Accidentals` or `Mode`, don't update any Key
+    """
 
     def sharp(self, unit: bool = True) -> Self:
         return self << ou.Sharp(unit)
@@ -1286,6 +1300,15 @@ class Pitch(Generic):
         # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
         scale_transposition: int = self._scale_transposition()
         return self._root_key + scale_transposition
+
+    def _set_target_key(self, key: int) -> Self:
+        """
+        Sets the Target Key by adjusting the Root Key.
+        """
+        target_key = self._target_key()
+
+
+        return self
 
     def _chromatic_target_int(self) -> int:
         """
