@@ -1307,7 +1307,15 @@ class Pitch(Generic):
         """
         Sets the target chromatic pitch from 0 to 127, useful for midi testing.
         """
-        
+        actual_chromatic_pitch: int = self._chromatic_pitch()
+        tonic_to_root: int = self._root_key - self._tonic_key
+        chromatic_offset: int = chromatic_pitch - actual_chromatic_pitch
+        self._tonic_key += chromatic_offset
+        self._root_key = self._tonic_key + tonic_to_root    # Target Key is already relative
+        # Root Key has to belong to the interval 0 to 11, so, octave needs to be adjusted
+        octave_offset: int = self._root_key // 12
+        self._octave_0 += octave_offset
+        self._tonic_key %= 12
         return self
 
     def _chromatic_octave_0(self) -> int:

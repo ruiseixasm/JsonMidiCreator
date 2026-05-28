@@ -998,7 +998,7 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << Pipe( TonicKey(61) ) << Degree(1)    # Has to reset previous Degree to 1 first
+    sharp_pitch._set_chromatic_pitch(61) << Degree(1)    # Has to reset previous Degree to 1 first
     assert sharp_pitch == "C#"
     assert (sharp_pitch + 3.0)._chromatic_pitch() == 66
     for degree in range(1, 8):
@@ -1015,12 +1015,12 @@ def test_pitch_degrees():
 
         reference_keys: list[int] = []
         for degree in range(1, 8):
-            key_pitch << od.Pipe( TonicKey(60) ) << Degree(1) << float(degree)    # Has to reset previous Degree to 1 first
+            key_pitch._set_chromatic_pitch(60) << Degree(1) << float(degree)    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch._chromatic_pitch() )
 
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch << od.Pipe( TonicKey(pitch_int) ) << Degree(1)  # Has to reset previous Degree to 1 first
+            key_pitch._set_chromatic_pitch(pitch_int) << Degree(1)  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 print(f"Pitch: {key_pitch._chromatic_pitch()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
                       f"Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
@@ -1118,7 +1118,7 @@ def test_pitch_add():
         assert pitch_3 + float(degree) == keys[degree]
 
 
-    pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
+    pitch_4: Pitch = Pitch()._set_chromatic_pitch(60)    # Middle C (60)
     assert pitch_4 % str() == "C"
     assert pitch_4._chromatic_pitch() == 60
 
@@ -1128,7 +1128,10 @@ def test_pitch_add():
     for sharps in range(8): # 8 is excluded
 
         settings << KeySignature(sharps)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        pitch_4._set_chromatic_pitch(60) << Degree(1) # Middle C (60)
+        # pitch_4 << Pipe(Key(60)) # Middle C (60)
+        if pitch_4._chromatic_pitch() != 60:
+            assert pitch_4._chromatic_pitch() == 60
         print(f"------------ {sharps} ------------")
         print("--UP--")
         for key_i in range(12):
