@@ -158,6 +158,10 @@ def test_pitch_set():
 
 
 def test_target_key():
+    
+    # Resets the defaults
+    settings << None
+
     major_pitch = Pitch()
     assert major_pitch % Octave() == 4
 
@@ -195,14 +199,19 @@ def test_target_key():
         pitch += Fraction(1)  # One transposition each time
 
     print("---")
-    a_degree_c_major_scale: list[str] = [
+    pitch = Pitch(Key("C")) # Shall become C# because in A Major C is sharped
+    tonic_A_root_C_major_scale: list[str] = [
         "B#", "C#", "D#", "E#", "F##", "G#", "A#"
     ]
-    pitch = Pitch(TargetKey("C")) # Shall become C# because in A Major C is sharped
-    for transposition in range(7):
-        print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
-        assert pitch % TargetKey() == a_degree_c_major_scale[transposition]
+    generated_scale: list[str] = []
+    for degree in range(7):
+        generated_scale.append(pitch % str())
         pitch += Fraction(1)  # One transposition each time
+    print(f"expected_scale:  {tonic_A_root_C_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_A_root_C_major_scale
+
+
 
     print("---")
     a_degree_f_major_scale: list[str] = [
@@ -840,8 +849,6 @@ def test_root_key():
     print(f"expected_scale:  {tonic_A_root_Bs_major_scale}")
     print(f"generated_scale: {generated_scale}")
     assert generated_scale == tonic_A_root_Bs_major_scale
-
-
 
     print("---")
     pitch = Pitch(RootKey("F"))

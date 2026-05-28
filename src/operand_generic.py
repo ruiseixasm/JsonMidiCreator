@@ -1197,8 +1197,7 @@ class Pitch(Generic):
         * `self._tonic_key` is CENTRAL, self._octave relates exclusively to it
         * `Transposition()`, MUST result in a `self._target_key()` at the same
             Octave than the `self._tonic_key` by manipulating ONLY the `self._root_key`
-        * `self._root_key` when set DIRECTLY with `<<`, is set with a `% 12` in line
-            with `self._tonic_key`
+        * `self._root_key` when set DIRECTLY with `<<`, is set as is relative to the `self._tonic_key`
         * `<< Pipe(TonicKey())` does a `% 12` and a `// 2` for the `self._octave_0` but doesn't touch
             on the the `self._root_key`
         * `<< Pipe(RootKey())` neither does a `% 12` or a `// 2`, it's set straight away with its given value
@@ -1600,10 +1599,10 @@ class Pitch(Generic):
                 self._tonic_key = operand._unit % 12
                 self._root_key = self._tonic_key + tonic_to_root    # To preserve the Degree
             case ou.RootKey():
-                self._root_key = operand._unit % 12         # Direct setting retains the Octave
+                self._root_key = operand._unit         # Direct setting retains the Octave
             case ou.Key():
                 root_to_target_key: int = self._scale_transposition()
-                self._root_key = operand._unit % 12 - root_to_target_key  # Same Tonic Degree
+                self._root_key = operand._unit - root_to_target_key  # Same Tonic Degree
 
             case ou.Transposition():
                 self._transposition = operand._unit
@@ -1645,7 +1644,7 @@ class Pitch(Generic):
                     self << ou.Degree(string) # Safe, doesn't change the octave
                     actual_key = self % ou.Key()
                     new_key = actual_key.copy(string)
-                    if new_key != actual_key:
+                    if new_key._unit != actual_key._unit:
                         self << new_key
                     if len(operand) > 1:    # Single value shouldn't set the Octave
                         self << (self % ou.Octave() << string)
