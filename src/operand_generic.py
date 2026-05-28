@@ -1643,7 +1643,10 @@ class Pitch(Generic):
                     self << ou.Natural()
                 else:
                     self << ou.Degree(string) # Safe, doesn't change the octave
-                    self << (self % ou.Key() << string) # Preserves the Key Signature type
+                    actual_key = self % ou.Key()
+                    new_key = actual_key.copy() << string
+                    if new_key != actual_key:
+                        self << new_key
                     if len(operand) > 1:    # Single value shouldn't set the Octave
                         self << (self % ou.Octave() << string)
                     self << Scale(od.Pipe(self._scale), operand)
