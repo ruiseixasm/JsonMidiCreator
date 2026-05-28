@@ -1305,9 +1305,8 @@ class Pitch(Generic):
         """
         Sets the Target Key by adjusting the Root Key.
         """
-        target_key = self._target_key()
-
-
+        root_to_target_key: int = self._scale_transposition()
+        self._root_key = key % 12 - root_to_target_key  # Same Tonic Degree
         return self
 
     def _chromatic_target_int(self) -> int:
@@ -1453,12 +1452,10 @@ class Pitch(Generic):
             case ou.RootKey():
                 key_line: int = self._key_signature._get_key_line(self._tonic_key, self._root_key)
                 return ou.RootKey(self._root_key, float(key_line))
-            case ou.TargetKey():
+            case ou.Key():
                 target_key: int = self._target_key()
                 key_line: int = self._key_signature._get_key_line(self._tonic_key, target_key)
-                return ou.TargetKey(target_key, float(key_line))
-            case ou.Key():
-                return ou.Key( self % ou.RootKey() )
+                return operand.copy(target_key, float(key_line))
             
             case ou.Octave():
                 return ou.Octave(self._chromatic_octave_0() - 1)
