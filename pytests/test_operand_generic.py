@@ -459,47 +459,46 @@ def test_pitch_sub():
     settings << None
 
     settings << KeySignature('bbb')
-    pitch_b4 = Pitch('Bb')
-    pitch_d5 = Pitch('D', Octave(5))
-    pitch_e5 = Pitch('Eb', Octave(5))   # The one that fails!
+    pitch_Bb4_V = Pitch('Bb')
+    pitch_D5_vii = Pitch('D', Octave(5))
+    pitch_Eb5_I = Pitch('Eb', Octave(5))   # The one that fails!
     settings << KeySignature()
 
-    assert pitch_b4 != pitch_d5
-    assert pitch_b4 != pitch_e5
+    assert pitch_Bb4_V != pitch_D5_vii
+    assert pitch_Bb4_V != pitch_Eb5_I
 
     print("Relative degrees")
-    pitch_b4_degree = pitch_b4 % Degree()
-    pitch_d5_degree = pitch_d5 % Degree()
-    pitch_e5_degree = pitch_e5 % Degree()
-    print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  5.0
-    print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  7.0
-    print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  1.0 !!   (Tonic - Eb)
-
-    print("Absolute degrees")
-    pitch_b4_degree = pitch_b4.absolute_degree_0()
-    pitch_d5_degree = pitch_d5.absolute_degree_0()
-    pitch_e5_degree = pitch_e5.absolute_degree_0()
-    print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  39.0
-    print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  41.0
-    print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  42.0 !!  (Tonic - Eb)
+    pitch_Bb4_V_degree = pitch_Bb4_V % Degree()
+    pitch_D5_vii_degree = pitch_D5_vii % Degree()
+    pitch_Eb5_I_degree = pitch_Eb5_I % Degree()
+    print(f'pitch_b4_degree % int(): {pitch_Bb4_V_degree % int()}')        #  5
+    print(f'pitch_d5_degree % int(): {pitch_D5_vii_degree % int()}')       #  -1   # D is Bellow the Tonic Eb
+    print(f'pitch_e5_degree % int(): {pitch_Eb5_I_degree % int()}')        #  1 !!   (Tonic - Eb)
 
     print("Subtracted degrees")
-    degree_distance_b4: ou.Degree = pitch_b4_degree - pitch_b4_degree
-    degree_distance_d5: ou.Degree = pitch_d5_degree - pitch_b4_degree
-    degree_distance_e5: ou.Degree = pitch_e5_degree - pitch_b4_degree
-    print(f'degree_distance_b4 % float(): {degree_distance_b4 % float()}')  #  0.0
-    print(f'degree_distance_d5 % float(): {degree_distance_d5 % float()}')  #  2.0
-    print(f'degree_distance_e5 % float(): {degree_distance_e5 % float()}')  # -4.0 !!   (Tonic - Eb)
+    degree_distance_0: ou.Degree = pitch_Bb4_V_degree - pitch_Bb4_V_degree      # 5 - 5     =  0
+    degree_distance_2: ou.Degree = pitch_D5_vii_degree - pitch_Bb4_V_degree     # -1 - 5    = -6 (2)
+    degree_distance_4: ou.Degree = pitch_Eb5_I_degree - pitch_Bb4_V_degree      # 1 - 5     = -4 (4)
+    print(f'degree_distance_0 % int(): {degree_distance_0 % int()}')    #  0
+    print(f'degree_distance_2 % int(): {degree_distance_2 % int()}')    # -6
+    print(f'degree_distance_4 % int(): {degree_distance_4 % int()}')    # -4 !!   (Tonic - Eb)
 
-    new_pitch_b4 = pitch_d5 - degree_distance_d5
-    assert new_pitch_b4 == pitch_b4
-    new_pitch_b4 = pitch_e5 - degree_distance_e5
-    assert new_pitch_b4 == pitch_b4
+    print("-----------------")
+    print(f'pitch_D5_vii % Degree() % str():    {pitch_D5_vii % Degree() % str()}')        #  7
+    print(f'pitch_Eb5_I % Degree() % str():     {pitch_Eb5_I % Degree() % str()}')        #  7
+    print(f'degree_distance_2 % str():          {degree_distance_2 % str()}')        #  7
+    print(f'degree_distance_4 % str():          {degree_distance_4 % str()}')        #  7
+    new_pitch_C6_V = pitch_D5_vii - degree_distance_2    # Adds 6
+    new_pitch_C6_iv = pitch_Eb5_I - degree_distance_4
+    print(f'new_pitch_C6_V % Degree() % str():  {new_pitch_C6_V % Degree() % str()}')    #  5
+    print(f'new_pitch_C6_iv % Degree() % str(): {new_pitch_C6_iv % Degree() % str()}')    #  5
+    assert new_pitch_C6_V % Degree() == "5"
+    assert new_pitch_C6_iv % Degree() == "4"
 
     # Resets the defaults
     settings << None
 
-# test_pitch_sub()
+test_pitch_sub()
 
 
 def test_drum_kit():

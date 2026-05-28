@@ -799,16 +799,18 @@ class Degree(PitchParameter):
         "iv": 4,    "4": 4,     "subdominant": 4,
         "v": 5,     "5": 5,     "dominant": 5,
         "vi": 6,    "6": 6,     "submediant": 6,
-        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
+        "vii": 7,   "7": 7,     "leading tone": 7
     }
+
+    _degree_to_string: list[str] = (
+        "i", "ii", "iii", "iv", "v", "vi", "vii"
+    )
 
     def __eq__(self, other: any) -> bool:
         if isinstance(other, Degree):
-            return super().__eq__(other) and self._accidental == other._accidental
+            return self % str() == other % str()    # Formal equality (no surprises)
         if isinstance(other, od.Conditional):
             return other == self
-        if isinstance(other, str):
-            return (self % other).lower() == other.strip().lower()
         return self % other == other
     
     def __lt__(self, other: any) -> bool:
@@ -842,10 +844,12 @@ class Degree(PitchParameter):
             case float():
                 return float(self._accidental)
             case str():
+                if self._unit == 0:
+                    return "0"
                 formal_degree: int = self._unit
                 if formal_degree > 0:
                     formal_degree -= 1
-                formal_degree = formal_degree % 7 + 1
+                formal_degree = formal_degree % 7 + 1   # Normalizes degree
                 degree_string: str = str( formal_degree )
                 if self._accidental:
                     if self._accidental > 0:
@@ -991,13 +995,14 @@ class Degree(PitchParameter):
 
     def setDegreeFromString(self, string: str) -> Self:
         # Remove Octave number first (Doesn't process it, because Degree as no Octave, just cleans it)
+        string = string.strip()
+        string.replace("º", "")
         if len(string) > 1:
             try:
                 int(string[-1])
                 string = string[:-1]
             except ValueError as e:
                 pass    # No octave set
-        string = string.strip()
         accidental = 0    # Natural by default
         accidental += string.count("#")
         accidental -= string.count("b")
