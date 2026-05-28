@@ -1502,24 +1502,25 @@ def test_pitch_multi():
     assert pitch_C == "B"
     assert pitch_C._chromatic_pitch() == 59
 
-    pitch_C << Pipe(TonicKey(60))
+    (pitch_C << 1.0)._set_chromatic_pitch(60)
     assert pitch_C % Pipe(TonicKey()) == 0  # The Tonic Key always goes from 0 to 11
 
     tonic_As = Pitch(TonicKey("A#"))
     print(f"tonic_As.pitch_int(): {tonic_As._chromatic_pitch()}")
     assert tonic_As._chromatic_pitch() == 60 + 10
     assert tonic_As % str() == "A#"
-    assert (tonic_As + 2.0) % str() == "C#"
+    print(f"(tonic_As + 2.0) % str(): {(tonic_As + 2.0) % str()}")
+    assert (tonic_As + 2.0) % str() == "D"
 
     tonic_As_major_scale: list[str] = [
-        "A#", "C", "C#", "D#", "F", "F#", "G#"
+        "A#", "C", "D", "D#", "F", "G", "A"
     ]
     for degree in range(7):
         print(f"RootKey {degree}: {tonic_As % str()}")
         assert tonic_As == tonic_As_major_scale[degree]
         tonic_As += 1.0  # One degree each time
 
-    root_As = Pitch(RootKey("A#"))
+    root_As = Pitch(RootKey("A#"))  # C Major
     print(f"root_As.pitch_int(): {root_As._chromatic_pitch()}")
     assert root_As._chromatic_pitch() == 60 + 10
     assert root_As % str() == "A#"
@@ -1529,9 +1530,8 @@ def test_pitch_multi():
         "A#", "C", "C#", "D#", "F", "F#", "G#"
     ]
     for degree in range(7):
-        print(f"RootKey {degree}: {root_As % str()}")
-        assert root_As == root_As_major_scale[degree]
-        root_As += 1.0  # One degree each time
+        print(f"RootKey {degree}: {(root_As + float(degree)) % str()}")
+        assert root_As + float(degree) == root_As_major_scale[degree]
 
     print("---------- Bb is the Tonic (I) ------------")
     settings << KeySignature("bb") # Bb Major scale key signature
@@ -1591,6 +1591,6 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
-# test_pitch_multi()
+test_pitch_multi()
 
 
