@@ -1303,6 +1303,13 @@ class Pitch(Generic):
         octave_transposition: int = self._octave_transposition()
         return chromatic_int + octave_transposition
 
+    def _set_chromatic_pitch(self, chromatic_pitch: int) -> Self:
+        """
+        Sets the target chromatic pitch from 0 to 127, useful for midi testing.
+        """
+        
+        return self
+
     def _chromatic_octave_0(self) -> int:
         pitch_int: int = self._chromatic_pitch()
         octave_0: int = pitch_int // 12
