@@ -1128,16 +1128,14 @@ def test_pitch_add():
     for sharps in range(8): # 8 is excluded
 
         settings << KeySignature(sharps)
-        pitch_4._set_chromatic_pitch(60) << Degree(1) # Middle C (60)
-        # pitch_4 << Pipe(Key(60)) # Middle C (60)
-        if pitch_4._chromatic_pitch() != 60:
-            assert pitch_4._chromatic_pitch() == 60
+        (pitch_4 << Degree(1))._set_chromatic_pitch(60) # Middle C (60)
+        assert pitch_4._chromatic_pitch() == 60
         print(f"------------ {sharps} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i))._chromatic_pitch() >> Print()
             assert (pitch_4 + Semitone(key_i))._chromatic_pitch() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
+        (pitch_4 << Degree(1))._set_chromatic_pitch(71)
         print("-DOWN-")
         for key_i in range(12):
             pitch_4._chromatic_pitch() >> Print()
@@ -1147,13 +1145,13 @@ def test_pitch_add():
     for flats in range(0, -8, -1): # -8 is excluded
 
         settings << KeySignature(flats)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        (pitch_4 << Degree(1))._set_chromatic_pitch(60) # Middle C (60)
         print(f"------------ {flats} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i))._chromatic_pitch() >> Print()
             assert (pitch_4 + Semitone(key_i))._chromatic_pitch() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
+        (pitch_4 << Degree(1))._set_chromatic_pitch(71)
         print("-DOWN-")
         for key_i in range(12):
             pitch_4._chromatic_pitch() >> Print()
@@ -1161,7 +1159,7 @@ def test_pitch_add():
             pitch_4 -= Semitone(1)
 
     settings << KeySignature()
-    pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
+    pitch_4 << Pitch()._set_chromatic_pitch(60)    # Middle C (60)
 
     print(f"------------ DEGREES ------------")
     print("------")
