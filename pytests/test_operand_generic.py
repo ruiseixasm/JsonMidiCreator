@@ -1010,24 +1010,27 @@ def test_pitch_degrees():
     key_pitch = Pitch() # It has a reference to defaults, so, only defaults need to be changed
     for flats_sharps in range(-7, 8):         # For all Flats and Sharps!
         print(f"flats_sharps: {flats_sharps}")
-        # flats_sharps: -7
-        settings << KeySignature(flats_sharps)
+        # flats_sharps: -7 (Tonic is the B or Cb)
+        key_pitch << KeySignature(flats_sharps)
 
         reference_keys: list[int] = []
         for degree in range(1, 8):
-            key_pitch._set_chromatic_pitch(60) << Degree(1) << float(degree)    # Has to reset previous Degree to 1 first
+            (key_pitch << float(1))._set_chromatic_pitch(60) << float(degree)    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch._chromatic_pitch() )
 
+        print(f"reference_keys: {reference_keys}")
+            
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch._set_chromatic_pitch(pitch_int) << Degree(1)  # Has to reset previous Degree to 1 first
+            (key_pitch << float(1))._set_chromatic_pitch(pitch_int)  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
-                print(f"Pitch: {key_pitch._chromatic_pitch()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
-                      f"Degree: {key_pitch % Degree() % str()}, Transposition: {key_pitch._transposition}")
-                assert key_pitch % Degree() == Degree(degree)
+                print(f"For Degree: {degree}")
+                key_pitch_degree = ~key_pitch << float(degree)
+                print(f"Pitch: {key_pitch_degree._chromatic_pitch()}, Octave: {key_pitch_degree % Octave() % int()}, Tonic: {key_pitch_degree._tonic_key}, "
+                      f"Degree: {key_pitch_degree % Degree() % int()}, Root: {key_pitch_degree._root_key}")
+                assert key_pitch_degree % float() == float(degree)
                 # Pitch: 73, Octave: 5, Tonic: 61, Degree_0: 0, Degree: 1, Transposition: 0
-                assert key_pitch._chromatic_pitch() == reference_keys[degree - 1] + (pitch_int - 60)
-                key_pitch += float(1)  # += to increment Degree and Octave too
+                assert key_pitch_degree._chromatic_pitch() == reference_keys[degree - 1] + (pitch_int - 60)
 
     # Resets the defaults
     settings << None
