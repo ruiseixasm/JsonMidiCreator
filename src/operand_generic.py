@@ -1312,10 +1312,11 @@ class Pitch(Generic):
         chromatic_offset: int = chromatic_pitch - actual_chromatic_pitch
         self._tonic_key += chromatic_offset
         self._root_key = self._tonic_key + tonic_to_root    # Target Key is already relative
-        # Root Key has to belong to the interval 0 to 11, so, octave needs to be adjusted
-        octave_offset: int = self._root_key // 12
+        # Tonic Key has to belong to the interval 0 to 11, so, octave needs to be adjusted
+        octave_offset: int = self._tonic_key // 12
         self._octave_0 += octave_offset
         self._tonic_key %= 12
+        self._root_key -= octave_offset * 12    # Root key has to follow the Tonic Key
         return self
 
     def _chromatic_octave_0(self) -> int:
