@@ -1395,7 +1395,13 @@ class Pitch(Generic):
                         return operand._data << self % od.Pipe( ou.RootKey() )
                     case ou.Accidental() | ou.Natural():
                         return operand._data << self % operand
-            
+
+                    # Degree 0 based
+                    case ou.Degree():
+                        return self._degree_0()
+                    case float():
+                        return float(self._degree_0()._unit)
+
                     case ou.Semitone(): # Returns an absolute pitch_int Semitone
                         return operand._data << self % int()
                     case ou.Transposition():
@@ -1518,6 +1524,12 @@ class Pitch(Generic):
                     case int():
                         self._octave_0 = operand
                         
+                    case ou.Degree():
+                        self._root_key = self._degree_root_key(operand._data, True)
+                    case float():
+                        degree_0 = ou.Degree(int(operand._data))
+                        self._root_key = self._degree_root_key(degree_0, True)
+
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():

@@ -1198,23 +1198,23 @@ def test_pitch_pipe():
 
     settings << KeySignature('bbb')
     # Setting by Key keeps keeps the Octave unchanged
-    pitch_Bb = Pitch('Bb')
-    pitch_D = Pitch('D')    # Keeps Octave as 4
-    pitch_E5_Tonic = Pitch('Eb')  # I (This is the Tonic one)
+    pitch_Bb_V = Pitch('Bb')
+    pitch_D_vii = Pitch('D')    # Keeps Octave as 4
+    pitch_E5_I_Tonic = Pitch('Eb')  # I (This is the Tonic one)
     dummy_pitch = Pitch()   # Same Key Signature
     settings << KeySignature()  # Reverts to Major Key Signature
     # Setting by Degree may result in increased Octaves
-    pitch_Bb_degree_0 = pitch_Bb % Pipe(Degree())
-    pitch_D_degree_0 = pitch_D % Pipe(Degree())
-    pitch_E5_Tonic_degree_0 = pitch_E5_Tonic % Pipe(Degree())
+    pitch_Bb_V_degree_0 = pitch_Bb_V % Pipe(Degree())
+    pitch_D_vii_degree_0 = pitch_D_vii % Pipe(Degree())
+    pitch_E5_I_Tonic_degree_0 = pitch_E5_I_Tonic % Pipe(Degree())
 
-    print(f'pitch_Bb_degree_0 % float(): {pitch_Bb_degree_0 % float()}')    #  0.0
+    print(f'pitch_Bb_degree_0 % float(): {pitch_Bb_V_degree_0 % float()}')    #  0.0
     print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  1.0 (Tonic)
-    dummy_pitch << Pipe(pitch_Bb_degree_0)
+    dummy_pitch << Pipe(pitch_Bb_V_degree_0)
     print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0 (V)
-    assert dummy_pitch == pitch_Bb
-    assert dummy_pitch << Pipe(pitch_D_degree_0) == pitch_D + Octave(1) # Next Octave via Degree
-    assert dummy_pitch << Pipe(pitch_E5_Tonic_degree_0) == pitch_E5_Tonic
+    assert dummy_pitch == pitch_Bb_V
+    assert dummy_pitch << Pipe(pitch_D_vii_degree_0) == pitch_D_vii
+    assert dummy_pitch << Pipe(pitch_E5_I_Tonic_degree_0) == pitch_E5_I_Tonic
 
     pitch_C4    = Pitch(Key("C"))
     pitch_G4    = Pitch(Key("G"))
