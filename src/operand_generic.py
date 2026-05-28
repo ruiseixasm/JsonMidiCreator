@@ -1536,10 +1536,7 @@ class Pitch(Generic):
                     # Resets the degree to I (tonic)
                     self._root_key = self._tonic_key
                 else:
-                    # Sets just the degree, NOT the accidental!
-                    actual_degree = self._degree_0() # Includes accidental
-                    actual_degree << int(operand)   # Sets the Degree while preserving the accidental
-                    self << actual_degree   # Finally sets the respective degree
+                    self << ou.Degree(int(operand)) # Sets as Degree directly, NO surprises!
             case Fraction():
                 self << ou.Transposition(operand)
                     

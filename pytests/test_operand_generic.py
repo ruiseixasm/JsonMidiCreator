@@ -1540,28 +1540,28 @@ def test_pitch_multi():
     assert pitch_Bb == "Bb" # The Tonic Key (I)
 
     pitch_E = Pitch(RootKey("E")) # Same as Fb and same as Vb degree
-    assert pitch_E == 5.0
+    assert pitch_E == -3.0  # E is bellow Bb
     pitch_Fb = Pitch(RootKey("Fb"))
     assert pitch_E == pitch_Fb
     print(f"pitch_E.pitch_int(): {pitch_E._chromatic_pitch()}")
     assert pitch_E._chromatic_pitch() == 60 + 4
     assert pitch_E % str() == "Fb"  # 5 Degree
-    pitch_iv = ~pitch_E << 5.0
-    # Note(pitch_E) / Note(pitch_iv) >> Plot()
-    print(f"pitch_iv.pitch_int(): {pitch_iv._chromatic_pitch()}")
-    assert pitch_iv._chromatic_pitch() == 60 + 4 # Same as E and Fb
-    print(f"pitch_iv: {pitch_iv % str()}")
-    assert pitch_iv == "Fb"  # Same as Fb, Degree iv from Bb !!
+    pitch_V = ~pitch_E << 5.0  # V is the F at the next Octave!
+    # Note(pitch_E) / Note(pitch_V) >> Plot()
+    print(f"pitch_V.pitch_int(): {pitch_V._chromatic_pitch()}")
+    assert pitch_V._chromatic_pitch() == 60 + 10 + 7 # Same as E and Fb
+    print(f"pitch_V: {pitch_V % str()}")
+    assert pitch_V == "F"  # Degree V is the "F"
 
     # IT'S THE ROOT (DEGREE) BEING CHANGED AND NOT THE TONIC !!!!!!!
 
     # Focus on the difference, at Degree = 4 + 3 = 7
-    pitch_A = ~pitch_E << 7.0   # The Tonic is the "Bb", here becomes viib
-    print(f"pitch_A % Key() % int(): {pitch_A % Key() % int()}")       # 8
-    print(f"pitch_A % Key() % str(): {pitch_A % Key() % str()}")            # Bb
+    pitch_A = ~pitch_E << 7.0   # The Tonic is the "Bb", here becomes vii
+    print(f"pitch_A % Key() % int(): {pitch_A % Key() % int()}")       # 7
+    print(f"pitch_A % Key() % str(): {pitch_A % Key() % str()}")            # A
     print(f"pitch_A % Degree() % int(): {pitch_A % Degree() % int()}")      # 7
-    print(f"pitch_A % Degree() % float(): {pitch_A % Degree() % float()}")  # 1.0 (#)
-    assert pitch_A % Key() % int() == 8    # Ab
+    print(f"pitch_A % Degree() % float(): {pitch_A % Degree() % float()}")  # 0.0
+    assert pitch_A % Key() % int() == 9 + 12    # A
 
     # CONCLUSION: Pair Degree, Accidental as to be replaced with just root_key!!
 
@@ -1570,8 +1570,8 @@ def test_pitch_multi():
     ]
     generated_pitches: list[str] = []
     for degree in range(7):
-        generated_pitches.append(pitch_E % Key() % int() % 12)
-        pitch_E += 1.0  # One degree each time
+        degree_pitch = pitch_E + float(degree)
+        generated_pitches.append(degree_pitch % Key() % int() % 12)
 
     print(f"expected_pitches:  {tonic_Bb_root_E_major_pitches}")
     print(f"generated_pitches: {generated_pitches}")
@@ -1582,8 +1582,8 @@ def test_pitch_multi():
     ]
     generated_scale: list[str] = []
     for degree in range(7):
-        generated_scale.append(pitch_E % str())
-        pitch_E += 1.0  # One degree each time
+        degree_pitch = pitch_E + float(degree)
+        generated_scale.append(degree_pitch % str())
     print(f"expected_scale:  {tonic_Bb_root_E_major_scale}")
     print(f"generated_scale: {generated_scale}")
     assert generated_scale == tonic_Bb_root_E_major_scale
@@ -1591,6 +1591,6 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
-test_pitch_multi()
+# test_pitch_multi()
 
 
