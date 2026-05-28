@@ -1301,14 +1301,6 @@ class Pitch(Generic):
         scale_transposition: int = self._scale_transposition()
         return self._root_key + scale_transposition
 
-    def _set_target_key(self, key: int) -> Self:
-        """
-        Sets the Target Key by adjusting the Root Key.
-        """
-        root_to_target_key: int = self._scale_transposition()
-        self._root_key = key % 12 - root_to_target_key  # Same Tonic Degree
-        return self
-
     def _chromatic_target_int(self) -> int:
         """
         The configured Degree chromatic transposition in the float number.
@@ -1605,16 +1597,13 @@ class Pitch(Generic):
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
                 tonic_to_root: int = self._root_key - self._tonic_key   # To preserve the Degree
-                if operand._unit < 0:
-                    self._tonic_key = self._key_signature % ou.Key() % int()
-                else:
-                    self._tonic_key = operand._unit % 12
+                self._tonic_key = operand._unit % 12
                 self._root_key = self._tonic_key + tonic_to_root    # To preserve the Degree
             case ou.RootKey():
-                self._root_key = operand._unit
+                self._root_key = operand._unit % 12         # Direct setting retains the Octave
             case ou.Key():
-                scale_transposition: int = self._scale_transposition()
-                self._root_key = operand._unit - scale_transposition
+                root_to_target_key: int = self._scale_transposition()
+                self._root_key = operand._unit % 12 - root_to_target_key  # Same Tonic Degree
 
             case ou.Transposition():
                 self._transposition = operand._unit
