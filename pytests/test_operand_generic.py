@@ -1467,11 +1467,11 @@ def test_edge_degrees():
     assert pitch_Bb % Degree() % float() == +1 # Sharp (Major signature)
     assert pitch_Bb % int() == 4
     # Must become Cb
-    pitch_Cb = pitch_Bb + 1.0   # A# becomes B# (7, "#")
-    assert pitch_Cb == Degree(7, "#")   # Changes the root note
-    assert pitch_Cb % int() == 5
+    pitch_C = pitch_Bb + 1.0   # A# becomes C (7)
+    assert pitch_C == Degree(1)   # Changes the root note
+    assert pitch_C % int() == 5 # Octave 5
     assert (~pitch_Bb << 5.0) % int() == 4
-    assert (~pitch_Bb << 7.0) % int() == 5  # Same as B#
+    assert (~pitch_Bb << "7#") % int() == 5  # Same as B#
     assert (~pitch_Bb << "7") % int() == 4  # Same as B
 
 # test_edge_degrees()
