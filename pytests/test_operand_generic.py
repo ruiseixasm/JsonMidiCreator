@@ -322,7 +322,7 @@ def test_target_key():
     # Resets the defaults
     settings << None
 
-# test_target_key()
+test_target_key()
 
 
 def test_pitch_key_signature():

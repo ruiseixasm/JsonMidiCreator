@@ -776,8 +776,6 @@ class Pitch(Generic):
                 return ou.RootKey(root_key, float(key_line))
             case ou.Key():
                 # target_key: int = self._get_target_key()
-                # key_line: int = self._key_signature._get_key_line(target_key)
-                # return operand.copy(target_key, float(key_line))
                 target_key: int = self._chromatic_target_int() % 12
                 key_line: int = self._key_signature._get_key_line(target_key)
                 return operand.copy(target_key, float(key_line))
