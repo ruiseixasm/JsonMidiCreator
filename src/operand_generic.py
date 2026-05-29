@@ -561,8 +561,8 @@ class Pitch(Generic):
         expected_octave_0: int = chromatic_pitch // 12  # A different expected Octave
         root_key_12 = ou.RootKey(chromatic_pitch % 12)
         self << root_key_12  # Sets the RootKey on the actual Octave
-        target_pitch: int = self._chromatic_target_int() + self._octave_transposition()
-        target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
+        chromatic_pitch: int = self._get_chromatic_pitch()
+        target_octave_0: int = chromatic_pitch // 12   # target_octave may be different from self._octave_0
         self._octave_0 += expected_octave_0 - target_octave_0
         # Normalize degree
         offset_octave = self._degree_0 // 7
@@ -571,58 +571,6 @@ class Pitch(Generic):
             self._octave_0 += offset_octave
         return self
 
-
-    """
-    Methods used to calculate the final chromatic pitch as `pitch_int` by following
-    the formula:
-        pitch_int = 
-            tonic_key
-            + octave_transposition + degree_transposition + scale_transposition + degree_accidental
-    """
-
-    def _octave_transposition(self) -> int:
-        """
-        Midi octaves start at -1, but octave_0 already has + 1
-        """
-        return 12 * self._octave_0
-
-    def _degree_transposition(self) -> int:
-        """
-        Based on the Key Signature, this method gives the degree transposition
-        """
-        if self._degree_0 != 0: # Optimization
-            signature_scale: list[int] = self._key_signature.get_scale()
-            return Scale.transpose_key(self._degree_0, signature_scale)
-        return 0
-
-    def _scale_transposition(self, degree_transposition: int) -> int:
-        """
-        Processes the transposition of the Key Signature if no Scale is set.
-        """
-        if self._transposition != 0:
-            if self._scale:
-                return Scale.transpose_key(self._transposition, self._scale)
-            else:   # For KeySignature the Modulation is treated as a degree_0
-                """
-                Because in this case the transposition is no more than a degree increase,
-                the tonic_offset is 0 for the new calculated degree
-                """
-                degree_0: float = self._degree_0 + self._transposition
-                signature_scale: list[int] = self._key_signature.get_scale()
-                return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
-        return 0
-
-
-    def _chromatic_target_int(self) -> int:
-        """
-        The configured Degree chromatic transposition in the float number.
-        """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self._degree_transposition()
-        degree_accidental: int = self._accidental
-        # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
-        scale_transposition: int = self._scale_transposition(degree_transposition)
-        return tonic_int + degree_transposition + degree_accidental + scale_transposition
 
     """
     Auxiliary methods to get specific data directly
