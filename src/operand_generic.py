@@ -457,6 +457,48 @@ class Pitch(Generic):
     def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
 
+    """
+    Elementary methods that represent variables alike
+    """
+
+    def _get_root_key(self) -> int:
+        """Emulates the existing of the member variable `self._root_key`
+        """
+        tonic_to_root_key: int = 0
+        if self._degree_0 != 0: # Optimization
+            signature_scale: list[int] = self._key_signature.get_scale()
+            tonic_to_root_key = Scale.transpose_key(self._degree_0, signature_scale)
+        tonic_to_root_key += self._accidental
+        return self._tonic_key % 12 + tonic_to_root_key
+
+
+    def _get_target_key(self) -> int:
+        """Emulates the existing of the member variable `self._target_key`
+        """
+        target_key: int = 0
+        if self._transposition == 0:
+            target_key = self._get_root_key()
+        elif self._scale:
+            target_key = self._get_root_key() + Scale.transpose_key(self._transposition, self._scale)
+        else:   # For KeySignature the Modulation is treated as a degree_0
+            """
+            Because in this case the transposition is no more than a degree increase,
+            the tonic_offset is 0 for the new calculated degree
+            """
+            transposition_degree_0: float = self._degree_0 + self._transposition
+            signature_scale: list[int] = self._key_signature.get_scale()
+            tonic_to_target_key: int = Scale.transpose_key(transposition_degree_0, signature_scale)
+            target_key = self._tonic_key % 12 + tonic_to_target_key
+        return target_key
+
+    def _get_chromatic_pitch(self) -> int:
+        """
+        The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
+        """
+        octave_key: int = self._octave_0 * 12
+        target_key: int = self._get_target_key()
+        return octave_key + target_key
+
 
     """
     Methods used to calculate the final chromatic pitch as `pitch_int` by following
