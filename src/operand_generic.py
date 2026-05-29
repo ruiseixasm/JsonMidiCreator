@@ -1186,6 +1186,7 @@ class Pitch(Generic):
                                         = settings % ou.KeySignature()
         self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._root_key: int             = self._tonic_key   # Degree I
+        self._root_line: int            = 0     # The root line contains the root key extra accidental
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._scale: list[int]          = []

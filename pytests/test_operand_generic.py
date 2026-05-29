@@ -200,8 +200,9 @@ def test_target_key():
 
     print("---")
     pitch = Pitch(Key("C")) # Shall become C# because in A Major C is sharped
+    # It's Enharmonically equivalent to a C Major
     tonic_A_root_C_major_scale: list[str] = [
-        "B#", "C#", "D#", "E#", "F##", "G#", "A#"
+        "B#", "C##", "D##", "E#", "F##", "G##", "A##"
     ]
     generated_scale: list[str] = []
     for degree in range(7):
