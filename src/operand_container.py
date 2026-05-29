@@ -2380,13 +2380,13 @@ class Composition(Container):
                         return self
                 else:
                     # Sort by Pitch instead
-                    at_position_notes.sort(key=lambda note:note._pitch.pitch_int())
+                    at_position_notes.sort(key=lambda note:note._pitch._chromatic_pitch_int())
                     minimum_position: Fraction = None
                     plotting_pitch: int = int(event.ydata + 0.5)
                     for single_note in at_position_notes:
                         if minimum_position is None:
                             minimum_position = single_note._position_beats
-                            root_pitch: int = single_note._pitch.pitch_int()
+                            root_pitch: int = single_note._pitch._chromatic_pitch_int()
                             single_note._pitch << plotting_pitch
                             plotting_pitch -= root_pitch
                         else:
@@ -3948,15 +3948,15 @@ class Clip(Composition):  # Just a container of Elements
 
             if higher_pitch is not None:
 
-                top_pitch_int: int = higher_pitch.pitch_int()
-                bottom_pitch_int: int = lower_pitch.pitch_int()
+                top_pitch_int: int = higher_pitch._chromatic_pitch_int()
+                bottom_pitch_int: int = lower_pitch._chromatic_pitch_int()
 
                 for element in self._foreground_items():
                     if isinstance(element, oe.Note):
                         note_pitch: og.Pitch = element._pitch
-                        note_pitch_int: int = note_pitch.pitch_int()
+                        note_pitch_int: int = note_pitch._chromatic_pitch_int()
                         new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
-                        note_pitch.set_pitch_int(new_pitch)
+                        note_pitch._set_chromatic_pitch_int(new_pitch)
                 
         return self
 
@@ -3992,12 +3992,12 @@ class Clip(Composition):  # Just a container of Elements
             
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
-                    center_pitch = note._pitch.pitch_int()
+                    center_pitch = note._pitch._chromatic_pitch_int()
                     break
 
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
-                    note_pitch: int = note._pitch.pitch_int()
+                    note_pitch: int = note._pitch._chromatic_pitch_int()
                     if note_pitch != center_pitch:
                         note._pitch << 2 * center_pitch - note_pitch
                 
@@ -4417,7 +4417,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel_0 << 8 | note._pitch.pitch_int()
+            channel_pitch: int = note._channel_0 << 8 | note._pitch._chromatic_pitch_int()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
@@ -4474,7 +4474,7 @@ class Clip(Composition):  # Just a container of Elements
         for note in self._foreground_items():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
                 if algorithm_type < 4:
-                    note_pitch: int = note._pitch.pitch_int()
+                    note_pitch: int = note._pitch._chromatic_pitch_int()
                     if first_pitch is None:
                         previous_pitch = first_pitch = note_pitch
                     else:
