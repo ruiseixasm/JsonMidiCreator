@@ -1302,7 +1302,7 @@ def test_root_key_pipe():
     print(f"absolute_root_key: {absolute_root_key}")
     assert absolute_root_key == 68
 
-# test_root_key_pipe()
+test_root_key_pipe()
 
 
 def test_set_chromatic_pitch():

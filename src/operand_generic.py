@@ -558,6 +558,11 @@ class Pitch(Generic):
     def _set_root_key(self, root_key: int) -> Self:
         """Emulates the existing member variable `self._root_key`
         """
+        # # Can result in negative degrees, the `self._octave_0` remains the same
+        # degree_0, accidental = self._tone_and_semitone(root_key)
+        # self._degree_0 = degree_0
+        # self._accidental = accidental
+
         degree_0, accidental = self._tone_and_semitone(root_key)
         original_octave_0 = self._get_octave_0()
         self._degree_0 = degree_0
