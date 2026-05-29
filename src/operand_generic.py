@@ -562,19 +562,6 @@ class Pitch(Generic):
         degree_0, accidental = self._tone_and_semitone(root_key)
         self._degree_0 = degree_0
         self._accidental = accidental
-
-
-        # degree_0, accidental = self._tone_and_semitone(root_key)
-        # original_octave_0 = self._get_octave_0()
-        # self._degree_0 = degree_0
-        # self._accidental = accidental
-        # actual_octave_0 = self._get_octave_0()
-        # self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
-        # # Normalize degree
-        # offset_octave = self._degree_0 // 7
-        # if offset_octave:
-        #     self._degree_0 %= 7
-        #     self._octave_0 += offset_octave
         return self
 
 
@@ -644,19 +631,6 @@ class Pitch(Generic):
         self._octave_0 += target_key // 12
         new_target_key: int = chromatic_pitch % 12
         self._set_target_key(new_target_key)
-
-
-        # expected_octave_0: int = chromatic_pitch // 12  # A different expected Octave
-        # root_key_12 = ou.RootKey(chromatic_pitch % 12)
-        # self << root_key_12  # Sets the RootKey on the actual Octave
-        # chromatic_pitch: int = self._get_chromatic_pitch()
-        # target_octave_0: int = chromatic_pitch // 12   # target_octave may be different from self._octave_0
-        # self._octave_0 += expected_octave_0 - target_octave_0
-        # # Normalize degree
-        # offset_octave = self._degree_0 // 7
-        # if offset_octave:
-        #     self._degree_0 %= 7
-        #     self._octave_0 += offset_octave
         return self
 
 

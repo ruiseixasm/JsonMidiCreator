@@ -1215,7 +1215,7 @@ def test_pitch_pipe():
     dummy_pitch << Pipe(pitch_Bb_degree_0)
     print(f'dummy_pitch % float(): {dummy_pitch % float()}')    #  5.0 (V)
     assert dummy_pitch == pitch_Bb
-    assert dummy_pitch << Pipe(pitch_D_degree_0) == pitch_D + Octave(1) # Next Octave via Degree
+    assert dummy_pitch << Pipe(pitch_D_degree_0) == pitch_D # Degree reflects the initial set Key
     assert dummy_pitch << Pipe(pitch_E5_Tonic_degree_0) == pitch_E5_Tonic
 
     pitch_C4    = Pitch(Key("C"))
