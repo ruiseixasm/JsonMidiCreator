@@ -877,8 +877,6 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
-                    case ou.Key():
-                        self._set_chromatic_pitch(operand._data._unit)
 
                     case ou.Degree():   # Sets an absolute degree_0
                         self._degree_0 = operand._data._unit
@@ -1003,7 +1001,7 @@ class Pitch(Generic):
 
             case ou.DrumKit():
                 self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
-                self << od.Pipe(ou.Key(operand)) # Sets the key number regardless KeySignature or Scale!
+                self._set_chromatic_pitch(ou.Key(operand)._unit) # Sets the key number regardless KeySignature or Scale!
 
             case ou.Accidental() | ou.Natural():
                 self._accidental = ou.Degree(operand)._accidental

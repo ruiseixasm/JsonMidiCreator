@@ -550,13 +550,13 @@ def test_note_pitch():
 
     print(note._pitch._get_chromatic_pitch())
     assert note._pitch._get_chromatic_pitch() == 60  # White Key
-    note << Pitch(Pipe(Key(35)))
+    note << Pitch()._set_chromatic_pitch(35)
     print(note._pitch._get_chromatic_pitch())
     assert note._pitch._get_chromatic_pitch() == 35  # White Key
-    note << Pitch(Pipe(Key(42)))
+    note << Pitch()._set_chromatic_pitch(42)
     print(note._pitch._get_chromatic_pitch())
     assert note._pitch._get_chromatic_pitch() == 42  # Black Key
-    note << Pitch(Pipe(Key(39)))
+    note << Pitch()._set_chromatic_pitch(39)
     print(note._pitch._get_chromatic_pitch())
     assert note._pitch._get_chromatic_pitch() == 39  # Black Key
 

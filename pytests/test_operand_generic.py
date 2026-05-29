@@ -515,13 +515,13 @@ def test_drum_kit():
 
     print(pitch._get_chromatic_pitch())
     assert pitch._get_chromatic_pitch() == 60  # White Key
-    pitch << Pipe(Key(35))
+    pitch._set_chromatic_pitch(35)
     print(pitch._get_chromatic_pitch())
     assert pitch._get_chromatic_pitch() == 35  # White Key
-    pitch << Pipe(Key(42))
+    pitch._set_chromatic_pitch(42)
     print(pitch._get_chromatic_pitch())
     assert pitch._get_chromatic_pitch() == 42  # Black Key
-    pitch << Pipe(Key(39))
+    pitch._set_chromatic_pitch(39)
     print(pitch._get_chromatic_pitch())
     assert pitch._get_chromatic_pitch() == 39  # Black Key
 

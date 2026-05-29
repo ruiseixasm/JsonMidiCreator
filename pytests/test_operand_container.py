@@ -740,10 +740,12 @@ def test_lshift_clip():
     assert one_measure.len() == 4
 
     assert two_measures[0]._pitch._get_chromatic_pitch() == 60
-    two_measures << Pipe(Key(30))
+    # two_measures << Pipe(Key(30))
+    two_measures << Octave(30 // 12 - 1) << Key(30 % 12)
     print(f"two_measures[0]._pitch._get_chromatic_pitch(): {two_measures[0]._pitch._get_chromatic_pitch()}")
     assert two_measures[0]._pitch._get_chromatic_pitch() == 30
-    two_measures << Pipe(Key(60))
+    # two_measures << Pipe(Key(60))
+    two_measures << Octave(60 // 12 - 1) << Key(60 % 12)
     assert two_measures[0]._pitch._get_chromatic_pitch() == 60
 
 
@@ -1019,7 +1021,7 @@ def test_clip_operations():
 def test_flip_operation():
 
     four_notes: Clip = Note() / 4
-    four_notes << Pipe(Iterate(60, 2)**Key())
+    four_notes << Iterate(0, 2)**Key()
 
     actual_pitch: int = 60
     for single_note in four_notes:
