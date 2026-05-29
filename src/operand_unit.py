@@ -609,14 +609,6 @@ class Key(PitchParameter):
         self._enharmonic: bool = False
         super().__init__(*parameters)
 
-    def _get_line(self) -> int:
-        line: int = 0
-        if self._accidental < 0:
-            line = 1
-        if self._enharmonic:
-            line += 2
-        return line
-
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case int():
@@ -726,6 +718,14 @@ class Key(PitchParameter):
         +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
         -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
     ]
+
+    def _get_line(self) -> int:
+        line: int = 0
+        if self._accidental < 0:
+            line = 1
+        if self._enharmonic:
+            line += 2
+        return line
 
     def getKeyString(self) -> str:
         line = self._get_line()
