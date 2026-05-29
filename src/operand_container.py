@@ -3976,12 +3976,12 @@ class Clip(Composition):  # Just a container of Elements
             
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
-                    center_degree_0 = note._pitch.absolute_degree_0()
+                    center_degree_0 = note._pitch._absolute_degree_0()
                     break
 
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
-                    note_degree_0: ou.Degree = note._pitch.absolute_degree_0()
+                    note_degree_0: ou.Degree = note._pitch._absolute_degree_0()
                     degree_distance: ou.Degree = note_degree_0 - center_degree_0
                     # Removes twice, safer than removing 2x
                     note._pitch -= degree_distance  # Recenter position

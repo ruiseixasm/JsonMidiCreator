@@ -476,9 +476,9 @@ def test_pitch_sub():
     print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  1.0 !!   (Tonic - Eb)
 
     print("Absolute degrees")
-    pitch_b4_degree = pitch_b4.absolute_degree_0()
-    pitch_d5_degree = pitch_d5.absolute_degree_0()
-    pitch_e5_degree = pitch_e5.absolute_degree_0()
+    pitch_b4_degree = pitch_b4._absolute_degree_0()
+    pitch_d5_degree = pitch_d5._absolute_degree_0()
+    pitch_e5_degree = pitch_e5._absolute_degree_0()
     print(f'pitch_b4_degree % float(): {pitch_b4_degree % float()}')        #  39.0
     print(f'pitch_d5_degree % float(): {pitch_d5_degree % float()}')        #  41.0
     print(f'pitch_e5_degree % float(): {pitch_e5_degree % float()}')        #  42.0 !!  (Tonic - Eb)

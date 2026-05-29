@@ -570,7 +570,7 @@ class Pitch(Generic):
     Auxiliary methods to get specific data directly
     """
 
-    def absolute_degree_0(self) -> 'ou.Degree':
+    def _absolute_degree_0(self) -> 'ou.Degree':
         """
         Degrees are returned relative to the Tonic key in a Octave, this function returns the \
             absolute Degree rooted in the Octave 0.
@@ -578,7 +578,7 @@ class Pitch(Generic):
         return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
 
 
-    def increment_tonic(self, keys: int) -> Self:
+    def _increment_tonic(self, keys: int) -> Self:
         """
         Increments the tonic key by preserving the tonic in the Key Signature range
         by changing the octave accordingly.
@@ -589,7 +589,7 @@ class Pitch(Generic):
         return self
 
 
-    def tone_and_semitone(self, key_int: int) -> tuple[int, int]:
+    def _tone_and_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
@@ -613,7 +613,7 @@ class Pitch(Generic):
             tonic_offset += 1
         return tone, semitones
 
-    def transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
+    def _transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
         tone: int = 0
         semitone: int = 0
         scale_degrees: int = 7  # Diatonic scales
@@ -942,7 +942,7 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                tone_0, accidentals = self.tone_and_semitone(operand._unit)
+                tone_0, accidentals = self._tone_and_semitone(operand._unit)
                 original_octave_0 = self._octave_int_0()
                 self._degree_0 = tone_0
                 self._accidental = accidentals
@@ -955,7 +955,7 @@ class Pitch(Generic):
                     self._octave_0 += offset_octave
             case ou.TargetKey():
                 original_octave_0 = self._octave_int_0()
-                tone_0, semitone = self.transposition_tone_semitone(operand._unit % 12)
+                tone_0, semitone = self._transposition_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 self._accidental = semitone
                 self << ou.Transposition(tone_0)
@@ -1050,7 +1050,7 @@ class Pitch(Generic):
                 self._transposition += operand._unit
 
             case ou.TonicKey():
-                self.increment_tonic(operand._unit)
+                self._increment_tonic(operand._unit)
             case ou.RootKey():
                 absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
                 absolute_root_key += operand
@@ -1100,7 +1100,7 @@ class Pitch(Generic):
                 self._transposition -= operand._unit
 
             case ou.TonicKey():
-                self.increment_tonic(-operand._unit)
+                self._increment_tonic(-operand._unit)
             case ou.RootKey():
                 absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
                 absolute_root_key -= operand
