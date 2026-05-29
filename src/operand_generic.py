@@ -503,7 +503,7 @@ class Pitch(Generic):
             transposition_degree_0: float = self._degree_0 + self._transposition
             signature_scale: list[int] = self._key_signature.get_scale()
             tonic_to_target_key: int = Scale.transpose_key(transposition_degree_0, signature_scale)
-            target_key = self._tonic_key % 12 + tonic_to_target_key
+            target_key = self._tonic_key % 12 + tonic_to_target_key + self._accidental
         return target_key
 
     def _get_chromatic_octave_0(self) -> int:
@@ -775,8 +775,7 @@ class Pitch(Generic):
                 key_line: int = self._key_signature._get_key_line(root_key)
                 return ou.RootKey(root_key, float(key_line))
             case ou.Key():
-                # target_key: int = self._get_target_key()
-                target_key: int = self._chromatic_target_int() % 12
+                target_key: int = self._get_target_key()
                 key_line: int = self._key_signature._get_key_line(target_key)
                 return operand.copy(target_key, float(key_line))
             
