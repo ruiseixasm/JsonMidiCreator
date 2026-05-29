@@ -705,6 +705,10 @@ class Key(PitchParameter):
                 if key_number != -1:
                     self._unit = key_number % 12
                     self._accidental = Key._accidentals[key_number]
+                    if abs(self._accidental) > 1:
+                        self._enharmonic = True
+                    else:
+                        self._enharmonic = False
             case _:
                 super().__lshift__(operand)
         return self
