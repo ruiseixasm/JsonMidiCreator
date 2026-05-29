@@ -584,17 +584,6 @@ class Pitch(Generic):
         return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
 
 
-    def _increment_tonic(self, keys: int) -> Self:
-        """
-        Increments the tonic key by preserving the tonic in the Key Signature range
-        by changing the octave accordingly.
-        """
-        new_tonic_key: int = self._tonic_key + keys
-        self._tonic_key = new_tonic_key % 12
-        self._octave_0 += new_tonic_key // 12
-        return self
-
-
     def _tone_and_semitone(self, key_int: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
@@ -1012,7 +1001,9 @@ class Pitch(Generic):
                 self._transposition += operand._unit
 
             case ou.TonicKey():
-                self._increment_tonic(operand._unit)
+                self._tonic_key += operand._unit
+                self._octave_0 += self._tonic_key // 12
+                self._tonic_key %= 12   # The Tonic Key is always a % 12 (principles)
             case ou.RootKey():
                 absolute_root_key: int = self._get_chromatic_pitch()
                 absolute_root_key += operand._unit
@@ -1062,7 +1053,9 @@ class Pitch(Generic):
                 self._transposition -= operand._unit
 
             case ou.TonicKey():
-                self._increment_tonic(-operand._unit)
+                self._tonic_key -= operand._unit
+                self._octave_0 += self._tonic_key // 12
+                self._tonic_key %= 12   # The Tonic Key is always a % 12 (principles)
             case ou.RootKey():
                 absolute_root_key: int = self._get_chromatic_pitch()
                 absolute_root_key -= operand._unit

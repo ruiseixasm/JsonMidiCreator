@@ -1494,6 +1494,12 @@ def test_pitch_multi():
     # Resets the defaults
     settings << None
 
+    pitch = Pitch()
+
+    assert pitch                == Octave(4)
+    assert pitch + TonicKey(14) == Octave(5)
+    assert pitch - TonicKey(3)  == Octave(3)
+    
     pitch_C = Pitch()
     assert pitch_C == "C"
     assert pitch_C._get_chromatic_pitch() == 60
