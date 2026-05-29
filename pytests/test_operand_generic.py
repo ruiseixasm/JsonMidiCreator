@@ -544,7 +544,7 @@ def test_drum_kit():
     print(pitch._get_chromatic_pitch())
     assert pitch._get_chromatic_pitch() == 35  # White Key
     # Alternative to call the method above `pitch_int`
-    assert pitch % Pipe(Key()) == 35  # White Key
+    assert pitch._get_chromatic_pitch() == 35  # White Key
 
 # test_drum_kit()
 
@@ -1222,26 +1222,26 @@ def test_pitch_pipe():
     pitch_Fs4   = Pitch(Key("F#"))
 
     # Test absolute root keys
-    pitch_C4_key_0 = pitch_C4 % Pipe(Key())
+    pitch_C4_key_0 = pitch_C4._get_chromatic_pitch()
     print(f'pitch_C4_key_0: {pitch_C4_key_0}')      # 60
     assert pitch_C4_key_0 == 60
-    pitch_G4_key_0 = pitch_G4 % Pipe(Key())
+    pitch_G4_key_0 = pitch_G4._get_chromatic_pitch()
     print(f'pitch_G4_key_0: {pitch_G4_key_0}')      # 67
     assert pitch_G4_key_0 == 67
-    pitch_Fs4_key_0 = pitch_Fs4 % Pipe(Key())
+    pitch_Fs4_key_0 = pitch_Fs4._get_chromatic_pitch()
     print(f'pitch_Fs4_key_0: {pitch_Fs4_key_0}')    # 66
     assert pitch_Fs4_key_0 == 66
 
     pitch_d2 = Pitch(Key("D"), Octave(2))
     print(f'pitch_d2.pitch_int(): {pitch_d2._get_chromatic_pitch()}')  # 38
     assert pitch_d2._get_chromatic_pitch() == 38
-    pitch_d2 << Pipe(pitch_Fs4_key_0)
+    pitch_d2._set_chromatic_pitch(pitch_Fs4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2._get_chromatic_pitch()}')  # 66
     assert pitch_d2._get_chromatic_pitch() == 66
-    pitch_d2 << Pipe(pitch_G4_key_0)
+    pitch_d2._set_chromatic_pitch(pitch_G4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2._get_chromatic_pitch()}')  # 67
     assert pitch_d2._get_chromatic_pitch() == 67
-    pitch_d2 << Pipe(pitch_C4_key_0)
+    pitch_d2._set_chromatic_pitch(pitch_C4_key_0)
     print(f'pitch_d2.pitch_int(): {pitch_d2._get_chromatic_pitch()}')  # 60
     assert pitch_d2._get_chromatic_pitch() == 60
 

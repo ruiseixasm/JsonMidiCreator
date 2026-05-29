@@ -128,7 +128,7 @@ def test_clip_mod():
     keys_float: list[int] = [60, 62, 64, 65, 67, 69, 71]
     for degree in range(7):
         chords_clip[degree] % Pitch() % int() >> Print()
-        assert chords_clip[degree] % Pitch() % Pipe(Key()) == keys_float[degree]
+        assert chords_clip[degree]._pitch._get_chromatic_pitch() == keys_float[degree]
 
     single_note = Note()
     note_clip = Clip(single_note)
@@ -739,12 +739,12 @@ def test_lshift_clip():
     one_measure: Clip = two_measures >> Mask(Bellow(Measure(1)))
     assert one_measure.len() == 4
 
-    assert two_measures[0] % Pitch() % Pipe(Key()) == 60
+    assert two_measures[0]._pitch._get_chromatic_pitch() == 60
     two_measures << Pipe(Key(30))
-    print(f"two_measures[0] % Pitch() % Pipe(Key()) % int(): {two_measures[0] % Pitch() % Pipe(Key()) % int()}")
-    assert two_measures[0] % Pitch() % Pipe(Key()) % int() == 30
+    print(f"two_measures[0]._pitch._get_chromatic_pitch(): {two_measures[0]._pitch._get_chromatic_pitch()}")
+    assert two_measures[0]._pitch._get_chromatic_pitch() == 30
     two_measures << Pipe(Key(60))
-    assert two_measures[0] % Pitch() % Pipe(Key()) == 60
+    assert two_measures[0]._pitch._get_chromatic_pitch() == 60
 
 
     eight_notes = Note() / 8
@@ -1023,8 +1023,8 @@ def test_flip_operation():
 
     actual_pitch: int = 60
     for single_note in four_notes:
-        single_note % Pipe(Key()) % int() >> Print()
-        assert single_note % Pipe(Key()) == actual_pitch
+        single_note._pitch._get_chromatic_pitch() >> Print()
+        assert single_note._pitch._get_chromatic_pitch() == actual_pitch
         actual_pitch += 2
     
     four_notes.mirror(False)
@@ -1032,8 +1032,8 @@ def test_flip_operation():
     print("------")
     for single_note in four_notes:
         actual_pitch -= 2
-        single_note % Pipe(Key()) % int() >> Print()
-        assert single_note % Pipe(Key()) == actual_pitch
+        single_note._pitch._get_chromatic_pitch() >> Print()
+        assert single_note._pitch._get_chromatic_pitch() == actual_pitch
 
 # test_flip_operation()
 

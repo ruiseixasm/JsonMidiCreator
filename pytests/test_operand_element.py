@@ -548,30 +548,30 @@ def test_note_pitch():
     
     note.clear()    # Becomes like a new note
 
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 60  # White Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 60  # White Key
     note << Pitch(Pipe(Key(35)))
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 35  # White Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 35  # White Key
     note << Pitch(Pipe(Key(42)))
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 42  # Black Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 42  # Black Key
     note << Pitch(Pipe(Key(39)))
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 39  # Black Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 39  # Black Key
 
     note << DrumKit("Drum")
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 35  # White Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 35  # White Key
     note << DrumKit("Hi-Hat")
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 42  # Black Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 42  # Black Key
     note << DrumKit("Clap")
-    print(note % od.Pipe( Pitch() ) % Pipe(Key()) % int())
-    assert note % od.Pipe( Pitch() ) % Pipe(Key()) % int() == 39  # Black Key
+    print(note._pitch._get_chromatic_pitch())
+    assert note._pitch._get_chromatic_pitch() == 39  # Black Key
 
     note << Pitch()
-    assert note % Pitch() % Pipe(Key()) % int() == 60   # Middle C
+    assert note._pitch._get_chromatic_pitch() == 60   # Middle C
 
     note.clear()
 

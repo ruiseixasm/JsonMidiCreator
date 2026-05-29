@@ -733,11 +733,6 @@ class Pitch(Generic):
                         return operand._data << od.Pipe(
                             self._chromatic_target_int() + self._octave_transposition()
                         )
-                    case ou.Key():
-                        return operand._data << self % od.Pipe( ou.RootKey() )
-                        # octave_key: int = self % operand._data % int() % 12
-                        # absolute_key: int = octave_key + 12 * self._octave_0
-                        # return operand._data << absolute_key
                     case ou.Degree():   # Returns an absolute degree_0
                         operand._data._unit = self._degree_0
                         operand._data._accidental = self._accidental
