@@ -1555,7 +1555,7 @@ def test_pitch_multi():
     print(f"pitch_A % Key() % str(): {pitch_A % Key() % str()}")            # Bb
     print(f"pitch_A % Degree() % int(): {pitch_A % Degree() % int()}")      # 7
     print(f"pitch_A % Degree() % float(): {pitch_A % Degree() % float()}")  # 1.0 (#)
-    assert pitch_A % Key() % int() == 8    # Ab
+    assert pitch_A % Key() == Key(8)    # Ab
 
     # CONCLUSION: Pair Degree, Accidental as to be replaced with just root_key!!
 
