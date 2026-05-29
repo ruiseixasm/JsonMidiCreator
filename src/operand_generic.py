@@ -487,8 +487,8 @@ class Pitch(Generic):
 
     def _tone_and_semitone(self, root_key: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
-        tone: int = 0
-        semitones: int = 0
+        degree_0: int = 0
+        accidental: int = 0
         tonic_to_root: int = root_key % 12 - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
@@ -496,22 +496,22 @@ class Pitch(Generic):
             flats: bool = self._key_signature._unit < 0
             if flats:
                 tonic_to_root += 1
-                semitones = -1
+                accidental = -1
             else:
                 tonic_to_root -= 1
-                semitones = 1
+                accidental = 1
         # For Tones
         while tonic_to_root > 0:
-            tone += signature_scale[tonic_to_root % 12]
+            degree_0 += signature_scale[tonic_to_root % 12]
             tonic_to_root -= 1
         while tonic_to_root < 0:
-            tone -= signature_scale[tonic_to_root % 12]
+            degree_0 -= signature_scale[tonic_to_root % 12]
             tonic_to_root += 1
-        return tone, semitones
+        return degree_0, accidental
 
     def _transposition_tone_semitone(self, target_key: int) -> tuple[int, int]:
-        tone: int = 0
-        semitone: int = 0
+        degree_0: int = 0
+        accidental: int = 0
         scale_degrees: int = 7  # Diatonic scales
         if self._scale:
             transposition_scale: list[int] = self._scale
@@ -525,21 +525,21 @@ class Pitch(Generic):
         # For Semitones
         if transposition_scale[first_key_offset % 12] == 0:
             if first_key_offset < 0:
-                semitone = -1   # Needs to go down further
+                accidental = -1   # Needs to go down further
             else:
-                semitone = +1   # Needs to go up further
+                accidental = +1   # Needs to go up further
         # For Tones
         while first_key_offset > 0:
-            tone += transposition_scale[first_key_offset % 12]
+            degree_0 += transposition_scale[first_key_offset % 12]
             first_key_offset -= 1
         while first_key_offset < 0:
-            tone -= transposition_scale[first_key_offset % 12]
+            degree_0 -= transposition_scale[first_key_offset % 12]
             first_key_offset += 1
         # # Finally, transposition needs to be corrected for the usage of the Key Signature scale
         # if not self._scale:
         #     # Partial transposition already done by degrees
         #     tone -= self.degree_transposition()
-        return tone % scale_degrees, semitone
+        return degree_0 % scale_degrees, accidental
 
     """
     Elementary methods that represent variables alike
@@ -558,10 +558,10 @@ class Pitch(Generic):
     def _set_root_key(self, root_key: int) -> Self:
         """Emulates the existing member variable `self._root_key`
         """
-        tone_0, accidentals = self._tone_and_semitone(root_key)
+        degree_0, accidental = self._tone_and_semitone(root_key)
         original_octave_0 = self._get_octave_0()
-        self._degree_0 = tone_0
-        self._accidental = accidentals
+        self._degree_0 = degree_0
+        self._accidental = accidental
         actual_octave_0 = self._get_octave_0()
         self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
         # Normalize degree
