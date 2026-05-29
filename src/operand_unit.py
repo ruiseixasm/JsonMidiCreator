@@ -605,26 +605,34 @@ class Key(PitchParameter):
     int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
-        self._line: int = -4    # By default, it has no line defined (-4 % 4 = 0)
+        self._accidental: int = 0
+        self._enharmonic: bool = False
         super().__init__(*parameters)
 
+    def _get_line(self) -> int:
+        line: int = 0
+        if self._accidental < 0:
+            line = 1
+        if self._enharmonic:
+            line += 2
+        return line
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case int():
                 return self._unit
             case float():
-                return float(self._line)
+                return float(self._accidental)
             case str():
                 return self.getKeyString()
 
             case Sharp():
-                if self._line > 0 and self._line % 2:
+                if self._accidental > 0 and self._accidental % 2:
                     key: int = int(self % float())
                     return Sharp(Key._accidentals[key])
                 return Sharp(0)
             case Flat():
-                if self._line % 2 == 0:
+                if self._accidental % 2 == 0:
                     key: int = int(self % float())
                     return Flat(Key._accidentals[key] * -1)
                 return Flat(0)
@@ -643,17 +651,19 @@ class Key(PitchParameter):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["line"] = self.serialize( self._line )
+        serialization["parameters"]["accidental"] = self.serialize( self._accidental )
+        serialization["parameters"]["enharmonic"] = self.serialize( self._enharmonic )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "line" in serialization["parameters"]):
+            "accidental" in serialization["parameters"] and "enharmonic" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._line = self.deserialize( serialization["parameters"]["line"] )
+            self._accidental = self.deserialize( serialization["parameters"]["accidental"] )
+            self._enharmonic = self.deserialize( serialization["parameters"]["enharmonic"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -662,13 +672,14 @@ class Key(PitchParameter):
             case Key():
                 super().__lshift__(operand)
                 self._unit  = operand._unit
-                self._line  = operand._line
+                self._accidental  = operand._accidental
+                self._enharmonic  = operand._enharmonic
             case od.Pipe():
                 match operand._data:
                     case int():
                         self._unit = operand._data
                     case float():
-                        self._line = int(operand._data)
+                        self._accidental = int(operand._data)
                     case Semitone():
                         self._unit = operand._data._unit
 
@@ -679,7 +690,7 @@ class Key(PitchParameter):
             case int():
                 self._unit = operand
             case float():
-                self._line = int(operand)
+                self._accidental = int(operand)
             case Semitone():
                 self._unit = operand._unit
             case str():
@@ -693,8 +704,7 @@ class Key(PitchParameter):
                 key_number: int = self.getKeyNumber(operand)
                 if key_number != -1:
                     self._unit = key_number % 12
-                    if self._line < 0:
-                        self._line = key_number // 12
+                    self._accidental = Key._accidentals[key_number % 24]
             case _:
                 super().__lshift__(operand)
         return self
@@ -714,12 +724,12 @@ class Key(PitchParameter):
     ]
 
     def getKeyString(self) -> str:
-        line = self._line % 4  # Only 4 lines
+        line = self._accidental % 4  # Only 4 lines
         key: int = line * 12 + self._unit % 12
         return Key._keys[key]
 
     def getKeyAccidental(self) -> int:
-        line = self._line % 4  # Only 4 lines
+        line = self._accidental % 4  # Only 4 lines
         key: int = line * 12 + self._unit % 12
         return Key._accidentals[key]
     
