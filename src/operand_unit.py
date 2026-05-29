@@ -605,7 +605,7 @@ class Key(PitchParameter):
     int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
-        self._accidental: int = 0
+        self._accidental: int = 0   # Merely informative for string processing
         self._enharmonic: bool = False
         super().__init__(*parameters)
 
@@ -704,7 +704,7 @@ class Key(PitchParameter):
                 key_number: int = self.getKeyNumber(operand)
                 if key_number != -1:
                     self._unit = key_number % 12
-                    self._accidental = Key._accidentals[key_number % 24]
+                    self._accidental = Key._accidentals[key_number]
             case _:
                 super().__lshift__(operand)
         return self
@@ -724,12 +724,12 @@ class Key(PitchParameter):
     ]
 
     def getKeyString(self) -> str:
-        line = self._accidental % 4  # Only 4 lines
+        line = self._get_line()
         key: int = line * 12 + self._unit % 12
         return Key._keys[key]
 
     def getKeyAccidental(self) -> int:
-        line = self._accidental % 4  # Only 4 lines
+        line = self._get_line()
         key: int = line * 12 + self._unit % 12
         return Key._accidentals[key]
     
