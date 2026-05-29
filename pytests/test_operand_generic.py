@@ -1280,7 +1280,7 @@ def test_root_key_pipe():
     absolute_root_key = pitch_A_minor._get_chromatic_pitch()
     assert absolute_root_key == 67  # G
     print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
-    assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
+    assert pitch_A_minor == Degree(7)   # Not 0 based in this case!
 
     pitch_A_minor << RootKey(8) # Ab
     print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
@@ -1302,7 +1302,7 @@ def test_root_key_pipe():
     print(f"absolute_root_key: {absolute_root_key}")
     assert absolute_root_key == 68
 
-test_root_key_pipe()
+# test_root_key_pipe()
 
 
 def test_set_chromatic_pitch():
@@ -1545,16 +1545,16 @@ def test_pitch_multi():
     assert pitch_Bb == "Bb" # The Tonic Key (I)
 
     pitch_E = Pitch(RootKey("E")) # Same as Fb and same as Vb degree
-    assert pitch_E == 5.0
+    assert pitch_E == Degree("Vb")
     pitch_Fb = Pitch(RootKey("Fb"))
     assert pitch_E == pitch_Fb
     print(f"pitch_E.pitch_int(): {pitch_E._get_chromatic_pitch()}")
     assert pitch_E._get_chromatic_pitch() == 60 + 4
     assert pitch_E % str() == "Fb"  # 5 Degree
-    pitch_iv = ~pitch_E << 5.0
+    pitch_iv = ~pitch_E << 5.0  # Sets the Degree to V, so, goes to Octave 5
     # Note(pitch_E) / Note(pitch_iv) >> Plot()
     print(f"pitch_iv.pitch_int(): {pitch_iv._get_chromatic_pitch()}")
-    assert pitch_iv._get_chromatic_pitch() == 60 + 4 # Same as E and Fb
+    assert pitch_iv._get_chromatic_pitch() == 60 + 4 + 12 # Same as E and Fb
     print(f"pitch_iv: {pitch_iv % str()}")
     assert pitch_iv == "Fb"  # Same as Fb, Degree iv from Bb !!
 

@@ -812,7 +812,10 @@ class Degree(PitchParameter):
 
     def __eq__(self, other: any) -> bool:
         if isinstance(other, Degree):
-            return super().__eq__(other) and self._accidental == other._accidental
+            # Checks formal degree
+            self_degree_0: int = self._unit - 1 if self._unit > 0 else self._unit
+            other_degree_0: int = other._unit - 1 if other._unit > 0 else other._unit
+            return self_degree_0 % 7 == other_degree_0 % 7 and self._accidental == other._accidental
         if isinstance(other, od.Conditional):
             return other == self
         if isinstance(other, str):
