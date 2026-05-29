@@ -485,28 +485,28 @@ class Pitch(Generic):
         return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
 
 
-    def _tone_and_semitone(self, key_int: int) -> tuple[int, int]:
+    def _tone_and_semitone(self, root_key: int) -> tuple[int, int]:
         signature_scale: list[int] = self._key_signature.get_scale()
         tone: int = 0
         semitones: int = 0
-        tonic_offset: int = key_int % 12 - self._tonic_key % 12
+        tonic_to_root: int = root_key % 12 - self._tonic_key % 12
         # For Semitones
-        if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
+        if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
             flats: bool = self._key_signature._unit < 0
             if flats:
-                tonic_offset += 1
+                tonic_to_root += 1
                 semitones = -1
             else:
-                tonic_offset -= 1
+                tonic_to_root -= 1
                 semitones = 1
         # For Tones
-        while tonic_offset > 0:
-            tone += signature_scale[tonic_offset % 12]
-            tonic_offset -= 1
-        while tonic_offset < 0:
-            tone -= signature_scale[tonic_offset % 12]
-            tonic_offset += 1
+        while tonic_to_root > 0:
+            tone += signature_scale[tonic_to_root % 12]
+            tonic_to_root -= 1
+        while tonic_to_root < 0:
+            tone -= signature_scale[tonic_to_root % 12]
+            tonic_to_root += 1
         return tone, semitones
 
     def _transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
@@ -893,17 +893,7 @@ class Pitch(Generic):
                 else:
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
-                tone_0, accidentals = self._tone_and_semitone(operand._unit)
-                original_octave_0 = self._get_octave_0()
-                self._degree_0 = tone_0
-                self._accidental = accidentals
-                actual_octave_0 = self._get_octave_0()
-                self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
-                # Normalize degree
-                offset_octave = self._degree_0 // 7
-                if offset_octave:
-                    self._degree_0 %= 7
-                    self._octave_0 += offset_octave
+                self._set_root_key(operand._unit)
             case ou.TargetKey():
                 original_octave_0 = self._get_octave_0()
                 tone_0, semitone = self._transposition_tone_semitone(operand._unit % 12)
