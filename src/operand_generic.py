@@ -599,7 +599,12 @@ class Pitch(Generic):
     def _set_target_key(self, target_key: int) -> Self:
         """Emulates the member variable `self._target_key` setting
         """
-        
+        root_key: int = self._get_root_key()
+        root_to_target_key: int = 0
+        if self._transposition != 0:
+            root_to_target_key = self._get_target_key() - root_key
+        new_root_key: int = target_key - root_to_target_key
+        self._set_root_key(new_root_key)    # Adjusts the Degree only
         return self
 
 
