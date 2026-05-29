@@ -462,7 +462,7 @@ class Pitch(Generic):
     """
 
     def _get_root_key(self) -> int:
-        """Emulates the existing of the member variable `self._root_key`
+        """Emulates the existing member variable `self._root_key`
         """
         tonic_to_root_key: int = 0
         if self._degree_0 != 0: # Optimization
@@ -471,6 +471,21 @@ class Pitch(Generic):
         tonic_to_root_key += self._accidental
         return self._tonic_key % 12 + tonic_to_root_key
 
+    def _set_root_key(self, root_key: int) -> Self:
+        """Emulates the existing member variable `self._root_key`
+        """
+        tone_0, accidentals = self._tone_and_semitone(root_key)
+        original_octave_0 = self._get_chromatic_octave_0()
+        self._degree_0 = tone_0
+        self._accidental = accidentals
+        actual_octave_0 = self._get_chromatic_octave_0()
+        self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
+        # Normalize degree
+        offset_octave = self._degree_0 // 7
+        if offset_octave:
+            self._degree_0 %= 7
+            self._octave_0 += offset_octave
+        return self
 
     def _get_target_key(self) -> int:
         """Emulates the existing of the member variable `self._target_key`
@@ -491,9 +506,13 @@ class Pitch(Generic):
             target_key = self._tonic_key % 12 + tonic_to_target_key
         return target_key
 
+    def _get_chromatic_octave_0(self) -> int:
+        target_key: int = self._get_target_key()
+        return self._octave_0 + target_key // 12
+
     def _get_chromatic_pitch(self) -> int:
         """
-        The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
+        Returns the final chromatic pitch with a midi value from 0 to 127.
         """
         octave_key: int = self._octave_0 * 12
         target_key: int = self._get_target_key()
@@ -501,7 +520,7 @@ class Pitch(Generic):
 
     def _set_chromatic_pitch(self, chromatic_pitch: int) -> Self:
         """
-        Sets the final chromatic pitch by adjusting the degree.
+        Sets the final chromatic pitch with a midi value from 0 to 127.
         """
         expected_octave_0: int = chromatic_pitch // 12  # A different expected Octave
         root_key_12 = ou.RootKey(chromatic_pitch % 12)
@@ -604,11 +623,6 @@ class Pitch(Generic):
         # Can't have as input accidentals, that's why degree_transposition is separated from degree_accidental
         scale_transposition: int = self._scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + degree_accidental + scale_transposition
-
-    def _octave_int_0(self) -> int:
-        pitch_int: int = self._get_chromatic_pitch()
-        octave_0: int = pitch_int // 12
-        return octave_0
 
     """
     Auxiliary methods to get specific data directly
@@ -770,7 +784,7 @@ class Pitch(Generic):
                 return ou.Key( self % ou.RootKey() )
             
             case ou.Octave():
-                return ou.Octave(self._octave_int_0() - 1)
+                return ou.Octave(self._get_chromatic_octave_0() - 1)
             case ou.Degree():
                 if self._degree_0 < 0:
                     return ou.Degree(self._degree_0, float(self._accidental))
@@ -963,10 +977,10 @@ class Pitch(Generic):
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
                 tone_0, accidentals = self._tone_and_semitone(operand._unit)
-                original_octave_0 = self._octave_int_0()
+                original_octave_0 = self._get_chromatic_octave_0()
                 self._degree_0 = tone_0
                 self._accidental = accidentals
-                actual_octave_0 = self._octave_int_0()
+                actual_octave_0 = self._get_chromatic_octave_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
                 # Normalize degree
                 offset_octave = self._degree_0 // 7
@@ -974,12 +988,12 @@ class Pitch(Generic):
                     self._degree_0 %= 7
                     self._octave_0 += offset_octave
             case ou.TargetKey():
-                original_octave_0 = self._octave_int_0()
+                original_octave_0 = self._get_chromatic_octave_0()
                 tone_0, semitone = self._transposition_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 self._accidental = semitone
                 self << ou.Transposition(tone_0)
-                actual_octave_0 = self._octave_int_0()
+                actual_octave_0 = self._get_chromatic_octave_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
                 # Normalize degree
                 offset_octave = self._degree_0 // 7
