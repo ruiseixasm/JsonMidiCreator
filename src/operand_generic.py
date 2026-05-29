@@ -588,16 +588,8 @@ class Pitch(Generic):
         scale_transposition: int = self._scale_transposition(degree_transposition)
         return tonic_int + degree_transposition + degree_accidental + scale_transposition
 
-    def _chromatic_pitch_int(self) -> int:
-        """
-        The final chromatic conversion of the tonic_key into the midi pitch with sharps, flats and naturals.
-        """
-        chromatic_int: int = self._chromatic_target_int()
-        octave_transposition: int = self._octave_transposition()
-        return chromatic_int + octave_transposition
-
     def _octave_int_0(self) -> int:
-        pitch_int: int = self._chromatic_pitch_int()
+        pitch_int: int = self._get_chromatic_pitch()
         octave_0: int = pitch_int // 12
         return octave_0
 
@@ -750,7 +742,7 @@ class Pitch(Generic):
                 return Fraction(self._transposition)
             
             case ou.Semitone():
-                return operand.copy(self._chromatic_pitch_int() % 12)
+                return operand.copy(self._get_chromatic_pitch() % 12)
             
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)
@@ -795,7 +787,7 @@ class Pitch(Generic):
     def __eq__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._chromatic_pitch_int() == other._chromatic_pitch_int()
+                return self._get_chromatic_pitch() == other._get_chromatic_pitch()
             case str():
                 try:
                     string_degree = ou.Degree(int(other))
@@ -811,7 +803,7 @@ class Pitch(Generic):
     def __lt__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._chromatic_pitch_int() < other._chromatic_pitch_int()
+                return self._get_chromatic_pitch() < other._get_chromatic_pitch()
             case int() | float() | ou.Degree() | ou.Octave():
                 return self % other < other
             case _:
@@ -821,7 +813,7 @@ class Pitch(Generic):
     def __gt__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._chromatic_pitch_int() > other._chromatic_pitch_int()
+                return self._get_chromatic_pitch() > other._get_chromatic_pitch()
             case int() | float() | ou.Degree() | ou.Octave():
                 return self % other > other
             case _:
@@ -956,7 +948,7 @@ class Pitch(Generic):
                     
             case ou.Octave():
                 target_octave_0: int = operand._unit + 1
-                target_pitch: int = self._chromatic_pitch_int()
+                target_pitch: int = self._get_chromatic_pitch()
                 self._octave_0 += target_octave_0 - target_pitch // 12
             case ou.Degree():
                 self._accidental = operand._accidental
@@ -1064,7 +1056,7 @@ class Pitch(Generic):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch() | ou.Semitone():
-                actual_pitch: int = self._chromatic_pitch_int()
+                actual_pitch: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch + added_pitch
                 self << od.Pipe(ou.Key(new_pitch))
@@ -1114,7 +1106,7 @@ class Pitch(Generic):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch() | ou.Semitone():
-                actual_pitch: int = self._chromatic_pitch_int()
+                actual_pitch: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch - added_pitch
                 self << od.Pipe(ou.Key(new_pitch))
@@ -1175,7 +1167,7 @@ class Pitch(Generic):
 
     def snap(self, up: bool = False) -> Self:
         scale_list: list[int] = self._key_signature % list()
-        self_pitch: int = self._chromatic_pitch_int()
+        self_pitch: int = self._get_chromatic_pitch()
         pitch_offset: int = 0
         if up:
             pitch_step: int = 1
