@@ -509,7 +509,7 @@ class Pitch(Generic):
             tonic_to_root += 1
         return tone, semitones
 
-    def _transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
+    def _transposition_tone_semitone(self, target_key: int) -> tuple[int, int]:
         tone: int = 0
         semitone: int = 0
         scale_degrees: int = 7  # Diatonic scales
@@ -520,7 +520,7 @@ class Pitch(Generic):
         else:
             transposition_scale: list[int] = self._key_signature.get_scale()
             first_key_int: int = self._tonic_key % 12   # Transposition becomes equivalent to degrees
-        first_key_offset: int = key_int - first_key_int
+        first_key_offset: int = target_key - first_key_int
         
         # For Semitones
         if transposition_scale[first_key_offset % 12] == 0:
