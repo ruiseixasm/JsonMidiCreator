@@ -725,14 +725,6 @@ class Pitch(Generic):
                         return operand._data << od.Pipe(self._octave_0)
                     case ou.TonicKey():
                         return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
-                    case ou.RootKey():
-                        return operand._data << od.Pipe(
-                            self._chromatic_root_int() + self._octave_transposition()
-                        )
-                    case ou.TargetKey():
-                        return operand._data << od.Pipe(
-                            self._chromatic_target_int() + self._octave_transposition()
-                        )
                     case ou.Degree():   # Returns an absolute degree_0
                         operand._data._unit = self._degree_0
                         operand._data._accidental = self._accidental
@@ -1077,13 +1069,13 @@ class Pitch(Generic):
             case ou.TonicKey():
                 self._increment_tonic(operand._unit)
             case ou.RootKey():
-                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
-                absolute_root_key += operand
-                self << od.Pipe( absolute_root_key )
+                absolute_root_key: int = self._get_chromatic_pitch()
+                absolute_root_key += operand._unit
+                self._set_chromatic_pitch( absolute_root_key )
             case ou.TargetKey():
-                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
-                absolute_target_key += operand
-                self << od.Pipe( absolute_target_key )
+                absolute_target_key: int = self._get_chromatic_pitch()
+                absolute_target_key += operand._unit
+                self._set_chromatic_pitch( absolute_root_key )
             case ou.Key():
                 self += ou.RootKey(operand._unit)
 
@@ -1127,13 +1119,13 @@ class Pitch(Generic):
             case ou.TonicKey():
                 self._increment_tonic(-operand._unit)
             case ou.RootKey():
-                absolute_root_key: ou.RootKey = self % od.Pipe( ou.RootKey() )
-                absolute_root_key -= operand
-                self << od.Pipe( absolute_root_key )
+                absolute_root_key: int = self._get_chromatic_pitch()
+                absolute_root_key -= operand._unit
+                self._set_chromatic_pitch( absolute_root_key )
             case ou.TargetKey():
-                absolute_target_key: ou.TargetKey = self % od.Pipe( ou.TargetKey() )
-                absolute_target_key -= operand
-                self << od.Pipe( absolute_target_key )
+                absolute_root_key: int = self._get_chromatic_pitch()
+                absolute_root_key -= operand._unit
+                self._set_chromatic_pitch( absolute_root_key )
             case ou.Key():
                 self -= ou.RootKey(operand._unit)
 

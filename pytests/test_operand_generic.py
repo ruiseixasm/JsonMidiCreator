@@ -1258,25 +1258,25 @@ def test_root_key_pipe():
 
     pitch_A_minor = Pitch(Minor())
     assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
     assert absolute_root_key == 69  # A
     assert pitch_A_minor % float() == 1.0
 
     pitch_A_minor += RootKey(1) # A#
     assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
     assert absolute_root_key == 70  # A#
     assert pitch_A_minor == Degree(1, 1.0)
 
-    pitch_A_minor << Pipe(RootKey(69))
+    pitch_A_minor._set_chromatic_pitch(69)
     assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
     assert absolute_root_key == 69  # A
     assert pitch_A_minor % float() == 1.0
 
-    pitch_A_minor << Pipe(RootKey(67))
+    pitch_A_minor._set_chromatic_pitch(67)
     assert pitch_A_minor % Octave() == 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
     assert absolute_root_key == 67  # G
     print(f'pitch_A_minor % float(): {pitch_A_minor % float()}')  # 7.0
     assert pitch_A_minor % float() == 7.0   # Not 0 based in this case!
@@ -1284,21 +1284,21 @@ def test_root_key_pipe():
     pitch_A_minor << RootKey(8) # Ab
     print(f"pitch_A_minor % Octave(): {pitch_A_minor % Octave()}")
     assert pitch_A_minor % Octave() == 4    # Because the previous change made it at 4
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
+    print(f"absolute_root_key: {absolute_root_key}")
     assert absolute_root_key == 68  # Ab
 
-    pitch_A_minor << Pipe(RootKey(68))  # Octave 4 !
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    pitch_A_minor._set_chromatic_pitch(68)  # Octave 4 !
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
+    print(f"absolute_root_key: {absolute_root_key}")
     assert pitch_A_minor % Octave() == 4
     assert absolute_root_key == 68
 
-    pitch_A_minor << Pipe(RootKey(69))
+    pitch_A_minor._set_chromatic_pitch(69)
     assert pitch_A_minor % Octave() == 4
     pitch_A_minor -= RootKey(1)
-    absolute_root_key = pitch_A_minor % Pipe(RootKey())
-    print(f"absolute_root_key % int(): {absolute_root_key % int()}")
+    absolute_root_key = pitch_A_minor._get_chromatic_pitch()
+    print(f"absolute_root_key: {absolute_root_key}")
     assert absolute_root_key == 68
 
 # test_root_key_pipe()
