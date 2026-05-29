@@ -1002,7 +1002,7 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << Degree(1) << Pipe(Key(61))    # Has to reset previous Degree to 1 first
+    (sharp_pitch << Degree(1))._set_chromatic_pitch(61)    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
         print(f"Pitch: {sharp_pitch._get_chromatic_pitch()}")
         assert sharp_pitch._get_chromatic_pitch() == major_keys[degree - 1] + 1
@@ -1022,6 +1022,7 @@ def test_pitch_degrees():
 
         for pitch_int in range(60, 72):
             print("---")
+            # It's the Tonic Key, so, it has a Pipe
             key_pitch << Degree(1) << od.Pipe( TonicKey(pitch_int) )  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 print(f"Pitch: {key_pitch._get_chromatic_pitch()}, Octave: {key_pitch % Octave() % int()}, Tonic: {key_pitch._tonic_key}, "
@@ -1120,7 +1121,7 @@ def test_pitch_add():
         assert pitch_3 + float(degree) == keys[degree]
 
 
-    pitch_4: Pitch = Pitch(Pipe(Key(60)))    # Middle C (60)
+    pitch_4: Pitch = Pitch()._set_chromatic_pitch(60)    # Middle C (60)
     assert pitch_4 % str() == "C"
     assert pitch_4._get_chromatic_pitch() == 60
 
@@ -1130,13 +1131,13 @@ def test_pitch_add():
     for sharps in range(8): # 8 is excluded
 
         settings << KeySignature(sharps)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        pitch_4._set_chromatic_pitch(60) # Middle C (60)
         print(f"------------ {sharps} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i))._get_chromatic_pitch() >> Print()
             assert (pitch_4 + Semitone(key_i))._get_chromatic_pitch() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
+        pitch_4._set_chromatic_pitch(71)
         print("-DOWN-")
         for key_i in range(12):
             pitch_4._get_chromatic_pitch() >> Print()
@@ -1146,13 +1147,13 @@ def test_pitch_add():
     for flats in range(0, -8, -1): # -8 is excluded
 
         settings << KeySignature(flats)
-        pitch_4 << Pipe(Key(60)) # Middle C (60)
+        pitch_4._set_chromatic_pitch(60) # Middle C (60)
         print(f"------------ {flats} ------------")
         print("--UP--")
         for key_i in range(12):
             (pitch_4 + Semitone(key_i))._get_chromatic_pitch() >> Print()
             assert (pitch_4 + Semitone(key_i))._get_chromatic_pitch() == chromatic_pitches[key_i]
-        pitch_4 << Pipe(Key(71))
+        pitch_4._set_chromatic_pitch(71)
         print("-DOWN-")
         for key_i in range(12):
             pitch_4._get_chromatic_pitch() >> Print()
@@ -1160,7 +1161,7 @@ def test_pitch_add():
             pitch_4 -= Semitone(1)
 
     settings << KeySignature()
-    pitch_4 << Pitch(Pipe(Key(60)))    # Middle C (60)
+    pitch_4 << Pitch()._set_chromatic_pitch(60)    # Middle C (60)
 
     print(f"------------ DEGREES ------------")
     print("------")
@@ -1329,7 +1330,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {degree} ------------")
         pitch << float(degree)
         for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
+            pitch._set_chromatic_pitch(pitch_int)
             pitch._get_chromatic_pitch() >> Print()
             assert pitch._get_chromatic_pitch() == pitch_int
 
@@ -1337,7 +1338,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {sharps} ------------")
         settings << KeySignature(sharps)
         for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
+            pitch._set_chromatic_pitch(pitch_int)
             pitch._get_chromatic_pitch() >> Print()
             assert pitch._get_chromatic_pitch() == pitch_int
 
@@ -1345,7 +1346,7 @@ def test_set_chromatic_pitch():
         print(f"------------ {flats} ------------")
         settings << KeySignature(flats)
         for pitch_int in range(128):
-            pitch << Pipe(Key(pitch_int))
+            pitch._set_chromatic_pitch(pitch_int)
             pitch._get_chromatic_pitch() >> Print()
             assert pitch._get_chromatic_pitch() == pitch_int
 

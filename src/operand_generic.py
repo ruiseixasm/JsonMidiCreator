@@ -1042,7 +1042,7 @@ class Pitch(Generic):
                 actual_pitch: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch + added_pitch
-                self << od.Pipe(ou.Key(new_pitch))
+                self._set_chromatic_pitch(new_pitch)
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
@@ -1092,7 +1092,7 @@ class Pitch(Generic):
                 actual_pitch: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch - added_pitch
-                self << od.Pipe(ou.Key(new_pitch))
+                self._set_chromatic_pitch(new_pitch)
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case ou.Degree():
