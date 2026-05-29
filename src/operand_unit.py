@@ -334,14 +334,20 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
 
-    def _get_key_line(self, tonic_key: int, key: int) -> int:
+
+    def _get_key_line(self, tonic_key: int = None) -> int:
         key_line: int = 0
+        if tonic_key is None:
+            tonic_key = self.get_tonic_key()
+        else:
+            tonic_key %= 12
         if self._unit < 0:
             key_line = 1    # To get b instead of #
         # It happens only for 7 Flats (-7) (Cb)
-        if self.is_enharmonic(tonic_key, key):
+        if self.is_enharmonic(tonic_key, tonic_key):
             key_line += 2    # All Sharps/Flats
         return key_line
+
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
@@ -592,6 +598,8 @@ class Key(PitchParameter):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case int():
+                return self._unit
             case float():
                 return float(self._line)
             case str():
@@ -655,6 +663,8 @@ class Key(PitchParameter):
                         self._unit = self.getKeyNumber(operand._data) % 12
                     case _:
                         super().__lshift__(operand)
+            case int():
+                self._unit = operand
             case float():
                 self._line = int(operand)
             case Semitone():
@@ -797,18 +807,16 @@ class Degree(PitchParameter):
         "iv": 4,    "4": 4,     "subdominant": 4,
         "v": 5,     "5": 5,     "dominant": 5,
         "vi": 6,    "6": 6,     "submediant": 6,
-        "vii": 7,   "7": 7,     "leading tone": 7
+        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
     }
-
-    _degree_to_string: list[str] = (
-        "i", "ii", "iii", "iv", "v", "vi", "vii"
-    )
 
     def __eq__(self, other: any) -> bool:
         if isinstance(other, Degree):
-            return self % str() == other % str()    # Formal equality (no surprises)
+            return super().__eq__(other) and self._accidental == other._accidental
         if isinstance(other, od.Conditional):
             return other == self
+        if isinstance(other, str):
+            return (self % other).lower() == other.strip().lower()
         return self % other == other
     
     def __lt__(self, other: any) -> bool:
@@ -842,12 +850,10 @@ class Degree(PitchParameter):
             case float():
                 return float(self._accidental)
             case str():
-                if self._unit == 0:
-                    return "0"
                 formal_degree: int = self._unit
                 if formal_degree > 0:
                     formal_degree -= 1
-                formal_degree = formal_degree % 7 + 1   # Normalizes degree
+                formal_degree = formal_degree % 7 + 1
                 degree_string: str = str( formal_degree )
                 if self._accidental:
                     if self._accidental > 0:
@@ -993,14 +999,13 @@ class Degree(PitchParameter):
 
     def setDegreeFromString(self, string: str) -> Self:
         # Remove Octave number first (Doesn't process it, because Degree as no Octave, just cleans it)
-        string = string.strip()
-        string.replace("º", "")
         if len(string) > 1:
             try:
                 int(string[-1])
                 string = string[:-1]
             except ValueError as e:
                 pass    # No octave set
+        string = string.strip()
         accidental = 0    # Natural by default
         accidental += string.count("#")
         accidental -= string.count("b")
