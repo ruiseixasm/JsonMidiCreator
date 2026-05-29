@@ -522,6 +522,12 @@ class Pitch(Generic):
             target_key = self._tonic_key % 12 + tonic_to_target_key + self._accidental
         return target_key
 
+    def _set_target_key(self, target_key: int) -> Self:
+        """Emulates the member variable `self._target_key` setting
+        """
+        
+        return self
+
 
     def _get_octave_0(self) -> int:
         """
@@ -606,42 +612,6 @@ class Pitch(Generic):
                 return Scale.transpose_key(degree_0, signature_scale) - degree_transposition
         return 0
 
-    def _root_int(self) -> int:
-        """
-        Gets the root key int from the tonic_key.
-        """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self._degree_transposition()
-        degree_accidental: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidental
-
-    def _root_key(self) -> int:
-        """
-        root_key takes into consideration the tonic gross value above 11.
-        """
-        root_int: int = self._root_int()
-        key_line: int = self._key_signature._get_key_line(self._tonic_key)
-        root_key: int = root_int + key_line * 12  # key_line * total_keys
-        return root_key
-
-    def _chromatic_root_int(self) -> int:
-        """
-        Gets the root key int from the tonic_key with accidentals.
-        """
-        tonic_int: int = self._tonic_key % 12   # It may represent a flat, meaning, may be above 12
-        degree_transposition: int = self._degree_transposition()
-        degree_accidental: int = self._accidental
-        return tonic_int + degree_transposition + degree_accidental
-
-    def _chromatic_root_key(self) -> int:
-        """
-        root_key takes into consideration the tonic gross value above 11 and accidentals.
-        """
-        chromatic_root_int: int = self._chromatic_root_int()
-        key_line: int = self._key_signature._get_key_line(self._tonic_key)
-        chromatic_root_key: int = chromatic_root_int + key_line * 12  # key_line * total_keys
-        return chromatic_root_key
-
 
     def _chromatic_target_int(self) -> int:
         """
@@ -708,7 +678,7 @@ class Pitch(Generic):
         if self._scale:
             transposition_scale: list[int] = self._scale
             scale_degrees = sum(self._scale)
-            first_key_int: int = self._root_int()
+            first_key_int: int = self._get_root_key()
         else:
             transposition_scale: list[int] = self._key_signature.get_scale()
             first_key_int: int = self._tonic_key % 12   # Transposition becomes equivalent to degrees
