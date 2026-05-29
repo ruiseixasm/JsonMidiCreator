@@ -778,10 +778,9 @@ class Pitch(Generic):
                 # target_key: int = self._get_target_key()
                 # key_line: int = self._key_signature._get_key_line(target_key)
                 # return operand.copy(target_key, float(key_line))
-                target_pitch: int = self._chromatic_target_int()
-                key_note: int = target_pitch % 12
-                key_line: int = self._key_signature._get_key_line(key_note)
-                return operand.copy(key_note, float(key_line))
+                target_key: int = self._chromatic_target_int() % 12
+                key_line: int = self._key_signature._get_key_line(target_key)
+                return operand.copy(target_key, float(key_line))
             
             case ou.Octave():
                 return ou.Octave(self._get_chromatic_octave_0() - 1)
