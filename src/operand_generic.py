@@ -472,6 +472,75 @@ class Pitch(Generic):
     def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
 
+
+    """
+    Auxiliary methods concerning the Degree
+    """
+
+    def _absolute_degree_0(self) -> 'ou.Degree':
+        """
+        Degrees are returned relative to the Tonic key in a Octave, this function returns the \
+            absolute Degree rooted in the Octave 0.
+        """
+        return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
+
+
+    def _tone_and_semitone(self, key_int: int) -> tuple[int, int]:
+        signature_scale: list[int] = self._key_signature.get_scale()
+        tone: int = 0
+        semitones: int = 0
+        tonic_offset: int = key_int % 12 - self._tonic_key % 12
+        # For Semitones
+        if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
+            # No two consecutive empty notes! (assumption for all scales!!)
+            flats: bool = self._key_signature._unit < 0
+            if flats:
+                tonic_offset += 1
+                semitones = -1
+            else:
+                tonic_offset -= 1
+                semitones = 1
+        # For Tones
+        while tonic_offset > 0:
+            tone += signature_scale[tonic_offset % 12]
+            tonic_offset -= 1
+        while tonic_offset < 0:
+            tone -= signature_scale[tonic_offset % 12]
+            tonic_offset += 1
+        return tone, semitones
+
+    def _transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
+        tone: int = 0
+        semitone: int = 0
+        scale_degrees: int = 7  # Diatonic scales
+        if self._scale:
+            transposition_scale: list[int] = self._scale
+            scale_degrees = sum(self._scale)
+            first_key_int: int = self._get_root_key()
+        else:
+            transposition_scale: list[int] = self._key_signature.get_scale()
+            first_key_int: int = self._tonic_key % 12   # Transposition becomes equivalent to degrees
+        first_key_offset: int = key_int - first_key_int
+        
+        # For Semitones
+        if transposition_scale[first_key_offset % 12] == 0:
+            if first_key_offset < 0:
+                semitone = -1   # Needs to go down further
+            else:
+                semitone = +1   # Needs to go up further
+        # For Tones
+        while first_key_offset > 0:
+            tone += transposition_scale[first_key_offset % 12]
+            first_key_offset -= 1
+        while first_key_offset < 0:
+            tone -= transposition_scale[first_key_offset % 12]
+            first_key_offset += 1
+        # # Finally, transposition needs to be corrected for the usage of the Key Signature scale
+        # if not self._scale:
+        #     # Partial transposition already done by degrees
+        #     tone -= self.degree_transposition()
+        return tone % scale_degrees, semitone
+
     """
     Elementary methods that represent variables alike
     """
@@ -570,75 +639,6 @@ class Pitch(Generic):
             self._degree_0 %= 7
             self._octave_0 += offset_octave
         return self
-
-
-    """
-    Auxiliary methods to get specific data directly
-    """
-
-    def _absolute_degree_0(self) -> 'ou.Degree':
-        """
-        Degrees are returned relative to the Tonic key in a Octave, this function returns the \
-            absolute Degree rooted in the Octave 0.
-        """
-        return ou.Degree(self._degree_0, float(self._accidental)) + self._octave_0 * 7   # 7 degrees per octave
-
-
-    def _tone_and_semitone(self, key_int: int) -> tuple[int, int]:
-        signature_scale: list[int] = self._key_signature.get_scale()
-        tone: int = 0
-        semitones: int = 0
-        tonic_offset: int = key_int % 12 - self._tonic_key % 12
-        # For Semitones
-        if signature_scale[tonic_offset % 12] == 0: # Not on the Scale
-            # No two consecutive empty notes! (assumption for all scales!!)
-            flats: bool = self._key_signature._unit < 0
-            if flats:
-                tonic_offset += 1
-                semitones = -1
-            else:
-                tonic_offset -= 1
-                semitones = 1
-        # For Tones
-        while tonic_offset > 0:
-            tone += signature_scale[tonic_offset % 12]
-            tonic_offset -= 1
-        while tonic_offset < 0:
-            tone -= signature_scale[tonic_offset % 12]
-            tonic_offset += 1
-        return tone, semitones
-
-    def _transposition_tone_semitone(self, key_int: int) -> tuple[int, int]:
-        tone: int = 0
-        semitone: int = 0
-        scale_degrees: int = 7  # Diatonic scales
-        if self._scale:
-            transposition_scale: list[int] = self._scale
-            scale_degrees = sum(self._scale)
-            first_key_int: int = self._get_root_key()
-        else:
-            transposition_scale: list[int] = self._key_signature.get_scale()
-            first_key_int: int = self._tonic_key % 12   # Transposition becomes equivalent to degrees
-        first_key_offset: int = key_int - first_key_int
-        
-        # For Semitones
-        if transposition_scale[first_key_offset % 12] == 0:
-            if first_key_offset < 0:
-                semitone = -1   # Needs to go down further
-            else:
-                semitone = +1   # Needs to go up further
-        # For Tones
-        while first_key_offset > 0:
-            tone += transposition_scale[first_key_offset % 12]
-            first_key_offset -= 1
-        while first_key_offset < 0:
-            tone -= transposition_scale[first_key_offset % 12]
-            first_key_offset += 1
-        # # Finally, transposition needs to be corrected for the usage of the Key Signature scale
-        # if not self._scale:
-        #     # Partial transposition already done by degrees
-        #     tone -= self.degree_transposition()
-        return tone % scale_degrees, semitone
 
 
     def __eq__(self, other: any) -> bool:
