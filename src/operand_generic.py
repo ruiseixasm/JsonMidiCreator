@@ -475,10 +475,10 @@ class Pitch(Generic):
         """Emulates the existing member variable `self._root_key`
         """
         tone_0, accidentals = self._tone_and_semitone(root_key)
-        original_octave_0 = self._get_chromatic_octave_0()
+        original_octave_0 = self._get_octave_0()
         self._degree_0 = tone_0
         self._accidental = accidentals
-        actual_octave_0 = self._get_chromatic_octave_0()
+        actual_octave_0 = self._get_octave_0()
         self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
         # Normalize degree
         offset_octave = self._degree_0 // 7
@@ -486,6 +486,7 @@ class Pitch(Generic):
             self._degree_0 %= 7
             self._octave_0 += offset_octave
         return self
+
 
     def _get_target_key(self) -> int:
         """Emulates the existing of the member variable `self._target_key`
@@ -506,9 +507,23 @@ class Pitch(Generic):
             target_key = self._tonic_key % 12 + tonic_to_target_key + self._accidental
         return target_key
 
-    def _get_chromatic_octave_0(self) -> int:
+
+    def _get_octave_0(self) -> int:
+        """
+        Returns the Octave of the Target Key.
+        """
         target_key: int = self._get_target_key()
         return self._octave_0 + target_key // 12
+
+    def _set_octave_0(self, octave_0: int) -> Self:
+        """
+        Sets the Octave for the Target Key.
+        """
+        target_key: int = self._get_target_key()
+        self._octave_0 = octave_0
+        self._octave_0 -= target_key // 12
+        return self
+
 
     def _get_chromatic_pitch(self) -> int:
         """
@@ -704,6 +719,43 @@ class Pitch(Generic):
         return tone % scale_degrees, semitone
 
 
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self._get_chromatic_pitch() == other._get_chromatic_pitch()
+            case str():
+                try:
+                    string_degree = ou.Degree(int(other))
+                    return self == string_degree
+                except ValueError:
+                    return self % other == other
+            case od.Conditional():
+                return other == self
+            case _:
+                return self % other == other
+        return False
+    
+    def __lt__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self._get_chromatic_pitch() < other._get_chromatic_pitch()
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other < other
+            case _:
+                return super().__lt__(other)
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        match other:
+            case Pitch():
+                return self._get_chromatic_pitch() > other._get_chromatic_pitch()
+            case int() | float() | ou.Degree() | ou.Octave():
+                return self % other > other
+            case _:
+                return super().__gt__(other)
+        return False
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
@@ -767,7 +819,7 @@ class Pitch(Generic):
                 return operand.copy(target_key, float(key_line))
             
             case ou.Octave():
-                return ou.Octave(self._get_chromatic_octave_0() - 1)
+                return ou.Octave(self._get_octave_0() - 1)  # Formal octave starts at -1 Octave
             case ou.Degree():
                 if self._degree_0 < 0:
                     return ou.Degree(self._degree_0, float(self._accidental))
@@ -791,42 +843,6 @@ class Pitch(Generic):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self._get_chromatic_pitch() == other._get_chromatic_pitch()
-            case str():
-                try:
-                    string_degree = ou.Degree(int(other))
-                    return self == string_degree
-                except ValueError:
-                    return self % other == other
-            case od.Conditional():
-                return other == self
-            case _:
-                return self % other == other
-        return False
-    
-    def __lt__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self._get_chromatic_pitch() < other._get_chromatic_pitch()
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other < other
-            case _:
-                return super().__lt__(other)
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        match other:
-            case Pitch():
-                return self._get_chromatic_pitch() > other._get_chromatic_pitch()
-            case int() | float() | ou.Degree() | ou.Octave():
-                return self % other > other
-            case _:
-                return super().__gt__(other)
-        return False
-    
     def getSerialization(self) -> dict:
 
         serialization = super().getSerialization()
@@ -928,9 +944,7 @@ class Pitch(Generic):
                 self << ou.Transposition(operand)
                     
             case ou.Octave():
-                target_octave_0: int = operand._unit + 1
-                target_pitch: int = self._get_chromatic_pitch()
-                self._octave_0 += target_octave_0 - target_pitch // 12
+                self._set_octave_0(operand._unit + 1)   # Formal octave starts at -1 Octave
             case ou.Degree():
                 self._accidental = operand._accidental
                 if operand._unit > 0:
@@ -958,10 +972,10 @@ class Pitch(Generic):
                     self._tonic_key = operand._unit % 24
             case ou.RootKey():
                 tone_0, accidentals = self._tone_and_semitone(operand._unit)
-                original_octave_0 = self._get_chromatic_octave_0()
+                original_octave_0 = self._get_octave_0()
                 self._degree_0 = tone_0
                 self._accidental = accidentals
-                actual_octave_0 = self._get_chromatic_octave_0()
+                actual_octave_0 = self._get_octave_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
                 # Normalize degree
                 offset_octave = self._degree_0 // 7
@@ -969,12 +983,12 @@ class Pitch(Generic):
                     self._degree_0 %= 7
                     self._octave_0 += offset_octave
             case ou.TargetKey():
-                original_octave_0 = self._get_chromatic_octave_0()
+                original_octave_0 = self._get_octave_0()
                 tone_0, semitone = self._transposition_tone_semitone(operand._unit % 12)
                 # Uses the Degree Accidental system instead of changing the Tonic key
                 self._accidental = semitone
                 self << ou.Transposition(tone_0)
-                actual_octave_0 = self._get_chromatic_octave_0()
+                actual_octave_0 = self._get_octave_0()
                 self._octave_0 += original_octave_0 - actual_octave_0   # Keeps the same Octave when set by Key
                 # Normalize degree
                 offset_octave = self._degree_0 // 7
