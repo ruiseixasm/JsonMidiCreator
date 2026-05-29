@@ -440,7 +440,7 @@ class Pitch(Generic):
                                         = settings % ou.KeySignature()
         self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._root_key: int             = self._tonic_key   # Degree I
-        self._root_line: int            = 0     # The root line contains the root key extra accidental
+        self._degree_accidental: int    = 0     # For the very specific case of accidental degree (not matching the scale)
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._transposition: int        = 0     # By default it's it has no scale transposition
         self._scale: list[int]          = []
@@ -733,6 +733,7 @@ class Pitch(Generic):
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
         serialization["parameters"]["root_key"]         = self.serialize( self._root_key )
+        serialization["parameters"]["degree_accidental"]    = self.serialize( self._degree_accidental )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
@@ -743,13 +744,15 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key_signature" in serialization["parameters"] and "tonic_key" in serialization["parameters"] and "root_key" in serialization["parameters"] and
-            "octave_0" in serialization["parameters"] and "transposition" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "degree_accidental" in serialization["parameters"] and "octave_0" in serialization["parameters"] and
+            "transposition" in serialization["parameters"] and "scale" in serialization["parameters"]):
             
 
             super().loadSerialization(serialization)
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
             self._root_key      = self.deserialize( serialization["parameters"]["root_key"] )
+            self._degree_accidental = self.deserialize( serialization["parameters"]["degree_accidental"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
@@ -763,6 +766,7 @@ class Pitch(Generic):
                 self._key_signature         << operand._key_signature
                 self._tonic_key             = operand._tonic_key
                 self._root_key              = operand._root_key
+                self._degree_accidental     = operand._degree_accidental
                 self._octave_0              = operand._octave_0
                 self._transposition         = operand._transposition
                 self._scale                 = operand._scale.copy()
