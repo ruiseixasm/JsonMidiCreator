@@ -901,7 +901,7 @@ class Pitch(Generic):
                     self._degree_0 %= 7
                     self._octave_0 += offset_octave
             case ou.Key():
-                self << ou.RootKey(operand)
+                self._set_target_key(operand._unit) # Needs to make the code above obsolete
 
             case ou.Transposition():
                 # Has to work with increments to keep the same Octave and avoid induced Octave jumps
