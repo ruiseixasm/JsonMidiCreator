@@ -499,6 +499,23 @@ class Pitch(Generic):
         target_key: int = self._get_target_key()
         return octave_key + target_key
 
+    def _set_chromatic_pitch(self, chromatic_pitch: int) -> Self:
+        """
+        Sets the final chromatic pitch by adjusting the degree.
+        """
+        expected_octave_0: int = chromatic_pitch // 12  # A different expected Octave
+        root_key_12 = ou.RootKey(chromatic_pitch % 12)
+        self << root_key_12  # Sets the RootKey on the actual Octave
+        target_pitch: int = self._chromatic_target_int() + self._octave_transposition()
+        target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
+        self._octave_0 += expected_octave_0 - target_octave_0
+        # Normalize degree
+        offset_octave = self._degree_0 // 7
+        if offset_octave:
+            self._degree_0 %= 7
+            self._octave_0 += offset_octave
+        return self
+
 
     """
     Methods used to calculate the final chromatic pitch as `pitch_int` by following
@@ -592,13 +609,6 @@ class Pitch(Generic):
         pitch_int: int = self._get_chromatic_pitch()
         octave_0: int = pitch_int // 12
         return octave_0
-
-    def _set_chromatic_pitch_int(self, pitch: int) -> Self:
-        """
-        Sets the final chromatic pitch by adjusting the degree.
-        """
-        # Setting the final pitch int is done by adjusting the absolute Root key and NOT the Tonic key
-        return self << od.Pipe( ou.RootKey(pitch) )
 
     """
     Auxiliary methods to get specific data directly
@@ -870,32 +880,8 @@ class Pitch(Generic):
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
-                    case ou.RootKey():
-                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
-                        root_key_12 = ou.RootKey(operand._data._unit % 12)
-                        self << root_key_12  # Sets the RootKey on the actual Octave
-                        root_pitch: int = self._chromatic_root_int() + self._octave_transposition()
-                        root_octave_0: int = root_pitch // 12   # root_octave may be different from self._octave_0
-                        self._octave_0 += expected_octave_0 - root_octave_0
-                        # Normalize degree
-                        offset_octave = self._degree_0 // 7
-                        if offset_octave:
-                            self._degree_0 %= 7
-                            self._octave_0 += offset_octave
-                    case ou.TargetKey():
-                        expected_octave_0: int = operand._data._unit // 12  # A different expected Octave
-                        root_key_12 = ou.RootKey(operand._data._unit % 12)
-                        self << root_key_12  # Sets the RootKey on the actual Octave
-                        target_pitch: int = self._chromatic_target_int() + self._octave_transposition()
-                        target_octave_0: int = target_pitch // 12   # target_octave may be different from self._octave_0
-                        self._octave_0 += expected_octave_0 - target_octave_0
-                        # Normalize degree
-                        offset_octave = self._degree_0 // 7
-                        if offset_octave:
-                            self._degree_0 %= 7
-                            self._octave_0 += offset_octave
                     case ou.Key():
-                        self << od.Pipe( ou.RootKey(operand._data._unit) )
+                        self._set_chromatic_pitch(operand._data._unit)
 
                     case ou.Degree():   # Sets an absolute degree_0
                         self._degree_0 = operand._data._unit
