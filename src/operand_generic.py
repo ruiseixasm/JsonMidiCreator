@@ -726,12 +726,20 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 root_key: int = self._get_root_key()
-                key_line: int = self._key_signature._get_key_line(root_key)
-                return ou.RootKey(root_key, float(key_line))
+                root_key_operand = operand.copy(root_key, float(self._accidental))
+                if self._accidental:
+                    root_key_operand._enharmonic = True
+                else:
+                    root_key_operand._enharmonic = self._key_signature.is_enharmonic(root_key)
+                return root_key_operand
             case ou.Key():
                 target_key: int = self._get_target_key()
-                key_line: int = self._key_signature._get_key_line(target_key)
-                return operand.copy(target_key, float(key_line))
+                target_key_operand = operand.copy(target_key, float(self._accidental))
+                if self._accidental:
+                    target_key_operand._enharmonic = True
+                else:
+                    target_key_operand._enharmonic = self._key_signature.is_enharmonic(target_key)
+                return target_key_operand
             
             case ou.Octave():
                 return ou.Octave(self._get_octave_0() - 1)  # Formal octave starts at -1 Octave
