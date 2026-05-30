@@ -2545,7 +2545,13 @@ class Plot(ReadOnly):
 
     Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
 
-    Args:
+    Notes
+    -----
+        The Sharps(#) and Flats(b) plotted concern the Key Signature being used and NOT necessarily
+        the Major Scale, in other words, they concern the `Degree` and NOT the `Key`.
+
+    Args
+    ----
         by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
         block (bool): Suspends the program until the chart is closed.
         pause (float): Sets a time in seconds before the chart is closed automatically.
