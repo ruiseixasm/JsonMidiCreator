@@ -924,7 +924,7 @@ class Pitch(Generic):
                     self << ou.Degree(string) # Safe, doesn't change the octave
                     target_key: int = self._get_target_key()
                     new_key_operand = ou.Key(target_key, string)
-                    if new_key_operand._unit != target_key:
+                    if new_key_operand != target_key:
                         self << new_key_operand
                     if len(operand) > 1:    # Single value shouldn't set the Octave
                         self << (self % ou.Octave() << string)
