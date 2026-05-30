@@ -222,4 +222,7 @@ def test_degree_multi():
 def test_key_multi():
     assert Key(4) == 4
     assert Key(14) == 14
+    assert Key("A")._unit == 9
+
+# test_key_multi()
 

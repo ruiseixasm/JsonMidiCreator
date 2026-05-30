@@ -605,30 +605,30 @@ class Key(PitchParameter):
     int(0) : A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
-        self._accidental: int = 0   # Merely informative for string processing
+        self._flattened: bool = False   # Merely informative for string processing
         self._enharmonic: bool = False
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case int():
-                return self._unit
+            case bool():
+                return self._enharmonic
             case float():
-                return float(self._accidental)
+                if self._flattened:
+                    return -1.0
+                return 0.0
             case str():
-                return self.getKeyString()
-
+                return self._get_key_str()
             case Sharp():
-                if self._accidental > 0 and self._accidental % 2:
-                    key: int = int(self % float())
-                    return Sharp(Key._accidentals[key])
+                if not self._flattened:
+                    accidental: int = Key._accidentals[self._unit % 12]
+                    return Sharp(accidental)
                 return Sharp(0)
             case Flat():
-                if self._accidental % 2 == 0:
-                    key: int = int(self % float())
-                    return Flat(Key._accidentals[key] * -1)
+                if self._flattened:
+                    accidental: int = Key._accidentals[self._unit % 12]
+                    return Flat(accidental)
                 return Flat(0)
-
             case _:
                 return super().__mod__(operand)
 
@@ -643,19 +643,19 @@ class Key(PitchParameter):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["accidental"] = self.serialize( self._accidental )
-        serialization["parameters"]["enharmonic"] = self.serialize( self._enharmonic )
+        serialization["parameters"]["flattened"]    = self.serialize( self._flattened )
+        serialization["parameters"]["enharmonic"]   = self.serialize( self._enharmonic )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "accidental" in serialization["parameters"] and "enharmonic" in serialization["parameters"]):
+            "flattened" in serialization["parameters"] and "enharmonic" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._accidental = self.deserialize( serialization["parameters"]["accidental"] )
-            self._enharmonic = self.deserialize( serialization["parameters"]["enharmonic"] )
+            self._flattened     = self.deserialize( serialization["parameters"]["flattened"] )
+            self._enharmonic    = self.deserialize( serialization["parameters"]["enharmonic"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -663,44 +663,29 @@ class Key(PitchParameter):
         match operand:
             case Key():
                 super().__lshift__(operand)
-                self._unit  = operand._unit
-                self._accidental  = operand._accidental
-                self._enharmonic  = operand._enharmonic
+                self._flattened     = operand._flattened
+                self._enharmonic    = operand._enharmonic
             case od.Pipe():
                 match operand._data:
-                    case int():
-                        self._unit = operand._data
-                    case float():
-                        self._accidental = int(operand._data)
+                    case bool():
+                        self._enharmonic = operand._data
                     case Semitone():
                         self._unit = operand._data._unit
-
                     case str():
-                        self._unit = self.getKeyNumber(operand._data) % 12
+                        self._unit = self._set_key_str(operand._data) % 12
                     case _:
                         super().__lshift__(operand)
-            case int():
-                self._unit = operand
+            case bool():
+                self._flattened = operand
             case float():
-                self._accidental = int(operand)
+                if operand < 0:
+                    self._flattened = True
+                else:
+                    self._flattened = False
             case Semitone():
                 self._unit = operand._unit
             case str():
-                # Remove Octave number first (Safe)
-                if len(operand) > 1:
-                    try:
-                        int(operand[-1])
-                        operand = operand[:-1]
-                    except ValueError as e:
-                        pass    # No octave set
-                key_number: int = self.getKeyNumber(operand)
-                if key_number != -1:
-                    self._unit = key_number % 12
-                    self._accidental = Key._accidentals[key_number]
-                    if abs(self._accidental) > 1:
-                        self._enharmonic = True
-                    else:
-                        self._enharmonic = False
+                self._set_key_str(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -713,36 +698,34 @@ class Key(PitchParameter):
     ]
 
     _accidentals: list[int] = [
-         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
-         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
-        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
-        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
+         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0
     ]
 
-    def _get_line(self) -> int:
+    def _get_key_str(self) -> str:
         line: int = 0
-        if self._accidental < 0:
+        if self._flattened:
             line = 1
         if self._enharmonic:
             line += 2
-        return line
-
-    def getKeyString(self) -> str:
-        line = self._get_line()
         key: int = line * 12 + self._unit % 12
         return Key._keys[key]
 
-    def getKeyAccidental(self) -> int:
-        line = self._get_line()
-        key: int = line * 12 + self._unit % 12
-        return Key._accidentals[key]
-    
-    def getKeyNumber(self, key: str = "C") -> int:
+    def _set_key_str(self, key: str = "C") -> Self:
+        # Remove Octave number first (Safe)
+        if len(key) > 1:
+            try:
+                int(key[-1])
+                key = key[:-1]
+            except ValueError as e:
+                pass    # No octave set
         key_to_find: str = key.strip().lower()
         for index, value in enumerate(Key._keys):
             if value.lower().find(key_to_find) != -1:
-                return index
-        return -1
+                self._flattened = index // 24 == 1
+                self._enharmonic = index // 48 > 1
+                self._unit = index % 12
+                return self
+        return self
 
 
 class TonicKey(Key):
