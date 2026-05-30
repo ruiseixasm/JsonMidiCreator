@@ -4026,8 +4026,8 @@ class Automation(ControlChange):
     pass
 
 
-class Aftertouch(Automation):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> Automation -> Aftertouch`
+class Aftertouch(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> Aftertouch`
 
     An `Aftertouch` is an element that controls the pressure on all keys being played.
 
@@ -4040,10 +4040,15 @@ class Aftertouch(Automation):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
+        self._pressure: int = 0
         super().__init__(*parameters)
+        # Equivalent to one Step
+        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def pressure(self, pressure: int = 0) -> Self:
-        self._value = pressure
+        self._pressure = pressure
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4061,17 +4066,17 @@ class Aftertouch(Automation):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():     return ou.Pressure() << od.Pipe(self._value)
+                    case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
                     case _:                 return super().__mod__(operand)
-            case int():             return self._value
-            case ou.Pressure():     return ou.Pressure() << od.Pipe(self._value)
+            case int():             return self._pressure
+            case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._value == other._value
+                    and self._pressure == other._pressure
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -4080,7 +4085,7 @@ class Aftertouch(Automation):
     
     
     def _get_msb_value(self) -> int:
-        return self._value
+        return self._pressure
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
@@ -4110,7 +4115,7 @@ class Aftertouch(Automation):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xD0 | self._channel_0,
-                    "data_byte": self._value
+                    "data_byte": self._pressure
                 }
             }
         )
@@ -4123,12 +4128,12 @@ class Aftertouch(Automation):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
-        self_midilist[0]["pressure"]    = self._value
+        self_midilist[0]["pressure"]    = self._pressure
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pressure"] = self.serialize( self._value )
+        serialization["parameters"]["pressure"] = self.serialize( self._pressure )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4138,7 +4143,7 @@ class Aftertouch(Automation):
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value = self.deserialize( serialization["parameters"]["pressure"] )
+            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -4146,15 +4151,15 @@ class Aftertouch(Automation):
         match operand:
             case Aftertouch():
                 super().__lshift__(operand)
-                self._value = operand._value
+                self._pressure = operand._pressure
             case od.Pipe():
                 match operand._data:
-                    case ou.Pressure():         self._value = operand._data.__mod__(od.Pipe( int() ))
+                    case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
                     case _:                     super().__lshift__(operand)
             case int():
-                self._value = operand
+                self._pressure = operand
             case ou.Pressure():
-                self._value = operand.__mod__(od.Pipe( int() ))
+                self._pressure = operand.__mod__(od.Pipe( int() ))
             case _:
                 super().__lshift__(operand)
         return self
@@ -4163,10 +4168,10 @@ class Aftertouch(Automation):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                self._value += operand  # Specific and compounded parameter
+                self._pressure += operand  # Specific and compounded parameter
                 return self
             case ou.Pressure():
-                self._value += operand._unit  # Specific and compounded parameter
+                self._pressure += operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -4175,17 +4180,17 @@ class Aftertouch(Automation):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                self._value -= operand  # Specific and compounded parameter
+                self._pressure -= operand  # Specific and compounded parameter
                 return self
             case ou.Pressure():
-                self._value -= operand._unit  # Specific and compounded parameter
+                self._pressure -= operand._unit  # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
 
 
 class PolyAftertouch(Aftertouch):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> PolyAftertouch`
+    """`Element -> DeviceElement -> ChannelElement -> Aftertouch -> PolyAftertouch`
 
     A `PolyAftertouch` is an element that controls the pressure on a particular key `Pitch` being played.
 
@@ -4276,7 +4281,7 @@ class PolyAftertouch(Aftertouch):
                 "midi_message": {
                     "status_byte": 0xA0 | self._channel_0,
                     "data_byte_1": pitch_int,
-                    "data_byte_2": self._value
+                    "data_byte_2": self._pressure
                 }
             }
         )
