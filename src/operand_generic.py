@@ -724,26 +724,21 @@ class Pitch(Generic):
             
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)
-            case ou.RootKey():
-                root_key: int = self._get_root_key()
-                root_key_operand = operand.copy(root_key)
-                if self._accidental:
-                    root_key_operand._flattened = self._accidental < 0
-                    root_key_operand._enharmonic = True
-                else:
-                    root_key_operand._flattened = self._key_signature._unit < 0
-                    root_key_operand._enharmonic = self._key_signature.is_enharmonic(root_key)
-                return root_key_operand
             case ou.Key():
-                target_key: int = self._get_target_key()
-                target_key_operand = operand.copy(target_key)
-                if self._accidental:
-                    target_key_operand._flattened = self._accidental < 0
-                    target_key_operand._enharmonic = True
+                key_operand = operand.copy()
+                if isinstance(operand, ou.RootKey):
+                    root_key: int = self._get_root_key()
+                    key_operand << root_key
                 else:
-                    target_key_operand._flattened = self._key_signature._unit < 0
-                    target_key_operand._enharmonic = self._key_signature.is_enharmonic(target_key)
-                return target_key_operand
+                    target_key: int = self._get_target_key()
+                    key_operand << target_key
+                if self._accidental:
+                    key_operand._flattened = self._accidental < 0
+                    key_operand._enharmonic = True
+                else:
+                    key_operand._flattened = self._key_signature._unit < 0
+                    key_operand._enharmonic = self._key_signature.is_enharmonic(key_operand._unit)
+                return key_operand
             
             case ou.Octave():
                 return ou.Octave(self._get_octave_0() - 1)  # Formal octave starts at -1 Octave
