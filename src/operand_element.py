@@ -4769,9 +4769,10 @@ _element_type: dict[str, type] = {
     'rt':       Retrigger,
     'cl':       Cluster,
     'cc':       ControlChange,
+    'a':        Automation,
+    'at':       Aftertouch,
     'pb':       PitchBend,
-    'pc':       ProgramChange,
-    'at':       Aftertouch
+    'pc':       ProgramChange
 }
 
 
