@@ -1530,18 +1530,24 @@ def test_pitch_multi():
     assert root_As % str() == "A#"
     assert (root_As + 2.0) % str() == "C#"
 
+
     root_As_major_scale: list[str] = [
-        "A#", "C", "C#", "D#", "F", "F#", "G#"
+        "A#", "B#", "C#", "D#", "E#", "F#", "G#"
     ]
+    generated_scale: list[str] = []
     for degree in range(7):
-        print(f"RootKey {degree}: {root_As % str()}")
-        assert root_As == root_As_major_scale[degree]
+        generated_scale.append(root_As % str())
         root_As += 1.0  # One degree each time
+    print(f"expected_scale:  {root_As_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == root_As_major_scale
+
 
     print("---------- Bb is the Tonic (I) ------------")
     settings << KeySignature("bb") # Bb Major scale key signature
 
     pitch_Bb = Pitch()      # The Tonic Key (I)
+    print(f"pitch_Bb: {pitch_Bb % str()}")
     assert pitch_Bb == "Bb" # The Tonic Key (I)
 
     pitch_E = Pitch(RootKey("E")) # Same as Fb and same as Vb degree
@@ -1583,7 +1589,7 @@ def test_pitch_multi():
     assert generated_pitches == tonic_Bb_root_E_major_pitches
 
     tonic_Bb_root_E_major_scale: list[str] = [
-        "Fb", "Gb", "Ab", "A", "Cb", "Db", "D"
+        "Fb", "Gb", "Ab", "Bbb", "Cb", "Db", "Ebb"
     ]
     generated_scale: list[str] = []
     for degree in range(7):

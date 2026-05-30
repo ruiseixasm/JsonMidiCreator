@@ -726,18 +726,24 @@ class Pitch(Generic):
                 return ou.TonicKey(self._tonic_key)
             case ou.RootKey():
                 root_key: int = self._get_root_key()
-                root_key_operand = operand.copy(root_key, float(self._accidental))
+                root_key_operand = operand.copy(root_key)
                 if self._accidental:
+                    root_key_operand._accidental = self._accidental
                     root_key_operand._enharmonic = True
                 else:
+                    if self._key_signature._unit < 0:
+                        root_key_operand._accidental = -1
                     root_key_operand._enharmonic = self._key_signature.is_enharmonic(root_key)
                 return root_key_operand
             case ou.Key():
                 target_key: int = self._get_target_key()
-                target_key_operand = operand.copy(target_key, float(self._accidental))
+                target_key_operand = operand.copy(target_key)
                 if self._accidental:
+                    target_key_operand._accidental = self._accidental
                     target_key_operand._enharmonic = True
                 else:
+                    if self._key_signature._unit < 0:
+                        target_key_operand._accidental = -1
                     target_key_operand._enharmonic = self._key_signature.is_enharmonic(target_key)
                 return target_key_operand
             
