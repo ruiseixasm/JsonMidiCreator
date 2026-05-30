@@ -760,5 +760,10 @@ def test_element_multi():
     assert third_degree_1 == third_degree_2
     assert third_degree_1 == third_degree_3
 
+    assert Note() % Length() == 1/4
+    assert ControlChange() % Length() == 1/16
+    assert Aftertouch() % Length() == 1/16
+    assert PitchBend() % Length() == 1/16
+
 # test_element_multi()
 
