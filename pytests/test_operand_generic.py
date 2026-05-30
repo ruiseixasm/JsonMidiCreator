@@ -193,7 +193,6 @@ def test_target_key():
         assert pitch % TargetKey() == a_degree_cs_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
 
-
     pitch = Pitch(TargetKey("C")) # Shall become C# because in A Major C is sharped
     tonic_A_root_C_major_scale: list[str] = [
         "B#", "C##", "D#", "E#", "F##", "G##", "A#"
@@ -206,26 +205,31 @@ def test_target_key():
     print(f"generated_scale: {generated_scale}")
     assert generated_scale == tonic_A_root_C_major_scale
 
+    print("---")
+    pitch = Pitch(TargetKey("F")) # Shall become C# because in A Major C is sharped
+    tonic_A_degree_F_major_scale: list[str] = [
+        "E#", "F##", "G##", "A#", "B#", "C##", "D#"
+    ]
+    generated_scale: list[str] = []
+    for _ in range(7):
+        generated_scale.append(pitch % TargetKey() % str())
+        pitch += Fraction(1)  # One transposition each time
+    print(f"expected_scale:  {tonic_A_degree_F_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_A_degree_F_major_scale
 
     print("---")
-    a_degree_f_major_scale: list[str] = [
-        "E#", "F##", "G#", "A#", "B#", "C#", "D#"
+    pitch = Pitch(TargetKey("G")) # Shall become C# because in A Major C is sharped
+    tonic_A_degree_G_major_scale: list[str] = [
+        "F##", "G##", "A#", "B#", "C##", "D#", "E#"
     ]
-    pitch = Pitch(TargetKey("F"))
-    for transposition in range(7):
-        print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
-        assert pitch % TargetKey() == a_degree_f_major_scale[transposition]
+    generated_scale: list[str] = []
+    for _ in range(7):
+        generated_scale.append(pitch % TargetKey() % str())
         pitch += Fraction(1)  # One transposition each time
-
-    print("---")
-    a_degree_f_major_scale: list[str] = [
-        "F##", "G#", "A#", "B#", "C#", "D#", "E#"
-    ]
-    pitch = Pitch(TargetKey("G"))
-    for transposition in range(7):
-        print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
-        assert pitch % TargetKey() == a_degree_f_major_scale[transposition]
-        pitch += Fraction(1)  # One transposition each time
+    print(f"expected_scale:  {tonic_A_degree_G_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_A_degree_G_major_scale
 
     print("------")
     settings << KeySignature("##") # D Major scale key signature
@@ -247,12 +251,13 @@ def test_target_key():
         print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
         assert pitch % TargetKey() == d_degree_fs_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
+
     print("---")
     # It's right despite G# being strange !!
-    d_degree_f_major_scale: list[str] = [
-        "E#", "G", "G#", "A#", "B#", "D", "D#"
-    ]
     pitch = Pitch(TargetKey("F"))
+    d_degree_f_major_scale: list[str] = [
+        "E#", "F##", "G##", "A#", "B#", "C##", "D#"
+    ]
     for transposition in range(7):
         print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
         assert pitch % TargetKey() == d_degree_f_major_scale[transposition]
@@ -322,7 +327,7 @@ def test_target_key():
     # Resets the defaults
     settings << None
 
-test_target_key()
+# test_target_key()
 
 
 def test_pitch_key_signature():

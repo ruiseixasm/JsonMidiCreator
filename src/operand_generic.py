@@ -905,15 +905,7 @@ class Pitch(Generic):
                 self._set_target_key(operand._unit) # Needs to make the code above obsolete
 
             case ou.Transposition():
-                # Has to work with increments to keep the same Octave and avoid induced Octave jumps
-                # Because a pitch scale may not be a diatonic scale (7 degrees)!
-                if self._scale:
-                    scale_degrees: int = sum(self._scale)
-                else:
-                    scale_degrees: int = 7  # Diatonic scales
-                previous_transposition: int = self._transposition % scale_degrees
-                new_transposition: int = operand._unit % scale_degrees
-                self._transposition += new_transposition - previous_transposition
+                self._transposition = operand._unit
 
             case dict():
                 for octave, value in operand.items():
