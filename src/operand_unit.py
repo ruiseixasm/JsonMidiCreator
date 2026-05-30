@@ -327,39 +327,9 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         scale_mode: int = self._mode_0 % 9 + 1
         return og.Scale._scales[scale_mode]
 
-
     def is_enharmonic(self, key: int) -> bool:
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
-
-
-    def _get_accidental(self, tonic_key: int = None) -> int:
-        accidental: int = 0
-        if tonic_key is None:
-            tonic_key = self.get_tonic_key()
-        else:
-            tonic_key %= 12
-        # It happens only for 7 Flats (-7) (Cb)
-        if self.is_enharmonic(tonic_key):
-            if self._unit < 0:
-                accidental = -1
-            else:
-                accidental = +1
-        return accidental
-
-
-    def _get_key_line(self, tonic_key: int = None) -> int:
-        key_line: int = 0
-        if tonic_key is None:
-            tonic_key = self.get_tonic_key()
-        else:
-            tonic_key %= 12
-        if self._unit < 0:
-            key_line = 1    # To get b instead of #
-        # It happens only for 7 Flats (-7) (Cb)
-        if self.is_enharmonic(tonic_key):
-            key_line += 2    # All Sharps/Flats
-        return key_line
 
 
     def __mod__(self, operand: o.T) -> o.T:
