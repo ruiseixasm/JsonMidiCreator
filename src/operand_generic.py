@@ -2543,10 +2543,10 @@ class Render(ReadOnly):
 class Plot(ReadOnly):
     """`Generic -> Process -> ReadOnly -> Plot`
 
-    Plots the `Note`s in a `Clip`, if it has no Notes it plots the existing `Automation` instead.
+    Plots the `Composition` content, Notes or the `Automation` if existent.
 
-    Notes
-    -----
+    Note
+    ----
         The Sharps(#) and Flats(b) plotted concern the Key Signature being used and NOT necessarily
         the Major Scale, in other words, they concern the `Degree` and NOT the `Key`.
 
