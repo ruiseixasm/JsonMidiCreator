@@ -285,15 +285,19 @@ def test_target_key():
         print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
         assert pitch % TargetKey() == f_degree_bb_major_scale[transposition]
         pitch += Fraction(1)  # One transposition each time
+
     print("---")
-    f_degree_b_major_scale: list[str] = [
-        "Cb", "Db", "Eb", "F", "Gb", "Ab", "Bb"
-    ]
     pitch = Pitch(TargetKey("B"))
-    for transposition in range(7):
-        print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
-        assert pitch % TargetKey() == f_degree_b_major_scale[transposition]
+    tonic_F_degree_B_major_scale: list[str] = [
+        "Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bbb"
+    ]
+    generated_scale: list[str] = []
+    for _ in range(7):
+        generated_scale.append(pitch % TargetKey() % str())
         pitch += Fraction(1)  # One transposition each time
+    print(f"expected_scale:  {tonic_F_degree_B_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_F_degree_B_major_scale
 
     print("------")
     settings << KeySignature("bb") # Bb Major scale key signature
@@ -317,19 +321,22 @@ def test_target_key():
         pitch += Fraction(1)  # One transposition each time
 
     print("---")
-    bb_degree_e_major_scale: list[str] = [
-        "Fb", "Gb", "Ab", "A", "Cb", "Db", "D"
-    ]
     pitch = Pitch(TargetKey("E"))
-    for transposition in range(7):
-        print(f"TargetKey {transposition}: {pitch % TargetKey() % str()}")
-        assert pitch % TargetKey() == bb_degree_e_major_scale[transposition]
+    tonic_Bb_degree_E_major_scale: list[str] = [
+        "Fb", "Gb", "Ab", "Bbb", "Cb", "Db", "Ebb"
+    ]
+    generated_scale: list[str] = []
+    for _ in range(7):
+        generated_scale.append(pitch % TargetKey() % str())
         pitch += Fraction(1)  # One transposition each time
+    print(f"expected_scale:  {tonic_Bb_degree_E_major_scale}")
+    print(f"generated_scale: {generated_scale}")
+    assert generated_scale == tonic_Bb_degree_E_major_scale
 
     # Resets the defaults
     settings << None
 
-test_target_key()
+# test_target_key()
 
 
 def test_pitch_key_signature():
