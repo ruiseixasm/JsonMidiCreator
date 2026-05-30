@@ -2548,7 +2548,7 @@ class Plot(ReadOnly):
     Notes
     -----
     - The plotted `T` marks the Tonic Key of the Key Signature with the respective Sharps(#) or Flats(b)
-    on the Y-axis;
+    on the Y-axis, and they concern the following Measures;
     - The Notes' Sharps and Flats plotted concern the Key Signature being used and NOT necessarily
     the Major Scale, in other words, they concern the `Degree` and NOT the `Key`.
         
