@@ -3351,25 +3351,33 @@ class Tuplet(ChannelElement):
         return self
 
 
-class Automation(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> Automation`
 
-    An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
+class ControlChange(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange`
+
+    A `ControlChange` is an element that represents the CC midi messages of a Device.
 
     Parameters
     ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Controller(settings) : An `Operand` that represents parameters like the `Number` of the controller being changed.
+    Value(settings), int : The CC value to be set on the Device controller.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._value: int = 0
+        self._controller: og.Controller = og.settings % og.Controller()
+        self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
         super().__init__()
-        # Equivalent to one Step
-        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
+        self._controller = og.Controller(
+                ou.Number(msb), ou.LSB(lsb)
+            )
+        return self
 
     def checksum(self) -> int:
         """16-bit checksum for an `Automation`."""
@@ -3395,17 +3403,22 @@ class Automation(ChannelElement):
                 match operand._data:
                     case ou.Value():            return operand._data << od.Pipe(self._value)
                     case ou.MSB():              return ou.MSB() << od.Pipe(self._value)
+                    case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
             case ou.Value():            return operand.copy() << self._value
             case ou.MSB():              return ou.MSB() << self._value
+            case og.Controller():       return self._controller.copy()
+            case ou.Number() | ou.LSB() | ou.HighResolution() | dict():
+                return self._controller % operand
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._value == other._value
+                    and self._value == other._value \
+                    and self._controller == other._controller
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -3442,7 +3455,16 @@ class Automation(ChannelElement):
     
 
     def _get_msb_value(self) -> int:
-        return self._value
+        
+        if self._controller._nrpn:
+
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+            return cc_6_msb
+        else:
+
+            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
+            return msb_value
+            
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
@@ -3477,139 +3499,6 @@ class Automation(ChannelElement):
 
         return self_plotlist
 
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["value"] = self.serialize( self._value )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._value = self.deserialize( serialization["parameters"]["value"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Automation():
-                super().__lshift__(operand)
-                self._value = operand._value
-            case od.Pipe():
-                match operand._data:
-                    case ou.Value():            self._value = operand._data._unit
-                    case ou.MSB():              self._value = operand._data._unit
-                    case _:                     super().__lshift__(operand)
-            case int():
-                self._value = operand
-            case ou.Value() | ou.MSB():
-                self._value = operand._unit
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case int():
-                self._value += operand  # Specific and compounded parameter
-                return self
-            case ou.Value() | ou.MSB():
-                self._value += operand._unit  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case int():
-                self._value -= operand  # Specific and compounded parameter
-                return self
-            case ou.Value() | ou.MSB():
-                self._value -= operand._unit  # Specific and compounded parameter
-                return self
-            case _:
-                return super().__isub__(operand)
-
-
-class ControlChange(Automation):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange`
-
-    A `ControlChange` is an element that represents the CC midi messages of a Device.
-
-    Parameters
-    ----------
-    Controller(settings) : An `Operand` that represents parameters like the `Number` of the controller being changed.
-    Value(settings), int : The CC value to be set on the Device controller.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        # Absolutely needs to come before the __init__, otherwise gives error about _controller not found !!
-        self._controller: og.Controller = og.settings % og.Controller()
-        super().__init__()
-        self._value                     = ou.Number.getDefaultValue(self._controller._number_msb)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
-        self._controller = og.Controller(
-                ou.Number(msb), ou.LSB(lsb)
-            )
-        return self
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a ControlChange,
-        those Parameters are the ones of the Element, like Position and Duration,
-        and the Controller Number and Value as Number and Value.
-
-        Examples
-        --------
-        >>> controller = Controller("Modulation")
-        >>> controller % Number() % int() >> Print()
-        1
-        """
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case og.Controller():       return self._controller
-                    case _:                     return super().__mod__(operand)
-            case og.Controller():       return self._controller.copy()
-            case ou.Number() | ou.LSB() | ou.HighResolution() | dict():
-                return self._controller % operand
-            case _:                     return super().__mod__(operand)
-
-    def __eq__(self, other: Any) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._controller == other._controller
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-
-
-    def _get_msb_value(self) -> int:
-        
-        if self._controller._nrpn:
-
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-            return cc_6_msb
-        else:
-
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-            return msb_value
-            
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
         if not self._enabled:
@@ -3753,6 +3642,7 @@ class ControlChange(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["value"]        = self.serialize( self._value )
         serialization["parameters"]["controller"]   = self.serialize( self._controller )
         return serialization
 
@@ -3760,9 +3650,10 @@ class ControlChange(Automation):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "controller" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._value         = self.deserialize( serialization["parameters"]["value"] )
             self._controller    = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
@@ -3771,15 +3662,47 @@ class ControlChange(Automation):
         match operand:
             case ControlChange():
                 super().__lshift__(operand)
+                self._value = operand._value
                 self._controller    << operand._controller
             case od.Pipe():
                 match operand._data:
+                    case ou.Value():            self._value = operand._data._unit
+                    case ou.MSB():              self._value = operand._data._unit
                     case og.Controller():       self._controller = operand._data
                     case _:                     super().__lshift__(operand)
+            case int():
+                self._value = operand
+            case ou.Value() | ou.MSB():
+                self._value = operand._unit
             case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | str() | dict():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                self._value += operand  # Specific and compounded parameter
+                return self
+            case ou.Value() | ou.MSB():
+                self._value += operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                self._value -= operand  # Specific and compounded parameter
+                return self
+            case ou.Value() | ou.MSB():
+                self._value -= operand._unit  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
+
 
 class BankSelect(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> BankSelect`
@@ -4086,209 +4009,23 @@ class PolyModeOn(ValueZero):
         return self
 
 
-class PitchBend(Automation):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> PitchBend`
+class Automation(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> Automation`
 
-    A `PitchBend` is an element that controls the Device Pitch Bend wheel.
+    An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
 
     Parameters
     ----------
-    Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._value: int    = 64
-        self._lsb: int      = 0
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def bend(self, bend: int = 0) -> Self:
-        self._value, self._lsb = self._get_msb_lsb( bend )
-        return self
-
-
-    @staticmethod
-    def _get_msb_lsb(bend: int) -> tuple[int]:
-        # from -8192 to 8191
-        amount = 8192 + bend        # 2^14 = 16384, 16384 / 2 = 8192
-        amount = max(min(amount, 16383), 0) # midi safe
-        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-        return msb, lsb
-
-    @staticmethod
-    def _get_bend(msb: int, lsb: int) -> int:
-        amount: int = msb << 7 | lsb & 0x7F
-        amount = max(min(amount, 16383), 0) # midi safe
-        # from -8192 to 8191
-        bend: int = amount - 8192
-        return bend
-
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a PitchBend,
-        those Parameters are the ones of the Element, like Position and Duration,
-        and the PitchBend bend with 0 as default.
-
-        Examples
-        --------
-        >>> pitch_bend = PitchBend(8190 / 2 + 1)
-        >>> pitch_bend % int() >> Print()
-        4096
-        """
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ou.Bend():
-                        return ou.Bend() << od.Pipe(self._get_bend(self._value, self._lsb))
-                    case ou.LSB():
-                        return ou.LSB() << od.Pipe(self._lsb)
-                    case _:
-                        return super().__mod__(operand)
-            case int():
-                return self._get_bend(self._value, self._lsb)
-            case ou.Bend():
-                return ou.Bend() << self._get_bend(self._value, self._lsb)
-            case ou.LSB():
-                return ou.LSB() << od.Pipe(self._lsb)
-            case _:
-                return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._lsb == other._lsb
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-
-
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
-        
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-        
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
-            self_playlist.append(
-                {
-                    "devices": devices
-                }
-            )
-
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0xE0 | self._channel_0,
-                    "data_byte_1": self._lsb,
-                    "data_byte_2": self._value
-                }
-            }
-        )
-
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
-        if not self._enabled:
-            return []
-        self_midilist: list = super().getMidilist(midi_track, position_beats)
-        # Validation is done by midiutil Midi Range Validation
-        self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._get_bend(self._value, self._lsb)
-        return self_midilist
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["lsb"] = self.serialize(self._lsb)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "lsb" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
-        return self
-      
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case PitchBend():
-                super().__lshift__(operand)
-                self._value = operand._value
-                self._lsb   = operand._lsb
-            case od.Pipe():
-                match operand._data:
-                    case ou.Bend():
-                        self._value = operand._data._unit
-                    case ou.Bend():
-                        self._lsb = operand._data._unit
-                    case _:
-                        super().__lshift__(operand)
-            case int():
-                self._value, self._lsb = self._get_msb_lsb( operand )
-            case ou.Bend():
-                self._value, self._lsb = self._get_msb_lsb( operand._unit )
-            case ou.LSB():
-                self._lsb = operand._unit
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case int():
-                bend: int = self._get_bend(self._value, self._lsb)
-                bend += operand
-                self._value, self._lsb = self._get_msb_lsb( bend )
-                return self
-            case ou.Bend():
-                bend: int = self._get_bend(self._value, self._lsb)
-                bend += operand._unit
-                self._value, self._lsb = self._get_msb_lsb( bend )
-                return self
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case int():
-                bend: int = self._get_bend(self._value, self._lsb)
-                bend -= operand
-                self._value, self._lsb = self._get_msb_lsb( bend )
-                return self
-            case ou.Bend():
-                bend: int = self._get_bend(self._value, self._lsb)
-                bend -= operand._unit
-                self._value, self._lsb = self._get_msb_lsb( bend )
-                return self
-            case _:
-                return super().__isub__(operand)
+    pass
 
 
 class Aftertouch(Automation):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> Aftertouch`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> Automation -> Aftertouch`
 
     An `Aftertouch` is an element that controls the pressure on all keys being played.
 
@@ -4444,6 +4181,7 @@ class Aftertouch(Automation):
             case _:
                 return super().__isub__(operand)
 
+
 class PolyAftertouch(Aftertouch):
     """`Element -> DeviceElement -> ChannelElement -> Automation -> PolyAftertouch`
 
@@ -4574,6 +4312,210 @@ class PolyAftertouch(Aftertouch):
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
+
+
+class PitchBend(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> PitchBend`
+
+    A `PitchBend` is an element that controls the Device Pitch Bend wheel.
+
+    Parameters
+    ----------
+    Bend(0), int: Value that ranges from -8192 to 8191, or, from -(64*128) to (64*128 - 1).
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._msb: int  = 64    # Equivalent to Value from 0 to 128
+        self._lsb: int  = 0
+        super().__init__()
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def bend(self, bend: int = 0) -> Self:
+        self._msb, self._lsb = self._get_msb_lsb( bend )
+        return self
+
+
+    @staticmethod
+    def _get_msb_lsb(bend: int) -> tuple[int]:
+        # from -8192 to 8191
+        amount = 8192 + bend        # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0) # midi safe
+        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+        return msb, lsb
+
+    @staticmethod
+    def _get_bend(msb: int, lsb: int) -> int:
+        amount: int = msb << 7 | lsb & 0x7F
+        amount = max(min(amount, 16383), 0) # midi safe
+        # from -8192 to 8191
+        bend: int = amount - 8192
+        return bend
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a PitchBend,
+        those Parameters are the ones of the Element, like Position and Duration,
+        and the PitchBend bend with 0 as default.
+
+        Examples
+        --------
+        >>> pitch_bend = PitchBend(8190 / 2 + 1)
+        >>> pitch_bend % int() >> Print()
+        4096
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Bend():
+                        return ou.Bend() << od.Pipe(self._get_bend(self._msb, self._lsb))
+                    case ou.LSB():
+                        return ou.LSB() << od.Pipe(self._lsb)
+                    case _:
+                        return super().__mod__(operand)
+            case int():
+                return self._get_bend(self._msb, self._lsb)
+            case ou.Bend():
+                return ou.Bend() << self._get_bend(self._msb, self._lsb)
+            case ou.LSB():
+                return ou.LSB() << od.Pipe(self._lsb)
+            case _:
+                return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._lsb == other._lsb
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+
+
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+        if not self._enabled:
+            return []
+        
+        absolute_position_beats: Fraction = position_beats
+        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
+            absolute_position_beats += self._position_beats
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+        
+        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+
+        # Midi validation is done in the JsonMidiPlayer program
+        self_playlist: list[dict] = []
+        
+        if devices_header:
+            self_playlist.append(
+                {
+                    "devices": devices
+                }
+            )
+
+        self_playlist.append(
+            {
+                "time_ms": o.minutes_to_time_ms(self_position_min),
+                "midi_message": {
+                    "status_byte": 0xE0 | self._channel_0,
+                    "data_byte_1": self._lsb,
+                    "data_byte_2": self._msb
+                }
+            }
+        )
+
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+        if not self._enabled:
+            return []
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["event"]       = "PitchWheelEvent"
+        self_midilist[0]["value"]       = self._get_bend(self._msb, self._lsb)
+        return self_midilist
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["msb"] = self.serialize(self._msb)
+        serialization["parameters"]["lsb"] = self.serialize(self._lsb)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "msb" in serialization["parameters"] and "lsb" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._msb = self.deserialize( serialization["parameters"]["msb"] )
+            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+        return self
+      
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case PitchBend():
+                super().__lshift__(operand)
+                self._msb   = operand._msb
+                self._lsb   = operand._lsb
+            case od.Pipe():
+                match operand._data:
+                    case ou.Bend():
+                        self._msb = operand._data._unit
+                    case ou.Bend():
+                        self._lsb = operand._data._unit
+                    case _:
+                        super().__lshift__(operand)
+            case int():
+                self._msb, self._lsb = self._get_msb_lsb( operand )
+            case ou.Bend():
+                self._msb, self._lsb = self._get_msb_lsb( operand._unit )
+            case ou.LSB():
+                self._lsb = operand._unit
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                bend: int = self._get_bend(self._msb, self._lsb)
+                bend += operand
+                self._msb, self._lsb = self._get_msb_lsb( bend )
+                return self
+            case ou.Bend():
+                bend: int = self._get_bend(self._msb, self._lsb)
+                bend += operand._unit
+                self._msb, self._lsb = self._get_msb_lsb( bend )
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                bend: int = self._get_bend(self._msb, self._lsb)
+                bend -= operand
+                self._msb, self._lsb = self._get_msb_lsb( bend )
+                return self
+            case ou.Bend():
+                bend: int = self._get_bend(self._msb, self._lsb)
+                bend -= operand._unit
+                self._msb, self._lsb = self._get_msb_lsb( bend )
+                return self
+            case _:
+                return super().__isub__(operand)
+
 
 class ProgramChange(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> ProgramChange`
