@@ -2545,21 +2545,23 @@ class Plot(ReadOnly):
 
     Plots the `Composition` content, Notes or the `Automation` if existent.
 
-    Note
-    ----
-        The Sharps(#) and Flats(b) plotted concern the Key Signature being used and NOT necessarily
-        the Major Scale, in other words, they concern the `Degree` and NOT the `Key`.
-
+    Notes
+    -----
+    - The plotted `T` marks the Tonic Key of the Key Signature with the respective Sharps(#) or Flats(b)
+    on the Y-axis;
+    - The Notes' Sharps and Flats plotted concern the Key Signature being used and NOT necessarily
+    the Major Scale, in other words, they concern the `Degree` and NOT the `Key`.
+        
     Args
     ----
-        by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
-        block (bool): Suspends the program until the chart is closed.
-        pause (float): Sets a time in seconds before the chart is closed automatically.
-        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-            this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-        composition (Composition): A composition to be played together with the plotted one.
-        title (str): A title to give to the chart in order to identify it.
+    by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
+    block (bool): Suspends the program until the chart is closed.
+    pause (float): Sets a time in seconds before the chart is closed automatically.
+    iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
+        this is dependent on a n_button being given.
+    n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
+    composition (Composition): A composition to be played together with the plotted one.
+    title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
