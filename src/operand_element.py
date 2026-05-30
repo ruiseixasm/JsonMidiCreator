@@ -3370,6 +3370,8 @@ class ControlChange(ChannelElement):
         self._controller: og.Controller = og.settings % og.Controller()
         self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
         super().__init__()
+        # Equivalent to one Step
+        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4331,6 +4333,8 @@ class PitchBend(ChannelElement):
         self._msb: int  = 64    # Equivalent to Value from 0 to 128
         self._lsb: int  = 0
         super().__init__()
+        # Equivalent to one Step
+        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
