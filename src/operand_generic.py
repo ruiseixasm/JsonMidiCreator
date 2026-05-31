@@ -421,7 +421,7 @@ class Dot(Generic):
 
     A pair of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`, `Aftertouch` and `PitchBend` elements.
 
-    This is a constant operand intended to be used as a wrapper of information for the automation.
+    This is a constant operand intended to be used as a wrapper of information for the automation only.
 
     Args:
         value (int): The value for the automated target from 0 to 127.
@@ -433,8 +433,10 @@ class Dot(Generic):
         super().__init__()
 
     def __eq__(self, other: 'Dot') -> bool:
-        return  self._value             == other._value \
-            and self._position_beats    == other._position_beats
+        if isinstance(other, Dot):
+            return  self._value             == other._value \
+                and self._position_beats    == other._position_beats
+        return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
