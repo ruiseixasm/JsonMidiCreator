@@ -374,16 +374,20 @@ def test_modulation_mod():
 
 def test_pitchbend_mod():
 
-    # Perform the operation
     pitch_bend = PitchBend(int(8190 / 2 + 1))
-    pitch_bend_int = pitch_bend % int()
+    assert pitch_bend != 4096
 
-    assert pitch_bend_int == 4096
+    pitch_bend << 64
+    assert pitch_bend == 64
+
+    pitch_bend << 64.50
+    assert pitch_bend == 64.50
+
+test_pitchbend_mod()
 
 
 def test_aftertouch_mod():
 
-    # Perform the operation
     aftertouch = Aftertouch(2) << Pressure(128 / 2)
     aftertouch_int = aftertouch % Pressure() % int()
 

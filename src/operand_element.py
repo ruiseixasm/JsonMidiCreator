@@ -4348,24 +4348,6 @@ class PitchBend(ChannelElement):
         return self
 
 
-    @staticmethod
-    def _get_msb_lsb(bend: int) -> tuple[int]:
-        # from -8192 to 8191
-        amount = 8192 + bend        # 2^14 = 16384, 16384 / 2 = 8192
-        amount = max(min(amount, 16383), 0) # midi safe
-        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-        return msb, lsb
-
-    @staticmethod
-    def _get_bend(msb: int, lsb: int) -> int:
-        amount: int = msb << 7 | lsb & 0x7F
-        amount = max(min(amount, 16383), 0) # midi safe
-        # from -8192 to 8191
-        bend: int = amount - 8192
-        return bend
-
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
@@ -4388,11 +4370,14 @@ class PitchBend(ChannelElement):
                     case _:
                         return super().__mod__(operand)
             case int():
-                return self._get_bend(self._msb, self._lsb)
+                return self._msb % 128
+            case float():
+                bend: int = self._get_bend_0(self._msb % 128, self._lsb % 128)
+                return round(bend / 1000, 3)
             case ou.Bend():
-                return ou.Bend() << self._get_bend(self._msb, self._lsb)
+                return ou.Bend() << self._get_bend(self._msb % 128, self._lsb % 128)
             case ou.LSB():
-                return ou.LSB() << od.Pipe(self._lsb)
+                return ou.LSB() << od.Pipe(self._lsb % 128)
             case _:
                 return super().__mod__(operand)
 
@@ -4400,6 +4385,7 @@ class PitchBend(ChannelElement):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
+                    and self._msb == other._msb \
                     and self._lsb == other._lsb
             case Element():
                 # Makes a playlist comparison
@@ -4477,16 +4463,25 @@ class PitchBend(ChannelElement):
                 self._lsb   = operand._lsb
             case od.Pipe():
                 match operand._data:
+                    case int():
+                        self._msb = operand._data._int
                     case ou.Bend():
+                        self._msb, self._lsb = self._get_msb_lsb( operand._data._unit )
+                    case ou.MSB():
                         self._msb = operand._data._unit
-                    case ou.Bend():
+                    case ou.LSB():
                         self._lsb = operand._data._unit
                     case _:
                         super().__lshift__(operand)
             case int():
-                self._msb, self._lsb = self._get_msb_lsb( operand )
+                self._msb = operand
+            case float():
+                bend: int = round(operand * 1000, 0)
+                self._msb, self._lsb = self._get_msb_lsb_from_bend_0( bend )
             case ou.Bend():
                 self._msb, self._lsb = self._get_msb_lsb( operand._unit )
+            case ou.MSB():
+                self._msb = operand._unit
             case ou.LSB():
                 self._lsb = operand._unit
             case _:
@@ -4497,33 +4492,61 @@ class PitchBend(ChannelElement):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                bend: int = self._get_bend(self._msb, self._lsb)
-                bend += operand
-                self._msb, self._lsb = self._get_msb_lsb( bend )
-                return self
+                self._msb += operand
             case ou.Bend():
                 bend: int = self._get_bend(self._msb, self._lsb)
                 bend += operand._unit
                 self._msb, self._lsb = self._get_msb_lsb( bend )
-                return self
             case _:
                 return super().__iadd__(operand)
+        return self
 
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                bend: int = self._get_bend(self._msb, self._lsb)
-                bend -= operand
-                self._msb, self._lsb = self._get_msb_lsb( bend )
-                return self
+                self._msb -= operand
             case ou.Bend():
                 bend: int = self._get_bend(self._msb, self._lsb)
                 bend -= operand._unit
                 self._msb, self._lsb = self._get_msb_lsb( bend )
-                return self
             case _:
                 return super().__isub__(operand)
+        return self
+
+
+    @staticmethod
+    def _get_msb_lsb(bend: int) -> tuple[int]:
+        # from -8192 to 8191
+        amount = 8192 + bend        # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0) # midi safe
+        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+        return msb, lsb
+
+    @staticmethod
+    def _get_msb_lsb_from_bend_0(bend_0: int) -> tuple[int]:
+        # 2^14 = 16384, 16384 / 2 = 8192
+        amount = bend_0
+        amount = max(min(amount, 16383), 0) # midi safe
+        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+        return msb, lsb
+
+    @staticmethod
+    def _get_bend(msb: int, lsb: int) -> int:
+        amount: int = msb << 7 | lsb & 0x7F
+        amount = max(min(amount, 16383), 0) # midi safe
+        # from -8192 to 8191
+        bend: int = amount - 8192
+        return bend
+
+    @staticmethod
+    def _get_bend_0(msb: int, lsb: int) -> int:
+        bend: int = msb << 7 | lsb & 0x7F
+        bend = max(min(bend, 16383), 0) # midi safe
+        # from 0 to 16383
+        return bend
 
 
 class ProgramChange(ChannelElement):
