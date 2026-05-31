@@ -4600,17 +4600,19 @@ class PitchBend(ChannelElement):
         serialization = super().getSerialization()
         serialization["parameters"]["msb"] = self.serialize(self._msb)
         serialization["parameters"]["lsb"] = self.serialize(self._lsb)
+        serialization["parameters"]["interpolation"] = self.serialize(self._interpolation)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "msb" in serialization["parameters"] and "lsb" in serialization["parameters"]):
+            "msb" in serialization["parameters"] and "lsb" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._msb = self.deserialize( serialization["parameters"]["msb"] )
             self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+            self._interpolation = self.deserialize( serialization["parameters"]["interpolation"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -4620,6 +4622,7 @@ class PitchBend(ChannelElement):
                 super().__lshift__(operand)
                 self._msb   = operand._msb
                 self._lsb   = operand._lsb
+                self._interpolation = operand._interpolation
             case od.Pipe():
                 match operand._data:
                     case int():
