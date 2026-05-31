@@ -3456,18 +3456,6 @@ class ControlChange(ChannelElement):
                 return self % other > other
     
 
-    def _get_msb_value(self) -> int:
-        
-        if self._controller._nrpn:
-
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-            return cc_6_msb
-        else:
-
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-            return msb_value
-            
-
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
@@ -3491,7 +3479,7 @@ class ControlChange(ChannelElement):
                 "automation": {
                     "position": position_on,
                     "enabled": self._enabled,
-                    "value": self._get_msb_value(),
+                    "value": self._value,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
@@ -4084,8 +4072,38 @@ class Aftertouch(ChannelElement):
                 return super().__eq__(other)
     
     
-    def _get_msb_value(self) -> int:
-        return self._pressure
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_automation: 'Automation' = None) -> list[dict]:
+        
+        if channels is not None:
+            channels["automation"].add(self._channel_0)
+
+        if masked_element_ids is None:
+            masked_element_ids = set()
+            
+        self_plotlist: list[dict] = []
+        
+        position_on: Fraction = position_beats
+        if midi_track is not None:  # Only in Clips is the Element placed
+            position_on += self._position_beats
+
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "automation": {
+                    "position": position_on,
+                    "enabled": self._enabled,
+                    "value": self._pressure,
+                    "channel": self._channel_0,
+                    "masked": id(self) in masked_element_ids,
+                    "self": self
+                }
+            }
+        )
+
+        return self_plotlist
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
@@ -4393,6 +4411,40 @@ class PitchBend(ChannelElement):
                 return ou.LSB() << od.Pipe(self._lsb % 128)
             case _:
                 return super().__mod__(operand)
+
+
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_automation: 'Automation' = None) -> list[dict]:
+        
+        if channels is not None:
+            channels["automation"].add(self._channel_0)
+
+        if masked_element_ids is None:
+            masked_element_ids = set()
+            
+        self_plotlist: list[dict] = []
+        
+        position_on: Fraction = position_beats
+        if midi_track is not None:  # Only in Clips is the Element placed
+            position_on += self._position_beats
+
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "automation": {
+                    "position": position_on,
+                    "enabled": self._enabled,
+                    "value": self._msb,
+                    "channel": self._channel_0,
+                    "masked": id(self) in masked_element_ids,
+                    "self": self
+                }
+            }
+        )
+
+        return self_plotlist
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
