@@ -4105,8 +4105,9 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
+        self._automation: list[og.Dots] = []
         self._interpolation: bool = False
-        super().__init__(*parameters)
+        super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
@@ -4128,6 +4129,18 @@ class Aftertouch(ChannelElement):
                 self._pressure = number
         return self
 
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._pressure == other._pressure
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
+    
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Aftertouch,
@@ -4144,23 +4157,14 @@ class Aftertouch(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
+                    case list():            return self._automation # Read only operand
                     case _:                 return super().__mod__(operand)
             case int():             return self._pressure
             case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
+            case list():            return self._automation # Read only operand, no need for copies
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._pressure == other._pressure
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-    
-    
+
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
@@ -4241,6 +4245,7 @@ class Aftertouch(ChannelElement):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pressure"] = self.serialize( self._pressure )
+        serialization["parameters"]["automation"] = self.serialize( self._automation )
         serialization["parameters"]["interpolation"] = self.serialize( self._interpolation )
         return serialization
 
@@ -4248,10 +4253,11 @@ class Aftertouch(ChannelElement):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pressure" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
+            "pressure" in serialization["parameters"] and "automation" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
+            self._automation = self.deserialize( serialization["parameters"]["automation"] )
             self._interpolation = self.deserialize( serialization["parameters"]["interpolation"] )
         return self
       

@@ -416,43 +416,48 @@ class TimeSignature(Generic):
         return self
 
 
-class Dot(Generic):
+class Dots(Generic):
     """`Generic -> Dot`
 
-    A pair of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`, `Aftertouch` and `PitchBend` elements.
+    A series of pairs of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`,
+    `Aftertouch` and `PitchBend` elements.
 
     This is a constant operand intended to be used as a wrapper of information for the automation only.
 
     Args:
-        value (int): The value for the automated target from 0 to 127.
-        position (any): The position relatively to the element Position itself.
+        values (list[int]): The values for the automated target from 0 to 127.
+        position (list[any]): The position of each value in the values list.
     """
-    def __init__(self, value: int = 0, position: Any = 0):
-        self._value: int                = value % 128
-        self._position_beats: Fraction  = ra.Position(position)._rational
+    def __init__(self, values: list[int] = [], positions: list[any] = []):
+        self._values: list[int] = values
+        self._position_beats: list[Fraction] = []
+        for i, position in enumerate(position):
+            if i < len(self._values):
+                position_beats: Fraction = ra.Position(position)._rational
+                self._position_beats.append(position_beats)
         super().__init__()
 
-    def __eq__(self, other: 'Dot') -> bool:
-        if isinstance(other, Dot):
-            return  self._value             == other._value \
+    def __eq__(self, other: 'Dots') -> bool:
+        if isinstance(other, Dots):
+            return  self._values            == other._values \
                 and self._position_beats    == other._position_beats
         return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["value"]    = self.serialize( self._value )
-        serialization["parameters"]["position"] = self.serialize( self._position_beats )
+        serialization["parameters"]["values"]    = self.serialize( self._values )
+        serialization["parameters"]["positions"] = self.serialize( self._position_beats )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "values" in serialization["parameters"] and "positions" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value             = self.deserialize( serialization["parameters"]["value"] )
-            self._position_beats    = self.deserialize( serialization["parameters"]["position"] )
+            self._values            = self.deserialize( serialization["parameters"]["values"] )
+            self._position_beats    = self.deserialize( serialization["parameters"]["positions"] )
         return self
 
 
