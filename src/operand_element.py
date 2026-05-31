@@ -3693,6 +3693,55 @@ class ControlChange(ChannelElement):
             case _:
                 return super().__isub__(operand)
 
+    # for the `Number` class
+    _controller_id: dict[str, int] = {
+        'bank':                 0,
+        'modulation':           1,
+        'breath':               2,
+        'pedal':                3,
+        'portamento.time':      4,
+        'value.msb':            5,
+        'volume':               6,
+        'balance':              7,
+        'pan':                  8,
+        'expression':           9,
+        'effect.1':             10,
+        'control.1':            10,
+        'effect.2':             11,
+        'control.2':            11,
+        'value.lsb':            12,
+        'sustain':              13,
+        'portamento':           14,
+        'sostenuto':            15,
+        'soft.pedal':           16,
+        'legato':               17,
+        'hold':                 18,
+        'variation':            19,
+        'resonance':            20,
+        'release':              21,
+        'attack':               22,
+        'cutoff':               23,
+        'portamento.control':   24,
+        'reverb':               25,
+        'tremolo':              26,
+        'chorus':               27,
+        'detune':               28,
+        'phaser':               29,
+        'data.increment':       30,
+        'data.decrement':       31,
+        'lsb':                  32,
+        'msb':                  33,
+        'sounds.off':           34,
+        'reset':                35,
+        'local':                36,
+        'notes.off':            37,
+        'omni.off':             38,
+        'omni.on':              39,
+        'mono.on':              40,
+        'poly.on':              41
+    }
+
+
 
 class BankSelect(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> BankSelect`
