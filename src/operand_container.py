@@ -2128,10 +2128,19 @@ class Composition(Container):
                         edge_color: str = 'black'
                         if not automation["enabled"]:
                             edge_color = 'white'
-                                
+                        
+                        marker: str = 's'
                         # Actual data points
-                        self._ax.plot(x, y, marker='o', linestyle='None', color=channel_color,
-                                    markeredgecolor=edge_color, markeredgewidth=1, markersize=8, alpha = color_alpha)
+                        match automation["self"]:
+                            case oe.Automation():
+                                marker = 'o'
+                            case oe.Aftertouch():
+                                marker = 'v'
+                            case oe.PitchBend():
+                                marker = 'P'
+
+                        self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
+                                    markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
 
                         # Add the tailed line up to the end of the chart
                         x = [
@@ -2148,7 +2157,7 @@ class Composition(Container):
                         # Actual data points
                         self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
-                        if not printed_channel_number:
+                        if not printed_channel_number:  # Print it on first time
                             y_pos: int = automation["value"] + 2
                             x_pos = automation["position"]
                             self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
