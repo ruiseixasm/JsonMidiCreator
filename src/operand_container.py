@@ -2131,13 +2131,17 @@ class Composition(Container):
                         
                         marker: str = 's'
                         # Actual data points
-                        match automation["self"]:
-                            case oe.Automation():
-                                marker = 'o'
-                            case oe.Aftertouch():
-                                marker = 'v'
-                            case oe.PitchBend():
-                                marker = 'P'
+                        if isinstance(automation["self"], (oe.Automation, oe.Aftertouch, oe.PitchBend)):
+                            if automation["self"]._interpolation:
+                                marker = 'x'
+                            else:
+                                match automation["self"]:
+                                    case oe.Automation():
+                                        marker = 'o'
+                                    case oe.Aftertouch():
+                                        marker = 'v'
+                                    case oe.PitchBend():
+                                        marker = 'P'
 
                         self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
                                     markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
