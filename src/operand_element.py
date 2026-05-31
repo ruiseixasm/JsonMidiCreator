@@ -3388,6 +3388,30 @@ class ControlChange(ChannelElement):
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Controller
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Number(number)
+            elif field_3 in ControlChange._controller_id:
+                controller_id: int = ControlChange._controller_id[field_3]
+                midi_number: int = ou.Number._controllers[controller_id]["midi_number"]
+                default_value: int = ou.Number._controllers[controller_id]["default_value"]
+                self << ou.Number(midi_number)
+                self._value = default_value
+        # Set Value
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            number = o.string_to_number(field_2)
+            if isinstance(number, int):
+                self._value = number
+        return self
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
@@ -3513,9 +3537,7 @@ class ControlChange(ChannelElement):
             )
 
         if self._controller._nrpn:
-
             cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-
             self_playlist.extend([
                 {
                     "time_ms": time_ms,
@@ -3542,9 +3564,7 @@ class ControlChange(ChannelElement):
                     }
                 }
             ])
-
             if self._controller._high:
-
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
@@ -3555,11 +3575,8 @@ class ControlChange(ChannelElement):
                         }
                     }
                 )
-
         else:
-
             msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-
             self_playlist.append(
                 {
                     "time_ms": time_ms,
@@ -3570,9 +3587,7 @@ class ControlChange(ChannelElement):
                     }
                 }
             )
-
             if self._controller._high:
-
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
@@ -3583,7 +3598,6 @@ class ControlChange(ChannelElement):
                         }
                     }
                 )
-        
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
@@ -3693,7 +3707,7 @@ class ControlChange(ChannelElement):
             case _:
                 return super().__isub__(operand)
 
-    # for the `Number` class
+    # For the `Number` class
     _controller_id: dict[str, int] = {
         'bank':                 0,
         'modulation':           1,
