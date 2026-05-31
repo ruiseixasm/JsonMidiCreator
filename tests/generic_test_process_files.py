@@ -295,9 +295,9 @@ original_export     = Import("json/testing/_Export_Play_p.10.3_sequence.json")
 start_time = time.time()
 
 oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4, parameter=Bend)
-pitch_bend = PitchBend() / (2*16 + 1)
+pitch_bend = PitchBend() / (2*16 + 1)   # 33 steps
 # pitch_bend % Length() >> Print()
-# pitch_bend % Duration() >> Print()
+# pitch_bend % Duration() % Steps() >> Print()
 pitch_bend >>= oscillate
 
 chord + pitch_bend >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
