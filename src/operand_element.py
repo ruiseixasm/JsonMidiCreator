@@ -4858,6 +4858,9 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
         else:
             element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
             element: Element = element_class()  # instantiates the Element class
+        # Sets the previous element parameters as the default for the present element
+        if previous_element is not None:
+            element << previous_element
         for nth, parameter in enumerate(element_parameters):
             if nth > 0:
                 number = o.string_to_number(parameter)
