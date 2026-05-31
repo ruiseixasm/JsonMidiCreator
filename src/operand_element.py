@@ -4083,9 +4083,9 @@ class Automation(ControlChange):
 
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        super().__lshift__(operand)
         match operand:
             case Automation():
-                super().__lshift__(operand)
                 self._interpolation = operand._interpolation
         return self
 
