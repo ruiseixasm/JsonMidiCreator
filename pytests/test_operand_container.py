@@ -1408,3 +1408,10 @@ def test_clip_line():
 
 # test_clip_line()
 
+
+def test_clip_multi():
+    pitch_bends = PitchBend() / 17
+    assert pitch_bends.len() == 17
+
+# test_clip_multi()
+
