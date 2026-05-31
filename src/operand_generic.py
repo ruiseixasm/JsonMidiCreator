@@ -431,11 +431,16 @@ class Dots(Generic):
     def __init__(self, values: list[int] = [], positions: list[any] = []):
         self._values: list[int] = values
         self._position_beats: list[Fraction] = []
+        self._len: int = 0
         for i, position in enumerate(position):
             if i < len(self._values):
                 position_beats: Fraction = ra.Position(position)._rational
                 self._position_beats.append(position_beats)
+                self._len += 1
         super().__init__()
+
+    def len(self) -> int:
+        return self._len
 
     def __eq__(self, other: 'Dots') -> bool:
         if isinstance(other, Dots):

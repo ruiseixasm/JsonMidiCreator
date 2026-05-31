@@ -4105,7 +4105,7 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
-        self._automation: list[og.Dots] = []
+        self._automation: og.Dots = og.Dots()
         self._interpolation: bool = False
         super().__init__()
         # Equivalent to one Step
