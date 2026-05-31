@@ -3369,6 +3369,7 @@ class ControlChange(ChannelElement):
     def __init__(self, *parameters):
         self._controller: og.Controller = og.settings % og.Controller()
         self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
+        self._interpolation: bool       = False
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -3609,56 +3610,47 @@ class ControlChange(ChannelElement):
         # Validation is done by midiutil Midi Range Validation
 
         if self._controller._nrpn:
-
             cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-
             self_midilist[0]["number"]      = 99
             self_midilist[0]["value"]       = cc_99_msb
-
             self_midilist[1] = self_midilist[0].copy()
             self_midilist[1]["number"]      = 98
             self_midilist[1]["value"]       = cc_98_lsb
-
             self_midilist[2] = self_midilist[0].copy()
             self_midilist[2]["number"]      = 6
             self_midilist[2]["value"]       = cc_6_msb
-
             if self._controller._high:
-
                 self_midilist[3] = self_midilist[0].copy()
                 self_midilist[3]["number"]      = 38
                 self_midilist[3]["value"]       = cc_38_lsb
-
         else:
-
             msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-
             self_midilist[0]["number"]      = self._controller._number_msb
             self_midilist[0]["value"]       = msb_value
-
             if self._controller._high:
-
                 self_midilist[1] = self_midilist[0].copy()
                 self_midilist[1]["number"]      = self._controller._lsb
                 self_midilist[1]["value"]       = lsb_value
-
         return self_midilist
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["value"]        = self.serialize( self._value )
-        serialization["parameters"]["controller"]   = self.serialize( self._controller )
+        serialization["parameters"]["value"]            = self.serialize( self._value )
+        serialization["parameters"]["controller"]       = self.serialize( self._controller )
+        serialization["parameters"]["interpolation"]    = self.serialize( self._interpolation )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"] and "controller" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "controller" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._value         = self.deserialize( serialization["parameters"]["value"] )
             self._controller    = self.deserialize( serialization["parameters"]["controller"] )
+            self._interpolation = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3668,6 +3660,7 @@ class ControlChange(ChannelElement):
                 super().__lshift__(operand)
                 self._value = operand._value
                 self._controller    << operand._controller
+                self._interpolation = operand._interpolation
             case od.Pipe():
                 match operand._data:
                     case ou.Value():            self._value = operand._data._unit
@@ -3754,7 +3747,6 @@ class ControlChange(ChannelElement):
         'mono.on':              40,
         'poly.on':              41
     }
-
 
 
 class BankSelect(ControlChange):
@@ -4092,6 +4084,7 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
+        self._interpolation: bool = False
         super().__init__(*parameters)
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4430,6 +4423,7 @@ class PitchBend(ChannelElement):
     def __init__(self, *parameters):
         self._msb: int  = 64    # Equivalent to Value from 0 to 128
         self._lsb: int  = 0
+        self._interpolation: bool = False
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
