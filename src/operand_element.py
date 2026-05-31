@@ -4840,24 +4840,21 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
     element: Element | ol.Null = ol.Null()
     token = od._normalize_dsl(token)
     if token != "":
-        if token == ":":
-            token = "n"
+        element_class: type = Note
+        if previous_element is not None:
+            element_class = type(previous_element)
         token_operand = od.Token(token)
         # Get Element
-        field_0: str = token_operand.get_field(0)
-        if field_0 == "":
-            field_0 = "n"
-        else:
-            field_0 = field_0.lower()
-        if field_0[0] == "_":
-            field_0 = "n" + field_0
-        # Process each field parameters
-        element_parameters: list[str] = field_0.split("_")
-        if element_parameters[0] not in _element_type:
-            element = Note()
-        else:
-            element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
-            element: Element = element_class()  # instantiates the Element class
+        field_0: str = token_operand.get_field(0).lower()
+        element_parameters: list[str] = []
+        if field_0:
+            if field_0[0] == "_":
+                field_0 = "n" + field_0
+            # Process each field parameters
+            element_parameters = field_0.split("_")
+            if element_parameters[0] in _element_type:
+                element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
+        element: Element = element_class()  # instantiates the Element class
         # Sets the previous element parameters as the default for the present element
         if previous_element is not None:
             element << previous_element
