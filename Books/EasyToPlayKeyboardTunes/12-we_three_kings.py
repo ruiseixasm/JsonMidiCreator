@@ -27,8 +27,8 @@ ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice",
 settings << Tempo(240) << TimeSignature(6, 8) << KeySignature('') << Quantization(1/2)
 
 
-chords = Line()
-melody = Line()
+chords = Line()  # Checksum: da16
+melody = Line()  # Checksum: 1540
 
 
 # THE DEFAULT DURATION OF A NOTE IS 1 BEAT AND NOT 1/4 NECESSARILY
