@@ -322,6 +322,9 @@ class Token(Data):
         line_dsl: str = self._data
         normalized_dsl: str = _normalize_dsl(line_dsl)
         return normalized_dsl.split(":")
+    
+    def len(self) -> int:
+        return len(self.get_fields())
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
