@@ -3793,7 +3793,7 @@ class Clip(Composition):  # Just a container of Elements
             if parameter is not None:
                 single_element << parameter(value)
             else:
-                single_element << value            
+                single_element << value # Most of the time
 
         return self
     

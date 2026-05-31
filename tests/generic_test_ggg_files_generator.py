@@ -124,8 +124,8 @@ controller >> Save("json/testing/_Save_4.2_control_change.json")
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 
 
-oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4)
-pitch_bend = PitchBend() / (2*16 + 1) << Iterate()**Steps()
+oscillate: Oscillate = Oscillate(int(128*128 / 2 - 1), 1/4, parameter=Bend)
+pitch_bend = PitchBend() / (2*16 + 1)
 pitch_bend >>= oscillate
 
 chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> Export("json/testing/_Export_Play_p.10.3_sequence.json") \
