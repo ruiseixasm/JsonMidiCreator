@@ -4127,40 +4127,40 @@ class Aftertouch(ChannelElement):
             number = o.string_to_number(field_2)
             if isinstance(number, int):
                 self._pressure = number
-            values: list[int] = []
-            positions: list[Fraction] = []
-            for i, field_i in enumerate(token_operand.get_fields()):
-                if i > 2:
+        for i, field_i in enumerate(token_operand.get_fields()):
+            if i > 2:
+                values: list[int] = []
+                positions: list[Fraction] = []
+                if field_i is not None and field_i != "":
+                    if field_i[0] == "_":
+                        field_i = "0" + field_i # Durations of zero aren't set (safe)
+                    dot_parameters: list[str] = field_i.split("_")
                     position = self % ra.Position()
-                    if field_i is not None and field_i != "":
-                        if field_i[0] == "_":
-                            field_i = "0" + field_i # Durations of zero aren't set (safe)
-                        dot_parameters: list[str] = field_i.split("_")
-                        for nth, parameter in enumerate(dot_parameters):
-                            match nth:
-                                case 0: # Sets the Value
-                                    number = o.string_to_number(parameter)
-                                    if isinstance(parameter, int):
-                                        values.append(number)
-                                case _: # Sets the Position
-                                    measure = True if 'm' in parameter or 'M' in parameter else False
-                                    beat = True if 'b' in parameter or 'B' in parameter else False
-                                    # Cleans up
-                                    parameter = parameter.replace('m', '').replace('M', '')
-                                    parameter = parameter.replace('b', '').replace('B', '')
-                                    number = o.string_to_number(parameter)
-                                    if measure:
-                                        position << ra.Measure(number)
-                                    elif beat:
-                                        position << ra.Beat(number)
-                                    else:
-                                        match number:
-                                            case int():
-                                                position << ra.Step(number)
-                                            case float():
-                                                position << ra.Position(number)
-                        positions.append(position)
-
+                    for nth, parameter in enumerate(dot_parameters):
+                        match nth:
+                            case 0: # Sets the Value
+                                number = o.string_to_number(parameter)
+                                if isinstance(parameter, int):
+                                    values.append(number)
+                            case _: # Sets the Position
+                                measure = True if 'm' in parameter or 'M' in parameter else False
+                                beat = True if 'b' in parameter or 'B' in parameter else False
+                                # Cleans up
+                                parameter = parameter.replace('m', '').replace('M', '')
+                                parameter = parameter.replace('b', '').replace('B', '')
+                                number = o.string_to_number(parameter)
+                                if measure:
+                                    position << ra.Measure(number)
+                                elif beat:
+                                    position << ra.Beat(number)
+                                else:
+                                    match number:
+                                        case int():
+                                            position << ra.Step(number)
+                                        case float():
+                                            position << ra.Position(number)
+                    positions.append(position)
+                self._automation = og.Dots(values, self.positions)
         return self
 
     def __eq__(self, other: o.Operand) -> bool:
