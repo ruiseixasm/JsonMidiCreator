@@ -444,8 +444,13 @@ class Dots(Generic):
 
     def __eq__(self, other: 'Dots') -> bool:
         if isinstance(other, Dots):
-            return  self._values            == other._values \
-                and self._position_beats    == other._position_beats
+            if self._len != other._len:
+                return False
+            for i in range(self._len):
+                if self._values[i] != other._values[i]:
+                    return False
+                if self._position_beats[i] != other._position_beats[i]:
+                    return False
         return False
     
     def getSerialization(self) -> dict:
