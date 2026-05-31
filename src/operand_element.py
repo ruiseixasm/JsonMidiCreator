@@ -3369,7 +3369,6 @@ class ControlChange(ChannelElement):
     def __init__(self, *parameters):
         self._controller: og.Controller = og.settings % og.Controller()
         self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
-        self._interpolation: bool       = False
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -3638,19 +3637,17 @@ class ControlChange(ChannelElement):
         serialization = super().getSerialization()
         serialization["parameters"]["value"]            = self.serialize( self._value )
         serialization["parameters"]["controller"]       = self.serialize( self._controller )
-        serialization["parameters"]["interpolation"]    = self.serialize( self._interpolation )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"] and "controller" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._value         = self.deserialize( serialization["parameters"]["value"] )
             self._controller    = self.deserialize( serialization["parameters"]["controller"] )
-            self._interpolation = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3660,7 +3657,6 @@ class ControlChange(ChannelElement):
                 super().__lshift__(operand)
                 self._value = operand._value
                 self._controller    << operand._controller
-                self._interpolation = operand._interpolation
             case od.Pipe():
                 match operand._data:
                     case ou.Value():            self._value = operand._data._unit
@@ -4066,7 +4062,32 @@ class Automation(ControlChange):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def __init__(self, *parameters):
+        self._interpolation: bool = False
+        super().__init__(*parameters)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["interpolation"] = self.serialize( self._interpolation )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "interpolation" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._interpolation = self.deserialize( serialization["parameters"]["controller"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Automation():
+                super().__lshift__(operand)
+                self._interpolation = operand._interpolation
+        return self
 
 
 class Aftertouch(ChannelElement):
@@ -4220,16 +4241,18 @@ class Aftertouch(ChannelElement):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pressure"] = self.serialize( self._pressure )
+        serialization["parameters"]["interpolation"] = self.serialize( self._interpolation )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pressure" in serialization["parameters"]):
+            "pressure" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
+            self._interpolation = self.deserialize( serialization["parameters"]["interpolation"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
