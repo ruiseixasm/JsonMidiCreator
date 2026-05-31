@@ -432,7 +432,7 @@ class Dots(Generic):
         self._values: list[int] = values
         self._position_beats: list[Fraction] = []
         self._len: int = 0
-        for i, position in enumerate(position):
+        for i, position in enumerate(positions):
             if i < len(self._values):
                 position_beats: Fraction = ra.Position(position)._rational
                 self._position_beats.append(position_beats)
@@ -451,6 +451,7 @@ class Dots(Generic):
                     return False
                 if self._position_beats[i] != other._position_beats[i]:
                     return False
+            return True
         return False
     
     def getSerialization(self) -> dict:

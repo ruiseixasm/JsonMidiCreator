@@ -4157,11 +4157,11 @@ class Aftertouch(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-                    case list():            return self._automation # Read only operand
+                    case og.Dots():         return self._automation # Read only operand
                     case _:                 return super().__mod__(operand)
             case int():             return self._pressure
             case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-            case list():            return self._automation # Read only operand, no need for copies
+            case og.Dots():         return self._automation # Read only operand, no need for copies
             case _:                 return super().__mod__(operand)
 
 
@@ -4270,11 +4270,14 @@ class Aftertouch(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
+                    case og.Dots():             self._automation = operand._data  # Read only operand, no need to copy
                     case _:                     super().__lshift__(operand)
             case int():
                 self._pressure = operand
             case ou.Pressure():
                 self._pressure = operand.__mod__(od.Pipe( int() ))
+            case og.Dots():
+                self._automation = operand  # Read only operand, no need to copy
             case _:
                 super().__lshift__(operand)
         return self
