@@ -4841,7 +4841,7 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
     token = od._normalize_dsl(token)
     if token != "":
         element_class: type = Note
-        if previous_element is not None:
+        if isinstance(previous_element, Element):
             element_class = type(previous_element)
         token_operand = od.Token(token)
         # Get Element
@@ -4856,7 +4856,7 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
                 element_class = _element_type[ element_parameters[0] ]  # instantiates the Element class
         element: Element = element_class()  # instantiates the Element class
         # Sets the previous element parameters as the default for the present element
-        if previous_element is not None:
+        if isinstance(previous_element, Element):
             element << previous_element
         for nth, parameter in enumerate(element_parameters):
             if nth > 0:
