@@ -4102,6 +4102,18 @@ class Aftertouch(ChannelElement):
         self._pressure = pressure
         return self
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pressure
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            number = o.string_to_number(field_2)
+            if isinstance(number, int):
+                self._pressure = number
+        return self
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Aftertouch,
@@ -4441,6 +4453,20 @@ class PitchBend(ChannelElement):
             case _:
                 return super().__eq__(other)
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pressure
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            number = o.string_to_number(field_2)
+            match number:
+                case int():
+                    self._msb = number
+                case float():
+                    self << number
+        return self
 
     def __mod__(self, operand: o.T) -> o.T:
         """
