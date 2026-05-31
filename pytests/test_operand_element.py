@@ -383,7 +383,7 @@ def test_pitchbend_mod():
     pitch_bend << 64.50
     assert pitch_bend == 64.50
 
-test_pitchbend_mod()
+# test_pitchbend_mod()
 
 
 def test_aftertouch_mod():

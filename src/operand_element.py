@@ -4348,6 +4348,19 @@ class PitchBend(ChannelElement):
         return self
 
 
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._msb == other._msb \
+                    and self._lsb == other._lsb
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
@@ -4372,26 +4385,14 @@ class PitchBend(ChannelElement):
             case int():
                 return self._msb % 128
             case float():
-                bend: int = self._get_bend_0(self._msb % 128, self._lsb % 128)
-                return round(bend / 1000, 3)
+                msb_value: float = self._msb % 128 + self._lsb % 128 / 128
+                return round(msb_value, 3)
             case ou.Bend():
                 return ou.Bend() << self._get_bend(self._msb % 128, self._lsb % 128)
             case ou.LSB():
                 return ou.LSB() << od.Pipe(self._lsb % 128)
             case _:
                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._msb == other._msb \
-                    and self._lsb == other._lsb
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
@@ -4476,8 +4477,8 @@ class PitchBend(ChannelElement):
             case int():
                 self._msb = operand
             case float():
-                bend: int = round(operand * 1000, 0)
-                self._msb, self._lsb = self._get_msb_lsb_from_bend_0( bend )
+                self._msb = int(operand)
+                self._lsb = round((operand - self._msb) * 128) # Coverts to 128 cycle
             case ou.Bend():
                 self._msb, self._lsb = self._get_msb_lsb( operand._unit )
             case ou.MSB():
@@ -4525,27 +4526,11 @@ class PitchBend(ChannelElement):
         return msb, lsb
 
     @staticmethod
-    def _get_msb_lsb_from_bend_0(bend_0: int) -> tuple[int]:
-        # 2^14 = 16384, 16384 / 2 = 8192
-        amount = bend_0
-        amount = max(min(amount, 16383), 0) # midi safe
-        msb: int = amount >> 7      # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-        return msb, lsb
-
-    @staticmethod
     def _get_bend(msb: int, lsb: int) -> int:
         amount: int = msb << 7 | lsb & 0x7F
         amount = max(min(amount, 16383), 0) # midi safe
         # from -8192 to 8191
         bend: int = amount - 8192
-        return bend
-
-    @staticmethod
-    def _get_bend_0(msb: int, lsb: int) -> int:
-        bend: int = msb << 7 | lsb & 0x7F
-        bend = max(min(bend, 16383), 0) # midi safe
-        # from 0 to 16383
         return bend
 
 
