@@ -416,6 +416,44 @@ class TimeSignature(Generic):
         return self
 
 
+class Dot(Generic):
+    """`Generic -> Dot`
+
+    A pair of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`, `Aftertouch` and `PitchBend` elements.
+
+    This is a constant operand intended to be used as a wrapper of information for the automation.
+
+    Args:
+        value (int): The value for the automated target from 0 to 127.
+        position (any): The position relatively to the element Position itself.
+    """
+    def __init__(self, value: int = 0, position: Any = 0):
+        self._value: int                = value % 128
+        self._position_beats: Fraction  = ra.Position(position)._rational
+        super().__init__()
+
+    def __eq__(self, other: 'Dot') -> bool:
+        return  self._value             == other._value \
+            and self._position_beats    == other._position_beats
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["value"]    = self.serialize( self._value )
+        serialization["parameters"]["position"] = self.serialize( self._position_beats )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "value" in serialization["parameters"] and "position" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._value             = self.deserialize( serialization["parameters"]["value"] )
+            self._position_beats    = self.deserialize( serialization["parameters"]["position"] )
+        return self
+
+
 class Pitch(Generic):
     """`Generic -> Pitch`
 
