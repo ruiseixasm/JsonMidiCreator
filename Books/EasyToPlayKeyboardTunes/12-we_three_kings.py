@@ -36,52 +36,52 @@ melody = Line()  # Checksum: 1540
 # Beat = atomic temporal unit of current meter
 
 # Measure 0
-chords += "c:1m:A"
+chords += "c:1m:A"  # Previous type of argument sets the default type of the next one
 melody += ":1/4:E5, :1b:D5, :1/4:C5, :1b:A4"
 # Measure 1
-chords += "c:1/4d:G, c:1md:A"
+chords += ":1/4d:G, :1md:A"
 melody += ":1b:B, ::C5, ::B4, :1/4d:A4"
 # Measure 2
 chords += ""
 melody += ":1/4:E5, :1b:D5, :1/4:C5, :1b:A4" # Repeated from MEasure 0
 # Measure 3
-chords += "c:1/4d:G, c:1/2d:A"
+chords += ":1/4d:G, :1/2d:A"
 melody += ":1b:B4, ::C5, ::B4, :1/4d:A4" # Repeated from MEasure 1
 # Measure 4
-chords += "c:1/4d:G"
+chords += ":1/4d:G"
 melody += ":2b:C5, :1b:C5, :2b:D5, :1b:D5"
 # Measure 5
-chords += "c:3b:C, c:3b:G"
+chords += ":3b:C, :3b:G"
 melody += ":2b:E5, :1b:E5, ::G5, ::F5, ::E5"
 # Measure 6
-chords += "c:3b:D, c:3b:E"
+chords += ":3b:D, :3b:E"
 melody += ":1b:D5, ::E5, ::D5, :2b:C5, :1b:B4"
 # Measure 7
-chords += "c:3b:A, c:3b:G"
+chords += ":3b:A, :3b:G"
 melody += ":3b:A4, :2b:B4, :1b:D5"
 # Measure 8
-chords += "c:6b:A"
+chords += ":6b:A"
 melody += ":2b:C5, :1b:C5, :2b:C5, :1b:G4"
 # Measure 9
-chords += "c:3b:F, c:3b:C"
+chords += ":3b:F, :3b:C"
 melody += ":2b:C5, :1b:A4, :3b:C5"
 # Measure 10
-chords += "c:6b:C"
+chords += ":6b:C"
 melody += ":2b:C5, :1b:C5, :2b:C5, :1b:G4"
 # Measure 11
-chords += "c:3b:F, c:3b"
+chords += ":3b:F, :3b"
 melody += ":2b:C5, :1b:A4, :3b:C5"
 # Measure 12
-chords += "c:3b:A, c:3b:G"
+chords += ":3b:A, :3b:G"
 melody += ":2b:C5, :1b:C5, :2b:D5, :1b:E5"
 # Measure 13
-chords += "c:3b:F, c:3b:G"
+chords += ":3b:F, :3b:G"
 melody += ":2b:F5, :1b:E5, :2b:D5, :1b:E5"
 # Measure 14
-chords += "c:1m:C"
+chords += ":1m:C"
 melody += ":1/4:C5, :1b:C5, :1/4:C5, :1b:G4"
 # Measure 15
-chords += "c:4d:F, c:4d:C"
+chords += ":4d:F, :4d:C"
 melody += ":2b:C5, :1b:A4, :3b:C5"
 
 
