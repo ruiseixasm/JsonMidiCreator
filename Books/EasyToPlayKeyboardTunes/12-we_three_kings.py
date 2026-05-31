@@ -22,77 +22,9 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
-
-
 ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice", Channel(2)) >> Play()
-
 settings << Tempo(240) << TimeSignature(6, 8) << KeySignature('') << Quantization(1/2)
-
-
-# # / has precedence over +
-
-# chords = Clip()
-# melody = Clip()
-
-# # Measure 0
-# chords *= "c;m1;A"
-# melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A"
-# # Measure 1
-# chords *= "c;d1/4;G             c;b9;A"
-# melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"
-# # Measure 2
-# chords *= ""
-# melody *= "n;1/4;E;o5  n;1/8;D;o5  n;1/4;C;o5  n;1/8;A" # Repeated from MEasure 0
-# # Measure 3
-# chords *= "c;d1/4;G          c;d2/4;A"
-# melody *= "n;1/8;B  n;1/8;C;o5  n;1/8;B  n;d1/4;A"  # Repeated from MEasure 1
-# # Measure 4
-# chords *= "c;p0.5;d1/4;G"
-# melody *= "n;b2;C;o5  n;b1;C;o5   n;b2;D;o5  n;b1;D;o5"
-# # Measure 5
-# chords *= "c;b3;C   c;b3;G"
-# melody *= "n;b2;E;o5   n;b1;E;o5   n;b1;G;o5  n;b1;F;o5  n;b1;E;o5"
-# # Measure 6
-# chords *= "c;b3;D   c;b3;E"
-# melody *= "n;b1;D;o5   n;b1;E;o5   n;b1;D;o5  n;b2;C;o5  n;b1;B"
-# # Measure 7
-# chords *= "c;b3;A   c;b3;G"
-# melody *= "n;b3;A   n;b2;B  n;b1;D;o5"
-# # Measure 8
-# chords *= "c;b6;A"
-# melody *= "n;b2;C;o5   n;b1;C;o5  n;b2;C;o5  n;b1;G"
-# # Measure 9
-# chords *= "c;b3;F   c;b3;C"
-# melody *= "n;b2;C;o5   n;b1;A  n;b3;C;o5"
-# # Measure 10
-# chords *= "c;b6;C"
-# melody *= "n;b2;C;o5   n;b1;C;o5  n;b2;C;o5     n;b1;G"
-# # Measure 11
-# chords *= "c;b3;F   c;b3;C"
-# melody *= "n;b2;C;o5    n;b1;A  n;b3;C;o5"
-# # Measure 12
-# chords *= "c;b3;A   c;b3;G"
-# melody *= "n;b2;C;o5    n;b1;C;o5   n;b2;D;o5   n;b1;E;o5"
-# # Measure 13
-# chords *= "c;b3;F   c;b3;G"
-# melody *= "n;b2;F5    n;b1;E5   n;b2;D5   n;b1;E5"
-# # Measure 14
-# chords *= "c_1;C"
-# melody *= "n4;C5   n8;C5  n4;C5  n8;G"
-# # Measure 15
-# chords *= "c4d;F    c4d;C"
-# melody *= "b2;C5    b1;A    b3;C5"
-
-
-# chords *= 2
-# melody *= 2
-
-# melody << Title("Melody") << Velocity(85) >> Plot(block=False)
-# chords << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
-# chords >>= Smooth(4)
-# melody + chords.copy(Disable()) >> Plot(block=False, composition=chords, title="We Three Kings")
 
 
 chords = Line()
@@ -105,52 +37,52 @@ melody = Line()
 
 # Measure 0
 chords += "c:1m:A"
-melody += ":1/4:E5, ::D5, :1/4:C5, ::A"
+melody += ":1/4:E5, :1b:D5, :1/4:C5, :1b:A"
 # Measure 1
 chords += "c:1/4d:G, c:1md:A"
-melody += "::B, ::C5, ::B, :1/4d:A"
+melody += ":1b:B, ::C5, ::B, :1/4d:A"
 # Measure 2
 chords += ""
-melody += ":1/4:E5, ::D5, :1/4:C5, ::A" # Repeated from MEasure 0
+melody += ":1/4:E5, ::D5, :1/4:C5, :1b:A" # Repeated from MEasure 0
 # Measure 3
 chords += "c:1/4d:G, c:1/2d:A"
-melody += "::B, ::C5, ::B, :1/4d:A" # Repeated from MEasure 1
+melody += ":1b:B, ::C5, ::B, :1/4d:A" # Repeated from MEasure 1
 # Measure 4
 chords += "c:1/4d:G"
-melody += ":2b:C5, ::C5, :2b:D5, ::D5"
+melody += ":2b:C5, :1b:C5, :2b:D5, :1b:D5"
 # Measure 5
 chords += "c:3b:C, c:3b:G"
-melody += ":2b:E5, ::E5, ::G5, ::F5, ::E5"
+melody += ":2b:E5, :1b:E5, ::G5, ::F5, ::E5"
 # Measure 6
 chords += "c:3b:D, c:3b:E"
-melody += "::D5, ::E5, ::D5, :2b:C5, ::B"
+melody += ":1b:D5, ::E5, ::D5, :2b:C5, :1b:B"
 # Measure 7
 chords += "c:3b:A, c:3b:G"
-melody += ":3b:A, :2b:B, ::D5"
+melody += ":3b:A, :2b:B, :1b:D5"
 # Measure 8
 chords += "c:6b:A"
-melody += ":2b:C5, ::C5, :2b:C5, ::G"
+melody += ":2b:C5, :1b:C5, :2b:C5, :1b:G"
 # Measure 9
 chords += "c:3b:F, c:3b:C"
-melody += ":2b:C5, ::A, :3b:C5"
+melody += ":2b:C5, :1b:A, :3b:C5"
 # Measure 10
 chords += "c:6b:C"
-melody += ":2b:C5, ::C5, :2b:C5, ::G"
+melody += ":2b:C5, :1b:C5, :2b:C5, :1b:G"
 # Measure 11
 chords += "c:3b:F, c:3b"
-melody += ":2b:C5, ::A, :3b:C5"
+melody += ":2b:C5, :1b:A, :3b:C5"
 # Measure 12
 chords += "c:3b:A, c:3b:G"
-melody += ":2b:C5, ::C5, :2b:D5, ::E5"
+melody += ":2b:C5, :1b:C5, :2b:D5, :1b:E5"
 # Measure 13
 chords += "c:3b:F, c:3b:G"
-melody += ":2b:F5, ::E5, :2b:D5, ::E5"
+melody += ":2b:F5, :1b:E5, :2b:D5, :1b:E5"
 # Measure 14
 chords += "c:1m:C"
-melody += ":1/4:C5, ::C5, :1/4:C5, ::G"
+melody += ":1/4:C5, :1b:C5, :1/4:C5, :1b:G"
 # Measure 15
 chords += "c:4d:F, c:4d:C"
-melody += ":2b:C5, ::A, :3b:C5"
+melody += ":2b:C5, :1b:A, :3b:C5"
 
 
 
@@ -161,9 +93,9 @@ melody >> Print()
 chords_clip = Clip(chords * 2)  # Checksum: da16
 melody_clip = Clip(melody * 2)  # Checksum: 1540
 
-melody_clip << Title("Melody (New)") << Velocity(85) >> Plot(block=False)
+melody_clip << Title("Melody (New)") << Velocity(85) >> Plot(block=False)   # Checksum: 1540
 chords_clip << Channel(2) << Octave(3) << Velocity(60) << Gate(.99)
 chords_clip >>= Smooth(4)
-melody_clip + chords_clip.copy(Disable()) >> Plot(composition=chords_clip, title="We Three Kings (New)")
+melody_clip + chords_clip.copy(Disable()) >> Plot(composition=chords_clip, title="We Three Kings (New)")    # Checksum: da16
 
 
