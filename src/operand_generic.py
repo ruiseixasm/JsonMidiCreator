@@ -416,59 +416,94 @@ class TimeSignature(Generic):
         return self
 
 
-class Dots(Generic):
+class Dot(Generic):
     """`Generic -> Dot`
 
-    A series of pairs of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`,
+    A `Dot` is a pair of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`,
     `Aftertouch` and `PitchBend` elements.
 
-    This is a constant operand intended to be used as a wrapper of information for the automation only.
+    This is a constant operand (read-only) intended to be used as a wrapper of information for the automation only.
 
     Args:
-        values (list[int]): The values for the automated target from 0 to 127.
-        position (list[any]): The position of each value in the values list.
+        value (int): The value for the automated operand from 0 to 127.
+        position (any): The position relative to each value.
     """
-    def __init__(self, values: list[int] = [], positions: list[any] = []):
-        self._values: list[int] = values
-        self._position_beats: list[Fraction] = []
-        self._len: int = 0
-        for i, position in enumerate(positions):
-            if i < len(self._values):
-                position_beats: Fraction = ra.Position(position)._rational
-                self._position_beats.append(position_beats)
-                self._len += 1
+    def __init__(self, value: int = 0, position: any = 0):
+        self._value: list[int] = value
+        self._position_beats: Fraction = ra.Position(position)._rational
         super().__init__()
 
-    def len(self) -> int:
-        return self._len
-
-    def __eq__(self, other: 'Dots') -> bool:
-        if isinstance(other, Dots):
-            if self._len != other._len:
-                return False
-            for i in range(self._len):
-                if self._values[i] != other._values[i]:
-                    return False
-                if self._position_beats[i] != other._position_beats[i]:
-                    return False
-            return True
+    def __eq__(self, other: 'Dot') -> bool:
+        if isinstance(other, Dot):
+            return self._value == other._value \
+                and self._position_beats == other._position_beats
+        return False
+    
+    def __lt__(self, other: 'Dot') -> bool:
+        if isinstance(other, Dot):
+            return self._position_beats < other._position_beats
+        return False
+    
+    def __gt__(self, other: 'Dot') -> bool:
+        if isinstance(other, Dot):
+            return self._position_beats > other._position_beats
         return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["values"]    = self.serialize( self._values )
-        serialization["parameters"]["positions"] = self.serialize( self._position_beats )
+        serialization["parameters"]["value"]    = self.serialize( self._value )
+        serialization["parameters"]["position"] = self.serialize( self._position_beats )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "values" in serialization["parameters"] and "positions" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._values            = self.deserialize( serialization["parameters"]["values"] )
-            self._position_beats    = self.deserialize( serialization["parameters"]["positions"] )
+            self._value             = self.deserialize( serialization["parameters"]["value"] )
+            self._position_beats    = self.deserialize( serialization["parameters"]["position"] )
+        return self
+
+
+class Dots(Generic):
+    """`Generic -> Dots`
+
+    A series of `Dot` operands to be used in automation of `ControlChange`, `Aftertouch` and `PitchBend` elements.
+
+    This is a constant operand intended to be used as a wrapper of information for the automation only.
+
+    Args:
+        list['Dot']([]): The Dot elements in a list to be set at once.
+    """
+    def __init__(self, *parameters):
+        self._dots: list['Dot'] = []
+        super().__init__(*parameters)
+
+    def len(self) -> int:
+        return len(self._dots)
+
+    def __eq__(self, other: 'Dots') -> bool:
+        if isinstance(other, Dots):
+            self._dots.sort()
+            other._dots.sort()
+            return self._dots == other._dots
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["dots"] = self.serialize( self._dots )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "dots" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._dots = self.deserialize( serialization["parameters"]["values"] )
         return self
 
 
