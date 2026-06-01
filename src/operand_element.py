@@ -3462,7 +3462,7 @@ class ControlChange(ChannelElement):
 
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
-            case Automation():
+            case ControlChange():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
@@ -3476,7 +3476,7 @@ class ControlChange(ChannelElement):
     
     def __gt__(self, other: 'o.Operand') -> bool:
         match other:
-            case Automation():
+            case ControlChange():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
@@ -3755,7 +3755,7 @@ class ControlChange(ChannelElement):
 
 
 class BankSelect(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> BankSelect`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect`
 
     A `BankSelect` is a specific CC message that is used to select a Bank of presents.
 
@@ -3828,7 +3828,7 @@ class BankSelect(ControlChange):
 #   all other values set a specific number of channels, beginning with the current basic channel.
 
 class ValueZero(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero`
 
     A `ValueZero` is a specific CC message that has a `Value` of 0.
 
@@ -3862,7 +3862,7 @@ class ValueZero(ControlChange):
         return self
 
 class ResetAllControllers(ValueZero):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> ResetAllControllers`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> ResetAllControllers`
 
     A `ResetAllControllers` is a specific CC message that results in a Device resting all its controller to their defaults.
 
@@ -3890,7 +3890,7 @@ class ResetAllControllers(ValueZero):
         return self
 
 class LocalControl(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> LocalControl`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> LocalControl`
 
     A `LocalControl` is a specific CC message that sets the Device Local control On or Off with 1 or 0 respectively.
 
@@ -3918,7 +3918,7 @@ class LocalControl(ControlChange):
         return self
 
 class AllNotesOff(ValueZero):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> AllNotesOff`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> AllNotesOff`
 
     A `AllNotesOff` is a specific CC message that results in all notes being turned Off in the Device.
 
@@ -3946,7 +3946,7 @@ class AllNotesOff(ValueZero):
         return self
 
 class OmniModeOff(ValueZero):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> OmniModeOff`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> OmniModeOff`
 
     A `OmniModeOff` is a specific CC message that results in turning Off the Device Omni Mode.
 
@@ -3974,7 +3974,7 @@ class OmniModeOff(ValueZero):
         return self
 
 class OmniModeOn(ValueZero):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> OmniModeOn`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> OmniModeOn`
 
     A `OmniModeOn` is a specific CC message that results in turning On the Device Omni Mode.
 
@@ -4002,7 +4002,7 @@ class OmniModeOn(ValueZero):
         return self
 
 class MonoMode(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> MonoMode`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> MonoMode`
 
     A `MonoMode` is a specific CC message that results in setting the Device Mono Mode.
 
@@ -4031,7 +4031,7 @@ class MonoMode(ControlChange):
         return self
 
 class PolyModeOn(ValueZero):
-    """`Element -> DeviceElement -> ChannelElement -> Automation -> ControlChange -> ValueZero -> PolyModeOn`
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> PolyModeOn`
 
     A `PolyModeOn` is a specific CC message that results in turning On the Device Poly Mode.
 
@@ -4954,7 +4954,6 @@ _element_type: dict[str, type] = {
     'rt':       Retrigger,
     'cl':       Cluster,
     'cc':       ControlChange,
-    'a':        Automation,
     'at':       Aftertouch,
     'pb':       PitchBend,
     'pc':       ProgramChange

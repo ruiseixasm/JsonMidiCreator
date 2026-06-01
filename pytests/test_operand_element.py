@@ -768,7 +768,7 @@ def test_element_multi():
     assert ControlChange() % Length() == 1/16
     assert Aftertouch() % Length() == 1/16
     assert PitchBend() % Length() == 1/16
-    assert Automation(1/4) == 1/4
+    assert ControlChange(1/4) == 1/4
 
 # test_element_multi()
 
