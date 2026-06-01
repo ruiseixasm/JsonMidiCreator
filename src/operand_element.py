@@ -985,14 +985,22 @@ class Unison(Element):
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         return self_playlist
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
@@ -2533,8 +2541,10 @@ class KeyScale(Note):
             self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, self))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
+        if position_beats is None:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats, self))
         return self_midilist
