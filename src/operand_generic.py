@@ -513,7 +513,7 @@ class Dots(Generic):
             "dots" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._dots = self.deserialize( serialization["parameters"]["values"] )
+            self._dots = self.deserialize( serialization["parameters"]["dots"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:

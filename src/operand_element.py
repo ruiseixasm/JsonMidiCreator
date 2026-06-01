@@ -3378,6 +3378,7 @@ class ControlChange(ChannelElement):
     def __init__(self, *parameters):
         self._controller: og.Controller = og.settings % og.Controller()
         self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
+        self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4074,7 +4075,6 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
-        self._dots: list[og.Dot] = []
         self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
@@ -4096,68 +4096,13 @@ class Aftertouch(ChannelElement):
             number = o.string_to_number(field_2)
             if isinstance(number, int):
                 self._pressure = number
-        # Set Dots
-        for i, field_i in enumerate(token_operand.get_fields()):
-            if i > 2 and field_i is not None and field_i != "":
-                self._dots = []
-                if field_i[0] == "_":
-                    field_i = "0" + field_i # Durations of zero aren't set (safe)
-                dot_parameters: list[str] = field_i.split("_")
-                value: int = 0
-                position = self % ra.Position()
-                for nth, parameter in enumerate(dot_parameters):
-                    match nth:
-                        case 0: # Sets the Value
-                            number = o.string_to_number(parameter)
-                            if isinstance(number, int):
-                                value = number
-                        case _: # Sets the Position
-                            measure = True if 'm' in parameter or 'M' in parameter else False
-                            beat = True if 'b' in parameter or 'B' in parameter else False
-                            # Cleans up
-                            parameter = parameter.replace('m', '').replace('M', '')
-                            parameter = parameter.replace('b', '').replace('B', '')
-                            number = o.string_to_number(parameter)
-                            if measure:
-                                position << ra.Measure(number)
-                            elif beat:
-                                position << ra.Beat(number)
-                            else:
-                                match number:
-                                    case int():
-                                        position << ra.Step(number)
-                                    case float():
-                                        position << ra.Position(number)
-                dot = og.Dot(value, position)
-                self._dots.append(dot)
         return self
-
-
-    def get_component_elements(self) -> list['Aftertouch']:
-        dot_elements: list[Aftertouch] = [self]
-
-
-        
-        self_iteration: int = 0
-        note_position: ra.Position = ra.Position(self, self._position_beats)
-        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._count) ) # Already 2x single note duration
-        for _ in range(self._count):
-            swing_ratio: Fraction = self._swing
-            if self_iteration % 2:
-                swing_ratio = 1 - swing_ratio
-            note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
-            dot_elements.append( Aftertouch(self, note_duration, note_position) )
-            note_position += note_duration
-            self_iteration += 1
-        return dot_elements
 
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._pressure == other._pressure \
-                    and og.Dots(self._dots) == og.Dots(other._dots)
+                return super().__eq__(other) and self._pressure == other._pressure
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -4181,11 +4126,9 @@ class Aftertouch(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-                    case og.Dots():         return operand._data << self._dots # Read only operand
                     case _:                 return super().__mod__(operand)
             case int():             return self._pressure
             case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
             case _:                 return super().__mod__(operand)
 
 
@@ -4268,18 +4211,16 @@ class Aftertouch(ChannelElement):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pressure"] = self.serialize( self._pressure )
-        serialization["parameters"]["dots"]     = self.serialize( self._dots )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pressure" in serialization["parameters"] and "dots" in serialization["parameters"]):
+            "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure  = self.deserialize( serialization["parameters"]["pressure"] )
-            self._dots      = self.deserialize( serialization["parameters"]["dots"] )
+            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
 
@@ -4289,18 +4230,14 @@ class Aftertouch(ChannelElement):
             case Aftertouch():
                 super().__lshift__(operand)
                 self._pressure = operand._pressure
-                self._dots = operand._dots.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
-                    case og.Dots():             self._dots = operand._data._dots.copy() # Read only operand, no need to copy
                     case _:                     super().__lshift__(operand)
             case int():
                 self._pressure = operand
             case ou.Pressure():
                 self._pressure = operand.__mod__(od.Pipe( int() ))
-            case og.Dots():
-                self._dots = operand._dots.copy() # Read only operand, no need to copy
             case _:
                 super().__lshift__(operand)
         return self
@@ -4312,8 +4249,6 @@ class Aftertouch(ChannelElement):
                 self._pressure += operand  # Specific and compounded parameter
             case ou.Pressure():
                 self._pressure += operand._unit  # Specific and compounded parameter
-            case og.Dot():
-                self._dots.append(operand)
             case _:
                 super().__iadd__(operand)
         return self
@@ -4325,10 +4260,6 @@ class Aftertouch(ChannelElement):
                 self._pressure -= operand  # Specific and compounded parameter
             case ou.Pressure():
                 self._pressure -= operand._unit  # Specific and compounded parameter
-            case og.Dot(): # Needs list comprehension to remove
-                self._dots = [  # The position is the index
-                    dot for dot in self._dots if dot._position_beats != operand._position_beats
-                ]
             case _:
                 super().__isub__(operand)
         return self
@@ -4482,7 +4413,7 @@ class PitchBend(ChannelElement):
     def __init__(self, *parameters):
         self._msb: int  = 64    # Equivalent to Value from 0 to 128
         self._lsb: int  = 0
-        self._interpolation: bool = False
+        self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4636,19 +4567,17 @@ class PitchBend(ChannelElement):
         serialization = super().getSerialization()
         serialization["parameters"]["msb"] = self.serialize(self._msb)
         serialization["parameters"]["lsb"] = self.serialize(self._lsb)
-        serialization["parameters"]["interpolation"] = self.serialize(self._interpolation)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "msb" in serialization["parameters"] and "lsb" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
+            "msb" in serialization["parameters"] and "lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._msb = self.deserialize( serialization["parameters"]["msb"] )
             self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
-            self._interpolation = self.deserialize( serialization["parameters"]["interpolation"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -4658,7 +4587,6 @@ class PitchBend(ChannelElement):
                 super().__lshift__(operand)
                 self._msb   = operand._msb
                 self._lsb   = operand._lsb
-                self._interpolation = operand._interpolation
             case od.Pipe():
                 match operand._data:
                     case int():
@@ -4729,6 +4657,203 @@ class PitchBend(ChannelElement):
         # from -8192 to 8191
         bend: int = amount - 8192
         return bend
+
+
+class Automation(Element):
+    """`Element -> Automation`
+
+    An `Automation` is an element that controls the values as parameters like `ControlChange`, `Aftertouch` or `PitchBend`
+    elements.
+
+    Parameters
+    ----------
+    Parameter(ControlChange()) : The Parameter to be automated.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._parameter: Element = ControlChange()
+        self._dots: list[og.Dot] = []
+        super().__init__()
+        # Equivalent to one Step
+        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pressure
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            number = o.string_to_number(field_2)
+            if isinstance(number, int):
+                self._parameter = number
+        # Set Dots
+        for i, field_i in enumerate(token_operand.get_fields()):
+            if i > 2 and field_i is not None and field_i != "":
+                self._dots = []
+                if field_i[0] == "_":
+                    field_i = "0" + field_i # Durations of zero aren't set (safe)
+                dot_parameters: list[str] = field_i.split("_")
+                value: int = 0
+                position = self % ra.Position()
+                for nth, parameter in enumerate(dot_parameters):
+                    match nth:
+                        case 0: # Sets the Value
+                            number = o.string_to_number(parameter)
+                            if isinstance(number, int):
+                                value = number
+                        case _: # Sets the Position
+                            measure = True if 'm' in parameter or 'M' in parameter else False
+                            beat = True if 'b' in parameter or 'B' in parameter else False
+                            # Cleans up
+                            parameter = parameter.replace('m', '').replace('M', '')
+                            parameter = parameter.replace('b', '').replace('B', '')
+                            number = o.string_to_number(parameter)
+                            if measure:
+                                position << ra.Measure(number)
+                            elif beat:
+                                position << ra.Beat(number)
+                            else:
+                                match number:
+                                    case int():
+                                        position << ra.Step(number)
+                                    case float():
+                                        position << ra.Position(number)
+                dot = og.Dot(value, position)
+                self._dots.append(dot)
+        return self
+
+
+    def get_component_elements(self) -> list['Automation']:
+        dot_elements: list[Automation] = [self]
+        
+
+        return dot_elements
+
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._parameter == other._parameter \
+                    and og.Dots(self._dots) == og.Dots(other._dots)
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case od.Parameter():    return od.Parameter() << od.Pipe(self._parameter)
+                    case og.Dots():         return operand._data << self._dots # Read only operand
+                    case _:                 return super().__mod__(operand)
+            case int():             return self._parameter
+            case od.Parameter():    return od.Parameter(self._parameter)
+            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
+            case _:                 return super().__mod__(operand)
+
+
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
+            derived_element: 'Element' = None) -> list[dict]:
+        
+        self_plotlist: list[dict] = []
+        
+        return self_plotlist
+
+
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
+        if not self._enabled:
+            return []
+        
+        # Midi validation is done in the JsonMidiPlayer program
+        self_playlist: list[dict] = []
+        
+        return self_playlist
+    
+
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+        if not self._enabled:
+            return []
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
+        
+
+        return self_midilist
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["parameter"]    = self.serialize( self._parameter )
+        serialization["parameters"]["dots"]         = self.serialize( self._dots )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "parameter" in serialization["parameters"] and "dots" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._parameter = self.deserialize( serialization["parameters"]["parameter"] )
+            self._dots      = self.deserialize( serialization["parameters"]["dots"] )
+        return self
+      
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Automation():
+                super().__lshift__(operand)
+                self._parameter = operand._parameter
+                self._dots = operand._dots.copy()
+            case od.Pipe():
+                match operand._data:
+                    case od.Parameter():
+                        if isinstance(operand._data._data, (ControlChange, Aftertouch, PitchBend)):
+                            self._parameter = operand._data._data.copy()
+                    case og.Dots():
+                        self._dots = operand._data._dots.copy() # Read only operand, no need to copy
+                    case _:                     super().__lshift__(operand)
+            case od.Parameter():
+                if isinstance(operand._data, (ControlChange, Aftertouch, PitchBend)):
+                    self._parameter = operand._data.copy()
+            case og.Dots():
+                self._dots = operand._dots.copy() # Read only operand, no need to copy
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case og.Dot():
+                self._dots.append(operand)
+            case _:
+                super().__iadd__(operand)
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case og.Dot(): # Needs list comprehension to remove
+                self._dots = [  # The position is the index
+                    dot for dot in self._dots if dot._position_beats != operand._position_beats
+                ]
+            case _:
+                super().__isub__(operand)
+        return self
+
+
 
 
 class ProgramChange(ChannelElement):
