@@ -194,11 +194,6 @@ class Element(o.Operand):
                                     self << ra.Position(position)
         return self
 
-    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
-        """This is exclusively for the first field, like the number 8 in `"n_8:1/2:3."` concerning the `Channel`.
-        """
-        return self # Does nothing here
-
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -1820,11 +1815,20 @@ class ChannelElement(DeviceElement):
         self._channel_0 = channel
         return self
 
-    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
-        if nth == 1 and isinstance(number, int):
-            self << ou.Channel(number)
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 1:
+                parameter = field_parameters[1]
+                channel = o.string_to_number(parameter)
+                if isinstance(channel, int):
+                    self << ou.Channel(channel)
         return self
-
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -2605,17 +2609,18 @@ class Cluster(KeyScale):
         super().__init__( *parameters )
 
 
-    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
-        if isinstance(number, int):
-            match nth:
-                case 2:
-                    self << ou.Inversion(number)
-                    return self
-        return super()._set_element_from_number(number, nth)
-
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 2:
+                parameter = field_parameters[2]
+                inversion = o.string_to_number(parameter)
+                if isinstance(inversion, int):
+                    self << ou.Inversion(inversion)
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
@@ -2792,16 +2797,28 @@ class Chord(KeyScale):
         self._sus4 = sus4
         return self
 
-    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
-        if isinstance(number, int):
-            match nth:
-                case 2:
-                    self << ou.Size(number)
-                    return self
-                case 3:
-                    self << ou.Inversion(number)
-                    return self
-        return super()._set_element_from_number(number, nth)
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 2:
+                size = field_parameters[2]
+                size = o.string_to_number(size)
+                if isinstance(size, int):
+                    self << ou.Size(size)
+            else:
+                return self
+            if len(field_parameters) > 3:
+                inversion = field_parameters[3]
+                size = o.string_to_number(inversion)
+                if isinstance(size, int):
+                    self << ou.Inversion(inversion)
+        return self
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -3001,13 +3018,21 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
-    def _set_element_from_number(self, number: int | float | None, nth: int) -> Self:
-        if isinstance(number, int):
-            match nth:
-                case 1:
-                    self << ou.Count(number)
-                    return self
-        return super()._set_element_from_number(number, nth)
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 1:
+                parameter = field_parameters[1]
+                count = o.string_to_number(parameter)
+                if isinstance(count, int):
+                    self << ou.Count(count)
+        return self
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -3422,8 +3447,8 @@ class ControlChange(ChannelElement):
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
             number = o.string_to_number(field_2)
-            if isinstance(number, int):
-                self._value = number
+            if isinstance(number, (int, float, Fraction)):
+                self.set_from_value(number)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4106,8 +4131,8 @@ class Aftertouch(ChannelElement):
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
             number = o.string_to_number(field_2)
-            if isinstance(number, int):
-                self._pressure = number
+            if isinstance(number, (int, float, Fraction)):
+                self.set_from_value(number)
         return self
 
 
@@ -4466,11 +4491,8 @@ class PitchBend(ChannelElement):
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
             number = o.string_to_number(field_2)
-            match number:
-                case int():
-                    self._msb = number
-                case float():
-                    self << number
+            if isinstance(number, (int, float, Fraction)):
+                self.set_from_value(number)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -4697,6 +4719,7 @@ class Automation(Element):
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -5217,10 +5240,6 @@ def _get_element_from_token(token: str, previous_element: Union['Element', None]
         # Sets the previous element parameters as the default for the present element
         if isinstance(previous_element, Element):
             element << previous_element
-        for nth, parameter in enumerate(element_parameters):
-            if nth > 0:
-                number = o.string_to_number(parameter)
-                element._set_element_from_number(number, nth)
         element._set_element_from_token(token, previous_element)
     return element
 
