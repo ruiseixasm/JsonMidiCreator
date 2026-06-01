@@ -4677,7 +4677,7 @@ class Automation(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._parameter: Element = ControlChange()
+        self._parameter: ChannelElement = ControlChange()
         self._dots: list[og.Dot] = []
         super().__init__()
         # Equivalent to one Step
@@ -4732,13 +4732,6 @@ class Automation(Element):
         return self
 
 
-    def get_component_elements(self) -> list['Automation']:
-        dot_elements: list[Automation] = [self]
-        
-
-        return dot_elements
-
-
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
@@ -4765,34 +4758,34 @@ class Automation(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_element: 'Element' = None) -> list[dict]:
+    def get_component_elements(self) -> list[ChannelElement]:
+        parameter_elements: list[ChannelElement] = [ self._parameter ]
         
-        self_plotlist: list[dict] = []
-        
-        return self_plotlist
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
-        if not self._enabled:
-            return []
-        
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        return self_playlist
+        return parameter_elements
     
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
-        if not self._enabled:
-            return []
-        self_midilist: list = super().getMidilist(midi_track, position_beats)
-        
-
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+        self_playlist: list[dict] = []
+        for single_element in self.get_component_elements():
+            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+        return self_playlist
+    
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+        self_playlist: list[dict] = []
+        for single_element in self.get_component_elements():
+            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
+        self_midilist: list[dict] = []
+        for single_element in self.get_component_elements():
+            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
-
+    
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
