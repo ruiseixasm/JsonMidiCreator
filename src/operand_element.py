@@ -4755,7 +4755,8 @@ class Automation(Element):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._parameter == other._parameter \
-                    and og.Dots(self._dots) == og.Dots(other._dots)
+                    and og.Dots(self._dots) == og.Dots(other._dots) \
+                    and self._linear == other._linear
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -4769,10 +4770,14 @@ class Automation(Element):
                 match operand._data:
                     case od.Parameter():    return od.Parameter() << od.Pipe(self._parameter)
                     case og.Dots():         return operand._data << self._dots # Read only operand
+                    case ou.Linear():       return operand._data << self._linear
+                    case bool():            return self._linear
                     case _:                 return super().__mod__(operand)
             case int():             return self._parameter
             case od.Parameter():    return od.Parameter(self._parameter)
             case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
+            case ou.Linear():       return ou.Linear(self._linear)
+            case bool():            return self._linear
             case _:                 return super().__mod__(operand)
 
 
@@ -4870,17 +4875,19 @@ class Automation(Element):
         serialization = super().getSerialization()
         serialization["parameters"]["parameter"]    = self.serialize( self._parameter )
         serialization["parameters"]["dots"]         = self.serialize( self._dots )
+        serialization["parameters"]["linear"]       = self.serialize( self._linear )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "parameter" in serialization["parameters"] and "dots" in serialization["parameters"]):
+            "parameter" in serialization["parameters"] and "dots" in serialization["parameters"] and "linear" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._parameter = self.deserialize( serialization["parameters"]["parameter"] )
             self._dots      = self.deserialize( serialization["parameters"]["dots"] )
+            self._linear    = self.deserialize( serialization["parameters"]["linear"] )
         return self
       
 
@@ -4891,6 +4898,7 @@ class Automation(Element):
                 super().__lshift__(operand)
                 self._parameter = operand._parameter
                 self._dots = operand._dots.copy()
+                self._linear = operand._linear
             case od.Pipe():
                 match operand._data:
                     case od.Parameter():
@@ -4898,12 +4906,20 @@ class Automation(Element):
                             self._parameter = operand._data._data.copy()
                     case og.Dots():
                         self._dots = operand._data._dots.copy() # Read only operand, no need to copy
+                    case ou.Linear():
+                        self._linear = operand._data % bool()
+                    case bool():
+                        self._linear = operand._data
                     case _:                     super().__lshift__(operand)
             case od.Parameter():
                 if isinstance(operand._data, (ControlChange, Aftertouch, PitchBend)):
                     self._parameter = operand._data.copy()
             case og.Dots():
                 self._dots = operand._dots.copy() # Read only operand, no need to copy
+            case ou.Linear():
+                self._linear = operand % bool()
+            case bool():
+                self._linear = operand
             case _:
                 super().__lshift__(operand)
         return self

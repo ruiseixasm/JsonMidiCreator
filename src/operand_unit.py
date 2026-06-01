@@ -1272,6 +1272,13 @@ class Quality(Boolean):
     """`Unit -> Boolean -> Quality`"""
     pass
 
+class Linear(Boolean):
+    """`Unit -> Boolean -> Linear`
+
+    Sets the `Automation` as linear instead of smoothed.
+    """
+    pass
+
 
 class Major(Quality):
     """`Unit -> Boolean -> Quality -> Major`
