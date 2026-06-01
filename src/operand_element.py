@@ -1304,9 +1304,11 @@ class TalkieRun(Talkie):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1370,9 +1372,11 @@ class TalkieGet(TalkieRun):
     def __init__(self, *parameters):
         super().__init__("duration", *parameters)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1412,9 +1416,11 @@ class TalkieSet(TalkieGet):
             case ou.Value():        return ou.Value(self._value)
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1505,10 +1511,12 @@ class DeviceElement(Element):
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         self_numerator: int = self._get_time_signature()._top
@@ -1645,11 +1653,13 @@ class Clock(DeviceElement):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                                                                     time_signature: og.TimeSignature = None) -> list[dict]:
         if not self._enabled or self._duration_beats < 1:
             return []
 
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_playlist: list[dict] = []
 
         pulses_per_note: int = self._clock_ppqn * 4
@@ -1898,10 +1908,12 @@ class ChannelElement(DeviceElement):
                 return super().__gt__(other)
     
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
