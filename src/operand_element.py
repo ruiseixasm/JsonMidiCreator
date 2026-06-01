@@ -4132,6 +4132,26 @@ class Aftertouch(ChannelElement):
                 self._dots.append(dot)
         return self
 
+
+    def get_component_elements(self) -> list['Aftertouch']:
+        dot_elements: list[Aftertouch] = [self]
+
+
+        
+        self_iteration: int = 0
+        note_position: ra.Position = ra.Position(self, self._position_beats)
+        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._count) ) # Already 2x single note duration
+        for _ in range(self._count):
+            swing_ratio: Fraction = self._swing
+            if self_iteration % 2:
+                swing_ratio = 1 - swing_ratio
+            note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
+            dot_elements.append( Aftertouch(self, note_duration, note_position) )
+            note_position += note_duration
+            self_iteration += 1
+        return dot_elements
+
+
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
