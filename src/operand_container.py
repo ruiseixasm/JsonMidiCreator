@@ -442,10 +442,10 @@ class Container(o.Operand):
             case _:
                 return super().__mod__(operand)
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
-    def getMidilist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
     def getSerialization(self) -> dict:
@@ -1414,7 +1414,7 @@ class Composition(Container):
         return set()
 
 
-    def getPlotlist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 

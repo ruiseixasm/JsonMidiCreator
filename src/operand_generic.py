@@ -3994,8 +3994,10 @@ class Settings(Generic):
             and self._folder                == other._folder
     
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
-        return [{ "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ) }]
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if isinstance(position_beats, Fraction):
+            return [{ "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ) }]
+        return [{ "time_ms": 0.0 }]
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

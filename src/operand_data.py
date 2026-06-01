@@ -738,7 +738,7 @@ class Serialization(Data):
     if TYPE_CHECKING:
         from operand_rational import Position
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list:
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getPlaylist(position_beats)
@@ -746,7 +746,7 @@ class Serialization(Data):
                 return self._data
         return []
 
-    def getMidilist(self, midi_track = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track = None, position_beats: Fraction | None = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getMidilist(midi_track, position_beats)
@@ -901,7 +901,7 @@ class Playlist(Data):
             return finish_position_ms
         return 0.0
   
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         import operand_rational as ra
         if isinstance(self._data, list) and len(self._data) > 0:
             # Position generates a dummy list with the position as ms

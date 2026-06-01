@@ -750,10 +750,10 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
-    def getPlaylist(self, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
-    def getMidilist(self, midi_track = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, midi_track = None, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
     def getSerialization(self) -> dict:

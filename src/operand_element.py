@@ -295,11 +295,11 @@ class Element(o.Operand):
             derived_element: 'Element' = None) -> list[dict]:
         return []
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         return []
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list:
         return []
 
