@@ -4776,38 +4776,38 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
-        base_parameter = self._parameter.copy()
-        base_parameter._position_beats = Fraction(0) # First setting has to be at 0
-        parameter_elements: list[ChannelElement] = [ base_parameter ]
+        first_element = self._parameter.copy()
+        first_element._position_beats = Fraction(0) # First setting has to be at 0
+        interpolated_points: list[ChannelElement] = [ first_element ]
         if self._dots:
             resolution_beats: Fraction = self._duration_beats
             if resolution_beats > 0:
                 for dot in sorted(self._dots):  # Makes sure the dots are sorted
-                    dot_setting = base_parameter.copy()
-                    dot_setting._position_beats = dot._position_beats
-                    dot_setting.set_from_value(dot._value)
-                    previous_setting = parameter_elements[-1]
+                    element_left_dot = interpolated_points[-1]
+                    element_right_dot = first_element.copy()
+                    element_right_dot._position_beats = dot._position_beats
+                    element_right_dot.set_from_value(dot._value)
                     # Interpolation
-                    dot_delta_beats: Fraction = dot._position_beats - previous_setting._position_beats
+                    dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
                     if dot_delta_beats > 0:
-                        dot_delta_value: int = dot_setting % int() - previous_setting % int()
-                        delta_value_per_beats: Fraction = Fraction(dot_delta_value) / dot_delta_beats
-                        delta_value_per_point: Fraction = delta_value_per_beats * resolution_beats
+                        delta_value: int = element_right_dot.get_value() - element_left_dot.get_value()
+                        value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
+                        value_per_point: Fraction = value_per_beats * resolution_beats
                         interpolation_point: int = int(
-                                previous_setting._position_beats / resolution_beats
+                                element_left_dot._position_beats / resolution_beats
                             ) + 1   # Next point
-                        previous_dot_value: Fraction = previous_setting.get_value()
+                        left_dot_value: Fraction = element_left_dot.get_value()
+                        left_dot_as_point: Fraction = element_left_dot._position_beats * resolution_beats
                         while interpolation_point < int(dot._position_beats / resolution_beats):
-                            point_setting = base_parameter.copy()
-                            point_setting._position_beats = interpolation_point * resolution_beats
-                            previous_point: Fraction = previous_setting._position_beats * resolution_beats
-                            delta_points: Fraction = Fraction(interpolation_point) - previous_point
-                            point_delta_value: Fraction = delta_value_per_point * delta_points
-                            point_setting.set_from_value(previous_dot_value + point_delta_value)
-                            parameter_elements.append(point_setting)
+                            element_point = first_element.copy()
+                            element_point._position_beats = interpolation_point * resolution_beats
+                            delta_points: Fraction = Fraction(interpolation_point) - left_dot_as_point
+                            point_delta_value: Fraction = value_per_point * delta_points
+                            element_point.set_from_value(left_dot_value + point_delta_value)
+                            interpolated_points.append(element_point)
                             interpolation_point += 1    # Next point
-                    parameter_elements.append(dot_setting)
-        return parameter_elements
+                    interpolated_points.append(element_right_dot)
+        return interpolated_points
     
 
     def getPlotlist(self,
