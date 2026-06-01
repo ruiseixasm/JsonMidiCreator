@@ -3357,12 +3357,6 @@ class Tuplet(ChannelElement):
     }
 
 
-
-# Automation Type of Elements
-class DotType(enum.IntEnum):
-    BASE, DOT, POINT = range(3)
-
-
 class ControlChange(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange`
 
@@ -3380,7 +3374,6 @@ class ControlChange(ChannelElement):
     def __init__(self, *parameters):
         self._controller: og.Controller = og.settings % og.Controller()
         self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
-        self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -3392,6 +3385,15 @@ class ControlChange(ChannelElement):
                 ou.Number(msb), ou.LSB(lsb)
             )
         return self
+    
+    def set_from_value(self, value: int | float | Fraction) -> Self:
+        if isinstance(value, (int, float, Fraction)):
+            self._value = int(value) % 128
+        return self
+
+    def get_value(self) -> Fraction:
+        return Fraction(self._value)
+
 
     def checksum(self) -> int:
         """16-bit checksum for an `Automation`."""
@@ -3518,8 +3520,7 @@ class ControlChange(ChannelElement):
                     "value": self._value,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self,
-                    "dot_type": self._dot_type
+                    "self": self
                 }
             }
         )
@@ -4078,7 +4079,6 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
-        self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4088,6 +4088,15 @@ class Aftertouch(ChannelElement):
     def pressure(self, pressure: int = 0) -> Self:
         self._pressure = pressure
         return self
+
+    def set_from_value(self, value: int | float | Fraction) -> Self:
+        if isinstance(value, (int, float, Fraction)):
+            self._pressure = int(value) % 128
+        return self
+
+    def get_value(self) -> Fraction:
+        return Fraction(self._pressure)
+
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -4161,8 +4170,7 @@ class Aftertouch(ChannelElement):
                     "value": self._pressure,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self,
-                    "dot_type": self._dot_type
+                    "self": self
                 }
             }
         )
@@ -4417,7 +4425,6 @@ class PitchBend(ChannelElement):
     def __init__(self, *parameters):
         self._msb: int  = 64    # Equivalent to Value from 0 to 128
         self._lsb: int  = 0
-        self._dot_type: DotType = DotType.BASE
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4427,6 +4434,16 @@ class PitchBend(ChannelElement):
     def bend(self, bend: int = 0) -> Self:
         self._msb, self._lsb = self._get_msb_lsb( bend )
         return self
+
+    def set_from_value(self, value: int | float | Fraction) -> Self:
+        if isinstance(value, (int, float, Fraction)):
+            self._msb = int(value)
+            self._lsb = int((value - self._msb) * 128) # Coverts to 128 cycle
+        return self
+
+    def get_value(self) -> Fraction:
+        msb_value: Fraction = self._msb % 128 + Fraction(self._lsb % 128, 128)
+        return Fraction(msb_value)
 
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -4479,9 +4496,6 @@ class PitchBend(ChannelElement):
                         return super().__mod__(operand)
             case int():
                 return self._msb % 128
-            case float():
-                msb_value: float = self._msb % 128 + self._lsb % 128 / 128
-                return round(msb_value, 3)
             case ou.Bend():
                 return ou.Bend() << self._get_bend(self._msb % 128, self._lsb % 128)
             case ou.LSB():
@@ -4516,8 +4530,7 @@ class PitchBend(ChannelElement):
                     "value": self._msb,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self,
-                    "dot_type": self._dot_type
+                    "self": self
                 }
             }
         )
@@ -4606,9 +4619,6 @@ class PitchBend(ChannelElement):
                         super().__lshift__(operand)
             case int():
                 self._msb = operand
-            case float():
-                self._msb = int(operand)
-                self._lsb = round((operand - self._msb) * 128) # Coverts to 128 cycle
             case ou.Bend():
                 self._msb, self._lsb = self._get_msb_lsb( operand._unit )
             case ou.MSB():
@@ -4775,8 +4785,7 @@ class Automation(Element):
             for dot in self._dots:
                 dot_setting = self._parameter.copy()
                 dot_setting._position_beats = dot._position_beats
-                dot_setting << dot._value
-                dot_setting._dot_type = DotType.DOT
+                dot_setting.set_from_value(dot._value)
                 previous_setting = parameter_elements[-1]
                 # Interpolation
                 dot_delta_beats: Fraction = dot._position_beats - previous_setting._position_beats
@@ -4786,15 +4795,14 @@ class Automation(Element):
                 interpolation_point: int = int(
                         previous_setting._position_beats / resolution_beats
                     ) + 1   # Next point
-                previous_dot_value: int = previous_setting % int()
+                previous_dot_value: Fraction = previous_setting.get_value()
                 while interpolation_point < int(dot._position_beats / resolution_beats):
                     previous_point: Fraction = previous_setting._position_beats * resolution_beats
                     delta_points: Fraction = Fraction(interpolation_point) - previous_point
-                    point_delta_value: int = int(delta_value_per_point * delta_points)
+                    point_delta_value: Fraction = delta_value_per_point * delta_points
                     point_setting = self._parameter.copy()
                     point_setting._position_beats = interpolation_point * resolution_beats
-                    point_setting << previous_dot_value + point_delta_value
-                    point_setting._dot_type = DotType.POINT
+                    point_setting.set_from_value(previous_dot_value + point_delta_value)
                     parameter_elements.append(point_setting)
                     interpolation_point += 1    # Next point
                 parameter_elements.append(dot_setting)
@@ -4887,8 +4895,6 @@ class Automation(Element):
             case _:
                 super().__isub__(operand)
         return self
-
-
 
 
 class ProgramChange(ChannelElement):
