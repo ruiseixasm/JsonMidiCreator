@@ -4730,18 +4730,27 @@ class Automation(Element):
 
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)
+        super()._set_element_from_token(token, previous_element)    # Sets the Duration and Position ONLY
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
-        # Set Pressure
-        field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            number = o.string_to_number(field_2)
-            if isinstance(number, int):
-                self._parameter = number
+        # Sets the parameter element
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 1:
+                field_parameters.pop(0)
+                parameter_field_0 = "_".join(field_parameters)
+                parameter_field_2 = token_operand.get_field(2)
+                parameter_token: str = parameter_field_0 + ":" + parameter_field_2
+                self._parameter = _get_element_from_token(parameter_token)
         # Set Dots
         for i, field_i in enumerate(token_operand.get_fields()):
-            if i > 2 and field_i is not None and field_i != "":
+            if i == 3: # Linear gets 1
+                if field_i is not None:
+                    number = o.string_to_number(field_i)
+                    if isinstance(number, int):
+                        self << ou.Linear(number)
+            elif i > 3 and field_i is not None and field_i != "":
                 self._dots = []
                 if field_i[0] == "_":
                     field_i = "0" + field_i # Durations of zero aren't set (safe)
