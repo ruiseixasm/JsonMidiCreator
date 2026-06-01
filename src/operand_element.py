@@ -4304,11 +4304,10 @@ class Aftertouch(ChannelElement):
                 self._pressure -= operand  # Specific and compounded parameter
             case ou.Pressure():
                 self._pressure -= operand._unit  # Specific and compounded parameter
-            case og.Dot():
-                try:
-                    self._dots.remove(operand)
-                except ValueError as e:
-                    pass    # No need to print anything
+            case og.Dot(): # Needs list comprehension to remove
+                self._dots = [  # The position is the index
+                    dot for dot in self._dots if dot._position_beats != operand._position_beats
+                ]
             case _:
                 super().__isub__(operand)
         return self

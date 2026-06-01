@@ -546,11 +546,10 @@ class Dots(Generic):
     def __isub__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case Dot():
-                try:
-                    self._dots.remove(number)
-                except ValueError as e:
-                    pass    # No need to print anything
+            case Dot(): # Needs list comprehension to remove
+                self._dots = [  # The position is the index
+                    dot for dot in self._dots if dot._position_beats != number._position_beats
+                ]
             case _:
                 super().__isub__(number)
         return self
