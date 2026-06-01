@@ -5145,6 +5145,7 @@ _element_type: dict[str, type] = {
     'cc':       ControlChange,
     'at':       Aftertouch,
     'pb':       PitchBend,
+    'a':        Automation,
     'pc':       ProgramChange
 }
 
