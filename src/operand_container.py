@@ -2129,19 +2129,18 @@ class Composition(Container):
                         if not automation["enabled"]:
                             edge_color = 'white'
                         
+                        # Actual data points
                         marker: str = 's'
-                        # # Actual data points
-                        # if isinstance(automation["self"], (oe.ControlChange, oe.Aftertouch, oe.PitchBend)):
-                        #     if automation["self"]._interpolation:
-                        #         marker = 'x'
-                        #     else:
-                        #         match automation["self"]:
-                        #             case oe.ControlChange():
-                        #                 marker = 'o'
-                        #             case oe.Aftertouch():
-                        #                 marker = 'v'
-                        #             case oe.PitchBend():
-                        #                 marker = 'P'
+                        match automation["self"]:
+                            case oe.Aftertouch():
+                                marker = 'v'
+                            case oe.PitchBend():
+                                marker = 'P'
+                        match automation["dot_type"]:
+                            case oe.DotType.DOT:
+                                marker = 'o'
+                            case oe.DotType.INTERPOLATION:
+                                marker = 'x'
 
                         self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
                                     markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
