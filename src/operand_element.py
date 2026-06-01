@@ -4797,13 +4797,11 @@ class Automation(Element):
                             delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
                             if self._linear:
                                 # Linear interpolation (original behavior)
-                                value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
-                                value_per_point: Fraction = value_per_beats * beats_per_point
-                                point: int = math.floor(
-                                        element_left_dot._position_beats / beats_per_point
-                                    ) + 1   # Next point (+1)
                                 left_dot_value: Fraction = element_left_dot.get_value()
                                 left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
+                                value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
+                                value_per_point: Fraction = value_per_beats * beats_per_point
+                                point: int = math.floor(left_dot_as_point) + 1   # Next point (+1)
                                 while point < math.ceil(dot._position_beats / beats_per_point):
                                     element_point = first_element.copy()
                                     element_point._position_beats = point * beats_per_point
