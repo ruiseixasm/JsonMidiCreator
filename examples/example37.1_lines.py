@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 settings << Folder("examples/")
 
 "cc:1/4," * 5 >> Plot(title="Five ControlChange", block=False)
-"a:1/4," * 5 >> Plot(title="Five Automation", block=False)
 "at:1/4," * 5 >> Plot(title="Five Aftertouch", block=False)
 "pb:1/4," * 5 >> Plot(title="Five PitchBend")
+# "a:1/4," * 5 >> Plot(title="Five Automation")
 

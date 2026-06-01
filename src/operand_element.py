@@ -3516,7 +3516,8 @@ class ControlChange(ChannelElement):
                     "value": self._value,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self
+                    "self": self,
+                    "dot_type": self._dot_type
                 }
             }
         )
@@ -4158,7 +4159,8 @@ class Aftertouch(ChannelElement):
                     "value": self._pressure,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self
+                    "self": self,
+                    "dot_type": self._dot_type
                 }
             }
         )
@@ -4512,7 +4514,8 @@ class PitchBend(ChannelElement):
                     "value": self._msb,
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
-                    "self": self
+                    "self": self,
+                    "dot_type": self._dot_type
                 }
             }
         )
