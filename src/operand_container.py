@@ -2989,7 +2989,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._length_beats = None
 
             case str():
-                if operand.find(" ") != -1 or operand.find(":") != -1:
+                if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
                     self.__lshift__(od.Line(operand))
                 else:
                     super().__lshift__(operand)
