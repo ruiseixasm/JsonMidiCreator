@@ -4741,7 +4741,7 @@ class Automation(Element):
                 field_parameters.pop(0)
                 parameter_field_0 = "_".join(field_parameters)
                 parameter_field_2 = token_operand.get_field(2)
-                parameter_token: str = parameter_field_0 + ":" + parameter_field_2
+                parameter_token: str = parameter_field_0 + "::" + parameter_field_2
                 self._parameter = _get_element_from_token(parameter_token)
         # Set Dots
         for i, field_i in enumerate(token_operand.get_fields()):
