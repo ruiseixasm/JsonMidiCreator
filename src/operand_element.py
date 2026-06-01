@@ -3431,24 +3431,32 @@ class ControlChange(ChannelElement):
         super()._set_element_from_token(token, previous_element)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
-        # Set Controller
-        field_3: str = token_operand.get_field(3)
-        if field_3 is not None:
-            number = o.string_to_number(field_3)
-            if isinstance(number, int):
-                self << ou.Number(number)
-            elif field_3 in ControlChange._controller_id:
-                controller_id: int = ControlChange._controller_id[field_3]
-                midi_number: int = ou.Number._controllers[controller_id]["midi_number"]
-                default_value: int = ou.Number._controllers[controller_id]["default_value"]
-                self << ou.Number(midi_number)
-                self._value = default_value
-        # Set Value
+        # Set Value and Number for the controller
         field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            number = o.string_to_number(field_2)
-            if isinstance(number, (int, float, Fraction)):
-                self.set_from_value(number)
+        if field_2 is not None and field_2 != "":
+            field_parameters: list[str] = field_2.split("_")
+            if len(field_parameters) > 0:
+                parameter = field_parameters[0]
+                number = o.string_to_number(parameter)
+                if isinstance(number, (int, float, Fraction)):
+                    self.set_from_value(number)
+            else:
+                return self
+            if len(field_parameters) > 1:
+                parameter = field_parameters[1]
+                if parameter is not None:
+                    number = o.string_to_number(parameter)
+                    match number:
+                        case int() | float() | Fraction():
+                            self << ou.Number(number)
+                        case _:
+                            # Set Controller
+                            if parameter in ControlChange._controller_id:
+                                controller_id: int = ControlChange._controller_id[parameter]
+                                midi_number: int = ou.Number._controllers[controller_id]["midi_number"]
+                                default_value: int = ou.Number._controllers[controller_id]["default_value"]
+                                self << ou.Number(midi_number)
+                                self._value = default_value
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
