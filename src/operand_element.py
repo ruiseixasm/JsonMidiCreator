@@ -4776,37 +4776,39 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
-        first_element = self._parameter.copy()
-        first_element._position_beats = Fraction(0) # First setting has to be at 0
-        interpolated_points: list[ChannelElement] = [ first_element ]
-        if self._dots:
-            resolution_beats: Fraction = self._duration_beats
-            if resolution_beats > 0:
-                for dot in sorted(self._dots):  # Makes sure the dots are sorted
-                    element_left_dot = interpolated_points[-1]
-                    element_right_dot = first_element.copy()
-                    element_right_dot._position_beats = dot._position_beats
-                    element_right_dot.set_from_value(dot._value)
-                    # Interpolation
-                    dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
-                    if dot_delta_beats > 0:
-                        delta_value: int = element_right_dot.get_value() - element_left_dot.get_value()
-                        value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
-                        value_per_point: Fraction = value_per_beats * resolution_beats
-                        interpolation_point: int = int(
-                                element_left_dot._position_beats / resolution_beats
-                            ) + 1   # Next point
-                        left_dot_value: Fraction = element_left_dot.get_value()
-                        left_dot_as_point: Fraction = element_left_dot._position_beats * resolution_beats
-                        while interpolation_point < int(dot._position_beats / resolution_beats):
-                            element_point = first_element.copy()
-                            element_point._position_beats = interpolation_point * resolution_beats
-                            delta_points: Fraction = Fraction(interpolation_point) - left_dot_as_point
-                            point_delta_value: Fraction = value_per_point * delta_points
-                            element_point.set_from_value(left_dot_value + point_delta_value)
-                            interpolated_points.append(element_point)
-                            interpolation_point += 1    # Next point
-                    interpolated_points.append(element_right_dot)
+        interpolated_points: list[ChannelElement] = []
+        if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
+            first_element = self._parameter.copy()
+            first_element._position_beats = Fraction(0) # First setting has to be at 0
+            interpolated_points.append( first_element )
+            if self._dots:
+                resolution_beats: Fraction = self._duration_beats
+                if resolution_beats > 0:
+                    for dot in sorted(self._dots):  # Makes sure the dots are sorted
+                        element_left_dot = interpolated_points[-1]
+                        element_right_dot = first_element.copy()
+                        element_right_dot._position_beats = dot._position_beats
+                        element_right_dot.set_from_value(dot._value)
+                        # Interpolation
+                        dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
+                        if dot_delta_beats > 0:
+                            delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
+                            value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
+                            value_per_point: Fraction = value_per_beats * resolution_beats
+                            interpolation_point: int = int(
+                                    element_left_dot._position_beats / resolution_beats
+                                ) + 1   # Next point
+                            left_dot_value: Fraction = element_left_dot.get_value()
+                            left_dot_as_point: Fraction = element_left_dot._position_beats * resolution_beats
+                            while interpolation_point < int(dot._position_beats / resolution_beats):
+                                element_point = first_element.copy()
+                                element_point._position_beats = interpolation_point * resolution_beats
+                                delta_points: Fraction = Fraction(interpolation_point) - left_dot_as_point
+                                point_delta_value: Fraction = value_per_point * delta_points
+                                element_point.set_from_value(left_dot_value + point_delta_value)
+                                interpolated_points.append(element_point)
+                                interpolation_point += 1    # Next point
+                        interpolated_points.append(element_right_dot)
         return interpolated_points
     
 
