@@ -4776,16 +4776,16 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
-        interpolated_points: list[ChannelElement] = []
+        interpolated_elements: list[ChannelElement] = []
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
             first_element = self._parameter.copy()
-            first_element._position_beats = Fraction(0) # First setting has to be at 0
-            interpolated_points.append( first_element )
+            first_element._position_beats = Fraction(0) # First position has to be 0
+            interpolated_elements.append( first_element )
             if self._dots:
-                resolution_beats: Fraction = self._duration_beats
-                if resolution_beats > 0:
+                beats_per_point: Fraction = self._duration_beats
+                if beats_per_point > 0:
                     for dot in sorted(self._dots):  # Makes sure the dots are sorted
-                        element_left_dot = interpolated_points[-1]
+                        element_left_dot = interpolated_elements[-1]
                         element_right_dot = first_element.copy()
                         element_right_dot._position_beats = dot._position_beats
                         element_right_dot.set_from_value(dot._value)
@@ -4794,22 +4794,22 @@ class Automation(Element):
                         if dot_delta_beats > 0:
                             delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
                             value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
-                            value_per_point: Fraction = value_per_beats * resolution_beats
-                            interpolation_point: int = int(
-                                    element_left_dot._position_beats / resolution_beats
-                                ) + 1   # Next point
+                            value_per_point: Fraction = value_per_beats * beats_per_point
+                            point: int = math.floor(
+                                    element_left_dot._position_beats / beats_per_point
+                                ) + 1   # Next point (+1)
                             left_dot_value: Fraction = element_left_dot.get_value()
-                            left_dot_as_point: Fraction = element_left_dot._position_beats * resolution_beats
-                            while interpolation_point < int(dot._position_beats / resolution_beats):
+                            left_dot_as_point: Fraction = element_left_dot._position_beats * beats_per_point
+                            while point < math.ceil(dot._position_beats / beats_per_point):
                                 element_point = first_element.copy()
-                                element_point._position_beats = interpolation_point * resolution_beats
-                                delta_points: Fraction = Fraction(interpolation_point) - left_dot_as_point
-                                point_delta_value: Fraction = value_per_point * delta_points
+                                element_point._position_beats = point * beats_per_point
+                                point_delta_points: Fraction = Fraction(point) - left_dot_as_point
+                                point_delta_value: Fraction = value_per_point * point_delta_points
                                 element_point.set_from_value(left_dot_value + point_delta_value)
-                                interpolated_points.append(element_point)
-                                interpolation_point += 1    # Next point
-                        interpolated_points.append(element_right_dot)
-        return interpolated_points
+                                interpolated_elements.append(element_point)
+                                point += 1    # Next point
+                        interpolated_elements.append(element_right_dot)
+        return interpolated_elements
     
 
     def getPlotlist(self,
