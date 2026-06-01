@@ -3492,7 +3492,7 @@ class ControlChange(ChannelElement):
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_automation: 'Automation' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if channels is not None:
             channels["automation"].add(self._channel_0)
@@ -4059,46 +4059,6 @@ class PolyModeOn(ValueZero):
         return self
 
 
-class Automation(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> Automation`
-
-    An `Automation` is an element that controls an continuous device parameter, like Volume, or a Pitch Bend.
-
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
-    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        self._interpolation: bool = False
-        super().__init__(*parameters)
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["interpolation"] = self.serialize( self._interpolation )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "interpolation" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._interpolation = self.deserialize( serialization["parameters"]["controller"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        super().__lshift__(operand)
-        match operand:
-            case Automation():
-                self._interpolation = operand._interpolation
-        return self
-
-
 class Aftertouch(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> Aftertouch`
 
@@ -4114,8 +4074,7 @@ class Aftertouch(ChannelElement):
     """
     def __init__(self, *parameters):
         self._pressure: int = 0
-        self._automation: og.Dots = og.Dots()
-        self._interpolation: bool = False
+        self._dots: list[og.Dot] = []
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4169,14 +4128,15 @@ class Aftertouch(ChannelElement):
                                         case float():
                                             position << ra.Position(number)
                     positions.append(position)
-                self._automation = og.Dots(values, self.positions)
+                self._dots = og.Dots(values, self.positions)
         return self
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pressure == other._pressure
+                    and self._pressure == other._pressure \
+                    and og.Dots(self._dots) == og.Dots(other._dots)
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -4200,18 +4160,18 @@ class Aftertouch(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-                    case og.Dots():         return self._automation # Read only operand
+                    case og.Dots():         return operand._data << self._dots # Read only operand
                     case _:                 return super().__mod__(operand)
             case int():             return self._pressure
             case ou.Pressure():     return ou.Pressure() << od.Pipe(self._pressure)
-            case og.Dots():         return self._automation # Read only operand, no need for copies
+            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
             case _:                 return super().__mod__(operand)
 
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_automation: 'Automation' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if channels is not None:
             channels["automation"].add(self._channel_0)
@@ -4238,7 +4198,6 @@ class Aftertouch(ChannelElement):
                 }
             }
         )
-
         return self_plotlist
 
 
@@ -4262,7 +4221,6 @@ class Aftertouch(ChannelElement):
                     "devices": devices
                 }
             )
-
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist.append(
             {
@@ -4273,9 +4231,9 @@ class Aftertouch(ChannelElement):
                 }
             }
         )
-
         return self_playlist
     
+
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
         if not self._enabled:
             return []
@@ -4285,42 +4243,43 @@ class Aftertouch(ChannelElement):
         self_midilist[0]["pressure"]    = self._pressure
         return self_midilist
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pressure"] = self.serialize( self._pressure )
-        serialization["parameters"]["automation"] = self.serialize( self._automation )
-        serialization["parameters"]["interpolation"] = self.serialize( self._interpolation )
+        serialization["parameters"]["dots"]     = self.serialize( self._dots )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pressure" in serialization["parameters"] and "automation" in serialization["parameters"] and "interpolation" in serialization["parameters"]):
+            "pressure" in serialization["parameters"] and "dots" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
-            self._automation = self.deserialize( serialization["parameters"]["automation"] )
-            self._interpolation = self.deserialize( serialization["parameters"]["interpolation"] )
+            self._pressure  = self.deserialize( serialization["parameters"]["pressure"] )
+            self._dots      = self.deserialize( serialization["parameters"]["dots"] )
         return self
       
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Aftertouch():
                 super().__lshift__(operand)
                 self._pressure = operand._pressure
+                self._dots = operand._dots.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Pressure():         self._pressure = operand._data.__mod__(od.Pipe( int() ))
-                    case og.Dots():             self._automation = operand._data  # Read only operand, no need to copy
+                    case og.Dots():             self._dots = operand._data._dots.copy() # Read only operand, no need to copy
                     case _:                     super().__lshift__(operand)
             case int():
                 self._pressure = operand
             case ou.Pressure():
                 self._pressure = operand.__mod__(od.Pipe( int() ))
             case og.Dots():
-                self._automation = operand  # Read only operand, no need to copy
+                self._dots = operand._dots.copy() # Read only operand, no need to copy
             case _:
                 super().__lshift__(operand)
         return self
@@ -4330,24 +4289,29 @@ class Aftertouch(ChannelElement):
         match operand:
             case int():
                 self._pressure += operand  # Specific and compounded parameter
-                return self
             case ou.Pressure():
                 self._pressure += operand._unit  # Specific and compounded parameter
-                return self
+            case og.Dot():
+                self._dots.append(operand)
             case _:
-                return super().__iadd__(operand)
+                super().__iadd__(operand)
+        return self
 
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._pressure -= operand  # Specific and compounded parameter
-                return self
             case ou.Pressure():
                 self._pressure -= operand._unit  # Specific and compounded parameter
-                return self
+            case og.Dot():
+                try:
+                    self._dots.remove(operand)
+                except ValueError as e:
+                    pass    # No need to print anything
             case _:
-                return super().__isub__(operand)
+                super().__isub__(operand)
+        return self
 
 
 class PolyAftertouch(Aftertouch):
@@ -4574,7 +4538,7 @@ class PitchBend(ChannelElement):
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_automation: 'Automation' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if channels is not None:
             channels["automation"].add(self._channel_0)
