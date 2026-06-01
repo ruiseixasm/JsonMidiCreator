@@ -4759,11 +4759,13 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
-        self._parameter._position_beats = Fraction(0)   # First setting has to be at 0
+        base_parameter = self._parameter.copy()
+        base_parameter._position_beats = Fraction(0) # First setting has to be at 0
         parameter_elements: list[ChannelElement] = [ self._parameter ]
         if self._dots:
+            self._dots.sort()   # Makes sure the dots are sorted
             resolution_beats: Fraction = self._duration_beats
-            for dot in self._dots.sort():
+            for dot in self._dots:
                 dot_setting = self._parameter.copy()
                 dot_setting._position_beats = dot._position_beats
                 dot_setting << dot._value

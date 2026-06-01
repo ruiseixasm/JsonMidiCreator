@@ -757,6 +757,15 @@ def test_channel_setting():
 # test_channel_setting()
 
 
+def test_parameter_automation():
+    parameter = ControlChange("Volume")
+    dots = Dots([Dot(100, 1.0)])
+    automation = Automation(parameter, dots)
+    # automation >> Plot(title="Automation of a ControlChange")
+
+# test_parameter_automation()
+
+
 def test_element_multi():
     third_degree_1 = Note(Degree(3))
     third_degree_2 = Note(Pitch(3.0))
