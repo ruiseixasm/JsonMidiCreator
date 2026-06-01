@@ -1475,14 +1475,14 @@ class DeviceElement(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
