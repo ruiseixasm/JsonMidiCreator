@@ -491,6 +491,16 @@ class Dots(Generic):
             return self._dots == other._dots
         return False
     
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():                return self._dots
+                    case _:                     return super().__mod__(operand)
+            case list():                return self._dots.copy() # Dots are constant, no need for deep copy
+            case _:                     return super().__mod__(operand)
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["dots"] = self.serialize( self._dots )
@@ -506,6 +516,44 @@ class Dots(Generic):
             self._dots = self.deserialize( serialization["parameters"]["values"] )
         return self
 
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Dots():
+                super().__lshift__(operand)
+                self._dots = operand._dots.copy() # Dots are constant, no need for deep copy
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._dots = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                self._dots = operand.copy() # Dots are constant, no need for deep copy
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case Dot():
+                self._dots.append(number)
+            case _:
+                super().__iadd__(number)
+        return self
+    
+    def __isub__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case Dot():
+                try:
+                    self._dots.remove(number)
+                except ValueError as e:
+                    pass    # No need to print anything
+            case _:
+                super().__isub__(number)
+        return self
 
 class Pitch(Generic):
     """`Generic -> Pitch`

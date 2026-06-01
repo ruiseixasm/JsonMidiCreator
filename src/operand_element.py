@@ -3350,6 +3350,15 @@ class Tuplet(ChannelElement):
         self.set_elements_duration()
         return self
 
+    _automation_types: set = {
+        'base', 'dot', 'interpolation'
+    }
+
+
+
+# Automation Type of Elements
+class AutomationType(enum.IntEnum):
+    BASE, DOT, INTERPOLATION = range(3)
 
 
 class ControlChange(ChannelElement):
