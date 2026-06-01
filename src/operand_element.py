@@ -2189,14 +2189,15 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True,
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
@@ -2271,14 +2272,15 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
                     derived_note: 'Note' = None) -> list:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_duration_beats: Fraction = self._duration_beats * self._gate
         self_duration: float = float(self_duration_beats)
         if self_duration == 0:
@@ -3561,13 +3563,14 @@ class ControlChange(ChannelElement):
         return self_plotlist
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         time_ms: float = o.minutes_to_time_ms(self_position_min)
@@ -4210,13 +4213,14 @@ class Aftertouch(ChannelElement):
         return self_plotlist
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
@@ -4373,13 +4377,14 @@ class PolyAftertouch(Aftertouch):
                 return super().__eq__(other)
     
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
@@ -4568,13 +4573,14 @@ class PitchBend(ChannelElement):
         return self_plotlist
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
@@ -5049,13 +5055,14 @@ class ProgramChange(ChannelElement):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
-        absolute_position_beats: Fraction = position_beats
-        if midi_track is not None or not devices_header:  # Only in Clips is the Element placed
-            absolute_position_beats += self._position_beats
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
