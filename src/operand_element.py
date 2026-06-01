@@ -4691,7 +4691,7 @@ class Automation(Element):
     def __init__(self, *parameters):
         self._parameter: ChannelElement = ControlChange()
         self._dots: list[og.Dot] = []
-        self._linear: bool = True
+        self._linear: bool = False
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
@@ -4776,6 +4776,17 @@ class Automation(Element):
             case _:                 return super().__mod__(operand)
 
 
+    @staticmethod
+    def smoothstep_fraction(t: Fraction) -> Fraction:
+        """
+        t: Fraction in [0, 1]
+        Returns smoothstep value as Fraction
+        """
+        # t²(3-2t) as fractions
+        t2: Fraction = t * t
+        return t2 * (Fraction(3) - Fraction(2) * t)
+
+
     def get_component_elements(self) -> list[ChannelElement]:
         interpolated_elements: list[ChannelElement] = []
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
@@ -4795,11 +4806,11 @@ class Automation(Element):
                         dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
                         if dot_delta_beats > 0:
                             delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
+                            left_dot_value: Fraction = element_left_dot.get_value()
+                            left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
+                            point: int = math.floor(left_dot_as_point) + 1   # Next point (+1)
                             if self._linear:
                                 # Linear interpolation (original behavior)
-                                left_dot_value: Fraction = element_left_dot.get_value()
-                                left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
-                                point: int = math.floor(left_dot_as_point) + 1   # Next point (+1)
                                 value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
                                 value_per_point: Fraction = value_per_beats * beats_per_point
                                 while point < math.ceil(dot._position_beats / beats_per_point):
@@ -4813,9 +4824,6 @@ class Automation(Element):
                             else:
                                 # Smoothstep interpolation
                                 total_points_interval: Fraction = dot_delta_beats / beats_per_point
-                                left_dot_value: Fraction = element_left_dot.get_value()
-                                left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
-                                point: int = math.floor(left_dot_as_point) + 1
                                 while point < math.ceil(dot._position_beats / beats_per_point):
                                     element_point = first_element.copy()
                                     element_point._position_beats = point * beats_per_point
