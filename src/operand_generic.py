@@ -538,6 +538,10 @@ class Dots(Generic):
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case Dot():
+                for dot in self._dots:
+                    if number._position_beats == dot._position_beats:
+                        dot._value = number._value
+                        return self
                 self._dots.append(number)
             case _:
                 super().__iadd__(number)
