@@ -4792,7 +4792,7 @@ class Automation(Element):
                     delta_points: Fraction = Fraction(interpolation_point) - previous_point
                     point_delta_value: int = int(delta_value_per_point * delta_points)
                     point_setting = self._parameter.copy()
-                    point_setting._position_beats = resolution_beats / interpolation_point
+                    point_setting._position_beats = interpolation_point * resolution_beats
                     point_setting << previous_dot_value + point_delta_value
                     point_setting._dot_type = DotType.POINT
                     parameter_elements.append(point_setting)

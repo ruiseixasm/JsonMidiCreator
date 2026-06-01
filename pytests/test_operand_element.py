@@ -760,11 +760,11 @@ def test_channel_setting():
 def test_parameter_automation():
     parameter = ControlChange("Volume")
     dots = Dots([Dot(100, 1.0)])
-    automation = Automation(parameter, dots)
+    automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
-    automation >> Plot(title="Automation of a ControlChange")
+    # automation >> Plot(title="Automation of a ControlChange")
 
-test_parameter_automation()
+# test_parameter_automation()
 
 
 def test_element_multi():
