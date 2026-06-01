@@ -3358,7 +3358,7 @@ class Tuplet(ChannelElement):
 
 # Automation Type of Elements
 class DotType(enum.IntEnum):
-    BASE, DOT, INTERPOLATION = range(3)
+    BASE, DOT, POINT = range(3)
 
 
 class ControlChange(ChannelElement):
@@ -4759,10 +4759,37 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
+        self._parameter._position_beats = Fraction(0)   # First setting has to be at 0
         parameter_elements: list[ChannelElement] = [ self._parameter ]
-        
-
-
+        if self._dots:
+            resolution_beats: Fraction = self._duration_beats
+            for dot in self._dots.sort():
+                dot_setting = self._parameter.copy()
+                dot_setting._position_beats = dot._position_beats
+                dot_setting << dot._value
+                dot_setting._dot_type = DotType.DOT
+                previous_setting = parameter_elements[-1]
+                # Interpolation
+                dot_delta_beats: Fraction = dot._position_beats - previous_setting._position_beats
+                dot_delta_value: int = dot_setting % int() - previous_setting % int()
+                delta_value_per_beats: Fraction = Fraction(dot_delta_value) / dot_delta_beats
+                delta_value_per_point: Fraction = delta_value_per_beats * resolution_beats
+                interpolation_point: int = int(
+                        previous_setting._position_beats * resolution_beats
+                    ) + 1   # Next point
+                previous_dot_position_beats: Fraction = previous_setting._position_beats
+                previous_dot_value: int = previous_setting % int()
+                while interpolation_point < int(dot._position_beats * resolution_beats):
+                    previous_point: Fraction = previous_setting._position_beats * resolution_beats
+                    delta_points: Fraction = Fraction(interpolation_point) - previous_point
+                    point_delta_value: int = int(delta_value_per_point * delta_points)
+                    point_setting = self._parameter.copy()
+                    point_setting._position_beats = resolution_beats / interpolation_point
+                    point_setting << previous_dot_value + point_delta_value
+                    point_setting._dot_type = DotType.POINT
+                    parameter_elements.append(point_setting)
+                    interpolation_point += 1    # Next point
+                parameter_elements.append(dot_setting)
         return parameter_elements
     
 

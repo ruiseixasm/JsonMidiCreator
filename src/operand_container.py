@@ -2139,7 +2139,7 @@ class Composition(Container):
                         match automation["dot_type"]:
                             case oe.DotType.DOT:
                                 marker = 'o'
-                            case oe.DotType.INTERPOLATION:
+                            case oe.DotType.POINT:
                                 marker = 'x'
 
                         self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
