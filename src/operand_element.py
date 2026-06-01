@@ -4799,7 +4799,7 @@ class Automation(Element):
                                     element_left_dot._position_beats / beats_per_point
                                 ) + 1   # Next point (+1)
                             left_dot_value: Fraction = element_left_dot.get_value()
-                            left_dot_as_point: Fraction = element_left_dot._position_beats * beats_per_point
+                            left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
                             while point < math.ceil(dot._position_beats / beats_per_point):
                                 element_point = first_element.copy()
                                 element_point._position_beats = point * beats_per_point

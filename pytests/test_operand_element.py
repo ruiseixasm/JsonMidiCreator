@@ -762,24 +762,24 @@ def test_parameter_automation():
     dots = Dots([Dot(100, 1.0)])
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
-    automation >> Plot(title="Automation of a ControlChange", block=False)
+    # automation >> Plot(title="Automation of a ControlChange", block=False)
     assert automation.len() == 32 + 1
 
     parameter = Parameter(Aftertouch())
     dots = Dots([Dot(50, 1.0)])
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
-    automation >> Plot(title="Automation of an Aftertouch", block=False)
+    # automation >> Plot(title="Automation of an Aftertouch", block=False)
     assert automation.len() == 32 + 1
 
     parameter = Parameter(PitchBend())
     dots = Dots([Dot(20, 1.0)])
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
-    automation >> Plot(title="Automation of an PitchBend")
+    # automation >> Plot(title="Automation of an PitchBend")
     assert automation.len() == 32 + 1
 
-test_parameter_automation()
+# test_parameter_automation()
 
 
 def test_element_multi():
