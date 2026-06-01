@@ -2099,7 +2099,6 @@ class Composition(Container):
 
                 # Plot automations
                 for channel_0 in automation_channels:
-                    printed_channel_number: bool = False
                     channel_color = Composition._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_automation for channel_automation in automation_plotlist
@@ -2155,14 +2154,12 @@ class Composition(Container):
                         # Actual data points
                         self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
-                        if not printed_channel_number:  # Print it on first time
-                            y_pos: int = automation["value"] + 2
-                            x_pos = automation["position"]
-                            self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
-                                color='black',  # Outline color
-                                path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                                alpha=color_alpha)
-                            printed_channel_number = True
+                        y_pos: int = automation["value"] + 2
+                        x_pos = automation["position"]
+                        self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
+                            color='black',  # Outline color
+                            path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                            alpha=color_alpha)
                                         
 
         # Draw vertical grid lines based on beats and measures
