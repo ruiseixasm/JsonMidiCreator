@@ -761,6 +761,7 @@ def test_parameter_automation():
     parameter = ControlChange("Volume")
     dots = Dots([Dot(100, 1.0)])
     automation = Automation(parameter, dots)
+    print(f"automation.len(): {automation.len()}")
     # automation >> Plot(title="Automation of a ControlChange")
 
 # test_parameter_automation()

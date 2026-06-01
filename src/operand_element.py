@@ -4734,6 +4734,11 @@ class Automation(Element):
         return self
 
 
+    def len(self) -> int:
+        component_elements: list[ChannelElement] = self.get_component_elements()
+        return len(component_elements)
+
+
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
@@ -4803,7 +4808,7 @@ class Automation(Element):
         if position_beats is not None:
             position_beats += self._position_beats
         else:
-            position_beats = self._position_beats   # Because it works as a Clip of multiple Elements
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
