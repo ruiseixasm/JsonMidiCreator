@@ -4780,6 +4780,7 @@ class Automation(Element):
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
             first_element = self._parameter.copy()
             first_element._position_beats = Fraction(0) # First position has to be 0
+            first_element._duration_beats = self._duration_beats
             interpolated_elements.append( first_element )
             if self._dots:
                 beats_per_point: Fraction = self._duration_beats
