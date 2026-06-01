@@ -977,6 +977,10 @@ class Unison(Element):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         return self_playlist
@@ -2512,6 +2516,10 @@ class KeyScale(Note):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
@@ -3085,6 +3093,10 @@ class Retrigger(Note):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         return self_plotlist
@@ -3307,6 +3319,10 @@ class Tuplet(ChannelElement):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
             # Makes sure the self is correctly set
