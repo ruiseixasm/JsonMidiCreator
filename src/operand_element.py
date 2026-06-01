@@ -295,7 +295,7 @@ class Element(o.Operand):
 
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         return []
@@ -979,7 +979,7 @@ class Unison(Element):
         return self._elements
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
@@ -1076,7 +1076,7 @@ class Rest(Element):
     
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         
         if self._duration_beats == 0:
@@ -1090,9 +1090,10 @@ class Rest(Element):
 
         self_plotlist: list[dict] = []
     
-        position_on: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
-            position_on += self._position_beats
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
+
         position_off: Fraction = position_on + self._duration_beats
 
         self_plotlist.append(
@@ -2120,7 +2121,7 @@ class Note(ChannelElement):
 
     # CREATION VS REPRESENTATION
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_note: 'Note' = None) -> list[dict]:
         
@@ -2137,9 +2138,10 @@ class Note(ChannelElement):
 
         self_plotlist: list[dict] = []
     
-        position_on: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
-            position_on += self._position_beats
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
+
         position_off: Fraction = position_on + self._duration_beats
         self_to_plot: Note = self if derived_note is None else derived_note
 
@@ -2499,7 +2501,7 @@ class KeyScale(Note):
     
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -3051,7 +3053,7 @@ class Retrigger(Note):
         return retrigger_notes
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -3273,7 +3275,7 @@ class Tuplet(ChannelElement):
         return tuplet_elements
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         if masked_element_ids is None:
             masked_element_ids = set()
@@ -3491,7 +3493,7 @@ class ControlChange(ChannelElement):
     
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
@@ -3503,9 +3505,9 @@ class ControlChange(ChannelElement):
             
         self_plotlist: list[dict] = []
         
-        position_on: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
-            position_on += self._position_beats
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
@@ -4134,7 +4136,7 @@ class Aftertouch(ChannelElement):
 
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
@@ -4146,9 +4148,9 @@ class Aftertouch(ChannelElement):
             
         self_plotlist: list[dict] = []
         
-        position_on: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
-            position_on += self._position_beats
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
@@ -4489,7 +4491,7 @@ class PitchBend(ChannelElement):
 
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
@@ -4501,9 +4503,9 @@ class PitchBend(ChannelElement):
             
         self_plotlist: list[dict] = []
         
-        position_on: Fraction = position_beats
-        if midi_track is not None:  # Only in Clips is the Element placed
-            position_on += self._position_beats
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
 
         # Midi validation is done in the JsonMidiPlayer program
         self_plotlist.append(
@@ -4796,8 +4798,12 @@ class Automation(Element):
     
 
     def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0),
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+        if position_beats is not None:
+            position_beats += self._position_beats
+        else:
+            position_beats = self._position_beats   # Because it works as a Clip of multiple Elements
         self_playlist: list[dict] = []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
