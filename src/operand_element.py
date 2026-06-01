@@ -4784,11 +4784,10 @@ class Automation(Element):
                 delta_value_per_beats: Fraction = Fraction(dot_delta_value) / dot_delta_beats
                 delta_value_per_point: Fraction = delta_value_per_beats * resolution_beats
                 interpolation_point: int = int(
-                        previous_setting._position_beats * resolution_beats
+                        previous_setting._position_beats / resolution_beats
                     ) + 1   # Next point
-                previous_dot_position_beats: Fraction = previous_setting._position_beats
                 previous_dot_value: int = previous_setting % int()
-                while interpolation_point < int(dot._position_beats * resolution_beats):
+                while interpolation_point < int(dot._position_beats / resolution_beats):
                     previous_point: Fraction = previous_setting._position_beats * resolution_beats
                     delta_points: Fraction = Fraction(interpolation_point) - previous_point
                     point_delta_value: int = int(delta_value_per_point * delta_points)
