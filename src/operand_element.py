@@ -3693,9 +3693,11 @@ class ControlChange(ChannelElement):
                 )
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_midilist: list[dict] = super().getMidilist(midi_track, position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
 
@@ -4290,9 +4292,11 @@ class Aftertouch(ChannelElement):
         return self_playlist
     
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
@@ -4651,9 +4655,11 @@ class PitchBend(ChannelElement):
 
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
@@ -5147,9 +5153,11 @@ class ProgramChange(ChannelElement):
 
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0)) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
+        if position_beats is None:
+            position_beats = Fraction(0)
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
@@ -5233,10 +5241,12 @@ class Panic(DeviceElement):
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = Fraction(0), devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
+        if position_beats is None:
+            position_beats = Fraction(0)
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
