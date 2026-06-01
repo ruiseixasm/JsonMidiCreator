@@ -28,5 +28,6 @@ settings << Folder("examples/")
 "cc:1/4," * 5 >> Plot(title="Five ControlChange", block=False)
 "at:1/4," * 5 >> Plot(title="Five Aftertouch", block=False)
 "pb:1/4," * 5 >> Plot(title="Five PitchBend", block=False)
-"a_pb:1/32:10:volume::100_1m" >> Plot(title="Automation")
+"a_pb:1/32:10:volume::100_1m" >> Plot(title="Smoothstep Automation", block=False)
+"a_pb:1/32:10:volume:1:100_1m" >> Plot(title="Linear Automation")
 

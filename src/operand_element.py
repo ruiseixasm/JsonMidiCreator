@@ -3413,7 +3413,7 @@ class ControlChange(ChannelElement):
     
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._value = int(value) % 128
+            self._value = round(value) % 128
         return self
 
     def get_value(self) -> Fraction:
@@ -4124,7 +4124,7 @@ class Aftertouch(ChannelElement):
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._pressure = int(value) % 128
+            self._pressure = round(value) % 128
         return self
 
     def get_value(self) -> Fraction:
@@ -4470,8 +4470,8 @@ class PitchBend(ChannelElement):
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._msb = int(value)
-            self._lsb = int((value - self._msb) * 128) # Coverts to 128 cycle
+            self._msb = round(value)
+            self._lsb = round((value - self._msb) * 128) # Coverts to 128 cycle
         return self
 
     def get_value(self) -> Fraction:
@@ -4730,7 +4730,7 @@ class Automation(Element):
 
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)    # Sets the Duration and Position ONLY
+        super()._set_element_from_token(token)    # Sets the Duration and Position ONLY (not stackable)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
         # Sets the parameter element
@@ -4745,12 +4745,12 @@ class Automation(Element):
                 self._parameter = _get_element_from_token(parameter_token)
         # Set Dots
         for i, field_i in enumerate(token_operand.get_fields()):
-            if i == 3: # Linear gets 1
+            if i == 4: # Linear gets 1
                 if field_i is not None:
                     number = o.string_to_number(field_i)
                     if isinstance(number, int):
                         self << ou.Linear(number)
-            elif i > 3 and field_i is not None and field_i != "":
+            elif i > 4 and field_i is not None and field_i != "":
                 self._dots = []
                 if field_i[0] == "_":
                     field_i = "0" + field_i # Durations of zero aren't set (safe)
