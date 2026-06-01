@@ -4778,34 +4778,35 @@ class Automation(Element):
     def get_component_elements(self) -> list[ChannelElement]:
         base_parameter = self._parameter.copy()
         base_parameter._position_beats = Fraction(0) # First setting has to be at 0
-        parameter_elements: list[ChannelElement] = [ self._parameter ]
+        parameter_elements: list[ChannelElement] = [ base_parameter ]
         if self._dots:
-            self._dots.sort()   # Makes sure the dots are sorted
             resolution_beats: Fraction = self._duration_beats
-            for dot in self._dots:
-                dot_setting = self._parameter.copy()
-                dot_setting._position_beats = dot._position_beats
-                dot_setting.set_from_value(dot._value)
-                previous_setting = parameter_elements[-1]
-                # Interpolation
-                dot_delta_beats: Fraction = dot._position_beats - previous_setting._position_beats
-                dot_delta_value: int = dot_setting % int() - previous_setting % int()
-                delta_value_per_beats: Fraction = Fraction(dot_delta_value) / dot_delta_beats
-                delta_value_per_point: Fraction = delta_value_per_beats * resolution_beats
-                interpolation_point: int = int(
-                        previous_setting._position_beats / resolution_beats
-                    ) + 1   # Next point
-                previous_dot_value: Fraction = previous_setting.get_value()
-                while interpolation_point < int(dot._position_beats / resolution_beats):
-                    previous_point: Fraction = previous_setting._position_beats * resolution_beats
-                    delta_points: Fraction = Fraction(interpolation_point) - previous_point
-                    point_delta_value: Fraction = delta_value_per_point * delta_points
-                    point_setting = self._parameter.copy()
-                    point_setting._position_beats = interpolation_point * resolution_beats
-                    point_setting.set_from_value(previous_dot_value + point_delta_value)
-                    parameter_elements.append(point_setting)
-                    interpolation_point += 1    # Next point
-                parameter_elements.append(dot_setting)
+            if resolution_beats > 0:
+                for dot in sorted(self._dots):  # Makes sure the dots are sorted
+                    dot_setting = base_parameter.copy()
+                    dot_setting._position_beats = dot._position_beats
+                    dot_setting.set_from_value(dot._value)
+                    previous_setting = parameter_elements[-1]
+                    # Interpolation
+                    dot_delta_beats: Fraction = dot._position_beats - previous_setting._position_beats
+                    if dot_delta_beats > 0:
+                        dot_delta_value: int = dot_setting % int() - previous_setting % int()
+                        delta_value_per_beats: Fraction = Fraction(dot_delta_value) / dot_delta_beats
+                        delta_value_per_point: Fraction = delta_value_per_beats * resolution_beats
+                        interpolation_point: int = int(
+                                previous_setting._position_beats / resolution_beats
+                            ) + 1   # Next point
+                        previous_dot_value: Fraction = previous_setting.get_value()
+                        while interpolation_point < int(dot._position_beats / resolution_beats):
+                            point_setting = base_parameter.copy()
+                            point_setting._position_beats = interpolation_point * resolution_beats
+                            previous_point: Fraction = previous_setting._position_beats * resolution_beats
+                            delta_points: Fraction = Fraction(interpolation_point) - previous_point
+                            point_delta_value: Fraction = delta_value_per_point * delta_points
+                            point_setting.set_from_value(previous_dot_value + point_delta_value)
+                            parameter_elements.append(point_setting)
+                            interpolation_point += 1    # Next point
+                    parameter_elements.append(dot_setting)
         return parameter_elements
     
 
