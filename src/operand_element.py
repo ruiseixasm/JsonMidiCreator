@@ -4935,8 +4935,8 @@ class Automation(Element):
                             interpolation_points: int = math.floor(left_dot_points) + 1   # Next point (+1)
                             while interpolation_points < math.ceil(right_dot_points):
                                 interpolation_element = first_element.copy()
-                                interpolation_delta_points: Fraction = Fraction(interpolation_points) - left_dot_points
                                 interpolation_element._position_beats = interpolation_points * beats_per_point
+                                interpolation_delta_points: Fraction = Fraction(interpolation_points) - left_dot_points
                                 # Calculate t (progress from left_dot to right_dot) as Fraction
                                 t_ratio: Fraction = interpolation_delta_points / right_dot_delta_points    # proportional ratio (t) (linear)
                                 if not self._linear: # Apply smoothstep function
