@@ -3037,9 +3037,8 @@ class Retrigger(Note):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Retrigger`."""
-        component_elements = self.get_component_elements()
-        master: int = 0
-        for single_element in component_elements:
+        master: int = 0 # It's just a wrapper
+        for single_element in self.get_component_elements():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -3464,12 +3463,11 @@ class ControlChange(ChannelElement):
     def get_value(self) -> Fraction:
         return Fraction(self._value)
 
-
     def checksum(self) -> int:
         """16-bit checksum for an `Automation`."""
-        master: int = self._value << 4 | self._channel_0
-        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
-        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        master: int = super().checksum()
+        master ^= (self._value << 8) | self._value
+        master ^= (self._controller._number_msb << 8) | self._controller._number_msb
         return master & 0xFFFF  # 16-bit
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
@@ -4178,6 +4176,12 @@ class Aftertouch(ChannelElement):
     def get_value(self) -> Fraction:
         return Fraction(self._pressure)
 
+    def checksum(self) -> int:
+        """16-bit checksum for an `Automation`."""
+        master: int = super().checksum()
+        master ^= (self._pressure << 8) | self._pressure
+        return master & 0xFFFF  # 16-bit
+
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -4530,6 +4534,13 @@ class PitchBend(ChannelElement):
         msb_value: Fraction = self._msb % 128 + Fraction(self._lsb % 128, 128)
         return Fraction(msb_value)
 
+    def checksum(self) -> int:
+        """16-bit checksum for an `Automation`."""
+        master: int = super().checksum()
+        master ^= (self._msb << 8) | self._msb
+        master ^= (self._lsb << 8) | self._lsb
+        return master & 0xFFFF  # 16-bit
+
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -4784,6 +4795,14 @@ class Automation(Element):
             self << single_parameter
 
 
+    def checksum(self) -> int:
+        """16-bit checksum for an `Element`."""
+        master: int = 0 # It's just a wrapper
+        for single_element in self.get_component_elements():
+            master += single_element.checksum()
+        return master & 0xFFFF  # 16-bit
+
+
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token)    # Sets the Duration and Position ONLY (not stackable)
         token = od._normalize_dsl(token)
@@ -4891,7 +4910,7 @@ class Automation(Element):
         interpolated_elements: list[ChannelElement] = []
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
             first_element = self._parameter.copy()
-            first_element._position_beats = Fraction(0) # First position has to be 0
+            first_element._position_beats = self._position_beats # Automation position sets the reference position
             first_element._duration_beats = self._duration_beats
             interpolated_elements.append( first_element )
             if self._dots:
@@ -4945,30 +4964,24 @@ class Automation(Element):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         return self_playlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
