@@ -4959,7 +4959,7 @@ class Automation(Element):
                                     point += 1    # Next point
                         interpolated_elements.append(element_right_dot)
             # Offsets the Automation position
-            if self._position_beats:
+            if self._position_beats > 0:
                 for element in interpolated_elements:
                     element._position_beats += self._position_beats
         return interpolated_elements
