@@ -2051,7 +2051,7 @@ class Composition(Container):
                             if not printed_channel_number:
                                 y_pos: int = note["pitch"] + 0.2
                                 x_pos = (float(note["position_on"]) + float(note["position_off"])) / 2
-                                self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
+                                self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=8,
                                     color='black',  # Outline color
                                     path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                                     alpha=color_alpha)
@@ -2130,11 +2130,14 @@ class Composition(Container):
                         
                         # Actual data points
                         marker: str = 'o'
+                        info: str = str(channel_0 + 1)
                         match automation["self"]:
                             case oe.Aftertouch():
                                 marker = 'v'
                             case oe.PitchBend():
                                 marker = 'P'
+                            case oe.ControlChange():
+                                info += f".{automation["self"]._controller._number_msb}"
 
                         self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
                                     markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
@@ -2156,7 +2159,7 @@ class Composition(Container):
 
                         y_pos: int = automation["value"] + 2
                         x_pos = automation["position"]
-                        self._ax.text(x_pos, y_pos, channel_0 + 1, ha='center', va='bottom', fontsize=6,
+                        self._ax.text(x_pos, y_pos, info, ha='center', va='bottom', fontsize=8,
                             color='black',  # Outline color
                             path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                             alpha=color_alpha)
