@@ -4927,21 +4927,21 @@ class Automation(Element):
                         # Interpolation
                         dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
                         if dot_delta_beats > 0:
-                            delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
+                            left_dot_points: Fraction = element_left_dot._position_beats / beats_per_point
                             left_dot_value: Fraction = element_left_dot.get_value()
-                            left_dot_as_point: Fraction = element_left_dot._position_beats / beats_per_point
-                            point: int = math.floor(left_dot_as_point) + 1   # Next point (+1)
-                            total_points_interval: Fraction = dot_delta_beats / beats_per_point
+                            dot_delta_points: Fraction = dot_delta_beats / beats_per_point
+                            dot_delta_value: Fraction = element_right_dot.get_value() - element_left_dot.get_value()
+                            point: int = math.floor(left_dot_points) + 1   # Next point (+1)
                             while point < math.ceil(element_right_dot._position_beats / beats_per_point):
                                 element_point = first_element.copy()
                                 element_point._position_beats = point * beats_per_point
-                                point_delta_points: Fraction = Fraction(point) - left_dot_as_point
+                                point_delta_points: Fraction = Fraction(point) - left_dot_points
                                 # Calculate t (progress from left_dot to right_dot) as Fraction
-                                t_ratio: Fraction = point_delta_points / total_points_interval    # proportional ratio (t) (linear)
+                                t_ratio: Fraction = point_delta_points / dot_delta_points    # proportional ratio (t) (linear)
                                 if not self._linear: # Apply smoothstep function
                                     t_ratio = self.smoothstep_fraction(t_ratio)
                                 # Calculate interpolated value
-                                point_delta_value: Fraction = delta_value * t_ratio
+                                point_delta_value: Fraction = dot_delta_value * t_ratio
                                 element_point.set_from_value(left_dot_value + point_delta_value)
                                 interpolated_elements.append(element_point)
                                 point += 1    # Next point
