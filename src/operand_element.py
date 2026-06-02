@@ -4923,7 +4923,7 @@ class Automation(Element):
                     for dot in sorted(self._dots):  # Makes sure the dots are sorted
                         element_left_dot = interpolated_elements[-1]
                         element_right_dot = first_element.copy()
-                        element_right_dot._position_beats = dot._position_beats
+                        element_right_dot._position_beats += dot._position_beats # Dots are relative positions
                         element_right_dot.set_from_value(dot._value)
                         # Interpolation
                         dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
@@ -4936,7 +4936,7 @@ class Automation(Element):
                                 # Linear interpolation (original behavior)
                                 value_per_beats: Fraction = Fraction(delta_value) / dot_delta_beats
                                 value_per_point: Fraction = value_per_beats * beats_per_point
-                                while point < math.ceil(dot._position_beats / beats_per_point):
+                                while point < math.ceil(element_right_dot._position_beats / beats_per_point):
                                     element_point = first_element.copy()
                                     element_point._position_beats = point * beats_per_point
                                     point_delta_points: Fraction = Fraction(point) - left_dot_as_point
@@ -4947,7 +4947,7 @@ class Automation(Element):
                             else:
                                 # Smoothstep interpolation
                                 total_points_interval: Fraction = dot_delta_beats / beats_per_point
-                                while point < math.ceil(dot._position_beats / beats_per_point):
+                                while point < math.ceil(element_right_dot._position_beats / beats_per_point):
                                     element_point = first_element.copy()
                                     element_point._position_beats = point * beats_per_point
                                     # Calculate t (progress from left_dot to right_dot) as Fraction
