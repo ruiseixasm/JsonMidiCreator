@@ -4820,12 +4820,8 @@ class Automation(Element):
         # Set Interpolation type and Dots
         dots: list[og.Dot] = []
         for i, field_i in enumerate(token_operand.get_fields()):
-            if field_i is not None and field_i != "":
-                if i == 4: # Linear gets 1
-                        number = o.string_to_number(field_i)
-                        if isinstance(number, int):
-                            self << ou.Linear(number)
-                elif i > 4:
+            if i > 3 and field_i is not None and field_i != "":
+                if i > 4:
                     if field_i[0] == "_":
                         field_i = "0" + field_i # Durations of zero aren't set (safe)
                     dot_parameters: list[str] = field_i.split("_")
@@ -4856,6 +4852,10 @@ class Automation(Element):
                                             position << ra.Position(number)
                     dot = og.Dot(value, position)
                     dots.append(dot)
+                else: # Linear gets 1
+                    number = o.string_to_number(field_i)
+                    if isinstance(number, int):
+                        self << ou.Linear(number)
         # Only resets dots if new dots are set (No point of an automation without dots)
         if dots:
             self._dots = dots
