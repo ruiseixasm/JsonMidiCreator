@@ -4920,11 +4920,11 @@ class Automation(Element):
                 beats_per_point: Fraction = self._duration_beats
                 if beats_per_point > 0:
                     for dot in sorted(self._dots):  # Makes sure the dots are sorted
-                        element_left_dot = interpolated_elements[-1]
                         element_right_dot = first_element.copy()
                         element_right_dot._position_beats += dot._position_beats # Dots are relative positions
                         element_right_dot.set_from_value(dot._value)
                         # Interpolation
+                        element_left_dot = interpolated_elements[-1]
                         dot_delta_beats: Fraction = element_right_dot._position_beats - element_left_dot._position_beats
                         if dot_delta_beats > 0:
                             left_dot_points: Fraction = element_left_dot._position_beats / beats_per_point
