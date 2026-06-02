@@ -5052,9 +5052,9 @@ class Automation(Element):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case og.Dot():
-                for dot in self._dots:
+                for i, dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
-                        dot._value = operand._value
+                        self._dots[i] = operand # Replaces the dot
                         return self
                 self._dots.append(operand)
             case _:
