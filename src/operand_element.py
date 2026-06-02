@@ -4910,12 +4910,12 @@ class Automation(Element):
 
 
     def get_component_elements(self) -> list[ChannelElement]:
-        interpolated_elements: list[ChannelElement] = []
+        component_elements: list[ChannelElement] = []
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
             first_element = self._parameter.copy()
             first_element._position_beats = self._position_beats
             first_element._duration_beats = self._duration_beats
-            interpolated_elements.append(first_element)
+            component_elements.append(first_element)
             if self._dots:
                 beats_per_point: Fraction = self._duration_beats
                 if beats_per_point > 0:
@@ -4924,7 +4924,7 @@ class Automation(Element):
                         right_dot_element._position_beats += dot._position_beats # Dots are relative positions
                         right_dot_element.set_from_value(dot._value)
                         # Interpolation
-                        left_dot_element = interpolated_elements[-1]
+                        left_dot_element = component_elements[-1]
                         right_dot_delta_beats: Fraction = right_dot_element._position_beats - left_dot_element._position_beats
                         if right_dot_delta_beats > 0:
                             left_dot_points: Fraction = left_dot_element._position_beats / beats_per_point
@@ -4944,10 +4944,10 @@ class Automation(Element):
                                 # Calculate interpolated value
                                 point_delta_value: Fraction = right_dot_delta_value * t_ratio
                                 interpolation_element.set_from_value(left_dot_value + point_delta_value)
-                                interpolated_elements.append(interpolation_element)
+                                component_elements.append(interpolation_element)
                                 interpolation_points += 1    # Next point
-                        interpolated_elements.append(right_dot_element)
-        return interpolated_elements
+                        component_elements.append(right_dot_element)
+        return component_elements
     
 
     def getPlotlist(self,
