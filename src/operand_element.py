@@ -4817,45 +4817,48 @@ class Automation(Element):
                 parameter_field_2 = token_operand.get_field(2)
                 parameter_token: str = parameter_field_0 + "::" + parameter_field_2
                 self._parameter = _get_element_from_token(parameter_token)
-        # Set Dots
+        # Set Interpolation type and Dots
+        dots: list[og.Dot] = []
         for i, field_i in enumerate(token_operand.get_fields()):
-            if i == 4: # Linear gets 1
-                if field_i is not None:
-                    number = o.string_to_number(field_i)
-                    if isinstance(number, int):
-                        self << ou.Linear(number)
-            elif i > 4 and field_i is not None and field_i != "":
-                self._dots = []
-                if field_i[0] == "_":
-                    field_i = "0" + field_i # Durations of zero aren't set (safe)
-                dot_parameters: list[str] = field_i.split("_")
-                value: int = 0
-                position = self % ra.Position()
-                for nth, parameter in enumerate(dot_parameters):
-                    match nth:
-                        case 0: # Sets the Value
-                            number = o.string_to_number(parameter)
-                            if isinstance(number, int):
-                                value = number
-                        case _: # Sets the Position
-                            measure = True if 'm' in parameter or 'M' in parameter else False
-                            beat = True if 'b' in parameter or 'B' in parameter else False
-                            # Cleans up
-                            parameter = parameter.replace('m', '').replace('M', '')
-                            parameter = parameter.replace('b', '').replace('B', '')
-                            number = o.string_to_number(parameter)
-                            if measure:
-                                position << ra.Measure(number)
-                            elif beat:
-                                position << ra.Beat(number)
-                            else:
-                                match number:
-                                    case int():
-                                        position << ra.Step(number)
-                                    case float():
-                                        position << ra.Position(number)
-                dot = og.Dot(value, position)
-                self._dots.append(dot)
+            if field_i is not None and field_i != "":
+                if i == 4: # Linear gets 1
+                        number = o.string_to_number(field_i)
+                        if isinstance(number, int):
+                            self << ou.Linear(number)
+                elif i > 4:
+                    if field_i[0] == "_":
+                        field_i = "0" + field_i # Durations of zero aren't set (safe)
+                    dot_parameters: list[str] = field_i.split("_")
+                    value: int = 0
+                    position = self % ra.Position()
+                    for nth, parameter in enumerate(dot_parameters):
+                        match nth:
+                            case 0: # Sets the Value
+                                number = o.string_to_number(parameter)
+                                if isinstance(number, int):
+                                    value = number
+                            case _: # Sets the Position
+                                measure = True if 'm' in parameter or 'M' in parameter else False
+                                beat = True if 'b' in parameter or 'B' in parameter else False
+                                # Cleans up
+                                parameter = parameter.replace('m', '').replace('M', '')
+                                parameter = parameter.replace('b', '').replace('B', '')
+                                number = o.string_to_number(parameter)
+                                if measure:
+                                    position << ra.Measure(number)
+                                elif beat:
+                                    position << ra.Beat(number)
+                                else:
+                                    match number:
+                                        case int():
+                                            position << ra.Step(number)
+                                        case float():
+                                            position << ra.Position(number)
+                    dot = og.Dot(value, position)
+                    dots.append(dot)
+        # Only resets dots if new dots are set (No point of an automation without dots)
+        if dots:
+            self._dots = dots
         return self
 
 
