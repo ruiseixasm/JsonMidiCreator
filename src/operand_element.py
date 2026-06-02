@@ -4942,8 +4942,8 @@ class Automation(Element):
                                 if not self._linear: # Apply smoothstep function
                                     t_ratio = self.smoothstep_fraction(t_ratio)
                                 # Calculate interpolated value
-                                point_delta_value: Fraction = right_dot_delta_value * t_ratio
-                                interpolation_element.set_from_value(left_dot_value + point_delta_value)
+                                interpolation_delta_value: Fraction = right_dot_delta_value * t_ratio
+                                interpolation_element.set_from_value(left_dot_value + interpolation_delta_value)
                                 component_elements.append(interpolation_element)
                                 interpolation_points += 1    # Next point
                         component_elements.append(right_dot_element)
