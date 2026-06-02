@@ -4910,7 +4910,8 @@ class Automation(Element):
         interpolated_elements: list[ChannelElement] = []
         if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
             first_element = self._parameter.copy()
-            first_element._position_beats = self._position_beats # Automation position sets the reference position
+            # Interpolation is 0 based for simplicity reasons, the Automation offset is applied afterwards
+            first_element._position_beats = Fraction(0) # Dot is a relative position (0 based)
             first_element._duration_beats = self._duration_beats
             interpolated_elements.append( first_element )
             if self._dots:
@@ -4957,6 +4958,10 @@ class Automation(Element):
                                     interpolated_elements.append(element_point)
                                     point += 1    # Next point
                         interpolated_elements.append(element_right_dot)
+            # Offsets the Automation position
+            if self._position_beats:
+                for element in interpolated_elements:
+                    element._position_beats += self._position_beats
         return interpolated_elements
     
 
