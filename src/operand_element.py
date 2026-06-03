@@ -56,19 +56,15 @@ def str_to_tuple(parameters: str) -> tuple | None:
         print(count)  # Output: 1
     return None
 
-
 def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
-
-def is_clipped_value_128(value: int) -> bool:
-    return value < 0 or value > 127
-
-def clamp_value_128(value: int) -> int:
-    return max(0, min(127, value))
 
 
 if TYPE_CHECKING:
     from operand_container import Composition, Clip, Block, Part
+
+def clamp_value_128(value: int) -> int:
+    return max(0, min(127, value))
 
 class Element(o.Operand):
     """`Element`
@@ -111,6 +107,8 @@ class Element(o.Operand):
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
 
+    def is_clipped(self) -> bool:
+        return False
 
     def position(self, position_measures: float = None) -> Self:
         self._position_beats = ra.Measures(self, position_measures) % ra.Position() % Fraction()
@@ -1840,6 +1838,9 @@ class ChannelElement(DeviceElement):
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
 
+    def is_clipped(self) -> bool:
+        return super().is_clipped() or \
+            self._channel_0 < 0 or self._channel_0 > 16
 
     def channel(self, channel: int = None) -> Self:
         self._channel_0 = channel
@@ -2025,6 +2026,11 @@ class Note(ChannelElement):
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
 
+    def is_clipped(self, pitch: int) -> bool:
+        return super().is_clipped() \
+            or self._velocity < 0 or self._velocity > 128 \
+            or pitch < 0 or pitch > 128
+
     def center_pitch(self) -> int:
         return self._pitch._get_chromatic_pitch()
 
@@ -2171,6 +2177,8 @@ class Note(ChannelElement):
             masked_element_ids = set()
             
         pitch_int: int = self._pitch._get_chromatic_pitch()
+        if self.is_clipped(pitch_int):
+            return []
 
         self_plotlist: list[dict] = []
     
@@ -2237,6 +2245,8 @@ class Note(ChannelElement):
             return []
 
         pitch_int: int = self._pitch._get_chromatic_pitch()
+        if self.is_clipped(pitch_int):
+            return []
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         self_playlist: list[dict] = []
@@ -2319,6 +2329,8 @@ class Note(ChannelElement):
             return []
 
         pitch_int: int = self._pitch._get_chromatic_pitch()
+        if self.is_clipped(pitch_int):
+            return []
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -3433,6 +3445,9 @@ class Tuplet(ChannelElement):
     }
 
 
+def clamp_value_128(value: int) -> int:
+    return max(0, min(127, value))
+
 class ControlChange(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange`
 
@@ -3476,6 +3491,10 @@ class ControlChange(ChannelElement):
         master ^= (self._value << 8) | self._value
         master ^= (self._controller._number_msb << 8) | self._controller._number_msb
         return master & 0xFFFF  # 16-bit
+
+    def is_clipped(self) -> bool:
+        return super().is_clipped() \
+            or self._controller._number_msb < 0 or self._controller._number_msb > 128
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -3582,6 +3601,9 @@ class ControlChange(ChannelElement):
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
+        if self.is_clipped():
+            return []
+        
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
@@ -3600,7 +3622,7 @@ class ControlChange(ChannelElement):
                 "automation": {
                     "position": position_on,
                     "enabled": self._enabled,
-                    "value": self._value,
+                    "value": clamp_value_128(self._value),
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
@@ -3612,7 +3634,7 @@ class ControlChange(ChannelElement):
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
 
         absolute_position_beats: Fraction = Fraction(0)
@@ -3642,7 +3664,7 @@ class ControlChange(ChannelElement):
                     "midi_message": {
                         "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 99,
-                        "data_byte_2": cc_99_msb
+                        "data_byte_2": clamp_value_128(cc_99_msb)
                     }
                 },
                 {
@@ -3650,7 +3672,7 @@ class ControlChange(ChannelElement):
                     "midi_message": {
                         "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 98,
-                        "data_byte_2": cc_98_lsb
+                        "data_byte_2": clamp_value_128(cc_98_lsb)
                     }
                 },
                 {
@@ -3658,7 +3680,7 @@ class ControlChange(ChannelElement):
                     "midi_message": {
                         "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": 6,
-                        "data_byte_2": cc_6_msb
+                        "data_byte_2": clamp_value_128(cc_6_msb)
                     }
                 }
             ])
@@ -3669,7 +3691,7 @@ class ControlChange(ChannelElement):
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 38,
-                            "data_byte_2": cc_38_lsb
+                            "data_byte_2": clamp_value_128(cc_38_lsb)
                         }
                     }
                 )
@@ -3681,7 +3703,7 @@ class ControlChange(ChannelElement):
                     "midi_message": {
                         "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": self._controller._number_msb,
-                        "data_byte_2": msb_value
+                        "data_byte_2": clamp_value_128(msb_value)
                     }
                 }
             )
@@ -3692,14 +3714,14 @@ class ControlChange(ChannelElement):
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": self._controller._lsb,
-                            "data_byte_2": lsb_value
+                            "data_byte_2": clamp_value_128(lsb_value)
                         }
                     }
                 )
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
         if position_beats is None:
             position_beats = Fraction(0)
@@ -3711,25 +3733,25 @@ class ControlChange(ChannelElement):
         if self._controller._nrpn:
             cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
             self_midilist[0]["number"]      = 99
-            self_midilist[0]["value"]       = cc_99_msb
+            self_midilist[0]["value"]       = clamp_value_128(cc_99_msb)
             self_midilist[1] = self_midilist[0].copy()
             self_midilist[1]["number"]      = 98
-            self_midilist[1]["value"]       = cc_98_lsb
+            self_midilist[1]["value"]       = clamp_value_128(cc_98_lsb)
             self_midilist[2] = self_midilist[0].copy()
             self_midilist[2]["number"]      = 6
-            self_midilist[2]["value"]       = cc_6_msb
+            self_midilist[2]["value"]       = clamp_value_128(cc_6_msb)
             if self._controller._high:
                 self_midilist[3] = self_midilist[0].copy()
                 self_midilist[3]["number"]      = 38
-                self_midilist[3]["value"]       = cc_38_lsb
+                self_midilist[3]["value"]       = clamp_value_128(cc_38_lsb)
         else:
             msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
             self_midilist[0]["number"]      = self._controller._number_msb
-            self_midilist[0]["value"]       = msb_value
+            self_midilist[0]["value"]       = clamp_value_128(msb_value)
             if self._controller._high:
                 self_midilist[1] = self_midilist[0].copy()
                 self_midilist[1]["number"]      = self._controller._lsb
-                self_midilist[1]["value"]       = lsb_value
+                self_midilist[1]["value"]       = clamp_value_128(lsb_value)
         return self_midilist
 
 
