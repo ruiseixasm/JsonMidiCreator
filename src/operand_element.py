@@ -367,6 +367,8 @@ class Element(o.Operand):
                 self._position_beats        = ra.Position(self, self._position_beats, operand) % Fraction()
             case int():
                 self._position_beats        = ra.Measure(self, operand) % ra.Beats() % Fraction()
+            case str():
+                self << od.Token(operand)
             case od.Token():
                 self._set_element_from_token(operand._data)
             case od.Line():
