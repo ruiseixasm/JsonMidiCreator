@@ -4581,7 +4581,7 @@ class PitchBend(Automatable):
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._msb = round(value)
+            self._msb = math.floor(value)   # The precision is in the lsb where is rounded
             self._lsb = round((value - self._msb) * 128) # Coverts to 128 cycle
         return self
 
@@ -4598,7 +4598,7 @@ class PitchBend(Automatable):
 
     def is_clipped(self) -> bool:
         return super().is_clipped() or \
-            self._lsb < 0 or self._lsb > 16
+            self._lsb < 0 or self._lsb > 128
 
 
     def __eq__(self, other: o.Operand) -> bool:
