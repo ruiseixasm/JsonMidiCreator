@@ -60,6 +60,13 @@ def str_to_tuple(parameters: str) -> tuple | None:
 def pitch_channel_0(pitch: int, channel_0: int) -> int:
     return pitch << 4 | channel_0
 
+def is_clipped_value_128(value: int) -> bool:
+    return value < 0 or value > 127
+
+def clamp_value_128(value: int) -> int:
+    return max(0, min(127, value))
+
+
 if TYPE_CHECKING:
     from operand_container import Composition, Clip, Block, Part
 
