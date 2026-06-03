@@ -499,6 +499,11 @@ class Dots(Generic):
                     case list():                return self._dots
                     case _:                     return super().__mod__(operand)
             case list():                return self._dots.copy() # Dots are constant, no need for deep copy
+            case Dot():
+                for i, dot in enumerate(self._dots):
+                    if operand._position_beats == dot._position_beats:
+                        return dot
+                return ol.Null()
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
