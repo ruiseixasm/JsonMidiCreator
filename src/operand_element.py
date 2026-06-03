@@ -4895,6 +4895,9 @@ class Automation(Element):
             case int():             return self._parameter
             case od.Parameter():    return od.Parameter(self._parameter)
             case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
+            case og.Dot():
+                dots = og.Dots(self._dots)
+                return dots.__mod__(operand)
             case ou.Linear():       return ou.Linear(self._linear)
             case bool():            return self._linear
             case _:                 return super().__mod__(operand)
@@ -5024,6 +5027,11 @@ class Automation(Element):
                     self._parameter = operand._data.copy()
             case og.Dots():
                 self._dots = operand._dots.copy() # Read only operand, no need to copy
+            case og.Dot():
+                dots = og.Dots()
+                dots._dots = self._dots
+                dots.__lshift__(operand)
+                self._dots = dots._dots
             case ou.Linear():
                 self._linear = operand % bool()
             case bool():
