@@ -449,6 +449,17 @@ class Dot(Generic):
             return self._position_beats > other._position_beats
         return False
     
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case int():                 return self._value
+                    case _:                     return super().__mod__(operand)
+            case int():                 return self._value
+            case _:                     return ra.Position(self._position_beats) % operand
+            
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["value"]    = self.serialize( self._value )
@@ -464,6 +475,43 @@ class Dot(Generic):
             super().loadSerialization(serialization)
             self._value             = self.deserialize( serialization["parameters"]["value"] )
             self._position_beats    = self.deserialize( serialization["parameters"]["position"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Dot():
+                super().__lshift__(operand)
+                self._value = operand._value
+                self._position_beats = operand._position_beats
+            case od.Pipe():
+                match operand._data:
+                    case int():
+                        self.value = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case int():
+                self.value = operand
+            case _:
+                self._position_beats = ra.Position(operand)._rational
+        return self
+
+    def __iadd__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case int():
+                self._value += number
+            case _:
+                self._position_beats += ra.Position(number)._rational
+        return self
+    
+    def __isub__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        match number:
+            case int():
+                self._value -= number
+            case _:
+                self._position_beats -= ra.Position(number)._rational
         return self
 
 
@@ -567,6 +615,7 @@ class Dots(Generic):
             case _:
                 super().__isub__(number)
         return self
+
 
 class Pitch(Generic):
     """`Generic -> Pitch`
