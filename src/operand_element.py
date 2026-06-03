@@ -3448,8 +3448,24 @@ class Tuplet(ChannelElement):
 def clamp_value_128(value: int) -> int:
     return max(0, min(127, value))
 
-class ControlChange(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange`
+
+class Automatable(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> Automatable`
+
+    An `Automatable` is an element that can be controllable by an `Automation` as a parameter,
+    like `ControlChange`, `Aftertouch` or `PitchBend`.
+
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(Quantization(settings)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(settings) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    pass
+
+class ControlChange(Automatable):
+    """`Element -> DeviceElement -> ChannelElement -> Automatable -> ControlChange`
 
     A `ControlChange` is an element that represents the CC midi messages of a Device.
 
@@ -4172,8 +4188,8 @@ class PolyModeOn(ValueZero):
         return self
 
 
-class Aftertouch(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> Aftertouch`
+class Aftertouch(Automatable):
+    """`Element -> DeviceElement -> ChannelElement -> Automatable -> Aftertouch`
 
     An `Aftertouch` is an element that controls the pressure on all keys being played.
 
@@ -4527,8 +4543,8 @@ class PolyAftertouch(Aftertouch):
         return self
 
 
-class PitchBend(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> PitchBend`
+class PitchBend(Automatable):
+    """`Element -> DeviceElement -> ChannelElement -> Automatable -> PitchBend`
 
     A `PitchBend` is an element that controls the Device Pitch Bend wheel.
 
