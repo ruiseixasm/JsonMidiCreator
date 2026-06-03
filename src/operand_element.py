@@ -4835,7 +4835,7 @@ class Automation(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._parameter: ChannelElement = ControlChange()
+        self._parameter: Automatable = ControlChange()
         self._dots: list[og.Dot] = []
         self._linear: bool = False
         super().__init__()
@@ -4871,7 +4871,10 @@ class Automation(Element):
                 parameter_field_0 = "_".join(field_parameters)
                 parameter_field_2 = token_operand.get_field(2)
                 parameter_token: str = parameter_field_0 + "::" + parameter_field_2
-                self._parameter = _get_element_from_token(parameter_token)
+                if field_parameters[0] in Automation._element_type:
+                    self._parameter = _get_element_from_token(parameter_token)
+                else:
+                    self._parameter << od.Token(parameter_token)
         # Set Interpolation type and Dots
         dots: list[og.Dot] = []
         # Used for conversion only, keeps self Time Signature and the last position setting
@@ -4951,7 +4954,7 @@ class Automation(Element):
 
     def get_component_elements(self) -> list[ChannelElement]:
         component_elements: list[ChannelElement] = []
-        if isinstance(self._parameter, (ControlChange, Aftertouch, PitchBend)):
+        if isinstance(self._parameter, Automatable):
             first_element = self._parameter.copy()
             first_element._position_beats = self._position_beats
             first_element._duration_beats = self._duration_beats
@@ -5069,7 +5072,7 @@ class Automation(Element):
             case od.Pipe():
                 match operand._data:
                     case od.Parameter():
-                        if isinstance(operand._data._data, (ControlChange, Aftertouch, PitchBend)):
+                        if isinstance(operand._data._data, Automatable):
                             self._parameter = operand._data._data.copy()
                     case list():
                         if all(isinstance(d, og.Dot) for d in operand._data):
@@ -5080,7 +5083,7 @@ class Automation(Element):
                         self._linear = operand._data
                     case _:                     super().__lshift__(operand)
             case od.Parameter():
-                if isinstance(operand._data, (ControlChange, Aftertouch, PitchBend)):
+                if isinstance(operand._data, Automatable):
                     self._parameter = operand._data.copy()
             case list():
                 if all(isinstance(d, og.Dot) for d in operand):
