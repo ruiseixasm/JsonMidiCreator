@@ -457,6 +457,7 @@ class Dot(Generic):
                     case int():                 return self._value
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
+            case ol.Null():             return operand
             case _:                     return ra.Position(self._position_beats) % operand
             
 
@@ -492,6 +493,8 @@ class Dot(Generic):
                         super().__lshift__(operand)
             case int():
                 self.value = operand
+            case ol.Null():
+                return self
             case _:
                 self._position_beats = ra.Position(operand)._rational
         return self
