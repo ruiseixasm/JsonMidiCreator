@@ -3502,7 +3502,7 @@ class ControlChange(Automatable):
     
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._value = round(value) % 128
+            self._value = round(value)
         return self
 
     def get_value(self) -> Fraction:
@@ -4222,7 +4222,7 @@ class Aftertouch(Automatable):
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
-            self._pressure = round(value) % 128
+            self._pressure = round(value)
         return self
 
     def get_value(self) -> Fraction:
@@ -4583,7 +4583,7 @@ class PitchBend(Automatable):
         return self
 
     def get_value(self) -> Fraction:
-        msb_value: Fraction = self._msb % 128 + Fraction(self._lsb % 128, 128)
+        msb_value: Fraction = self._msb + Fraction(self._lsb, 128)
         return Fraction(msb_value)
 
     def checksum(self) -> int:
@@ -4640,11 +4640,11 @@ class PitchBend(Automatable):
                     case _:
                         return super().__mod__(operand)
             case int():
-                return self._msb % 128
+                return self._msb
             case ou.Bend():
-                return ou.Bend() << self._get_bend(self._msb % 128, self._lsb % 128)
+                return ou.Bend() << self._get_bend(self._msb, self._lsb)
             case ou.LSB():
-                return ou.LSB() << od.Pipe(self._lsb % 128)
+                return ou.LSB() << od.Pipe(self._lsb)
             case _:
                 return super().__mod__(operand)
 
