@@ -584,7 +584,7 @@ class Dots(Generic):
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._dots = operand.copy() # Dots are constant, no need for deep copy
+                self._dots = o.Operand.deep_copy(operand)
             case Dot():
                 for i, dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
