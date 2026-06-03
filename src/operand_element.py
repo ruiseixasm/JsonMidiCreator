@@ -3462,7 +3462,12 @@ class Automatable(ChannelElement):
     Channel(settings) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def set_from_value(self, value: int | float | Fraction) -> Self:
+        return self
+
+    def get_value(self) -> Fraction:
+        return Fraction()
+
 
 class ControlChange(Automatable):
     """`Element -> DeviceElement -> ChannelElement -> Automatable -> ControlChange`
@@ -4847,6 +4852,11 @@ class Automation(Element):
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
+    _element_type: dict[str, type] = {
+        'cc':       ControlChange,
+        'at':       Aftertouch,
+        'pb':       PitchBend
+    }
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token)    # Sets the Duration and Position ONLY (not stackable)
