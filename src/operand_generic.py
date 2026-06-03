@@ -488,14 +488,21 @@ class Dot(Generic):
                 match operand._data:
                     case int():
                         self.value = operand._data
+                    case Fraction():
+                        self._position_beats = operand._data
                     case _:
                         super().__lshift__(operand)
             case int():
                 self.value = operand
-            case ol.Null():
-                return self
-            case _:
+            case float() | Fraction() | ra.Convertible():
                 self._position_beats = ra.Position(operand)._rational
+            case list():
+                if len(operand) == 2:
+                    if isinstance(operand[0], int):
+                        self._position_beats = ra.Position(operand[1])._rational
+                        self._value = operand[0]
+            case _:
+                super().__lshift__(operand)
         return self
 
     def __iadd__(self, number: any) -> Self:
@@ -503,8 +510,10 @@ class Dot(Generic):
         match number:
             case int():
                 self._value += number
-            case _:
+            case float() | Fraction() | ra.Convertible():
                 self._position_beats += ra.Position(number)._rational
+            case _:
+                self.__iadd__(number)
         return self
     
     def __isub__(self, number: any) -> Self:
@@ -512,8 +521,10 @@ class Dot(Generic):
         match number:
             case int():
                 self._value -= number
-            case _:
+            case float() | Fraction() | ra.Convertible():
                 self._position_beats -= ra.Position(number)._rational
+            case _:
+                self.__isub__(number)
         return self
 
 
@@ -587,6 +598,10 @@ class Dots(Generic):
             case list():
                 if all(isinstance(d, Dot) for d in operand):
                     self._dots = o.Operand.deep_copy(operand)
+                elif all(isinstance(dl, list) for dl in operand) and all(len(dl) == 2 for dl in operand):
+                    self._dots = []
+                    for dot_l in operand:
+                        self._dots.append(Dot(dot_l))
             case Dot():
                 for dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
