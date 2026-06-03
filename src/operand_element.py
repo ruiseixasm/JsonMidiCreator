@@ -5036,11 +5036,10 @@ class Automation(Element):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case og.Dot():
-                for i, dot in enumerate(self._dots):
-                    if operand._position_beats == dot._position_beats:
-                        self._dots[i] = operand # Replaces the dot
-                        return self
-                self._dots.append(operand)
+                dots = og.Dots()
+                dots._dots = self._dots
+                dots += operand
+                self._dots = dots._dots
             case _:
                 super().__iadd__(operand)
         return self
@@ -5048,10 +5047,11 @@ class Automation(Element):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case og.Dot(): # Needs list comprehension to remove
-                self._dots = [  # The position is the index
-                    dot for dot in self._dots if dot._position_beats != operand._position_beats
-                ]
+            case og.Dot():
+                dots = og.Dots()
+                dots._dots = self._dots
+                dots -= operand
+                self._dots = dots._dots
             case _:
                 super().__isub__(operand)
         return self
