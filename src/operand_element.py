@@ -4883,27 +4883,6 @@ class Automation(Element):
                 return super().__eq__(other)
     
     
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case od.Parameter():    return od.Parameter() << od.Pipe(self._parameter)
-                    case list():            return self._list
-                    case ou.Linear():       return operand._data << self._linear
-                    case bool():            return self._linear
-                    case _:                 return super().__mod__(operand)
-            case int():             return self._parameter
-            case od.Parameter():    return od.Parameter(self._parameter)
-            case list():            return o.Operand.deep_copy(self._list)
-            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
-            case og.Dot():
-                dots = og.Dots(self._dots)
-                return dots.__mod__(operand)
-            case ou.Linear():       return ou.Linear(self._linear)
-            case bool():            return self._linear
-            case _:                 return super().__mod__(operand)
-
-
     @staticmethod
     def smoothstep_fraction(t: Fraction) -> Fraction:
         """
@@ -4913,7 +4892,6 @@ class Automation(Element):
         # t²(3-2t) as fractions
         t2: Fraction = t * t
         return t2 * (Fraction(3) - Fraction(2) * t)
-
 
     def get_component_elements(self) -> list[ChannelElement]:
         component_elements: list[ChannelElement] = []
@@ -4955,6 +4933,27 @@ class Automation(Element):
                         component_elements.append(right_dot_element)
         return component_elements
     
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case od.Parameter():    return od.Parameter() << od.Pipe(self._parameter)
+                    case list():            return self._list
+                    case ou.Linear():       return operand._data << self._linear
+                    case bool():            return self._linear
+                    case _:                 return super().__mod__(operand)
+            case int():             return self._parameter
+            case od.Parameter():    return od.Parameter(self._parameter)
+            case list():            return o.Operand.deep_copy(self._list)
+            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
+            case og.Dot():
+                dots = og.Dots(self._dots)
+                return dots.__mod__(operand)
+            case ou.Linear():       return ou.Linear(self._linear)
+            case bool():            return self._linear
+            case _:                 return super().__mod__(operand)
+
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
