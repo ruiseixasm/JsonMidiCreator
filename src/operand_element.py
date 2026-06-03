@@ -3822,24 +3822,22 @@ class ControlChange(Automatable):
         match operand:
             case int():
                 self._value += operand  # Specific and compounded parameter
-                return self
             case ou.Value() | ou.MSB():
                 self._value += operand._unit  # Specific and compounded parameter
-                return self
             case _:
-                return super().__iadd__(operand)
+                super().__iadd__(operand)
+        return self
 
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
                 self._value -= operand  # Specific and compounded parameter
-                return self
             case ou.Value() | ou.MSB():
                 self._value -= operand._unit  # Specific and compounded parameter
-                return self
             case _:
-                return super().__isub__(operand)
+                super().__isub__(operand)
+        return self
 
     # For the `Number` class
     _controller_id: dict[str, int] = {
@@ -4797,7 +4795,7 @@ class PitchBend(Automatable):
                 bend += operand._unit
                 self._msb, self._lsb = self._get_msb_lsb( bend )
             case _:
-                return super().__iadd__(operand)
+                super().__iadd__(operand)
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -4810,7 +4808,7 @@ class PitchBend(Automatable):
                 bend -= operand._unit
                 self._msb, self._lsb = self._get_msb_lsb( bend )
             case _:
-                return super().__isub__(operand)
+                super().__isub__(operand)
         return self
 
 
