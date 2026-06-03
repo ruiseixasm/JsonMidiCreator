@@ -586,9 +586,9 @@ class Dots(Generic):
             case list():
                 self._dots = o.Operand.deep_copy(operand)
             case Dot():
-                for i, dot in enumerate(self._dots):
+                for dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
-                        self._dots[i] = operand.copy()
+                        dot._value = operand._value
                         return self
             case _:
                 super().__lshift__(operand)
@@ -598,11 +598,11 @@ class Dots(Generic):
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case Dot():
-                for i, dot in enumerate(self._dots):
+                for dot in enumerate(self._dots):
                     if number._position_beats == dot._position_beats:
-                        self._dots[i] = number.copy() # Replaces the dot
+                        dot._value += number._value
                         return self
-                self._dots.append(number)
+                self._dots.append(number.copy())
             case _:
                 super().__iadd__(number)
         return self
