@@ -580,11 +580,13 @@ class Dots(Generic):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        self._dots = operand._data
+                        if all(isinstance(d, Dot) for d in operand._data):
+                            self._dots = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._dots = o.Operand.deep_copy(operand)
+                if all(isinstance(d, Dot) for d in operand):
+                    self._dots = o.Operand.deep_copy(operand)
             case Dot():
                 for dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:

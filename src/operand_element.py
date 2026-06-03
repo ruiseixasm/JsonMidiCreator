@@ -5045,7 +5045,8 @@ class Automation(Element):
                         if isinstance(operand._data._data, (ControlChange, Aftertouch, PitchBend)):
                             self._parameter = operand._data._data.copy()
                     case list():
-                        self._dots = operand._data
+                        if all(isinstance(d, og.Dot) for d in operand._data):
+                            self._dots = operand._data
                     case ou.Linear():
                         self._linear = operand._data % bool()
                     case bool():
@@ -5055,7 +5056,8 @@ class Automation(Element):
                 if isinstance(operand._data, (ControlChange, Aftertouch, PitchBend)):
                     self._parameter = operand._data.copy()
             case list():
-                self._dots = o.Operand.deep_copy(operand)
+                if all(isinstance(d, og.Dot) for d in operand):
+                    self._dots = o.Operand.deep_copy(operand)
             case og.Dots():
                 self._dots = operand.copy()._dots
             case og.Dot():
