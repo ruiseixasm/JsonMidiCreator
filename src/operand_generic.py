@@ -549,11 +549,11 @@ class Dots(Generic):
                 match operand._data:
                     case list():                return self._dots
                     case _:                     return super().__mod__(operand)
-            case list():                return self._dots.copy() # Dots are constant, no need for deep copy
+            case list():                return o.Operand.deep_copy(self._dots)
             case Dot():
                 for i, dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
-                        return dot
+                        return dot.copy()
                 return ol.Null()
             case _:                     return super().__mod__(operand)
 
@@ -589,7 +589,7 @@ class Dots(Generic):
             case Dot():
                 for i, dot in enumerate(self._dots):
                     if operand._position_beats == dot._position_beats:
-                        self._dots[i] = operand # Replaces the dot
+                        self._dots[i] = operand.copy()
                         return self
             case _:
                 super().__lshift__(operand)
@@ -601,7 +601,7 @@ class Dots(Generic):
             case Dot():
                 for i, dot in enumerate(self._dots):
                     if number._position_beats == dot._position_beats:
-                        self._dots[i] = number # Replaces the dot
+                        self._dots[i] = number.copy() # Replaces the dot
                         return self
                 self._dots.append(number)
             case _:

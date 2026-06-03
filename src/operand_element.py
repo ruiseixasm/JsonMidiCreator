@@ -5008,7 +5008,7 @@ class Automation(Element):
             case Automation():
                 super().__lshift__(operand)
                 self._parameter = operand._parameter
-                self._dots = operand._dots.copy()
+                self._dots = o.Operand.deep_copy(operand._dots)
                 self._linear = operand._linear
             case od.Pipe():
                 match operand._data:
@@ -5028,7 +5028,7 @@ class Automation(Element):
             case list():
                 self._dots = o.Operand.deep_copy(operand)
             case og.Dots():
-                self._dots = operand._dots.copy() # Read only operand, no need to copy
+                self._dots = operand.copy()._dots
             case og.Dot():
                 dots = og.Dots()
                 dots._dots = self._dots
