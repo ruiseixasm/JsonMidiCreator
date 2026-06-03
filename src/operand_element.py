@@ -4286,6 +4286,9 @@ class Aftertouch(Automatable):
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
+        if self.is_clipped():
+            return []
+
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
@@ -4315,7 +4318,7 @@ class Aftertouch(Automatable):
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
         
         absolute_position_beats: Fraction = Fraction(0)
@@ -4349,7 +4352,7 @@ class Aftertouch(Automatable):
     
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
         if position_beats is None:
             position_beats = Fraction(0)
@@ -4593,6 +4596,10 @@ class PitchBend(Automatable):
         master ^= (self._lsb << 8) | self._lsb
         return master & 0xFFFF  # 16-bit
 
+    def is_clipped(self) -> bool:
+        return super().is_clipped() or \
+            self._lsb < 0 or self._lsb > 16
+
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -4654,6 +4661,9 @@ class PitchBend(Automatable):
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
+        if self.is_clipped():
+            return []
+
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
@@ -4684,7 +4694,7 @@ class PitchBend(Automatable):
 
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
         
         absolute_position_beats: Fraction = Fraction(0)
@@ -4719,7 +4729,7 @@ class PitchBend(Automatable):
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
-        if not self._enabled:
+        if not self._enabled or self.is_clipped():
             return []
         if position_beats is None:
             position_beats = Fraction(0)
