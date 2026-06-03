@@ -4281,7 +4281,7 @@ class Aftertouch(ChannelElement):
                 "automation": {
                     "position": position_on,
                     "enabled": self._enabled,
-                    "value": self._pressure,
+                    "value": clamp_value_128(self._pressure),
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
@@ -4318,7 +4318,7 @@ class Aftertouch(ChannelElement):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xD0 | self._channel_0,
-                    "data_byte": self._pressure
+                    "data_byte": clamp_value_128(self._pressure)
                 }
             }
         )
@@ -4333,7 +4333,7 @@ class Aftertouch(ChannelElement):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
-        self_midilist[0]["pressure"]    = self._pressure
+        self_midilist[0]["pressure"]    = clamp_value_128(self._pressure)
         return self_midilist
 
 
@@ -4649,7 +4649,7 @@ class PitchBend(ChannelElement):
                 "automation": {
                     "position": position_on,
                     "enabled": self._enabled,
-                    "value": self._msb,
+                    "value": clamp_value_128(self._msb),
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
@@ -4687,8 +4687,8 @@ class PitchBend(ChannelElement):
                 "time_ms": o.minutes_to_time_ms(self_position_min),
                 "midi_message": {
                     "status_byte": 0xE0 | self._channel_0,
-                    "data_byte_1": self._lsb,
-                    "data_byte_2": self._msb
+                    "data_byte_1": clamp_value_128(self._lsb),
+                    "data_byte_2": clamp_value_128(self._msb)
                 }
             }
         )
@@ -4703,7 +4703,7 @@ class PitchBend(ChannelElement):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._get_bend(self._msb, self._lsb)
+        self_midilist[0]["value"]       = self._get_bend(clamp_value_128(self._msb), clamp_value_128(self._lsb))
         return self_midilist
 
     def getSerialization(self) -> dict:
