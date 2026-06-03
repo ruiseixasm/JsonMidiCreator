@@ -5123,6 +5123,8 @@ class Automation(Element):
                 dots._dots = self._dots
                 dots += operand
                 self._dots = dots._dots
+                if operand._position_beats <= 0:
+                    self._parameter += operand._value
             case _:
                 super().__iadd__(operand)
         return self
@@ -5135,6 +5137,8 @@ class Automation(Element):
                 dots._dots = self._dots
                 dots -= operand
                 self._dots = dots._dots
+                if operand._position_beats <= 0:
+                    self._parameter -= operand._value
             case _:
                 super().__isub__(operand)
         return self
