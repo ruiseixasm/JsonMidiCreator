@@ -449,15 +449,16 @@ class Dot(Generic):
         return False
     
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         match operand:
             case od.Pipe():
                 match operand._data:
                     case int():                 return self._value
+                    case Fraction():            return self._position_beats
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
-            case ol.Null():             return operand
-            case _:                     return ra.Position(self._position_beats) % operand
+            case float() | Fraction() | ra.Convertible():
+                return ra.Position(self._position_beats) % operand
+            case _:                     return super().__mod__(operand)
             
 
     def getSerialization(self) -> dict:
@@ -553,7 +554,6 @@ class Dots(Generic):
         return False
     
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
         match operand:
             case od.Pipe():
                 match operand._data:
