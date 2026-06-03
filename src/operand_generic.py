@@ -419,18 +419,17 @@ class TimeSignature(Generic):
 class Dot(Generic):
     """`Generic -> Dot`
 
-    A `Dot` is a pair of a `Value` (0 - 127) and a `Position` to be used in automation of `ControlChange`,
-    `Aftertouch` and `PitchBend` elements.
-
-    This is a constant operand (read-only) intended to be used as a wrapper of information for the automation only.
+    A `Dot` is a pair of a `Value` (0 - 127) and a `Position` to be used with the element `Automation`.
 
     Args:
-        value (int): The value for the automated operand from 0 to 127.
         position (any): The position relative to each value.
+        value (int): The value for the automated operand from 0 to 127.
     """
     def __init__(self, position: any = 0, value: int = 0):
-        self._value: list[int] = value
         self._position_beats: Fraction = ra.Position(position)._rational
+        self._value: int = 0
+        if isinstance(value, int):
+            self._value = value
         super().__init__()
 
     def __eq__(self, other: 'Dot') -> bool:
