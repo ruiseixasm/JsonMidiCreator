@@ -598,11 +598,22 @@ class Dots(Generic):
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case Dot():
-                for dot in enumerate(self._dots):
-                    if number._position_beats == dot._position_beats:
-                        dot._value += number._value
-                        return self
-                self._dots.append(number.copy())
+                if number._position_beats < 0:  # Affects all Dots
+                    self._dots = [
+                        dot + number._value for dot in self._dots
+                    ]
+                else:
+                    for dot in enumerate(self._dots):
+                        if number._position_beats == dot._position_beats:
+                            dot._value += number._value
+                            return self
+                    self._dots.append(number.copy())
+            case list():    # Needs list comprehension
+                if all(isinstance(d, Dot) for d in number):
+                    self._dots = [
+                        dot for dot in self._dots if dot not in number
+                    ]
+                    self._dots.extend(number)
             case _:
                 super().__iadd__(number)
         return self
@@ -610,10 +621,21 @@ class Dots(Generic):
     def __isub__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case Dot(): # Needs list comprehension to remove
-                self._dots = [  # The position is the index
-                    dot for dot in self._dots if dot._position_beats != number._position_beats
-                ]
+            case Dot():
+                if number._position_beats < 0:  # Affects all Dots
+                    self._dots = [
+                        dot - number._value for dot in self._dots
+                    ]
+                else:
+                    for dot in enumerate(self._dots):
+                        if number._position_beats == dot._position_beats:
+                            dot._value -= number._value
+                            return self
+            case list():    # Needs list comprehension
+                if all(isinstance(d, Dot) for d in number):
+                    self._dots = [
+                        dot for dot in self._dots if dot not in number
+                    ]
             case _:
                 super().__isub__(number)
         return self
