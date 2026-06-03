@@ -4826,7 +4826,7 @@ class Automation(Element):
                         field_i = "0" + field_i # Durations of zero aren't set (safe)
                     dot_parameters: list[str] = field_i.split("_")
                     value: int = 0
-                    position = self % ra.Position()
+                    position: ra.Position = self % ra.Position()
                     for nth, parameter in enumerate(dot_parameters):
                         match nth:
                             case 0: # Sets the Value
@@ -4850,7 +4850,9 @@ class Automation(Element):
                                             position << ra.Step(number)
                                         case float():
                                             position << ra.Position(number)
-                    dot = og.Dot(position, value)
+                    dot = og.Dot()
+                    dot._position_beats = position._rational # Faster this way, direct access
+                    dot._value = value
                     dots.append(dot)
                 else: # Linear gets 1
                     number = o.string_to_number(field_i)
