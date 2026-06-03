@@ -4848,14 +4848,15 @@ class Automation(Element):
                 self._parameter = _get_element_from_token(parameter_token)
         # Set Interpolation type and Dots
         dots: list[og.Dot] = []
+        # Used for conversion only, keeps self Time Signature and the last position setting
+        position: ra.Position = self % ra.Position()
+        value: int = 0
         for i, field_i in enumerate(token_operand.get_fields()):
             if i > 3 and field_i is not None and field_i != "":
                 if i > 4:
                     if field_i[0] == "_":
                         field_i = "0" + field_i # Durations of zero aren't set (safe)
                     dot_parameters: list[str] = field_i.split("_")
-                    value: int = 0
-                    position: ra.Position = self % ra.Position()
                     for nth, parameter in enumerate(dot_parameters):
                         match nth:
                             case 0: # Sets the Value
