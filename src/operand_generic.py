@@ -428,7 +428,7 @@ class Dot(Generic):
         value (int): The value for the automated operand from 0 to 127.
         position (any): The position relative to each value.
     """
-    def __init__(self, value: int = 0, position: any = 0):
+    def __init__(self, position: any = 0, value: int = 0):
         self._value: list[int] = value
         self._position_beats: Fraction = ra.Position(position)._rational
         super().__init__()

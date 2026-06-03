@@ -759,21 +759,21 @@ def test_channel_setting():
 
 def test_parameter_automation():
     parameter = Parameter(ControlChange("Pan"))
-    dots = Dots([Dot(100, 1.0)])
+    dots = Dots() + Dot(1.0, 100)
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
     # automation >> Plot(title="Automation of a ControlChange", block=False)
     assert automation.len() == 32 + 1
 
     parameter = Parameter(Aftertouch())
-    dots = Dots([Dot(50, 1.0)])
+    dots = Dots() + Dot(1.0, 50)
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
     # automation >> Plot(title="Automation of an Aftertouch", block=False)
     assert automation.len() == 32 + 1
 
     parameter = Parameter(PitchBend())
-    dots = Dots([Dot(20, 1.0)])
+    dots = Dots() + Dot(1.0, 20)
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
     # automation >> Plot(title="Automation of an PitchBend")

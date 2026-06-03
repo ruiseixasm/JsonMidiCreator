@@ -4850,7 +4850,7 @@ class Automation(Element):
                                             position << ra.Step(number)
                                         case float():
                                             position << ra.Position(number)
-                    dot = og.Dot(value, position)
+                    dot = og.Dot(position, value)
                     dots.append(dot)
                 else: # Linear gets 1
                     number = o.string_to_number(field_i)
