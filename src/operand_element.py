@@ -984,30 +984,30 @@ class Unison(Element):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         return self_playlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is not None:
-            position_beats += self._position_beats
-        else:
-            position_beats = Fraction(0)    # Because it works as a Clip of multiple Elements
+        if position_beats is None:
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
@@ -1316,6 +1316,8 @@ class TalkieRun(Talkie):
         
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1384,6 +1386,8 @@ class TalkieGet(TalkieRun):
         
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1428,6 +1432,8 @@ class TalkieSet(TalkieGet):
         
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
     
         if self_playlist:
@@ -1524,6 +1530,8 @@ class DeviceElement(Element):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         self_numerator: int = self._get_time_signature()._top
@@ -1667,6 +1675,8 @@ class Clock(DeviceElement):
 
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_playlist: list[dict] = []
 
         pulses_per_note: int = self._clock_ppqn * 4
@@ -1924,6 +1934,8 @@ class ChannelElement(DeviceElement):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -2560,6 +2572,8 @@ class KeyScale(Note):
         self_plotlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
@@ -2571,6 +2585,8 @@ class KeyScale(Note):
         self_playlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, self))
         return self_playlist
@@ -2579,6 +2595,8 @@ class KeyScale(Note):
         self_midilist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats, self))
         return self_midilist
@@ -3138,6 +3156,8 @@ class Retrigger(Note):
         self_plotlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
         return self_plotlist
@@ -3146,6 +3166,8 @@ class Retrigger(Note):
         self_playlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, self))
         return self_playlist
@@ -3154,6 +3176,8 @@ class Retrigger(Note):
         self_midilist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats, self))    # extends the list with other list
         return self_midilist
@@ -3366,6 +3390,8 @@ class Tuplet(ChannelElement):
         self_plotlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
             # Makes sure the self is correctly set
@@ -3378,6 +3404,8 @@ class Tuplet(ChannelElement):
         self_playlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
@@ -3386,6 +3414,8 @@ class Tuplet(ChannelElement):
         self_midilist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
@@ -3748,6 +3778,8 @@ class ControlChange(Automatable):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_midilist: list[dict] = super().getMidilist(midi_track, position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
 
@@ -4354,6 +4386,8 @@ class Aftertouch(Automatable):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
@@ -4731,6 +4765,8 @@ class PitchBend(Automatable):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
@@ -5030,6 +5066,8 @@ class Automation(Element):
         self_playlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
         return self_playlist
@@ -5038,6 +5076,8 @@ class Automation(Element):
         self_playlist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
@@ -5046,6 +5086,8 @@ class Automation(Element):
         self_midilist: list[dict] = []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
@@ -5248,6 +5290,8 @@ class ProgramChange(ChannelElement):
             return []
         if position_beats is None:
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
@@ -5335,8 +5379,10 @@ class Panic(DeviceElement):
         if not self._enabled:
             return []
 
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
         devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         # Midi validation is done in the JsonMidiPlayer program
