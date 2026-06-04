@@ -984,7 +984,7 @@ class Unison(Element):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -994,7 +994,7 @@ class Unison(Element):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1004,7 +1004,7 @@ class Unison(Element):
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1314,7 +1314,7 @@ class TalkieRun(Talkie):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1384,7 +1384,7 @@ class TalkieGet(TalkieRun):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1430,7 +1430,7 @@ class TalkieSet(TalkieGet):
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_note: 'Note' = None) -> list[dict]:
         
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1528,7 +1528,7 @@ class DeviceElement(Element):
                     derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1673,7 +1673,7 @@ class Clock(DeviceElement):
         if not self._enabled or self._duration_beats < 1:
             return []
 
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -1932,7 +1932,7 @@ class ChannelElement(DeviceElement):
                     derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -2570,7 +2570,7 @@ class KeyScale(Note):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -2583,7 +2583,7 @@ class KeyScale(Note):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -2593,7 +2593,7 @@ class KeyScale(Note):
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3154,7 +3154,7 @@ class Retrigger(Note):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3164,7 +3164,7 @@ class Retrigger(Note):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3174,7 +3174,7 @@ class Retrigger(Note):
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3388,7 +3388,7 @@ class Tuplet(ChannelElement):
         if masked_element_ids is None:
             masked_element_ids = set()
         self_plotlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3402,7 +3402,7 @@ class Tuplet(ChannelElement):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3412,7 +3412,7 @@ class Tuplet(ChannelElement):
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -3776,7 +3776,7 @@ class ControlChange(Automatable):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled or self.is_clipped():
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -4384,7 +4384,7 @@ class Aftertouch(Automatable):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled or self.is_clipped():
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -4763,7 +4763,7 @@ class PitchBend(Automatable):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled or self.is_clipped():
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -5064,7 +5064,7 @@ class Automation(Element):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -5074,7 +5074,7 @@ class Automation(Element):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -5084,7 +5084,7 @@ class Automation(Element):
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
@@ -5288,7 +5288,7 @@ class ProgramChange(ChannelElement):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
-        if position_beats is None:
+        if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
