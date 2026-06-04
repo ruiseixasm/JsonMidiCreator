@@ -5076,7 +5076,7 @@ class Automation(Element):
         match operand:
             case Automation():
                 super().__lshift__(operand)
-                self._parameter = operand._parameter
+                self._parameter = operand._parameter.copy()
                 self._dots = o.Operand.deep_copy(operand._dots)
                 self._linear = operand._linear
             case od.Pipe():

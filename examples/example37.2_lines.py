@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 settings << Folder("examples/")
 
 "a_._10:1/32_1m:10:volume::100_1m:10_1m_2b" >> Plot(title="Smoothstep Automation at 1m", block=False)
-automation = Automation("a_._10:1/32_1m:10:volume::100_1m:10_1m_2b")
+automation = Automation("a_at_10:1/32_1m:10:volume::100_1m:10_1m_2b")
 automation >> Plot(title="Smoothstep Automation Original", block=False)
 automation + Dot(-1, +50) >> Plot(title="Smoothstep Automation + 50", block=False)
 automation + Dot(-1, -50) >> Plot(title="Smoothstep Automation - 50")
