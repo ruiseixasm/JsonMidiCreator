@@ -4645,7 +4645,7 @@ class PitchBend(Automatable):
                     case _:
                         return super().__mod__(operand)
             case int():
-                return self._msb
+                return round(self.get_value())
             case ou.Bend():
                 return ou.Bend() << self._get_bend(self._msb, self._lsb)
             case ou.LSB():
@@ -4774,7 +4774,7 @@ class PitchBend(Automatable):
                     case _:
                         super().__lshift__(operand)
             case int():
-                self._msb = operand
+                self.set_from_value(operand)
             case ou.Bend():
                 self._msb, self._lsb = self._get_msb_lsb( operand._unit )
             case ou.MSB():

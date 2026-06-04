@@ -375,7 +375,8 @@ def test_modulation_mod():
 def test_pitchbend_mod():
 
     pitch_bend = PitchBend(int(8190 / 2 + 1))
-    assert pitch_bend != 4096
+    print(f"pitch_bend % int(): {pitch_bend % int()}")
+    assert pitch_bend == 4096
 
     pitch_bend << 64
     assert pitch_bend == 64
@@ -383,7 +384,7 @@ def test_pitchbend_mod():
     pitch_bend << 64.50
     assert pitch_bend == 64.50
 
-# test_pitchbend_mod()
+test_pitchbend_mod()
 
 
 def test_aftertouch_mod():
