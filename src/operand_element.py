@@ -4619,7 +4619,7 @@ class PitchBend(Automatable):
         return self
 
     def get_value(self) -> Fraction:
-        msb_value: Fraction = self._msb + Fraction(self._lsb, 128)
+        msb_value: Fraction = self._msb + Fraction(self._lsb, 128)  # int + Fraction = Fraction
         return Fraction(msb_value)
 
     def checksum(self) -> int:
@@ -4715,7 +4715,7 @@ class PitchBend(Automatable):
                 "automation": {
                     "position": position_on,
                     "enabled": self._enabled,
-                    "value": clamp_value_128(self._msb),
+                    "value": clamp_value_128(round(self.get_value())),
                     "channel": self._channel_0,
                     "masked": id(self) in masked_element_ids,
                     "self": self
