@@ -107,8 +107,8 @@ class Element(o.Operand):
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
 
-    def is_clipped(self) -> bool:
-        return False
+    def is_clipped(self) -> bool:   # Safe code
+        return self._position_beats < 0 or self._duration_beats <= 0
 
     def position(self, position_measures: float = None) -> Self:
         self._position_beats = ra.Measures(self, position_measures) % ra.Position() % Fraction()
