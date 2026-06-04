@@ -4899,11 +4899,7 @@ class Automation(Element):
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
-    _element_type: dict[str, type] = {
-        'cc':       ControlChange,
-        'at':       Aftertouch,
-        'pb':       PitchBend
-    }
+    _automatable_types: set[str] = {'cc', 'at', 'pb'}
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token)    # Sets the Duration and Position ONLY (not stackable)
@@ -4918,7 +4914,7 @@ class Automation(Element):
                 parameter_field_0 = "_".join(field_parameters)
                 parameter_field_2 = token_operand.get_field(2)
                 parameter_token: str = parameter_field_0 + "::" + parameter_field_2
-                if field_parameters[0] in Automation._element_type:
+                if field_parameters[0] in Automation._automatable_types:
                     self._parameter = _get_element_from_token(parameter_token)
                 else:
                     self._parameter << od.Token(parameter_token)
