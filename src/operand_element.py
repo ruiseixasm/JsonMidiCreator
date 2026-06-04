@@ -3849,7 +3849,12 @@ class ControlChange(Automatable):
                 self._value = operand
             case ou.Value() | ou.MSB():
                 self._value = operand._unit
-            case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | str() | dict():
+            case str():
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    self._controller << operand
+            case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | dict():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -4584,7 +4589,12 @@ class PolyAftertouch(Aftertouch):
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                                 self._pitch << operand
                     case _:                     super().__lshift__(operand)
-            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
+            case str():
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    self._pitch << operand
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
@@ -5333,7 +5343,12 @@ class ProgramChange(ChannelElement):
                     case ou.Bank():             self._bank = operand._data._unit
                     case ou.HighResolution():   self._high = operand._data % bool()
                     case _:                     super().__lshift__(operand)
-            case ou.Program() | int() | str():
+            case str():
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    self._program_0 = ou.Program(operand)._unit - 1
+            case ou.Program() | int():
                 self._program_0 = ou.Program(operand)._unit - 1
             case ou.Bank():
                 self._bank = operand._unit
