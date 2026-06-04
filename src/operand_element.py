@@ -2427,7 +2427,12 @@ class Note(ChannelElement):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | str():
+            case str():
+                if ":" in operand:  # It's a Token
+                    super.__lshift__(operand)
+                else:
+                    self._pitch << operand
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
                 self._pitch << operand
 
             case ou.DrumKit():

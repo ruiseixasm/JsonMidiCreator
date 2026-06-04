@@ -384,7 +384,7 @@ def test_pitchbend_mod():
     pitch_bend << 64.50
     assert pitch_bend == 64.50
 
-test_pitchbend_mod()
+# test_pitchbend_mod()
 
 
 def test_aftertouch_mod():
@@ -781,6 +781,17 @@ def test_parameter_automation():
     assert automation.len() == 32 + 1
 
 # test_parameter_automation()
+
+
+def test_token_string():
+    all_element_classes = list_all_operand_classes(Element)
+    for element_class in all_element_classes:
+        element = element_class(":1m")  # Token setting 1 Measures Duration
+        if not isinstance(element, Talkie):
+            print(f"element_class: {element_class.__name__}")
+            assert element == Measures(1)
+
+# test_token_string()
 
 
 def test_element_multi():
