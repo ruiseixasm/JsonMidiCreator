@@ -2072,7 +2072,10 @@ class Composition(Container):
                 f"Value = {int(y + 0.5)}"
             )
 
-            automation_plotlist: list[dict] = [ element_dict["automation"] for element_dict in plotlist if "automation" in element_dict ]
+            automation_plotlist: list[dict] = [
+                    element_dict["automation"] for element_dict in plotlist
+                    if "automation" in element_dict and isinstance(element_dict["automation"]["self"], oe.Automatable)
+                ]
 
             if automation_plotlist:
 
@@ -2132,12 +2135,12 @@ class Composition(Container):
                         marker: str = 'o'
                         info: str = str(channel_0 + 1)
                         match automation["self"]:
-                            case oe.Aftertouch():
-                                marker = 'v'
-                            case oe.PitchBend():
-                                marker = 'P'
                             case oe.ControlChange():
                                 info += f".{automation["self"]._controller._number_msb}"
+                            case oe.Aftertouch():
+                                marker = 'v'
+                            case _: # PitchBend
+                                marker = 'P'
 
                         self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
                                     markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
@@ -3705,7 +3708,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with added automated elements placed at intermediary steps.
         """
-        automation_clip: Clip = self.mask(of.InputType(oe.ControlChange, oe.PitchBend, oe.Aftertouch))
+        automation_clip: Clip = self.mask(of.InputType(oe.Automatable))
         plotlist: list[dict] = automation_clip.getPlotlist()
         automation_channels: list[int] = plotlist[0]["channels"]["automation"]
 
