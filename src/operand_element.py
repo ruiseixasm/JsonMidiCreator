@@ -2429,7 +2429,7 @@ class Note(ChannelElement):
                 self._tied = operand % bool()
             case str():
                 if ":" in operand:  # It's a Token
-                    super.__lshift__(operand)
+                    super().__lshift__(operand)
                 else:
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
