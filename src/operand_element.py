@@ -4613,8 +4613,9 @@ class PitchBend(Automatable):
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
+            # Both cases have to be floored because they can't overflow, msb would result in negative and lsb in a mod
             self._msb = math.floor(value)   # The precision is in the lsb where is rounded
-            self._lsb = round((value - self._msb) * 128) # Coverts to 128 cycle
+            self._lsb = math.floor((value - self._msb) * 128) # Coverts to 128 cycle
         return self
 
     def get_value(self) -> Fraction:
