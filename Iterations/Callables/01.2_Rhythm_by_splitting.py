@@ -18,6 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 four_notes = Note(1/1) * 4
 
 def exclusion(clip) -> bool:
+    """Uses a `Frame` selector `Equal`, resulting in a new list of same type of content, `Element`, in this case"""
     if clip[Equal(Duration(Steps(2)))].len() > 0:
         return True
     return False

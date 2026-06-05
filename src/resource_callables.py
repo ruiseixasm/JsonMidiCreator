@@ -37,11 +37,14 @@ import operand_chaos as ch
 
 
 class RC_Callables:
-    def __init__(self, chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+    def __init__(self, chaos: ch.Chaos = ch.SinX(340),
+                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  max_tries: int = 100, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._exclusion: Callable | None = exclusion
+        self._post_processing: Callable | None = post_processing
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
 
@@ -49,19 +52,29 @@ class RC_Callables:
         self._compositions = []
         return self
     
-    def excluded(self, clip: oc.Clip) -> bool:
-        if not self._no_repetitions or clip not in self._compositions:
-            if self._exclusion is None or not self._exclusion(clip):
-                self._compositions.append(clip)
+    def _apply_exclusion(self, composition: oc.Composition) -> bool:
+        if not self._no_repetitions or composition not in self._compositions:
+            if self._exclusion is None or not self._exclusion(composition):
+                self._compositions.append(composition)
                 return False
         return True
 
+    def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
+        if self._post_processing is not None:
+            return self._post_processing(composition)
+        return composition
 
-class RC_Splitter(RC_Callables):
+
+class RC_Clips(RC_Callables):
+    pass
+
+class RC_Splitter(RC_Clips):
     def __init__(self, elements: int = 8,
-                 chaos: ch.Chaos = ch.SinX(340), exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 chaos: ch.Chaos = ch.SinX(340),
+                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, exclusion, max_tries, no_repetitions)
+        super().__init__(chaos, exclusion, post_processing, max_tries, no_repetitions)
         self._elements: int = elements
 
 
@@ -88,8 +101,8 @@ class RC_Splitter(RC_Callables):
                             single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements and not self.excluded(iteration_clip):
-                    return iteration_clip
+                if iteration_clip.len() == self._elements and not self._apply_exclusion(iteration_clip):
+                    return self._apply_post_processing(iteration_clip)
                 try_j += 1
             try_i += 1
         return clip_0.empty_copy()  # No valid Clip made

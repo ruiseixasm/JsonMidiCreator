@@ -15,13 +15,24 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
-four_notes = Note(1/1) * 4
+measure_note = Note(1/1) * 1
 
 def exclusion(clip) -> bool:
-    if clip[Equal(Duration(Steps(2)))].len() > 0:
+    """Makes sure each Note matches a specific duration pattern"""
+    duration_0 = clip[0] % Duration()
+    duration_1 = clip[1] % Duration()
+    duration_2 = clip[2] % Duration()
+    duration_3 = clip[3] % Duration()
+    duration_4 = clip[4] % Duration()
+    duration_5 = clip[5] % Duration()
+    # Last 4 notes must have the same duration
+    if duration_2 != duration_3 or duration_2 != duration_4 or duration_2 != duration_5:
         return True
+    # # Makes sure the second note is half the duration of the first one
+    # if duration_0 != duration_1 * 2:
+    #     return True
     return False
 
-notes_splitter = RC_Splitter(3*6, chaos=SinX(540), exclusion=exclusion, max_tries=200)
-four_notes >> Plot(n_button=notes_splitter.new_iteration)
+notes_splitter = RC_Splitter(6, chaos=SinX(540), exclusion=exclusion, max_tries=1000)
+measure_note >> Plot(n_button=notes_splitter.new_iteration)
 
