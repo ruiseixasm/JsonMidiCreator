@@ -35,9 +35,9 @@ def exclusion(clip) -> bool:
 
 def post_processing(clip) -> Clip:
     """Adds a 1 measure Rest"""
-    return clip * Rest(1.0) * 2
+    return clip * Rest(1.0)
     
 
 notes_splitter = RC_Splitter(6, chaos=SinX(540), exclusion=exclusion, post_processing=post_processing, max_tries=1000)
-measure_note >> Plot(n_button=notes_splitter.new_iteration)
+measure_note >> Plot(n_button=notes_splitter.new_iteration, iterations=4)
 

@@ -2835,6 +2835,14 @@ class Plot(ReadOnly):
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
         return operand
 
+    # CHAINABLE OPERATIONS
+
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        if isinstance(operand, int):
+            self._parameters[self._indexes['iterations']] = operand
+        return self
+
 
 class Call(ReadOnly):
     """`Generic -> Process -> ReadOnly -> Call`

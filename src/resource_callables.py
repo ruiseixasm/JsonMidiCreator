@@ -53,14 +53,14 @@ class RC_Callables:
         return self
     
     def _apply_exclusion(self, composition: oc.Composition) -> bool:
-        if not self._no_repetitions or composition not in self._compositions:
-            if self._exclusion is None or not self._exclusion(composition):
-                self._compositions.append(composition)
-                return False
-        return True
+        if self._no_repetitions and composition in self._compositions \
+            or callable(self._exclusion) and self._exclusion(composition):
+                return True
+        self._compositions.append(composition)
+        return False
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
-        if self._post_processing is not None:
+        if callable(self._post_processing):
             return self._post_processing(composition)
         return composition
 
