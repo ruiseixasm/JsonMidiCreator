@@ -3477,14 +3477,13 @@ class Tuplet(ChannelElement):
         self.set_elements_duration()
         return self
 
+
     _automation_types: set = {
         'base', 'dot', 'interpolation'
     }
 
-
 def clamp_value_128(value: int) -> int:
     return max(0, min(127, value))
-
 
 class Automatable(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> Automatable`

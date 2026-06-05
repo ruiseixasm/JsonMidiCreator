@@ -39,5 +39,5 @@ def post_processing(clip) -> Clip:
     
 
 notes_splitter = RC_Splitter(6, chaos=SinX(540), exclusion=exclusion, post_processing=post_processing, max_tries=1000)
-measure_note >> Plot(n_button=notes_splitter.new_iteration, iterations=4)
+measure_note >> Plot(n_button=notes_splitter.new_iteration) * 4
 

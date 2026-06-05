@@ -2837,6 +2837,16 @@ class Plot(ReadOnly):
 
     # CHAINABLE OPERATIONS
 
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Plot():
+                super().__lshift__(operand)
+                self._parameters = operand._parameters.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
+
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if isinstance(operand, int):
