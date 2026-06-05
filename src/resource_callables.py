@@ -52,7 +52,7 @@ class RC_Callables:
         self._compositions = []
         return self
     
-    def _apply_exclusion(self, composition: oc.Composition) -> bool:
+    def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # For efficiency reasons the repetitions check should come after
         if callable(self._exclusion) and self._exclusion(composition) \
             or self._no_repetitions and composition in self._compositions:
@@ -102,7 +102,7 @@ class RC_Splitter(RC_Clips):
                             single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements and not self._apply_exclusion(iteration_clip):
+                if iteration_clip.len() == self._elements and not self._to_be_excluded(iteration_clip):
                     return self._apply_post_processing(iteration_clip)
                 try_j += 1
             try_i += 1
