@@ -80,11 +80,12 @@ class RC_Splitter(RC_Clips):
 
 
     def new_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+        if not self._compositions:
+            self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
         for single_element in clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
-        self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
         try_i: int = 0
         while try_i < self._max_tries:
             iteration_clip: oc.Clip = clip_0.copy()
@@ -107,4 +108,30 @@ class RC_Splitter(RC_Clips):
                 try_j += 1
             try_i += 1
         return clip_0.empty_copy()  # No valid Clip made
+
+
+class RC_Chooser(RC_Clips):
+    def __init__(self, parameters: list[Any] = ["1", "3", "5"],
+                 chaos: ch.Chaos = ch.SinX(340),
+                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 max_tries: int = 100, no_repetitions: bool = True):
+        super().__init__(chaos, exclusion, post_processing, max_tries, no_repetitions)
+        self._parameters: list[Any] = parameters
+
+
+    def new_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+        if self._parameters:
+            total_parameters: int = len(self._parameters)
+            if not self._compositions:
+                self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
+            iteration_clip: oc.Clip = clip_0.copy()
+            for element in iteration_clip._foreground_items():
+                index_choice: int = 1 >> self._chaos
+                chosen_parameter = self._parameters[index_choice % total_parameters]
+                element << chosen_parameter
+            if not self._to_be_excluded(iteration_clip):
+                return self._apply_post_processing(iteration_clip)
+        return clip_0.empty_copy()  # No valid Clip made
+
 
