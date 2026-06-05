@@ -776,7 +776,7 @@ class Element(o.Operand):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats += self._duration_beats * next_element_i
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
@@ -802,7 +802,7 @@ class Element(o.Operand):
                                 new_elements.append(next_element)
                                 next_element._position_beats = next_split  # Just positions the `Element`
                                 next_split += segment_duration_beats
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
             case ra.Position() | ra.TimeUnit():
@@ -820,7 +820,7 @@ class Element(o.Operand):
                             new_elements.append(right_element)
                             right_element._position_beats = split_position
                             right_element._duration_beats = right_duration
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip(self).__ifloordiv__(operand)
 
