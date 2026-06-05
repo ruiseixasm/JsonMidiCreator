@@ -40,11 +40,12 @@ class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._exclusion: Callable | None = exclusion
         self._post_processing: Callable | None = post_processing
+        self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
 
@@ -52,6 +53,15 @@ class RC_Callables:
         self._compositions = []
         return self
     
+    def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        packed_iteration: oc.Composition = composition_0.empty_copy()
+        for _ in range(self._packed_repeats):
+            packed_iteration *= self._single_iteration(composition_0)
+        return packed_iteration 
+
+    def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        return composition_0
+
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # For efficiency reasons the repetitions check should come after
         if callable(self._exclusion) and self._exclusion(composition) \
@@ -74,12 +84,12 @@ class RC_Splitter(RC_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, exclusion, post_processing, max_tries, no_repetitions)
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+        super().__init__(chaos, exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._elements: int = elements
 
 
-    def new_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         if not self._compositions:
             self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
@@ -115,12 +125,12 @@ class RC_Chooser(RC_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, exclusion, post_processing, max_tries, no_repetitions)
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+        super().__init__(chaos, exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._parameters: list[Any] = parameters
 
 
-    def new_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         if self._parameters:
             total_parameters: int = len(self._parameters)
             if not self._compositions:

@@ -35,11 +35,13 @@ def exclusion(clip) -> bool:
 
 def post_processing(clip) -> Clip:
     """Adds a 1 measure Rest"""
-    return clip * Rest(1.0)
+    clip *= 4
+    clip *= Rest(1/1)
+    return clip
     
 
-notes_splitter = RC_Splitter(6, chaos=SinX(540), exclusion=exclusion, post_processing=post_processing, max_tries=1000)
-rhythm_motif = measure_note >> Plot(n_button=notes_splitter.new_iteration, title="Rhythm", block=False) * 16
+notes_splitter = RC_Splitter(6, chaos=SinX(540), exclusion=exclusion, post_processing=post_processing, packed_repeats=6, max_tries=1000)
+rhythm_motif = measure_note >> Plot(n_button=notes_splitter.new_iteration, title="Rhythm", block=False)
 rhythm_motif *= [0] # Just the first MEasure
 
 # Build a melody from motifs and short phrases
