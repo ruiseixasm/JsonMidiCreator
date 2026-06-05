@@ -53,8 +53,9 @@ class RC_Callables:
         return self
     
     def _apply_exclusion(self, composition: oc.Composition) -> bool:
-        if self._no_repetitions and composition in self._compositions \
-            or callable(self._exclusion) and self._exclusion(composition):
+        # For efficiency reasons the repetitions check should come after
+        if callable(self._exclusion) and self._exclusion(composition) \
+            or self._no_repetitions and composition in self._compositions:
                 return True
         self._compositions.append(composition)
         return False
