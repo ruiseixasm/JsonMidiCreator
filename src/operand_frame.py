@@ -906,10 +906,10 @@ class PreviousComparison(Selector):
         self._named_parameters['previous'] = None
         return self << parameters
 
-class PreviousMatch(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> PreviousMatch`
+class AllMatch(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
 
-    An `PreviousMatch` checks if the input has an equal parameter as the previous `Operand`.
+    An `AllMatch` checks if the input has an equal parameter as the previous `Operand`.
 
     Parameters
     ----------
