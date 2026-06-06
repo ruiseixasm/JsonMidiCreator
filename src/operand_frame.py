@@ -871,6 +871,55 @@ class UpBeat(Selector):
         return ol.Null()
 
 
+class PreviousComparison(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
+
+    A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where **all** need to be met.
+    """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        self._named_parameters['previous'] = None
+
+    def frame(self, input: o.T) -> o.T:
+        if self._named_parameters['previous'] is not None:
+            for condition in self._parameters:
+                parameter = self._named_parameters['previous'] % condition
+                if not self._compare(input, parameter): # Where the comparison is made
+                    return ol.Null()
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand = self_operand.frame(input)
+        self._named_parameters['previous'] = input
+        return self_operand
+
+    @staticmethod
+    def _compare(input: Any, condition: Any) -> bool:
+        return True
+
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self._named_parameters['previous'] = None
+        return self << parameters
+
+class PreviousMatch(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> PreviousMatch`
+
+    An `PreviousMatch` checks if the input has an equal parameter as the previous `Operand`.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as equal (`==`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input == parameter
+
+
+
 class BasicComparison(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
@@ -882,7 +931,6 @@ class BasicComparison(Selector):
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
-        self._named_parameters['previous'] = []
 
     def frame(self, input: o.T) -> o.T:
         for condition in self._parameters:
@@ -899,7 +947,6 @@ class BasicComparison(Selector):
 
     def reset(self, *parameters) -> Self:
         super().reset()
-        self._named_parameters['previous'] = []
         return self << parameters
 
 class Match(BasicComparison):
