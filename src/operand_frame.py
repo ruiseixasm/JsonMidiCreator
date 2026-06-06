@@ -1130,6 +1130,28 @@ class Nth(Alternator):
         else:
             return ol.Null()
 
+class At(Alternator):
+    """`Frame -> Left -> InputFilter -> Alternator -> At`
+
+    A `At` only lets the indexed inputs to be passed to the next `Frame`.
+    In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of indexes to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        if self._index - 1 in self._named_parameters['parameters']:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand.frame(input)
+            return self._next_operand
+        else:
+            return ol.Null()
 
 
 class Get(Left):
