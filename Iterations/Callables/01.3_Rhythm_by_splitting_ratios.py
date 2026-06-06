@@ -19,19 +19,9 @@ measure_note = Note(1/1) * 1
 
 def exclusion(clip) -> bool:
     """Makes sure each Note matches a specific duration pattern"""
-    duration_0 = clip[0] % Duration()
-    duration_1 = clip[1] % Duration()
-    duration_2 = clip[2] % Duration()
-    duration_3 = clip[3] % Duration()
-    duration_4 = clip[4] % Duration()
-    duration_5 = clip[5] % Duration()
     # Last 4 notes must have the same duration
-    if duration_2 != duration_3 or duration_2 != duration_4 or duration_2 != duration_5:
-        return True
-    # # Makes sure the second note is half the duration of the first one
-    # if duration_0 != duration_1 * 2:
-    #     return True
-    return False
+    last_four = clip[Last(4)]
+    return last_four != PreviousMatch(Duration())
 
 def post_processing(clip) -> Clip:
     """Adds a 1 measure Rest"""
