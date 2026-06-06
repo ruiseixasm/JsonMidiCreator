@@ -301,6 +301,15 @@ class Container(o.Operand):
         self._mask_items.sort() # Faster this way
         return self
 
+    def _is_sorted(self) -> bool:
+        items_copy_sorted = self._items.copy()
+        mask_items_copy_sorted = self._mask_items.copy()
+        if self._items != sorted(items_copy_sorted):
+            return False
+        if self._mask_items != sorted(mask_items_copy_sorted):
+            return False
+        return True
+
 
     def len(self) -> int:
         """

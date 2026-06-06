@@ -66,13 +66,15 @@ class RC_Callables:
 
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
-        # if self._no_repetitions and composition in self._compositions \
-        #     or callable(self._extra_exclusion) and self._extra_exclusion(composition):
-        #         return True
-        checksum: int = composition.checksum()
-        if self._no_repetitions and checksum in self._checksums \
+        if self._no_repetitions and composition in self._compositions \
             or callable(self._extra_exclusion) and self._extra_exclusion(composition):
                 return True
+        checksum: int = composition.checksum()
+        # if self._no_repetitions and checksum in self._checksums \
+        #     or callable(self._extra_exclusion) and self._extra_exclusion(composition):
+        #         return True
+        if not composition._is_sorted():
+            print(f'NOT SORTED')
         self._compositions.append(composition)
         self._checksums.append(checksum)
         return False
