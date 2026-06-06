@@ -49,6 +49,8 @@ class RC_Callables:
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
 
+        self._checksums: list[int] = []
+
     def reset(self) -> Self:
         self._compositions = []
         return self
@@ -64,10 +66,15 @@ class RC_Callables:
 
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
-        if self._no_repetitions and composition in self._compositions \
+        # if self._no_repetitions and composition in self._compositions \
+        #     or callable(self._extra_exclusion) and self._extra_exclusion(composition):
+        #         return True
+        checksum: int = composition.checksum()
+        if self._no_repetitions and checksum in self._checksums \
             or callable(self._extra_exclusion) and self._extra_exclusion(composition):
                 return True
         self._compositions.append(composition)
+        self._checksums.append(checksum)
         return False
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
@@ -117,7 +124,7 @@ class RC_Splitter(RC_Clips):
                     return self._apply_post_processing(iteration_clip)
                 try_j += 1
             try_i += 1
-        return clip_0.empty_copy()  # No valid Clip made
+        return self._apply_post_processing(clip_0.empty_copy())  # No valid Clip made
 
 
 class RC_Chooser(RC_Clips):
@@ -142,6 +149,6 @@ class RC_Chooser(RC_Clips):
                 element << chosen_parameter
             if not self._to_be_excluded(iteration_clip):
                 return self._apply_post_processing(iteration_clip)
-        return clip_0.empty_copy()  # No valid Clip made
+        return self._apply_post_processing(clip_0.empty_copy())  # No valid Clip made
 
 

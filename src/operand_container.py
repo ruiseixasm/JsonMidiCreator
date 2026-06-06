@@ -1358,9 +1358,6 @@ class Composition(Container):
     
     def __eq__(self, other: o.Operand) -> bool:
         match other:
-            case Composition():
-                return self._time_signature == other._time_signature \
-                    and super().__eq__(other)
             case oy.Yielder():
                 return self.__eq__( other % Clip() )
             case _:
