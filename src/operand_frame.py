@@ -898,7 +898,7 @@ class PreviousComparison(Selector):
         return self_operand
 
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
+    def _compare(input: Any, parameter: Any) -> bool:
         return True
 
     def reset(self, *parameters) -> Self:
