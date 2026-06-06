@@ -887,9 +887,10 @@ class PreviousComparison(Selector):
     def frame(self, input: o.T) -> o.T:
         if self._named_parameters['previous'] is not None:
             for condition in self._parameters:
-                parameter = self._named_parameters['previous'] % condition
-                if not self._compare(input, parameter): # Where the comparison is made
-                    return ol.Null()
+                if isinstance(self._named_parameters['previous'], o.Operand):
+                    parameter = self._named_parameters['previous'] % condition
+                    if not self._compare(input, parameter): # Where the comparison is made
+                        return ol.Null()
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand = self_operand.frame(input)
