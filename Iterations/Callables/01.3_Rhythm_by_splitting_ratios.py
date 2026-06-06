@@ -36,5 +36,5 @@ rhythm_motif *= [0] # Just the first MEasure
 
 # Build a melody from motifs and short phrases
 degrees_chooser = RC_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing, max_tries=1000)
-rhythm_phrase = rhythm_motif >> Plot(n_button=degrees_chooser.new_iteration, title="Melody") * 10
+rhythm_phrase = rhythm_motif >> Plot(n_button=degrees_chooser.new_iteration, title="Melody")
 

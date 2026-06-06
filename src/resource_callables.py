@@ -74,7 +74,9 @@ class RC_Callables:
         #     or callable(self._extra_exclusion) and self._extra_exclusion(composition):
         #         return True
         if not composition._is_sorted():
-            print(f'NOT SORTED')
+            print(f'NOT SORTED!!')
+        if self._no_repetitions and checksum in self._checksums:
+            print(f'REPEATED COMPOSITION!!')
         self._compositions.append(composition)
         self._checksums.append(checksum)
         return False
