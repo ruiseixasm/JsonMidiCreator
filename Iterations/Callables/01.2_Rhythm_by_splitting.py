@@ -23,6 +23,6 @@ def exclusion(clip) -> bool:
         return True
     return False
 
-notes_splitter = RC_Splitter(3*6, chaos=SinX(540), exclusion=exclusion, max_tries=200)
+notes_splitter = RC_Splitter(3*6, chaos=SinX(540), extra_exclusion=exclusion, max_tries=200)
 four_notes >> Plot(n_button=notes_splitter.new_iteration)
 

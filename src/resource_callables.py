@@ -38,12 +38,12 @@ import operand_chaos as ch
 
 class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
-                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
-        self._exclusion: Callable | None = exclusion
+        self._extra_exclusion: Callable | None = extra_exclusion
         self._post_processing: Callable | None = post_processing
         self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
@@ -63,9 +63,9 @@ class RC_Callables:
         return composition_0
 
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
-        # For efficiency reasons the repetitions check should come after
-        if callable(self._exclusion) and self._exclusion(composition) \
-            or self._no_repetitions and composition in self._compositions:
+        # The external user defined method is called if and only if the composition is internally validated
+        if self._no_repetitions and composition in self._compositions \
+            or callable(self._extra_exclusion) and self._extra_exclusion(composition):
                 return True
         self._compositions.append(composition)
         return False
@@ -82,10 +82,10 @@ class RC_Clips(RC_Callables):
 class RC_Splitter(RC_Clips):
     def __init__(self, elements: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
-                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._elements: int = elements
 
 
@@ -123,10 +123,10 @@ class RC_Splitter(RC_Clips):
 class RC_Chooser(RC_Clips):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
-                 exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._parameters: list[Any] = parameters
 
 
