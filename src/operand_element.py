@@ -163,15 +163,19 @@ class Element(o.Operand):
                         dotted = True if 'd' in parameter or 'D' in parameter else False
                         measures = True if 'm' in parameter or 'M' in parameter else False
                         beats = True if 'b' in parameter or 'B' in parameter else False
+                        steps = True if 's' in parameter or 'S' in parameter else False
                         # Cleans up
                         parameter = parameter.replace('d', '').replace('D', '')
                         parameter = parameter.replace('m', '').replace('M', '')
                         parameter = parameter.replace('b', '').replace('B', '')
+                        parameter = parameter.replace('s', '').replace('S', '')
                         duration = o.string_to_number(parameter)
                         if measures:
                             self << ra.Measures(duration)
                         elif beats:
                             self << ra.Beats(duration)
+                        elif steps:
+                            self << ra.Steps(duration)
                         else:
                             match duration:
                                 case int():
@@ -183,6 +187,7 @@ class Element(o.Operand):
                     case _: # Sets the Position
                         measure = True if 'm' in parameter or 'M' in parameter else False
                         beat = True if 'b' in parameter or 'B' in parameter else False
+                        step = True if 's' in parameter or 'S' in parameter else False
                         # Cleans up
                         parameter = parameter.replace('m', '').replace('M', '')
                         parameter = parameter.replace('b', '').replace('B', '')
@@ -191,6 +196,8 @@ class Element(o.Operand):
                             self << ra.Measure(position)
                         elif beat:
                             self << ra.Beat(position)
+                        elif step:
+                            self << ra.Step(position)
                         else:
                             match position:
                                 case int():
@@ -199,7 +206,53 @@ class Element(o.Operand):
                                     self << ra.Position(position)
         return self
 
+    def start(self) -> ra.Position:
+        return ra.Position(self, self._position_beats)
 
+    def finish(self) -> ra.Position:
+        return ra.Position(self, self._position_beats + self._duration_beats)
+
+    def overlaps(self, other: 'Element') -> bool:
+        return other._position_beats + other._duration_beats > self._position_beats \
+            and other._position_beats < self._position_beats + self._duration_beats
+
+
+    def get_component_elements(self) -> list['Element']:
+        return [ self ]
+
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_frame as of
+        match other:
+            case Element():
+                return self._position_beats == other._position_beats \
+                    and self._duration_beats == other._duration_beats
+            case og.Segment():
+                return other == self % ra.Position()
+            case od.Conditional():
+                return other == self
+            case of.Frame():
+                return other == self
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    return self._duration_beats > other._duration_beats # Longer duration comes first
+                return self._position_beats < other._position_beats
+            case _:
+                return super().__lt__(other)
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case Element():
+                if self._position_beats == other._position_beats:
+                    return self._duration_beats < other._duration_beats # Longer duration comes first
+                return self._position_beats > other._position_beats
+            case _:
+                return super().__gt__(other)
+    
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
@@ -246,52 +299,6 @@ class Element(o.Operand):
             case oc.Clip():         return oc.Clip(self)
             case Element():         return operand.copy(self)
             case _:                 return super().__mod__(operand)
-
-    def get_component_elements(self) -> list['Element']:
-        return [ self ]
-
-    def __eq__(self, other: o.Operand) -> bool:
-        import operand_frame as of
-        match other:
-            case Element():
-                return self._position_beats == other._position_beats \
-                    and self._duration_beats == other._duration_beats
-            case og.Segment():
-                return other == self % ra.Position()
-            case od.Conditional():
-                return other == self
-            case of.Frame():
-                return other == self
-            case _:
-                return super().__eq__(other)
-
-    def __lt__(self, other: 'o.Operand') -> bool:
-        match other:
-            case Element():
-                if self._position_beats == other._position_beats:
-                    return self._duration_beats > other._duration_beats # Longer duration comes first
-                return self._position_beats < other._position_beats
-            case _:
-                return super().__lt__(other)
-    
-    def __gt__(self, other: 'o.Operand') -> bool:
-        match other:
-            case Element():
-                if self._position_beats == other._position_beats:
-                    return self._duration_beats < other._duration_beats # Longer duration comes first
-                return self._position_beats > other._position_beats
-            case _:
-                return super().__gt__(other)
-    
-    def start(self) -> ra.Position:
-        return ra.Position(self, self._position_beats)
-
-    def finish(self) -> ra.Position:
-        return ra.Position(self, self._position_beats + self._duration_beats)
-
-    def overlaps(self, other: 'Element') -> bool:
-        return other._position_beats + other._duration_beats > self._position_beats \
-            and other._position_beats < self._position_beats + self._duration_beats
 
 
     def getPlotlist(self,
