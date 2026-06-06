@@ -77,6 +77,13 @@ class RC_Callables:
             print(f'NOT SORTED!!')
         if self._no_repetitions and checksum in self._checksums:
             print(f'REPEATED COMPOSITION!!')
+            equal_composition_i: int = 0
+            for i, previous_checksum in enumerate(self._checksums):
+                if previous_checksum == checksum:
+                    equal_composition_i - i
+            for i, note in enumerate(self._compositions[equal_composition_i]):
+                if note != composition[i]:
+                    print(f'False equal note {i}')
         self._compositions.append(composition)
         self._checksums.append(checksum)
         return False
