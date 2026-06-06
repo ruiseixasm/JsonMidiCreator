@@ -49,8 +49,6 @@ class RC_Callables:
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
 
-        self._checksums: list[int] = []
-
     def reset(self) -> Self:
         self._compositions = []
         return self
@@ -69,28 +67,14 @@ class RC_Callables:
         if self._no_repetitions and composition in self._compositions \
             or callable(self._extra_exclusion) and self._extra_exclusion(composition):
                 return True
-        checksum: int = composition.checksum()
-        # if self._no_repetitions and checksum in self._checksums \
-        #     or callable(self._extra_exclusion) and self._extra_exclusion(composition):
-        #         return True
-        if not composition._is_sorted():
-            print(f'NOT SORTED!!')
-        if self._no_repetitions and checksum in self._checksums:
-            print(f'REPEATED COMPOSITION!!')
-            equal_composition_i: int = 0
-            for i, previous_checksum in enumerate(self._checksums):
-                if previous_checksum == checksum:
-                    equal_composition_i - i
-            for i, note in enumerate(self._compositions[equal_composition_i]):
-                if note != composition[i]:
-                    print(f'False equal note {i}')
         self._compositions.append(composition)
-        self._checksums.append(checksum)
         return False
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
         if callable(self._post_processing):
-            return self._post_processing(composition)
+            # Has to returns a Copy, otherwise the external post processing may change the self kept composition directly (decoupling)
+            composition_copy = composition.copy()
+            return self._post_processing(composition_copy)
         return composition
 
 
