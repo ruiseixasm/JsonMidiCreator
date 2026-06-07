@@ -92,15 +92,15 @@ class RC_Splitter(RC_Clips):
 
 
     def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
-        if not self._compositions:
-            self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
+        if not self._compositions: # Avoids adding the initial clip (seed) multiple times
+            self._compositions.append(clip_0)
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
         for single_element in clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
         try_i: int = 0
         while try_i < self._max_tries:
-            iteration_clip: oc.Clip = clip_0.copy()
+            iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
             try_j: int = 0
             while iteration_clip.len() < self._elements and try_j < self._max_tries * 2:
                 continuous_split_step: int = 1 >> self._chaos
@@ -137,7 +137,7 @@ class RC_Chooser(RC_Clips):
             total_parameters: int = len(self._parameters)
             if not self._compositions:
                 self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
-            iteration_clip: oc.Clip = clip_0.copy()
+            iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
             for element in iteration_clip._foreground_items():
                 index_choice: int = 1 >> self._chaos
                 chosen_parameter = self._parameters[index_choice % total_parameters]
