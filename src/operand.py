@@ -1128,12 +1128,12 @@ class Operand:
                 return data.reset() # Only Operand has reset method
             case dict():
                 for _, value in data.items():
-                    __class__.deep_reset(value)
+                    Operand.deep_reset(value)
             case list():
                 for single_data in data:
-                    __class__.deep_reset(single_data)
+                    Operand.deep_reset(single_data)
             case tuple():
-                __class__.deep_reset(list(data))
+                Operand.deep_reset(list(data))
 
     @staticmethod
     def deep_clear(data: any):

@@ -884,6 +884,11 @@ class PreviousComparison(Selector):
         super().__init__(*parameters)
         self._named_parameters['previous'] = None
 
+    def reset(self, *parameters) -> 'Frame':
+        self._named_parameters['previous'] = None
+        super().reset()
+        return self << parameters
+    
     def frame(self, input: o.T) -> o.T:
         if self._named_parameters['previous'] is not None:
             for condition in self._parameters:

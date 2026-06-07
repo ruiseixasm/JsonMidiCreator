@@ -408,6 +408,12 @@ class Container(o.Operand):
                         return [
                             item for item in self._foreground_items()
                         ]
+                    case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+                        # One to One, NOT One to Many (return)
+                        operand._data._set_inside_container(self)
+                        for single_item in self._foreground_items():
+                            if single_item == operand._data:
+                                return single_item
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -431,23 +437,14 @@ class Container(o.Operand):
                 return self._masked
             case Container():
                 return operand.copy(self)
-            
-            case of.Frame():    # Only applicable to Operand items
+            case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+                # One to One, NOT One to Many (return)
                 operand._set_inside_container(self)
-                parameters: list = []
-                for single_element in self._foreground_items():
-                    if isinstance(single_element, o.Operand):
-                        operand_parameter: o.Operand = single_element
-                        parameter_getter: list = operand ^ single_element
-                        if isinstance(parameter_getter, list):
-                            if parameter_getter:    # Non empty list
-                                for single_parameter in parameter_getter:
-                                    operand_parameter %= single_parameter
-                                parameters.append( operand_parameter )
-                            else:
-                                parameters.append( single_element.copy() )
-                return parameters
-
+                for single_item in self._foreground_items():
+                    if single_item == operand:
+                        if isinstance(single_item, o.Operand):
+                            return single_item.copy()
+                        return single_item
             case _:
                 return super().__mod__(operand)
 
