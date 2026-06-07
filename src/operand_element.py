@@ -191,6 +191,7 @@ class Element(o.Operand):
                         # Cleans up
                         parameter = parameter.replace('m', '').replace('M', '')
                         parameter = parameter.replace('b', '').replace('B', '')
+                        parameter = parameter.replace('s', '').replace('S', '')
                         position = o.string_to_number(parameter)
                         if measure:
                             self << ra.Measure(position)
@@ -4959,14 +4960,18 @@ class Automation(Element):
                             case _: # Sets the Position
                                 measure = True if 'm' in parameter or 'M' in parameter else False
                                 beat = True if 'b' in parameter or 'B' in parameter else False
+                                step = True if 's' in parameter or 'S' in parameter else False
                                 # Cleans up
                                 parameter = parameter.replace('m', '').replace('M', '')
                                 parameter = parameter.replace('b', '').replace('B', '')
+                                parameter = parameter.replace('s', '').replace('S', '')
                                 number = o.string_to_number(parameter)
                                 if measure:
                                     position << ra.Measure(number)
                                 elif beat:
                                     position << ra.Beat(number)
+                                elif step:
+                                    self << ra.Step(position)
                                 else:
                                     match number:
                                         case int():
