@@ -193,6 +193,14 @@ def test_length_unit():
     assert (length + Steps(1/2)).roundBeats() == Beat(1)        # 1 Beat
     assert (length + Steps(1/2)).roundSteps() == Step(1)        # 1 Step
 
+    two_beats_length = Length(Beats(2))
+    assert two_beats_length % int() == 1    # Rounds to 1 Measure
+    two_beats_position = Position(Beats(2))
+    assert two_beats_position % int() == 0    # Rounds to 0 Measure, on the Measure 0
+    two_beats_duration = Duration(Beats(2))
+    print(f"two_beats_duration % int(): {two_beats_duration % int()}")
+    assert two_beats_duration % int() == 8    # Rounds to 8 Step, a length of 8 Steps
+
 # test_length_unit()
 
 

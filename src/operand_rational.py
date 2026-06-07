@@ -1029,7 +1029,9 @@ class Duration(Measurement):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case float() | int():
+            case int():
+                return self % Steps() % operand
+            case float():
                 return self % NoteValue() % operand
             case _:
                 return super().__mod__(operand)
@@ -1039,7 +1041,9 @@ class Duration(Measurement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case float() | int():
+            case int():
+                self << Steps(operand)
+            case float():
                 self << NoteValue(operand)
             case str():
                 time_division: str = operand.strip().upper()
@@ -1068,7 +1072,9 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue + operand_notevalue
-            case float() | int():
+            case int():
+                self += Steps(operand)
+            case float():
                 self += NoteValue(operand)
             case _:
                 super().__iadd__(operand)
@@ -1081,7 +1087,9 @@ class Duration(Measurement):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue - operand_notevalue
-            case float() | int():
+            case int():
+                self -= Steps(operand)
+            case float():
                 self -= NoteValue(operand)
             case _:
                 super().__isub__(operand)

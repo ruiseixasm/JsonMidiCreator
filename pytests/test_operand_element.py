@@ -78,7 +78,7 @@ def test_clock_mod():
 def test_clock_div_floor():
 
     clock: Clock = Clock(Length(8))
-    assert clock % od.Pipe( Duration() ) == 8
+    assert clock % od.Pipe( Duration() ) == 8.  # float for note value and int for steps
 
 # test_clock_div_floor()
 
