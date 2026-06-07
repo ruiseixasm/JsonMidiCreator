@@ -68,18 +68,28 @@ class Frame(o.Operand):
             case _:         self._current_node = None
         return previous_node
 
+    def copy(self, *parameters) -> Self:
+        # Frame class IS a Read-only class
+        return self
+
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self.deep_reset(self._named_parameters)
+        return self << parameters
+    
+    def clear(self, *parameters) -> Self:
+        # Frame class IS a Read-only class
+        return self
+    
     def _set_inside_container(self, container: 'Container') -> Self:
         # Needs to propagate the settings to the next Frames
         if isinstance(self._next_operand, Frame):
             self._next_operand._set_inside_container(container)
         elif isinstance(self._next_operand, o.Operand):
-            self._next_operand._initiated     = False
-            self._next_operand._set           = False
-            self._next_operand._index         = 0
+            self._next_operand.reset()
         self._inside_container = container
-        # For each container, index needs to be reset
-        self._index = 0
-        return self
+        # Finally, does all remaining resets for each operand
+        return self.reset()
 
     def get_operand(self) -> Any:
         if isinstance(self._next_operand, Frame):
@@ -184,21 +194,7 @@ class Frame(o.Operand):
                     break
             previous_frame = single_frame
         return self
-    
-    
-    def copy(self, *parameters) -> Self:
-        # Frame class IS a Read-only class
-        return self
 
-    def reset(self, *parameters) -> 'Frame':
-        super().reset()
-        self.deep_reset(self._named_parameters)
-        return self << parameters
-    
-    def clear(self, *parameters) -> 'Frame':
-        # Frame class IS a Read-only class
-        return self
-    
 
 class Left(Frame):  # LEFT TO RIGHT
     """`Frame -> Left`
