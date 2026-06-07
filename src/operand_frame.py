@@ -83,10 +83,9 @@ class Frame(o.Operand):
     
     def _set_inside_container(self, container: 'Container') -> Self:
         # Needs to propagate the settings to the next Frames
+        # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
         if isinstance(self._next_operand, Frame):
             self._next_operand._set_inside_container(container)
-        elif isinstance(self._next_operand, o.Operand):
-            self._next_operand.reset()
         self._inside_container = container
         # Finally, does all remaining resets for each operand
         return self.reset()
