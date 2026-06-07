@@ -56,9 +56,9 @@ def test_dotted_mod():
     assert dotted % Duration() % Fraction() == Fraction(3, 8) * 4
     assert dotted % Pipe( Fraction() ) == Fraction(3, 8)
 
-    undotted = NoteValue(dotted)
+    not_dotted = NoteValue(dotted)
     assert dotted == 1/4
-    assert undotted == 3/8
+    assert not_dotted == 3/8
 
 # test_dotted_mod()
 
@@ -199,7 +199,9 @@ def test_length_unit():
     assert two_beats_position % int() == 0    # Rounds to 0 Measure, on the Measure 0
     two_beats_duration = Duration(Beats(2))
     print(f"two_beats_duration % int(): {two_beats_duration % int()}")
-    assert two_beats_duration % int() == 8    # Rounds to 8 Step, a length of 8 Steps
+    assert two_beats_duration % int() == 8  # Rounds to 8 Steps, a length of 8 Steps
+    assert two_beats_duration == 8          # Rounds to 8 Steps, a length of 8 Steps
+    assert two_beats_duration == 1/2        # Rounds to 1/2 NoteValue, float is in NoteValue
 
 # test_length_unit()
 
