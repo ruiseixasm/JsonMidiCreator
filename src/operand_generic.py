@@ -254,7 +254,6 @@ class Locus(Generic):
         return self
 
     def __iadd__(self, operand: any) -> Self:
-        import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ra.Position():
@@ -1955,6 +1954,11 @@ class PitchTransitions(Generic):
         super().__init__(*parameters)
 
 
+    def __eq__(self, other: any) -> bool:
+        if isinstance(other, PitchTransitions):
+            return self._sum == other._sum and self._max == other._max
+        return False
+    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case ra.Sum():
@@ -1984,12 +1988,27 @@ class PitchTransitions(Generic):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
+            case PitchTransitions():
+                super().__lshift__(operand)
+                self._sum = operand._sum
+                self._max = operand._max
             case ra.Sum():
                 self._sum = operand % int()
             case ra.Max():
                 self._max = operand % int()
             case _:
                 return super().__mod__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case PitchTransitions():
+                self._sum += operand._sum
+                if operand._max > self._max:
+                    self._max = operand._max
+            case _:
+                super().__iadd__(operand)
         return self
 
 
