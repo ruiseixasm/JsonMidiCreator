@@ -1406,6 +1406,8 @@ class Composition(Container):
                     measures_length: ra.Length = ra.Length(last_element_position)
                     return measures_length % ra.Measure() % int()
                 return 0
+            case og.PitchTransitions():
+                return og.PitchTransitions()
             case _:
                 return super().__mod__(operand)
 
@@ -2804,6 +2806,13 @@ class Clip(Composition):  # Just a container of Elements
                 return Block(self._time_signature, self)
             case Part():
                 return Part(self._time_signature, self)
+            case og.PitchTransitions():
+                for single_element in self._items:
+                    components: list[oe.Element] = single_element.get_component_elements()
+                    for single_component in components:
+                        if isinstance(single_component, oe.Note):
+                            ... # Still need to think about it!
+                return og.PitchTransitions()
             case _:
                 return super().__mod__(operand)
 
@@ -4832,6 +4841,11 @@ class Block(Composition):
                 return od.Names(*tuple(all_names))
             case Part():
                 return Part(self)
+            case og.PitchTransitions():
+                pitch_transitions = og.PitchTransitions()
+                for single_clip in self._items:
+                    pitch_transitions += single_clip % og.PitchTransitions()
+                return pitch_transitions
             case _:
                 return super().__mod__(operand)
 
@@ -5449,6 +5463,11 @@ class Part(Composition):
                 for block in self._foreground_items():
                     all_names.append(block._name)
                 return od.Names(*tuple(all_names))
+            case og.PitchTransitions():
+                pitch_transitions = og.PitchTransitions()
+                for single_block in self._items:
+                    pitch_transitions += single_block % og.PitchTransitions()
+                return pitch_transitions
             case _:
                 return super().__mod__(operand)
 
