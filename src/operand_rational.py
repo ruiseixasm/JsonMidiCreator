@@ -1820,3 +1820,13 @@ class Gate(Rational):
     """`Rational -> Gate`"""
     pass
 
+
+class StatsReducer(Rational):
+    """`Rational -> StatsReducer`
+
+    To be used together with the `ParameterStats` concerning the Composition Parameters to extract specific information.
+    """
+    pass
+
+
+

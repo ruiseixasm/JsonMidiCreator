@@ -64,10 +64,13 @@ class RC_Callables:
 
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
-        if self._no_repetitions and composition in self._compositions \
-            or callable(self._extra_exclusion) and self._extra_exclusion(composition):
+        if self._no_repetitions:
+            if composition in self._compositions:
                 return True
-        self._compositions.append(composition)
+            # Adds the result to not be considered again (no repetitions)
+            self._compositions.append(composition)
+        if callable(self._extra_exclusion) and self._extra_exclusion(composition):
+            return True
         return False
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
