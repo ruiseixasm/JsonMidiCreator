@@ -4001,18 +4001,18 @@ class Clip(Composition):  # Just a container of Elements
                     note._pitch -= degree_distance  # Moves in opposite direction
 
         else:
-            center_pitch: int = None
+            pitch_centroid: int = None
             
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
-                    center_pitch = note._pitch._get_chromatic_pitch()
+                    pitch_centroid = note._pitch._get_chromatic_pitch()
                     break
 
             for note in self._foreground_items():
                 if isinstance(note, oe.Note):
                     note_pitch: int = note._pitch._get_chromatic_pitch()
-                    if note_pitch != center_pitch:
-                        note._pitch << 2 * center_pitch - note_pitch
+                    if note_pitch != pitch_centroid:
+                        note._pitch << 2 * pitch_centroid - note_pitch
                 
         return self
 
@@ -4516,7 +4516,7 @@ class Clip(Composition):  # Just a container of Elements
                         note -= ou.Octave(octave_offset)
                         previous_pitch = note_pitch - octave_offset * 12
                 else:   # center pitch based
-                    note_pitch: int = note.center_pitch()
+                    note_pitch: int = note.pitch_centroid()
                     if note_pitch >= 0:
                         if first_pitch is None:
                             previous_pitch = first_pitch = note_pitch
@@ -4525,16 +4525,16 @@ class Clip(Composition):  # Just a container of Elements
                                 above_pitch: int = note_pitch
                                 while note_pitch > previous_pitch:
                                     above_pitch = note_pitch
-                                    note_pitch = note.decrease_center_pitch().center_pitch()
+                                    note_pitch = note.decrease_pitch_centroid().pitch_centroid()
                                 if above_pitch - previous_pitch <= previous_pitch - note_pitch:
-                                    note_pitch = note.increase_center_pitch().center_pitch()
+                                    note_pitch = note.increase_pitch_centroid().pitch_centroid()
                             elif note_pitch < previous_pitch:
                                 below_pitch: int = note_pitch
                                 while note_pitch < previous_pitch:
                                     below_pitch = note_pitch
-                                    note_pitch = note.increase_center_pitch().center_pitch()
+                                    note_pitch = note.increase_pitch_centroid().pitch_centroid()
                                 if previous_pitch - below_pitch <= note_pitch - previous_pitch:
-                                    note_pitch = note.decrease_center_pitch().center_pitch()
+                                    note_pitch = note.decrease_pitch_centroid().pitch_centroid()
                         if algorithm_type == 4:
                             previous_pitch = note_pitch
         return self

@@ -2053,14 +2053,14 @@ class Note(ChannelElement):
             or self._velocity < 0 or self._velocity > 128 \
             or pitch < 0 or pitch > 128
 
-    def center_pitch(self) -> int:
+    def pitch_centroid(self) -> int:
         return self._pitch._get_chromatic_pitch()
 
-    def increase_center_pitch(self) -> Self:
+    def increase_pitch_centroid(self) -> Self:
         self._pitch += ou.Octave(1)
         return self
 
-    def decrease_center_pitch(self) -> Self:
+    def decrease_pitch_centroid(self) -> Self:
         self._pitch -= ou.Octave(1)
         return self
 
@@ -2499,7 +2499,7 @@ class KeyScale(Note):
         return self
 
 
-    def center_pitch(self) -> int:
+    def pitch_centroid(self) -> int:
         pitches: list[int] = [
             single_note._pitch._get_chromatic_pitch() for single_note in self.get_component_elements()
         ]
@@ -2509,11 +2509,11 @@ class KeyScale(Note):
             return math.floor(total / count)
         return -1   # Out of scope pitch
 
-    def increase_center_pitch(self) -> Self:
+    def increase_pitch_centroid(self) -> Self:
         self += ou.Inversion(1)
         return self
 
-    def decrease_center_pitch(self) -> Self:
+    def decrease_pitch_centroid(self) -> Self:
         self -= ou.Inversion(1)
         return self
 
