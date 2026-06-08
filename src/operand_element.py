@@ -2904,6 +2904,22 @@ class Chord(KeyScale):
                     self << ou.Inversion(inversion)
         return self
     
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._size          == other._size \
+                    and self._dominant      == other._dominant \
+                    and self._diminished    == other._diminished \
+                    and self._augmented     == other._augmented \
+                    and self._sus2          == other._sus2 \
+                    and self._sus4          == other._sus4
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -2935,22 +2951,7 @@ class Chord(KeyScale):
             case ou.Sus4():         return ou.Sus4() << od.Pipe(self._sus4)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._size          == other._size \
-                    and self._dominant      == other._dominant \
-                    and self._diminished    == other._diminished \
-                    and self._augmented     == other._augmented \
-                    and self._sus2          == other._sus2 \
-                    and self._sus4          == other._sus4
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-    
+
     def get_component_elements(self) -> list[Note]:
 
         chord_notes: list[Note] = []

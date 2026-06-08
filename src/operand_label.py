@@ -105,6 +105,23 @@ class Null(Carrier):
         return False
 
 
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_data as od
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case int() | float() | Fraction():
+                        raise Exception("Can't return a number from Null")
+                    case _:
+                        return super().__mod__(operand)
+            case int() | float() | Fraction():
+                raise Exception("Can't return a number from Null")
+            case _:
+                return super().__mod__(operand)
+        return self
+
+
+
 class Full(Carrier):
     """`Label -> Carrier -> Full`
 
