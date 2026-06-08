@@ -1133,7 +1133,7 @@ class Pitch(Generic):
             case ou.RootKey():
                 self._set_root_key(operand._unit)
             case ou.Key():
-                self._set_target_key(operand._unit) # Needs to make the code above obsolete
+                self._set_target_key(operand._unit)
 
             case ou.Transposition():
                 self._transposition = operand._unit
