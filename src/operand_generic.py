@@ -1942,23 +1942,55 @@ class Scale(Generic):
 class PitchTransitions(Generic):
     """`Generic -> PitchTransitions`
 
-    This `Operand` is an extracted of information concerning a `Composition`, it Collects the following stats:
-    
-        +---------+-------------------------------------------------------------------+
-        | Stat    | Description                                                       |
-        +---------+-------------------------------------------------------------------+
-        | Total   | The total amount of transitions from one pitch to a different one |
-        | Maximum | The maximum difference in pitch change of all transitions         |
-        +---------+-------------------------------------------------------------------+
+    This `Operand` is an extracted of information concerning a `Composition`, mainly for Chords.
 
-    Args:
-        None
+    Parameters
+    ----------
+    Sum(0) : The total amount of transitions from one pitch to a different one.
+    Max(0) : The maximum difference in pitch change of all transitions.
     """
     def __init__(self, *parameters):
-        self._total: int    = 0
-        self._maximum: int  = 0
+        self._sum: int = 0
+        self._max: int = 0
         super().__init__(*parameters)
 
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case ra.Sum():
+                return ra.Sum(self._sum)
+            case ra.Max():
+                return ra.Max(self._max)
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["sum"] = self.serialize(self._sum)
+        serialization["parameters"]["max"] = self.serialize(self._max)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "sum" in serialization["parameters"] and "max" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._sum = self.deserialize(serialization["parameters"]["sum"])
+            self._max = self.deserialize(serialization["parameters"]["max"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case ra.Sum():
+                self._sum = operand % int()
+            case ra.Max():
+                self._max = operand % int()
+            case _:
+                return super().__mod__(operand)
+        return self
 
 
 class Arpeggio(Generic):

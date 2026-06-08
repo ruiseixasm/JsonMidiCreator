@@ -664,18 +664,6 @@ class Convertible(Rational):
     def roundSteps(self) -> Self:
         return self.copy(self % Step())
 
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case Convertible():
-                self_beats: Fraction = self._get_beats(operand._time_signature_reference)
-                if isinstance(operand, TimeUnit):
-                    converted_timeunit: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
-                    return self._round_timeunit(converted_timeunit)
-                return operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
-            case _:
-                return super().__mod__(operand)
-
     def __eq__(self, other: any) -> bool:
         match other:
             case TimeUnit() | int() | float():
@@ -705,6 +693,18 @@ class Convertible(Rational):
             case _:
                 return super().__gt__(other)
         return False
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case Convertible():
+                self_beats: Fraction = self._get_beats(operand._time_signature_reference)
+                if isinstance(operand, TimeUnit):
+                    converted_timeunit: o.T = operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
+                    return self._round_timeunit(converted_timeunit)
+                return operand.copy(self._time_signature_reference)._set_with_beats(self_beats)
+            case _:
+                return super().__mod__(operand)
 
 
     def getPlaylist(self) -> list[dict]:
