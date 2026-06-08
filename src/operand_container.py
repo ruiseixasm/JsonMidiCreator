@@ -2816,7 +2816,7 @@ class Clip(Composition):  # Just a container of Elements
                             if isinstance(left, oe.Note) and isinstance(right, oe.Note):
                                 left_pitch: int = left._pitch._get_chromatic_pitch()
                                 right_pitch: int = right._pitch._get_chromatic_pitch()
-                                delta_pitch: int = right_pitch - left_pitch
+                                delta_pitch: int = abs(right_pitch - left_pitch)
                                 pitch_transitions._sum += delta_pitch
                                 pitch_transitions._max = max(pitch_transitions._max, delta_pitch)
                 return pitch_transitions
