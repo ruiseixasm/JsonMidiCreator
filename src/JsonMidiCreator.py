@@ -31,7 +31,6 @@ from operand_container import *
 from resource_callables import *
 from resource_devices import *
 from resource_operands import *
-from resource_solutions import *
 from resource_patterns import *
 
 
