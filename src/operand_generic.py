@@ -1939,6 +1939,28 @@ class Scale(Generic):
         return tuple([])    # Has no scale at all
 
 
+class PitchTransitions(Generic):
+    """`Generic -> PitchTransitions`
+
+    This `Operand` is an extracted of information concerning a `Composition`, it Collects the following stats:
+    
+        +---------+-------------------------------------------------------------------+
+        | Stat    | Description                                                       |
+        +---------+-------------------------------------------------------------------+
+        | Total   | The total amount of transitions from one pitch to a different one |
+        | Maximum | The maximum difference in pitch change of all transitions         |
+        +---------+-------------------------------------------------------------------+
+
+    Args:
+        None
+    """
+    def __init__(self, *parameters):
+        self._total: int    = 0
+        self._maximum: int  = 0
+        super().__init__(*parameters)
+
+
+
 class Arpeggio(Generic):
     """`Generic -> Arpeggio`
 

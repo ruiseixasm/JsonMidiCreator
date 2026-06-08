@@ -224,11 +224,6 @@ class Unit(o.Operand):
                     self._unit = int( self._unit / number._rational )
         return self
 
-class Total(Unit):
-    """`Unit -> Total`
-    """
-    pass
-
 class Port(Unit):
     """`Unit -> Port`
     """

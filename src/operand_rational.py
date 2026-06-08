@@ -1829,4 +1829,11 @@ class StatsReducer(Rational):
     pass
 
 
+class Total(StatsReducer):
+    """`Rational -> StatsReducer -> Total`
+
+    Returns the Total given by the Pitch.
+    """
+    pass
+
 
