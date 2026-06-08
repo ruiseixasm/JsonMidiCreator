@@ -1829,10 +1829,24 @@ class StatsReducer(Rational):
     pass
 
 
-class Total(StatsReducer):
-    """`Rational -> StatsReducer -> Total`
+class Sum(StatsReducer):
+    """`Rational -> StatsReducer -> Sum`
 
-    Returns the Total given by the Pitch.
+    Returns the Sum, or total, from a `ParameterStats`.
+    """
+    pass
+
+class Max(StatsReducer):
+    """`Rational -> StatsReducer -> Max`
+
+    Returns the Maximum from a `ParameterStats`.
+    """
+    pass
+
+class Min(StatsReducer):
+    """`Rational -> StatsReducer -> Min`
+
+    Returns the Minimum from a `ParameterStats`.
     """
     pass
 
