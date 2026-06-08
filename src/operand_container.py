@@ -2807,12 +2807,19 @@ class Clip(Composition):  # Just a container of Elements
             case Part():
                 return Part(self._time_signature, self)
             case og.PitchTransitions():
-                for single_element in self._items:
-                    components: list[oe.Element] = single_element.get_component_elements()
-                    for single_component in components:
-                        if isinstance(single_component, oe.Note):
-                            ... # Still need to think about it!
-                return og.PitchTransitions()
+                pitch_transitions = og.PitchTransitions()
+                for i, single_element in enumerate(self._items):
+                    if i > 0:
+                        left_components: list[oe.Element] = self._items[i - 1].get_component_elements()
+                        right_components: list[oe.Element] = single_element.get_component_elements()
+                        for left, right in zip(left_components, right_components):
+                            if isinstance(left, oe.Note) and isinstance(right, oe.Note):
+                                left_pitch: int = left._pitch._get_chromatic_pitch()
+                                right_pitch: int = right._pitch._get_chromatic_pitch()
+                                delta_pitch: int = right_pitch - left_pitch
+                                pitch_transitions._sum += delta_pitch
+                                pitch_transitions._max = max(pitch_transitions._max, delta_pitch)
+                return pitch_transitions
             case _:
                 return super().__mod__(operand)
 
