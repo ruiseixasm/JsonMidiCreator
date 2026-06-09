@@ -66,6 +66,8 @@ class RC_Callables:
                     new_composition = self._single_iteration(composition_0.copy())
                     # Empty composition means it didn't got a valid result
                     if new_composition.len() > 0 and not self._to_be_excluded(new_composition):
+                        # Keeps a copy to not be considered again (no repetitions) (avoids a too long list being here and not before)
+                        self._compositions.append(new_composition.copy())
                         new_composition = self._apply_post_processing(new_composition)
                         new_composition._index = self._index   # Updates its index accordingly to the iteration
                         packed_iteration *= new_composition # does a copy of new_composition
@@ -88,8 +90,6 @@ class RC_Callables:
         if self._no_repetitions:
             if composition in self._compositions:
                 return True
-            # Adds the result to not be considered again (no repetitions)
-            self._compositions.append(composition)
         if callable(self._pre_exclusion) and self._pre_exclusion(composition):
             return True
         return False
