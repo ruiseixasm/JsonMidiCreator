@@ -79,7 +79,7 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
-                self.__imul__(operand)  # Numbers trigger iterations
+                self.iterate(1) # Does a single iteration
                 result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
                 # result = ra.Result(self % od.Pipe(Fraction()))
                 return result % operand
