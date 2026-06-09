@@ -60,28 +60,21 @@ class RC_Callables:
         if not self._iterations:
             self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
         for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
-            available_tries: int = self._max_tries
-            while True: # Finds a valid solution
-                if available_tries > 0:
-                    new_composition = self._single_iteration(composition_0.copy())
-                    # Empty composition means it didn't got a valid result
-                    if new_composition.len() > 0 and not self._to_be_excluded(new_composition):
-                        # Keeps a copy to not be considered again (no repetitions) (avoids a too long list being here and not before)
-                        self._iterations.append(new_composition.copy())
-                        new_composition._index = self._index + 1    # Updates its index accordingly to the iteration
-                        new_composition = self._apply_post_processing(new_composition)
-                        packed_iteration *= new_composition # does a copy of new_composition
-                        break
-                else:
-                    new_composition = composition_0.empty_copy()
-                    self._iterations.append(new_composition.copy()) # If it is a returned solution then is considered an iteration (matches self._index)
-                    new_composition._index = self._index + 1    # Updates its index accordingly to the iteration (lets post processing know it)
-                    new_composition = self._apply_post_processing(new_composition)
-                    packed_iteration *= new_composition # does a copy of new_composition
+            new_composition: oc.Composition | None = None
+            for _ in range(self._max_tries):    # Finds a valid solution
+                candidate = self._single_iteration(composition_0.copy())
+                if candidate.len() > 0 and not self._to_be_excluded(candidate):
+                    new_composition = candidate
                     break
-                available_tries -= 1
-            self._index += 1
+            if new_composition is None:
+                new_composition = composition_0.empty_copy()
+            self._iterations.append(new_composition.copy())
+            new_composition._index = self._index + 1
+            new_composition = self._apply_post_processing(new_composition)
+            packed_iteration *= new_composition
+            self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return packed_iteration
+
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         return composition_0
