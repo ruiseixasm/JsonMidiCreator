@@ -156,9 +156,8 @@ class RC_Splitter(RC_Clips):
                     return iteration_clip
                 try_j += 1
             try_i += 1
-        invalid_clip = decoupled_clip_0.empty_copy()  # No valid Clip made
-        invalid_clip._index = -1
-        return invalid_clip
+        decoupled_clip_0._index = -1    # Tags as invalid
+        return decoupled_clip_0
 
 
 class RC_Chooser(RC_Clips):
