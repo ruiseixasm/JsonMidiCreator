@@ -40,7 +40,7 @@ class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 2, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._extra_exclusion: Callable | None = extra_exclusion
@@ -48,6 +48,7 @@ class RC_Callables:
         self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
+        self._index: int = 1    # This index start at 1 because 0 is the seed
 
     def reset(self) -> Self:
         self._compositions = []
@@ -55,9 +56,24 @@ class RC_Callables:
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         packed_iteration: oc.Composition = composition_0.empty_copy()
+        if not self._compositions:
+            self._compositions.append(composition_0) # Avoids repeating the initial clip (seed)
         for _ in range(self._packed_repeats):
-            packed_iteration *= self._single_iteration(composition_0)
-        return packed_iteration 
+            available_tries: int = self._max_tries
+            while True:
+                new_composition = self._single_iteration(composition_0.copy())
+                if new_composition._index < 0:  # Negative index means it didn't got a valid result
+                    available_tries -= 1
+                    if available_tries <= 0:
+                        new_composition = composition_0.empty_copy()
+                        packed_iteration *= new_composition
+                        break
+                else:
+                    if self._to_be_excluded(new_composition):
+                        new_composition = composition_0.empty_copy()
+                    packed_iteration *= new_composition
+                    break
+        return self._apply_post_processing(packed_iteration)
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         return composition_0
@@ -80,7 +96,7 @@ class RC_Callables:
             return self._post_processing(composition_copy)
         return composition
 
-  
+
 class RC_Function(RC_Callables):
     def __init__(self, function: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
@@ -111,18 +127,16 @@ class RC_Splitter(RC_Clips):
         self._elements: int = elements
 
 
-    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
-        if not self._compositions: # Avoids adding the initial clip (seed) multiple times
-            self._compositions.append(clip_0)
+    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
-        for single_element in clip_0._foreground_items():
+        for single_element in decoupled_clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
         try_i: int = 0
-        while try_i < self._max_tries:
-            iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
+        while try_i < 100:
+            iteration_clip: oc.Clip = decoupled_clip_0.copy() # Despite the clip_0 being already a copy, each iteration needs a new one
             try_j: int = 0
-            while iteration_clip.len() < self._elements and try_j < self._max_tries * 2:
+            while iteration_clip.len() < self._elements and try_j < 100 * 2:
                 continuous_split_step: int = self._chaos % int()
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
@@ -135,11 +149,11 @@ class RC_Splitter(RC_Clips):
                             single_element //= element_split_position
                         break
                     continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements and not self._to_be_excluded(iteration_clip):
-                    return self._apply_post_processing(iteration_clip)
+                if iteration_clip.len() == self._elements:
+                    return iteration_clip
                 try_j += 1
             try_i += 1
-        return self._apply_post_processing(clip_0.empty_copy())  # No valid Clip made
+        return decoupled_clip_0.empty_copy()  # No valid Clip made
 
 
 class RC_Chooser(RC_Clips):
@@ -152,18 +166,13 @@ class RC_Chooser(RC_Clips):
         self._parameters: list[Any] = parameters
 
 
-    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         if self._parameters:
             total_parameters: int = len(self._parameters)
-            if not self._compositions:
-                self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
-            iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
-            for element in iteration_clip._foreground_items():
+            for element in decoupled_clip_0._foreground_items():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << chosen_parameter
-            if not self._to_be_excluded(iteration_clip):
-                return self._apply_post_processing(iteration_clip)
-        return self._apply_post_processing(clip_0.empty_copy())  # No valid Clip made
+        return decoupled_clip_0  # The Clip is already decoupled
 
 

@@ -30,11 +30,11 @@ def post_processing(clip) -> Clip:
     return clip
     
 
-notes_splitter = RC_Splitter(6, chaos=SinX(540), extra_exclusion=exclusion, post_processing=post_processing, packed_repeats=4, max_tries=1000)
+notes_splitter = RC_Splitter(6, chaos=SinX(540), extra_exclusion=exclusion, post_processing=post_processing, packed_repeats=4)
 rhythm_motif = measure_note >> Plot(n_button=notes_splitter.new_iteration, title="Rhythm", block=False)
 rhythm_motif *= [0] # Just the first MEasure
 
 # Build a melody from motifs and short phrases
-degrees_chooser = RC_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing, max_tries=1000)
+degrees_chooser = RC_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing)
 rhythm_phrase = rhythm_motif >> Plot(n_button=degrees_chooser.new_iteration, title="Melody")
 
