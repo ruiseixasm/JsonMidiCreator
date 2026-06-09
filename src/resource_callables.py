@@ -59,17 +59,17 @@ class RC_Callables:
         packed_iteration: oc.Composition = composition_0.empty_copy()
         if not self._compositions:
             self._compositions.append(composition_0) # Avoids repeating the initial clip (seed)
-            available_tries: int = self._max_tries
-            while True:
-                new_composition = self._single_iteration(composition_0.copy())
-                if available_tries <= 0:
-                    break
-                # Negative index means it didn't got a valid result
-                if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
-                    for _ in range(self._packed_repeats):
-                        packed_iteration *= new_composition
-                    break
-                available_tries -= 1
+        available_tries: int = self._max_tries
+        while True:
+            new_composition = self._single_iteration(composition_0.copy())
+            if available_tries <= 0:
+                break
+            # Negative index means it didn't got a valid result
+            if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
+                for _ in range(self._packed_repeats):
+                    packed_iteration *= new_composition
+                break
+            available_tries -= 1
         self._index += 1
         return self._apply_post_processing(packed_iteration)
 
