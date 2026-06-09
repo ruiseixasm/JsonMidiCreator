@@ -70,6 +70,7 @@ class RC_Callables:
                     packed_iteration *= new_composition
                 break
             available_tries -= 1
+        packed_iteration._index = self._index   # Updates it index accordingly to the iteration
         self._index += 1
         return self._apply_post_processing(packed_iteration)
 
