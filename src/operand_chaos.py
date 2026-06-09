@@ -83,12 +83,14 @@ class Chaos(o.Operand):
                     case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
+                    case Fraction():
+                        return self._xn % operand._data
                     case int():
                         return int(self % od.Pipe(Fraction()))
                     case float():
                         return float(self % od.Pipe(Fraction()))
-                    case Fraction():
-                        return self._xn % operand._data
+                    case ou.Unit() | ra.Rational():
+                        return operand << self % od.Pipe(Fraction())
                     case _:                     return super().__mod__(operand)
             case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()

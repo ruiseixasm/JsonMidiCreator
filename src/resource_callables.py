@@ -80,6 +80,23 @@ class RC_Callables:
             return self._post_processing(composition_copy)
         return composition
 
+  
+class RC_Function(RC_Callables):
+    def __init__(self, function: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 chaos: ch.Chaos = ch.SinX(340),
+                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        self._function: list[Any] = function
+
+
+    def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        if callable(self._function):
+            new_composition: oc.Composition = self._function(composition_0)
+            return self._apply_post_processing(new_composition)
+        return self._apply_post_processing(composition_0.empty_copy())  # No valid Composition made
+
 
 class RC_Clips(RC_Callables):
     pass
