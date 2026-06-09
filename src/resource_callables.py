@@ -43,7 +43,7 @@ class RC_Callables:
                  packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
-        self._extra_exclusion: Callable | None = pre_exclusion
+        self._pre_exclusion: Callable | None = pre_exclusion
         self._post_processing: Callable | None = post_processing
         self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
@@ -90,7 +90,7 @@ class RC_Callables:
                 return True
             # Adds the result to not be considered again (no repetitions)
             self._compositions.append(composition)
-        if callable(self._extra_exclusion) and self._extra_exclusion(composition):
+        if callable(self._pre_exclusion) and self._pre_exclusion(composition):
             return True
         return False
 
