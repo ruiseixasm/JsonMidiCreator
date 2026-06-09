@@ -66,11 +66,12 @@ class RC_Callables:
                 # Negative index means it didn't got a valid result
                 if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
                     new_composition._index = self._index   # Updates it index accordingly to the iteration
+                    new_composition = self._apply_post_processing(new_composition)
                     packed_iteration *= new_composition # does a copy of new_composition
                     break
                 available_tries -= 1
             self._index += 1
-        return self._apply_post_processing(packed_iteration)
+        return packed_iteration
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         return composition_0
