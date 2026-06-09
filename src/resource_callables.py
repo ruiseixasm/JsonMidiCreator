@@ -67,7 +67,7 @@ class RC_Callables:
             # Negative index means it didn't got a valid result
             if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
                 for _ in range(self._packed_repeats):
-                    packed_iteration *= new_composition
+                    packed_iteration *= new_composition # does a copy of new_composition
                 break
             available_tries -= 1
         packed_iteration._index = self._index   # Updates it index accordingly to the iteration
@@ -90,9 +90,7 @@ class RC_Callables:
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
         if callable(self._post_processing):
-            # Has to returns a Copy, otherwise the external post processing may change the self kept composition directly (decoupling)
-            composition_copy = composition.copy()
-            return self._post_processing(composition_copy)
+            return self._post_processing(composition)
         return composition
 
 
