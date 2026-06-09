@@ -83,21 +83,26 @@ def test_chaos_discretion():
 def test_chained_chaos():
 
     modulus_sinx = Cycle()**SinX()
+    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
     modulus_sinx *= 2.01    # same as 2
-
-    modulus_sinx % Pipe(int()) >> Print()
+    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
     assert modulus_sinx % Pipe(int()) < 12  # Pipe avoids iterations
 
-    sinx = SinX()       # starts as 2
-    modulus = Cycle()   # starts as 0
+    modulus = Cycle()   # Xn starts as 0
     assert modulus != modulus_sinx
 
+    sinx = SinX()       # Xn starts as 2
+    print(f"sinx: {sinx % Pipe(float())}")
     sinx *= 2.01    # same as 2
+    print(f"sinx: {sinx % Pipe(float())}")
+    assert sinx == modulus_sinx
     modulus << sinx # sets the xn as sinx result from above
     modulus *= 2.01 # same as 2
+    modulus % Pipe(float()) >> Print()
+    modulus_sinx % Pipe(float()) >> Print()
     assert modulus == modulus_sinx
 
-# test_chained_chaos()
+test_chained_chaos()
 
 
 def test_list_chaos():
