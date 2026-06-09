@@ -73,15 +73,15 @@ class Chaos(o.Operand):
                     case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
-                    case Fraction():            return self._xn._rational
+                    case int() | float() | Fraction():
+                        return self._xn % operand._data
                     case _:                     return super().__mod__(operand)
             case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
-                self.iterate(1) # Does a single iteration
                 result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
-                # result = ra.Result(self % od.Pipe(Fraction()))
+                self.iterate(1) # Does a single iteration
                 return result % operand
             case list():
                 list_out: list = []
@@ -146,7 +146,7 @@ class Chaos(o.Operand):
             case int() | float() | Fraction():
                 if isinstance(self._next_operand, Chaos):
                     self._next_operand << operand
-                self <<= operand
+                self <<= operand    # Piped, to avoid infinite loop
                 self._x0 << self._xn
             case tuple():
                 for single_operand in operand:
@@ -166,7 +166,7 @@ class Chaos(o.Operand):
         return self
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
-        number = self.number_to_int(number)
+        number = self.number_to_int(number) # Results in a int, like int(float)
         return self.iterate(number)
     
     # self is the pusher
@@ -182,8 +182,8 @@ class Chaos(o.Operand):
         import operand_container as oc
         match operand:
             case int() | float() | Fraction():
-                self.iterate(1) # Does a single iteration
                 result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
+                self.iterate(1) # Does a single iteration, to rotate to the next iteration
                 return ra.Result(result) % operand
             case list() | oc.Container():
                 for index, item in enumerate(operand):
@@ -201,10 +201,10 @@ class Chaos(o.Operand):
 
     def iterate(self, times: int = 1) -> Self:
         if times > 0:
-            numeral: Fraction = self % od.Pipe(Fraction())
+            numeral: Fraction = self._xn._rational
             tamed: bool = True
             if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+                numeral: Fraction = self._next_operand._xn._rational
                 numeral, tamed = self._next_operand.result(numeral, times)
             if tamed:
                 self.result(numeral, times)

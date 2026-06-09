@@ -853,7 +853,7 @@ class Operand:
             return last_operand
         return operand.__rrshift__(self)    # Reverses papers
 
-    # The @ operator in Python is used for matrix multiplication
+    # The @ operator in Python is used for matrix multiplication (__@__)
     # Works as >> with top precedence than >>
     def __matmul__(self, operand) -> Self:
         return self.__rshift__( operand )

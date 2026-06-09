@@ -55,17 +55,15 @@ def test_modulus():
 
     cycle = Cycle(Modulus(4))
 
-    assert cycle * 0 % int() == 0
-    assert cycle * 1 % int() == 1
-    assert cycle * 2 % int() == 2
-    assert cycle * 3 % int() == 3
-    assert cycle * 4 % int() == 0
-
-    assert cycle @ 0 % int() == 0
-    assert cycle @ 1 % int() == 1
-    assert cycle @ 1 % int() == 2
-    assert cycle @ 1 % int() == 3
-    assert cycle @ 1 % int() == 0
+    assert cycle % int() == 0
+    assert cycle % int() == 1
+    assert cycle % int() == 2
+    assert cycle % int() == 3
+    assert cycle % int() == 0
+    assert cycle % int() == 1
+    assert cycle % int() == 2
+    assert cycle % int() == 3
+    assert cycle % int() == 0
 
 # test_modulus()
 
@@ -85,18 +83,18 @@ def test_chaos_discretion():
 def test_chained_chaos():
 
     modulus_sinx = Cycle()**SinX()
-    modulus_sinx *= 2.01
+    modulus_sinx *= 2.01    # same as 2
 
-    modulus_sinx % int() >> Print()
-    assert modulus_sinx % int() < 12
+    modulus_sinx % Pipe(int()) >> Print()
+    assert modulus_sinx % Pipe(int()) < 12  # Pipe avoids iterations
 
-    sinx = SinX()
-    modulus = Cycle()
+    sinx = SinX()       # starts as 2
+    modulus = Cycle()   # starts as 0
     assert modulus != modulus_sinx
 
-    sinx *= 2.01
-    modulus << sinx
-    modulus *= 2.01
+    sinx *= 2.01    # same as 2
+    modulus << sinx # sets the xn as sinx result from above
+    modulus *= 2.01 # same as 2
     assert modulus == modulus_sinx
 
 # test_chained_chaos()
