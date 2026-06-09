@@ -41,7 +41,7 @@ class RC_Callables:
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = True):
-        self._compositions: list[oc.Composition] = []
+        self._iterations: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._pre_exclusion: Callable | None = pre_exclusion
         self._post_processing: Callable | None = post_processing
@@ -51,14 +51,14 @@ class RC_Callables:
         self._index: int = 0
 
     def reset(self) -> Self:
-        self._compositions = []
-        self._index = 1 # This index start at 1 because 0 is the seed
+        self._iterations = []
+        self._index = 0
         return self
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         packed_iteration: oc.Composition = composition_0.empty_copy()
-        if not self._compositions:
-            self._compositions.append(composition_0) # Avoids repeating the initial clip (seed)
+        if not self._iterations:
+            self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
         for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
             available_tries: int = self._max_tries
             while True: # Finds a valid solution
@@ -67,13 +67,14 @@ class RC_Callables:
                     # Empty composition means it didn't got a valid result
                     if new_composition.len() > 0 and not self._to_be_excluded(new_composition):
                         # Keeps a copy to not be considered again (no repetitions) (avoids a too long list being here and not before)
-                        self._compositions.append(new_composition.copy())
+                        self._iterations.append(new_composition.copy())
                         new_composition._index = self._index + 1    # Updates its index accordingly to the iteration
                         new_composition = self._apply_post_processing(new_composition)
                         packed_iteration *= new_composition # does a copy of new_composition
                         break
                 else:
                     new_composition = composition_0.empty_copy()
+                    self._iterations.append(new_composition.copy()) # If it is a returned solution the is considered an iteration (matches self._index)
                     new_composition._index = self._index + 1    # Updates its index accordingly to the iteration (lets post processing know it)
                     new_composition = self._apply_post_processing(new_composition)
                     packed_iteration *= new_composition # does a copy of new_composition
@@ -85,29 +86,30 @@ class RC_Callables:
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         return composition_0
 
+
     def _to_be_excluded(self, composition: oc.Composition) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
-        if self._no_repetitions:
-            if composition in self._compositions:
-                return True
-        if callable(self._pre_exclusion) and self._pre_exclusion(composition):
-            return True
-        return False
+        return self._no_repetitions and composition in self._iterations \
+            or callable(self._pre_exclusion) and self._pre_exclusion(composition)
+
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
         if callable(self._post_processing):
             return self._post_processing(composition)
         return composition
+    
+    def len(self) -> int:
+        return len(self._iterations)
 
     def __getitem__(self, index: int) -> oc.Composition | None:
         """To set the initial seed, use new_iteration with it"""
-        if isinstance(index, int) and self._compositions:
+        if isinstance(index, int) and self._iterations:
             if index > self._index: # self._index is the 
                 iterations: int = index - self._index
-                seed_composition = self._compositions[0]
+                seed_composition = self._iterations[0]
                 for _ in range(iterations):
                     self.new_iteration(seed_composition)
-            return self._compositions[index]
+            return self._iterations[index]
         return None
     
 
