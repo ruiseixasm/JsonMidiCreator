@@ -40,7 +40,7 @@ class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 2, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._extra_exclusion: Callable | None = extra_exclusion
@@ -73,6 +73,8 @@ class RC_Callables:
                         new_composition = composition_0.empty_copy()
                     packed_iteration *= new_composition
                     break
+        packed_iteration._index = self._index
+        self._index += 1
         return self._apply_post_processing(packed_iteration)
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
