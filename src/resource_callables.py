@@ -60,10 +60,8 @@ class RC_Callables:
         if not self._compositions:
             self._compositions.append(composition_0) # Avoids repeating the initial clip (seed)
         available_tries: int = self._max_tries
-        while True:
+        while available_tries > 0:
             new_composition = self._single_iteration(composition_0.copy())
-            if available_tries <= 0:
-                break
             # Negative index means it didn't got a valid result
             if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
                 for _ in range(self._packed_repeats):
