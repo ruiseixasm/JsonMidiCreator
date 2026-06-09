@@ -74,7 +74,7 @@ def test_chaos_discretion():
     values = set()
     assert len(values) == 0
     for _ in range(300):
-        new_value = 1 >> chaos
+        new_value = chaos % int()
         new_value %= total_values
         values.add(new_value)
     assert len(values) == total_values

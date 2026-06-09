@@ -181,28 +181,6 @@ class Chaos(o.Operand):
     def __irshift__(self, operand: any) -> Self:
         return self.__imul__(operand)
     
-    # Unitary iterations on the operand
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        match operand:
-            case int() | float() | Fraction():
-                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
-                self.iterate(1) # Does a single iteration, to rotate to the next iteration
-                return result % operand
-            case list() | oc.Container():
-                for index, item in enumerate(operand):
-                    operand[index] = self.__rrshift__(item)    # Recursive call
-                return operand
-            case Chaos():
-                return operand
-            case o.Operand():
-                self.iterate(1) # Does a single iteration
-                result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
-                return operand << result
-            case _:
-                return super().__rrshift__(operand)
-
-
     def iterate(self, times: int = 1) -> Self:
         if times > 0:
             numeral: Fraction = self % od.Pipe(Fraction())
