@@ -59,9 +59,9 @@ class RC_Callables:
         packed_iteration: oc.Composition = composition_0.empty_copy()
         if not self._compositions:
             self._compositions.append(composition_0) # Avoids repeating the initial clip (seed)
-        for _ in range(self._packed_repeats):
+        for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
             available_tries: int = self._max_tries
-            while True:
+            while True: # Finds a valid solution
                 if available_tries > 0:
                     new_composition = self._single_iteration(composition_0.copy())
                     # Empty composition means it didn't got a valid result
