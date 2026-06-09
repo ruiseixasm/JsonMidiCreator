@@ -52,6 +52,7 @@ class RC_Callables:
 
     def reset(self) -> Self:
         self._compositions = []
+        self._index = 1 # This index start at 1 because 0 is the seed
         return self
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
