@@ -156,6 +156,7 @@ def test_get_list():
     measures_velocity = [Velocity(1)] * 4
     results_b = chaos.reset() % measures_velocity
     print(f"measures_int: {measures_int}")
+    print(f"results_int: {results_int}")
     print(f"measures_velocity: {list_mod(measures_velocity, int())}")
     print(f"results_a: {list_mod(results_a, int())}")
     print(f"results_b: {list_mod(results_b, int())}")

@@ -1,2 +1,1 @@
-
-    generated_pitches: list[str] = []
+results_b

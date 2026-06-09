@@ -87,6 +87,8 @@ class Chaos(o.Operand):
                 result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
                 self.iterate(1) # Does a single iteration
                 return result % operand
+            case ou.Unit() | ra.Rational():
+                return operand.copy(self % Fraction())  # Has to trigger an iteration
             case list():
                 list_out: list = []
                 for number in operand:
@@ -94,8 +96,6 @@ class Chaos(o.Operand):
                 return list_out
             case Chaos():
                 return operand.copy(self)
-            case o.Operand():   # Operand has to have the triggering value (Fraction)
-                return operand.copy(self % (operand % Fraction()))
             case _:
                 return super().__mod__(operand)
 
