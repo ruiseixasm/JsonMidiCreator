@@ -74,7 +74,7 @@ class RC_Callables:
                         break
                 else:
                     new_composition = composition_0.empty_copy()
-                    self._iterations.append(new_composition.copy()) # If it is a returned solution the is considered an iteration (matches self._index)
+                    self._iterations.append(new_composition.copy()) # If it is a returned solution then is considered an iteration (matches self._index)
                     new_composition._index = self._index + 1    # Updates its index accordingly to the iteration (lets post processing know it)
                     new_composition = self._apply_post_processing(new_composition)
                     packed_iteration *= new_composition # does a copy of new_composition
