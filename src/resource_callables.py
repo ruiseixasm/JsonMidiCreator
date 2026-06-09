@@ -106,7 +106,7 @@ class RC_Splitter(RC_Clips):
             iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
             try_j: int = 0
             while iteration_clip.len() < self._elements and try_j < self._max_tries * 2:
-                continuous_split_step: int = 1 >> self._chaos
+                continuous_split_step: int = self._chaos % int()
                 continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                 continuous_start_beat = Fraction(0)
                 for single_element in iteration_clip._foreground_items():
@@ -142,7 +142,7 @@ class RC_Chooser(RC_Clips):
                 self._compositions.append(clip_0) # Avoids repeating the initial clip (seed)
             iteration_clip: oc.Clip = clip_0.copy() # Always works with a copy to avoid changing the kept original above
             for element in iteration_clip._foreground_items():
-                index_choice: int = 1 >> self._chaos
+                index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << chosen_parameter
             if not self._to_be_excluded(iteration_clip):

@@ -66,6 +66,16 @@ class Chaos(o.Operand):
         rational: Fraction = ra.Rational(number) % Fraction()
         return self._tamer.tame(rational, True)[1]
 
+    def __str__(self) -> str:
+        return f'{self._index + 1}: {self._xn % float()}'
+    
+    def __eq__(self, other: 'Chaos') -> bool:
+        if type(self) == type(other):
+            return self._xn == other._xn    # Only the actual result matters, NOT the x0
+        if isinstance(other, od.Conditional):
+            return other == self
+        return False
+    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -99,16 +109,6 @@ class Chaos(o.Operand):
             case _:
                 return super().__mod__(operand)
 
-    def __str__(self) -> str:
-        return f'{self._index + 1}: {self._xn % float()}'
-    
-    def __eq__(self, other: 'Chaos') -> bool:
-        if type(self) == type(other):
-            return self._xn == other._xn    # Only the actual result matters, NOT the x0
-        if isinstance(other, od.Conditional):
-            return other == self
-        return False
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["tamer"] = self.serialize( self._tamer )
@@ -186,9 +186,9 @@ class Chaos(o.Operand):
         import operand_container as oc
         match operand:
             case int() | float() | Fraction():
-                result: o.TypeNumeral = self._tamer.tame(self % od.Pipe(Fraction()))[0]
+                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
                 self.iterate(1) # Does a single iteration, to rotate to the next iteration
-                return ra.Result(result) % operand
+                return result % operand
             case list() | oc.Container():
                 for index, item in enumerate(operand):
                     operand[index] = self.__rrshift__(item)    # Recursive call
