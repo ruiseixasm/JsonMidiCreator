@@ -73,7 +73,11 @@ class Chaos(o.Operand):
                     case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
-                    case int() | float() | Fraction():
+                    case int():
+                        return int(self % od.Pipe(Fraction()))
+                    case float():
+                        return float(self % od.Pipe(Fraction()))
+                    case Fraction():
                         return self._xn % operand._data
                     case _:                     return super().__mod__(operand)
             case ot.Tamer():            return self._tamer.copy()
@@ -159,7 +163,7 @@ class Chaos(o.Operand):
             be passed to self afterwards in a chained fashion.
         '''
         if isinstance(operand, Chaos):
-            self << operand % Fraction()    # SETS THE DEFAULT x0 PARAMETER
+            self << operand % od.Pipe(Fraction())    # SETS THE DEFAULT x0 PARAMETER
             self._next_operand = operand
         elif operand is None:
             self._next_operand = None
@@ -201,10 +205,10 @@ class Chaos(o.Operand):
 
     def iterate(self, times: int = 1) -> Self:
         if times > 0:
-            numeral: Fraction = self._xn._rational
+            numeral: Fraction = self % od.Pipe(Fraction())
             tamed: bool = True
             if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-                numeral: Fraction = self._next_operand._xn._rational
+                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
                 numeral, tamed = self._next_operand.result(numeral, times)
             if tamed:
                 self.result(numeral, times)
@@ -238,7 +242,7 @@ class Chaos(o.Operand):
         self._index         = 0
         # RESET THE SELF OPERANDS RECURSIVELY
         if isinstance(self._next_operand, Chaos):
-            self << self._next_operand.reset() % Fraction()
+            self << self._next_operand.reset() % od.Pipe(Fraction())
         elif isinstance(self._next_operand, o.Operand):
             self << self._next_operand.reset()
         self.reset_tamers()
@@ -396,7 +400,7 @@ class Cycle(Sequence):
             case _:
                 super().__lshift__(operand)
         # Makes sure xn isn't out of the cycle
-        self._xn << self._xn % Fraction() % self._modulus
+        self._xn << self._xn % od.Pipe(Fraction()) % self._modulus
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
@@ -575,7 +579,8 @@ class Bouncer(Chaos):
                     case ra.X0():               return self._x0
                     case ra.Yn():               return self._yn
                     case ra.Y0():               return self._y0
-                    case Fraction():            return ra.Result(math.hypot(self._xn % float(), self._yn % float()))._rational
+                    case Fraction():
+                        return ra.Result(math.hypot(self._xn % float(), self._yn % float()))._rational
                     case _:                     return super().__mod__(operand)
             case ra.Width():            return self._width.copy()
             case ra.Height():           return self._height.copy()

@@ -81,11 +81,20 @@ def test_chaos_discretion():
 
 
 def test_chained_chaos():
+    # CHAINING CHAOS RESULTS IN SINGLE ITERATIONS FORM TAIL TO HEAD
+    # WHERE THE XN VALUE OF EACH PREVIOUS CHAOS OPERAND IS SET BY THE
+    # TAILED CHAOS OPERAND
 
     modulus_sinx = Cycle()**SinX()
+    tailed_sinx = SinX()
+    assert modulus_sinx._next_operand == tailed_sinx
+
     print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    modulus_sinx *= 2.01    # same as 2
+    modulus_sinx *= 2.01    # same as Cycle(SinX() * 2) * 2
+    chained_cycle = Cycle(SinX() * 2) * 2
     print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
+    print(f"chained_cycle: {chained_cycle % Pipe(float())}")
+    assert chained_cycle == modulus_sinx
     assert modulus_sinx % Pipe(int()) < 12  # Pipe avoids iterations
 
     modulus = Cycle()   # Xn starts as 0
@@ -95,14 +104,14 @@ def test_chained_chaos():
     print(f"sinx: {sinx % Pipe(float())}")
     sinx *= 2.01    # same as 2
     print(f"sinx: {sinx % Pipe(float())}")
-    assert sinx == modulus_sinx
+    # The purpose of chaining Chaos vvvvvv
     modulus << sinx # sets the xn as sinx result from above
     modulus *= 2.01 # same as 2
     modulus % Pipe(float()) >> Print()
     modulus_sinx % Pipe(float()) >> Print()
     assert modulus == modulus_sinx
 
-test_chained_chaos()
+# test_chained_chaos()
 
 
 def test_list_chaos():
