@@ -62,16 +62,18 @@ class RC_Callables:
         for _ in range(self._packed_repeats):
             available_tries: int = self._max_tries
             while True:
-                if available_tries <= 0:
-                    new_composition._index = self._index   # Updates it index accordingly to the iteration
-                    new_composition = self._apply_post_processing(composition_0.empty_copy())
-                    packed_iteration *= new_composition # does a copy of new_composition
-                    break
-                new_composition = self._single_iteration(composition_0.copy())
-                # Negative index means it didn't got a valid result
-                if new_composition._index >= 0 and not self._to_be_excluded(new_composition):
-                    new_composition._index = self._index   # Updates it index accordingly to the iteration
+                if available_tries > 0:
+                    new_composition = self._single_iteration(composition_0.copy())
+                    # Empty composition means it didn't got a valid result
+                    if new_composition.len() > 0 and not self._to_be_excluded(new_composition):
+                        new_composition = self._apply_post_processing(new_composition)
+                        new_composition._index = self._index   # Updates it index accordingly to the iteration
+                        packed_iteration *= new_composition # does a copy of new_composition
+                        break
+                else:
+                    new_composition = composition_0.empty_copy()
                     new_composition = self._apply_post_processing(new_composition)
+                    new_composition._index = self._index   # Updates it index accordingly to the iteration
                     packed_iteration *= new_composition # does a copy of new_composition
                     break
                 available_tries -= 1
@@ -154,8 +156,7 @@ class RC_Splitter(RC_Clips):
                     return iteration_clip
                 try_j += 1
             try_i += 1
-        decoupled_clip_0._index = -1    # Tags as invalid
-        return decoupled_clip_0
+        return decoupled_clip_0.empty_copy()   # Tags as invalid
 
 
 class RC_Chooser(RC_Clips):
