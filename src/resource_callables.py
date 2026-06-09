@@ -38,12 +38,12 @@ import operand_chaos as ch
 
 class RC_Callables:
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
-                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = True):
         self._compositions: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
-        self._extra_exclusion: Callable | None = extra_exclusion
+        self._extra_exclusion: Callable | None = pre_exclusion
         self._post_processing: Callable | None = post_processing
         self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
@@ -67,13 +67,13 @@ class RC_Callables:
                     # Empty composition means it didn't got a valid result
                     if new_composition.len() > 0 and not self._to_be_excluded(new_composition):
                         new_composition = self._apply_post_processing(new_composition)
-                        new_composition._index = self._index   # Updates it index accordingly to the iteration
+                        new_composition._index = self._index   # Updates its index accordingly to the iteration
                         packed_iteration *= new_composition # does a copy of new_composition
                         break
                 else:
                     new_composition = composition_0.empty_copy()
                     new_composition = self._apply_post_processing(new_composition)
-                    new_composition._index = self._index   # Updates it index accordingly to the iteration
+                    new_composition._index = self._index   # Updates its index accordingly to the iteration
                     packed_iteration *= new_composition # does a copy of new_composition
                     break
                 available_tries -= 1
@@ -103,10 +103,10 @@ class RC_Callables:
 class RC_Function(RC_Callables):
     def __init__(self, function: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
-                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._function: list[Any] = function
 
 
@@ -123,10 +123,10 @@ class RC_Clips(RC_Callables):
 class RC_Splitter(RC_Clips):
     def __init__(self, elements: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
-                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._elements: int = elements
 
 
@@ -162,10 +162,10 @@ class RC_Splitter(RC_Clips):
 class RC_Chooser(RC_Clips):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
-                 extra_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
-        super().__init__(chaos, extra_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
+        super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._parameters: list[Any] = parameters
 
 
