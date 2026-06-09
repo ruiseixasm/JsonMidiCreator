@@ -73,7 +73,6 @@ class RC_Callables:
                         new_composition = composition_0.empty_copy()
                     packed_iteration *= new_composition
                     break
-        packed_iteration._index = self._index
         self._index += 1
         return self._apply_post_processing(packed_iteration)
 
@@ -152,6 +151,7 @@ class RC_Splitter(RC_Clips):
                         break
                     continuous_start_beat = continuous_finish_beat
                 if iteration_clip.len() == self._elements:
+                    iteration_clip._index = self._index
                     return iteration_clip
                 try_j += 1
             try_i += 1
@@ -177,6 +177,7 @@ class RC_Chooser(RC_Clips):
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << chosen_parameter
+        decoupled_clip_0._index = self._index
         return decoupled_clip_0  # The Clip is already decoupled
 
 
