@@ -173,14 +173,6 @@ class Chaos(o.Operand):
         number = self.number_to_int(number) # Results in a int, like int(float)
         return self.iterate(number)
     
-    # self is the pusher
-    def __rshift__(self, operand: any) -> Self:
-        return self.__irshift__(operand)    # Does not Copy !!
-
-    # Pass trough method that always results in a Chaos (Self)
-    def __irshift__(self, operand: any) -> Self:
-        return self.__imul__(operand)
-    
     def iterate(self, times: int = 1) -> Self:
         if times > 0:
             numeral: Fraction = self % od.Pipe(Fraction())
