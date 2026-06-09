@@ -62,12 +62,12 @@ class RC_Callables:
             available_tries: int = self._max_tries
             while True:
                 new_composition = self._single_iteration(composition_0.copy())
+                if available_tries <= 0:
+                    new_composition = composition_0.empty_copy()
+                    packed_iteration *= new_composition
+                    break
                 if new_composition._index < 0:  # Negative index means it didn't got a valid result
                     available_tries -= 1
-                    if available_tries <= 0:
-                        new_composition = composition_0.empty_copy()
-                        packed_iteration *= new_composition
-                        break
                 else:
                     if self._to_be_excluded(new_composition):
                         new_composition = composition_0.empty_copy()
@@ -153,7 +153,9 @@ class RC_Splitter(RC_Clips):
                     return iteration_clip
                 try_j += 1
             try_i += 1
-        return decoupled_clip_0.empty_copy()  # No valid Clip made
+        invalid_clip = decoupled_clip_0.empty_copy()  # No valid Clip made
+        invalid_clip._index = -1
+        return invalid_clip
 
 
 class RC_Chooser(RC_Clips):
