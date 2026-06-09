@@ -149,7 +149,6 @@ class RC_Splitter(RC_Clips):
                         break
                     continuous_start_beat = continuous_finish_beat
                 if iteration_clip.len() == self._elements:
-                    iteration_clip._index = self._index
                     return iteration_clip
                 try_j += 1
             try_i += 1
