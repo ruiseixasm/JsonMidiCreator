@@ -36,7 +36,7 @@ import operand_chaos as ch
 
 
 
-class RC_Callables:
+class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
@@ -48,11 +48,11 @@ class RC_Callables:
         self._packed_repeats: int = packed_repeats
         self._max_tries: int = max_tries
         self._no_repetitions = no_repetitions
-        self._index: int = 0
+        super().__init__()
 
     def reset(self) -> Self:
         self._iterations = []
-        self._index = 0
+        super().reset()
         return self
     
 
@@ -113,7 +113,7 @@ class RC_Callables:
         return None
     
 
-class RC_Function(RC_Callables):
+class I_Function(Iterations):
     def __init__(self, function: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
@@ -130,10 +130,10 @@ class RC_Function(RC_Callables):
         return self._apply_post_processing(composition_0.empty_copy())  # No valid Composition made
 
 
-class RC_Clips(RC_Callables):
+class I_Clips(Iterations):
     pass
 
-class RC_Splitter(RC_Clips):
+class I_Splitter(I_Clips):
     def __init__(self, elements: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
@@ -172,7 +172,7 @@ class RC_Splitter(RC_Clips):
         return decoupled_clip_0.empty_copy()   # Tags as invalid
 
 
-class RC_Chooser(RC_Clips):
+class I_Chooser(I_Clips):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
