@@ -55,24 +55,31 @@ class RC_Callables:
         self._index = 0
         return self
     
-    def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
-        packed_iteration: oc.Composition = composition_0.empty_copy()
+
+    def _pre_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        """Gets the source iteration without any post processing"""
+        pre_iteration: oc.Composition | None = None
         if not self._iterations:
             self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
+        for _ in range(self._max_tries):    # Finds a valid solution
+            candidate = self._single_iteration(composition_0.copy())
+            if candidate.len() > 0 and not self._to_be_excluded(candidate):
+                pre_iteration = candidate
+                break
+        if pre_iteration is None:
+            pre_iteration = composition_0.empty_copy()
+        self._iterations.append(pre_iteration.copy())
+        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
+        pre_iteration._index = self._index
+        return pre_iteration
+
+    
+    def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        packed_iteration: oc.Composition = composition_0.empty_copy()
         for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
-            new_composition: oc.Composition | None = None
-            for _ in range(self._max_tries):    # Finds a valid solution
-                candidate = self._single_iteration(composition_0.copy())
-                if candidate.len() > 0 and not self._to_be_excluded(candidate):
-                    new_composition = candidate
-                    break
-            if new_composition is None:
-                new_composition = composition_0.empty_copy()
-            self._iterations.append(new_composition.copy())
-            new_composition._index = self._index + 1
+            new_composition = self._pre_iteration(composition_0)
             new_composition = self._apply_post_processing(new_composition)
             packed_iteration *= new_composition
-            self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return packed_iteration
 
 
