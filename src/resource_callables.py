@@ -108,7 +108,7 @@ class RC_Callables:
                 iterations: int = index - self._index
                 seed_composition = self._iterations[0]
                 for _ in range(iterations):
-                    self.new_iteration(seed_composition)
+                    self._pre_iteration(seed_composition)
             return self._iterations[index]
         return None
     
