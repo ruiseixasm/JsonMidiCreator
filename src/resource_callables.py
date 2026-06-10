@@ -56,12 +56,12 @@ class RC_Callables:
         return self
     
 
-    def _pre_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+    def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Gets the source iteration without any post processing"""
         pre_iteration: oc.Composition | None = None
         if not self._iterations:
             self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
-        for _ in range(self._max_tries):    # Finds a valid solution
+        for _ in range(self._max_tries):    # Finds a non-empty iteration
             candidate = self._single_iteration(composition_0.copy())
             if candidate.len() > 0 and not self._to_be_excluded(candidate):
                 pre_iteration = candidate
@@ -77,8 +77,8 @@ class RC_Callables:
     def n_button(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Also applies the post processing on the original iteration"""
         packed_iteration: oc.Composition = composition_0.empty_copy()
-        for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
-            new_composition = self._pre_iteration(composition_0)
+        for _ in range(self._packed_repeats):   # Stacks the iteration found with post processing
+            new_composition = self.new_iteration(composition_0)
             new_composition = self._apply_post_processing(new_composition)
             packed_iteration *= new_composition
         return packed_iteration
@@ -92,7 +92,6 @@ class RC_Callables:
         # The external user defined method is called if and only if the composition is internally validated
         return self._no_repetitions and composition in self._iterations \
             or callable(self._pre_exclusion) and self._pre_exclusion(composition)
-
 
     def _apply_post_processing(self, composition: oc.Composition) -> oc.Composition:
         if callable(self._post_processing):
@@ -109,7 +108,7 @@ class RC_Callables:
                 iterations: int = index - self._index
                 seed_composition = self._iterations[0]
                 for _ in range(iterations):
-                    self._pre_iteration(seed_composition)
+                    self.new_iteration(seed_composition)
             return self._iterations[index]
         return None
     
