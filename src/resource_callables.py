@@ -75,6 +75,7 @@ class RC_Callables:
 
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+        """Also applies the post processing on the original iteration"""
         packed_iteration: oc.Composition = composition_0.empty_copy()
         for _ in range(self._packed_repeats):   # Repeats the solution found with post processing
             new_composition = self._pre_iteration(composition_0)
