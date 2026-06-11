@@ -131,6 +131,7 @@ class Iterations(o.Operand):
                     case ch.Chaos():            return self._chaos
                     case _:                     return super().__mod__(operand)
             case ch.Chaos():            return self._chaos.copy()
+            case int():                 return self._freeze_at
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -175,10 +176,13 @@ class Iterations(o.Operand):
                 self._freeze_at         = operand._freeze_at
             case od.Pipe():
                 match operand._data:
-                    case ch.Chaos():            self._chaos     = operand._data
+                    case ch.Chaos():            self._chaos = operand._data
+                    case int():                 self._freeze_at = operand._data
                     case _:                     super().__lshift__(operand)
             case ch.Chaos():
                 self._chaos             = operand.copy()
+            case int():
+                self._freeze_at         = operand
             case _:
                 super().__lshift__(operand)
         return self
