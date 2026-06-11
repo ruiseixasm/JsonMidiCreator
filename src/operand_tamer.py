@@ -1099,7 +1099,7 @@ class Probability(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: o.TypeNumeral = Fraction(1/10)
+        self._numeral: o.TypeNumeral = Fraction(1, 10)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
