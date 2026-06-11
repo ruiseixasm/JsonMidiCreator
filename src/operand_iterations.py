@@ -59,18 +59,17 @@ class Iterations(o.Operand):
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Gets the source iteration without any post processing"""
         iteration: oc.Composition | None = None
-        if composition_0.len() > 0:
-            if not self._iterations:
-                self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
-            for _ in range(self._max_tries):    # Finds a non-empty iteration
-                if isinstance(self._next_operand, Iterations):
-                    candidate = self._next_operand._single_iteration(composition_0.copy())
-                    candidate = self._single_iteration(candidate)
-                else:
-                    candidate = self._single_iteration(composition_0.copy())
-                if candidate.len() > 0 and not self._to_be_excluded(candidate):
-                    iteration = candidate
-                    break
+        if not self._iterations:
+            self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
+        for _ in range(self._max_tries):    # Finds a non-empty iteration
+            if isinstance(self._next_operand, Iterations):
+                tail_iteration = self._next_operand.new_iteration(composition_0.copy())
+                candidate = self._single_iteration(tail_iteration)
+            else:
+                candidate = self._single_iteration(composition_0.copy())
+            if candidate.len() > 0 and not self._to_be_excluded(candidate):
+                iteration = candidate
+                break
         if iteration is None:
             iteration = composition_0.empty_copy()
         self._iterations.append(iteration.copy())
@@ -172,27 +171,28 @@ class I_Splitter(I_Clips):
         total_duration_beats = Fraction(0)
         for single_element in decoupled_clip_0._foreground_items():
             total_duration_beats += single_element._duration_beats
-        try_i: int = 0
-        while try_i < 100:
-            iteration_clip: oc.Clip = decoupled_clip_0.copy() # Despite the clip_0 being already a copy, each iteration needs a new one
-            try_j: int = 0
-            while iteration_clip.len() < self._elements and try_j < 100 * 2:
-                continuous_split_step: int = self._chaos % int()
-                continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
-                continuous_start_beat = Fraction(0)
-                for single_element in iteration_clip._foreground_items():
-                    continuous_finish_beat = continuous_start_beat + single_element._duration_beats
-                    if continuous_split_beat < continuous_finish_beat:
-                        if continuous_split_beat > continuous_start_beat:
-                            element_split_position: ra.Position = single_element % ra.Position()
-                            element_split_position += continuous_split_beat - continuous_start_beat
-                            single_element //= element_split_position
-                        break
-                    continuous_start_beat = continuous_finish_beat
-                if iteration_clip.len() == self._elements:
-                    return iteration_clip
-                try_j += 1
-            try_i += 1
+        if total_duration_beats > 0:
+            try_i: int = 0
+            while try_i < 100:
+                iteration_clip: oc.Clip = decoupled_clip_0.copy() # Despite the clip_0 being already a copy, each iteration needs a new one
+                try_j: int = 0
+                while iteration_clip.len() < self._elements and try_j < 100 * 2:
+                    continuous_split_step: int = self._chaos % int()
+                    continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
+                    continuous_start_beat = Fraction(0)
+                    for single_element in iteration_clip._foreground_items():
+                        continuous_finish_beat = continuous_start_beat + single_element._duration_beats
+                        if continuous_split_beat < continuous_finish_beat:
+                            if continuous_split_beat > continuous_start_beat:
+                                element_split_position: ra.Position = single_element % ra.Position()
+                                element_split_position += continuous_split_beat - continuous_start_beat
+                                single_element //= element_split_position
+                            break
+                        continuous_start_beat = continuous_finish_beat
+                    if iteration_clip.len() == self._elements:
+                        return iteration_clip
+                    try_j += 1
+                try_i += 1
         return decoupled_clip_0.empty_copy()   # Tags as invalid
 
 
