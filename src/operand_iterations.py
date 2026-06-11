@@ -55,31 +55,33 @@ class Iterations(o.Operand):
         super().reset()
         return self
     
+    def iterate(self, composition_0: 'oc.Composition', times: int = 1) -> Self:
+        if times > 0:
+            if not self._iterations:
+                self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
+            for _ in range(times):
+                self._index += 1    # Each new_composition is added to the list, so, the index has to increase
+                for _ in range(self._max_tries):    # Gets a non-empty iteration
+                    if isinstance(self._next_operand, Iterations):
+                        tail_iteration = self._next_operand.new_iteration(composition_0.copy())
+                        candidate = self._single_iteration(tail_iteration)
+                    else:
+                        candidate = self._single_iteration(composition_0.copy())
+                    if not callable(self._pre_exclusion) or not self._pre_exclusion(candidate):
+                        iteration: oc.Composition = self._post_process(candidate)
+                        if not self._no_repetitions or not iteration in self._iterations:
+                            iteration._index = self._index
+                            self._iterations.append(iteration)
+                            return self
+                empty_iteration: oc.Composition = self._post_process(composition_0.empty_copy())
+                empty_iteration._index = self._index
+                self._iterations.append(empty_iteration)
+        return self
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Also applies the post processing on the original iteration"""
-        if self._freeze_at < 0 or self._index < self._freeze_at:
-            if not self._iterations:
-                self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
-            self._index += 1    # Each new_composition is added to the list, so, the index has to increase
-            for _ in range(self._max_tries):    # Gets a non-empty iteration
-                if isinstance(self._next_operand, Iterations):
-                    tail_iteration = self._next_operand.new_iteration(composition_0.copy())
-                    candidate = self._single_iteration(tail_iteration)
-                else:
-                    candidate = self._single_iteration(composition_0.copy())
-                if not callable(self._pre_exclusion) or not self._pre_exclusion(candidate):
-                    iteration: oc.Composition = self._post_process(candidate)
-                    if not self._no_repetitions or not iteration in self._iterations:
-                        iteration._index = self._index
-                        self._iterations.append(iteration.copy())
-                        return iteration
-            empty_iteration: oc.Composition = self._post_process(composition_0.empty_copy())
-            empty_iteration._index = self._index
-            self._iterations.append(empty_iteration)
-            return empty_iteration
-        else:
-            return self._iterations[self._freeze_at].copy()
+        self.iterate(composition_0)
+        return self._iterations[-1].copy()
 
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':

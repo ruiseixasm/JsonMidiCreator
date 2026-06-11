@@ -26,7 +26,6 @@ def exclusion(clip) -> bool:
 def post_processing(clip) -> Clip:
     """Adds a 1 measure Rest"""
     clip *= 4
-    clip *= Rest(1/1)
     return clip
 
 
