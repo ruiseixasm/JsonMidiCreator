@@ -40,6 +40,16 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 
 # GENERIC HANDY FUNCTIONS
 
+def number_to_int(number: any) -> int:
+    import operand_unit as ou
+    import operand_rational as ra
+    match number:
+        case ou.Unit() | ra.Rational():
+            return number % int()
+        case int() | float() | Fraction():
+            return int(number)
+    return 0
+
 def string_or_number(string: str) -> int | float | str:
     try:
         return int(string)

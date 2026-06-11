@@ -101,6 +101,22 @@ class Iterations(o.Operand):
     def len(self) -> int:
         return len(self._iterations)
 
+    def __pow__(self, operand: 'o.Operand') -> Self:
+        '''
+        This operator ** tags another Operand to self that will be the target of the << operation and \
+            be passed to self afterwards in a chained fashion.
+        '''
+        if isinstance(operand, Iterations):
+            self._next_operand = operand
+            self._next_operand._no_repetitions = False  # It's the final result the one to not be repeated
+        elif operand is None:
+            self._next_operand = None
+        return self
+    
+    def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
+        number = o.number_to_int(number) # Results in a int, like int(float)
+        return self.iterate(number)
+    
     def __getitem__(self, index: int) -> oc.Composition | None:
         """To set the initial seed, use new_iteration with it"""
         if isinstance(index, int) and self._iterations:

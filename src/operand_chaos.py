@@ -53,14 +53,6 @@ class Chaos(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def number_to_int(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> int:
-        match number:
-            case ou.Unit() | ra.Rational():
-                return number % int()
-            case int() | float() | Fraction():
-                return int(number)
-        return 0
-
     def tame(self, number: Fraction) -> bool:
         # Makes sure it's a Rational first
         rational: Fraction = ra.Rational(number) % Fraction()
@@ -172,7 +164,7 @@ class Chaos(o.Operand):
         return self
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
-        number = self.number_to_int(number) # Results in a int, like int(float)
+        number = o.number_to_int(number) # Results in a int, like int(float)
         return self.iterate(number)
     
     def iterate(self, times: int = 1) -> Self:
