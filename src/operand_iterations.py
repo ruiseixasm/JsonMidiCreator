@@ -80,7 +80,13 @@ class Iterations(o.Operand):
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Also applies the post processing on the original iteration"""
-        self.iterate(composition_0)
+        if self._freeze_at < 0:
+            self.iterate(composition_0)
+        elif self._freeze_at > self._index: # self._index is the last item
+            iterations: int = self._freeze_at - self._index
+            seed_composition = self._iterations[0]
+            for _ in range(iterations):
+                self.iterate(seed_composition)
         return self._iterations[-1].copy()
 
 
@@ -113,20 +119,21 @@ class Iterations(o.Operand):
         return self
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
-        number = o.number_to_int(number) # Results in a int, like int(float)
-        seed_composition = self._iterations[0]
-        for _ in range(number):
-            self.new_iteration(seed_composition)
+        if self._iterations:
+            number = o.number_to_int(number) # Results in a int, like int(float)
+            seed_composition = self._iterations[0]
+            for _ in range(number):
+                self.iterate(seed_composition)
         return self
     
     def __getitem__(self, index: int) -> oc.Composition | None:
         """To set the initial seed, use new_iteration with it"""
         if isinstance(index, int) and self._iterations:
-            if index > self._index: # self._index is the 
+            if index > self._index: # self._index is the last item
                 iterations: int = index - self._index
                 seed_composition = self._iterations[0]
                 for _ in range(iterations):
-                    self.new_iteration(seed_composition)
+                    self.iterate(seed_composition)
             return self._iterations[index]
         return None
     
