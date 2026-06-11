@@ -1043,28 +1043,43 @@ class Operand:
                     return fraction_string
                 return fraction_string + '/1'
             case _:
+                if callable(data):
+                    serialized_dict: dict = {
+                        "type": "function",
+                        "name": data.__name__
+                    }
+                    return serialized_dict
                 return data
 
     @staticmethod
     def deserialize(data: any) -> any:
         match data:
             case dict():
-                if "class" in data and "parameters" in data and "next_operand" in data:
+                if "type" in data and "name" in data and data["type"] == "function":
+                    try:
+                        func = globals()[data["name"]]
+                        return func
+                    except KeyError:
+                        print("Unknown function:", data["name"])
+                    except TypeError:
+                        print("Object is not callable:", data["name"])
+                else:
+                    if "class" in data and "parameters" in data and "next_operand" in data:
 
-                    operand_name = data["class"]
-                    operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call
-                    if operand_class:
-                        # Now able to load from the Operand perspective
-                        return operand_class().loadSerialization(data)
-                    elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
-                        logging.warning("Find class didn't found any class!")
-                    return None
-                
-                deserialized_dict: dict = {}
-                for key, value in data.items(): # Makes sure it processes Operands in dict
-                    # Recursively copy each deserialized value
-                    deserialized_dict[key] = Operand.deserialize(value)
-                return deserialized_dict
+                        operand_name = data["class"]
+                        operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call
+                        if operand_class:
+                            # Now able to load from the Operand perspective
+                            return operand_class().loadSerialization(data)
+                        elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+                            logging.warning("Find class didn't found any class!")
+                        return None
+                    
+                    deserialized_dict: dict = {}
+                    for key, value in data.items(): # Makes sure it processes Operands in dict
+                        # Recursively copy each deserialized value
+                        deserialized_dict[key] = Operand.deserialize(value)
+                    return deserialized_dict
             case Operand(): # just a fail safe
                 return data
             case list():
