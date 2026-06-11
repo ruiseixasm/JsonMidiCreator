@@ -31,7 +31,7 @@ def post_processing(clip) -> Clip:
 
 
 notes_splitter = I_Splitter(6, chaos=SinX(540), pre_exclusion=exclusion, max_tries=1000)
-degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing, packed_repeats=4)
+degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing, packed_repeats=4, no_repetitions=True)
 degrees_splitter = degrees_chooser**notes_splitter
 
 rhythm_motif = measure_note >> Plot(n_button=degrees_splitter.n_button, title="Rhythm Melody")

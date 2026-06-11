@@ -40,7 +40,7 @@ class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 4, no_repetitions: bool = False):
         self._iterations: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._pre_exclusion: Callable | None = pre_exclusion
@@ -112,7 +112,6 @@ class Iterations(o.Operand):
         '''
         if isinstance(operand, Iterations):
             self._next_operand = operand
-            self._next_operand._no_repetitions = False  # It's the final result the one to not be repeated
         elif operand is None:
             self._next_operand = None
         return self
@@ -141,7 +140,7 @@ class I_Function(Iterations):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = False):
         super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._function: list[Any] = function
 
@@ -161,7 +160,7 @@ class I_Splitter(I_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = False):
         super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._elements: int = elements
 
@@ -201,7 +200,7 @@ class I_Chooser(I_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = True):
+                 packed_repeats: int = 1, max_tries: int = 100, no_repetitions: bool = False):
         super().__init__(chaos, pre_exclusion, post_processing, packed_repeats, max_tries, no_repetitions)
         self._parameters: list[Any] = parameters
 
