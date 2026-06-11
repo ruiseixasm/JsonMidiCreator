@@ -115,7 +115,10 @@ class Iterations(o.Operand):
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
         number = o.number_to_int(number) # Results in a int, like int(float)
-        return self.iterate(number)
+        seed_composition = self._iterations[0]
+        for _ in range(number):
+            self.new_iteration(seed_composition)
+        return self
     
     def __getitem__(self, index: int) -> oc.Composition | None:
         """To set the initial seed, use new_iteration with it"""
