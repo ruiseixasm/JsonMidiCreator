@@ -1063,7 +1063,7 @@ class Operand:
                         print("Unknown function:", data["name"])
                     except TypeError:
                         print("Object is not callable:", data["name"]) 
-                    return data
+                    return None
                 else:
                     if "class" in data and "parameters" in data and "next_operand" in data:
 
