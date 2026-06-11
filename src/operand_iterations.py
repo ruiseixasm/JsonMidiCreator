@@ -84,9 +84,8 @@ class Iterations(o.Operand):
             self.iterate(composition_0)
         elif self._freeze_at > self._index: # self._index is the last item
             iterations: int = self._freeze_at - self._index
-            seed_composition = self._iterations[0]
             for _ in range(iterations):
-                self.iterate(seed_composition)
+                self.iterate(composition_0)
         return self._iterations[-1].copy()
 
 
