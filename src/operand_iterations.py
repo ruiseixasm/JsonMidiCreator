@@ -58,20 +58,25 @@ class Iterations(o.Operand):
 
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Gets the source iteration without any post processing"""
-        pre_iteration: oc.Composition | None = None
-        if not self._iterations:
-            self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
-        for _ in range(self._max_tries):    # Finds a non-empty iteration
-            candidate = self._single_iteration(composition_0.copy())
-            if candidate.len() > 0 and not self._to_be_excluded(candidate):
-                pre_iteration = candidate
-                break
-        if pre_iteration is None:
-            pre_iteration = composition_0.empty_copy()
-        self._iterations.append(pre_iteration.copy())
+        iteration: oc.Composition | None = None
+        if composition_0.len() > 0:
+            if not self._iterations:
+                self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
+            for _ in range(self._max_tries):    # Finds a non-empty iteration
+                if isinstance(self._next_operand, Iterations):
+                    candidate = self._next_operand._single_iteration(composition_0.copy())
+                    candidate = self._single_iteration(candidate)
+                else:
+                    candidate = self._single_iteration(composition_0.copy())
+                if candidate.len() > 0 and not self._to_be_excluded(candidate):
+                    iteration = candidate
+                    break
+        if iteration is None:
+            iteration = composition_0.empty_copy()
+        self._iterations.append(iteration.copy())
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
-        pre_iteration._index = self._index
-        return pre_iteration
+        iteration._index = self._index
+        return iteration
 
     
     def n_button(self, composition_0: 'oc.Composition') -> 'oc.Composition':
