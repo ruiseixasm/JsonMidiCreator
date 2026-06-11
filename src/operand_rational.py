@@ -365,10 +365,6 @@ class Negative(Rational):
                 super().__lshift__(operand)
         return self
 
-class Probability(Rational):
-    """`Rational -> Probability`"""
-    pass
-
 class Strictness(Rational):
     """
     `Rational -> Strictness`

@@ -1087,3 +1087,28 @@ class Switch(Manipulator):
         numeral = Fraction(0) if numeral < self._numeral else Fraction(1)
         return numeral, validated
 
+
+class Probability(Manipulator):
+    """`Tamer -> Manipulator -> Probability`
+
+    A `Probability` returns a `1` at the given probability from 0 to 1, and a `0` at the complementary probability.
+
+    Parameters
+    ----------
+    Fraction(1/10), int, float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._probability: o.TypeNumeral = Fraction(1/10)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral, iterate)
+        ratio_1: Fraction = ra.Result(numeral)._rational % 1    # in the interval [0, 1[
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        numeral = Fraction(1) if ratio_1 < self._probability else Fraction(0)
+        return numeral, validated
+
+
+
