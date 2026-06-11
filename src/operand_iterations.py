@@ -40,13 +40,14 @@ class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 4, no_repetitions: bool = False):
+                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         self._iterations: list[oc.Composition] = []
         self._chaos: ch.Chaos = chaos
         self._pre_exclusion: Callable | None = pre_exclusion
         self._post_processing: Callable | None = post_processing
         self._max_tries: int = max_tries
-        self._no_repetitions = no_repetitions
+        self._no_repetitions: bool = no_repetitions
+        self._freeze_at: int = freeze_at
         super().__init__()
 
     def reset(self) -> Self:
@@ -57,25 +58,28 @@ class Iterations(o.Operand):
     
     def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Also applies the post processing on the original iteration"""
-        if not self._iterations:
-            self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
-        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
-        for _ in range(self._max_tries):    # Gets a non-empty iteration
-            if isinstance(self._next_operand, Iterations):
-                tail_iteration = self._next_operand.new_iteration(composition_0.copy())
-                candidate = self._single_iteration(tail_iteration)
-            else:
-                candidate = self._single_iteration(composition_0.copy())
-            if not callable(self._pre_exclusion) or not self._pre_exclusion(candidate):
-                iteration: oc.Composition = self._post_process(candidate)
-                if not self._no_repetitions or not iteration in self._iterations:
-                    iteration._index = self._index
-                    self._iterations.append(iteration.copy())
-                    return iteration
-        empty_iteration: oc.Composition = self._post_process(composition_0.empty_copy())
-        empty_iteration._index = self._index
-        self._iterations.append(empty_iteration)
-        return empty_iteration
+        if self._freeze_at < 0 or self._index < self._freeze_at:
+            if not self._iterations:
+                self._iterations.append(composition_0) # Avoids repeating the initial clip (seed)
+            self._index += 1    # Each new_composition is added to the list, so, the index has to increase
+            for _ in range(self._max_tries):    # Gets a non-empty iteration
+                if isinstance(self._next_operand, Iterations):
+                    tail_iteration = self._next_operand.new_iteration(composition_0.copy())
+                    candidate = self._single_iteration(tail_iteration)
+                else:
+                    candidate = self._single_iteration(composition_0.copy())
+                if not callable(self._pre_exclusion) or not self._pre_exclusion(candidate):
+                    iteration: oc.Composition = self._post_process(candidate)
+                    if not self._no_repetitions or not iteration in self._iterations:
+                        iteration._index = self._index
+                        self._iterations.append(iteration.copy())
+                        return iteration
+            empty_iteration: oc.Composition = self._post_process(composition_0.empty_copy())
+            empty_iteration._index = self._index
+            self._iterations.append(empty_iteration)
+            return empty_iteration
+        else:
+            return self._iterations[self._freeze_at].copy()
 
 
     def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
@@ -130,8 +134,8 @@ class I_Function(Iterations):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False):
-        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions)
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._function: list[Any] = function
 
 
@@ -150,8 +154,8 @@ class I_Splitter(I_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False):
-        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions)
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._elements: int = elements
 
 
@@ -190,8 +194,8 @@ class I_Chooser(I_Clips):
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False):
-        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions)
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._parameters: list[Any] = parameters
 
 
