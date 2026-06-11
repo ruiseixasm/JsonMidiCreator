@@ -2827,7 +2827,6 @@ class Render(ReadOnly):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_element as oe
         import operand_container as oc
-        import operand_yielder as oy
         # filepath and filename
         file_path: str = self._parameters
         folder: str = settings._folder
@@ -2843,9 +2842,6 @@ class Render(ReadOnly):
             case oc.Composition() | oe.Element():
                 c.saveMidiFile(operand.getMidilist(), file_path)
                 return operand
-            case oy.Yielder():
-                yield_clip = operand % oc.Clip()
-                self.__rrshift__(yield_clip)
             case od.Line():
                 line_clip = oc.Clip(operand)
                 self.__rrshift__(line_clip)
@@ -2890,12 +2886,9 @@ class Plot(ReadOnly):
         import operand_unit as ou
         import operand_element as oe
         import operand_container as oc
-        import operand_yielder as oy
         match operand:
             case oc.Composition() | oe.Element():
                 return operand.plot(*self._parameters)
-            case oy.Yielder():
-                return operand.__mod__(oc.Clip()).plot(*self._parameters)
             case od.Line():
                 line_clip = oc.Clip(operand)
                 self.__rrshift__(line_clip)
@@ -2972,7 +2965,6 @@ class Play(ReadOnly):
         import threading
         import operand_element as oe
         import operand_container as oc
-        import operand_yielder as oy
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -2988,9 +2980,6 @@ class Play(ReadOnly):
                         c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
-                return operand
-            case oy.Yielder():
-                self.__rrshift__(operand % Clip())
                 return operand
             case oe.Element():
                 playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
