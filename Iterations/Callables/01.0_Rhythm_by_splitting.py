@@ -18,5 +18,5 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 four_notes = Note(1/1) * 4
 
 notes_splitter = I_Splitter(4*6)
-four_notes >> Plot(n_button=notes_splitter.n_button)
+four_notes >> Plot(n_button=notes_splitter.new_iteration)
 
