@@ -967,10 +967,11 @@ class Modulo(Manipulator):
         return numeral, validated
     
 
-class Range(Manipulator):
-    """`Tamer -> Manipulator -> Range`
+class Interval(Manipulator):
+    """`Tamer -> Manipulator -> Interval`
 
-    This `Range` converts the given numeral result to a value in the given ranged interval [start, end[.
+    This `Interval` converts the given numeral result to a value in the given ranged interval [start, end[,
+    where the end value is excluded, just like in `range`.
 
     Parameters
     ----------
