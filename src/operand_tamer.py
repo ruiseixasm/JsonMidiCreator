@@ -955,15 +955,67 @@ class Modulo(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        modulo: Fraction = self._parameter
-        if isinstance(self._parameter, o.Operand):
-            modulo = self._parameter % Fraction()
-        if isinstance(numeral, o.Operand):
-            numeral << numeral % Fraction() % modulo
-        else:
-            numeral %= modulo
+        modulo: Fraction = ra.Rational(self._parameter)._rational
+        if modulo > 0:
+            if isinstance(numeral, o.Operand):
+                numeral << numeral % Fraction() % modulo
+            else:
+                numeral %= modulo
+            numeral = self._parameter.__class__(numeral)
+            if isinstance(self._parameter, o.Operand):  # Has to be wrapped
+                numeral = self._parameter.copy(numeral)
         return numeral, validated
     
+
+class Range(Manipulator):
+    """`Tamer -> Manipulator -> Range`
+
+    This `Range` converts the given numeral result to a value in the given ranged interval [start, end[.
+
+    Parameters
+    ----------
+    list([0, 12]) : Sets the range from list index 0, inclusive, to the list index 1, exclusive.
+    """
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        numeral, validated = super().tame(numeral, iterate)
+        # A `Manipulator` shall always be triggered regardless of being previously validated or not
+        if isinstance(self._parameter, list) and len(self._parameter) == 2:
+            left_value: Fraction = ra.Rational(self._parameter[0])._rational
+            right_value: Fraction = ra.Rational(self._parameter[1])._rational
+            range_value: Fraction = right_value - left_value
+            if range_value > 0:
+                if isinstance(numeral, o.Operand):
+                    numeral << numeral % Fraction() % range_value
+                else:
+                    numeral %= range_value
+                numeral += left_value
+                if isinstance(self._parameter, o.Operand):  # Has to be wrapped
+                    numeral = self._parameter[0].copy(numeral)
+        return numeral, validated
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():                return self._parameter
+                    case _:                     return super().__mod__(operand)
+            case list():                return o.Operand.deep_copy(self._parameter)
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():                    self._parameter = operand._data
+                    case _:                         super().__lshift__(operand)
+            case list():
+                self._parameter = o.Operand.deep_copy(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Increase(Manipulator):
     """`Tamer -> Manipulator -> Increase`
