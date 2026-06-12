@@ -116,13 +116,13 @@ def test_clip_mod():
     chords_clip: Clip = Clip([Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord()])
     assert chords_clip.len() == 7
     for single_item in chords_clip:
-        assert single_item == "C"
+        assert single_item % Key() == "C"
     
     chords_clip += Iterate()**Degree()
     keys: list[str] = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         chords_clip[degree] % str() >> Print()
-        assert chords_clip[degree] == keys[degree]
+        assert chords_clip[degree] % Key() == keys[degree]
 
     print("------")
     keys_float: list[int] = [60, 62, 64, 65, 67, 69, 71]
