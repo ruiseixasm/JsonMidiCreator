@@ -33,6 +33,7 @@ import operand_element as oe
 import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
+import operand_tamer as ot
 
 
 
@@ -284,7 +285,24 @@ class I_Chooser(I_Clips):
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << chosen_parameter
-        decoupled_clip_0._index = self._index
+        return decoupled_clip_0  # The Clip is already decoupled
+
+
+class I_Setter(I_Clips):
+    def __init__(self, parameter: o.Operand = ou.Degree(),
+                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
+        self._parameter: o.Operand = parameter
+
+
+    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+        for element in decoupled_clip_0._foreground_items():
+            setter: Fraction = self._chaos % Fraction()
+            parameter = self._parameter << setter
+            element << parameter
         return decoupled_clip_0  # The Clip is already decoupled
 
 
