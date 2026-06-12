@@ -268,8 +268,8 @@ def test_rshift_container():
     assert note_clip[0] % Position() == 0.0
 
     note_clip *= Note("E")
-    assert note_clip[0] != "E"
-    assert note_clip[1] == "E"
+    assert note_clip[0] % Key() != "E"
+    assert note_clip[1] % Key() == "E"
     assert note_clip[1] % Position() == Measures(1)
 
     new_clip = Clip() >> note_clip >> note_clip
@@ -300,8 +300,8 @@ def test_rshift_container():
 
     elements_part = Block(Note(), Note("A"))
     assert elements_part.len() == 2
-    assert elements_part[0][0] == "C"
-    assert elements_part[1][0] == "A"
+    assert elements_part[0][0] % Key() == "C"
+    assert elements_part[1][0] % Key() == "A"
     # Part stacks by Measure
     assert elements_part[0][0] % Position() == Measures(0) + Beats(0)
     assert elements_part[1][0] % Position() == Measures(0) + Beats(0)
