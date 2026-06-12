@@ -25,13 +25,8 @@ def pre_exclusion(clip) -> bool:
     # Last 4 notes must have the same duration
     return clip[0] != "C#7"
 
-def post_processing(clip) -> Clip:
-    """Adds a 1 measure Rest"""
-    clip *= 4
-    return clip
-
 octave_setter = I_Setter(Octave(), SinX(340, Range([5, 7])))
-semitone_setter = I_Setter(Semitone(), SinX(340, Range([0, 12])), pre_exclusion=pre_exclusion, post_processing=post_processing)
+semitone_setter = I_Setter(Semitone(), SinX(340, Range([0, 12])), pre_exclusion=pre_exclusion, max_tries=1000)
 motif_generator = semitone_setter**octave_setter
 indochine_motif >> Plot(n_button=motif_generator.new_iteration)
 
