@@ -229,6 +229,12 @@ class Port(Unit):
     """
     pass
 
+class PitchCentroid(Unit):
+    """`Unit -> PitchCentroid`
+    """
+    pass
+
+
 class PitchParameter(Unit):
     """`Unit -> PitchParameter`
     """

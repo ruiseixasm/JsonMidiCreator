@@ -2179,6 +2179,8 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                     return self._pitch % operand
+            case ou.PitchCentroid():
+                return ou.PitchCentroid(self.pitch_centroid())
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch._get_chromatic_pitch(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
