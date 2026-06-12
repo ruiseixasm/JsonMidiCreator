@@ -350,7 +350,7 @@ def test_pitch_key_signature():
     ]
     pitch = Pitch()
     for degree in {1, 2, 3, 4, 5, 6, 7}:
-        assert pitch == a_major_scale[degree - 1]
+        assert pitch % Key() == a_major_scale[degree - 1]
         pitch += 1.0  # Increases by 1 degree
 
     pitch << TonicKey(3)   # (3) D♯ Major with A Major Key Signature (###)
@@ -360,7 +360,7 @@ def test_pitch_key_signature():
     ]
     for degree in {1, 2, 3, 4, 5, 6, 7}:
         print(f"Key: {pitch % str()}")
-        assert pitch == ds_major_scale[degree - 1]
+        assert pitch % Key() == ds_major_scale[degree - 1]
         pitch += 1.0  # Increases by 1 degree
 
     settings << KeySignature()
@@ -376,7 +376,7 @@ def test_pitch_key_signature():
         pitch_key: Pitch = Pitch()
 
         print(f"Major Signature: {signature - 7}, result: {pitch_key % str()}")
-        assert pitch_key % str() == major_keys_signatures[signature]
+        assert pitch_key % Key() % str() == major_keys_signatures[signature]
 
     minor_keys_signatures: list[str] = [
         "Ab", "Eb", "Bb", "F", "C", "G", "D",
@@ -389,7 +389,7 @@ def test_pitch_key_signature():
         pitch_key: Pitch = Pitch()
 
         print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
-        assert pitch_key % str() == minor_keys_signatures[signature]
+        assert pitch_key % Key() % str() == minor_keys_signatures[signature]
 
     c_major_scale: Scale = Scale()
 
@@ -418,17 +418,17 @@ def test_pitch_key_signature():
     settings << KeySignature("#", Minor())
     E_minor_key: Pitch = Pitch()
 
-    assert E_minor_key % str() == "E"
+    assert E_minor_key % Key() % str() == "E"
     settings << Sharps(2)   # Changes to B minor (##) but remains the Tonic E
     E_minor_key << Degree(3)
-    assert E_minor_key % str() == "G"
+    assert E_minor_key % Key() % str() == "G"
     E_minor_key << TonicKey("B") << 1.0  # Starts by Degree 1 the Tonic
     E_minor_B_tonic_key: list = ["B", "C#", "D", "E", "F#", "G", "A"]   # Same as B minor
     # Sharp and Flat shall not be set by Degree
     print("------")
     for key_degree in range(1, 8):
         print(key_degree)
-        assert E_minor_key % str() == E_minor_B_tonic_key[(key_degree - 1) % 7]
+        assert E_minor_key % Key() % str() == E_minor_B_tonic_key[(key_degree - 1) % 7]
         E_minor_key % Sharp() >> Print(0)
         E_minor_key += 1.0    # Increases by 1 degree
 
