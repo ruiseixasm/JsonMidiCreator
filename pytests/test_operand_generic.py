@@ -1128,23 +1128,23 @@ def test_pitch_add():
     assert Pitch("Ab") == Pitch("A") - Semitone(1)
 
     pitch_3: Pitch = Pitch()
-    assert pitch_3 % str() == "C"
+    assert pitch_3 % Key() % str() == "C"
 
     # Test all semitones from 0 to 11
     expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     for key_i in range(12):
-        (pitch_3 + Semitone(key_i)) % str() >> Print()
-        assert (pitch_3 + Semitone(key_i)) % str() == expected_keys[key_i]
+        (pitch_3 + Semitone(key_i)) % Key() % str() >> Print()
+        assert (pitch_3 + Semitone(key_i)) % Key() % str() == expected_keys[key_i]
 
     print("------")
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        (pitch_3 + float(degree)) % str() >> Print()
-        assert pitch_3 + float(degree) == keys[degree]
+        (pitch_3 + float(degree)) % Key() % str() >> Print()
+        assert (pitch_3 + float(degree)) % Key() == keys[degree]
 
 
     pitch_4: Pitch = Pitch()._set_chromatic_pitch(60)    # Middle C (60)
-    assert pitch_4 % str() == "C"
+    assert pitch_4 % Key() % str() == "C"
     assert pitch_4._get_chromatic_pitch() == 60
 
     # Test all semitones from 0 to 11
@@ -1199,14 +1199,14 @@ def test_pitch_add():
 
     print("------")
     pitch_5: Pitch = Pitch()
-    (pitch_5 + Semitone(0)) % str() >> Print()
+    (pitch_5 + Semitone(0)) % Key() % str() >> Print()
     assert pitch_5 + Semitone(0) == Key("C")
-    (pitch_5 + Semitone(1)) % str() >> Print()
+    (pitch_5 + Semitone(1)) % Key() % str() >> Print()
     assert pitch_5 + Semitone(1) == Key("C#")
     pitch_5 << Degree(2)
-    (pitch_5 + Semitone(0)) % str() >> Print()
+    (pitch_5 + Semitone(0)) % Key() % str() >> Print()
     assert pitch_5 + Semitone(0) == Key("D")
-    (pitch_5 + Semitone(1)) % str() >> Print()
+    (pitch_5 + Semitone(1)) % Key() % str() >> Print()
     assert pitch_5 + Semitone(1) == Key("D#")
 
     # Resets the defaults
