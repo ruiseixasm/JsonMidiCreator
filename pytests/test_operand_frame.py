@@ -197,15 +197,15 @@ def test_input_clip():
     clip_G = Note("G") / 4
 
     for note in clip:
-        assert note == "C"
+        assert note % Key() == "C"
     
     for note in clip_G:
-        assert note == "G"
+        assert note % Key() == "G"
     
     clip << Input(clip_G)**Get(Pitch())
 
     for note in clip:
-        assert note == "G"
+        assert note % Key() == "G"
     
 # test_input_clip()
 
