@@ -452,8 +452,8 @@ def test_pitch_scales():
     ]
 
     for degree in range(7):  # Excludes 7
-        print((staff_pitch + float(degree)) % str())
-        assert (staff_pitch + float(degree)) % str() == major_scale_keys[degree]
+        print((staff_pitch + float(degree)) % Key() % str())
+        assert (staff_pitch + float(degree)) % Key() % str() == major_scale_keys[degree]
 
     print("------")
     # KeySignature is a Pitch attribute
@@ -465,8 +465,8 @@ def test_pitch_scales():
     print(f"Tonic A: {staff_pitch % TonicKey() % str()}")
     assert staff_pitch % TonicKey() % str() == "A"
     for degree in range(7):  # Excludes 7
-        print((staff_pitch + float(degree)) % str())
-        assert (staff_pitch + float(degree)) % str() == minor_scale_keys[degree]
+        print((staff_pitch + float(degree)) % Key() % str())
+        assert (staff_pitch + float(degree)) % Key() % str() == minor_scale_keys[degree]
 
 # test_pitch_scales()
 
