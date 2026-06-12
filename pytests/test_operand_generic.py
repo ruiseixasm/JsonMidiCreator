@@ -1523,10 +1523,10 @@ def test_pitch_multi():
     assert pitch - TonicKey(3)  == Octave(3)
     
     pitch_C = Pitch()
-    assert pitch_C == "C"
+    assert pitch_C % Key() == "C"
     assert pitch_C._get_chromatic_pitch() == 60
     pitch_C << Degree(-1)
-    assert pitch_C == "B"
+    assert pitch_C % Key() == "B"
     assert pitch_C._get_chromatic_pitch() == 59
 
     pitch_C << Pipe(TonicKey(60))
@@ -1535,22 +1535,22 @@ def test_pitch_multi():
     tonic_As = Pitch(TonicKey("A#"))
     print(f"tonic_As.pitch_int(): {tonic_As._get_chromatic_pitch()}")
     assert tonic_As._get_chromatic_pitch() == 60 + 10
-    assert tonic_As % str() == "A#"
-    assert (tonic_As + 2.0) % str() == "D"
+    assert tonic_As % Key() % str() == "A#"
+    assert (tonic_As + 2.0) % Key() % str() == "D"
 
     tonic_As_major_scale: list[str] = [
         "A#", "C", "D", "D#", "F", "G", "A"
     ]
     for degree in range(7):
         print(f"RootKey {degree}: {tonic_As % str()}")
-        assert tonic_As == tonic_As_major_scale[degree]
+        assert tonic_As % Key() == tonic_As_major_scale[degree]
         tonic_As += 1.0  # One degree each time
 
     root_As = Pitch(RootKey("A#"))
     print(f"root_As.pitch_int(): {root_As._get_chromatic_pitch()}")
     assert root_As._get_chromatic_pitch() == 60 + 10
-    assert root_As % str() == "A#"
-    assert (root_As + 2.0) % str() == "C#"
+    assert root_As % Key() % str() == "A#"
+    assert (root_As + 2.0) % Key() % str() == "C#"
 
 
     root_As_major_scale: list[str] = [
@@ -1558,7 +1558,7 @@ def test_pitch_multi():
     ]
     generated_scale: list[str] = []
     for degree in range(7):
-        generated_scale.append(root_As % str())
+        generated_scale.append(root_As % Key() % str())
         root_As += 1.0  # One degree each time
     print(f"expected_scale:  {root_As_major_scale}")
     print(f"generated_scale: {generated_scale}")
@@ -1570,7 +1570,7 @@ def test_pitch_multi():
 
     pitch_Bb = Pitch()      # The Tonic Key (I)
     print(f"pitch_Bb: {pitch_Bb % str()}")
-    assert pitch_Bb == "Bb" # The Tonic Key (I)
+    assert pitch_Bb % Key() == "Bb" # The Tonic Key (I)
 
     pitch_E = Pitch(RootKey("E")) # Same as Fb and same as Vb degree
     assert pitch_E == Degree("Vb")
@@ -1578,13 +1578,13 @@ def test_pitch_multi():
     assert pitch_E == pitch_Fb
     print(f"pitch_E.pitch_int(): {pitch_E._get_chromatic_pitch()}")
     assert pitch_E._get_chromatic_pitch() == 60 + 4
-    assert pitch_E % str() == "Fb"  # 5 Degree
+    assert pitch_E % Key() % str() == "Fb"  # 5 Degree
     pitch_iv = ~pitch_E << 5.0  # Sets the Degree to V, so, goes to Octave 5
     # Note(pitch_E) / Note(pitch_iv) >> Plot()
     print(f"pitch_iv.pitch_int(): {pitch_iv._get_chromatic_pitch()}")
     assert pitch_iv._get_chromatic_pitch() == 60 + 4 + 12 # Same as E and Fb
-    print(f"pitch_iv: {pitch_iv % str()}")
-    assert pitch_iv == "Fb"  # Same as Fb, Degree iv from Bb !!
+    print(f"pitch_iv: {pitch_iv % Key() % str()}")
+    assert pitch_iv % Key() == "Fb"  # Same as Fb, Degree iv from Bb !!
 
     # IT'S THE ROOT (DEGREE) BEING CHANGED AND NOT THE TONIC !!!!!!!
 
@@ -1594,7 +1594,7 @@ def test_pitch_multi():
     print(f"pitch_A % Key() % str(): {pitch_A % Key() % str()}")            # Bb
     print(f"pitch_A % Degree() % int(): {pitch_A % Degree() % int()}")      # 7
     print(f"pitch_A % Degree() % float(): {pitch_A % Degree() % float()}")  # 1.0 (#)
-    assert pitch_A % Key() == Key(8)    # Ab
+    assert pitch_A % Key() % Key() == Key(8)    # Ab
 
     # CONCLUSION: Pair Degree, Accidental as to be replaced with just root_key!!
 
@@ -1615,7 +1615,7 @@ def test_pitch_multi():
     ]
     generated_scale: list[str] = []
     for degree in range(7):
-        generated_scale.append(pitch_E % str())
+        generated_scale.append(pitch_E % Key() % str())
         pitch_E += 1.0  # One degree each time
     print(f"expected_scale:  {tonic_Bb_root_E_major_scale}")
     print(f"generated_scale: {generated_scale}")

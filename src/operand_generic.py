@@ -995,7 +995,9 @@ class Pitch(Generic):
             case ou.Quality():
                 return self._key_signature % operand
             case str():
-                return self % ou.Key() % str()
+                key: str = self % ou.Key() % str()
+                octave: str = str(self % ou.Octave() % int())
+                return key + octave
             
             case Pitch():
                 return operand.copy(self)
