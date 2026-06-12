@@ -25,6 +25,7 @@ import math
 import creator as c
 import operand as o
 
+import operand_label as ol
 import operand_data as od
 import operand_unit as ou
 import operand_rational as ra
@@ -877,7 +878,7 @@ class Manipulator(Tamer):
     """`Tamer -> Manipulator`
 
     A `Manipulator` is a read-write `Tamer` that instead of verifying a submitted numeral manipulates
-    the given numeral to other Tamer operands.
+    the given numeral resulting a different manipulated one.
 
     Parameters
     ----------
@@ -885,7 +886,7 @@ class Manipulator(Tamer):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: o.TypeNumeral = Fraction(8)
+        self._parameter: any = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -893,41 +894,53 @@ class Manipulator(Tamer):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case Fraction():            return self._numeral
+                    case od.Parameter():        return operand._data << self._parameter
                     case _:                     return super().__mod__(operand)
-            case Fraction():            return self._numeral
-            case int():                 return int(self._numeral)
-            case float():               return float(self._numeral)
+            case od.Parameter():        return od.Parameter(self._parameter)
+            case Fraction():
+                if isinstance(self._parameter, Fraction):
+                    return self._parameter
+            case float():
+                if isinstance(self._parameter, float):
+                    return self._parameter
+            case int():
+                if isinstance(self._parameter, int):
+                    return self._parameter
             case _:                     return super().__mod__(operand)
+        return ol.Null()
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["numeral"] = self.serialize( self._numeral )
+        serialization["parameters"]["parameter"] = self.serialize( self._parameter )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "numeral" in serialization["parameters"]):
+            "parameter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._numeral = self.deserialize( serialization["parameters"]["numeral"] )
+            self._parameter = self.deserialize( serialization["parameters"]["parameter"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._numeral = operand._numeral
+                self._parameter = o.Operand.deep_copy(operand._parameter)
             case od.Pipe():
                 match operand._data:
-                    case Fraction():                self._numeral = operand._data
+                    case od.Parameter():            self._parameter = operand._data._data
+                    case _:                         super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case _: # o.TypeNumeral
-                if isinstance(operand, (int, float, Fraction, o.Operand)):
-                    self._numeral = operand
+            case od.Parameter():
+                self._parameter = o.Operand.deep_copy(operand._data)
+            case Fraction() | float() | int():
+                self._parameter = operand
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Modulo(Manipulator):
@@ -942,13 +955,13 @@ class Modulo(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        self_numeral: Fraction = self._numeral
-        if isinstance(self._numeral, o.Operand):
-            self_numeral = self._numeral % Fraction()
+        modulo: Fraction = self._parameter
+        if isinstance(self._parameter, o.Operand):
+            modulo = self._parameter % Fraction()
         if isinstance(numeral, o.Operand):
-            numeral << numeral % Fraction() % self_numeral
+            numeral << numeral % Fraction() % modulo
         else:
-            numeral %= self_numeral
+            numeral %= modulo
         return numeral, validated
     
 
@@ -964,7 +977,7 @@ class Increase(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral += self._numeral
+        numeral += self._parameter
         return numeral, validated
     
 
@@ -980,7 +993,7 @@ class Decrease(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral -= self._numeral
+        numeral -= self._parameter
         return numeral, validated
 
 class Expand(Manipulator):
@@ -995,7 +1008,7 @@ class Expand(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral *= self._numeral
+        numeral *= self._parameter
         return numeral, validated
 
 class Contract(Manipulator):
@@ -1010,7 +1023,8 @@ class Contract(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral /= self._numeral
+        if self._parameter != 0:
+            numeral /= self._parameter
         return numeral, validated
 
 
@@ -1025,15 +1039,15 @@ class Repeat(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: o.TypeNumeral | None = None
+        self._parameter = None  # Previous Rational (None for the first one)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        if self._numeral is not None:
-            numeral = self._numeral
+        if isinstance(self._parameter, Fraction):
+            numeral = self._parameter
         if iterate: # Has to be after the fact
             self.next(numeral)
         return numeral, validated
@@ -1041,12 +1055,12 @@ class Repeat(Manipulator):
     # CHAINABLE OPERATIONS
 
     def reset(self, *parameters) -> Self:
-        self._numeral = None
+        self._parameter = None
         return super().reset(*parameters)
     
     def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._numeral = numeral
+        self._parameter = numeral
         return super().next(numeral)
 
 
@@ -1062,7 +1076,7 @@ class Wrap(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = self._numeral.__class__(numeral)
+        numeral = self._parameter.__class__(numeral)
         return numeral, validated
     
 
@@ -1077,14 +1091,14 @@ class Switch(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: o.TypeNumeral = 1
+        self._parameter = 1
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = Fraction(0) if numeral < self._numeral else Fraction(1)
+        numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
         return numeral, validated
 
 

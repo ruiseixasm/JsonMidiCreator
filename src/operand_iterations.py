@@ -289,19 +289,19 @@ class I_Chooser(I_Clips):
 
 
 class I_Setter(I_Clips):
-    def __init__(self, parameter: o.Operand = ou.Degree(),
+    def __init__(self, operand: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
                  post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
-        self._parameter: o.Operand = parameter
+        self._operand: o.Operand = operand
 
 
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         for element in decoupled_clip_0._foreground_items():
             setter: Fraction = self._chaos % Fraction()
-            parameter = self._parameter << setter
+            parameter = self._operand << setter
             element << parameter
         return decoupled_clip_0  # The Clip is already decoupled
 

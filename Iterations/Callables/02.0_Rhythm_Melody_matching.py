@@ -31,8 +31,8 @@ def post_processing(clip) -> Clip:
     clip *= 4
     return clip
 
-octave_setter = I_Chooser(list_wrap([5, 6, 7], Octave()))
-semitone_setter = I_Chooser(list_wrap(list_extend([0], 11), Semitone()), pre_exclusion=pre_exclusion, post_processing=post_processing)
+octave_setter = I_Setter(Octave(), SinX(340,))
+semitone_setter = I_Setter(list_wrap(list_extend([0], 11), Semitone()), pre_exclusion=pre_exclusion, post_processing=post_processing)
 motif_generator = semitone_setter**octave_setter
 indochine_motif >> Plot(n_button=motif_generator.new_iteration)
 
