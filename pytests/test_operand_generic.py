@@ -596,13 +596,13 @@ def test_scale_transposition():
 
     pitch_f_major: Pitch = Pitch("F", Scale("Major"))
 
-    assert pitch_f_major % str() == "F"
+    assert pitch_f_major % Key() % str() == "F"
     assert pitch_f_major % Scale() % str() == "Major"
 
     # TO BE REPLACED BY + TONE()
-    transposed_keys: list[TargetKey] = list_wrap(["F", "G", "A", "A#", "C", "D", "E"], TargetKey())
+    transposed_keys: list[TargetKey] = list_wrap(["F", "G", "A", "A#", "C", "D", "E"], Key())
     for transposition in range(7):
-        print(f"T{transposition} : {(pitch_f_major + Transposition(transposition)) % TargetKey() % str()}")
+        print(f"T{transposition} : {(pitch_f_major + Transposition(transposition)) % Key() % str()}")
         assert pitch_f_major + Transposition(transposition) == transposed_keys[transposition]
 
 # test_scale_transposition()
