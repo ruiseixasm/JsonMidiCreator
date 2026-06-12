@@ -794,7 +794,9 @@ class Operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ol.Null():
-                return self
+                pass
+            case od.AsIs():
+                self.__lshift__(operand._data)
             case Operand():
                 self._initiated = operand._initiated
                 self._index = operand._index

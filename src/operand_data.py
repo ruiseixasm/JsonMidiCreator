@@ -206,6 +206,18 @@ class Pipe(Data):
                 self._data = operand
         return self
     
+class AsIs(Data):
+    """`Data -> AsIs`
+
+    `AsIs` lets pass any parameter, including non `Operand` ones, as they are.
+    
+    Parameters
+    ----------
+    Any() : Any type of operand.
+    """
+    pass
+
+
 class Parameter(Data):
     """`Data -> Parameter`
 
