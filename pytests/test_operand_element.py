@@ -520,26 +520,26 @@ def test_note_position():
 def test_note_pitch():
 
     note: Note = Note()
-    assert note % str() == "C"
-    assert (note + 0.0) % str() == "C"
+    assert note % Key() % str() == "C"
+    assert (note + 0.0) % Key() % str() == "C"
 
     note_e: Note = Note("E")
-    assert note_e % str() == "E"
+    assert note_e % Key() % str() == "E"
 
     # Test all semitones from 0 to 11
     expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
 
     for key_i in range(12):
-        note % str() >> Print()
-        assert note % str() == expected_keys[key_i]
+        note % Key() % str() >> Print()
+        assert note % Key() % str() == expected_keys[key_i]
         note += Semitone(1)
 
     print("------")
     note << Degree(0)  # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        (note + Degree(degree)) % str() >> Print()
-        assert note + Degree(degree) == keys[degree]
+        (note + Degree(degree)) % Key() % str() >> Print()
+        assert (note + Degree(degree)) % Key() == keys[degree]
 
     print("------")
     note << None    # Tonic key again and resets the degree to 1
