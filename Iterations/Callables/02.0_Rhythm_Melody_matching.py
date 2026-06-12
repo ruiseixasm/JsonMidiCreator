@@ -19,6 +19,7 @@ indochine_motif = Clip() << Line(
     "n:2:C#6, :6:B5, :2:A5, :6:E6, :2:C#6, :6:B5, :2:A5, :6:E6, :2:C#6, :6:B5, :2:C#6, :22:A5"
 )
 
+indochine_motif[0] >> Print()
 
 def pre_exclusion(clip) -> bool:
     """Makes sure each Note matches a specific duration pattern"""
