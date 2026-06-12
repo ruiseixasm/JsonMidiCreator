@@ -83,13 +83,13 @@ def test_container_mod():
     keys_container: Container = Container([Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch()])
     assert keys_container.len() == 7
     for single_item in keys_container:
-        assert single_item == "C"
+        assert single_item % Key() == "C"
     
     keys_container += Iterate()**Degree()
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         keys_container[degree] % str() >> Print()
-        assert keys_container[degree] == keys[degree]
+        assert keys_container[degree] % Key() == keys[degree]
 
 # test_container_mod()
 
