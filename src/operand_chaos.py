@@ -53,6 +53,16 @@ class Chaos(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def first_collision_index(self, iterations: int = 100_000) -> int:
+        results: set = set()
+        for _ in range(iterations):
+            new_result: Fraction = self % Fraction()
+            if new_result in results:
+                return self._index
+            results.add(new_result)
+        return -1
+
+
     def tame(self, number: Fraction) -> bool:
         # Makes sure it's a Rational first
         rational: Fraction = ra.Rational(number) % Fraction()
