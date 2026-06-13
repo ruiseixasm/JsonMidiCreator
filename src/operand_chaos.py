@@ -188,8 +188,8 @@ class Chaos(o.Operand):
             self._index += times
         return self
     
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        return Fraction(0)
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        return previous_result
 
     def tame(self, number: Fraction) -> bool:
         # Makes sure it's a Rational first
@@ -300,8 +300,8 @@ class Sequence(Chaos):
                 super().__lshift__(operand)
         return self
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        result: Fraction = numeral + self._steps
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        result: Fraction = previous_result + self._steps
         return result
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
@@ -387,8 +387,8 @@ class Cycle(Sequence):
         self._xn << self._xn % od.Pipe(Fraction()) % self._modulus
         return self
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        result: Fraction = numeral + self._steps
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        result: Fraction = previous_result + self._steps
         result %= self._modulus
         return result
 
@@ -430,8 +430,8 @@ class Counter(Cycle):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        actual_index: int = self._counter + numeral
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        actual_index: int = self._counter + previous_result
         result: Fraction = Fraction(actual_index % self._modulus)
         return result
 
@@ -469,8 +469,8 @@ class Ripple(Sequence):
     Steps(1), Step() : The increase amount for each iteration.
     """
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        result: Fraction = -1 * numeral    # Always alternates (0 means 0)
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         actual_index: int = self._index + self._tamer_tries
         if actual_index % 2:    # Odd means up (positive)
             if result < 0:
@@ -509,8 +509,8 @@ class Spiral(Sequence):
     Steps(1), Step() : The increase amount for each iteration.
     """
     
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        result: Fraction = -1 * numeral    # Always alternates (0 means 0)
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         if result < 0:
             result -= self._steps
         else:
@@ -680,7 +680,7 @@ class Bouncer(Chaos):
         return self
 
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
+    def _next_result(self, previous_result: Fraction) -> Fraction:
         self._position_x += self._dx._rational
         self._position_x %= self._width._rational
         self._position_y += self._dy._rational
@@ -781,8 +781,8 @@ class SinX(Chaos):
         return self
 
 
-    def _next_result(self, numeral: Fraction) -> Fraction:
-        return self
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        return ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -791,7 +791,7 @@ class SinX(Chaos):
         self._tamer_tries = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result = ra.Result(float(result) + float(self._lambda._rational) * math.sin(float(result)))._rational
+                result = self._next_result(result)
                 self._tamer_tries += 1
             tamed = self.tame(result)
             count_down -= 1
