@@ -510,7 +510,12 @@ class Spiral(Sequence):
     """
     
     def _next_result(self, numeral: Fraction) -> Fraction:
-        return self
+        result: Fraction = -1 * numeral    # Always alternates (0 means 0)
+        if result < 0:
+            result -= self._steps
+        else:
+            result += self._steps
+        return result
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -519,12 +524,8 @@ class Spiral(Sequence):
         self._tamer_tries = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result *= -1    # Always alternates (0 means 0)
+                result = self._next_result(result)
                 self._tamer_tries += 1
-                if result < 0:
-                    result -= self._steps
-                else:
-                    result += self._steps
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
@@ -562,6 +563,9 @@ class Bouncer(Chaos):
         self._x0                = ra.X0(self._xn)
         self._yn: ra.Yn         = ra.Yn(self._height / 2 % Fraction())
         self._y0: ra.Y0         = ra.Y0(self._yn)
+        
+        self._position_x: Fraction = self._xn._rational
+        self._position_y: Fraction = self._yn._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -677,35 +681,28 @@ class Bouncer(Chaos):
 
 
     def _next_result(self, numeral: Fraction) -> Fraction:
-        return self
+        self._position_x += self._dx._rational
+        self._position_x %= self._width._rational
+        self._position_y += self._dy._rational
+        self._position_y %= self._height._rational
+        return ra.Result(math.hypot(float(self._position_x), float(self._position_y)))._rational
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         self._tamer_tries = 0
-        position_x: Fraction = self._xn._rational
-        position_y: Fraction = self._yn._rational
+        self._position_x = self._xn._rational
+        self._position_y = self._yn._rational
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                for direction_data in [
-                            [position_x, self._dx._rational, self._width._rational],
-                            [position_y, self._dy._rational, self._height._rational]
-                        ]:
-                    new_position: Fraction = direction_data[0] + direction_data[1]
-                    if new_position < 0:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = new_position * -1 % direction_data[2]
-                    elif new_position >= direction_data[2]:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = direction_data[2] - new_position % direction_data[2]
-                    direction_data[0] = new_position
+                result = self._next_operand(result)
                 self._tamer_tries += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
-            self._xn._rational = position_x
-            self._yn._rational = position_y
+            self._xn._rational = self._position_x
+            self._yn._rational = self._position_y
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
