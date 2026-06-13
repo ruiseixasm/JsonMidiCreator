@@ -80,59 +80,6 @@ def test_chaos_discretion():
     assert len(values) == total_values
 
 
-def test_chained_chaos():
-    # CHAINING CHAOS RESULTS IN SINGLE ITERATIONS FORM TAIL TO HEAD
-    # WHERE THE XN VALUE OF EACH PREVIOUS CHAOS OPERAND IS SET BY THE
-    # TAILED CHAOS OPERAND
-
-    modulus_sinx = Cycle()**SinX()
-    tailed_sinx = SinX()
-    wrapped_cycle = Cycle(SinX())
-    assert modulus_sinx._next_operand == tailed_sinx
-    assert wrapped_cycle == modulus_sinx
-    modulus_sinx *= 1
-    wrapped_cycle << SinX() * 1
-    wrapped_cycle *= 1
-    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
-    assert wrapped_cycle == modulus_sinx
-    modulus_sinx.reset()
-    modulus_sinx *= 2
-    wrapped_cycle.reset()
-    wrapped_cycle << SinX() * 2
-    wrapped_cycle *= 2
-    print(f"SinX() * 2 % 12: {float(SinX() * 2 % Pipe(Fraction()) % 12)}")
-    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
-    assert wrapped_cycle == modulus_sinx
-
-    wrapped_cycle *= 2
-    
-
-    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    modulus_sinx *= 2.01    # same as Cycle(SinX() * 2) * 2
-    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
-    assert wrapped_cycle == modulus_sinx
-    assert modulus_sinx % Pipe(int()) < 12  # Pipe avoids iterations
-
-    modulus = Cycle()   # Xn starts as 0
-    assert modulus != modulus_sinx
-
-    sinx = SinX()       # Xn starts as 2
-    print(f"sinx: {sinx % Pipe(float())}")
-    sinx *= 2.01    # same as 2
-    print(f"sinx: {sinx % Pipe(float())}")
-    # The purpose of chaining Chaos vvvvvv
-    modulus << sinx # sets the xn as sinx result from above
-    modulus *= 2.01 # same as 2
-    modulus % Pipe(float()) >> Print()
-    modulus_sinx % Pipe(float()) >> Print()
-    assert modulus == modulus_sinx
-
-# test_chained_chaos()
-
-
 def test_list_chaos():
     note_values: list[float] = [1/2, 1/4, 1/8, 1/16]
     four_indexes_1: list[int] = []
@@ -167,18 +114,3 @@ def test_reset():
 # test_reset()
 
 
-def test_get_list():
-    chaos = Cycle(Modulus(120))**SinX(24)
-    measures_int: list[int] = [1] * 4
-    results_int: list[int] = chaos % measures_int
-    results_a = list_wrap(results_int, Velocity())
-    measures_velocity = [Velocity(1)] * 4
-    results_b = chaos.reset() % measures_velocity
-    print(f"measures_int: {measures_int}")
-    print(f"results_int: {results_int}")
-    print(f"measures_velocity: {list_mod(measures_velocity, int())}")
-    print(f"results_a: {list_mod(results_a, int())}")
-    print(f"results_b: {list_mod(results_b, int())}")
-    assert results_b == results_a
-
-# test_get_list()

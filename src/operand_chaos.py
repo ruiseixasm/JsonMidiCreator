@@ -166,7 +166,6 @@ class Chaos(o.Operand):
             be passed to self afterwards in a chained fashion.
         '''
         if isinstance(operand, Chaos):
-            self << operand % od.Pipe(Fraction())    # SETS THE DEFAULT x0 PARAMETER
             self._next_operand = operand
         elif operand is None:
             self._next_operand = None
@@ -183,6 +182,9 @@ class Chaos(o.Operand):
         numeral: Fraction = self % od.Pipe(Fraction())
         tamed: bool = True
         if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+            # Starts by setting the tailed operand with self result
+            self << self % od.Pipe(Fraction())  # Propagates setting
+            
             numeral: Fraction = self._next_operand % od.Pipe(Fraction())
             numeral, tamed = self._next_operand.result(numeral)
         if tamed:
@@ -191,11 +193,6 @@ class Chaos(o.Operand):
     
     def _next_result(self, previous_result: Fraction) -> Fraction:
         return previous_result
-
-    def tame(self, number: Fraction) -> bool:
-        # Makes sure it's a Rational first
-        rational: Fraction = ra.Rational(number) % Fraction()
-        return self._tamer.tame(rational, True)[1]
 
     def result(self, numeral: Fraction) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -672,7 +669,9 @@ class Bouncer(Chaos):
             position_y %= self._height._rational
             result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
             self._tamer_tries += 1
-            tamed = self.tame(result)
+            # Tame part
+            rational: Fraction = ra.Rational(result) % Fraction()
+            tamed = self._tamer.tame(rational, True)[1]
             count_down -= 1
         if tamed:
             self._xn._rational = position_x
