@@ -48,8 +48,9 @@ class Chaos(o.Operand):
         super().__init__()
         self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
-        self._xn: ra.Xn                 = ra.Xn()
-        self._x0: ra.X0                 = ra.X0(self._xn)
+        self._x0: ra.X0                 = ra.X0()
+        self._xn: ra.Xn                 = ra.Xn(self._x0)
+        self._index                     = -1    # Because the first iteration is the X0 value
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -98,8 +99,11 @@ class Chaos(o.Operand):
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
+                if self._index < 0:
+                    self._index = 0
+                else:
+                    self.iterate(1) # Does a single iteration
                 result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
-                self.iterate(1) # Does a single iteration
                 return result % operand
             case ou.Unit() | ra.Rational():
                 return operand.copy(self % Fraction())  # Has to trigger an iteration
@@ -186,24 +190,24 @@ class Chaos(o.Operand):
                 numeral, tamed = self._next_operand.result(numeral, times)
             if tamed:
                 self.result(numeral, times)
+            self._index += times
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 ####################
                 # INSERT CODE HERE #
                 ####################
-                increased_index += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -213,7 +217,7 @@ class Chaos(o.Operand):
         self._xn << self._x0
         self._initiated     = False
         self._set           = False
-        self._index         = 0
+        self._index         = -1    # -1 allows the return of the X0
         # RESET THE SELF OPERANDS RECURSIVELY
         if isinstance(self._next_operand, Chaos):
             self << self._next_operand.reset() % od.Pipe(Fraction())
@@ -297,16 +301,15 @@ class Sequence(Chaos):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result += self._steps
-                increased_index += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -381,17 +384,16 @@ class Cycle(Sequence):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result += self._steps
                 result %= self._modulus
-                increased_index += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -413,6 +415,7 @@ class Counter(Cycle):
     def __init__(self, *parameters):
         super().__init__()
         self._modulus: Fraction = Fraction(1)
+        self._counter: int = 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -420,18 +423,18 @@ class Counter(Cycle):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        increased_count: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                increased_index += 1
-                actual_index: int = self._index + increased_index
+                increased_count += 1
+                actual_index: int = self._counter + increased_count
                 result = actual_index % self._modulus
-                increased_index += 1
+                increased_count += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
+            self._counter += increased_count
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -454,12 +457,12 @@ class Ripple(Sequence):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result *= -1    # Always alternates (0 means 0)
-                increased_index += 1
-                actual_index: int = self._index + increased_index
+                tamer_index += 1
+                actual_index: int = self._index + tamer_index
                 if actual_index % 2:    # Odd means up (positive)
                     if result < 0:
                         result -= self._steps
@@ -469,7 +472,6 @@ class Ripple(Sequence):
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -491,11 +493,11 @@ class Spiral(Sequence):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result *= -1    # Always alternates (0 means 0)
-                increased_index += 1
+                tamer_index += 1
                 if result < 0:
                     result -= self._steps
                 else:
@@ -504,7 +506,6 @@ class Spiral(Sequence):
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -655,7 +656,7 @@ class Bouncer(Chaos):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         position_x: Fraction = self._xn._rational
         position_y: Fraction = self._yn._rational
         while not tamed and count_down > 0:
@@ -672,13 +673,12 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] = new_position
-                increased_index += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = position_x
             self._yn._rational = position_y
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -760,16 +760,15 @@ class SinX(Chaos):
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_index: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 result = ra.Result(float(result) + float(self._lambda._rational) * math.sin(float(result)))._rational
-                increased_index += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._index += increased_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
