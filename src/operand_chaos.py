@@ -151,9 +151,7 @@ class Chaos(o.Operand):
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float() | Fraction():
-                if isinstance(self._next_operand, Chaos):
-                    self._next_operand << operand
-                self <<= operand    # Piped, to avoid infinite loop
+                self << od.Pipe(operand)    # Piped, to process it correctly
                 self._x0 << self._xn
             case tuple():
                 for single_operand in operand:
@@ -182,9 +180,6 @@ class Chaos(o.Operand):
         numeral: Fraction = self % od.Pipe(Fraction())
         tamed: bool = True
         if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-            # Starts by setting the tailed operand with self result
-            self << self % od.Pipe(Fraction())  # Propagates setting
-            
             numeral: Fraction = self._next_operand % od.Pipe(Fraction())
             numeral, tamed = self._next_operand.result(numeral)
         if tamed:
@@ -220,10 +215,8 @@ class Chaos(o.Operand):
         self._set           = False
         self._index         = -1    # -1 allows the return of the X0
         # RESET THE SELF OPERANDS RECURSIVELY
-        if isinstance(self._next_operand, Chaos):
-            self << self._next_operand.reset() % od.Pipe(Fraction())
-        elif isinstance(self._next_operand, o.Operand):
-            self << self._next_operand.reset()
+        if isinstance(self._next_operand, o.Operand):
+            self._next_operand.reset()
         self.reset_tamers()
         return self << parameters
 

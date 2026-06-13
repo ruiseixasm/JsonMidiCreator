@@ -111,6 +111,6 @@ def test_reset():
     chaos_copy.reset()
     assert chaos_copy == chaos
 
-# test_reset()
+test_reset()
 
 
