@@ -63,12 +63,6 @@ class Chaos(o.Operand):
             results.add(new_result)
         return -1
 
-
-    def tame(self, number: Fraction) -> bool:
-        # Makes sure it's a Rational first
-        rational: Fraction = ra.Rational(number) % Fraction()
-        return self._tamer.tame(rational, True)[1]
-
     def __str__(self) -> str:
         return f'{self._index + 1}: {self._xn % float()}'
     
@@ -192,6 +186,14 @@ class Chaos(o.Operand):
                 self.result(numeral, times)
             self._index += times
         return self
+    
+    def _next_result(self) -> Fraction:
+        return Fraction(0)
+
+    def tame(self, number: Fraction) -> bool:
+        # Makes sure it's a Rational first
+        rational: Fraction = ra.Rational(number) % Fraction()
+        return self._tamer.tame(rational, True)[1]
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -200,11 +202,11 @@ class Chaos(o.Operand):
         tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                ####################
-                # INSERT CODE HERE #
-                ####################
+                result = self._next_result()
                 tamer_index += 1
-            tamed = self.tame(result)
+            # Tame part
+            rational: Fraction = ra.Rational(result) % Fraction()
+            tamed = self._tamer.tame(rational, True)[1]
             count_down -= 1
         if tamed:
             self._xn._rational = result
@@ -297,6 +299,9 @@ class Sequence(Chaos):
                 super().__lshift__(operand)
         return self
 
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
@@ -380,6 +385,9 @@ class Cycle(Sequence):
         self._xn << self._xn % od.Pipe(Fraction()) % self._modulus
         return self
 
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
@@ -419,22 +427,25 @@ class Counter(Cycle):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
-        increased_count: int = 0
+        tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                increased_count += 1
-                actual_index: int = self._counter + increased_count
+                tamer_index += 1
+                actual_index: int = self._counter + tamer_index
                 result = actual_index % self._modulus
-                increased_count += 1
+                tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = result
-            self._counter += increased_count
+            self._counter += tamer_index
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -453,6 +464,10 @@ class Ripple(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
+
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
@@ -489,6 +504,10 @@ class Spiral(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
+    
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
@@ -652,6 +671,10 @@ class Bouncer(Chaos):
         self._yn << (self._yn % float()) % (self._height % float())
         return self
 
+
+    def _next_result(self) -> Self:
+        return self
+
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
@@ -754,6 +777,10 @@ class SinX(Chaos):
             case ra.X0():                   self._x0 << operand
             case _:
                 super().__lshift__(operand)
+        return self
+
+
+    def _next_result(self) -> Self:
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
