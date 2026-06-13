@@ -443,23 +443,6 @@ class Ripple(Sequence):
                 result += self._steps
         return result
 
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            for _ in range(iterations):
-                result = self._next_result(result)
-            tamed = self.tame(result)
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._initiated = True
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
-
 class Spiral(Sequence):
     """`Chaos -> Sequence -> Spiral`
 
@@ -480,24 +463,6 @@ class Spiral(Sequence):
         else:
             result += self._steps
         return result
-
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            for _ in range(iterations):
-                result = self._next_result(result)
-                self._tamer_tries += 1
-            tamed = self.tame(result)
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._initiated = True
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
 
 
 class Bouncer(Chaos):
