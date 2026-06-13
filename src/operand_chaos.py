@@ -374,11 +374,10 @@ class Cycle(Sequence):
         result %= self._modulus
         return result
 
-class Counter(Cycle):
-    """`Chaos -> Sequence -> Cycle -> Counter`
+class Counter(Sequence):
+    """`Chaos -> Sequence -> Counter`
 
-    The Xn represents the total number of completed cycles.
-    Contrary to modulus, the counter returns the amount of completed cycles.
+    Contrary to modulus, the counter doesn't do the modulus.
 
     Parameters
     ----------
@@ -395,29 +394,9 @@ class Counter(Cycle):
             self << single_parameter
 
     def _next_result(self, previous_result: Fraction) -> Fraction:
-        actual_index: int = self._counter + previous_result
-        result: Fraction = Fraction(actual_index % self._modulus)
+        result: Fraction = Fraction(previous_result + self._steps)
         return result
 
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            for _ in range(iterations):
-                self._tamer_tries += 1
-                result = self._next_result(self._tamer_tries)
-                self._tamer_tries += 1
-            tamed = self.tame(result)
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._counter += self._tamer_tries
-            self._initiated = True
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
 
 class Ripple(Sequence):
     """`Chaos -> Sequence -> Ripple`
@@ -465,6 +444,78 @@ class Spiral(Sequence):
         return result
 
 
+class SinX(Chaos):
+    """`Chaos -> SinX`
+
+    Represents a more traditional chaotic formulation with the use of the Sin function.
+
+    Parameters
+    ----------
+    Tamer() : The Tamer that adds criteria to the validation of each final result.
+    Xn(2), int, float : The resultant value of each iteration.
+    X0(Xn(2)) : The starting value of all iterations possible to reset to.
+    Lambda(77.238537) : Sets the lambda constant of the formula `Xn + Lambda * Sin(Xn)`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._xn                        << 2
+        self._x0                        << self._xn
+        self._lambda: ra.Lambda         = ra.Lambda(77.238537) # Can't be an integer in order to be truly chaotic !!
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Lambda():           return self._lambda
+                    case _:                     return super().__mod__(operand)
+            case ra.Lambda():           return self._lambda.copy()
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'SinX') -> bool:
+        if super().__eq__(other):
+            return  self._lambda == other % od.Pipe( ra.Lambda() )
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["lambda"] = self.serialize( self._lambda )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "lambda" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._lambda = self.deserialize( serialization["parameters"]["lambda"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case SinX():
+                super().__lshift__(operand)
+                self._lambda << operand._lambda
+            case od.Pipe():
+                match operand._data:
+                    case ra.Lambda():               self._lambda = operand._data
+                    case _:                         super().__lshift__(operand)
+            case ra.Lambda():               self._lambda << operand
+            case ra.Xn():                   self._xn << operand
+            case ra.X0():                   self._x0 << operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+    def _next_result(self, previous_result: Fraction) -> Fraction:
+        return ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
+
+
+
+
 class Bouncer(Chaos):
     """`Chaos -> Bouncer`
 
@@ -492,9 +543,6 @@ class Bouncer(Chaos):
         self._x0                = ra.X0(self._xn)
         self._yn: ra.Yn         = ra.Yn(self._height / 2 % Fraction())
         self._y0: ra.Y0         = ra.Y0(self._yn)
-        
-        self._position_x: Fraction = self._xn._rational
-        self._position_y: Fraction = self._yn._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -609,29 +657,26 @@ class Bouncer(Chaos):
         return self
 
 
-    def _next_result(self, previous_result: Fraction) -> Fraction:
-        self._position_x += self._dx._rational
-        self._position_x %= self._width._rational
-        self._position_y += self._dy._rational
-        self._position_y %= self._height._rational
-        return ra.Result(math.hypot(float(self._position_x), float(self._position_y)))._rational
-
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         self._tamer_tries = 0
-        self._position_x = self._xn._rational
-        self._position_y = self._yn._rational
+        position_x = self._xn._rational
+        position_y = self._yn._rational
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result = self._next_operand(result)
+                position_x += self._dx._rational
+                position_x %= self._width._rational
+                position_y += self._dy._rational
+                position_y %= self._height._rational
+                result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
                 self._tamer_tries += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
-            self._xn._rational = self._position_x
-            self._yn._rational = self._position_y
+            self._xn._rational = position_x
+            self._yn._rational = position_y
             self._initiated = True
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
@@ -643,74 +688,5 @@ class Bouncer(Chaos):
     def reset(self, *parameters) -> Self:
         self._yn << self._y0
         return super().reset(*parameters)
-
-class SinX(Chaos):
-    """`Chaos -> SinX`
-
-    Represents a more traditional chaotic formulation with the use of the Sin function.
-
-    Parameters
-    ----------
-    Tamer() : The Tamer that adds criteria to the validation of each final result.
-    Xn(2), int, float : The resultant value of each iteration.
-    X0(Xn(2)) : The starting value of all iterations possible to reset to.
-    Lambda(77.238537) : Sets the lambda constant of the formula `Xn + Lambda * Sin(Xn)`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._xn                        << 2
-        self._x0                        << self._xn
-        self._lambda: ra.Lambda         = ra.Lambda(77.238537) # Can't be an integer in order to be truly chaotic !!
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Lambda():           return self._lambda
-                    case _:                     return super().__mod__(operand)
-            case ra.Lambda():           return self._lambda.copy()
-            case _:                     return super().__mod__(operand)
-
-    def __eq__(self, other: 'SinX') -> bool:
-        if super().__eq__(other):
-            return  self._lambda == other % od.Pipe( ra.Lambda() )
-        return False
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["lambda"] = self.serialize( self._lambda )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "lambda" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._lambda = self.deserialize( serialization["parameters"]["lambda"] )
-        return self
-        
-    def __lshift__(self, operand: any) -> Self:
-        match operand:
-            case SinX():
-                super().__lshift__(operand)
-                self._lambda << operand._lambda
-            case od.Pipe():
-                match operand._data:
-                    case ra.Lambda():               self._lambda = operand._data
-                    case _:                         super().__lshift__(operand)
-            case ra.Lambda():               self._lambda << operand
-            case ra.Xn():                   self._xn << operand
-            case ra.X0():                   self._x0 << operand
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
-    def _next_result(self, previous_result: Fraction) -> Fraction:
-        return ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
 
 
