@@ -97,7 +97,7 @@ class Chaos(o.Operand):
                 if self._index < 0:
                     self._index = 0
                 else:
-                    self.iterate(1) # Does a single iteration
+                    self.iterate()  # Does a single iteration
                 result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
                 return result % operand
             case ou.Unit() | ra.Rational():
@@ -174,18 +174,19 @@ class Chaos(o.Operand):
     
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
         number = o.number_to_int(number) # Results in a int, like int(float)
-        return self.iterate(number)
+        if number > 0:
+            for _ in range(number):
+                self.iterate()
+        return self
     
-    def iterate(self, times: int = 1) -> Self:
-        if times > 0:
-            numeral: Fraction = self % od.Pipe(Fraction())
-            tamed: bool = True
-            if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
-                numeral: Fraction = self._next_operand % od.Pipe(Fraction())
-                numeral, tamed = self._next_operand.result(numeral, times)
-            if tamed:
-                self.result(numeral, times)
-            self._index += times
+    def iterate(self) -> Self:
+        numeral: Fraction = self % od.Pipe(Fraction())
+        tamed: bool = True
+        if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+            numeral: Fraction = self._next_operand % od.Pipe(Fraction())
+            numeral, tamed = self._next_operand.result(numeral)
+        if tamed:
+            self.result(numeral)
         return self
     
     def _next_result(self, previous_result: Fraction) -> Fraction:
@@ -196,15 +197,14 @@ class Chaos(o.Operand):
         rational: Fraction = ra.Rational(number) % Fraction()
         return self._tamer.tame(rational, True)[1]
 
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+    def result(self, numeral: Fraction) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
         self._tamer_tries = 0
         while not tamed and count_down > 0:
-            for _ in range(iterations):
-                result = self._next_result(result)
-                self._tamer_tries += 1
+            result = self._next_result(result)
+            self._tamer_tries += 1
             # Tame part
             rational: Fraction = ra.Rational(result) % Fraction()
             tamed = self._tamer.tame(rational, True)[1]
@@ -212,6 +212,7 @@ class Chaos(o.Operand):
         if tamed:
             self._xn._rational = result
             self._initiated = True
+            self._index += 1
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed
@@ -657,7 +658,7 @@ class Bouncer(Chaos):
         return self
 
 
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
+    def result(self, numeral: Fraction) -> tuple[Fraction, bool]:
         result: Fraction = numeral
         tamed: bool = False
         count_down: int = self._max_iterations
@@ -665,19 +666,19 @@ class Bouncer(Chaos):
         position_x = self._xn._rational
         position_y = self._yn._rational
         while not tamed and count_down > 0:
-            for _ in range(iterations):
-                position_x += self._dx._rational
-                position_x %= self._width._rational
-                position_y += self._dy._rational
-                position_y %= self._height._rational
-                result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
-                self._tamer_tries += 1
+            position_x += self._dx._rational
+            position_x %= self._width._rational
+            position_y += self._dy._rational
+            position_y %= self._height._rational
+            result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
+            self._tamer_tries += 1
             tamed = self.tame(result)
             count_down -= 1
         if tamed:
             self._xn._rational = position_x
             self._yn._rational = position_y
             self._initiated = True
+            self._index += 1
         else:
             print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
         return result, tamed

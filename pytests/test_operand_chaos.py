@@ -87,14 +87,33 @@ def test_chained_chaos():
 
     modulus_sinx = Cycle()**SinX()
     tailed_sinx = SinX()
+    wrapped_cycle = Cycle(SinX())
     assert modulus_sinx._next_operand == tailed_sinx
+    assert wrapped_cycle == modulus_sinx
+    modulus_sinx *= 1
+    wrapped_cycle << SinX() * 1
+    wrapped_cycle *= 1
+    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
+    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
+    assert wrapped_cycle == modulus_sinx
+    modulus_sinx.reset()
+    modulus_sinx *= 2
+    wrapped_cycle.reset()
+    wrapped_cycle << SinX() * 2
+    wrapped_cycle *= 2
+    print(f"SinX() * 2 % 12: {float(SinX() * 2 % Pipe(Fraction()) % 12)}")
+    print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
+    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
+    assert wrapped_cycle == modulus_sinx
+
+    wrapped_cycle *= 2
+    
 
     print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
     modulus_sinx *= 2.01    # same as Cycle(SinX() * 2) * 2
-    chained_cycle = Cycle(SinX() * 2) * 2
     print(f"modulus_sinx: {modulus_sinx % Pipe(float())}")
-    print(f"chained_cycle: {chained_cycle % Pipe(float())}")
-    assert chained_cycle == modulus_sinx
+    print(f"wrapped_cycle: {wrapped_cycle % Pipe(float())}")
+    assert wrapped_cycle == modulus_sinx
     assert modulus_sinx % Pipe(int()) < 12  # Pipe avoids iterations
 
     modulus = Cycle()   # Xn starts as 0
