@@ -634,7 +634,7 @@ class Bouncer(Chaos):
                     case int() | float() | Fraction():
                         operand_rational: Fraction = ra.Numeral(operand)._rational
                         if operand_rational != 0:
-                            hypotenuse: Fraction = self % operand_rational
+                            hypotenuse: Fraction = self % od.Pipe(operand_rational) # Avoid iteration
                             ratio: Fraction = hypotenuse / operand_rational
                             self._xn *= ratio
                             self._yn *= ratio
@@ -653,8 +653,8 @@ class Bouncer(Chaos):
             case _:
                 super().__lshift__(operand)
         # Final needed modulation
-        self._xn << (self._xn % float()) % (self._width % float())
-        self._yn << (self._yn % float()) % (self._height % float())
+        self._xn._rational = (self._xn._rational) % (self._width._rational)
+        self._yn._rational = (self._yn._rational) % (self._height._rational)
         return self
 
 
