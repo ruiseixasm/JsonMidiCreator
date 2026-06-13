@@ -203,7 +203,7 @@ class Chaos(o.Operand):
         self._tamer_tries = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result = self._next_result()
+                result = self._next_result(result)
                 self._tamer_tries += 1
             # Tame part
             rational: Fraction = ra.Rational(result) % Fraction()
@@ -304,24 +304,6 @@ class Sequence(Chaos):
         result: Fraction = previous_result + self._steps
         return result
 
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            for _ in range(iterations):
-                result = self._next_result(result)
-                self._tamer_tries += 1
-            tamed = self.tame(result)
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._initiated = True
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
-    
 
 class Cycle(Sequence):
     """`Chaos -> Sequence -> Cycle`
@@ -391,24 +373,6 @@ class Cycle(Sequence):
         result: Fraction = previous_result + self._steps
         result %= self._modulus
         return result
-
-    def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            for _ in range(iterations):
-                result = self._next_result(result)
-                self._tamer_tries += 1
-            tamed = self.tame(result)
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._initiated = True
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
 
 class Counter(Cycle):
     """`Chaos -> Sequence -> Cycle -> Counter`
