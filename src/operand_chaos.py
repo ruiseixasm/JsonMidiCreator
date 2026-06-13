@@ -184,14 +184,14 @@ class Chaos(o.Operand):
         return self
 
     def iterate(self, first: bool = True) -> Self:
-        numeral: Fraction = self % od.Pipe(Fraction())
+        previous_result: Fraction = self % od.Pipe(Fraction())
         if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
             if first:
-                self._next_operand._set_tail_previous_result(numeral)
+                self._next_operand._set_tail_previous_result(previous_result)
             self._next_operand.iterate(False)
             next_result: Fraction = self._next_operand % od.Pipe(Fraction())
             self << od.Pipe(next_result)
-        self.result(numeral)
+        self.result(previous_result)
         return self
     
     def _next_result(self, previous_result: Fraction) -> Fraction:
