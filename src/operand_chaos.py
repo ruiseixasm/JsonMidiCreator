@@ -187,7 +187,7 @@ class Chaos(o.Operand):
             self._index += times
         return self
     
-    def _next_result(self) -> Fraction:
+    def _next_result(self, numeral: Fraction) -> Fraction:
         return Fraction(0)
 
     def tame(self, number: Fraction) -> bool:
@@ -299,8 +299,9 @@ class Sequence(Chaos):
                 super().__lshift__(operand)
         return self
 
-    def _next_result(self) -> Self:
-        return self
+    def _next_result(self, numeral: Fraction) -> Fraction:
+        result: Fraction = numeral + self._steps
+        return result
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -309,7 +310,7 @@ class Sequence(Chaos):
         tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result += self._steps
+                result = self._next_result(result)
                 tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
@@ -385,8 +386,10 @@ class Cycle(Sequence):
         self._xn << self._xn % od.Pipe(Fraction()) % self._modulus
         return self
 
-    def _next_result(self) -> Self:
-        return self
+    def _next_result(self, numeral: Fraction) -> Fraction:
+        result: Fraction = numeral + self._steps
+        result %= self._modulus
+        return result
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -395,8 +398,7 @@ class Cycle(Sequence):
         tamer_index: int = 0
         while not tamed and count_down > 0:
             for _ in range(iterations):
-                result += self._steps
-                result %= self._modulus
+                result = self._next_result(result)
                 tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
@@ -427,8 +429,10 @@ class Counter(Cycle):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def _next_result(self) -> Self:
-        return self
+    def _next_result(self, numeral: Fraction) -> Fraction:
+        actual_index: int = self._counter + numeral
+        result: Fraction = Fraction(actual_index % self._modulus)
+        return result
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
         result: Fraction = numeral
@@ -438,8 +442,7 @@ class Counter(Cycle):
         while not tamed and count_down > 0:
             for _ in range(iterations):
                 tamer_index += 1
-                actual_index: int = self._counter + tamer_index
-                result = actual_index % self._modulus
+                result = self._next_result(tamer_index)
                 tamer_index += 1
             tamed = self.tame(result)
             count_down -= 1
@@ -465,7 +468,7 @@ class Ripple(Sequence):
     Steps(1), Step() : The increase amount for each iteration.
     """
 
-    def _next_result(self) -> Self:
+    def _next_result(self, numeral: Fraction) -> Fraction:
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
@@ -505,7 +508,7 @@ class Spiral(Sequence):
     Steps(1), Step() : The increase amount for each iteration.
     """
     
-    def _next_result(self) -> Self:
+    def _next_result(self, numeral: Fraction) -> Fraction:
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
@@ -672,7 +675,7 @@ class Bouncer(Chaos):
         return self
 
 
-    def _next_result(self) -> Self:
+    def _next_result(self, numeral: Fraction) -> Fraction:
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
@@ -780,7 +783,7 @@ class SinX(Chaos):
         return self
 
 
-    def _next_result(self) -> Self:
+    def _next_result(self, numeral: Fraction) -> Fraction:
         return self
 
     def result(self, numeral: Fraction, iterations: int = 1) -> tuple[Fraction, bool]:
