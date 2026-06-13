@@ -22,12 +22,15 @@ indochine_motif = Clip() << Line(
 indochine_motif[0] >> Print()
 
 def pre_exclusion(clip) -> bool:
-    """Makes sure each Note matches a specific duration pattern"""
-    # Last 4 notes must have the same duration
     return clip[0] != "C#7"
 
+def post_processing(clip) -> Composition:
+    
+    clip[0] << "C#7"
+    return clip
+
 octave_setter = I_Setter(Octave(), SinX(340, Interval([6, 8])))    # 8 is excluded
-semitone_setter = I_Setter(Semitone(), SinX(340, Interval([0, 12])), pre_exclusion=pre_exclusion, no_repetitions=True, max_tries=1000)
+semitone_setter = I_Setter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_processing=post_processing, no_repetitions=True, max_tries=1000)
 motif_generator = semitone_setter**octave_setter
 indochine_motif >> Plot(n_button=motif_generator.new_iteration)
 
