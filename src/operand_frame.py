@@ -1097,7 +1097,7 @@ class Every(Alternator):
         nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
     """
     def __init__(self, nth: int = 4):
-        import operand_container as oc        
+        import operand_container as oc
         super().__init__()
         self._measure_at: int = 0
         self._named_parameters['nths'] = nth
@@ -1136,25 +1136,8 @@ class Each(Every):
         index (int): The index input, as in each 0 or 2 index in each `Measure`.
     """
     def __init__(self, index: int = 0):
-        import operand_container as oc        
-        super().__init__(index)
-        self._previous_measure: oe.Element | oc.Composition | None = None
-
-    def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
-        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
-            present_measure: ra.Measure = input % ra.Measure()
-            if isinstance(self._previous_measure, ra.Measure) \
-                and self._previous_measure < present_measure:
-                    self._measure = 1   # Nth, the 1 means the 1st, countable
-            else:
-                self._measure_at += 1
-            self._previous_measure = present_measure    # Keeps track of the previous Measure
-            if (self._measure_at - 1) % self._named_parameters['nths'] == 0:    # Where index is considered
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
-        return ol.Null()
+        nth: int = index + 1
+        super().__init__(nth)
 
 
 class Nth(Alternator):

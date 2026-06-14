@@ -133,6 +133,24 @@ def test_every():
 # test_every()
 
 
+def test_each():
+
+    many_notes = Note() / 4 * 4 # 4 Measures long
+    assert many_notes % Duration() == Measures(4)
+    assert many_notes[2] == Octave(4)
+
+    many_notes << Each(2)**Octave(6)
+    for measure in range(4):
+        measure_notes = many_notes * [measure]
+        print(f"measure_notes[0] % Octave(): {measure_notes[0] % Octave() % int()}")
+        assert measure_notes[0] == Octave(4)    # index 0
+        assert measure_notes[1] == Octave(4)    # index 1
+        assert measure_notes[2] == Octave(6)    # index 2
+        assert measure_notes[3] == Octave(4)    # index 3
+
+# test_each()
+
+
 def test_conditional_clip_note():
     
     clip_note: Clip = Note() * 1
