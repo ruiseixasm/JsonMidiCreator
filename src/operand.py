@@ -1003,7 +1003,7 @@ class Operand:
             operand = source._get_tailed_operand()
             if isinstance(operand, Operand):
                 operand << result
-                return operand
+            source = operand
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_wrap(source)
