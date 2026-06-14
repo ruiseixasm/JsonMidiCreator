@@ -115,13 +115,13 @@ def test_foreach_mod():
 # test_foreach_mod()
 
 
-def test_each():
+def test_every():
 
     many_notes = Note() / 4 * 4 # 4 Measures long
     assert many_notes % Duration() == Measures(4)
     assert many_notes[2] == Octave(4)
 
-    many_notes << Foreach(3)**Octave(6)
+    many_notes << Every(3)**Octave(6)
     for measure in range(4):
         measure_notes = many_notes * [measure]
         print(f"measure_notes[0] % Octave(): {measure_notes[0] % Octave() % int()}")
@@ -130,7 +130,7 @@ def test_each():
         assert measure_notes[2] == Octave(6)    # 3rd
         assert measure_notes[3] == Octave(4)    # 4th
 
-# test_each()
+# test_every()
 
 
 def test_conditional_clip_note():
