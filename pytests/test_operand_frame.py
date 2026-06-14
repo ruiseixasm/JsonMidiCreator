@@ -117,17 +117,18 @@ def test_foreach_mod():
 
 def test_each():
 
-    many_notes = Note() / 9
+    many_notes = Note() / 4 * 4 # 4 Measures long
+    assert many_notes % Duration() == Measures(4)
+    assert many_notes[2] == Octave(4)
 
-    for single_note in many_notes:
-        assert single_note % Duration() == 1/4
-    
-    many_notes << Every(3)**Duration(1/8)
-    for i, value in enumerate(many_notes):
-        if (i + 1) in {3, 6, 9}:
-            assert value % Duration() == 1/8
-        else:
-            assert value % Duration() == 1/4
+    many_notes << Each(3)**Octave(6)
+    for measure in range(4):
+        measure_notes = many_notes * [measure]
+        print(f"measure_notes[0] % Octave(): {measure_notes[0] % Octave() % int()}")
+        assert measure_notes[0] == Octave(4)    # 1st
+        assert measure_notes[1] == Octave(4)    # 2nd
+        assert measure_notes[2] == Octave(6)    # 3rd
+        assert measure_notes[3] == Octave(4)    # 4th
 
 # test_each()
 
