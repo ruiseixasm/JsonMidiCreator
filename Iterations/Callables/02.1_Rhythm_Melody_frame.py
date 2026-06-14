@@ -15,13 +15,17 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
+settings << Tempo(137)
 indochine_motif = Clip() << Line(
     "n:2:C#7, :6:B6, :2:A6, :6:E7, :2:C#7, :6:B6, :2:A6, :6:E7, :2:C#7, :6:B6, :2:C#7, :22:A6"
 )
 
 indochine_motif[0] >> Print()
 
-next_notes = indochine_motif[First(2)] * 8 << Octave(7) << Match(Step(2))**Iterate()**Semitone()
+next_notes = indochine_motif[First(4)] * 4 << Octave(7) \
+    << Match(Step(2))**Semitone(4) \
+    << Match(Beat(2))**Semitone(1) \
+    << Match(Every(3))**Semitone(3)
 next_notes >> Plot()
 
 

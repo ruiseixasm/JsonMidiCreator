@@ -1090,23 +1090,40 @@ class Even(Alternator):
 class Every(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> Every`
 
-    An `Every` only lets every other nth inputs to be passed to the next `Frame`.
+    An `Every` only lets every other nth inputs to be passed to the next `Frame`
+    for each given `Measure`.
 
     Args:
-        nth (int): The nth input, as in every other 2nd or 4th.
+        nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
     """
     def __init__(self, nth: int = 4):
+        import operand_container as oc        
         super().__init__()
+        self._measure_at: int = 0
         self._named_parameters['nths'] = nth
+        self._previous_measure: oe.Element | oc.Composition | None = None
 
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self._measure_at = 0
+        self._previous_measure = None
+        return self << parameters
+    
     def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        if self._named_parameters['nths'] > 0 and self._index % self._named_parameters['nths'] == 0:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
-        else:
-            return ol.Null()
+        import operand_container as oc
+        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
+            present_measure: ra.Measure = input % ra.Measure()
+            if isinstance(self._previous_measure, ra.Measure) \
+                and self._previous_measure < present_measure:
+                    self._measure = 1   # Nth, the 1 means the 1st, countable
+            else:
+                self._measure_at += 1
+            self._previous_measure = present_measure    # Keeps track of the previous Measure
+            if self._measure_at % self._named_parameters['nths'] == 0:
+                if isinstance(self._next_operand, Frame):
+                    return self._next_operand.frame(input)
+                return self._next_operand
+        return ol.Null()
 
 class Nth(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> Nth`

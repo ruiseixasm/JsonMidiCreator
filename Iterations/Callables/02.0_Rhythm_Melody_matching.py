@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
+settings << Tempo(137)
 indochine_motif = Clip() << Line(
     "n:2:C#6, :6:B5, :2:A5, :6:E6, :2:C#6, :6:B5, :2:A5, :6:E6, :2:C#6, :6:B5, :2:C#6, :22:A5"
 )
