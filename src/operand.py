@@ -999,10 +999,9 @@ class Operand:
         """
         import operand_chaos as ch
         if isinstance(source, ch.Chaos):
-            result: Fraction = source % Fraction()
             operand = source._get_tailed_operand()
             if isinstance(operand, Operand):
-                operand << result
+                operand << source % Fraction()
             if operand is not None:
                 source = operand
         if isinstance(self._next_operand, Operand):
