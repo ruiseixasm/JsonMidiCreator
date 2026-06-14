@@ -57,7 +57,6 @@ PC = ProgramChange
 # Generic aliases
 TS = TimeSignature
 # Frame aliases
-Each = Foreach
 Equal = Match
 Greater = Above
 Less = Bellow

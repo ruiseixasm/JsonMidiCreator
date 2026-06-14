@@ -1126,35 +1126,35 @@ class Every(Alternator):
         return ol.Null()
 
 
-class Each(Every):
-    """`Frame -> Left -> InputFilter -> Alternator -> Every -> Each`
+# class Each(Every):
+#     """`Frame -> Left -> InputFilter -> Alternator -> Every -> Each`
 
-    An `Each` only lets every index value inputs to be passed to the next `Frame`
-    for each given `Measure`. This is 0-based while `Every` is 1-based.
+#     An `Each` only lets every index value inputs to be passed to the next `Frame`
+#     for each given `Measure`. This is 0-based while `Every` is 1-based.
 
-    Args:
-        index (int): The index input, as in each 0 or 2 index in each `Measure`.
-    """
-    def __init__(self, index: int = 0):
-        import operand_container as oc        
-        super().__init__(index)
-        self._previous_measure: oe.Element | oc.Composition | None = None
+#     Args:
+#         index (int): The index input, as in each 0 or 2 index in each `Measure`.
+#     """
+#     def __init__(self, index: int = 0):
+#         import operand_container as oc        
+#         super().__init__(index)
+#         self._previous_measure: oe.Element | oc.Composition | None = None
 
-    def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
-        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
-            present_measure: ra.Measure = input % ra.Measure()
-            if isinstance(self._previous_measure, ra.Measure) \
-                and self._previous_measure < present_measure:
-                    self._measure = 1   # Nth, the 1 means the 1st, countable
-            else:
-                self._measure_at += 1
-            self._previous_measure = present_measure    # Keeps track of the previous Measure
-            if (self._measure_at - 1) % self._named_parameters['nths'] == 0:    # Where index is considered
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
-        return ol.Null()
+#     def frame(self, input: o.T) -> o.T:
+#         import operand_container as oc
+#         if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
+#             present_measure: ra.Measure = input % ra.Measure()
+#             if isinstance(self._previous_measure, ra.Measure) \
+#                 and self._previous_measure < present_measure:
+#                     self._measure = 1   # Nth, the 1 means the 1st, countable
+#             else:
+#                 self._measure_at += 1
+#             self._previous_measure = present_measure    # Keeps track of the previous Measure
+#             if (self._measure_at - 1) % self._named_parameters['nths'] == 0:    # Where index is considered
+#                 if isinstance(self._next_operand, Frame):
+#                     return self._next_operand.frame(input)
+#                 return self._next_operand
+#         return ol.Null()
 
 
 class Nth(Alternator):

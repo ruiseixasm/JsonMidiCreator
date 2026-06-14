@@ -35,7 +35,7 @@ two_program_changes >> Play()
 YieldDegree()**YieldPattern() >> Plot(title="Triplet Notes", block=False)
 
 # Equivalent to the previous YieldPattern
-Note(Beats(2/3)) / Measure(4) << Each(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes", block=False)
+Note(Beats(2/3)) / Measure(4) << Foreach(1, 3, 5)**Degree() >> Plot(title="Equivalent Triplet Notes", block=False)
 
 
 YieldDegree()**YieldPattern(Channel(2), Octave(3)) + YieldDegree() >> Plot(title="Added Yields", block=False)

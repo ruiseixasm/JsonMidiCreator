@@ -36,14 +36,14 @@ whole_note = Note(1/1)**1
 
 
 melody = \
-    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
-    four_notes**Each("1", "2", "3", "4") / three_notes**"5" / \
-    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
-    four_notes**Each("1", "3", "5", "5") / whole_note**"3" / \
-    four_notes**"2" / three_notes**Each("2", "3", "4") / \
-    four_notes**"3" / three_notes**Each("3", "4", "5") / \
-    three_notes**Each("5", "3", "3") / three_notes**Each("4", "2", "2") / \
-    four_notes**Each("1", "3", "5", "5") / whole_note
+    three_notes**Foreach("5", "3", "3") / three_notes**Foreach("4", "2", "2") / \
+    four_notes**Foreach("1", "2", "3", "4") / three_notes**"5" / \
+    three_notes**Foreach("5", "3", "3") / three_notes**Foreach("4", "2", "2") / \
+    four_notes**Foreach("1", "3", "5", "5") / whole_note**"3" / \
+    four_notes**"2" / three_notes**Foreach("2", "3", "4") / \
+    four_notes**"3" / three_notes**Foreach("3", "4", "5") / \
+    three_notes**Foreach("5", "3", "3") / three_notes**Foreach("4", "2", "2") / \
+    four_notes**Foreach("1", "3", "5", "5") / whole_note
 melody << Title("Melody") << Velocity(85) >> Plot(block=False)
 
 

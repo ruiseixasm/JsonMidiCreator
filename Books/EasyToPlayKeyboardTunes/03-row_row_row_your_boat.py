@@ -41,7 +41,7 @@ melody //= Above(Bar(7))**Bellow(Bar(12))**Beats(1)
 melody >>= Match(Or(Bar(6), Bar(7)))**Merge()
 melody >>= Match(Or(Bar(14), Bar(15)))**Merge()
 
-melody << Each(
+melody << Foreach(
         "C", "C", "C", "D",   "E", "E", "D",
         "E", "F", "G",      "C", "C", "C",
         "G", "G", "G",      "E", "E", "E",    "C", "C", "C",

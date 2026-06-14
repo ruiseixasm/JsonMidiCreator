@@ -121,7 +121,7 @@ def test_each():
     assert many_notes % Duration() == Measures(4)
     assert many_notes[2] == Octave(4)
 
-    many_notes << Each(3)**Octave(6)
+    many_notes << Foreach(3)**Octave(6)
     for measure in range(4):
         measure_notes = many_notes * [measure]
         print(f"measure_notes[0] % Octave(): {measure_notes[0] % Octave() % int()}")

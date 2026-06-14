@@ -38,7 +38,7 @@ melody >>= Either(Bar(3), 5, 7)**DownTo(Beat(2))**Merge()
 melody //= Either(2, 6)**Bellow(Beat(2))**(1/8)
 melody //= Either(2, 6)**Above(Beat(2))**(1/8)
 
-melody += Each(
+melody += Foreach(
         -3, 2, 2, 2, 3,             2, 1, 1, 1,
         -3, -3, 1, 1, 1, 1, 2,      1, 0, 0,
         -3, 2, 2, 3,                2, 1, 1,

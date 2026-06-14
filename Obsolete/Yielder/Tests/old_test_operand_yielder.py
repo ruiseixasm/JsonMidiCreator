@@ -32,7 +32,7 @@ import sys
 
 def test_degrees():
 
-    four_measures = Note() / 4 * 4 << Each(1, 3, 5)**Degree()
+    four_measures = Note() / 4 * 4 << Foreach(1, 3, 5)**Degree()
     degree_yielder = YieldDegree()
     # four_measures >> Plot(title="Four Measures", block=False)
     # degree_yielder >> Plot(title="Degree Yielder")
@@ -63,7 +63,7 @@ def test_stretching():
 
 def test_extending():
 
-    four_measures = Note() / 4 << Each(1, 3, 5)**Degree()
+    four_measures = Note() / 4 << Foreach(1, 3, 5)**Degree()
     four_measures *= 6
     extended_yielder = Yielder(6)**YieldDegree(1)
     # four_measures >> Plot(title="Four Measures", block=False)
