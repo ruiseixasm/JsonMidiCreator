@@ -1269,10 +1269,6 @@ class Disable(Boolean):
     """`Unit -> Boolean -> Disable`"""
     pass
 
-class Quality(Boolean):
-    """`Unit -> Boolean -> Quality`"""
-    pass
-
 class Linear(Boolean):
     """`Unit -> Boolean -> Linear`
 
@@ -1280,6 +1276,10 @@ class Linear(Boolean):
     """
     pass
 
+
+class Quality(Boolean):
+    """`Unit -> Boolean -> Quality`"""
+    pass
 
 class Major(Quality):
     """`Unit -> Boolean -> Quality -> Major`
