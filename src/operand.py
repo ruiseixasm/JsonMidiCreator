@@ -997,11 +997,18 @@ class Operand:
         This excludes the classes `Frame`, `Chaos` and `Tamer` that have their own means of \
             processing tailed parameters.
         """
+        import operand_chaos as ch
+        if isinstance(source, ch.Chaos):
+            result: Fraction = source % Fraction()
+            operand = source._get_tailed_operand()
+            if isinstance(operand, Operand):
+                operand << result
+                return operand
         if isinstance(self._next_operand, Operand):
             # Recursively get result from the tail chain
             next_result = self._next_operand._tail_wrap(source)
             # Apply << operation between current next_operand and the result
-            return self._next_operand << next_result     
+            return self._next_operand << next_result 
         return source  # Return source if there is no next operand in the chain
 
 
