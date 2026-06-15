@@ -560,6 +560,10 @@ class Container(o.Operand):
                         operand._data._set_inside_container(self)
                         for single_item in self._foreground_items():
                             single_item << od.Pipe( operand._data.frame(single_item) )
+                    case ch.Chaos():
+                        for single_item in self._foreground_items():
+                            single_parameter = operand._data.chaoticize()
+                            single_item << od.Pipe( single_parameter )
                     case _: # operand is a Pipe
                         for single_item in self._foreground_items():
                             if isinstance (single_item, o.Operand):
@@ -591,6 +595,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item << operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item << single_parameter
             case _:
                 for single_item in self._foreground_items():
                     if isinstance (single_item, o.Operand):
