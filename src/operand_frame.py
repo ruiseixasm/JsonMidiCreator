@@ -82,6 +82,7 @@ class Frame(o.Operand):
         return self
     
     def _set_inside_container(self, container: 'Container') -> Self:
+        container._set = False   # In order to contained items know it was set by them (Element items)
         # Needs to propagate the settings to the next Frames
         # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
         if isinstance(self._next_operand, Frame):

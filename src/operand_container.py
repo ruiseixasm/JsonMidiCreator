@@ -556,7 +556,6 @@ class Container(o.Operand):
                     case bool():
                         self._masked = operand._data
                     case of.Frame():
-                        self._set = False   # In order to contained items know it was set by them (Element items)
                         operand._data._set_inside_container(self)
                         for single_item in self._foreground_items():
                             single_item << od.Pipe( operand._data.frame(single_item) )
@@ -591,7 +590,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self << single_operand
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item << operand.frame(single_item)
@@ -631,7 +629,6 @@ class Container(o.Operand):
             case tuple():
                 return super().__irshift__(operand)
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 unmasked_items: list = self._foreground_items()
                 for index, single_item in enumerate(unmasked_items):
@@ -664,7 +661,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self += single_operand
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item += operand.frame(single_item)
@@ -698,7 +694,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self -= single_operand
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item -= operand.frame(single_item)
@@ -737,7 +732,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__imul__(single_operand)
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item *= operand.frame(single_item)
@@ -770,7 +764,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item /= operand.frame(single_item)
@@ -792,7 +785,6 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
             case of.Frame():
-                self._set = False   # In order to contained items know it was set by them (Element items)
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item //= operand.frame(single_item)
