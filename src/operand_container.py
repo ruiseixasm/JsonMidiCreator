@@ -391,24 +391,40 @@ class Container(o.Operand):
                 return super().__eq__(other)
 
     def __lt__(self, other: any) -> bool:
-        if isinstance(other, of.Frame):
-            other._set_inside_container(self)
-            for single_item in self._items:
-                other_item = other.frame(single_item)
-                if not single_item < other_item:
-                    return False
-            return True
-        return super().__lt__(other)
+        match other:
+            case of.Frame():
+                other._set_inside_container(self)
+                for single_item in self._items:
+                    other_item = other.frame(single_item)
+                    if not single_item < other_item:
+                        return False
+                return True
+            case ch.Chaos():
+                for single_item in self._items:
+                    other_item = other.chaoticize()
+                    if not single_item < other_item:
+                        return False
+                return True
+            case _:
+                return super().__lt__(other)
 
     def __gt__(self, other: any) -> bool:
-        if isinstance(other, of.Frame):
-            other._set_inside_container(self)
-            for single_item in self._items:
-                other_item = other.frame(single_item)
-                if not single_item > other_item:
-                    return False
-            return True
-        return super().__gt__(other)
+        match other:
+            case of.Frame():
+                other._set_inside_container(self)
+                for single_item in self._items:
+                    other_item = other.frame(single_item)
+                    if not single_item > other_item:
+                        return False
+                return True
+            case ch.Chaos():
+                for single_item in self._items:
+                    other_item = other.chaoticize()
+                    if not single_item > other_item:
+                        return False
+                return True
+            case _:
+                return super().__gt__(other)
 
     def __mod__(self, operand: o.T) -> o.T:
         """
