@@ -55,6 +55,7 @@ class Chaos(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def _get_tailed_operand(self) -> o.Operand | None:
         match self._next_operand:
             case Chaos():
@@ -63,6 +64,13 @@ class Chaos(o.Operand):
                 return self._next_operand
         return None
 
+    def chaos(self) -> Any:
+        operand = self._get_tailed_operand()
+        if isinstance(operand, o.Operand):
+            return operand << self % Fraction()
+        return self % Fraction()
+
+        
     def first_collision_index(self, iterations: int = 100_000) -> int:
         results: set = set()
         for _ in range(iterations):
