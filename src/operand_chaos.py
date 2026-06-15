@@ -64,7 +64,7 @@ class Chaos(o.Operand):
                 return self._next_operand
         return None
 
-    def chaos(self) -> Any:
+    def chaoticize(self) -> Any:
         operand = self._get_tailed_operand()
         if isinstance(operand, o.Operand):
             return operand << self % Fraction()
