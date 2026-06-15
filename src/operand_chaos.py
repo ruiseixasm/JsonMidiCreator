@@ -66,9 +66,10 @@ class Chaos(o.Operand):
 
     def chaoticize(self) -> Any:
         operand = self._get_tailed_operand()
+        chaotic_number = self % Fraction()
         if isinstance(operand, o.Operand):
-            return operand << self % Fraction()
-        return self % Fraction()
+            return operand.copy(chaotic_number)
+        return chaotic_number
 
         
     def first_collision_index(self, iterations: int = 100_000) -> int:

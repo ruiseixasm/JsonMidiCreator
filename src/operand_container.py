@@ -102,19 +102,35 @@ class Container(o.Operand):
             index._set_inside_container(self)
             new_container = self.empty_copy()
             for single_element in self._foreground_items():
-                framed_result = index.frame(single_element)
-                if single_element == framed_result:
-                    new_container._append(single_element)
-            return new_container 
-        if isinstance(index, od.Pipe) and isinstance(index._data, of.Frame):
-            pipped_frame = index._data
-            pipped_frame._set_inside_container(self)
-            new_container = self.empty_copy()
-            for single_element in self._foreground_items():
-                framed_result = pipped_frame.frame(single_element)
-                if single_element == od.Pipe(framed_result):
+                frame_result = index.frame(single_element)
+                if single_element == frame_result:
                     new_container._append(single_element)
             return new_container
+        if isinstance(index, ch.Chaos):
+            new_container = self.empty_copy()
+            for single_element in self._foreground_items():
+                chaos_result = index.chaoticize()
+                if single_element == chaos_result:
+                    new_container._append(single_element)
+            return new_container
+        if isinstance(index, od.Pipe):
+            if isinstance(index._data, of.Frame):
+                pipped_frame = index._data
+                pipped_frame._set_inside_container(self)
+                new_container = self.empty_copy()
+                for single_element in self._foreground_items():
+                    frame_result = pipped_frame.frame(single_element)
+                    if single_element == od.Pipe(frame_result):
+                        new_container._append(single_element)
+                return new_container
+            if isinstance(index._data, ch.Chaos):
+                pipped_chaos = index._data
+                new_container = self.empty_copy()
+                for single_element in self._foreground_items():
+                    chaos_result = pipped_chaos.chaoticize()
+                    if single_element == od.Pipe(chaos_result):
+                        new_container._append(single_element)
+                return new_container
         if isinstance(index, int):
             return self._foreground_items()[index]
         for item in self._foreground_items():
