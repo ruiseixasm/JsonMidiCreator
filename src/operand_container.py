@@ -668,6 +668,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item += operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item += single_parameter
             case _:
                 for single_item in self._foreground_items():
                     single_item += operand
@@ -698,6 +702,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item -= operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item -= single_parameter
             case _:
                 for single_item in self._foreground_items():
                     single_item -= operand
@@ -733,6 +741,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item *= operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item *= single_parameter
             case _:
                 for item in self._foreground_items():
                     item.__imul__(operand)
@@ -762,6 +774,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item /= operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item /= single_parameter
             case _:
                 for item in self._foreground_items():
                     item.__itruediv__(operand)
