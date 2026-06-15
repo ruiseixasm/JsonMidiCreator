@@ -123,7 +123,7 @@ class Container(o.Operand):
                     if single_element == od.Pipe(frame_result):
                         new_container._append(single_element)
                 return new_container
-            if isinstance(index._data, ch.Chaos):
+            elif isinstance(index._data, ch.Chaos):
                 pipped_chaos = index._data
                 new_container = self.empty_copy()
                 for single_element in self._foreground_items():
@@ -796,6 +796,10 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self._foreground_items():
                     single_item //= operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    single_parameter = operand.chaoticize()
+                    single_item //= single_parameter
             case _:
                 for item in self._foreground_items():
                     item.__ifloordiv__(operand)
@@ -1063,14 +1067,26 @@ class Container(o.Operand):
                             framed_result = single_condition.frame(single_item)
                             if single_item != framed_result:
                                 excluded_item_ids.add(id(single_item))
+                    case ch.Chaos():
+                        for single_item in self._items:
+                            chaotic_result = single_condition.chaoticize()
+                            if single_item != chaotic_result:
+                                excluded_item_ids.add(id(single_item))
                     case _:
-                        if isinstance(single_condition, od.Pipe) and isinstance(single_condition._data, of.Frame):
-                            single_condition._set_inside_container(self)
-                            pipped_frame = single_condition._data
-                            for single_item in self._items:
-                                framed_result = pipped_frame.frame(single_item)
-                                if single_item != od.Pipe(framed_result):
-                                    excluded_item_ids.add(id(single_item))
+                        if isinstance(single_condition, od.Pipe):
+                            if isinstance(single_condition._data, of.Frame):
+                                single_condition._set_inside_container(self)
+                                pipped_frame = single_condition._data
+                                for single_item in self._items:
+                                    framed_result = pipped_frame.frame(single_item)
+                                    if single_item != od.Pipe(framed_result):
+                                        excluded_item_ids.add(id(single_item))
+                            elif isinstance(single_condition._data, ch.Chaos):
+                                pipped_frame = single_condition._data
+                                for single_item in self._items:
+                                    chaotic_result = pipped_frame.chaoticize()
+                                    if single_item != od.Pipe(chaotic_result):
+                                        excluded_item_ids.add(id(single_item))
                         else:
                             excluded_item_ids.update(
                                 id(single_item) for single_item in self._items
