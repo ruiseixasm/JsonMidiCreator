@@ -1130,6 +1130,11 @@ class Container(o.Operand):
                         for single_item in self._items:
                             if not single_item == single_condition.frame(single_item):
                                 excluded_item_ids.add(id(single_item))
+                    case ch.Chaos():
+                        for single_item in self._items:
+                            chaotic_result = single_condition.chaoticize()
+                            if not single_item == chaotic_result:
+                                excluded_item_ids.add(id(single_item))
                     case _:
                         excluded_item_ids.update(
                             id(single_item) for single_item in self._items
@@ -2690,16 +2695,6 @@ class Clip(Composition):  # Just a container of Elements
         self._time_signature << time_signature
         return self
 
-
-    def _index_from_frame(self, frame: 'of.Frame') -> int:
-        """
-        Read Only method
-        """
-        frame._set_inside_container(self)
-        for index, single_element in enumerate(self._foreground_items()):
-            if single_element == frame.frame(single_element):
-                return index
-        return None
 
     def _foreground_items(self) -> list['oe.Element']:
         return super()._foreground_items()
