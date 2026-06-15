@@ -377,8 +377,14 @@ class Container(o.Operand):
             case of.Frame():
                 other._set_inside_container(self)
                 for single_item in self._foreground_items():
-                    other_item = other.frame(single_item)
-                    if not single_item == other_item:
+                    other_frame = other.frame(single_item)
+                    if not single_item == other_frame:
+                        return False
+                return True
+            case ch.Chaos():
+                for single_item in self._foreground_items():
+                    other_chaoticize = other.chaoticize()
+                    if not single_item == other_chaoticize:
                         return False
                 return True
             case _:
