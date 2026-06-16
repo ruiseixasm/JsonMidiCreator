@@ -1095,7 +1095,7 @@ def test_part_operations():
     part_1 *= clip_2
     assert part_1.len() == 3
 
-# test_part_operations()
+test_part_operations()
 
 
 def test_clip_length():

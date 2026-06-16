@@ -1234,7 +1234,7 @@ class Composition(Container):
     def _total_elements(self) -> int:
         return 0
 
-    def _first_element(self) -> 'oe.Element':
+    def _first_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
 
@@ -1244,7 +1244,7 @@ class Composition(Container):
         Returns:
             Element: The first Element of all Elements.
         """
-        return super().first()
+        return super().first(include_masked)
 
     def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
@@ -1256,7 +1256,7 @@ class Composition(Container):
         Returns:
             Element: The last Element of all Elements.
         """
-        return super().last()
+        return super().last(include_masked)
 
     def _last_element_position(self, include_masked: bool = False) -> 'ra.Position':
         """
@@ -2691,11 +2691,13 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def _has_elements(self, include_masked: bool = False) -> bool:
-        if self._unmasked_items():
-            return True
-        return False
+        if include_masked:
+            return len(self._items) > 0
+        return len(self._unmasked_items()) > 0
 
     def _total_elements(self, include_masked: bool = False) -> int:
+        if include_masked:
+            return len(self._items)
         return len(self._unmasked_items())
 
 
@@ -2719,9 +2721,9 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self._has_elements():
+        if self._has_elements(include_masked):
             start_beats: Fraction = Fraction(0)
-            first_element: oe.Element = self._first_element()
+            first_element: oe.Element = self._first_element(include_masked)
             if first_element is not None:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
@@ -4559,19 +4561,25 @@ class Block(Composition):
         return self
 
 
-    def _has_elements(self) -> bool:
-        for single_clip in self._items:
-            if single_clip._has_elements():
+    def _has_elements(self, include_masked: bool = False) -> bool:
+        items_list: list[Clip] = self._items
+        if not include_masked:
+            items_list = self._unmasked_items()
+        for single_clip in items_list:
+            if single_clip._has_elements(include_masked):
                 return True
         return False
 
-    def _total_elements(self) -> int:
+    def _total_elements(self, include_masked: bool = False) -> int:
         total_elements: int = 0
-        for single_clip in self._items:
-            total_elements += single_clip._total_elements()
+        items_list: list[Clip] = self._items
+        if not include_masked:
+            items_list = self._unmasked_items()
+        for single_clip in items_list:
+            total_elements += single_clip._total_elements(include_masked)
         return total_elements
 
-    def _last_element(self) -> 'oe.Element':
+    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Block`.
 
@@ -4581,14 +4589,17 @@ class Block(Composition):
         Returns:
             Element: The last `Element` of all elements in each `Clip`.
         """
+        items_list: list[Clip] = self._items
+        if not include_masked:
+            items_list = self._unmasked_items()
         clips_list: list[Clip] = [
-            clip for clip in self._unmasked_items() if isinstance(clip, Clip)
+            clip for clip in items_list if isinstance(clip, Clip)
         ]
 
         last_element: oe.Element = None
         if len(clips_list) > 0:
             for clip in clips_list:
-                clip_last: oe.Element = clip._last_element()
+                clip_last: oe.Element = clip._last_element(include_masked)
                 if clip_last:
                     if last_element:
                         # Implicit conversion
