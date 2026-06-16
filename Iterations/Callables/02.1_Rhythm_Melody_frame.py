@@ -33,7 +33,7 @@ next_notes = indochine_motif \
     << Last(2)**Iterate(-4)**Semitone()
 
 last_notes = ~indochine_motif
-last_notes >> Mask(Last(2)) >> Plot()
+last_notes << Select(Last(2)) >> Plot()
 last_notes *= 4
 
 last_notes >> Plot()
